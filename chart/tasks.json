@@ -13966,13 +13966,15 @@
   "title": "S-65: The practice set job (mock exam variant; drafts output for Write with E.V.)",
   "dod": "Runs on v5 staging",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-b739",
+  "claimedAt": "2026-11-03T13:42:42.280Z"
  },
  {
   "id": "B-740",

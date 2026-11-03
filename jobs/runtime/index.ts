@@ -7,3 +7,5 @@ export type { Executor, Env } from './executors.ts';
 export { jobStatus } from './status.ts';
 export { runJob, workflowExecutor, cloudflareAdapter } from './workflow.ts';
 export type { Ceilings, StepHandlers } from './workflow.ts';
+export { runStructured, checkCitations } from './output.ts';
+export type { ModelCall, ModelReply } from './output.ts';
