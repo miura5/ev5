@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-451",
+  "date": "Nov 2",
+  "title": "CONTRACT's hard limits are five, and Matt says yes to them: data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money or account change without him",
+  "why": "Matt asked for a critical review: limits should be only what an agent can't undo. Canvas mechanism, same Worker and models-from-docs became ordinary rules; synthetic-outside-repo narrowed to §sec.live-data; nothing-outside-repo-deleted folded into §hard.data-never-lost and §deliver.cleanup. This is Matt's yes for Gate 0.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, build chat 2026-11-02"
+ },
+ {
   "id": "D-450",
   "date": "Nov 2",
   "title": "The evening command does the prep check; weak-spot parking stays retired as in ev4",
