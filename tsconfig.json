@@ -13,6 +13,6 @@
     "allowImportingTsExtensions": true,
     "types": ["vite/client"]
   },
-  "include": ["areas", "shell", "kit", "domain", "commands", "server", "vite.config.ts"],
-  "exclude": ["server/**/*.test.ts", "kit/tokens/tokens.test.ts"]
+  "include": ["e2e", "areas", "shell", "kit", "domain", "commands", "server", "vite.config.ts"],
+  "exclude": ["e2e/playwright.visual.config.ts", "server/**/*.test.ts", "kit/tokens/tokens.test.ts"]
 }

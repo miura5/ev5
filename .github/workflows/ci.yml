@@ -32,3 +32,27 @@ jobs:
       - run: node ops/record/cli.ts render --check
       - run: node ops/checks/cli.ts
       - run: node ops/generate/cli.ts --check
+
+  visual:
+    name: visual
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baselines present?
+        id: baselines
+        run: |
+          if ls e2e/baselines/*.png >/dev/null 2>&1; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::warning::No /kit baselines committed yet; run the visual-baselines workflow on this branch."; fi
+      - if: steps.baselines.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - if: steps.baselines.outputs.present == 'true'
+        run: npm ci
+      - if: steps.baselines.outputs.present == 'true'
+        run: e2e/visual-docker.sh
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff
+          path: test-results/
