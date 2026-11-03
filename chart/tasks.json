@@ -13781,13 +13781,15 @@
   "title": "S-50: The migration baseline and the deletions table",
   "dod": "Baseline is a no-op on a copy of ev4's schema",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-729",
+  "claimedAt": "2026-11-03T09:09:41.680Z"
  },
  {
   "id": "B-730",
