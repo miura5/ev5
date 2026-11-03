@@ -29,9 +29,9 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 ## 3. One build run, step by step
 
 1. **Read** `docs/handover.md`, then CONTRACT.md (PLAN.md before Phase 0's gate).
-2. **Check on last run's work:** open PRs, CI results, staging health. A red main is fixed first, before anything else.
+2. **Check on last run's work:** open PRs, CI results, staging health. A red main, or a red `staging` deploy on main, is fixed first, before anything else.
 3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live", "go back"). File each one in the Chart. A bug that breaks studying jumps the queue.
-4. **Pick the batch:** the lowest open tasks whose dependencies are done, within the current phase, sized so the batch can reach a staging deploy or a gate in this run.
+4. **Pick the batch:** the lowest open tasks whose dependencies are done, within the current phase, sized so the batch can reach a staging deploy or a gate in this run. A gate held up only by Matt or an outside input doesn't stop the build: start the next phase's tasks that don't need that input, and close the gate when it arrives. Gate 6 (before Matt tests) and anything live still wait for every earlier gate.
 5. **Claim** each task in the Chart (the claim is the lock), then start builders: one task each, with its slice and context (§5).
 6. **Merge:** each builder opens a PR from a `claude/` branch. GitHub runs every check, and auto-merge lands it on green. Nothing reaches main any other way.
 7. **Ship staging:** merging to main deploys the v5 staging Worker automatically. When a batch changes model behaviour, a job or an outside call, do **one real end-to-end run** on staging.

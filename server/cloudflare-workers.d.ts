@@ -15,3 +15,9 @@ declare module "cloudflare:workers" {
     ): Promise<unknown>;
   }
 }
+
+// wrangler.jsonc bundles *.md as Text modules (job prompts).
+declare module "*.md" {
+  const text: string;
+  export default text;
+}
