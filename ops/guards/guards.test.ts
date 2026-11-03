@@ -37,7 +37,8 @@ function sandbox(files: Files): string {
 }
 
 function run(cwd: string, cmd: string, args: string[]): { code: number | null; out: string } {
-  const { NODE_TEST_CONTEXT: _, ...env } = process.env; // else a nested `node --test` thinks it is this run
+  // NODE_TEST_CONTEXT: else a nested `node --test` thinks it is this run. GITHUB_BASE_REF: the temp repo has no git history.
+  const { NODE_TEST_CONTEXT: _, GITHUB_BASE_REF: __, ...env } = process.env;
   const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', env });
   return { code: r.status, out: `${r.stdout}${r.stderr}` };
 }
