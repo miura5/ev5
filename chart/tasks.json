@@ -13284,7 +13284,7 @@
   "milestone": "v5 P0",
   "status": "in progress",
   "depends": [],
-  "notes": "Part 1 (limits) done in bff3100. Part 2 needs throwaway deploys, not allowed in the build chat",
+  "notes": "Part 1 done in bff3100. Part 2 in progress on claude/B-697-spike-workflows (build run 2026-11-03; the earlier chat claim was stale)",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-chat-2026-11-02",

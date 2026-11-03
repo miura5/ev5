@@ -1,5 +1,5 @@
 ## Phase      0 · gate items 5 / 6 (S-04, S-05, S-06, S-08 done; Matt's yes on the hard limits, D-451; S-07 part 2 open)
-## Running    nothing
+## Running    B-697 (S-07 part 2) · claude/B-697-spike-workflows · 2026-11-03; PR #14 adds spike.yml. After it merges: dispatch `spike` (action run), read logs, write results into docs/spikes/S-07-workflows.md, then dispatch action cleanup. Docs site was unreachable from the cloud session (not on its allowed domains); the wrangler config is from memory, so expect a fix-up round. Test 4 uses limits.cpu_ms=10 to emulate Free
 ## Waiting on Matt   nothing
 ## Next       S-07 part 2 (B-697), then record Gate 0 (B-700) and start Phase 1 (S-10 onward)
 ## Staging    none yet   ## Live  ev4 build (unchanged)
