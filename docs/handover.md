@@ -1,12 +1,12 @@
 ## Phase      1 · gate items 0 / 8 (Gate 0 passed, D-455)
-## Running    S-10 (B-701) · PR #18 (claude/B-701-ts-base), auto-merge on green · 2026-11-03; after it merges, set B-701 done with the squash commit hash
+## Running    nothing
 ## Waiting on Matt   nothing
-## Next       S-11 (B-702) lint guards, S-12, S-13 in order; S-15 CI and S-16 staging Worker need the Phase 1 base first
+## Next       S-11 (B-702) now unblocked; (B-702) lint guards, S-12, S-13 in order; S-15 CI and S-16 staging Worker need the Phase 1 base first
 ## Staging    none yet   ## Live  ev4 build (unchanged)
 
 ### Last run (2026-11-03, second run)
-- B-701 built: strict TS, Vite 8, React 19, Vitest (jsdom), `areas/hello`; CI adds `tsc` and `vite build`. Packages pinned to exact versions found via `npm view`. Local node is 22 (engines says >=26; CI uses 26).
-- S-11 (B-702) waits on #18 merging, as the lint guards need the TS base.
+- B-701 built and merged: strict TS, Vite 8, React 19, Vitest (jsdom), `areas/hello`; CI adds `tsc` and `vite build`. Packages pinned to exact versions found via `npm view`. Local node is 22 (engines says >=26; CI uses 26).
+- #18 merged (3c295b3); B-701 is done in the Chart. S-11 (B-702) is next.
 
 ### Earlier run (2026-11-03)
 - S-07 part 2 done: Workflows passes all four tests on the Free plan, so no C5 question (report: docs/spikes/S-07-workflows.md). The account is on Free (Cloudflare refuses `limits.cpu_ms` there). Follow-ups: real Zod CPU check in S-64; fate of a mid-sleep instance under a binding-removing redeploy in S-17.

@@ -13344,12 +13344,12 @@
   "title": "S-10: TypeScript, Vite, React and Vitest base, with one \"hello\" area",
   "dod": "Builds and tests green in CI",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "3c295b3",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-run-2026-11-03",
   "claimedAt": "2026-11-03T03:52:40.619Z"
