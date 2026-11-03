@@ -13663,13 +13663,15 @@
   "title": "S-47: Entity: note",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "aba0a5f",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:09:17.471Z"
  },
  {
   "id": "B-722",
