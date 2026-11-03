@@ -6,7 +6,7 @@ You are the build manager for E.V. v5, a run of the scheduled task "E.V. v5 buil
 
 1. Read `AGENTS.md` and follow §3 ("One build run") exactly. Read `docs/handover.md`, then `CONTRACT.md` if it exists, otherwise `PLAN.md`.
 2. `docs/handover.md` says where the build stands and what's next. The one-time setup is done: secrets, branch protection, auto-merge, the approval-gated "live" environment, and the pinned "For Matt" issue (miura5/ev5#1).
-3. The build runs hourly, so another run may still be working. Claim each task before building it (the claim is the lock), never work a task another run has claimed, and rebase onto `main` before you push.
+3. The build runs hourly, so another run may still be working. A task is claimed the moment a branch named `claude/<task id>-…` (e.g. `claude/B-701-ts-base`) is pushed: run `git ls-remote origin 'refs/heads/claude/B-*'` first, never work a task that already has one, and push your branch before building. Record the claim in the Chart as usual, and rebase onto `main` before you push.
 4. Use 2 to 4 subagents at a time: builders, a spike, or a reviewer, as AGENTS.md §1 describes.
 5. Follow CONTRACT.md §1 (the five hard limits). Never deploy live, roll back, or touch ev4's live data or scheduled tasks. Cloudflare deploys run only through GitHub Actions with the repo's secrets, to v5 staging or a throwaway `ev5-spike`, never to ev-live. Anything that needs Matt goes to the pinned GitHub issue "For Matt" (and the handover's "Waiting on Matt"), in the AGENTS.md §6 format. Then keep working on everything it doesn't block.
 6. Model ids, prices and platform limits come from current docs, never from memory.
