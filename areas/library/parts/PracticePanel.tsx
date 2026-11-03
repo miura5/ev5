@@ -1,4 +1,5 @@
-import { Button } from "../../../kit/index.ts";
+import { useState } from "react";
+import { Button, EvLine } from "../../../kit/index.ts";
 import type { PracticeSession } from "../types.ts";
 
 export interface PracticePanelProps {
@@ -13,6 +14,7 @@ export function PracticePanel({
   onCommit,
   onEnd,
 }: PracticePanelProps) {
+  const [hinted, setHinted] = useState(false);
   if (!session)
     return <span className="ev-library-meta">No practice running.</span>;
   return (
@@ -42,8 +44,14 @@ export function PracticePanel({
           {o}
         </label>
       ))}
+      {hinted && session.hint ? <EvLine quiet>{session.hint}</EvLine> : null}
       <div className="ev-library-card-foot">
         <span className="ev-library-meta">{session.source}</span>
+        {session.hint && !hinted ? (
+          <Button kind="text" onClick={() => setHinted(true)}>
+            Hint
+          </Button>
+        ) : null}
         <Button kind="primary" type="submit">
           Commit answer
         </Button>
