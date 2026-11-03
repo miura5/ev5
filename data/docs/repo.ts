@@ -1,24 +1,23 @@
 // The ev4 write protocol (data/compat) over D1's `docs(c, id, data, at, v)` table. There is no delete path:
 // `markDeleted` writes a `deletions(c, id, at)` row (§delete.soft) and removes nothing.
+// It imports compat's protocol and canonical files, not its index: the index reaches the frozen schema loader (node:fs),
+// which a Worker bundle cannot carry. The checked repository, with ev4's Worker check, is in ./checked.ts.
+import { canonicalJson, canonicalText, type Json } from "../compat/canonical.ts";
 import {
-  canonicalJson,
-  canonicalText,
   checkWrites,
   planBatch,
   staleRefusal,
   validCollection,
   validDocId,
   type BatchResult,
-  type Json,
   type PlannedRow,
   type ProtocolAdapter,
   type SaveResult,
   type StoredDoc,
   type Write,
   type WriteProblem,
-} from "../compat/index.ts";
+} from "../compat/protocol.ts";
 import type { D1Like, D1Statement } from "./d1.ts";
-import { parsingProblem, type ParserRegistry } from "./registry.ts";
 
 /** How far back `changedSince` hands the next `since`, so a write stamped just before a read is read again. */
 const OVERLAP_MS = 5000;
@@ -34,9 +33,7 @@ interface Row {
 export interface DocsOptions {
   /** The Worker clock, in ms. */
   clock: () => number;
-  /** c -> domain parser; a write to such a collection must parse, after ev4's Worker check. Default: none. */
-  parsers?: ParserRegistry;
-  /** Replaces the whole per-document write check (default: ev4's Worker check, then `parsers`). */
+  /** The per-document write check (default: none; ./checked.ts adds ev4's Worker check and the domain parsers). */
   problem?: WriteProblem | null;
 }
 
@@ -57,7 +54,7 @@ const stored = (r: Row): StoredDoc => ({
 
 export function docsRepo(
   db: D1Like,
-  { clock, parsers = {}, problem = parsingProblem(parsers) }: DocsOptions,
+  { clock, problem = null }: DocsOptions,
 ): DocsRepo {
   const one = (c: string, id: string) =>
     db.prepare(`${SELECT} WHERE c = ? AND id = ?`).bind(c, id).first<Row>();
