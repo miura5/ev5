@@ -1,5 +1,35 @@
 [
  {
+  "id": "D-454",
+  "date": "Nov 2",
+  "title": "Canvas sync stays on the Mac through Matt's signed-in browser, as in ev4",
+  "why": "Matt chose the Mac over trying a Canvas token. S-81 needs him present once.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, build chat 2026-11-02"
+ },
+ {
+  "id": "D-453",
+  "date": "Nov 2",
+  "title": "Matt's OK for S-53: one read-only, counts-only parse of a restricted scratch copy of live data",
+  "why": "Given ahead of Phase 3 so the build doesn't stop for it. Counts and errors only; no content shown to anyone.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, build chat 2026-11-02"
+ },
+ {
+  "id": "D-452",
+  "date": "Nov 2",
+  "title": "The build runs hourly, nonstop, until cutover",
+  "why": "Matt wants development nonstop until v5 is on staging and live. Hourly (7 past each hour) is the minimum interval; runs can overlap, so the task claim is the lock and a run never works a task another run claimed. Risk accepted: hourly runs share plan usage with ev4's scheduled runs.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, build chat 2026-11-02"
+ },
+ {
   "id": "D-451",
   "date": "Nov 2",
   "title": "CONTRACT's hard limits are five, and Matt says yes to them: data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money or account change without him",

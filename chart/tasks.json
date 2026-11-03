@@ -13791,7 +13791,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "",
+  "notes": "Matt's OK given ahead (D-453): run it when Phase 3 reaches it, counts only",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },

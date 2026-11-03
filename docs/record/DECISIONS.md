@@ -7,6 +7,9 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-454 | Nov 2 | Canvas sync stays on the Mac through Matt's signed-in browser, as in ev4 | Matt chose the Mac over trying a Canvas token. S-81 needs him present once. | accepted |  |
+| D-453 | Nov 2 | Matt's OK for S-53: one read-only, counts-only parse of a restricted scratch copy of live data | Given ahead of Phase 3 so the build doesn't stop for it. Counts and errors only; no content shown to anyone. | accepted |  |
+| D-452 | Nov 2 | The build runs hourly, nonstop, until cutover | Matt wants development nonstop until v5 is on staging and live. Hourly (7 past each hour) is the minimum interval; runs can overlap, so the task claim is the lock and a run never works a task another run claimed. Risk accepted: hourly runs share plan usage with ev4's scheduled runs. | accepted |  |
 | D-451 | Nov 2 | CONTRACT's hard limits are five, and Matt says yes to them: data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money or account change without him | Matt asked for a critical review: limits should be only what an agent can't undo. Canvas mechanism, same Worker and models-from-docs became ordinary rules; synthetic-outside-repo narrowed to §sec.live-data; nothing-outside-repo-deleted folded into §hard.data-never-lost and §deliver.cleanup. This is Matt's yes for Gate 0. | accepted |  |
 | D-450 | Nov 2 | The evening command does the prep check; weak-spot parking stays retired as in ev4 | ev4 retired parking; cutover matches ev4, so PLAN §8's 'evening weak-spot parking' is read as the evening prep check. | accepted |  |
 | D-449 | Nov 2 | Keep Matt's Mac backups (nightly plus Sunday mirror) in the v5 export design | A copy Matt owns outside Cloudflare; data safety comes first. | accepted |  |
