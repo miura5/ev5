@@ -14014,7 +14014,7 @@
   "title": "G-4: Gate 4: commands, runtime, server",
   "dod": "PLAN §13 Phase 4 gate items all true",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-734",
    "B-735",
@@ -14027,7 +14027,9 @@
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run24",
+  "claimedAt": "2026-11-03T21:39:52.361Z"
  },
  {
   "id": "B-743",
