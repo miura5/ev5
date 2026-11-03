@@ -91,6 +91,75 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-687 | Bug (reported Nov 1): In Conversation, his own message bubble wraps a short two-line message early and right-aligns the text inside it, so a line ends ragged on the left with a wide box; his bubbles should size to their text and read left-aligned. Done when: His message bubbles size to their text up to a set max width, with text left-aligned inside a right-aligned bubble; a one-line, two-line and long message look right at 1280 and in the narrow window; pixdiff limited to his bubbles. | — | UI polish | open |  |
 | B-688 | Bug (reported Nov 1): Asked 'is the mock exam ready yet', E.V. said she can't see its status and offered to write another, though the practice job's state (writing, posted, failed) is in the record; she should answer from it. Done when: E.V. can read the state of practice jobs she started in this thread (writing, posted with its card, failed with why) and answers 'is it ready' from it, never offering a duplicate while one is writing; a unit test pins the tool result; seen once on staging. | — | UI polish | open |  |
 | B-689 | Request (reported Nov 2): A keyboard shortcut that opens the E.V. agent window from any view and hides it again. Done when: Cmd+J (Ctrl+J elsewhere) toggles the E.V. agent window from any view: open puts the caret in its input, again (or Esc) hides it and returns focus; it works while typing in a note; shown in the button's tooltip and the Cmd+K menu; checked in the installed app window that Chrome does not take the key; a harness check pins the toggle. | — | UI polish | open |  |
+| B-695 | S-05: Sweep the accepted decisions and PLAN §2–§12 into CONTRACT.md, with §ids, and list the ended rules Done when: CONTRACT.md exists; its hard-limits section is marked for Matt's yes | — | v5 P0 | in progress |  |
+| B-696 | S-06: data/compat: frozen ev4 schemas, protocol tests, ev4's route list Done when: The compat tests pass against the reference adapter | — | v5 P0 | in progress |  |
+| B-697 | S-07: Spike: Workflows on the current plan tier Done when: A report with pass/fail per PLAN §13 item and a recommendation | — | v5 P0 | in progress |  |
+| B-698 | S-08: Spike: the notes editor round trip (ProseMirror/Tiptap ⇄ ev4 blocks) Done when: A report with pass/fail per block type and harness behaviour | — | v5 P0 | in progress |  |
+| B-699 | S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec Done when: Shipped through ev4's own process; not built here | — | v5 P0 | blocked | ev4 task: ships through ev4's own process, never from this repo |
+| B-700 | G-0: Gate 0: decide and freeze Done when: S-04…S-08 done and Matt's yes on the CONTRACT hard limits | B-691, B-692, B-693, B-694, B-695, B-696, B-697, B-698 | v5 P0 | open |  |
+| B-701 | S-10: TypeScript, Vite, React and Vitest base, with one "hello" area Done when: Builds and tests green in CI | B-700 | v5 P1 | open |  |
+| B-702 | S-11: ESLint, dependency-cruiser, Stylelint (tokens only), knip, per PLAN §4 and §11 Done when: Each runs in CI | B-700 | v5 P1 | open |  |
+| B-703 | S-12: Custom checks: presence, registry-only definitions, CONTRACT/skill/README rule check, interface trailer, secrets scan Done when: Each runs in CI | B-700 | v5 P1 | open |  |
+| B-704 | S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI Done when: CI fails on a stale generated file | B-700 | v5 P1 | open |  |
+| B-705 | S-14: Guard-failure fixtures: one PR per guard that must go red, recorded Done when: Every PLAN §13 Phase 1 guard shown red | B-700 | v5 P1 | open |  |
+| B-706 | S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live Done when: Staging deploys on merge; live waits in the live environment | B-700 | v5 P1 | open |  |
+| B-707 | S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record Done when: The empty app answers on staging | B-700 | v5 P1 | open |  |
+| B-708 | S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair Done when: Rehearsal 1 passes all five steps | B-700 | v5 P1 | open |  |
+| B-709 | G-1: Gate 1: repo, guards, walking skeleton Done when: Every guard shown to fail, and rehearsal 1 passes | B-701, B-702, B-703, B-704, B-705, B-706, B-707, B-708 | v5 P1 | open |  |
+| B-710 | S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception Done when: Tokens match the mock-up | B-709 | v5 P2 | open |  |
+| B-711 | S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts Done when: All 15 components have stories and tests | B-709 | v5 P2 | open |  |
+| B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open |  |
+| B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
+| B-714 | S-40: domain/time with the DST tests and the "due by Central date" rule Done when: DST tests pass on 2026-11-01 and 2027-03-14 | B-709 | v5 P3 | open |  |
+| B-715 | S-41: Entity: exam Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-716 | S-42: Entity: objective Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-717 | S-43: Entity: weak spot, with its fixed-interval scheduler Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-718 | S-44: Entity: set Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-719 | S-45: Entity: item Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-720 | S-46: Entity: session Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-721 | S-47: Entity: note Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-722 | S-48: Entity: course Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
+| B-723 | S-48a: New entities: collection and membership (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
+| B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
+| B-725 | S-48c: New entity: item properties with repeat (PLAN §5.10) Done when: Migration, repository and compat fixture; materialization idempotent | B-709 | v5 P3 | open |  |
+| B-726 | S-48d: New entities: own set, items and attempts (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
+| B-727 | S-48e: New entity: draft (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
+| B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open |  |
+| B-729 | S-50: The migration baseline and the deletions table Done when: Baseline is a no-op on a copy of ev4's schema | B-709 | v5 P3 | open |  |
+| B-730 | S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch Done when: Counts and SHA-256 match after restore | B-709 | v5 P3 | open |  |
+| B-731 | S-52: domain/search and its retrieval test set Done when: The retrieval test set passes | B-709 | v5 P3 | open |  |
+| B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | open |  |
+| B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731, B-732 | v5 P3 | open |  |
+| B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713, B-733 | v5 P4 | open |  |
+| B-735 | S-61: The job record, defineJob, executors and job_status Done when: Job lifecycle tests pass | B-713, B-733 | v5 P4 | open |  |
+| B-736 | S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation Done when: Continuation is idempotent | B-713, B-733 | v5 P4 | open |  |
+| B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713, B-733 | v5 P4 | open |  |
+| B-738 | S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date Done when: A forced invalid output and max_tokens fail cleanly | B-713, B-733 | v5 P4 | open |  |
+| B-739 | S-65: The practice set job (mock exam variant; drafts output for Write with E.V.) Done when: Runs on v5 staging | B-713, B-733 | v5 P4 | open |  |
+| B-740 | S-66: The study plan job Done when: Runs on v5 staging | B-713, B-733 | v5 P4 | open |  |
+| B-741 | S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s Done when: Route tests pass | B-713, B-733 | v5 P4 | open |  |
+| B-742 | G-4: Gate 4: commands, runtime, server Done when: PLAN §13 Phase 4 gate items all true | B-734, B-735, B-736, B-737, B-738, B-739, B-740, B-741 | v5 P4 | open |  |
+| B-743 | S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-744 | S-71: Activity Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-747 | S-74: Ask E.V. Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | open |  |
+| B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
+| B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |
+| B-754 | S-80: Scheduled commands: morning, evening, weekly Done when: Tested across DST | B-753 | v5 P6 | open |  |
+| B-755 | S-81: The Mac executor for Canvas (needs Matt present) Done when: Canvas sync reports through report_job | B-753 | v5 P6 | open |  |
+| B-756 | S-82: The push task (C7) Done when: A push reaches the phone from v5's summary | B-753 | v5 P6 | open |  |
+| B-757 | S-83: Restore drills, including a Time Travel restore on staging Done when: Drills pass for every table | B-753 | v5 P6 | open |  |
+| B-758 | S-84: Rehearsal 2 Done when: All five steps pass | B-753 | v5 P6 | open |  |
+| B-759 | S-85: One end-to-end run Done when: Passes on staging | B-753 | v5 P6 | open |  |
+| B-760 | G-6: Gate 6: ops Done when: The end-to-end run, both drills and rehearsal 2 pass | B-754, B-755, B-756, B-757, B-758, B-759 | v5 P6 | open |  |
+| B-761 | S-90: The whole-repo review Done when: No open findings on lost data, cost, security, crashes, unreachable controls | B-760 | v5 P7 | open |  |
+| B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
+| B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 
 ## Your turn
 
