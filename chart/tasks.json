@@ -14093,13 +14093,15 @@
   "title": "S-74: Ask E.V.",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-747-ask",
+  "claimedAt": "2026-11-03T22:12:02.645Z"
  },
  {
   "id": "B-748",
