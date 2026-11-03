@@ -1,0 +1,41 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+}
+
+.shell-side {
+  flex: 0 0 var(--side-w);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-2);
+  background: var(--side);
+  overflow-y: auto;
+}
+
+.shell-group {
+  padding: var(--sp-6) var(--sp-2) var(--sp-1);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--faint);
+}
+
+.shell-grow {
+  flex: 1;
+}
+
+.shell-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.shell-col {
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6);
+}
