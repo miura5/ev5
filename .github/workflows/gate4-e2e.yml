@@ -35,3 +35,9 @@ jobs:
           echo "$P"; PID=$(echo "$P" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$PID"
           S=$(start study-plan '{"input":{"examId":"synthetic-exam"}}'); echo "$S"
           SID=$(echo "$S" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$SID"
+      - name: Saved set items landed in D1
+        run: |
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          DB=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?name=ev5-staging" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).result[0].uuid")
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'content-type: application/json' -d '{"sql":"SELECT set_id, COUNT(*) AS n FROM own_set_items GROUP BY set_id"}' "$API/$DB/query" | tee items.json; echo
+          grep -q '"set_id":"e2e-set"' items.json
