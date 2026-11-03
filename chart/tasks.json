@@ -13779,7 +13779,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "",
+  "notes": "S-49 first slice: docs repository (repo, registry, fake D1) landed. Remaining: Zod parsing wired per collection, batch/409 protocol against real D1, remaining tables.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },

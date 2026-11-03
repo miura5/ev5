@@ -99,7 +99,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open |  |
 | B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
 | B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | in progress |  |
-| B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open |  |
+| B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open | S-49 first slice: docs repository (repo, registry, fake D1) landed. Remaining: Zod parsing wired per collection, batch/409 protocol against real D1, remaining tables. |
 | B-729 | S-50: The migration baseline and the deletions table Done when: Baseline is a no-op on a copy of ev4's schema | B-709 | v5 P3 | in progress |  |
 | B-730 | S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch Done when: Counts and SHA-256 match after restore | B-709 | v5 P3 | open |  |
 | B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | open | Matt's OK given ahead (D-453): run it when Phase 3 reaches it, counts only |
