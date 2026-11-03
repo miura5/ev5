@@ -13613,13 +13613,15 @@
   "title": "S-44: Entity: set",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "d0b5872",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T08:55:42.593Z"
  },
  {
   "id": "B-719",
