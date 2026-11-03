@@ -13222,12 +13222,12 @@
   "title": "S-03: File the seed tasks through ops/record",
   "dod": "Every AGENTS.md §4.3 seed is a Chart task",
   "milestone": "v5 P0",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-692"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "73 tasks filed; gates as G tasks",
+  "commit": "b0ae350",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-chat-2026-11-02",
   "claimedAt": "2026-11-03T03:12:13.351Z"
@@ -13238,12 +13238,12 @@
   "title": "S-04: Record Matt's confirmations (PLAN §15) as decisions",
   "dod": "C1–C15 and E-1, E-2 are Chart decisions",
   "milestone": "v5 P0",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-692"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "D-426…D-450",
+  "commit": "b0ae350",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-chat-2026-11-02",
   "claimedAt": "2026-11-03T03:12:13.483Z"
