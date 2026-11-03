@@ -9,7 +9,7 @@ const PATTERNS: [RegExp, string][] = [
   [/\bcrons?\s*[:=]\s*\[|^\s*crons\s*=/m, 'a schedule entry'],
 ];
 const IN_SCOPE = /\.(?:ts|tsx|js|mjs|toml|json)$/;
-const EXEMPT = /^(?:commands|ops\/checks|docs|spike|chart)\/|\.(?:test|generated)\.|(?:^|\/)package(?:-lock)?\.json$/;
+const EXEMPT = /^(?:commands|ops\/checks|docs|chart)\/|\.(?:test|generated)\.|(?:^|\/)package(?:-lock)?\.json$/;
 
 export function checkRegistry(root: string, files: string[]): Finding[] {
   const out: Finding[] = [];

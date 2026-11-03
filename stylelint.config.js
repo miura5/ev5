@@ -1,7 +1,7 @@
 // Tokens only (CONTRACT §ui.kit-leads): colour, type, space, radius, duration and easing
 // come from kit/tokens/tokens.css, which is the one file allowed to define them.
 export default {
-  ignoreFiles: ["dist/**", "spike/**", "docs/**", ".claude/**", "design/**"],
+  ignoreFiles: ["dist/**", "docs/**", ".claude/**", "design/**"],
   rules: {
     "color-no-hex": true,
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch", "color-mix", "cubic-bezier"],

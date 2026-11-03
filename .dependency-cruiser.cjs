@@ -46,6 +46,6 @@ module.exports = {
   ],
   options: {
     doNotFollow: { path: "node_modules" },
-    exclude: { path: "^(spike|docs|dist|\\.claude)/" },
+    exclude: { path: "^(docs|dist|\\.claude)/" },
   },
 };

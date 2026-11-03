@@ -18,9 +18,9 @@
 ### Earlier runs (2026-11-03)
 - B-701 (S-10) merged: strict TS, Vite 8, React 19, Vitest (jsdom), `areas/hello`.
 - S-07 part 2 done: Workflows passes all four tests on the Free plan (docs/spikes/S-07-workflows.md). The account is on Free (Cloudflare refuses `limits.cpu_ms` there). Follow-ups: real Zod CPU check in S-64; a mid-sleep instance under a binding-removing redeploy in S-17.
-- `ev5-spike` Worker, Workflows and D1 are deleted. `.github/workflows/spike.yml` and `spike/` stay as throwaway; S-15 may remove them.
+- `ev5-spike` Worker, Workflows and D1 are deleted. `spike.yml` and `spike/` are removed (B-706).
 - The cloud session cannot reach developers.cloudflare.com, so Cloudflare config comes from wrangler's own errors. GitHub GraphQL is blocked: use REST or the MCP tools.
-- The staging token has no KV scope: `wrangler delete` fails, so delete Workers through the API (as spike.yml does).
+- The staging token has no KV scope: `wrangler delete` fails, so delete Workers through the API (a DELETE to the Workers scripts API, with `?force=true`).
 - `task claim` refuses a task already "in progress"; a stale claim needs `task set --notes`.
 
 ### Notes for the next run
