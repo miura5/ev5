@@ -115,6 +115,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | in progress |  |
 | B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Slice A done (PR #156): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data. |
 | B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
+| B-779 | Server document routes (list, get, conditional put) over data repositories Done when: Routes pass tests with the compat protocol | B-742 | v5 P5 | in progress |  |
 
 ## Your turn
 
