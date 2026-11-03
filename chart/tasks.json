@@ -14422,5 +14422,21 @@
   "source": "handover Next",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:36:39.806Z"
+ },
+ {
+  "id": "B-770",
+  "kind": "task",
+  "title": "studyplan.ask_changes: Haiku patch edits to a draft plan",
+  "dod": "ask_changes applies model-proposed patches to a plan draft with validation; fake-fetch test",
+  "milestone": "Phase 4",
+  "status": "in progress",
+  "depends": [
+   "B-767"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T14:38:57.043Z"
  }
 ]
