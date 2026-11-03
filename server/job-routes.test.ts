@@ -39,7 +39,7 @@ function setup() {
   const run: JobRunEnv = {
     db,
     call,
-    prompts: { practice_set: "write", study_plan: "plan" },
+    prompts: { practice_set: "write", study_plan: "plan", study_plan_changes: "chg" },
     planHome: { load: async () => undefined, apply: async () => "x" },
     now: () => T,
     newId: () => "h1",
