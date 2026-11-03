@@ -13691,13 +13691,15 @@
   "title": "S-48a: New entities: collection and membership (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "9b275c8",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:05:06.895Z"
  },
  {
   "id": "B-724",
