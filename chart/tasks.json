@@ -14531,5 +14531,19 @@
   "notes": "",
   "commit": null,
   "source": "B-743"
+ },
+ {
+  "id": "B-776",
+  "kind": "task",
+  "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
+  "dod": "Offline note journey passes in the browser (e2e)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-751"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-751"
  }
 ]

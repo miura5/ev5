@@ -116,6 +116,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
+| B-776 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
 
 ## Your turn
 
