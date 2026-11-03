@@ -2,10 +2,11 @@
 // database_id is filled in by .github/workflows/staging.yml after it creates the D1.
 {
   "name": "ev5-staging",
-  "main": "server/index.ts",
+  "main": "server/worker.ts",
   "compatibility_date": "2026-10-01",
   "vars": { "ENV_NAME": "staging" },
   "d1_databases": [{ "binding": "DB", "database_name": "ev5-staging", "database_id": "00000000-0000-0000-0000-000000000000" }],
+  "workflows": [{ "name": "ev5-staging-jobs", "binding": "JOBS", "class_name": "JobWorkflow" }],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
