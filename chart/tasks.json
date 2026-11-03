@@ -14540,13 +14540,15 @@
   "title": "Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today)",
   "dod": "Each screen shows staging data and the Detail panel opens from a row",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-743"
   ],
   "notes": "",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:19:53.225Z"
  },
  {
   "id": "B-777",
