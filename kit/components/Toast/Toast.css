@@ -1,0 +1,38 @@
+.kit-toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--sp-6);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--row);
+  padding: 0 var(--sp-1) 0 var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  z-index: var(--z-toast);
+}
+
+.kit-toast-undo {
+  all: unset;
+  height: var(--sp-8);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  color: var(--quiet);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.kit-toast-undo:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.kit-toast-undo:focus-visible {
+  outline: var(--sp-1) solid var(--text);
+  outline-offset: calc(-1 * var(--sp-1));
+}
