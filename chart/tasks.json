@@ -13436,13 +13436,15 @@
   "title": "S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record",
   "dod": "The empty app answers on staging",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run4",
+  "claimedAt": "2026-11-03T04:09:38.480Z"
  },
  {
   "id": "B-708",
