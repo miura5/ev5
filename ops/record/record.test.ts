@@ -11,12 +11,14 @@ import { lintChart } from './lint.ts';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 const NOW = '2026-11-03T15:00:00.000Z';
+/** ev4's Chart as carried (ev4 9d9af38); the live chart/ grows, this copy never does. */
+const CARRIED = path.join(HERE, 'fixtures-ev4');
 
 /** A scratch repo holding a copy of the carried Chart and its renders. */
 function scratch(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ev5-record-'));
-  fs.cpSync(path.join(ROOT, 'chart'), path.join(dir, 'chart'), { recursive: true });
-  fs.cpSync(path.join(ROOT, 'docs', 'record'), path.join(dir, 'docs', 'record'), { recursive: true });
+  fs.cpSync(path.join(CARRIED, 'chart'), path.join(dir, 'chart'), { recursive: true });
+  main(['render', '--root', dir, '--now', NOW], () => {}, () => {});
   return dir;
 }
 function run(dir: string, ...argv: string[]): { code: number; out: string } {
@@ -42,7 +44,7 @@ test('the carried Chart files are byte-identical copies of ev4 when ev4 is prese
   const ev4 = path.join(process.env.EV4_ROOT || path.resolve(ROOT, '..', 'ev4'), 'chart');
   if (!fs.existsSync(ev4)) return t.skip('no ev4 checkout (set EV4_ROOT)');
   for (const f of ['tasks', 'decisions', 'deploys', 'rules', 'views'])
-    assert.equal(read(ROOT, `chart/${f}.json`), fs.readFileSync(path.join(ev4, f + '.json'), 'utf8'), f);
+    assert.equal(read(CARRIED, `chart/${f}.json`), fs.readFileSync(path.join(ev4, f + '.json'), 'utf8'), f);
 });
 
 test('task add takes the next id in the carried sequence, and the backlog shows it', () => {
