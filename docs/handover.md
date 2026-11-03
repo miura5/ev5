@@ -1,8 +1,12 @@
 ## Phase      1 · gate items 8 / 9 done except rehearsal 1 (Gate 0 passed, D-455); S-10…S-16 done; S-17 runbook done, rehearsal 1 waits on Matt
-## Running    nothing
+## Running    B-764 · PR #36 (auto-merge on; replaces #34) · 2026-11-03 06:10Z
 ## Waiting on Matt   Rehearsal 1 (S-17): needs repo secret EV4_CHECKOUT_TOKEN (read access to ev4's repo), an ev4 ref to deploy and the name of ev4's bearer-token secret. Posted on "For Matt" (miura5/ev5#1). Also, before the first live deploy (cutover only): secret CLOUDFLARE_API_TOKEN_LIVE and reviewers on the "live" environment.
 ## Next       Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-40 domain/time (Phase 3). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
+
+### Eighth run (2026-11-03)
+- #34 failed CI: server/index.ts changed without an `Interface: server` trailer in the commit. Force-push/amend is blocked in this sandbox, so the same change went to #36 on branch claude/B-764-ev4-410-v2 with the trailer; #34 closed. Check #36 merged (and that the BACKLOG render and chart claim for B-764 are consistent). Delete the stale branches claude/B-764-ev4-410 and claude/handover-20261103T0445Z. Any commit touching an interface needs an `Interface: <folder>` trailer from the start. Matt still has not answered the rehearsal question.
+- Locally `npm test` fails on Node 22 without --experimental-strip-types; use the flag, CI is authoritative.
 
 ### Seventh run (2026-11-03)
 - B-764 (#34, auto-merge on): server/ev4-routes.ts answers every route in routes.json with 410; unknown /api paths stay 404. Tests run via `server/*.test.ts` in npm test (tsc excludes them). Matt has still not answered the rehearsal question.
