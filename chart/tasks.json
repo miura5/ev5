@@ -13597,12 +13597,12 @@
   "title": "S-43: Entity: weak spot, with its fixed-interval scheduler",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "b4db276",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-717-weak-spot",
   "claimedAt": "2026-11-03T08:48:05.175Z"

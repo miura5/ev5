@@ -99,7 +99,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open |  |
 | B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
 | B-716 | S-42: Entity: objective Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
-| B-717 | S-43: Entity: weak spot, with its fixed-interval scheduler Done when: ev4's tests ported and passing | B-709 | v5 P3 | in progress |  |
 | B-718 | S-44: Entity: set Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-719 | S-45: Entity: item Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-720 | S-46: Entity: session Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
