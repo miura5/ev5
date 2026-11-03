@@ -14388,5 +14388,19 @@
   "notes": "",
   "commit": null,
   "source": "handover Next (c)"
+ },
+ {
+  "id": "B-768",
+  "kind": "task",
+  "title": "Export counts + SHA-256 and restore-drill checks for job_records, ceiling_use, ceiling_holds, job_plans, drafts, own_set_items; amend CONTRACT §data.new-tables",
+  "dod": "export manifest covers the tables; restore drill checks them; contract line lists them",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [
+   "B-766"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-766 report"
  }
 ]

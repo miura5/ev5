@@ -120,6 +120,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-765 | Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw) Done when: jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test | B-738 | Phase 4 | open |  |
 | B-766 | Wiring: D1 JobStore, CeilingStore (atomic check-and-add), PlanStore and the draft/set save step Done when: D1 stores pass the same tests as the in-memory ones on fake-d1; save step adds id/state/at/v | — | Phase 4 | open |  |
 | B-767 | Wiring: Worker WorkflowEntrypoint + wrangler binding running runJob with practice-set and study-plan handlers Done when: wrangler.jsonc binds the workflow; handlers registered; test with fake adapter | — | Phase 4 | open |  |
+| B-768 | Export counts + SHA-256 and restore-drill checks for job_records, ceiling_use, ceiling_holds, job_plans, drafts, own_set_items; amend CONTRACT §data.new-tables Done when: export manifest covers the tables; restore drill checks them; contract line lists them | B-766 | Phase 4 | open |  |
 
 ## Your turn
 
