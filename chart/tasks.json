@@ -14489,5 +14489,19 @@
   "source": "ops/record",
   "claimedBy": "run16",
   "claimedAt": "2026-11-03T14:58:33.209Z"
+ },
+ {
+  "id": "B-774",
+  "kind": "task",
+  "title": "Stream the model call (the SDK refuses a long non-streamed request); found by the Gate 4 staging run",
+  "dod": null,
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
  }
 ]

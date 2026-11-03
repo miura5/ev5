@@ -20,13 +20,16 @@ export function outputSchema(schema: z.ZodType): object {
 export function sdkModelCall(opts: ModelCallOptions): ModelCall {
   const client = new Anthropic({ apiKey: opts.apiKey, maxRetries: 0, fetch: opts.fetch });
   return async (req) => {
-    const res = await client.messages.create({
+    // Streamed: the SDK refuses a plain request when max_tokens could take over 10 minutes (found on staging, B-742).
+    const res = await client.messages
+      .stream({
       model: modelInfo(req.model).id,
       max_tokens: req.maxTokens,
       system: req.system,
       messages: req.messages,
       output_config: { format: { type: 'json_schema', schema: req.schema as Record<string, unknown> } },
-    });
+      })
+      .finalMessage();
     const text = res.content.map((b) => (b.type === 'text' ? b.text : '')).join('');
     return {
       stopReason: res.stop_reason ?? 'end_turn',

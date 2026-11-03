@@ -116,6 +116,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-761 | S-90: The whole-repo review Done when: No open findings on lost data, cost, security, crashes, unreachable controls | B-760 | v5 P7 | open |  |
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
+| B-774 | Stream the model call (the SDK refuses a long non-streamed request); found by the Gate 4 staging run | B-742 | v5 P4 | open |  |
 
 ## Your turn
 

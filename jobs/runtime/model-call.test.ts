@@ -8,7 +8,17 @@ function fake(status: number, body: unknown) {
   const calls: { url: string; body: any }[] = [];
   const f = (async (url: string, init: { body: string }) => {
     calls.push({ url: String(url), body: JSON.parse(init.body) });
-    return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+    if (status !== 200) return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+    const m = body as any;
+    const ev = (t: string, d: unknown) => `event: ${t}\ndata: ${JSON.stringify({ type: t, ...(d as object) })}\n\n`;
+    const sse =
+      ev('message_start', { message: { ...m, content: [], stop_reason: null, usage: { ...m.usage, output_tokens: 0 } } }) +
+      ev('content_block_start', { index: 0, content_block: { type: 'text', text: '' } }) +
+      ev('content_block_delta', { index: 0, delta: { type: 'text_delta', text: m.content[0].text } }) +
+      ev('content_block_stop', { index: 0 }) +
+      ev('message_delta', { delta: { stop_reason: m.stop_reason, stop_sequence: null }, usage: { output_tokens: m.usage.output_tokens } }) +
+      ev('message_stop', {});
+    return new Response(sse, { status, headers: { 'content-type': 'text/event-stream' } });
   }) as unknown as typeof fetch;
   return { f, calls };
 }
