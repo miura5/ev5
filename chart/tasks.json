@@ -13805,13 +13805,15 @@
   "title": "S-52: domain/search and its retrieval test set",
   "dod": "The retrieval test set passes",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "9b275c8",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:05:39.706Z"
  },
  {
   "id": "B-732",

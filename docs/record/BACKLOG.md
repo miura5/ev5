@@ -107,7 +107,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open |  |
 | B-729 | S-50: The migration baseline and the deletions table Done when: Baseline is a no-op on a copy of ev4's schema | B-709 | v5 P3 | open |  |
 | B-730 | S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch Done when: Counts and SHA-256 match after restore | B-709 | v5 P3 | open |  |
-| B-731 | S-52: domain/search and its retrieval test set Done when: The retrieval test set passes | B-709 | v5 P3 | open |  |
 | B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | open | Matt's OK given ahead (D-453): run it when Phase 3 reaches it, counts only |
 | B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731, B-732 | v5 P3 | open |  |
 | B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713, B-733 | v5 P4 | open |  |
