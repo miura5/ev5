@@ -92,14 +92,8 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-688 | Bug (reported Nov 1): Asked 'is the mock exam ready yet', E.V. said she can't see its status and offered to write another, though the practice job's state (writing, posted, failed) is in the record; she should answer from it. Done when: E.V. can read the state of practice jobs she started in this thread (writing, posted with its card, failed with why) and answers 'is it ready' from it, never offering a duplicate while one is writing; a unit test pins the tool result; seen once on staging. | — | UI polish | open |  |
 | B-689 | Request (reported Nov 2): A keyboard shortcut that opens the E.V. agent window from any view and hides it again. Done when: Cmd+J (Ctrl+J elsewhere) toggles the E.V. agent window from any view: open puts the caret in its input, again (or Esc) hides it and returns focus; it works while typing in a note; shown in the button's tooltip and the Cmd+K menu; checked in the installed app window that Chrome does not take the key; a harness check pins the toggle. | — | UI polish | open |  |
 | B-699 | S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec Done when: Shipped through ev4's own process; not built here | — | v5 P0 | blocked | ev4 task: ships through ev4's own process, never from this repo |
-| B-710 | S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception Done when: Tokens match the mock-up | B-709 | v5 P2 | open |  |
-| B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open | Gallery route done; baselines generated in the Playwright image (e2e/baselines). New dev dependency @playwright/test 1.64.1 still needs a Chart decision. Gate 2 = B-710/711/712 done, then B-713. |
-| B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
-| B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | in progress |  |
 | B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open | Parsers wired for exams, notes, objectives, sessions, sets, weakspots (#92); course, collection, pin wait for a barrel export |
-| B-729 | S-50: The migration baseline and the deletions table Done when: Baseline is a no-op on a copy of ev4's schema | B-709 | v5 P3 | in progress |  |
-| B-730 | S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch Done when: Counts and SHA-256 match after restore | B-709 | v5 P3 | in progress |  |
-| B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | open | Check code merged (#88). Not yet run on a real scratch copy: needs a live export (Matt, counts only, D-453). |
+| B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | blocked | Check code merged (#88). Not yet run on a real scratch copy: needs a live export (Matt, counts only, D-453). |
 | B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731, B-732 | v5 P3 | open |  |
 | B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713, B-733 | v5 P4 | open |  |
 | B-735 | S-61: The job record, defineJob, executors and job_status Done when: Job lifecycle tests pass | B-713, B-733 | v5 P4 | open |  |
@@ -135,6 +129,10 @@ Closed (done and declined) tasks are in chart/tasks.json.
 ## Your turn
 
 What waits on Matt, by where it happens.
+
+### At the Mac
+
+- B-732 (blocked): S-53
 
 ### A decision (a reply in a build chat)
 
