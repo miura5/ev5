@@ -13551,12 +13551,12 @@
   "title": "S-40: domain/time with the DST tests and the \"due by Central date\" rule",
   "dod": "DST tests pass on 2026-11-01 and 2027-03-14",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "ab1fb48",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-run-20261103T0708Z",
   "claimedAt": "2026-11-03T07:08:49.297Z"
@@ -13567,12 +13567,12 @@
   "title": "S-41: Entity: exam",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "5840bb0",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run-20261103T0809Z",
   "claimedAt": "2026-11-03T08:09:57.576Z"
