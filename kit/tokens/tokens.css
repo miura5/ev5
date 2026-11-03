@@ -1,0 +1,144 @@
+/* E.V. v5 tokens (B-710): the only place colour, type, space, radius, duration and easing are defined (CONTRACT
+   §ui.kit-leads). Values follow design/mockup.html (round 7), which wins on looks; names carry over from ev4's
+   page/ds/tokens.css where the mock-up has the same role. Dark is the default; light follows the system unless
+   data-theme says otherwise, and data-theme works on any element (the app root or a gallery frame).
+   Type has three sizes only: meta 12, body 14, title 20. ev4's 13, 13.5 and 11 px fold into them (13 and 13.5
+   to body, 11 to meta); --fs-face is the one mock-up exception (the large face glyph), not a text size. */
+:root,
+[data-theme="dark"] {
+  /* Surfaces and lines */
+  --side: #101012;
+  --bg: #151517;
+  --surface: #1b1b1e;
+  --hover: #222226;
+  --sel: #2a2a2f;
+  --line: #232327;
+  --line2: #303036;
+  /* Text */
+  --text: #ececef;
+  --quiet: #a3a3ab;
+  --faint: #92929a;
+  /* E.V.'s ember, and meaning colours */
+  --her: #e0743a;
+  --her2: #cf5a45;
+  --on-her: #1a0d05;
+  --ok: #4cc27e;
+  --warn: #d6a53c;
+  --bad: #ec6a62;
+  --info: #6b9cf5;
+  /* Overlays */
+  --scrim: rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 0 0 1px #303036, 0 24px 60px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --side: #f3f3f4;
+    --bg: #fbfbfb;
+    --surface: #ffffff;
+    --hover: #efeff0;
+    --sel: #e9e9eb;
+    --line: #ececee;
+    --line2: #dedee1;
+    --text: #1c1c1f;
+    --quiet: #5f5f66;
+    --faint: #66666c;
+    --her: #b6541d;
+    --her2: #bc4741;
+    --on-her: #ffffff;
+    --ok: #2c9a5a;
+    --warn: #a87a0c;
+    --bad: #cc4b45;
+    --info: #2f6fde;
+    --scrim: rgba(0, 0, 0, 0.25);
+    --shadow-pop: 0 0 0 1px #dedee1, 0 16px 40px rgba(0, 0, 0, 0.12);
+    color-scheme: light;
+  }
+}
+
+[data-theme="light"] {
+  --side: #f3f3f4;
+  --bg: #fbfbfb;
+  --surface: #ffffff;
+  --hover: #efeff0;
+  --sel: #e9e9eb;
+  --line: #ececee;
+  --line2: #dedee1;
+  --text: #1c1c1f;
+  --quiet: #5f5f66;
+  --faint: #66666c;
+  --her: #b6541d;
+  --her2: #bc4741;
+  --on-her: #ffffff;
+  --ok: #2c9a5a;
+  --warn: #a87a0c;
+  --bad: #cc4b45;
+  --info: #2f6fde;
+  --scrim: rgba(0, 0, 0, 0.25);
+  --shadow-pop: 0 0 0 1px #dedee1, 0 16px 40px rgba(0, 0, 0, 0.12);
+  color-scheme: light;
+}
+
+:root {
+  /* Type: Inter, three sizes */
+  --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --fs-meta: 12px;
+  --fs-body: 14px;
+  --fs-title: 20px;
+  --fs-face: 24px;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-title: 600;
+  --lh: 1.5;
+  --lh-title: 1.3;
+  --track-title: -0.01em;
+
+  /* Space: a 4px grid with 8px rhythm */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+  --sp-14: 56px;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-pill: 999px;
+  --r-round: 50%;
+
+  /* Sizes */
+  --row: 40px;
+  --row2: 48px;
+  --col: 720px;
+  --side-w: 224px;
+  --icon: 16px;
+  --hairline: 1px;
+
+  /* Motion */
+  --dur-1: 150ms;
+  --dur-2: 200ms;
+  --dur-3: 250ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --rise: 4px;
+
+  /* Stack order */
+  --z-raised: 1;
+  --z-sticky: 8;
+  --z-toast: 20;
+  --z-overlay: 30;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0.01ms;
+    --dur-2: 0.01ms;
+    --dur-3: 0.01ms;
+    --rise: 0;
+  }
+}
