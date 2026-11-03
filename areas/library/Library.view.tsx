@@ -2,11 +2,20 @@ import { useState } from "react";
 import { Glyph, Row } from "../../kit/index.ts";
 import { MasteryBar } from "./parts/MasteryBar.tsx";
 import { PracticePanel } from "./parts/PracticePanel.tsx";
-import type { LibraryExam, PracticeSession, WeakSpot } from "./types.ts";
+import { SetsPanel } from "./parts/SetsPanel.tsx";
+import type {
+  Accuracy,
+  LibraryExam,
+  LibrarySet,
+  PracticeSession,
+  WeakSpot,
+} from "./types.ts";
 import "./library.css";
 
 export type {
+  Accuracy,
   LibraryExam,
+  LibrarySet,
   PracticeSession,
   WeakSpot,
 } from "./types.ts";
@@ -15,29 +24,38 @@ export interface LibraryViewProps {
   practice: PracticeSession | null;
   weakSpots: readonly WeakSpot[];
   exams: readonly LibraryExam[];
+  sets?: readonly LibrarySet[];
+  accuracy?: Accuracy | null;
   onCommit?: (option: string) => void;
   onEndPractice?: () => void;
   onDrill?: (id: string) => void;
   onOpenExam?: (id: string) => void;
+  onOpenSet?: (id: string) => void;
+  onOpenAccuracy?: () => void;
 }
 
-type Tab = "practice" | "weak" | "exams";
+type Tab = "practice" | "weak" | "exams" | "sets";
 
 /** Library home, first slice: practice, weak spots and exams. Sets, the accuracy line and exam plans follow. */
 export function LibraryView({
   practice,
   weakSpots,
   exams,
+  sets = [],
+  accuracy = null,
   onCommit,
   onEndPractice,
   onDrill,
   onOpenExam,
+  onOpenSet,
+  onOpenAccuracy,
 }: LibraryViewProps) {
   const [tab, setTab] = useState<Tab>("practice");
   const tabs: { id: Tab; label: string; n?: number }[] = [
     { id: "practice", label: "Practice" },
     { id: "weak", label: "Weak spots", n: weakSpots.length },
     { id: "exams", label: "Exams", n: exams.length },
+    { id: "sets", label: "Sets", n: sets.length },
   ];
   return (
     <section className="ev-library" aria-label="Library">
@@ -47,6 +65,18 @@ export function LibraryView({
           practice, weak spots, exams and sets
         </span>
       </div>
+      {accuracy ? (
+        <button
+          type="button"
+          className="ev-library-accuracy"
+          onClick={onOpenAccuracy}
+        >
+          <span className="ev-library-meta">
+            First-try accuracy, last 14 days
+          </span>
+          <span>{accuracy.text}</span>
+        </button>
+      ) : null}
       <div className="ev-library-tabs" role="tablist">
         {tabs.map((t) => (
           <button
@@ -104,6 +134,9 @@ export function LibraryView({
               </div>
             ))
           : null}
+        {tab === "sets" ? (
+          <SetsPanel sets={sets} onOpenSet={onOpenSet} />
+        ) : null}
       </div>
     </section>
   );

@@ -118,3 +118,41 @@
   padding: var(--sp-2) 0;
   font-size: var(--fs-body);
 }
+
+.ev-library-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+}
+
+.ev-library-grow {
+  flex: 1;
+}
+
+.ev-library-accuracy {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  gap: var(--sp-2);
+  font-size: var(--fs-meta);
+}
+
+.ev-library-accuracy > :last-child {
+  color: var(--quiet);
+}
+
+.ev-library-items {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ev-library-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  font-size: var(--fs-body);
+}

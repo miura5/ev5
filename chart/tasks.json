@@ -14558,13 +14558,15 @@
   "title": "Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6)",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-746"
   ],
-  "notes": "",
+  "notes": "Slice A done (PR #156): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:25:26.257Z"
  },
  {
   "id": "B-778",
