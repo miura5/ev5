@@ -14165,13 +14165,15 @@
   "title": "S-77: The offline outbox, and the ev4-outbox import",
   "dod": "Offline note journey passes",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:18:40.088Z"
  },
  {
   "id": "B-752",
@@ -14561,5 +14563,19 @@
   "notes": "",
   "commit": null,
   "source": "ops/record"
+ },
+ {
+  "id": "B-778",
+  "kind": "task",
+  "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
+  "dod": "Offline note journey passes in the browser (e2e)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-751"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-751"
  }
 ]
