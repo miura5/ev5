@@ -1,0 +1,93 @@
+// Each guard must fail when it should. For every guard this builds a small temp repo (the guard's own config copied
+// from the real one, node_modules linked), proves the clean repo passes, adds one violation, runs the guard's real
+// command and asserts a non-zero exit with the expected finding. Set GUARDS_SHOW=1 to print the red output.
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { test } from 'node:test';
+
+const REAL = path.resolve(import.meta.dirname, '../..');
+const CONFIGS = ['eslint.config.js', '.dependency-cruiser.cjs', 'stylelint.config.js', 'knip.json', 'tsconfig.json', 'CONTRACT.md'];
+const bin = (n: string): string => path.join(REAL, 'node_modules/.bin', n);
+const strip = Number(process.versions.node.split('.')[0]) < 24 ? ['--experimental-strip-types'] : [];
+const DIRS = ['areas', 'shell', 'kit', 'commands', 'jobs', 'domain', 'data', 'server', 'ops'];
+
+type Files = Record<string, string>;
+const CLEAN: Files = {
+  'domain/ok.ts': 'export const ok = 1;\n',
+  'domain/ok.test.ts': "import { ok } from './ok.ts';\nexport const t = ok;\n",
+  'kit/ok.css': 'a { color: var(--ink); }\n',
+};
+
+// A temp repo: the real guard configs, linked node_modules, every folder the guards look in, then `files`.
+function sandbox(files: Files): string {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'guards-'));
+  for (const c of CONFIGS) fs.copyFileSync(path.join(REAL, c), path.join(root, c));
+  // The temp repo has none of the app, so its package.json declares no dependencies (knip would flag them all unused).
+  fs.writeFileSync(path.join(root, 'package.json'), '{"name":"guards","private":true,"type":"module"}\n');
+  fs.symlinkSync(path.join(REAL, 'node_modules'), path.join(root, 'node_modules'));
+  for (const d of DIRS) fs.mkdirSync(path.join(root, d), { recursive: true });
+  for (const [f, text] of Object.entries({ ...CLEAN, ...files })) {
+    fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
+    fs.writeFileSync(path.join(root, f), text);
+  }
+  return root;
+}
+
+function run(cwd: string, cmd: string, args: string[]): { code: number | null; out: string } {
+  const { NODE_TEST_CONTEXT: _, ...env } = process.env; // else a nested `node --test` thinks it is this run
+  const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', env });
+  return { code: r.status, out: `${r.stdout}${r.stderr}` };
+}
+
+type Cmd = [string, string[]];
+type Guard = { name: string; command: (root: string) => Cmd; files: Files; expect: RegExp };
+const eslint = (): Cmd => [bin('eslint'), ['.', '--max-warnings', '0']];
+const depcruise = (): Cmd => [bin('depcruise'), [...DIRS, '--config', '.dependency-cruiser.cjs']];
+const stylelint = (): Cmd => [bin('stylelint'), ['**/*.css', '--allow-empty-input']];
+const knip = (): Cmd => [bin('knip'), []];
+const checks = (r: string): Cmd => [process.execPath, [...strip, path.join(REAL, 'ops/checks/cli.ts'), '--root', r]];
+
+const lines301 = `${Array.from({ length: 300 }, (_, i) => `export const a${i} = ${i};`).join('\n')}\nexport const last = 1;\n`;
+const GUARDS: Guard[] = [
+  { name: 'a 301-line file (eslint max-lines)', command: eslint, files: { 'domain/long.ts': lines301 }, expect: /max-lines/ },
+  { name: 'an inline eslint-disable (eslint noInlineConfig)', command: eslint, files: { 'domain/dis.ts': '// eslint-disable-next-line no-undef\nexport const x = 1;\n' }, expect: /eslint-disable/ },
+  { name: 'a @ts-ignore comment (eslint no-warning-comments)', command: eslint, files: { 'domain/ts.ts': '// @ts-ignore\nexport const x = 1;\n' }, expect: /no-warning-comments/ },
+  { name: 'a bad import, domain into data (dependency-cruiser)', command: depcruise, files: { 'data/index.ts': 'export const d = 1;\n', 'domain/bad.ts': "import { d } from '../data/index.ts';\nexport const b = d;\n" }, expect: /domain-imports/ },
+  { name: 'a cycle (dependency-cruiser no-cycles)', command: depcruise, files: { 'domain/a.ts': "import { b } from './b.ts';\nexport const a = (): unknown => b;\n", 'domain/b.ts': "import { a } from './a.ts';\nexport const b = (): unknown => a;\n" }, expect: /no-cycles/ },
+  { name: 'a raw colour (stylelint)', command: stylelint, files: { 'kit/raw.css': 'a { color: #ff0000; }\n' }, expect: /color-no-hex|declaration-property-value-allowed-list/ },
+  { name: 'an unused export (knip)', command: knip, files: { 'domain/dead.ts': 'export const used = 1;\nexport const unused = 2;\n', 'domain/dead.test.ts': "import { used } from './dead.ts';\nexport const t = used;\n" }, expect: /unused/i },
+  { name: 'a component without a story (ops/checks presence)', command: checks, files: { 'kit/components/Btn/Btn.tsx': 'export const Btn = 1;\n', 'kit/components/Btn/Btn.test.tsx': '' }, expect: /presence: kit\/components\/Btn: missing kit\/components\/Btn\/Btn\.story\.tsx/ },
+  { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },
+];
+
+for (const g of GUARDS) {
+  test(`red: ${g.name}`, () => {
+    const clean = sandbox({});
+    const base = run(clean, ...g.command(clean));
+    assert.equal(base.code, 0, `the clean repo must pass first:\n${base.out}`);
+    const root = sandbox(g.files);
+    const r = run(root, ...g.command(root));
+    if (process.env.GUARDS_SHOW) console.log(`--- ${g.name}\n${r.out.trim().slice(0, 600)}`);
+    assert.notEqual(r.code, 0, `guard stayed green:\n${r.out}`);
+    assert.match(r.out, g.expect);
+  });
+}
+
+test('red: a write fixture ev4 rejects, listed as valid (data/compat tests)', () => {
+  const root = sandbox({});
+  fs.cpSync(path.join(REAL, 'data/compat'), path.join(root, 'data/compat'), { recursive: true });
+  const cmd = (): Cmd => [process.execPath, [...strip, '--test', 'data/compat/validate.test.ts']];
+  assert.equal(run(root, ...cmd()).code, 0, 'the copied compat suite must pass first');
+  const f = path.join(root, 'data/compat/samples/writes.ts');
+  const text = fs.readFileSync(f, 'utf8');
+  const bad = text.replace("{ name: 'a new note', doc: note },", "{ name: 'a new note', doc: note },\n      { name: 'ev4 rejects this', doc: { ...note, html: '<b>x</b>' } },");
+  assert.notEqual(bad, text, 'the fixture edit did not apply');
+  fs.writeFileSync(f, bad);
+  const r = run(root, ...cmd());
+  if (process.env.GUARDS_SHOW) console.log(`--- compat\n${r.out.split('\n').filter(l => /ev4 rejects|not ok|unknown field/.test(l)).slice(0, 6).join('\n')}`);
+  assert.notEqual(r.code, 0, `compat stayed green:\n${r.out}`);
+  assert.match(r.out, /accepts ev4 rejects this/);
+});
