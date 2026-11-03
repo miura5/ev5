@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { Services } from "./services.ts";
 import { areas } from "../areas/registry.generated.ts";
 
 /** What the shell reads from each area's `area.ts`: its route, sidebar label and the view it mounts. */
@@ -6,7 +7,7 @@ export interface AreaEntry {
   readonly id: string;
   readonly route: string;
   readonly nav: string;
-  readonly view: ComponentType;
+  readonly view: ComponentType<{ services?: Services }>;
 }
 
 /** Every area, in registry order: the sidebar, the router and ⌘K's Places all read this one list. */

@@ -14574,13 +14574,15 @@
   "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
   "dod": "Offline note journey passes in the browser (e2e)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-751"
   ],
-  "notes": "",
+  "notes": "Done: HTTP transport (shell/outbox/http.ts), shell Services handed to area views, Notes screen loads from /docs and saves a title through queueNote with saved/not saved. Follow-ups: import offer, practice answers, collections/editor.",
   "commit": null,
-  "source": "B-751"
+  "source": "B-751",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:35:14.866Z"
  },
  {
   "id": "B-779",
@@ -14597,5 +14599,47 @@
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:25:10.109Z"
+ },
+ {
+  "id": "B-780",
+  "kind": "task",
+  "title": "S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell",
+  "dod": "On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-778"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-778"
+ },
+ {
+  "id": "B-781",
+  "kind": "task",
+  "title": "S-77d: practice answers through queueAnswer, wired in the Library study screen",
+  "dod": "A practice answer given offline is queued and replayed; 409 counts as recorded",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-778"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-778"
+ },
+ {
+  "id": "B-782",
+  "kind": "task",
+  "title": "S-77e: notes collections, new note, and the real editor on the outbox (after S-08/B-748 editor)",
+  "dod": "Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-778"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-778"
  }
 ]

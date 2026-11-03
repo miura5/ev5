@@ -114,8 +114,11 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
 | B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | in progress |  |
 | B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Slice A done (PR #156). Slice B (this branch): SetEditView (Edit mode), ExamPlanDetail (dashed Suggestion rows; kit already had Suggestion, only Field now exported), practice hint, StudyView; all props-driven with tests. Left: wire screens/routes to real data (screens still pass none), E key and Study route hookup. |
-| B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
+| B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | in progress | Done: HTTP transport (shell/outbox/http.ts), shell Services handed to area views, Notes screen loads from /docs and saves a title through queueNote with saved/not saved. Follow-ups: import offer, practice answers, collections/editor. |
 | B-779 | Server document routes (list, get, conditional put) over data repositories Done when: Routes pass tests with the compat protocol | B-742 | v5 P5 | in progress |  |
+| B-780 | S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell Done when: On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost | B-778 | v5 P5 | open |  |
+| B-781 | S-77d: practice answers through queueAnswer, wired in the Library study screen Done when: A practice answer given offline is queued and replayed; 409 counts as recorded | B-778 | v5 P5 | open |  |
+| B-782 | S-77e: notes collections, new note, and the real editor on the outbox (after S-08/B-748 editor) Done when: Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes | B-778 | v5 P5 | open |  |
 
 ## Your turn
 

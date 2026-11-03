@@ -8,6 +8,7 @@ import {
   type GlyphType,
   type PaletteGroup,
 } from "../kit/index.ts";
+import type { Services } from "./services.ts";
 import { AREAS, areaFor, type AreaEntry } from "./areas.ts";
 import "./shell.css";
 
@@ -28,6 +29,8 @@ export interface ShellProps {
   deletedCount?: number;
   /** The open item's Detail panel; absent when none is open. */
   detail?: DetailProps | null;
+  /** Reads and the outbox, handed to every area view. */
+  services?: Services;
 }
 
 export const DELETED_ROUTE = "/deleted";
@@ -41,6 +44,7 @@ export function Shell({
   onOpenPin,
   deletedCount,
   detail,
+  services,
 }: ShellProps) {
   const [palette, setPalette] = useState(false);
   useEffect(() => {
@@ -117,7 +121,9 @@ export function Shell({
         />
       </nav>
       <main className="shell-main">
-        <div className="shell-col">{View ? <View /> : null}</div>
+        <div className="shell-col">
+          {View ? <View services={services} /> : null}
+        </div>
       </main>
       {detail ? <Detail {...detail} /> : null}
       {palette ? (
