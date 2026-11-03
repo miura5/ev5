@@ -97,7 +97,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-742 | G-4: Gate 4: commands, runtime, server Done when: PLAN §13 Phase 4 gate items all true | B-734, B-735, B-736, B-737, B-738, B-739, B-740, B-741 | v5 P4 | in progress |  |
 | B-743 | S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-744 | S-71: Activity Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
-| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-747 | S-74: Ask E.V. Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
