@@ -1,0 +1,21 @@
+.kit-suggest {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--row);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  border: var(--hairline) dashed var(--line2);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--quiet);
+}
+
+.kit-suggest-plus {
+  color: var(--faint);
+}
+
+.kit-suggest-text {
+  flex: 1;
+  min-width: 0;
+}
