@@ -14291,5 +14291,19 @@
   "notes": "",
   "commit": null,
   "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-764",
+  "kind": "task",
+  "title": "v5 answers ev4's /api routes with 410",
+  "dod": "server/ returns 410 for each route in data/compat/routes.json; test proves it",
+  "milestone": "Phase 1",
+  "status": "done",
+  "depends": [],
+  "notes": "",
+  "commit": "pending",
+  "source": "handover Next",
+  "claimedBy": "build-run-7",
+  "claimedAt": "2026-11-03T05:13:06.289Z"
  }
 ]
