@@ -13725,13 +13725,15 @@
   "title": "S-48c: New entity: item properties with repeat (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture; materialization idempotent",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "8954b11",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:17:20.671Z"
  },
  {
   "id": "B-726",
@@ -13739,13 +13741,15 @@
   "title": "S-48d: New entities: own set, items and attempts (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "986434f",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:17:21.108Z"
  },
  {
   "id": "B-727",
@@ -13753,13 +13757,15 @@
   "title": "S-48e: New entity: draft (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "039434a",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:17:21.563Z"
  },
  {
   "id": "B-728",
