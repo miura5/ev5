@@ -1,6 +1,54 @@
+import { useState } from "react";
+import { NotePageView } from "./NotePage.view.tsx";
 import { NotesView } from "./Notes.view.tsx";
+import { toPage, toSummary } from "./map.ts";
+import { useNotes, type NotesServices } from "./useNotes.ts";
 
-/** The mounted view until the data wiring lands: no notes, no collections. */
-export function NotesScreen() {
-  return <NotesView notes={[]} collections={[]} />;
+/** The mounted view: notes from the document routes; a title edit saves through the outbox, so it works offline. */
+export function NotesScreen({ services }: { services?: NotesServices }) {
+  const { notes, error, saveState, saveTitle } = useNotes(services);
+  const [open, setOpen] = useState<string>();
+  const [draft, setDraft] = useState("");
+  const cur = notes.find((n) => n.id === open);
+  if (!cur)
+    return (
+      <>
+        {error ? <p className="ev-notes-meta">{error}</p> : null}
+        <NotesView
+          notes={notes
+            .map((n) => toSummary(n.id, n.note))
+            .sort((a, b) => b.when.localeCompare(a.when))}
+          collections={[]}
+          onOpenNote={(id) => {
+            setOpen(id);
+            setDraft(notes.find((n) => n.id === id)?.note.title ?? "");
+          }}
+        />
+      </>
+    );
+  return (
+    <>
+      <form
+        className="ev-notes-titleedit"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void saveTitle(cur.id, draft);
+        }}
+      >
+        <label className="ev-notes-meta" htmlFor="ev-note-title">
+          Title
+        </label>
+        <input
+          id="ev-note-title"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+        />
+        <button type="submit">Save</button>
+      </form>
+      <NotePageView
+        note={toPage(cur.id, cur.note, saveState)}
+        onBack={() => setOpen(undefined)}
+      />
+    </>
+  );
 }

@@ -21,11 +21,11 @@ function done<T>(r: IDBRequest<T>): Promise<T> {
   });
 }
 
-export function indexedDbStore(factory: IDBFactory = indexedDB): OutboxStore {
+export function indexedDbStore(factory?: IDBFactory): OutboxStore {
   let opened: Promise<IDBDatabase> | null = null;
   const open = () =>
     (opened ??= new Promise<IDBDatabase>((ok, no) => {
-      const q = factory.open(IDB_NAME, 1);
+      const q = (factory ?? indexedDB).open(IDB_NAME, 1);
       q.onupgradeneeded = () => q.result.createObjectStore(BOX, { keyPath: 'key' });
       q.onsuccess = () => ok(q.result);
       q.onerror = () => no(q.error);
