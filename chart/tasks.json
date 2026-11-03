@@ -14161,13 +14161,15 @@
   "title": "S-77: The offline outbox, and the ev4-outbox import",
   "dod": "Offline note journey passes",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:10:49.687Z"
  },
  {
   "id": "B-752",

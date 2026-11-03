@@ -102,7 +102,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | open |  |
+| B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | in progress |  |
 | B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
 | B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |
 | B-754 | S-80: Scheduled commands: morning, evening, weekly Done when: Tested across DST | B-753 | v5 P6 | open |  |
