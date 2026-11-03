@@ -14394,5 +14394,47 @@
   "source": "handover Next (c)",
   "claimedBy": "claude-builder",
   "claimedAt": "2026-11-03T14:18:37.652Z"
+ },
+ {
+  "id": "B-768",
+  "kind": "task",
+  "title": "Wiring: study-plan planHome (exam and weak-spot load, approve-to-Today) and ceiling config defaults",
+  "dod": "planHome no longer throws; ceilings have documented defaults when claude_settings ceiling_* keys are unset; tests on fake D1",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [
+   "B-767"
+  ],
+  "notes": "Follow-up from B-767: planHome stub throws; unset ceilings stop every call.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-769",
+  "kind": "task",
+  "title": "Wiring: command handlers and /api/v1 routes calling startJob/continueJob, with an app-only ceilings route",
+  "dod": "Routes for practice-set and study-plan start/continue/status behind scoped tokens; app-only ceilings route (CONTRACT sec.auth); tests with fake adapter",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [
+   "B-767"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-770",
+  "kind": "task",
+  "title": "studyplan.ask_changes: Haiku patch edits to a draft plan",
+  "dod": "ask_changes applies model-proposed patches to a plan draft with validation; fake-fetch test",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [
+   "B-767"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
