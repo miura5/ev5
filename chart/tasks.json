@@ -14454,5 +14454,33 @@
   "source": "ops/record",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:42:11.984Z"
+ },
+ {
+  "id": "B-772",
+  "kind": "task",
+  "title": "Export domain course/collection/pin parsers and Draft/set types from domain/index.ts",
+  "dod": "domain/index.ts exports the parsers and types; tsc and tests green",
+  "milestone": "Phase 4",
+  "status": "in progress",
+  "depends": [],
+  "notes": "Handover Next (d)",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run16",
+  "claimedAt": "2026-11-03T14:58:32.825Z"
+ },
+ {
+  "id": "B-773",
+  "kind": "task",
+  "title": "Study plan: allow more than one change round per job; surface ceilings defaults for review",
+  "dod": "A draft plan can take several ask_changes rounds in one job; fake-adapter test",
+  "milestone": "Phase 4",
+  "status": "in progress",
+  "depends": [],
+  "notes": "Handover Next (b)",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run16",
+  "claimedAt": "2026-11-03T14:58:33.209Z"
  }
 ]
