@@ -95,7 +95,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-704 | S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI Done when: CI fails on a stale generated file | B-700 | v5 P1 | open |  |
 | B-705 | S-14: Guard-failure fixtures: one PR per guard that must go red, recorded Done when: Every PLAN §13 Phase 1 guard shown red | B-700 | v5 P1 | open |  |
 | B-706 | S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live Done when: Staging deploys on merge; live waits in the live environment | B-700 | v5 P1 | open |  |
-| B-707 | S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record Done when: The empty app answers on staging | B-700 | v5 P1 | open |  |
+| B-707 | S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record Done when: The empty app answers on staging | B-700 | v5 P1 | in progress |  |
 | B-708 | S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair Done when: Rehearsal 1 passes all five steps | B-700 | v5 P1 | open |  |
 | B-709 | G-1: Gate 1: repo, guards, walking skeleton Done when: Every guard shown to fail, and rehearsal 1 passes | B-701, B-702, B-703, B-704, B-705, B-706, B-707, B-708 | v5 P1 | open |  |
 | B-710 | S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception Done when: Tokens match the mock-up | B-709 | v5 P2 | open |  |
