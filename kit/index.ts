@@ -10,12 +10,16 @@ import "./components/Toast/Toast.css";
 import "./components/Source/Source.css";
 import "./components/Row/Row.css";
 import "./components/Tile/Tile.css";
+import "./components/Glyph/Glyph.css";
+import "./components/EvLine/EvLine.css";
 import { Story as ButtonStory } from "./components/Button/Button.story";
 import { Story as FieldStory } from "./components/Field/Field.story";
 import { Story as ToastStory } from "./components/Toast/Toast.story";
 import { Story as SourceStory } from "./components/Source/Source.story";
 import { Story as RowStory } from "./components/Row/Row.story";
 import { Story as TileStory } from "./components/Tile/Tile.story";
+import { Story as GlyphStory } from "./components/Glyph/Glyph.story";
+import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
 
 /** Every component's story, in gallery order; the /kit route renders each under its name. */
 export const STORIES = [
@@ -25,4 +29,6 @@ export const STORIES = [
   { name: "Source", Story: SourceStory },
   { name: "Row", Story: RowStory },
   { name: "Tile", Story: TileStory },
+  { name: "Glyph", Story: GlyphStory },
+  { name: "E.V. line", Story: EvLineStory },
 ] as const;

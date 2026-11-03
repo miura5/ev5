@@ -1,0 +1,44 @@
+.kit-glyph {
+  width: var(--icon);
+  height: var(--icon);
+  flex: none;
+  fill: none;
+  stroke: var(--quiet);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.kit-glyph-fill {
+  fill: var(--quiet);
+}
+
+.kit-glyph-tick {
+  stroke: var(--bg);
+}
+
+.kit-glyph-job path {
+  stroke-width: 1.9;
+  stroke-dasharray: 0.01 2.88;
+}
+
+.kit-glyph-run {
+  transform-origin: 50% 50%;
+  animation-name: kit-glyph-spin;
+  animation-duration: var(--dur-spin);
+  animation-timing-function: var(--spin-timing);
+  animation-iteration-count: infinite;
+}
+
+@keyframes kit-glyph-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-glyph-run {
+    animation-name: none;
+  }
+}
