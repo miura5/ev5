@@ -1,0 +1,28 @@
+.kit-evline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--quiet);
+}
+
+.kit-evline b {
+  font-weight: var(--fw-medium);
+  color: var(--text);
+}
+
+.kit-evmark {
+  display: inline-block;
+  box-sizing: border-box;
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+  margin-top: var(--sp-1);
+  border-radius: var(--r-round);
+  border: 2px dotted var(--her);
+}
+
+.kit-evmark-quiet {
+  border-color: var(--faint);
+}
