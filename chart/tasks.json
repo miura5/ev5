@@ -13511,7 +13511,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "PR #68: Button, Field, Toast with stories and tests, shown in /kit Components section via kit STORIES. Remaining first-set components still to do; stays open.",
+  "notes": "Part 2: Source, Row, Tile (S-21), each with CSS on tokens, a /kit story and a test. Next from PLAN §7: Glyph, E.V. line, Suggestion, Study card, Text options, Detail, Menu, palette, Doc.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-711",
