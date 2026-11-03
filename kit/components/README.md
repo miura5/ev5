@@ -2,4 +2,7 @@
 
 One folder per component: `Name.tsx`, `Name.css`, `Name.story.tsx`, `Name.test.ts`.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: (none yet)
+Imports: nothing outside its folder; npm: react, react-dom, @radix-ui, cmdk (§drift.imports)
+<!-- generated:end -->
