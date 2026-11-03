@@ -99,7 +99,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open |  |
 | B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
 | B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
-| B-725 | S-48c: New entity: item properties with repeat (PLAN §5.10) Done when: Migration, repository and compat fixture; materialization idempotent | B-709 | v5 P3 | open |  |
+| B-725 | S-48c: New entity: item properties with repeat (PLAN §5.10) Done when: Migration, repository and compat fixture; materialization idempotent | B-709 | v5 P3 | in progress |  |
 | B-726 | S-48d: New entities: own set, items and attempts (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-727 | S-48e: New entity: draft (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open |  |

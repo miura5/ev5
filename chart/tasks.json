@@ -13725,13 +13725,15 @@
   "title": "S-48c: New entity: item properties with repeat (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture; materialization idempotent",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-725",
+  "claimedAt": "2026-11-03T09:11:43.608Z"
  },
  {
   "id": "B-726",
