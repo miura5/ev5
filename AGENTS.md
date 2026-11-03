@@ -88,7 +88,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 **Phase 1: Repo, guards, walking skeleton**
 - S-10 TypeScript, Vite, React and Vitest base. One "hello" area.
 - S-11 ESLint (`max-lines`, `ban-ts-comment`, inline disables refused), dependency-cruiser rules from PLAN §4, Stylelint tokens-only, knip.
-- S-12 Custom checks, kept small: presence (stories and tests), registry-only definitions, the CONTRACT/skill/README rule check, the interface-trailer check, the personal-data scan.
+- S-12 Custom checks, kept small: presence (stories and tests), registry-only definitions, the CONTRACT/skill/README rule check, the interface-trailer check, the secrets scan (PLAN §10, changed by Matt on 2026-11-02).
 - S-13 Generated files: registries, folder READMEs' interface and must-not lines, `commands/client.ts`. Then regenerate-and-diff in CI.
 - S-14 Guard-failure fixtures: a PR per guard that must go red, recorded.
 - S-15 CI: branch protection, auto-merge, the staging deploy on merge (Cloudflare credentials only in GitHub), the live workflow behind Matt's approval.
@@ -207,7 +207,7 @@ No jargon, no commit lists. Screenshots at desktop 1280.
 ## 10. Never
 
 - Deploy live, roll back, or change ev4's live tasks or data without Matt's explicit word.
-- Put real personal data in the repo, in fixtures, on staging, in logs or in a prompt to a builder.
+- Put real personal data in fixtures, on staging, in logs or in a prompt to a builder (until Matt answers C15). Matt removed the repo limit on 2026-11-02.
 - State model ids, prices or platform limits from memory.
 - Add a rule anywhere except CONTRACT.md.
 - Merge without green checks, or disable a check to get green. A known failure is fixed first. A quarantined check expires.
