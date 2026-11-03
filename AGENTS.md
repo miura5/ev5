@@ -207,7 +207,7 @@ No jargon, no commit lists. Screenshots at desktop 1280.
 ## 10. Never
 
 - Deploy live, roll back, or change ev4's live tasks or data without Matt's explicit word.
-- Put real personal data in fixtures, on staging, in logs or in a prompt to a builder (until Matt answers C15). Matt removed the repo limit on 2026-11-02.
+- Put real personal data in fixtures, on staging, in logs or in a prompt to a builder (PLAN C15). Matt removed the repo limit on 2026-11-02.
 - State model ids, prices or platform limits from memory.
 - Add a rule anywhere except CONTRACT.md.
 - Merge without green checks, or disable a check to get green. A known failure is fixed first. A quarantined check expires.

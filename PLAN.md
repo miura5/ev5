@@ -42,7 +42,7 @@ A design that does Matt's thinking for him is a defect.
 ## 2. Fixed ground
 
 ### 2.1 Hard limits
-1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in his private repo. Secrets still never go in files (§10), and what stays synthetic elsewhere (staging, fixtures, logs, builder prompts) is open as E-2 until he answers.
+1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in his private repo. Secrets still never go in files (§10), and staging, fixtures, logs and builder prompts stay synthetic or id-only (C15, answered 2026-11-02).
 2. Canvas is read-only: GETs through Matt's signed-in browser, never a token.
 3. Nothing is deleted, except items Matt deletes himself, which are purged after 30 days (D-425). How the purge is timed is in §5.6.
 4. Live deploys happen only on Matt's word, and only through staging.
@@ -504,7 +504,7 @@ While the window is open, v5 keeps a `PlanJob` stub class and never ships a Dura
 - **Workers Free plan:** Time Travel covers only 7 days there **[verify]**. Moving to the paid plan is Matt's call **(confirm)**.
 - **What waits:** FSRS cards, Progress beyond one line, other job kinds, Matt-first planning, predictions, any search index, Web Push.
 
-## 15. Matt's confirmations (defaults apply until answered)
+## 15. Matt's confirmations (answered 2026-11-02: all defaults)
 
 | # | Question | Default (architect's recommendation) |
 |---|---|---|
