@@ -13507,15 +13507,15 @@
   "title": "S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts",
   "dod": "All 15 components have stories and tests",
   "milestone": "v5 P2",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-709"
   ],
-  "notes": "",
+  "notes": "PR #68: Button, Field, Toast with stories and tests, shown in /kit Components section via kit STORIES. Remaining first-set components still to do; stays open.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-711",
-  "claimedAt": "2026-11-03T09:14:05.564Z"
+  "claimedAt": "2026-11-03T09:49:45.374Z"
  },
  {
   "id": "B-712",

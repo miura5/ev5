@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { THEMES, type Theme } from "../kit/index.ts";
+import { STORIES, THEMES, type Theme } from "../kit/index.ts";
 import "./kit-gallery.css";
 
 const COLOURS = [
@@ -115,6 +115,15 @@ export function KitGallery() {
                 <span className={`dur-${i + 1}`} />
               </div>
               <span className="gallery-name">{token}</span>
+            </div>
+          ))}
+        </section>
+        <section aria-label="Components" data-key="components">
+          <h2>Components</h2>
+          {STORIES.map(({ name, Story }) => (
+            <div key={name} data-story={name}>
+              <h3>{name}</h3>
+              <Story />
             </div>
           ))}
         </section>
