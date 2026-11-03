@@ -1,8 +1,11 @@
 ## Phase      1 · gate items 8 / 9 done except rehearsal 1 (Gate 0 passed, D-455); S-10…S-16 done; S-17 runbook done, rehearsal 1 waits on Matt
 ## Running    nothing
 ## Waiting on Matt   Rehearsal 1 (S-17): needs repo secret EV4_CHECKOUT_TOKEN (read access to ev4's repo), an ev4 ref to deploy and the name of ev4's bearer-token secret. Posted on "For Matt" (miura5/ev5#1). Also, before the first live deploy (cutover only): secret CLOUDFLARE_API_TOKEN_LIVE and reviewers on the "live" environment.
-## Next       Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-41… entities (Phase 3, domain/time is in #38). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
+## Next       First confirm #40 (B-714) merged. Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-41… entities (Phase 3, domain/time is in #38). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
+
+### Ninth run (2026-11-03)
+- #38 (B-714) was red: the trailer check wants `Interface: domain/time` on the commit. Force-push was denied, so the fixed commit is #40 (branch claude/B-714-domain-time-v2, auto-merge on). #38 and #37 closed. Check #40 went green and merged; if not, fix there. Lesson: add `Interface: <folder>` to any commit touching an index.ts/schema/command file. Matt has still not answered the rehearsal question.
 
 ### Eighth run (2026-11-03)
 - B-714 (S-40, #38, auto-merge on): domain/time uses Intl only (no @date-fns/tz: a new dependency needs a Chart decision). Done: Central date/time, centralToInstant, isDue, isOverdue/daysUntil, repeat rules, DST tests for 2026-11-01 and 2027-03-14. Matt still hasn't answered the rehearsal question. Superseded: handover PR #37 can be closed.
