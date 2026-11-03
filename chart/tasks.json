@@ -13886,12 +13886,12 @@
   "title": "S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list)",
   "dod": "Tools, ⌘K and schedule generated from it",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "5e2891c",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-734-command-registry",
   "claimedAt": "2026-11-03T13:16:16.583Z"
@@ -13902,12 +13902,12 @@
   "title": "S-61: The job record, defineJob, executors and job_status",
   "dod": "Job lifecycle tests pass",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "565ad31",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-735-job-record",
   "claimedAt": "2026-11-03T13:14:25.173Z"
@@ -13918,12 +13918,12 @@
   "title": "S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation",
   "dod": "Continuation is idempotent",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "2e17395",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-736-workflows-runtime",
   "claimedAt": "2026-11-03T13:18:28.927Z"
@@ -13934,12 +13934,12 @@
   "title": "S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert",
   "dod": "A forced ceiling hit fails cleanly",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "ffdc27b",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-737",
   "claimedAt": "2026-11-03T13:23:20.722Z"
@@ -13950,12 +13950,12 @@
   "title": "S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date",
   "dod": "A forced invalid output and max_tokens fail cleanly",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "2052b58",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b738",
   "claimedAt": "2026-11-03T13:19:50.864Z"
@@ -13966,12 +13966,12 @@
   "title": "S-65: The practice set job (mock exam variant; drafts output for Write with E.V.)",
   "dod": "Runs on v5 staging",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "a38453b",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b739",
   "claimedAt": "2026-11-03T13:42:42.280Z"
@@ -13982,12 +13982,12 @@
   "title": "S-66: The study plan job",
   "dod": "Runs on v5 staging",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "38ec88c",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-740-study-plan-job",
   "claimedAt": "2026-11-03T13:43:47.671Z"
@@ -13998,12 +13998,12 @@
   "title": "S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s",
   "dod": "Route tests pass",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-713"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "9887399",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b741",
   "claimedAt": "2026-11-03T13:21:53.456Z"
