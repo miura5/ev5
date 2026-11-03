@@ -13422,13 +13422,15 @@
   "title": "S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live",
   "dod": "Staging deploys on merge; live waits in the live environment",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run5",
+  "claimedAt": "2026-11-03T04:21:44.362Z"
  },
  {
   "id": "B-707",
