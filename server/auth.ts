@@ -7,7 +7,7 @@ export type Caller = "app" | "schedule" | "executor";
 /** Route prefixes each caller may reach. Only the app token changes ceilings (§sec.auth), so it alone may reach /api/v1/ceilings. */
 export const SCOPES: Record<Caller, readonly string[]> = {
   app: ["/api/v1/"],
-  schedule: ["/api/v1/jobs/", "/api/v1/whoami"],
+  schedule: ["/api/v1/jobs", "/api/v1/jobs/", "/api/v1/whoami"],
   executor: ["/api/v1/executor/", "/api/v1/whoami"],
 };
 

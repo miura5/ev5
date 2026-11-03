@@ -23,6 +23,12 @@ export { practiceSetHandlers } from "./practice-set/handlers.ts";
 export type { PracticeStore } from "./practice-set/handlers.ts";
 export { studyPlanJob, studyPlanHandlers } from "./study-plan/job.ts";
 export type { PlanStore, Plan } from "./study-plan/job.ts";
-export { startJob, workflowExecutor } from "./runtime/index.ts";
+export {
+  startJob,
+  continueJob,
+  jobStatus,
+  workflowExecutor,
+  cloudflareAdapter,
+} from "./runtime/index.ts";
 export type { Env as StartEnv } from "./runtime/index.ts";
 export { fakeWorkflows } from "./runtime/workflow.fake.ts";
