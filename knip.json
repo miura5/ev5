@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@6.44.1/schema.json",
+  "entry": ["**/*.test.{ts,tsx}"],
+  "project": ["{areas,shell,kit,domain,commands,jobs,data,server,ops,e2e}/**/*.{ts,tsx}"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": { "ops/record/chart.ts": ["exports"] },
+  "ignoreDependencies": ["@babel/preset-typescript", "@swc/core"]
+}
