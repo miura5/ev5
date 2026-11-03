@@ -15,6 +15,7 @@ import "./components/EvLine/EvLine.css";
 import "./components/StudyCard/StudyCard.css";
 import "./components/Detail/Detail.css";
 import "./components/Doc/Doc.css";
+import "./components/Palette/Palette.css";
 import { Story as ButtonStory } from "./components/Button/Button.story";
 import { Story as FieldStory } from "./components/Field/Field.story";
 import { Story as ToastStory } from "./components/Toast/Toast.story";
@@ -32,6 +33,7 @@ import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
 import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story";
 import { Story as DetailStory } from "./components/Detail/Detail.story";
 import { Story as DocStory } from "./components/Doc/Doc.story";
+import { Story as PaletteStory } from "./components/Palette/Palette.story";
 
 /** Every component's story, in gallery order; the /kit route renders each under its name. */
 export const STORIES = [
@@ -49,4 +51,5 @@ export const STORIES = [
   { name: "Study card", Story: StudyCardStory },
   { name: "Detail", Story: DetailStory },
   { name: "Doc", Story: DocStory },
+  { name: "Palette", Story: PaletteStory },
 ] as const;

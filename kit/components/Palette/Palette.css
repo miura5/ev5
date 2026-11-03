@@ -1,0 +1,145 @@
+.kit-pal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--scrim);
+  animation-name: kit-pal-fade;
+  animation-duration: var(--dur-1);
+}
+
+.kit-pal-scrim::before {
+  content: "";
+  flex: none;
+  height: calc(var(--sp-12) * 2 + var(--sp-6));
+}
+
+.kit-pal {
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--sp-14) * 10);
+  max-width: 100%;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--text);
+  animation-name: kit-pal-rise;
+  animation-duration: var(--dur-2);
+}
+
+.kit-pal-in {
+  height: var(--row2);
+  padding: 0 var(--sp-6);
+  border: 0;
+  border-bottom: var(--hairline) solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+}
+
+.kit-pal-in::placeholder {
+  color: var(--faint);
+}
+
+.kit-pal-list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-2) var(--sp-4);
+  max-height: calc(var(--row) * 10 + var(--sp-2) * 2);
+  overflow-y: auto;
+}
+
+.kit-pal-label {
+  padding: var(--sp-2) var(--sp-2) var(--sp-1);
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--faint);
+}
+
+.kit-pal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--row);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.kit-pal-on {
+  background: var(--hover);
+}
+
+.kit-pal-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kit-pal-mark {
+  display: inline-block;
+  box-sizing: border-box;
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+  border-radius: var(--r-round);
+  border: 2px dotted var(--faint);
+}
+
+.kit-pal-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  height: var(--row);
+  padding: 0 var(--sp-6);
+  border-top: var(--hairline) solid var(--line);
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.kit-pal-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  white-space: nowrap;
+}
+
+.kit-pal-grow {
+  flex: 1;
+}
+
+/* In the /kit gallery the palette sits inside its story, not over the page. */
+[data-ui="story-palette"] {
+  position: relative;
+  height: calc(var(--sp-14) * 8);
+  transform: translateZ(0);
+  overflow: hidden;
+}
+
+@keyframes kit-pal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes kit-pal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-pal-scrim,
+  .kit-pal {
+    animation-name: none;
+  }
+}
