@@ -13392,13 +13392,15 @@
   "title": "S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI",
   "dod": "CI fails on a stale generated file",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run4",
+  "claimedAt": "2026-11-03T04:09:12.658Z"
  },
  {
   "id": "B-705",

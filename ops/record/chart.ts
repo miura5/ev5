@@ -125,8 +125,6 @@ export const nextDecisionId = (rec: Chart): string =>
   'D-' + String(highest(rec.decisions.map(d => d.id)) + 1).padStart(3, '0');
 
 export const kindOf = (d: Decision): string => d.kind || 'decision';
-export const ids = (s: unknown): string[] =>
-  [...String(s || '').matchAll(/\b([BD]-\d{2,3})\b/g)].map(m => m[1] as string);
 export const list = (s: unknown): string[] =>
   s == null || s === true
     ? []

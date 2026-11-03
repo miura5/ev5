@@ -2,4 +2,7 @@
 
 `tokens.css`: the only place colours, type and space are defined.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: (none yet)
+Imports: nothing outside its folder; npm: react, react-dom, @radix-ui, cmdk (§drift.imports)
+<!-- generated:end -->

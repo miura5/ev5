@@ -31,3 +31,4 @@ jobs:
       - run: node ops/record/cli.ts lint
       - run: node ops/record/cli.ts render --check
       - run: node ops/checks/cli.ts
+      - run: node ops/generate/cli.ts --check
