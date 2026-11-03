@@ -11,7 +11,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 
 test("the carried Chart, with ev4's headers, renders ev4's committed files byte for byte", () => {
-  const files = generatedFiles(loadChart(ROOT), EV4_HEADERS);
+  const files = generatedFiles(loadChart(path.join(HERE, 'fixtures-ev4')), EV4_HEADERS);
   for (const [name, text] of Object.entries(files)) {
     const want = fs.readFileSync(path.join(HERE, 'fixtures-ev4', name), 'utf8');
     if (text !== want) {

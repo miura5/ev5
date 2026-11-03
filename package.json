@@ -6,6 +6,7 @@
     "node": ">=26"
   },
   "scripts": {
+    "test": "node --test ops/record/ data/compat/",
     "test:compat": "node --test data/compat/"
   },
   "devDependencies": {

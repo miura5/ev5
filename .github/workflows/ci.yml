@@ -14,5 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Phase 0 placeholder: the PLAN §11 checks replace this in Phase 1 (S-11 to S-15).
-      - run: echo "no checks yet"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - run: npm ci
+      # Phase 0 checks; the full PLAN §11 set replaces this list in Phase 1 (S-11 to S-15).
+      - run: npm test
+      - run: node ops/record/cli.ts lint
+      - run: node ops/record/cli.ts render --check
