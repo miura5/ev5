@@ -14357,13 +14357,15 @@
   "title": "Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw)",
   "dod": "jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test",
   "milestone": "Phase 4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-738"
   ],
   "notes": "",
   "commit": null,
-  "source": "handover Next (a)"
+  "source": "handover Next (a)",
+  "claimedBy": "build-run-15",
+  "claimedAt": "2026-11-03T13:58:44.717Z"
  },
  {
   "id": "B-766",
