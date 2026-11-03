@@ -1,8 +1,16 @@
-## Phase      0 (not started) · gate items 0 / 6
+## Phase      0 · gate items 5 / 6 (S-04, S-05, S-06, S-08 done; Matt's yes on the hard limits, D-451; S-07 part 2 open)
 ## Running    nothing
-## Waiting on Matt   the one-time setup in MATT.md, step by step (in the build chat)
-## Next       finish the setup, then Phase 0 (S-01 to S-08)
+## Waiting on Matt   nothing
+## Next       S-07 part 2 (B-697), then record Gate 0 (B-700) and start Phase 1 (S-10 onward)
 ## Staging    none yet   ## Live  ev4 build (unchanged)
 
-### Decisions
-Recorded in the Chart as D-426…D-450 (`docs/record/DECISIONS.md`). Seed tasks are B-691…B-763 (`docs/record/BACKLOG.md`).
+### How S-07 part 2 runs
+- Cloudflare credentials live only in GitHub, so deploys run in GitHub Actions, never from the cloud session. Add a `workflow_dispatch` workflow `.github/workflows/spike.yml` through a PR. It uses `CLOUDFLARE_API_TOKEN_STAGING` and `CLOUDFLARE_ACCOUNT_ID` and deploys only a Worker and D1 both named `ev5-spike` (never ev-live or its D1, CONTRACT §sec.account). Dispatch it with `gh workflow run` and read its logs.
+- Tests: the four in `docs/spikes/S-07-workflows.md` part 2. Write the results into that report.
+- When done, delete `ev5-spike` (Worker and D1) through the same workflow (CONTRACT §deliver.cleanup).
+- If the CPU-per-step test fails on Free, ask Matt under C5 (CONTRACT §hard.money) through the "For Matt" issue, and carry on with Phase 1.
+
+### Notes for the next run
+- `main` is protected: a PR from a `claude/` branch with the `checks` job green, up to date with `main` (`gh pr update-branch` when it shows BEHIND), auto-merge squash.
+- Record commits after the squash merge: the squash hash differs from the branch hash.
+- Hard limits are CONTRACT §1 (five). The Chart holds decisions D-426…D-451 and seed tasks B-691…B-763 (`docs/record/`).
