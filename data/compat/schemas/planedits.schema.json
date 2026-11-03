@@ -1,0 +1,93 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/planedits",
+ "title": "planedits/<id>",
+ "description": "task ticks, and (B-45, D-102) the id of the plan in force",
+ "x-ev": {
+  "collection": "planedits",
+  "class": "Edit",
+  "writers": [
+   "page"
+  ],
+  "schema": 2
+ },
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 2
+  },
+  "writer": {
+   "enum": [
+    "page"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1
+  },
+  "updatedAt": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "ticks": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "properties": {
+     "at": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "by": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "at"
+    ],
+    "additionalProperties": false
+   }
+  },
+  "plan": {
+   "type": "string",
+   "minLength": 1,
+   "description": "B-45 (D-102): the plans/<id> in force for this exam; unset means plans/<examId>"
+  },
+  "retired": {
+   "type": "object",
+   "description": "B-469: plans/<id> he put away from the plan card; never in force and never a draft (nothing deleted)",
+   "additionalProperties": {
+    "type": "object",
+    "properties": {
+     "at": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "by": {
+      "type": "string"
+     },
+     "why": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "at"
+    ],
+    "additionalProperties": false
+   }
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source",
+  "updatedAt",
+  "ticks"
+ ],
+ "additionalProperties": false
+}

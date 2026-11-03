@@ -1,0 +1,14 @@
+{
+  "name": "ev5",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "test:compat": "node --test data/compat/"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

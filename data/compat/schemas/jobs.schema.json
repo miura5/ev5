@@ -1,0 +1,148 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/jobs",
+ "title": "jobs/<id>",
+ "description": "kind, title, brief, fired; kinds build, reply, design, plan and ship are the builder's (D-194, schema 2)",
+ "x-ev": {
+  "collection": "jobs",
+  "class": "Fact",
+  "writers": [
+   "page"
+  ],
+  "schema": 2,
+  "marks": {
+   "fired": [
+    "page"
+   ]
+  }
+ },
+ "$comment": "Status and result live in jobresults/<job id>.",
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 2
+  },
+  "writer": {
+   "enum": [
+    "page"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1
+  },
+  "kind": {
+   "enum": [
+    "study-guide",
+    "practice-set",
+    "exam-plan",
+    "exam-retro",
+    "clinical-prep",
+    "share-set",
+    "flashcards",
+    "general",
+    "build",
+    "reply",
+    "design",
+    "plan",
+    "ship"
+   ],
+   "description": "flashcards is legacy (D-416, B-647): old jobs of that kind stay valid; spec.jobs.kinds no longer lists it, so nothing starts one."
+  },
+  "title": {
+   "type": "string",
+   "minLength": 1
+  },
+  "brief": {
+   "type": "string",
+   "minLength": 1
+  },
+  "course": {
+   "type": "string",
+   "description": "B-449: an exam-plan job: the course to plan; B-487: a flashcards job: the course its deck is for (D-416: flashcards are retired; kept so old jobs still validate, no code writes it)"
+  },
+  "deck": {
+   "type": "string",
+   "pattern": "^deck-[a-z0-9-]{1,120}$",
+   "description": "B-496: a flashcards job that adds cards to this deck (decks/<id>) instead of making a new one (D-416: flashcards are retired; kept so old jobs still validate, no code writes it)"
+  },
+  "revise": {
+   "type": "string",
+   "description": "B-449: an exam-plan job: the plans/<id> to revise, the brief saying what to change"
+  },
+  "said": {
+   "type": "string",
+   "maxLength": 1500,
+   "description": "D-362: an exam-plan edit from chat: his own line, the brief of a Make a new plan chip the edit may offer"
+  },
+  "chip": {
+   "type": "string",
+   "maxLength": 200,
+   "description": "D-362: a new plan started from a chip: the chip's message card key, so only that chip shows this job"
+  },
+  "fired": {
+   "anyOf": [
+    {
+     "type": "object",
+     "properties": {
+      "at": {
+       "type": "string",
+       "format": "date-time"
+      },
+      "ok": {
+       "type": "boolean"
+      },
+      "error": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "at",
+      "ok"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "null"
+    }
+   ]
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source",
+  "kind",
+  "title",
+  "brief"
+ ],
+ "not": {
+  "anyOf": [
+   {
+    "required": [
+     "status"
+    ]
+   },
+   {
+    "required": [
+     "result"
+    ]
+   },
+   {
+    "required": [
+     "startedAt"
+    ]
+   },
+   {
+    "required": [
+     "finishedAt"
+    ]
+   }
+  ]
+ }
+}
