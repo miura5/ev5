@@ -71,6 +71,7 @@ test('needs-you ends the instance; one continuation, repeated, saves once', asyn
   assert.equal(waiting.step, 'approve');
   assert.equal(saved.length, 0);
   assert.deepEqual([...usage.keys()], ['j1:call:1']);
+  assert.equal(waiting.costCents, 7); // the job record shows the spend, not only the ceilings
 
   await continueJob(env, def, 'j1', 'yes');
   await assert.rejects(continueJob(env, def, 'j1', 'yes'), /not waiting/);
