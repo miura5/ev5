@@ -2,4 +2,7 @@
 
 Today: the plan list, Suggestions, coming-up dates.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: (none yet)
+Imports: kit, domain, commands/client (§drift.imports)
+<!-- generated:end -->

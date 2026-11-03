@@ -2,4 +2,7 @@
 
 Proprietary, E.V.'s design system. `tokens/` is the only place colours, type and space are defined. Never imports the app.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: (none yet)
+Imports: nothing outside its folder; npm: react, react-dom, @radix-ui, cmdk (§drift.imports)
+<!-- generated:end -->
