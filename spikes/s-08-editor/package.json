@@ -1,0 +1,21 @@
+{
+  "name": "ev5-spike-s-08-editor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.32.2",
+    "@tiptap/extension-image": "3.32.2",
+    "@tiptap/extension-list": "3.32.2",
+    "@tiptap/pm": "3.32.2",
+    "@tiptap/starter-kit": "3.32.2",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-model": "1.25.12",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-transform": "1.12.4"
+  }
+}
