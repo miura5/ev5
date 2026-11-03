@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-456",
+  "date": "Nov 2",
+  "title": "S-11 deviations: Babel parses for ESLint and @swc/core transpiles for dependency-cruiser, because TypeScript 7 has no JS compiler API; ban-ts-comment becomes no-warning-comments on @ts- terms",
+  "why": "typescript-eslint and dependency-cruiser do not support TypeScript 7. Revisit when they do. Added dev deps: @babel/core, @babel/eslint-parser, @babel/preset-typescript, @swc/core.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-702"
+ },
+ {
   "id": "D-455",
   "date": "Nov 2",
   "title": "Gate 0 passed: S-04 to S-08 done, Matt's yes on the hard limits (D-451); Workflows stays on the Free plan",
