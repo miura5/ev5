@@ -165,8 +165,16 @@ test("a ceiling hit stops the job before any model call, in plain words", async 
   assert.equal(calls(), 0);
 });
 
-test("with no ceilings set in settings nothing runs", async () => {
+test("with no ceilings set in settings the documented defaults apply and the job runs", async () => {
   const { env, wf, calls } = setup({ settings: false });
+  await startJob(env, practiceSet, input, "matt");
+  await wf.idle();
+  assert.equal((await env.store.get("job1"))!.state, "done");
+  assert.equal(calls(), 1);
+});
+
+test("a stored ceiling of 0 still stops every call", async () => {
+  const { env, wf, calls } = setup({ ceiling: 0 });
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
   assert.equal((await env.store.get("job1"))!.state, "failed");

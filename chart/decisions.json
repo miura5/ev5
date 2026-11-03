@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-460",
+  "date": "Nov 3",
+  "title": "Ceiling defaults when claude_settings ceiling_* are unset: per job $1, hourly $2, daily $5, monthly $40 (builder's guesses)",
+  "why": "B-768. Unset ceilings stopped every call (0). Amounts are config, not in PLAN or CONTRACT, so these are conservative guesses in DEFAULT_CEILINGS (server/job-run.ts, micro-dollars): ceiling_per_job 1000000, ceiling_hourly 2000000, ceiling_daily 5000000, ceiling_monthly 40000000. One study plan (cap 60 cents) or practice set (50 cents) fits the per-job cap. A value Matt stores, even 0, wins. Matt may change them any time; not tuned to real use.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-768"
+ },
+ {
   "id": "D-459",
   "date": "Nov 3",
   "title": "Add @anthropic-ai/sdk 1.4.0 as the only model client (B-765)",
