@@ -13980,13 +13980,15 @@
   "title": "S-66: The study plan job",
   "dod": "Runs on v5 staging",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-740-study-plan-job",
+  "claimedAt": "2026-11-03T13:43:47.671Z"
  },
  {
   "id": "B-741",
