@@ -13187,5 +13187,1093 @@
    "outcome": "task",
    "at": "2026-11-02T12:29:58.751Z"
   }
+ },
+ {
+  "id": "B-691",
+  "kind": "task",
+  "title": "S-01: Bootstrap the repo: PLAN §4 skeleton, CLAUDE.md, handover, the pinned \"For Matt\" issue",
+  "dod": "The tree matches PLAN §4 and CI runs an empty check",
+  "milestone": "v5 P0",
+  "status": "done",
+  "depends": [],
+  "notes": "Skeleton, README per folder, CI empty check, For Matt issue miura5/ev5#1",
+  "commit": "5a5ce86",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-chat-2026-11-02",
+  "claimedAt": "2026-11-03T03:12:13.084Z"
+ },
+ {
+  "id": "B-692",
+  "kind": "task",
+  "title": "S-02: The record writer ops/record, carrying ev4's chart/*.json",
+  "dod": "Renders match ev4's for the carried data; deploys.json frozen as v4 history",
+  "milestone": "v5 P0",
+  "status": "done",
+  "depends": [],
+  "notes": "14/14 tests; renders byte-match ev4; lint green",
+  "commit": "1423565",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-chat-2026-11-02",
+  "claimedAt": "2026-11-03T03:12:13.217Z"
+ },
+ {
+  "id": "B-693",
+  "kind": "task",
+  "title": "S-03: File the seed tasks through ops/record",
+  "dod": "Every AGENTS.md §4.3 seed is a Chart task",
+  "milestone": "v5 P0",
+  "status": "done",
+  "depends": [
+   "B-692"
+  ],
+  "notes": "73 tasks filed; gates as G tasks",
+  "commit": "b0ae350",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-chat-2026-11-02",
+  "claimedAt": "2026-11-03T03:12:13.351Z"
+ },
+ {
+  "id": "B-694",
+  "kind": "task",
+  "title": "S-04: Record Matt's confirmations (PLAN §15) as decisions",
+  "dod": "C1–C15 and E-1, E-2 are Chart decisions",
+  "milestone": "v5 P0",
+  "status": "done",
+  "depends": [
+   "B-692"
+  ],
+  "notes": "D-426…D-450",
+  "commit": "b0ae350",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-chat-2026-11-02",
+  "claimedAt": "2026-11-03T03:12:13.483Z"
+ },
+ {
+  "id": "B-695",
+  "kind": "task",
+  "title": "S-05: Sweep the accepted decisions and PLAN §2–§12 into CONTRACT.md, with §ids, and list the ended rules",
+  "dod": "CONTRACT.md exists; its hard-limits section is marked for Matt's yes",
+  "milestone": "v5 P0",
+  "status": "in progress",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-subagent",
+  "claimedAt": "2026-11-03T03:12:13.765Z"
+ },
+ {
+  "id": "B-696",
+  "kind": "task",
+  "title": "S-06: data/compat: frozen ev4 schemas, protocol tests, ev4's route list",
+  "dod": "The compat tests pass against the reference adapter",
+  "milestone": "v5 P0",
+  "status": "in progress",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-subagent",
+  "claimedAt": "2026-11-03T03:12:13.898Z"
+ },
+ {
+  "id": "B-697",
+  "kind": "task",
+  "title": "S-07: Spike: Workflows on the current plan tier",
+  "dod": "A report with pass/fail per PLAN §13 item and a recommendation",
+  "milestone": "v5 P0",
+  "status": "in progress",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-chat-2026-11-02",
+  "claimedAt": "2026-11-03T03:12:13.626Z"
+ },
+ {
+  "id": "B-698",
+  "kind": "task",
+  "title": "S-08: Spike: the notes editor round trip (ProseMirror/Tiptap ⇄ ev4 blocks)",
+  "dod": "A report with pass/fail per block type and harness behaviour",
+  "milestone": "v5 P0",
+  "status": "in progress",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-subagent",
+  "claimedAt": "2026-11-03T03:12:14.032Z"
+ },
+ {
+  "id": "B-699",
+  "kind": "task",
+  "title": "S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec",
+  "dod": "Shipped through ev4's own process; not built here",
+  "milestone": "v5 P0",
+  "status": "blocked",
+  "depends": [],
+  "notes": "ev4 task: ships through ev4's own process, never from this repo",
+  "commit": null,
+  "source": "AGENTS.md §4.3",
+  "waitingWhere": "github"
+ },
+ {
+  "id": "B-700",
+  "kind": "task",
+  "title": "G-0: Gate 0: decide and freeze",
+  "dod": "S-04…S-08 done and Matt's yes on the CONTRACT hard limits",
+  "milestone": "v5 P0",
+  "status": "open",
+  "depends": [
+   "B-691",
+   "B-692",
+   "B-693",
+   "B-694",
+   "B-695",
+   "B-696",
+   "B-697",
+   "B-698"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-701",
+  "kind": "task",
+  "title": "S-10: TypeScript, Vite, React and Vitest base, with one \"hello\" area",
+  "dod": "Builds and tests green in CI",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-702",
+  "kind": "task",
+  "title": "S-11: ESLint, dependency-cruiser, Stylelint (tokens only), knip, per PLAN §4 and §11",
+  "dod": "Each runs in CI",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-703",
+  "kind": "task",
+  "title": "S-12: Custom checks: presence, registry-only definitions, CONTRACT/skill/README rule check, interface trailer, secrets scan",
+  "dod": "Each runs in CI",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-704",
+  "kind": "task",
+  "title": "S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI",
+  "dod": "CI fails on a stale generated file",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-705",
+  "kind": "task",
+  "title": "S-14: Guard-failure fixtures: one PR per guard that must go red, recorded",
+  "dod": "Every PLAN §13 Phase 1 guard shown red",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-706",
+  "kind": "task",
+  "title": "S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live",
+  "dod": "Staging deploys on merge; live waits in the live environment",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-707",
+  "kind": "task",
+  "title": "S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record",
+  "dod": "The empty app answers on staging",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-708",
+  "kind": "task",
+  "title": "S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair",
+  "dod": "Rehearsal 1 passes all five steps",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-700"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-709",
+  "kind": "task",
+  "title": "G-1: Gate 1: repo, guards, walking skeleton",
+  "dod": "Every guard shown to fail, and rehearsal 1 passes",
+  "milestone": "v5 P1",
+  "status": "open",
+  "depends": [
+   "B-701",
+   "B-702",
+   "B-703",
+   "B-704",
+   "B-705",
+   "B-706",
+   "B-707",
+   "B-708"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-710",
+  "kind": "task",
+  "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
+  "dod": "Tokens match the mock-up",
+  "milestone": "v5 P2",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-711",
+  "kind": "task",
+  "title": "S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts",
+  "dod": "All 15 components have stories and tests",
+  "milestone": "v5 P2",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-712",
+  "kind": "task",
+  "title": "S-39: The /kit gallery route and Playwright visual baselines in Docker",
+  "dod": "Baselines committed",
+  "milestone": "v5 P2",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-713",
+  "kind": "task",
+  "title": "G-2: Gate 2: kit",
+  "dod": "Baselines committed, and the gallery matches the mock-up",
+  "milestone": "v5 P2",
+  "status": "open",
+  "depends": [
+   "B-710",
+   "B-711",
+   "B-712"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-714",
+  "kind": "task",
+  "title": "S-40: domain/time with the DST tests and the \"due by Central date\" rule",
+  "dod": "DST tests pass on 2026-11-01 and 2027-03-14",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-715",
+  "kind": "task",
+  "title": "S-41: Entity: exam",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-716",
+  "kind": "task",
+  "title": "S-42: Entity: objective",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-717",
+  "kind": "task",
+  "title": "S-43: Entity: weak spot, with its fixed-interval scheduler",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-718",
+  "kind": "task",
+  "title": "S-44: Entity: set",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-719",
+  "kind": "task",
+  "title": "S-45: Entity: item",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-720",
+  "kind": "task",
+  "title": "S-46: Entity: session",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-721",
+  "kind": "task",
+  "title": "S-47: Entity: note",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-722",
+  "kind": "task",
+  "title": "S-48: Entity: course",
+  "dod": "ev4's tests ported and passing",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-723",
+  "kind": "task",
+  "title": "S-48a: New entities: collection and membership (PLAN §5.10)",
+  "dod": "Migration, repository and compat fixture",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-724",
+  "kind": "task",
+  "title": "S-48b: New entity: pin (PLAN §5.10)",
+  "dod": "Migration, repository and compat fixture",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-725",
+  "kind": "task",
+  "title": "S-48c: New entity: item properties with repeat (PLAN §5.10)",
+  "dod": "Migration, repository and compat fixture; materialization idempotent",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-726",
+  "kind": "task",
+  "title": "S-48d: New entities: own set, items and attempts (PLAN §5.10)",
+  "dod": "Migration, repository and compat fixture",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-727",
+  "kind": "task",
+  "title": "S-48e: New entity: draft (PLAN §5.10)",
+  "dod": "Migration, repository and compat fixture",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-728",
+  "kind": "task",
+  "title": "S-49: D1 repositories over docs, with Zod parsing and the protocol",
+  "dod": "Pass the data/compat protocol suite",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-729",
+  "kind": "task",
+  "title": "S-50: The migration baseline and the deletions table",
+  "dod": "Baseline is a no-op on a copy of ev4's schema",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-730",
+  "kind": "task",
+  "title": "S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch",
+  "dod": "Counts and SHA-256 match after restore",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-731",
+  "kind": "task",
+  "title": "S-52: domain/search and its retrieval test set",
+  "dod": "The retrieval test set passes",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-732",
+  "kind": "task",
+  "title": "S-53: The scratch-copy parse check (needs Matt's OK; counts only)",
+  "dod": "Zero parse errors",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-709"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-733",
+  "kind": "task",
+  "title": "G-3: Gate 3: domain and data",
+  "dod": "PLAN §13 Phase 3 gate items all true",
+  "milestone": "v5 P3",
+  "status": "open",
+  "depends": [
+   "B-714",
+   "B-715",
+   "B-716",
+   "B-717",
+   "B-718",
+   "B-719",
+   "B-720",
+   "B-721",
+   "B-722",
+   "B-723",
+   "B-724",
+   "B-725",
+   "B-726",
+   "B-727",
+   "B-728",
+   "B-729",
+   "B-730",
+   "B-731",
+   "B-732"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-734",
+  "kind": "task",
+  "title": "S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list)",
+  "dod": "Tools, ⌘K and schedule generated from it",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-735",
+  "kind": "task",
+  "title": "S-61: The job record, defineJob, executors and job_status",
+  "dod": "Job lifecycle tests pass",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-736",
+  "kind": "task",
+  "title": "S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation",
+  "dod": "Continuation is idempotent",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-737",
+  "kind": "task",
+  "title": "S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert",
+  "dod": "A forced ceiling hit fails cleanly",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-738",
+  "kind": "task",
+  "title": "S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date",
+  "dod": "A forced invalid output and max_tokens fail cleanly",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-739",
+  "kind": "task",
+  "title": "S-65: The practice set job (mock exam variant; drafts output for Write with E.V.)",
+  "dod": "Runs on v5 staging",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-740",
+  "kind": "task",
+  "title": "S-66: The study plan job",
+  "dod": "Runs on v5 staging",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-741",
+  "kind": "task",
+  "title": "S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s",
+  "dod": "Route tests pass",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-713",
+   "B-733"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-742",
+  "kind": "task",
+  "title": "G-4: Gate 4: commands, runtime, server",
+  "dod": "PLAN §13 Phase 4 gate items all true",
+  "milestone": "v5 P4",
+  "status": "open",
+  "depends": [
+   "B-734",
+   "B-735",
+   "B-736",
+   "B-737",
+   "B-738",
+   "B-739",
+   "B-740",
+   "B-741"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-743",
+  "kind": "task",
+  "title": "S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-744",
+  "kind": "task",
+  "title": "S-71: Activity",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-745",
+  "kind": "task",
+  "title": "S-72: Today",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-746",
+  "kind": "task",
+  "title": "S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-747",
+  "kind": "task",
+  "title": "S-74: Ask E.V.",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-748",
+  "kind": "task",
+  "title": "S-75: The notes editor: home list and note page",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-749",
+  "kind": "task",
+  "title": "S-76: Study sessions and read-along",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-750",
+  "kind": "task",
+  "title": "S-76a: Collection page, Recently deleted, pins",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-751",
+  "kind": "task",
+  "title": "S-77: The offline outbox, and the ev4-outbox import",
+  "dod": "Offline note journey passes",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-752",
+  "kind": "task",
+  "title": "S-78: The e2e journeys from Gate 5",
+  "dod": "All journeys pass",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-753",
+  "kind": "task",
+  "title": "G-5: Gate 5: shell and areas",
+  "dod": "e2e journeys pass",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-743",
+   "B-744",
+   "B-745",
+   "B-746",
+   "B-747",
+   "B-748",
+   "B-749",
+   "B-750",
+   "B-751",
+   "B-752"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-754",
+  "kind": "task",
+  "title": "S-80: Scheduled commands: morning, evening, weekly",
+  "dod": "Tested across DST",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-755",
+  "kind": "task",
+  "title": "S-81: The Mac executor for Canvas (needs Matt present)",
+  "dod": "Canvas sync reports through report_job",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-756",
+  "kind": "task",
+  "title": "S-82: The push task (C7)",
+  "dod": "A push reaches the phone from v5's summary",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-757",
+  "kind": "task",
+  "title": "S-83: Restore drills, including a Time Travel restore on staging",
+  "dod": "Drills pass for every table",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-758",
+  "kind": "task",
+  "title": "S-84: Rehearsal 2",
+  "dod": "All five steps pass",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-759",
+  "kind": "task",
+  "title": "S-85: One end-to-end run",
+  "dod": "Passes on staging",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-753"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-760",
+  "kind": "task",
+  "title": "G-6: Gate 6: ops",
+  "dod": "The end-to-end run, both drills and rehearsal 2 pass",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-754",
+   "B-755",
+   "B-756",
+   "B-757",
+   "B-758",
+   "B-759"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-761",
+  "kind": "task",
+  "title": "S-90: The whole-repo review",
+  "dod": "No open findings on lost data, cost, security, crashes, unreachable controls",
+  "milestone": "v5 P7",
+  "status": "open",
+  "depends": [
+   "B-760"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-762",
+  "kind": "task",
+  "title": "S-91: A UX pass against the rules and the mock-up",
+  "dod": "Findings fixed or filed",
+  "milestone": "v5 P7",
+  "status": "open",
+  "depends": [
+   "B-760"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
+ },
+ {
+  "id": "B-763",
+  "kind": "task",
+  "title": "S-92: The release card; Matt tests",
+  "dod": "Matt says ship",
+  "milestone": "v5 P7",
+  "status": "open",
+  "depends": [
+   "B-760"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "AGENTS.md §4.3"
  }
 ]
