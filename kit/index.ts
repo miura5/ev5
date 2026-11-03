@@ -60,3 +60,5 @@ export { Detail, type DetailProps } from "./components/Detail/Detail";
 export { Palette, type PaletteGroup } from "./components/Palette/Palette";
 export { Button } from "./components/Button/Button";
 export { Source } from "./components/Source/Source";
+export { Doc } from "./components/Doc/Doc";
+export { EvLine } from "./components/EvLine/EvLine";
