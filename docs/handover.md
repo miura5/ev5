@@ -1,8 +1,12 @@
 ## Phase      1 · gate items 8 / 9 done except rehearsal 1 (Gate 0 passed, D-455); S-10…S-16 done; S-17 runbook done, rehearsal 1 waits on Matt
 ## Running    nothing
 ## Waiting on Matt   Rehearsal 1 (S-17): needs repo secret EV4_CHECKOUT_TOKEN (read access to ev4's repo), an ev4 ref to deploy and the name of ev4's bearer-token secret. Posted on "For Matt" (miura5/ev5#1). Also, before the first live deploy (cutover only): secret CLOUDFLARE_API_TOKEN_LIVE and reviewers on the "live" environment.
-## Next       Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-40 domain/time (Phase 3). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
+## Next       Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-41… entities (Phase 3, domain/time is in #38). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
+
+### Eighth run (2026-11-03)
+- B-714 (S-40, #38, auto-merge on): domain/time uses Intl only (no @date-fns/tz: a new dependency needs a Chart decision). Done: Central date/time, centralToInstant, isDue, isOverdue/daysUntil, repeat rules, DST tests for 2026-11-01 and 2027-03-14. Matt still hasn't answered the rehearsal question. Superseded: handover PR #37 can be closed.
+- npm ci works in the sandbox on Node 22 with --ignore-scripts --engine-strict=false.
 
 ### Seventh run (2026-11-03)
 - B-764 (#34, auto-merge on): server/ev4-routes.ts answers every route in routes.json with 410; unknown /api paths stay 404. Tests run via `server/*.test.ts` in npm test (tsc excludes them). Matt has still not answered the rehearsal question.
