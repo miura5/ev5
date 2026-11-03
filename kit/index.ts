@@ -55,15 +55,6 @@ export const STORIES = [
 ] as const;
 
 export { Row } from "./components/Row/Row";
-export {
-  Glyph,
-  type GlyphProps,
-  type GlyphType,
-} from "./components/Glyph/Glyph";
+export { Glyph, type GlyphType } from "./components/Glyph/Glyph";
 export { Detail, type DetailProps } from "./components/Detail/Detail";
-export {
-  Palette,
-  type PaletteGroup,
-  type PaletteItem,
-  type PaletteProps,
-} from "./components/Palette/Palette";
+export { Palette, type PaletteGroup } from "./components/Palette/Palette";
