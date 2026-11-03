@@ -118,7 +118,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-765 | Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw) Done when: jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test | B-738 | Phase 4 | in progress |  |
-| B-766 | Wiring: D1 JobStore, CeilingStore (atomic check-and-add), PlanStore and the draft/set save step Done when: D1 stores pass the same tests as the in-memory ones on fake-d1; save step adds id/state/at/v | — | Phase 4 | open |  |
 | B-767 | Wiring: Worker WorkflowEntrypoint + wrangler binding running runJob with practice-set and study-plan handlers Done when: wrangler.jsonc binds the workflow; handlers registered; test with fake adapter | — | Phase 4 | open |  |
 
 ## Your turn
