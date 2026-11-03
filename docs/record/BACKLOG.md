@@ -118,7 +118,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-765 | Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw) Done when: jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test | B-738 | Phase 4 | in progress |  |
-| B-770 | studyplan.ask_changes: Haiku patch edits to a draft plan Done when: ask_changes applies model-proposed patches to a plan draft with validation; fake-fetch test | B-767 | Phase 4 | in progress |  |
 
 ## Your turn
 
