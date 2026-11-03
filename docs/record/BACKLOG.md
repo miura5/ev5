@@ -116,6 +116,8 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Slice A done (PR #156). Slice B (this branch): SetEditView (Edit mode), ExamPlanDetail (dashed Suggestion rows; kit already had Suggestion, only Field now exported), practice hint, StudyView; all props-driven with tests. Left: wire screens/routes to real data (screens still pass none), E key and Study route hookup. |
 | B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
 | B-779 | Server document routes (list, get, conditional put) over data repositories Done when: Routes pass tests with the compat protocol | B-742 | v5 P5 | in progress |  |
+| B-780 | Add data/docs/ to the npm test glob (its tests are not run by CI) and make them pass Done when: CI runs data/docs tests green | B-779 | v5 P5 | open |  |
+| B-781 | Worker-safe notes write check (createdAt, earlierOf) on the document routes: bundle frozen schemas as JSON imports Done when: Notes writes through /api/v1/docs are checked like ev4's | B-779 | v5 P5 | open |  |
 
 ## Your turn
 
