@@ -5,3 +5,6 @@ export { parseWeakSpot } from './weak-spot/index.ts';
 export { parseSet } from './set/index.ts';
 export { parseSession } from './session/index.ts';
 export { parseNote } from './note/index.ts';
+export { examDaysLeft } from './exam/index.ts';
+export type { Exam } from './exam/index.ts';
+export { addDays } from './time/index.ts';
