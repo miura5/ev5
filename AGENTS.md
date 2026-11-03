@@ -207,8 +207,8 @@ No jargon, no commit lists. Screenshots at desktop 1280.
 ## 10. Never
 
 - Deploy live, roll back, or change ev4's live tasks or data without Matt's explicit word.
-- Put real personal data in fixtures, on staging, in logs or in a prompt to a builder (PLAN C15). Matt removed the repo limit on 2026-11-02.
+- Commit live data or copy it onto staging (CONTRACT §sec.live-data).
 - State model ids, prices or platform limits from memory.
 - Add a rule anywhere except CONTRACT.md.
 - Merge without green checks, or disable a check to get green. A known failure is fixed first. A quarantined check expires.
-- Delete anything outside the repo. Inside the repo, git history keeps removed code.
+- Delete ev4's resources or Matt's data. v5's own throwaway and staging resources may be cleaned up (CONTRACT §deliver.cleanup).

@@ -4,17 +4,13 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 
 ## 1. Hard limits
 
-> Needs Matt's yes (the only CONTRACT question he gets).
+> Matt's yes given 2026-11-02 (D-451). Only things an agent can't undo: lost data, a broken live app, a leaked secret, money spent.
 
-- §hard.canvas-read-only · Canvas is read-only: GETs through Matt's signed-in browser, never a token. <!-- PLAN §2.1.2, D-079, D-303 -->
-- §hard.no-delete · Nothing is deleted, except items Matt deletes himself, which are purged from live D1 30 days after his delete and never before the rollback window closes (§delete.purge). <!-- PLAN §2.1.3, §5.6 -->
+- §hard.data-never-lost · Matt's data in live D1 and the backups is never lost: only items he deletes himself are purged, 30 days after his delete and never before the rollback window closes (§delete.purge); schema changes stay additive (§data.additive) until the window closes. <!-- PLAN §2.1.3, §2.1.5, §5.6 -->
 - §hard.live-on-matts-word · Live deploys and rollbacks happen only on Matt's word, only after staging, and only through the approval-gated `live` GitHub environment. <!-- PLAN §2.1.4, D-331 -->
-- §hard.same-worker · v5 runs on ev4's Cloudflare Worker, D1 database and backups; schema changes are additive only (§data.additive) until the rollback window closes. <!-- PLAN §2.1.5 -->
-- §hard.models-from-docs · Model ids, prices and platform limits come from current docs, never from memory. <!-- PLAN §2.1.6 -->
 - §hard.no-secrets-in-files · Secrets (API keys, tokens, `.dev.vars`) never go in a file, commit, prompt or log; they live only as Cloudflare or GitHub secrets. <!-- PLAN §10, D-301, D-309, D-320 -->
-- §hard.synthetic-outside-repo · Personal data may be in the repo (the repo is public, so anything committed is public); staging, fixtures, logs and builder prompts stay synthetic or id-only. <!-- C15 -->
-- §hard.ev4-read-only · ev4's repo, live data and tasks are read-only to v5 builders; ev4 changes only through ev4's own process. <!-- AGENTS §9-10 -->
-- §hard.nothing-outside-repo-deleted · Nothing outside the repo is deleted; inside it, git history keeps removed code. <!-- AGENTS §10 -->
+- §hard.ev4-own-process · Until the rollback window closes, ev4's repo, live data, resources and tasks change only through ev4's own process, never from v5's build. <!-- AGENTS §9-10 -->
+- §hard.money · No spending, plan upgrade, new paid service or account change without Matt's word. <!-- PLAN §1, D-451 -->
 
 ## 2. What E.V. is
 - §what.framing · E.V. is a personal knowledge app with a study partner built in: no built-in courses or semesters; ev4 courses show as collections and exams as dated goals (a UI mapping, not a schema change). <!-- C12 -->
@@ -28,6 +24,8 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §data.compat · CI validates every v5 write to an existing collection against the frozen ev4 schemas in `data/compat`, which accept every schema version live holds; nothing there is removed inside the rollback window. <!-- D-338 -->
 - §data.writers · v5 writes an ev4 field only as the writer that owns it, using existing `writer` values (`page` for Matt's edits) with `source` naming v5; every other ev4 fact field is write-once, and documents carrying `migratedAt`/`migratedTo` or in ev4's legacy collections are never written. <!-- D-053, D-089, D-336, D-090 -->
 - §data.ev4-sets · ev4 sets are immutable and their answers are keyed by item id; editing one copies it into an own set on first edit, leaving the original and its answers untouched and hidden. <!-- C14 -->
+- §data.same-worker · v5 runs on ev4's Cloudflare Worker, D1 database and backups, keeping ev-live's URL; a separate derived database (search) is allowed per §5.8 of the plan. <!-- PLAN §2.1.5, §5.8; a design choice, demoted from the hard limits by D-451 -->
+- §data.canvas · E.V. never writes to Canvas; it reads through Matt's signed-in browser on the Mac. How it reads is a design choice that a later decision may change (a read-only token, if his school allows one). <!-- PLAN §2.1.2, D-079, D-303, D-451 -->
 - §data.links · Every id field that points at another collection or table resolves, or is reported as an orphan; never dropped. <!-- D-241 -->
 - §data.append-only · Answers, events, reviews, attempts and talk are append-only; derived state is rebuilt from them, never stored as truth. <!-- D-047, D-068, D-095, D-120, D-128, D-064 -->
 - §data.new-tables · The mock-up's new things live only in `collections`, `memberships`, `pins`, `views`, `item_props`, `own_sets`, `own_set_items`, `own_attempts` and `drafts`; each new table has an additive idempotent migration, `at` and `v` with the `docs` protocol, an export count and SHA-256 over canonical rows, and a restore-drill check, all before it goes live. <!-- PLAN §5.4, §5.10, PLAN §5.10 -->
@@ -80,6 +78,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 
 ## 6. Models and cost
 - §model.registry · Model ids and prices live only in `jobs/runtime/models.ts` with a "checked on" date; a check warns when it is old, and no environment variable overrides it. <!-- PLAN §6.5 -->
+- §model.from-docs · Agents take model ids, prices and platform limits from current docs, never from memory. <!-- PLAN §2.1.6; a working rule, demoted from the hard limits by D-451 -->
 - §model.choice · The server picks the model and max tokens: a new or remade study plan uses Sonnet, plan edits are patches on Haiku, every other ask uses Haiku, and stable prefixes (system prompt, course context) use prompt caching. <!-- D-305, D-355, D-356, PLAN §6.5 -->
 - §model.output · Strict structured output from the job's Zod schema; `max_tokens` or a refusal fails the job; then Zod and semantic checks (every cited id was in the excerpts); one repair ask, then fail; half-parsed output never lands. <!-- PLAN §6.3 -->
 - §model.ceilings · Hourly and daily ceilings are D1 settings changed without a release, plus an atomic per-job ask cap and a monthly ceiling, all counted as billed; every call reserves its maximum cost first, and a ceiling hit fails the job cleanly with the reason, with nothing landing. <!-- PLAN §6.5, D-349, D-352, §9 -->
@@ -119,6 +118,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §sec.key · The Anthropic key is a Cloudflare secret on the Worker only; the app reaches Claude only through the Worker; staging has its own key with a low cap. <!-- PLAN §10, D-299, D-310, D-296 -->
 - §sec.auth · A bearer token per caller (app, cloud schedule, Mac executor), scoped to its routes, compared in constant time, with wrong attempts rate-limited; only the app token changes ceilings. <!-- PLAN §10 -->
 - §sec.shell · The public shell holds no personal config (settings load from D1 behind the token), and logs and Workflow step outputs hold ids and counts, never prompts or note text. <!-- PLAN §10 -->
+- §sec.live-data · Personal data may be in the repo, but the repo is public, so agents never commit live data or copy it onto staging; fixtures are synthetic. Real data may reach a builder when a task needs it (a bug Matt reports). <!-- C15, D-106, D-451 -->
 - §sec.staging-data · Staging holds synthetic data only; the one real-data check runs read-only in a restricted scratch copy on Matt's OK and reports counts and errors only. <!-- PLAN §10, C1 -->
 - §sec.account · Staging shares ev-live's Cloudflare account: staging config names the v5 staging Worker and D1 explicitly, CI fails any non-live config or workflow naming ev-live or its D1, and the staging and live tokens are separate secrets. <!-- C10 -->
 
@@ -145,6 +145,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §deliver.window · While the rollback window is open, v5 keeps a `PlanJob` stub and ships no Durable Object deletion, and a rollback runs the rehearsed `ops/` runbook (drain jobs, deploy the tagged last ev4 live build through ev4's workflow, re-enable ev4's tasks); the window ends on Matt's word after one exam on v5. <!-- PLAN §13, C6 -->
 - §deliver.cutover · Cutover, on Matt's word once PLAN §8's scope matches or beats ev4: outboxes empty, ev4 cloud tasks off, Mac tasks re-created with Matt, R2 export and bookmark, ev-staging then ev-live, parity against the manifest. <!-- PLAN §8, §13 -->
 - §deliver.spike · When the same check fails twice on a fix, a spike answers it in a throwaway branch instead of a third try. <!-- D-409 -->
+- §deliver.cleanup · The build may delete v5's own throwaway and staging resources (spike Workers, scratch D1s, branches); never ev4's resources or Matt's data. <!-- D-451 -->
 
 ## 11. Who decides
 - §who.matt · Matt decides live deploys and rollbacks, the hard limits, personal data, money, accounts and secrets, anything on his Mac, changes to something he uses daily, and exceptions to something he asked for. <!-- PLAN §1, D-317 -->

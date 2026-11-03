@@ -7,6 +7,7 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-451 | Nov 2 | CONTRACT's hard limits are five, and Matt says yes to them: data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money or account change without him | Matt asked for a critical review: limits should be only what an agent can't undo. Canvas mechanism, same Worker and models-from-docs became ordinary rules; synthetic-outside-repo narrowed to §sec.live-data; nothing-outside-repo-deleted folded into §hard.data-never-lost and §deliver.cleanup. This is Matt's yes for Gate 0. | accepted |  |
 | D-450 | Nov 2 | The evening command does the prep check; weak-spot parking stays retired as in ev4 | ev4 retired parking; cutover matches ev4, so PLAN §8's 'evening weak-spot parking' is read as the evening prep check. | accepted |  |
 | D-449 | Nov 2 | Keep Matt's Mac backups (nightly plus Sunday mirror) in the v5 export design | A copy Matt owns outside Cloudflare; data safety comes first. | accepted |  |
 | D-448 | Nov 2 | Phase 0 tools are TypeScript on Node's native type stripping with node:test; S-10 moves tests to Vitest | No build step needed before Phase 1. | accepted |  |
