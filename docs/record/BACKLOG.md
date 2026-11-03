@@ -102,7 +102,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-719 | S-45: Entity: item Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-720 | S-46: Entity: session Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-721 | S-47: Entity: note Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
-| B-722 | S-48: Entity: course Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-723 | S-48a: New entities: collection and membership (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-725 | S-48c: New entity: item properties with repeat (PLAN §5.10) Done when: Migration, repository and compat fixture; materialization idempotent | B-709 | v5 P3 | open |  |
