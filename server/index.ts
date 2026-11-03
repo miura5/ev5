@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { isEv4Route } from './ev4-routes.ts';
 
 /** The few D1 calls the Worker makes; the full type comes with Cloudflare's types when more is needed. */
 interface D1Like {
@@ -28,7 +29,9 @@ app.get('/api/health', async (c) => {
   return c.json({ ok: db === 'ok', app: 'ev5', env: c.env.ENV_NAME ?? 'unknown', commit: c.env.COMMIT ?? 'unknown', db, docs }, db === 'ok' ? 200 : 503);
 });
 
-app.all('/api/*', (c) => c.json({ error: 'not found' }, 404));
+app.all('/api/*', (c) =>
+  isEv4Route(c.req.path) ? c.json({ error: 'gone' }, 410) : c.json({ error: 'not found' }, 404),
+);
 
 // Everything else is the built app (wrangler `assets`).
 app.all('*', (c) => c.env.ASSETS.fetch(c.req.raw));
