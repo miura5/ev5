@@ -517,7 +517,7 @@ While the window is open, v5 keeps a `PlanJob` stub class and never ships a Dura
 | C7 | Phone pushes | A thin cloud task reads v5's summary and pushes |
 | C8 | Public ev4 repo | Remove the Mac path and Canvas host from HEAD. No history rewrite |
 | C9 | Planning style after cutover | You rate confidence first, and E.V. critiques and proposes |
-| C10 | ev5 repo visibility | **[Matt: changed 2026-11-02]** Public: on GitHub Free, a private repo gets no branch protection and no approval gate. v5 staging runs in its own Cloudflare account |
+| C10 | ev5 repo visibility | **[Matt: changed 2026-11-02]** Public: on GitHub Free, a private repo gets no branch protection and no approval gate. v5 staging shares ev-live's Cloudflare account (Matt's call), and CI refuses any non-live config that names ev-live |
 | C11 | Room for the build | Trim ev4's watchdog from 8 to 2 runs a day, so the build's scheduled runs fit the daily cap **[verify the count]** |
 | C12 | What E.V. is | A personal knowledge app with a study partner built in. No built-in courses. Collections and pins are his own. The data contract and cutover scope are unchanged |
 | C13 | **[Mock-up: added]** Owning things at cutover | Hand-made question sets with E.V.'s drafts, collections (nested one level), pins and Recently deleted are all in cutover, each behind the export and restore drill (§5.10). Card and step sets and saved views come after |

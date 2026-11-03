@@ -15,4 +15,5 @@
 - 2026-11-02 · Matt confirmed the folded mock-up is `design/mockup.html` from `ev5-mockup-kit-approved.zip` ("Approved · round 7", SHA-256 d7da8531…684f42).
 - 2026-11-02 · Build manager: created `miura5/ev5` and pushed `main`. GitHub Free blocks branch protection and environment secrets on private repos, and required reviewers on a private repo need Enterprise (checked in GitHub's docs on 2026-11-02).
 - 2026-11-02 · Matt: made `miura5/ev5` **public** (C10 changed), so branch protection, required checks and the "live" environment needing his approval work on Free. Everything committed, history included, is public.
-- 2026-11-02 · Matt: v5 staging gets its **own Cloudflare account**, separate from ev-live's, so the staging token in GitHub can't reach live.
+- 2026-11-02 · Matt: v5 staging stays in his **existing Cloudflare account**, the same one as ev-live (this replaces his earlier "separate account"). A Cloudflare token covers the whole account, so the staging token could also change ev-live and its D1. Matt accepts that.
+- 2026-11-02 · Build manager, because of the above: the staging workflow names the v5 staging Worker and D1 explicitly. A CI check (S-15) fails any wrangler config or workflow outside the live workflow that names ev-live or its D1. The staging and live tokens stay separate secrets, so each can be revoked on its own.
