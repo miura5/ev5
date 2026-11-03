@@ -13843,7 +13843,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "Check code merged (#88). Not yet run on a real scratch copy: needs a live export (Matt, counts only, D-453).",
+  "notes": "Moved to the cutover checklist (D-457): run on a restricted copy of a live export, counts only, before going live.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "waitingOn": "Matt",
@@ -13874,10 +13874,9 @@
    "B-728",
    "B-729",
    "B-730",
-   "B-731",
-   "B-732"
+   "B-731"
   ],
-  "notes": "",
+  "notes": "Per D-457 the scratch-copy check (B-732) moved to the cutover checklist; Phase 4 does not wait for it.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -13889,8 +13888,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13904,8 +13902,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13919,8 +13916,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13934,8 +13930,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13949,8 +13944,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13964,8 +13958,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13979,8 +13972,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,
@@ -13994,8 +13986,7 @@
   "milestone": "v5 P4",
   "status": "open",
   "depends": [
-   "B-713",
-   "B-733"
+   "B-713"
   ],
   "notes": "",
   "commit": null,

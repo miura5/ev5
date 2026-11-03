@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-457",
+  "date": "Nov 3",
+  "title": "Phase 4 starts before the scratch-copy check (B-732) runs; the check stays a gate for going live",
+  "why": "Matt, in the build chat: go with the default answers and unlock Phase 4. The check needs a live export only Matt can make, so it moves from Gate 3 to the cutover checklist (run on a restricted copy, counts only, D-453).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, build chat 2026-11-03"
+ },
+ {
   "id": "D-456",
   "date": "Nov 2",
   "title": "S-11 deviations: Babel parses for ESLint and @swc/core transpiles for dependency-cruiser, because TypeScript 7 has no JS compiler API; ban-ts-comment becomes no-warning-comments on @ts- terms",
