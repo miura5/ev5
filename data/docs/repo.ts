@@ -1,0 +1,216 @@
+// The ev4 write protocol (data/compat) over D1's `docs(c, id, data, at, v)` table. There is no delete path:
+// `markDeleted` writes a `deletions(c, id, at)` row (§delete.soft) and removes nothing.
+import {
+  canonicalJson,
+  canonicalText,
+  checkWrites,
+  planBatch,
+  staleRefusal,
+  validCollection,
+  validDocId,
+  type BatchResult,
+  type Json,
+  type PlannedRow,
+  type ProtocolAdapter,
+  type SaveResult,
+  type StoredDoc,
+  type Write,
+  type WriteProblem,
+} from "../compat/index.ts";
+import type { D1Like, D1Statement } from "./d1.ts";
+import { parsingProblem, type ParserRegistry } from "./registry.ts";
+
+/** How far back `changedSince` hands the next `since`, so a write stamped just before a read is read again. */
+const OVERLAP_MS = 5000;
+
+interface Row {
+  c: string;
+  id: string;
+  data: string;
+  at: number;
+  v: number;
+}
+
+export interface DocsOptions {
+  /** The Worker clock, in ms. */
+  clock: () => number;
+  /** c -> domain parser; a write to such a collection must parse, after ev4's Worker check. Default: none. */
+  parsers?: ParserRegistry;
+  /** Replaces the whole per-document write check (default: ev4's Worker check, then `parsers`). */
+  problem?: WriteProblem | null;
+}
+
+export interface DocsRepo extends ProtocolAdapter {
+  /** Soft delete: writes the deletions row (the latest delete time wins) and leaves the document. False if none. */
+  markDeleted(c: string, id: string): Promise<boolean>;
+}
+
+const SELECT = "SELECT c, id, data, at, v FROM docs";
+const stored = (r: Row): StoredDoc => ({
+  c: r.c,
+  id: r.id,
+  text: r.data,
+  data: JSON.parse(r.data) as Json,
+  at: r.at,
+  v: r.v,
+});
+
+export function docsRepo(
+  db: D1Like,
+  { clock, parsers = {}, problem = parsingProblem(parsers) }: DocsOptions,
+): DocsRepo {
+  const one = (c: string, id: string) =>
+    db.prepare(`${SELECT} WHERE c = ? AND id = ?`).bind(c, id).first<Row>();
+
+  // The statements writing one planned row. An update that finds its version moved changes nothing, so the guard
+  // after it throws and D1 rolls the whole batch back; a create over an existing row hits the primary key.
+  const statements = (r: PlannedRow, at: number): D1Statement[] => {
+    const text = canonicalText(r.data);
+    if (r.from === null)
+      return [
+        db
+          .prepare(
+            "INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, ?, 1)",
+          )
+          .bind(r.c, r.id, text, at),
+      ];
+    return [
+      db
+        .prepare(
+          "UPDATE docs SET data = ?, at = ?, v = v + 1 WHERE c = ? AND id = ? AND v = ?",
+        )
+        .bind(text, at, r.c, r.id, r.from),
+      db
+        .prepare("SELECT CASE WHEN changes() = 0 THEN json('stale') END")
+        .bind(),
+    ];
+  };
+
+  async function plan(ws: Write[]) {
+    const current = new Map<string, { v: number; data: Json }>();
+    for (const w of ws) {
+      const r = await one(w.collection, w.doc_id);
+      if (r)
+        current.set(w.collection + "\n" + w.doc_id, {
+          v: r.v,
+          data: JSON.parse(r.data) as Json,
+        });
+    }
+    return planBatch(ws, current, problem);
+  }
+
+  return {
+    async get(c, id) {
+      const r = await one(c, id);
+      return r ? stored(r) : null;
+    },
+
+    async list(c) {
+      const { results } = await db
+        .prepare(`${SELECT} WHERE c = ? ORDER BY id`)
+        .bind(c)
+        .all<Row>();
+      return results.map(stored);
+    },
+
+    async changedSince(since) {
+      const before = clock();
+      const { results } = await db
+        .prepare(`${SELECT} WHERE at > ? ORDER BY at, c, id`)
+        .bind(since)
+        .all<Row>();
+      return {
+        now: Math.max(since, before - OVERLAP_MS),
+        docs: results.map(stored),
+      };
+    },
+
+    async save(c, id, body, ifVersion): Promise<SaveResult> {
+      if (
+        ifVersion !== null &&
+        !(Number.isInteger(ifVersion) && ifVersion >= 1)
+      )
+        return {
+          ok: false,
+          status: 400,
+          error: "if_version: a whole number from 1",
+        };
+      const canon = canonicalJson(body);
+      if (canon.error !== undefined)
+        return { ok: false, status: 400, error: canon.error };
+      if (!validCollection(c) || !validDocId(id))
+        return {
+          ok: false,
+          status: 400,
+          error: "not a collection and document id",
+        };
+      const data = JSON.parse(canon.text) as Json;
+      const cur = await one(c, id);
+      const have = cur ? cur.v : null;
+      if (have !== ifVersion) return staleRefusal(c, id, ifVersion, have);
+      const bad = problem
+        ? problem(c, id, data, cur ? (JSON.parse(cur.data) as Json) : null)
+        : null;
+      if (bad)
+        return {
+          ok: false,
+          status: 400,
+          error: bad + "; nothing was written",
+          collection: c,
+          doc_id: id,
+        };
+      const at = clock();
+      const row: PlannedRow = {
+        c,
+        id,
+        data,
+        from: have,
+        v: have == null ? 1 : have + 1,
+      };
+      try {
+        await db.batch(statements(row, at));
+      } catch {
+        const now = await one(c, id);
+        return staleRefusal(c, id, ifVersion, now ? now.v : null);
+      }
+      return { ok: true, at, version: row.v };
+    },
+
+    async batch(writes): Promise<BatchResult> {
+      const wall = checkWrites(writes);
+      if (wall) return wall;
+      const ws = writes as Write[];
+      const first = await plan(ws);
+      if (!first.ok) return first;
+      const at = clock();
+      try {
+        await db.batch(first.rows.flatMap((r) => statements(r, at)));
+      } catch (e) {
+        // Something landed between our read and our write, so nothing was written: say why, as the planner does.
+        const again = await plan(ws);
+        if (!again.ok) return again;
+        throw e;
+      }
+      return {
+        ok: true,
+        at,
+        results: first.rows.map((r) => ({
+          collection: r.c,
+          doc_id: r.id,
+          version: r.v,
+        })),
+      };
+    },
+
+    async markDeleted(c, id) {
+      if (!(await one(c, id))) return false;
+      await db
+        .prepare(
+          "INSERT INTO deletions (c, id, at) VALUES (?, ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+        )
+        .bind(c, id, clock())
+        .run();
+      return true;
+    },
+  };
+}
