@@ -13454,13 +13454,15 @@
   "title": "S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair",
   "dod": "Rehearsal 1 passes all five steps",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run5",
+  "claimedAt": "2026-11-03T04:24:29.686Z"
  },
  {
   "id": "B-709",

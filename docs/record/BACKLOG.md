@@ -94,7 +94,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-699 | S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec Done when: Shipped through ev4's own process; not built here | — | v5 P0 | blocked | ev4 task: ships through ev4's own process, never from this repo |
 | B-705 | S-14: Guard-failure fixtures: one PR per guard that must go red, recorded Done when: Every PLAN §13 Phase 1 guard shown red | B-700 | v5 P1 | open |  |
 | B-706 | S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live Done when: Staging deploys on merge; live waits in the live environment | B-700 | v5 P1 | in progress |  |
-| B-708 | S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair Done when: Rehearsal 1 passes all five steps | B-700 | v5 P1 | open |  |
+| B-708 | S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair Done when: Rehearsal 1 passes all five steps | B-700 | v5 P1 | in progress |  |
 | B-709 | G-1: Gate 1: repo, guards, walking skeleton Done when: Every guard shown to fail, and rehearsal 1 passes | B-701, B-702, B-703, B-704, B-705, B-706, B-707, B-708 | v5 P1 | open |  |
 | B-710 | S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception Done when: Tokens match the mock-up | B-709 | v5 P2 | open |  |
 | B-711 | S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts Done when: All 15 components have stories and tests | B-709 | v5 P2 | open |  |
