@@ -1,8 +1,13 @@
-## Phase      2/3 in parallel · Gate 1 passed (B-709 done): rehearsal 1 green, actions run 41616883069 (ev4 9d9af38 deployed on throwaway ev5-rehearsal, v5 answered 410 on ev4 routes, ev4 redeployed, read/wrote, PlanJob binding intact). Cleanup was dispatched; confirm ev5-rehearsal is gone.
-## Running    other runs hold claude/B-710-tokens (PR #77), B-711-kit-part2, B-730-export, B-716..B-728 stale branches (several merged: delete them)
-## Waiting on Matt   nothing
-## Next       Phase 2: B-710 tokens (#77), B-711 further kit components, then Gate 2 (B-713). Phase 3: B-730 export, B-732 scratch-copy check (counts only, D-453), then Gate 3 (B-733); Chart rows for merged B-710..B-731 may lag main: check `git log` against tasks.json first. Then Phase 4 (B-734..).
+## Phase      2/3 in parallel · Gate 1 passed (B-709) · Gate 2 needs rest of B-711 (kit), B-712 visual baselines · Gate 3 needs B-728 (rest of S-49) and B-732 real run
+## Running    nothing from this run
+## Waiting on Matt   B-732's real-data run: a restricted copy of the live export outside the repo, `chmod 600 /path/scratch-export.json && node data/scratch-check/cli.ts /path/scratch-export.json` (counts and error kinds only; D-453 already OK'd it, but someone must make the copy). Not blocking other work.
+## Next       B-711 remaining kit: Menu done, Suggestion/Text options done, Glyph/E.V. line/Study card/Detail/Doc done, so left: the ⌘K palette. B-712 Playwright visual baselines in Docker. B-728 rest of S-49 (per-collection Zod parsing, other tables). Then Gates 2 and 3, Phase 4 (B-734..). Chart rows B-710, B-711, B-724, B-728..B-732 may lag main: check `git log` first and mark done. Delete stale merged claude/B-7* branches.
 ## Staging    ev5-staging, deploys on push to main   ## Live  ev4 build (unchanged)
+
+### Twelfth run (2026-11-03 10:16-11:06Z)
+- Merged: #77 tokens test, #79 export (knip entry fix), #84 kit part 4 (Suggestion, TextOptions, Menu), #87 kit parts 3+5 (Glyph, E.V. line, StudyCard, Detail, Doc), #88 B-732 scratch check (data/scratch-check, plus a domain/index.ts barrel). #82/#83/#85 were closed and redone by a concurrent run as #87/#88; handover PR #86 is stale.
+- A commit that touches kit/index.ts needs an `Interface: kit` trailer line. Parallel kit PRs conflict on kit/index.ts: serialise them.
+- Chart not updated this run (no time); sync it from git log.
 
 ### Tenth run (2026-11-03 10:08Z)
 - Ran rehearsal 1 (rehearsal.yml worked as is, no changes needed) and recorded B-708/B-709 done (#80). Little was unclaimed: concurrent runs hold the other branches. Handover PRs #74 and #76 are superseded.
