@@ -7,7 +7,6 @@ import "./library.css";
 
 export type {
   LibraryExam,
-  Mastery,
   PracticeSession,
   WeakSpot,
 } from "./types.ts";
