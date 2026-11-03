@@ -14562,7 +14562,7 @@
   "depends": [
    "B-746"
   ],
-  "notes": "Slice A done (PR #156): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data.",
+  "notes": "Slice A done (PR #156). Slice B (this branch): SetEditView (Edit mode), ExamPlanDetail (dashed Suggestion rows; kit already had Suggestion, only Field now exported), practice hint, StudyView; all props-driven with tests. Left: wire screens/routes to real data (screens still pass none), E key and Study route hookup.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",

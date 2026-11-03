@@ -65,3 +65,4 @@ export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Tile } from "./components/Tile/Tile";
 export { TextOptions } from "./components/TextOptions/TextOptions";
+export { Field } from "./components/Field/Field";

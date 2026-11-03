@@ -156,3 +156,10 @@
   padding: var(--sp-3) 0;
   font-size: var(--fs-body);
 }
+
+.ev-library-erow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+}
