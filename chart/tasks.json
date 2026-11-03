@@ -14546,7 +14546,7 @@
   "depends": [
    "B-743"
   ],
-  "notes": "",
+  "notes": "Part 2: Today reads exams, weakspots and today's dayedits through GET /api/v1/docs with the stored app token (ev5.token), maps them in areas/today/map.ts (tested), shows the empty day with no data and an error line on 401. Plan items come from today's dayedits.added; weak-spot status is derived without answers (none read yet).",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
