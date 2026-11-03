@@ -1,0 +1,69 @@
+.ev-coll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.ev-coll-head,
+.ev-coll-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.ev-coll-head {
+  align-items: center;
+}
+
+.ev-coll-heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.ev-coll-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ev-coll-crumb {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-meta);
+  color: var(--quiet);
+  cursor: pointer;
+}
+
+.ev-coll-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--track-title);
+}
+
+.ev-coll-title:empty::before {
+  content: attr(data-placeholder);
+  color: var(--faint);
+}
+
+.ev-coll-label {
+  margin: 0;
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--quiet);
+}
+
+.ev-coll-meta,
+.ev-coll-empty {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
