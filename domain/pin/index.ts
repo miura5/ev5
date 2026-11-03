@@ -2,3 +2,4 @@
 export type { TargetState } from './types.ts';
 export { parsePin } from './parse.ts';
 export { pinOrder, isPinned, pin, unpin, movePin, visiblePins, orphanPins } from './rules.ts';
+export type { Pin } from './types.ts';

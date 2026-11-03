@@ -9,3 +9,4 @@ export {
   effectiveCollection,
   moveWrite,
 } from './rules.ts';
+export type { Collection, Membership, VirtualCollection } from './types.ts';
