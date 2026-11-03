@@ -1,0 +1,36 @@
+name: visual-baselines
+# Regenerates the /kit visual baselines in the pinned Playwright Docker image and commits them to the chosen branch.
+# Run it from the Actions tab on a PR branch (never main); CI then compares against what it committed.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Refuse main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Run this on a pull request branch, not main."
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - run: npm ci
+      - run: e2e/visual-docker.sh --update-snapshots
+      - name: Commit baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/baselines
+          if git diff --cached --quiet; then
+            echo "Baselines unchanged."
+          else
+            git commit -m "Regenerate /kit visual baselines (Playwright Docker image)"
+            git push
+          fi

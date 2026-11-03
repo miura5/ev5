@@ -18,12 +18,15 @@
     "lint": "eslint . --max-warnings 0",
     "deps": "depcruise areas shell kit commands jobs domain data server ops --config .dependency-cruiser.cjs",
     "stylelint": "stylelint \"**/*.css\" --allow-empty-input",
-    "knip": "knip"
+    "knip": "knip",
+    "test:visual": "playwright test -c e2e/playwright.visual.config.ts",
+    "test:visual:docker": "e2e/visual-docker.sh"
   },
   "devDependencies": {
     "@babel/core": "8.1.0",
     "@babel/eslint-parser": "8.0.7",
     "@babel/preset-typescript": "8.0.7",
+    "@playwright/test": "1.64.1",
     "@swc/core": "1.16.21",
     "@testing-library/react": "16.3.3",
     "@types/react": "19.3.0",
