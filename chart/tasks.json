@@ -14578,11 +14578,11 @@
   "depends": [
    "B-751"
   ],
-  "notes": "Done: HTTP transport (shell/outbox/http.ts), shell Services handed to area views, Notes screen loads from /docs and saves a title through queueNote with saved/not saved. Follow-ups: import offer, practice answers, collections/editor.",
+  "notes": "Done: HTTP transport (shell/outbox/http.ts), shell Services handed to area views, Notes loads from /docs and saves a title through queueNote with saved/not saved. Follow-ups filed: import offer, practice answers, collections/editor.",
   "commit": null,
   "source": "B-751",
   "claimedBy": "builder",
-  "claimedAt": "2026-11-03T23:35:14.866Z"
+  "claimedAt": "2026-11-03T23:40:43.920Z"
  },
  {
   "id": "B-779",
@@ -14603,6 +14603,34 @@
  {
   "id": "B-780",
   "kind": "task",
+  "title": "Add data/docs/ to the npm test glob (its tests are not run by CI) and make them pass",
+  "dod": "CI runs data/docs tests green",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-779"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-781",
+  "kind": "task",
+  "title": "Worker-safe notes write check (createdAt, earlierOf) on the document routes: bundle frozen schemas as JSON imports",
+  "dod": "Notes writes through /api/v1/docs are checked like ev4's",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-779"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-782",
+  "kind": "task",
   "title": "S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell",
   "dod": "On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost",
   "milestone": "v5 P5",
@@ -14615,7 +14643,7 @@
   "source": "B-778"
  },
  {
-  "id": "B-781",
+  "id": "B-783",
   "kind": "task",
   "title": "S-77d: practice answers through queueAnswer, wired in the Library study screen",
   "dod": "A practice answer given offline is queued and replayed; 409 counts as recorded",
@@ -14629,9 +14657,9 @@
   "source": "B-778"
  },
  {
-  "id": "B-782",
+  "id": "B-784",
   "kind": "task",
-  "title": "S-77e: notes collections, new note, and the real editor on the outbox (after S-08/B-748 editor)",
+  "title": "S-77e: notes collections, new note, and the real editor on the outbox",
   "dod": "Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes",
   "milestone": "v5 P5",
   "status": "open",
