@@ -4,7 +4,14 @@ import { App } from "./App.tsx";
 
 test("/kit renders the tokens gallery and the theme toggle flips data-theme", () => {
   render(<App path="/kit" />);
-  for (const name of ["Colour", "Text", "Space", "Radius", "Duration"]) {
+  for (const name of [
+    "Colour",
+    "Text",
+    "Space",
+    "Radius",
+    "Duration",
+    "Components",
+  ]) {
     expect(screen.getByRole("region", { name })).toBeTruthy();
   }
   const root = document.querySelector("[data-ui='kit-gallery']");
