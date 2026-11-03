@@ -14546,7 +14546,7 @@
   "depends": [
    "B-743"
   ],
-  "notes": "",
+  "notes": "Part 2: Today reads exams, weakspots and today's dayedits through GET /api/v1/docs with the stored app token (ev5.token), maps them in areas/today/map.ts (tested), shows the empty day with no data and an error line on 401. Plan items come from today's dayedits.added; weak-spot status is derived without answers (none read yet).",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
@@ -14562,7 +14562,7 @@
   "depends": [
    "B-746"
   ],
-  "notes": "Slice A done (PR #156). Slice B (this branch): SetEditView (Edit mode), ExamPlanDetail (dashed Suggestion rows; kit already had Suggestion, only Field now exported), practice hint, StudyView; all props-driven with tests. Left: wire screens/routes to real data (screens still pass none), E key and Study route hookup.",
+  "notes": "Library wired to staging docs (sets, exams, weakspots) via areas/library/useLibrary.ts + map.ts; set page mounts on open; token form as Today. Left: accuracy line, practice session, Edit/Study hookups, set due counts.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
