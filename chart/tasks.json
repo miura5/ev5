@@ -13493,13 +13493,15 @@
   "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
   "dod": "Tokens match the mock-up",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run",
+  "claimedAt": "2026-11-03T10:08:07.010Z"
  },
  {
   "id": "B-711",
