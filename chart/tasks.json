@@ -14554,12 +14554,14 @@
   "title": "Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6)",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-746"
   ],
   "notes": "",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:19:43.742Z"
  }
 ]

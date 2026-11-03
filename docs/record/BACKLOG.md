@@ -113,7 +113,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
 | B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | open |  |
-| B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | open |  |
+| B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress |  |
 
 ## Your turn
 
