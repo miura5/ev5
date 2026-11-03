@@ -1,7 +1,7 @@
 name: rehearsal
 # Rehearsal 1 of the rollback runbook (ops/ROLLBACK.md): a throwaway Worker + D1 pair, both named ev5-rehearsal,
 # never the live Worker or its D1 (CONTRACT §sec.account). Dispatch-only; uses the staging token.
-# Needs a read token for the ev4 repository (secret EV4_CHECKOUT_TOKEN): see ops/ROLLBACK.md, "Rehearsal 1".
+# ev4 (miura5/ev4) is public: it is cloned over https with no token. See ops/ROLLBACK.md, "Rehearsal 1".
 on:
   workflow_dispatch:
     inputs:
@@ -23,8 +23,8 @@ on:
         default: pwa/schema.sql
         type: string
       ev4_token_secret:
-        description: name of the Worker secret that holds ev4's bearer token
-        required: true
+        description: name of the Worker secret that holds ev4's bearer token (ev4 reads env.EV_TOKEN)
+        default: EV_TOKEN
         type: string
 
 permissions:
@@ -58,12 +58,15 @@ jobs:
 
       - name: Check out ev4 at the requested ref
         if: inputs.action == 'run'
-        uses: actions/checkout@v4
-        with:
-          repository: miura5/ev4
-          ref: ${{ inputs.ev4_ref }}
-          token: ${{ secrets.EV4_CHECKOUT_TOKEN }}
-          path: ev4
+        run: |
+          set -eu
+          git clone --quiet https://github.com/miura5/ev4.git ev4
+          git -C ev4 checkout --quiet "$EV4_REF"
+          git -C ev4 log -1 --oneline
+          (cd ev4 && npm ci)
+          (cd ev4/pwa && npm run build)
+        env:
+          EV4_REF: ${{ inputs.ev4_ref }}
 
       - name: Build ev4's rehearsal config (throwaway names only)
         if: inputs.action == 'run'
@@ -80,6 +83,10 @@ jobs:
           const fs = require('fs');
           const src = `ev4/${process.env.CFG_PATH}`;
           let t = fs.readFileSync(src, 'utf8');
+          // Comments go (they name ev4's live Worker and the R2 bucket); so do the [env.*] tables, which are other
+          // environments' bindings. The top-level tables (assets, D1, PlanJob, migration, alias) are what is rehearsed.
+          t = t.replace(/^[ \t]*#.*$/gm, '');
+          t = t.replace(/^\[\[?env\.[^\n]*\n(?:(?!\[)[^\n]*(?:\n|$))*/gm, '');
           t = t.replace(/^\[\[r2_buckets\]\][\s\S]*?(?=^\[|(?![\s\S]))/gm, '');
           t = t.replace(/^\[triggers\][\s\S]*?(?=^\[|(?![\s\S]))/gm, '');
           t = t.replace(/^\s*routes?\s*=.*(\n\s*[\[{].*)*$/gm, '');
@@ -87,13 +94,15 @@ jobs:
           t = t.replace(/^(\s*database_name\s*=).*$/gm, `$1 "${process.env.NAME}"`);
           t = t.replace(/^(\s*database_id\s*=).*$/gm, `$1 "${process.env.DBID}"`);
           t = `workers_dev = true\n${t}`;
-          fs.writeFileSync('ev4/rehearsal.toml', t);
+          // beside the original: main, assets and the alias files resolve relative to the config
+          fs.writeFileSync(`ev4/${require('path').dirname(process.env.CFG_PATH)}/rehearsal.toml`, t);
           JS
           # Refuse to deploy anything that still names the live Worker or an R2 bucket, route or cron.
-          if grep -En 'ev-l[i]ve|r2_buckets|^\s*routes?\s*=|\[triggers\]|crons' ev4/rehearsal.toml; then
+          RT="ev4/$(dirname "$CFG_PATH")/rehearsal.toml"
+          if grep -En 'ev-l[i]ve|ev-staging|r2_buckets|^\s*routes?\s*=|\[triggers\]|crons' "$RT"; then
             echo "ev4's config still reaches shared resources; stop"; exit 1
           fi
-          cat ev4/rehearsal.toml
+          cat "$RT"
         env:
           CFG_PATH: ${{ inputs.ev4_config }}
 
@@ -101,9 +110,12 @@ jobs:
         if: inputs.action == 'run'
         run: |
           set -eu -o pipefail
-          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file "ev4/$SCHEMA"
-          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file data/staging/seed.sql
-          (cd ev4 && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee ../deploy-ev4.log)
+          RT="ev4/$(dirname "$CFG_PATH")/rehearsal.toml"
+          npx --yes $WRANGLER d1 execute "$NAME" --remote -c "$RT" --yes --file "ev4/$SCHEMA"
+          # ev4's own made-up record (pwa/seed.mjs, the generator its staging workflow uses), not v5's seed
+          (cd "ev4/$(dirname "$SCHEMA")" && node seed.mjs --append > seed.sql)
+          npx --yes $WRANGLER d1 execute "$NAME" --remote -c "$RT" --yes --file "ev4/$(dirname "$SCHEMA")/seed.sql"
+          (cd "ev4/$(dirname "$CFG_PATH")" && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee "$GITHUB_WORKSPACE/deploy-ev4.log")
           grep -o 'https://[^ ]*workers.dev' deploy-ev4.log | head -1 | tee url.txt
           TOK=$(openssl rand -hex 24); echo "::add-mask::$TOK"
           printf %s "$TOK" | npx --yes $WRANGLER secret put "$TOKEN_SECRET" --name "$NAME"
@@ -112,6 +124,7 @@ jobs:
           bash ops/rollback/verify.sh ev4-up "$(cat url.txt)" "$TOK"
         env:
           SCHEMA: ${{ inputs.ev4_schema }}
+          CFG_PATH: ${{ inputs.ev4_config }}
           TOKEN_SECRET: ${{ inputs.ev4_token_secret }}
 
       - name: 2. Deploy empty v5 over it (keeping a PlanJob stub)
@@ -151,8 +164,10 @@ jobs:
           set -eu -o pipefail
           echo "drain: v5 is empty, so there are no Workflow instances to drain"
           echo "ev4 tasks: none exist in the rehearsal"
-          (cd ev4 && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee ../deploy-back.log)
+          (cd "ev4/$(dirname "$CFG_PATH")" && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee "$GITHUB_WORKSPACE/deploy-back.log")
           sleep 10
+        env:
+          CFG_PATH: ${{ inputs.ev4_config }}
 
       - name: 5. ev4 boots, reads and writes; PlanJob intact
         id: back
