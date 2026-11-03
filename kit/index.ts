@@ -53,3 +53,7 @@ export const STORIES = [
   { name: "Doc", Story: DocStory },
   { name: "Palette", Story: PaletteStory },
 ] as const;
+
+export { Button } from "./components/Button/Button";
+export { EvLine } from "./components/EvLine/EvLine";
+export { Suggestion } from "./components/Suggestion/Suggestion";
