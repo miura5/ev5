@@ -13551,13 +13551,15 @@
   "title": "S-40: domain/time with the DST tests and the \"due by Central date\" rule",
   "dod": "DST tests pass on 2026-11-01 and 2027-03-14",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-20261103T0708Z",
+  "claimedAt": "2026-11-03T07:08:49.297Z"
  },
  {
   "id": "B-715",
