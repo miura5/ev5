@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-458",
+  "date": "Nov 3",
+  "title": "Add zod 4.6.7 as a dev dependency (bundled into the Worker and page) for the command registry's input schemas",
+  "why": "PLAN 6.1 and CONTRACT §cmd.registry require a Zod input per command; zod was already in the lockfile transitively. S-64 still owes the Zod CPU check.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-734"
+ },
+ {
   "id": "D-457",
   "date": "Nov 3",
   "title": "Phase 4 starts before the scratch-copy check (B-732) runs; the check stays a gate for going live",

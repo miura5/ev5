@@ -5,3 +5,5 @@ export { defineJob } from './define.ts';
 export { startJob, continueJob, reportJob, continuationId } from './executors.ts';
 export type { Executor, Env } from './executors.ts';
 export { jobStatus } from './status.ts';
+export { runJob, workflowExecutor, cloudflareAdapter } from './workflow.ts';
+export type { Ceilings, StepHandlers } from './workflow.ts';

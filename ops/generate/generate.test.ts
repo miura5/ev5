@@ -11,7 +11,7 @@ const FILES: Record<string, string> = {
   '.dependency-cruiser.cjs': `module.exports = { forbidden: [{ name: 'areas-imports', to: { pathNot: ['^areas/', '^kit/'] } }] };`,
   'areas/a/area.ts': 'export const aArea = { id: "a" } as const;',
   'areas/README.md': '# areas/\n\n<!-- interface and must-not lines are generated (S-13) -->\n',
-  'commands/x.command.ts': 'export const x = 1;',
+  'commands/x.command.ts': "export const x = [defineCommand({ name: 'x' })];",
   'commands/README.md': '# commands/\n\n<!-- generated:start -->\nold\n<!-- generated:end -->\n',
 };
 function repo(): string {
