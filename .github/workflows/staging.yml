@@ -1,6 +1,8 @@
 name: staging
-# S-16: deploy the v5 staging Worker + synthetic D1, both named ev5-staging, never ev-live (CONTRACT §sec.account).
+# Deploys the v5 staging Worker + synthetic D1, both named ev5-staging (CONTRACT §sec.account), on every merge to main and on demand.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

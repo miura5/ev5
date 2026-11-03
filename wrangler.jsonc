@@ -1,4 +1,4 @@
-// v5 staging Worker (CONTRACT §sec.account): names only ev5-staging, never ev-live or its D1.
+// v5 staging Worker (CONTRACT §sec.account): names only the v5 staging Worker and D1; CI refuses a non-live config naming the live account's.
 // database_id is filled in by .github/workflows/staging.yml after it creates the D1.
 {
   "name": "ev5-staging",

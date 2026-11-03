@@ -4,7 +4,7 @@
 import babelParser from "@babel/eslint-parser";
 
 export default [
-  { ignores: ["dist/", "node_modules/", "fixtures/", "spike/", "docs/", ".claude/"] },
+  { ignores: ["dist/", "node_modules/", "fixtures/", "docs/", ".claude/"] },
   {
     files: ["**/*.{ts,tsx,js,mjs,cjs}"],
     languageOptions: {

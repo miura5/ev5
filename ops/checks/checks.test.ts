@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
 import { checkPresence } from './presence.ts';
 import { checkRegistry } from './registry.ts';
@@ -62,4 +63,11 @@ test('trailer: an interface change needs an Interface trailer naming its folder'
   assert.equal(checkTrailers([c('x\n\nInterface: domain', ['domain/index.ts', 'domain/note.schema.ts'])]).length, 0);
   assert.match(details(checkTrailers([c('x\n\nInterface: kit', ['domain/index.ts'])])), /Interface: domain/);
   assert.equal(checkTrailers([c('x', ['domain/impl.ts', 'README.md'])]).length, 0);
+});
+
+test('account: a non-live config or workflow naming ev-live fails; the live workflow and prose pass', () => {
+  const r = repo({ 'wrangler.jsonc': '{ "name": "ev-live" }', 'wrangler.staging.toml': 'name = "EV-LIVE"', '.github/workflows/staging.yml': 'a: 1\nNAME: ev-live\n',
+    '.github/workflows/live.yml': 'NAME: ev-live', '.github/workflows/ci.yml': 'name: ev5-staging', 'docs/notes.md': 'ev-live is the live Worker' });
+  assert.deepEqual(checkAccount(r.root, r.files).map(f => `${f.file}:${f.detail.split(' ')[1]}`).sort(),
+    ['.github/workflows/staging.yml:2', 'wrangler.jsonc:1', 'wrangler.staging.toml:1']);
 });
