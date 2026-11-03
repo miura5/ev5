@@ -1,0 +1,408 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/sessions",
+ "title": "sessions/<id>",
+ "description": "events map, findings, lengths and hashes, never note text",
+ "x-ev": {
+  "collection": "sessions",
+  "class": "Fact",
+  "writers": [
+   "page",
+   "filing"
+  ],
+  "schema": 2,
+  "marks": {
+   "status": [
+    "page"
+   ],
+   "pending": [
+    "page"
+   ],
+   "endedAt": [
+    "page"
+   ],
+   "comments": [
+    "page"
+   ],
+   "filing": [
+    "page"
+   ]
+  }
+ },
+ "$comment": "The note's text never enters a session: length and hash only (B-06), so text and noteText are refused. B-401 (D-325): note names his E.V. note by reference (notes/<id>), never its text; the text stays in notes/.",
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 2
+  },
+  "writer": {
+   "enum": [
+    "page",
+    "filing"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "enum": [
+    "Study Watch",
+    "E.V. Home"
+   ]
+  },
+  "status": {
+   "enum": [
+    "active",
+    "ending",
+    "ended",
+    "discarded"
+   ],
+   "description": "B-406 (D-325): discarded marks a session an Undo took back (kept, never counted); an ended session an Undo restored is active again"
+  },
+  "kind": {
+   "enum": [
+    "note",
+    "skill"
+   ]
+  },
+  "skill": {
+   "type": "object",
+   "properties": {
+    "materialId": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "page": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "cite": {
+     "type": "string"
+    },
+    "steps": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "n": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "text": {
+        "type": "string",
+        "maxLength": 300
+       },
+       "critical": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "n",
+       "text"
+      ],
+      "additionalProperties": false
+     },
+     "maxItems": 80
+    },
+    "rule": {
+     "type": "object"
+    }
+   },
+   "required": [
+    "steps"
+   ],
+   "additionalProperties": false
+  },
+  "date": {
+   "type": "string",
+   "format": "date"
+  },
+  "startedAt": {
+   "anyOf": [
+    {
+     "type": "string",
+     "format": "date-time"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "endedAt": {
+   "anyOf": [
+    {
+     "type": "string",
+     "format": "date-time"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "topic": {
+   "type": "string"
+  },
+  "noteId": {
+   "type": "string"
+  },
+  "note": {
+   "type": "string",
+   "pattern": "^notes/n-[A-Za-z0-9-]{1,120}$",
+   "description": "B-401 (D-325): the E.V. note this session studies, as notes/<id>"
+  },
+  "planned": {
+   "type": "integer",
+   "minimum": 1,
+   "maximum": 600,
+   "description": "B-406 (D-325): a timed session's planned minutes (25 for a note; a Today task's estimate); +5 adds to it"
+  },
+  "clock": {
+   "enum": [
+    "writing"
+   ],
+   "description": "B-438: a note session whose clock counts only the time he spends writing (pause and write events); it has no planned end. A session without it keeps its planned clock."
+  },
+  "folder": {
+   "type": "string"
+  },
+  "events": {
+   "type": "object",
+   "propertyNames": {
+    "pattern": "^[a-z][a-z-]*-\\d{8}-\\d{6}(\\d{3})?(-[a-z0-9]+)?$"
+   },
+   "additionalProperties": {
+    "type": "object",
+    "properties": {
+     "type": {
+      "enum": [
+       "start",
+       "check",
+       "idle",
+       "skip",
+       "break",
+       "resume",
+       "extend",
+       "answer",
+       "end",
+       "step",
+       "reopen",
+       "pause",
+       "write"
+      ],
+      "description": "B-438: pause (its from is his last keystroke, after writingIdleMinutes with no typing) and write (his next keystroke) stop and start a writing clock"
+     },
+     "len": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "h": {
+      "type": "string"
+     },
+     "n": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "result": {
+      "enum": [
+       "pass",
+       "miss"
+      ]
+     },
+     "format": {
+      "enum": [
+       "mc",
+       "open"
+      ],
+      "description": "B-74 (D-133): a check event's format"
+     }
+    },
+    "required": [
+     "type"
+    ]
+   }
+  },
+  "driver": {
+   "anyOf": [
+    {
+     "type": "object",
+     "properties": {
+      "view": {
+       "type": "string"
+      },
+      "at": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     "required": [
+      "view",
+      "at"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "minutes": {
+   "anyOf": [
+    {
+     "type": "number",
+     "minimum": 0
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "checks": {
+   "type": [
+    "integer",
+    "array",
+    "null"
+   ]
+  },
+  "questions": {
+   "type": [
+    "integer",
+    "array",
+    "null"
+   ]
+  },
+  "endedBy": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "summary": {
+   "type": "string"
+  },
+  "weakSpots": {
+   "type": "array",
+   "items": {
+    "type": [
+     "string",
+     "object"
+    ]
+   }
+  },
+  "connections": {
+   "type": "array",
+   "items": {
+    "type": [
+     "string",
+     "object"
+    ]
+   }
+  },
+  "noteTodos": {
+   "type": "array",
+   "items": {
+    "type": [
+     "string",
+     "object"
+    ]
+   }
+  },
+  "cards": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "term": {
+      "type": "string"
+     },
+     "definition": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "term",
+     "definition"
+    ],
+    "additionalProperties": false
+   },
+   "maxItems": 30
+  },
+  "cardCount": {
+   "type": "integer",
+   "minimum": 0
+  },
+  "pending": {
+   "type": [
+    "object",
+    "null"
+   ]
+  },
+  "filedAt": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "filing": {
+   "anyOf": [
+    {
+     "type": "object",
+     "properties": {
+      "at": {
+       "type": "string",
+       "format": "date-time"
+      },
+      "wrap": {
+       "type": "object"
+      }
+     },
+     "required": [
+      "at",
+      "wrap"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "description": "B-411: a mark the page sets before a session's findings: when its filing began and the summary it files, so filing again after a reload writes the same findings once; null once an Undo voids it"
+  },
+  "comments": {
+   "enum": [
+    "more",
+    "some",
+    "off"
+   ],
+   "description": "B-74 (D-130): how often E.V. comments on his notes in this session, carried into the next"
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source",
+  "source",
+  "date"
+ ],
+ "not": {
+  "anyOf": [
+   {
+    "required": [
+     "text"
+    ]
+   },
+   {
+    "required": [
+     "noteText"
+    ]
+   }
+  ]
+ }
+}

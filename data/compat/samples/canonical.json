@@ -1,0 +1,24 @@
+{
+ "about": "Synthetic bodies as a page might send them, and the exact text ev4's Worker stores for each (pwa/runapi.js canonicalJson: JSON.stringify of JSON.parse). Keys are not sorted: integer-like keys come first, ascending, then the rest as written.",
+ "canonical": [
+  { "in": "{\n  \"title\": \"Cardiac output\",\n  \"tags\": [ \"BIO 201\", \"exam 2\" ],\n  \"done\": false\n}", "out": "{\"title\":\"Cardiac output\",\"tags\":[\"BIO 201\",\"exam 2\"],\"done\":false}" },
+  { "in": "{\"text\":\"caf\\u00e9 \\u2014 \\/ok\",\"n\":1.0,\"big\":1e2,\"neg\":-0.50}", "out": "{\"text\":\"café — /ok\",\"n\":1,\"big\":100,\"neg\":-0.5}" },
+  { "in": "{\"b\":1,\"a\":{\"10\":\"x\",\"2\":\"y\",\"z\":null},\"1\":true}", "out": "{\"1\":true,\"b\":1,\"a\":{\"2\":\"y\",\"10\":\"x\",\"z\":null}}" },
+  { "in": "{ \"schema\" : 2 , \"items\" : [ { \"id\" : \"i1\" , \"done\" : true } ] }\n", "out": "{\"schema\":2,\"items\":[{\"id\":\"i1\",\"done\":true}]}" },
+  { "in": "\t{\"files\":[],\"at\":\"2026-10-26T12:00:00Z\"}  ", "out": "{\"files\":[],\"at\":\"2026-10-26T12:00:00Z\"}" },
+  { "in": "{\"neg0\":-0,\"e\":1E-7,\"f\":0.1,\"g\":123456789012345678901234567890}", "out": "{\"neg0\":0,\"e\":1e-7,\"f\":0.1,\"g\":1.2345678901234568e+29}" },
+  { "in": "{\"ctl\":\"\\u0001\\t\\n\",\"quote\":\"\\\"\",\"lone\":\"\\ud800\",\"pair\":\"\\ud83d\\ude00\"}", "out": "{\"ctl\":\"\\u0001\\t\\n\",\"quote\":\"\\\"\",\"lone\":\"\\ud800\",\"pair\":\"😀\"}" },
+  { "in": "{\"dup\":1,\"dup\":2}", "out": "{\"dup\":2}" },
+  { "in": "{\"01\":\"a\",\"1\":\"b\",\"4294967295\":\"c\",\"4294967294\":\"d\",\"-1\":\"e\"}", "out": "{\"1\":\"b\",\"4294967294\":\"d\",\"01\":\"a\",\"4294967295\":\"c\",\"-1\":\"e\"}" },
+  { "in": "[1, 2]", "out": "[1,2]" },
+  { "in": "\"just a string\"", "out": "\"just a string\"" }
+ ],
+ "refused": [
+  { "in": "{\"a\": 1", "error": "the body is not JSON" },
+  { "in": "", "error": "the body is not JSON" },
+  { "in": "{'a': 1}", "error": "the body is not JSON" },
+  { "in": "{\"a\": NaN}", "error": "the body is not JSON" },
+  { "in": "{\"a\": 1e400}", "error": "a number too large for JSON (it would be stored as null); nothing was written" },
+  { "in": "{\"a\": [{\"b\": -1e999}]}", "error": "a number too large for JSON (it would be stored as null); nothing was written" }
+ ]
+}

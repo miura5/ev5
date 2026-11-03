@@ -1,0 +1,536 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/system",
+ "title": "system/<id>",
+ "description": "the spec; the release pointer; proven capabilities",
+ "x-ev": {
+  "collection": "system",
+  "class": "Config",
+  "writers": [
+   "deploy"
+  ],
+  "schema": 2,
+  "documents": {
+   "spec": "#/$defs/spec",
+   "manifest": "#/$defs/manifest",
+   "environments": "#/$defs/environments",
+   "seed": "#/$defs/seed",
+   "yourturn": "#/$defs/yourturn"
+  }
+ },
+ "$comment": "The manifest shape is completed in B-03; a deployed manifest is never dirty.",
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 2
+  },
+  "writer": {
+   "enum": [
+    "deploy"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source"
+ ],
+ "$defs": {
+  "spec": {
+   "type": "object",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    },
+    "specVersion": {
+     "type": "string",
+     "pattern": "^4\\.\\d+$"
+    },
+    "collections": {
+     "type": "object"
+    }
+   },
+   "required": [
+    "schema",
+    "writer",
+    "at",
+    "source",
+    "specVersion",
+    "collections"
+   ]
+  },
+  "manifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestBody"
+    }
+   ],
+   "type": "object",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    },
+    "dirty": {
+     "const": false
+    }
+   },
+   "required": [
+    "schema",
+    "writer",
+    "at",
+    "source"
+   ]
+  },
+  "environments": {
+   "type": "object",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    }
+   },
+   "required": [
+    "schema",
+    "writer",
+    "at",
+    "source"
+   ]
+  },
+  "manifestBody": {
+   "type": "object",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    },
+    "release": {
+     "type": "string",
+     "pattern": "^v4\\.\\d+\\.\\d+(\\+[0-9a-z]+)?$"
+    },
+    "commit": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{40}$"
+    },
+    "dirty": {
+     "type": "boolean"
+    },
+    "builtAt": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "specVersion": {
+     "type": "string",
+     "pattern": "^4\\.\\d+$"
+    },
+    "files": {
+     "type": "object",
+     "propertyNames": {
+      "pattern": "^(core|scripts|page|spec|dist)/"
+     },
+     "additionalProperties": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+     }
+    },
+    "pages": {
+     "type": "object",
+     "properties": {
+      "live": {
+       "$ref": "#/$defs/page"
+      },
+      "staging": {
+       "$ref": "#/$defs/page"
+      }
+     },
+     "required": [
+      "live",
+      "staging"
+     ],
+     "additionalProperties": false
+    },
+    "tasks": {
+     "type": "object",
+     "additionalProperties": {
+      "$ref": "#/$defs/task"
+     }
+    },
+    "records": {
+     "type": "object",
+     "properties": {
+      "live": {
+       "$ref": "#/$defs/record"
+      },
+      "staging": {
+       "$ref": "#/$defs/record"
+      }
+     },
+     "required": [
+      "live",
+      "staging"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "release",
+    "commit",
+    "dirty",
+    "builtAt",
+    "specVersion",
+    "files",
+    "pages",
+    "tasks",
+    "records"
+   ],
+   "additionalProperties": false,
+   "$comment": "What tools/build.mjs writes to dist/manifest.json. The record copy (system/manifest) adds the envelope and must not be dirty."
+  },
+  "page": {
+   "type": "object",
+   "properties": {
+    "artifact": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "files": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+     }
+    },
+    "capabilities": {
+     "type": [
+      "object",
+      "null"
+     ]
+    }
+   },
+   "required": [
+    "artifact",
+    "files",
+    "capabilities"
+   ],
+   "additionalProperties": false
+  },
+  "task": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "minLength": 1
+    },
+    "pipeline": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "record": {
+     "enum": [
+      "live",
+      "staging",
+      null
+     ]
+    },
+    "lane": {
+     "enum": [
+      "cloud",
+      "mac"
+     ]
+    },
+    "schedule": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "macBound": {
+     "type": "boolean"
+    },
+    "folders": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "push": {
+     "type": "boolean"
+    },
+    "trigger": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^trig_"
+    },
+    "promptSha256": {
+     "anyOf": [
+      {
+       "type": "string",
+       "pattern": "^[0-9a-f]{64}$"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "name",
+    "pipeline",
+    "record",
+    "lane",
+    "schedule",
+    "macBound",
+    "folders",
+    "push",
+    "trigger",
+    "promptSha256"
+   ],
+   "additionalProperties": false
+  },
+  "record": {
+   "type": "object",
+   "properties": {
+    "artifact": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "systemDocs": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^system/"
+     },
+     "minItems": 1
+    }
+   },
+   "required": [
+    "artifact",
+    "systemDocs"
+   ],
+   "additionalProperties": false
+  },
+  "seed": {
+   "type": "object",
+   "$comment": "Written by seed-staging on the staging record only: which export it is a copy of, so verify-deploy staging can say how old it is.",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    },
+    "from": {
+     "enum": [
+      "live export",
+      "backup"
+     ]
+    },
+    "exportedAt": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "migration": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "counts": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "hashes": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+     }
+    },
+    "command": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "schema",
+    "writer",
+    "at",
+    "source",
+    "from",
+    "exportedAt",
+    "counts",
+    "hashes",
+    "command"
+   ],
+   "additionalProperties": false
+  },
+  "yourturn": {
+   "type": "object",
+   "$comment": "B-178 (D-196): the Chart's Your turn as of the last ship (either target) or builder trace: what waits on Matt, grouped by place, each task with its ask",
+   "properties": {
+    "schema": {
+     "const": 2
+    },
+    "writer": {
+     "const": "deploy"
+    },
+    "at": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1
+    },
+    "commit": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "groups": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "place": {
+        "enum": [
+         "mac",
+         "staging",
+         "github",
+         "decision"
+        ]
+       },
+       "label": {
+        "type": "string",
+        "minLength": 1
+       },
+       "tasks": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "type": "string",
+           "pattern": "^B-\\d+$"
+          },
+          "ask": {
+           "type": "string",
+           "maxLength": 300
+          },
+          "status": {
+           "enum": [
+            "open",
+            "in progress",
+            "blocked"
+           ]
+          },
+          "choices": {
+           "type": "array",
+           "minItems": 2,
+           "maxItems": 4,
+           "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 24
+           },
+           "$comment": "B-182: a decision's named choices, one chip each (log --choices)"
+          }
+         },
+         "required": [
+          "id",
+          "ask",
+          "status"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "required": [
+       "place",
+       "label",
+       "tasks"
+      ],
+      "additionalProperties": false
+     }
+    }
+   },
+   "required": [
+    "schema",
+    "writer",
+    "at",
+    "source",
+    "commit",
+    "groups"
+   ],
+   "additionalProperties": false
+  }
+ }
+}

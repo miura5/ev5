@@ -1,0 +1,206 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/jobresults",
+ "title": "jobresults/<id>",
+ "description": "status, result, posted message key",
+ "x-ev": {
+  "collection": "jobresults",
+  "class": "Log",
+  "writers": [
+   "worker",
+   "builder"
+  ],
+  "schema": 2
+ },
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 2
+  },
+  "writer": {
+   "enum": [
+    "worker",
+    "builder"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1
+  },
+  "release": {
+   "type": "string",
+   "pattern": "^v\\d+(\\.\\d+){0,2}(\\+[0-9a-z]+)?$"
+  },
+  "status": {
+   "enum": [
+    "running",
+    "done",
+    "failed"
+   ]
+  },
+  "startedAt": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "finishedAt": {
+   "anyOf": [
+    {
+     "type": "string",
+     "format": "date-time"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "result": {
+   "anyOf": [
+    {
+     "type": "object",
+     "properties": {
+      "text": {
+       "type": "string"
+      },
+      "links": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "title": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string",
+          "pattern": "^https://"
+         }
+        },
+        "required": [
+         "url"
+        ],
+        "additionalProperties": false
+       }
+      },
+      "setId": {
+       "type": "string"
+      },
+      "docUrl": {
+       "type": "string",
+       "pattern": "^https://"
+      },
+      "retro": {
+       "type": "object",
+       "description": "exam-retro: the examRetro numbers the narrative was written over (D-104)"
+      },
+      "pageUrl": {
+       "type": "string",
+       "pattern": "^https://claude\\.ai/",
+       "description": "share-set: the link of the page the job published (D-110)"
+      },
+      "task": {
+       "type": "string",
+       "pattern": "^B-\\d+$",
+       "description": "B-178 (D-195): a builder job: the task it filed or answered"
+      },
+      "commit": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{7,40}$",
+       "description": "B-178 (D-195): a builder job: the commit staging is green at"
+      },
+      "planId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "B-449: an exam-plan job: the plans/<id> it saved"
+      },
+      "asked": {
+       "type": "boolean",
+       "description": "B-449: an exam-plan job asked Matt one question instead of a plan"
+      },
+      "usage": {
+       "type": "object",
+       "description": "B-449: an exam-plan job: the tokens its asks used, as the API counted them",
+       "properties": {
+        "asks": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "input": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "output": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "cacheRead": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "cacheWrite": {
+         "type": "integer",
+         "minimum": 0
+        }
+       },
+       "additionalProperties": false
+      },
+      "offerNewPlan": {
+       "type": "boolean",
+       "description": "D-362: an exam-plan edit found his ask needs a whole new plan and offered the Make a new plan chip instead of a patch"
+      },
+      "quizlet": {
+       "type": "string",
+       "description": "B-479: a flashcards job: its cards as Quizlet import text, term TAB definition, one card per line (D-416: flashcards are retired; kept so old jobs still validate, no code writes it)"
+      },
+      "deckId": {
+       "type": "string",
+       "description": "B-487: a flashcards job: the decks/<id> it made (D-416: flashcards are retired; kept so old jobs still validate, no code writes it)"
+      },
+      "deckCards": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "B-487: a flashcards job: how many cards its deck holds (D-416: flashcards are retired; kept so old jobs still validate, no code writes it)"
+      }
+     },
+     "required": [],
+     "additionalProperties": false
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "message": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "error": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source",
+  "release",
+  "status",
+  "startedAt"
+ ],
+ "additionalProperties": false
+}

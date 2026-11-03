@@ -1,0 +1,259 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ev4/days",
+ "title": "days/<id>",
+ "description": "dayType, plan, list, push",
+ "x-ev": {
+  "collection": "days",
+  "class": "Derived",
+  "writers": [
+   "morning"
+  ],
+  "schema": 4
+ },
+ "type": "object",
+ "properties": {
+  "schema": {
+   "const": 4
+  },
+  "writer": {
+   "enum": [
+    "morning"
+   ]
+  },
+  "at": {
+   "type": "string",
+   "format": "date-time"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1
+  },
+  "date": {
+   "type": "string",
+   "format": "date"
+  },
+  "dayType": {
+   "type": "string"
+  },
+  "plan": {
+   "type": [
+    "object",
+    "null"
+   ]
+  },
+  "list": {
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "id": {
+        "type": "string",
+        "minLength": 1
+       },
+       "text": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "id"
+      ]
+     }
+    },
+    "focus": {
+     "type": "array"
+    },
+    "push": {
+     "type": "string"
+    },
+    "budget": {
+     "type": [
+      "object",
+      "null"
+     ]
+    },
+    "deferred": {
+     "type": "array"
+    }
+   },
+   "required": [
+    "items"
+   ]
+  },
+  "push": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ]
+  },
+  "shadow": {
+   "description": "B-68 (D-116): the other scheduler's pick for the day (spec.study.scheduler drives the list); null on a day written before it",
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "scheduler": {
+       "enum": [
+        "fixed",
+        "adaptive"
+       ]
+      },
+      "ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "deferred": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     },
+     "required": [
+      "scheduler",
+      "ids",
+      "deferred"
+     ],
+     "additionalProperties": false
+    }
+   ]
+  },
+  "readiness": {
+   "description": "B-48 (D-105): readiness per upcoming exam of every active course as of this document (percent solid, active and solid weak spots, accuracy over the last seven days); null on a document written before it",
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "object",
+     "additionalProperties": {
+      "type": "object",
+      "properties": {
+       "pctSolid": {
+        "anyOf": [
+         {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "active": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "solid": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "accuracy7": {
+        "anyOf": [
+         {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "answers7": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "required": [
+       "pctSolid",
+       "active",
+       "solid",
+       "accuracy7",
+       "answers7"
+      ],
+      "additionalProperties": false
+     }
+    }
+   ]
+  },
+  "aim": {
+   "description": "B-170 (D-120, D-190): the aim that drove the day's new checks (spec.study.aim), the weakest objective the latest week named, and the other aim's checks; null on a day written before it",
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "rule": {
+       "enum": [
+        "today",
+        "weakest"
+       ]
+      },
+      "weakest": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "other": {
+       "type": "object",
+       "properties": {
+        "rule": {
+         "enum": [
+          "today",
+          "weakest"
+         ]
+        },
+        "checks": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "required": [
+        "rule",
+        "checks"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "rule",
+      "weakest",
+      "other"
+     ],
+     "additionalProperties": false
+    }
+   ]
+  }
+ },
+ "required": [
+  "schema",
+  "writer",
+  "at",
+  "source",
+  "date",
+  "list",
+  "shadow",
+  "readiness",
+  "aim"
+ ],
+ "additionalProperties": false
+}
