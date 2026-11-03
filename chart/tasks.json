@@ -14387,10 +14387,12 @@
   "title": "Wiring: Worker WorkflowEntrypoint + wrangler binding running runJob with practice-set and study-plan handlers",
   "dod": "wrangler.jsonc binds the workflow; handlers registered; test with fake adapter",
   "milestone": "Phase 4",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "",
-  "commit": null,
-  "source": "handover Next (c)"
+  "notes": "server/worker.ts exports JobWorkflow; wrangler binds JOBS; practice-set handlers added. Study-plan home (exam load, approve to Today) is a stub that throws; ceilings read claude_settings ceiling_* keys (0 if unset).",
+  "commit": "c0dfd7e",
+  "source": "handover Next (c)",
+  "claimedBy": "claude-builder",
+  "claimedAt": "2026-11-03T14:18:37.652Z"
  }
 ]

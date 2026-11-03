@@ -2,14 +2,14 @@ import { Hono } from "hono";
 import { bearerAuth } from "./auth.ts";
 import type { AuthEnv, AuthVars } from "./auth.ts";
 import { isEv4Route } from "./ev4-routes.ts";
-
-/** The few D1 calls the Worker makes; the full type comes with Cloudflare's types when more is needed. */
-interface D1Like {
-  prepare(sql: string): { first<T>(): Promise<T | null> };
-}
+import type { D1Like } from "../jobs/index.ts";
 
 export interface Env extends AuthEnv {
   DB: D1Like;
+  /** The job Workflow (wrangler `workflows`); startJob reaches it through cloudflareAdapter. */
+  JOBS: { create(o: { id: string; params: unknown }): Promise<unknown> };
+  /** Worker secret, set by Matt (AGENTS §6); the job steps stop with a plain reason when it is missing. */
+  ANTHROPIC_API_KEY?: string;
   ASSETS: { fetch(request: Request): Promise<Response> };
   /** Set at deploy (`--var COMMIT:<sha>`). */
   COMMIT?: string;

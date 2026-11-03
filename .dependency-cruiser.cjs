@@ -31,7 +31,7 @@ module.exports = {
       to: {
         path: `^(${FOLDERS})/`,
         // $1 is the importing folder: imports inside it are free
-        pathNot: ["^$1/", "^[^/]+/index\\.ts$", "^commands/client\\.ts$", "^areas/[^/]+/(area\\.ts|[^/]+\\.view\\.tsx)$"],
+        pathNot: ["^$1/", "^[^/]+/index\\.ts$", "^commands/client\\.ts$", "^areas/[^/]+/(area\\.ts|[^/]+\\.view\\.tsx)$", "^jobs/[^/]+/prompt\\.md$"],
       },
     },
     only("areas", ["^kit/", "^domain/", "^commands/client\\.ts$"]),
