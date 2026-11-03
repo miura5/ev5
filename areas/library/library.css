@@ -1,0 +1,120 @@
+.ev-library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.ev-library-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.ev-library-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--track-title);
+}
+
+.ev-library-meta {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.ev-library-tabs {
+  display: flex;
+  gap: var(--sp-6);
+}
+
+.ev-library-tab {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  font-size: var(--fs-body);
+  color: var(--quiet);
+  cursor: pointer;
+}
+
+.ev-library-tab[aria-selected="true"] {
+  color: var(--text);
+  box-shadow: inset 0 -1.5px 0 var(--text);
+}
+
+.ev-library-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ev-library-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ev-library-line > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-library-bar {
+  display: flex;
+  width: 96px;
+  height: 3px;
+  gap: var(--sp-1);
+  flex: none;
+}
+
+.ev-library-bar > span {
+  min-width: 0;
+  border-radius: var(--r-pill);
+}
+
+.ev-library-bar [data-seg="right"] {
+  background: var(--ok);
+}
+
+.ev-library-bar [data-seg="shaky"] {
+  background: var(--warn);
+}
+
+.ev-library-bar [data-seg="wrong"] {
+  background: var(--bad);
+}
+
+.ev-library-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: var(--hairline) solid var(--line2);
+  border-radius: var(--r-md);
+}
+
+.ev-library-card-head,
+.ev-library-card-foot,
+.ev-library-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-4);
+}
+
+.ev-library-question {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+}
+
+.ev-library-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  font-size: var(--fs-body);
+}

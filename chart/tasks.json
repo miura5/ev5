@@ -14085,13 +14085,15 @@
   "title": "S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-b746",
+  "claimedAt": "2026-11-03T22:25:32.468Z"
  },
  {
   "id": "B-747",
