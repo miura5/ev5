@@ -97,7 +97,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-743 | S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-744 | S-71: Activity Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-747 | S-74: Ask E.V. Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
