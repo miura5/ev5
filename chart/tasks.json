@@ -13360,13 +13360,15 @@
   "title": "S-11: ESLint, dependency-cruiser, Stylelint (tokens only), knip, per PLAN §4 and §11",
   "dod": "Each runs in CI",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-2026-11-03-c",
+  "claimedAt": "2026-11-03T03:57:16.003Z"
  },
  {
   "id": "B-703",
