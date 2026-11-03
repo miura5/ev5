@@ -1,0 +1,37 @@
+name: gate4-e2e
+# Gate 4's one real run on v5 staging (never live): starts a practice set and a study plan with the app token and polls them.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_STAGING }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Find the staging Worker
+        run: |
+          SUB=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).result.subdomain")
+          echo "U=https://ev5-staging.$SUB.workers.dev" >> "$GITHUB_ENV"
+      - name: Practice set and study plan
+        env:
+          T: ${{ secrets.TOKEN_APP_STAGING }}
+        run: |
+          curl -fsS "$U/api/health"; echo
+          start() { curl -sS -X POST -H "Authorization: Bearer $T" -H 'content-type: application/json' -d "$2" "$U/api/v1/jobs/$1"; }
+          poll() {
+            for i in $(seq 1 40); do
+              R=$(curl -sS -H "Authorization: Bearer $T" "$U/api/v1/jobs/$1"); echo "$R" | head -c 1500; echo
+              echo "$R" | grep -Eq '"state":"(done|failed|needs-you)"' && return 0; sleep 15
+            done; return 1
+          }
+          P=$(start practice-set '{"input":{"variant":"practice","targetId":"e2e-set","count":3,"objectives":["Explain the Frank-Starling law"],"drafts":false,"excerpts":[{"id":"e1","text":"The Frank-Starling law states that the more the ventricle fills with blood during diastole, the more forcefully it contracts during systole."}]}}')
+          echo "$P"; PID=$(echo "$P" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$PID"
+          S=$(start study-plan '{"input":{"examId":"synthetic-exam"}}'); echo "$S"
+          SID=$(echo "$S" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$SID"
