@@ -13493,12 +13493,12 @@
   "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
   "dod": "Tokens match the mock-up",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "e4763df",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13713,12 +13713,12 @@
   "title": "S-48b: New entity: pin (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "48c3309",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-724",
   "claimedAt": "2026-11-03T09:49:26.899Z"
@@ -13791,12 +13791,12 @@
   "title": "S-50: The migration baseline and the deletions table",
   "dod": "Baseline is a no-op on a copy of ev4's schema",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "4ae5edb",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-729",
   "claimedAt": "2026-11-03T09:09:41.680Z"
@@ -13807,12 +13807,12 @@
   "title": "S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch",
   "dod": "Counts and SHA-256 match after restore",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "baed1d0",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run",
   "claimedAt": "2026-11-03T10:09:17.000Z"

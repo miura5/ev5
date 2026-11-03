@@ -1,8 +1,15 @@
-## Phase      2/3 in parallel · Gate 1 passed (B-709 done): rehearsal 1 green, actions run 41616883069 (ev4 9d9af38 deployed on throwaway ev5-rehearsal, v5 answered 410 on ev4 routes, ev4 redeployed, read/wrote, PlanJob binding intact). Cleanup was dispatched; confirm ev5-rehearsal is gone.
-## Running    other runs hold claude/B-710-tokens (PR #77), B-711-kit-part2, B-730-export, B-716..B-728 stale branches (several merged: delete them)
+## Phase      2/3 in parallel · Gate 1 passed (B-709) · Gate 3 needs B-728 (rest of S-49) and B-732 · Gate 2 needs B-711 (more components), B-712 (visual baselines)
+## Running    nothing from this run
 ## Waiting on Matt   nothing
-## Next       Phase 2: B-710 tokens (#77), B-711 further kit components, then Gate 2 (B-713). Phase 3: B-730 export, B-732 scratch-copy check (counts only, D-453), then Gate 3 (B-733); Chart rows for merged B-710..B-731 may lag main: check `git log` against tasks.json first. Then Phase 4 (B-734..).
+## Next       B-728 rest of S-49 (per-collection Zod parsing, other tables, D1 against the real schema); B-711 further kit components (Menu waits for Radix, not installed: needs a dependency decision); B-712 Playwright visual baselines in Docker; B-732 scratch-copy parse check (counts only, D-453); then Gates 2 and 3. Also delete stale merged claude/B-7* branches.
 ## Staging    ev5-staging, deploys on push to main   ## Live  ev4 build (unchanged)
+
+### Eleventh run (2026-11-03 09:47-10:25Z)
+- Merged: B-728 first slice (#72, data/docs), B-724 pin (#73), B-711 Button/Field/Toast (#75) and Source/Row/Tile (#78), B-710 tokens parity test (#77), B-730 export and restore (#79). Chart: B-710, B-724, B-729, B-730 done; B-711 and B-728 stay open (partial).
+- Old PRs #62, #66, #67, #68, #71 were closed and redone on new branches (-c names): their branches were someone else's, so no force-push.
+- The interface-trailer check wants `Interface: <folder>` on the commit that changes an index.ts/schema; a squash commit with the trailer fixes it. tsc excludes node:fs tests (server tests and kit/tokens/tokens.test.ts are listed in tsconfig exclude).
+- After one PR merges the others go BEHIND: use update_pull_request_branch; BACKLOG.md conflicts: take main's and re-render.
+- §5.10 tables have no migrations yet (B-730's test creates them with test-only DDL).
 
 ### Tenth run (2026-11-03 10:08Z)
 - Ran rehearsal 1 (rehearsal.yml worked as is, no changes needed) and recorded B-708/B-709 done (#80). Little was unclaimed: concurrent runs hold the other branches. Handover PRs #74 and #76 are superseded.
