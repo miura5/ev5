@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "../../data/docs/d1.ts";
+import type { D1Like, D1Statement } from "./d1-stores.ts";
 import {
   d1CeilingStore,
   d1JobStore,

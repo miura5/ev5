@@ -2,7 +2,18 @@
 // Tables are in data/migrations/0002_jobs_ceilings.sql (jobs and ceilings are not ev4 `docs` collections: ceilings
 // need arithmetic in one statement, and ev4 already owns the `jobs` and `jobresults` collections).
 // All writes follow the docs protocol: `at` from the injected Worker clock, `v` bumped, canonical JSON, batches atomic.
-import type { D1Like, D1Statement } from "../../data/docs/d1.ts";
+// The slice of Cloudflare's D1 API used here (the real binding satisfies it structurally; data/ has no index to import).
+export interface D1Statement {
+  bind(...values: (string | number | null)[]): D1Statement;
+  first<T = Record<string, unknown>>(): Promise<T | null>;
+  all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
+  run(): Promise<{ meta: { changes: number } }>;
+}
+
+export interface D1Like {
+  prepare(sql: string): D1Statement;
+  batch(statements: D1Statement[]): Promise<unknown[]>;
+}
 import type { CeilingStore, Limit, StoreResult, Window } from "./ceilings.ts";
 import type { JobRecord, JobStore } from "./record.ts";
 import type { Plan, PlanContext, PlanStore } from "../study-plan/job.ts";
