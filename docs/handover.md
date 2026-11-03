@@ -1,8 +1,7 @@
-## Phase      3 (Phase 2 done: Gate 2 passed, B-713) · Gate 3 waits on one item: the scratch-copy check (B-732)
+## Phase      3 (Phase 2 done: Gate 2 passed, B-713) · Phase 4 unlocked (D-457)
 ## Running    nothing. Stale claim branches from earlier runs can be deleted: B-711-kit-first/part3/part5/palette, B-712-*, B-714..B-728-*, B-732-scratch-check, B-764-ev4-410, B-724-pin(-b); all merged.
-## Waiting on Matt
-- B-732 / Gate 3: run the counts-only parse check on a copy of your live export (D-453 gave the OK). Posted on "For Matt" (#1). Phase 4 (B-734..B-741) needs Gate 3, so the build is paused until this is answered.
-## Next       When Gate 3 closes: Phase 4 in parallel: B-734 command registry, B-735 job record, B-736 Workflows runtime, B-737 ceilings, B-738 structured output (+ models.ts from current docs), then B-739..B-741, Gate 4 (B-742). If Matt wants Phase 4 started before the check runs, record that as a decision.
+## Waiting on Matt   nothing (B-732's scratch-copy check moved to the cutover checklist, D-457; Matt chose to unlock Phase 4)
+## Next       Phase 4 now, in parallel: B-734 command registry, B-735 job record, B-736 Workflows runtime, B-737 ceilings, B-738 structured output (+ models.ts from current docs), then B-739..B-741, Gate 4 (B-742). If Matt wants Phase 4 started before the check runs, record that as a decision.
 Open loose ends: record a Chart decision for the new dev dependency @playwright/test 1.64.1 (e2e visual baselines; `npm run test:visual:docker`); domain course, collection and pin parsers aren't exported from domain/index.ts so data/docs/parsers.ts can't wire them (add exports, then wire); the `visual` CI job isn't a required check; B-712's first baseline run needed `--host 127.0.0.1`.
 ## Staging    ev5-staging, deploys on push to main (/kit gallery is in the build)   ## Live  ev4 build (unchanged)
 
