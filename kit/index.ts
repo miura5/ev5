@@ -12,6 +12,9 @@ import "./components/Row/Row.css";
 import "./components/Tile/Tile.css";
 import "./components/Glyph/Glyph.css";
 import "./components/EvLine/EvLine.css";
+import "./components/StudyCard/StudyCard.css";
+import "./components/Detail/Detail.css";
+import "./components/Doc/Doc.css";
 import { Story as ButtonStory } from "./components/Button/Button.story";
 import { Story as FieldStory } from "./components/Field/Field.story";
 import { Story as ToastStory } from "./components/Toast/Toast.story";
@@ -26,6 +29,9 @@ import { Story as MenuStory } from "./components/Menu/Menu.story";
 import { Story as TileStory } from "./components/Tile/Tile.story";
 import { Story as GlyphStory } from "./components/Glyph/Glyph.story";
 import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
+import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story";
+import { Story as DetailStory } from "./components/Detail/Detail.story";
+import { Story as DocStory } from "./components/Doc/Doc.story";
 
 /** Every component's story, in gallery order; the /kit route renders each under its name. */
 export const STORIES = [
@@ -40,4 +46,7 @@ export const STORIES = [
   { name: "Menu", Story: MenuStory },
   { name: "Glyph", Story: GlyphStory },
   { name: "E.V. line", Story: EvLineStory },
+  { name: "Study card", Story: StudyCardStory },
+  { name: "Detail", Story: DetailStory },
+  { name: "Doc", Story: DocStory },
 ] as const;
