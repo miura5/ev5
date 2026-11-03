@@ -98,7 +98,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-711 | S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts Done when: All 15 components have stories and tests | B-709 | v5 P2 | open |  |
 | B-712 | S-39: The /kit gallery route and Playwright visual baselines in Docker Done when: Baselines committed | B-709 | v5 P2 | open |  |
 | B-713 | G-2: Gate 2: kit Done when: Baselines committed, and the gallery matches the mock-up | B-710, B-711, B-712 | v5 P2 | open |  |
-| B-720 | S-46: Entity: session Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-721 | S-47: Entity: note Done when: ev4's tests ported and passing | B-709 | v5 P3 | open |  |
 | B-723 | S-48a: New entities: collection and membership (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-724 | S-48b: New entity: pin (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |

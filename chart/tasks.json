@@ -13647,13 +13647,15 @@
   "title": "S-46: Entity: session",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "9b275c8",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T09:04:36.178Z"
  },
  {
   "id": "B-721",
