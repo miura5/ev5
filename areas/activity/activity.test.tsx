@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { activityArea } from "./area.ts";
 import { ActivityView, type ActivityJob } from "./Activity.view.tsx";
+import { toActivityJob } from "./useJobs.ts";
 
 afterEach(cleanup);
 
@@ -20,6 +21,12 @@ test("jobs sit in their sections and failed shows its reason", () => {
   expect(done.textContent).toContain("The model was unreachable");
   expect(done.textContent).toContain("Morning");
   expect(activityArea.nav).toBe("Activity");
+});
+
+test("wire jobs become rows with the reason for needs-you and failed", () => {
+  const j = toActivityJob({ id: "z", kind: "study-plan", state: "needs-you", summary: "Rate it." });
+  expect(j).toMatchObject({ title: "Study plan", reason: "Rate it." });
+  expect(toActivityJob({ id: "y", kind: "x", state: "running", summary: "s" }).reason).toBeUndefined();
 });
 
 test("empty sections say None and rows open", () => {
