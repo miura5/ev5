@@ -7,6 +7,7 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-459 | Nov 3 | Add @anthropic-ai/sdk 1.4.0 as the only model client (B-765) | ModelCall needs the official SDK for output_config.format; pinned exact, maxRetries 0, no network in tests. | accepted |  |
 | D-458 | Nov 3 | Add zod 4.6.7 as a dev dependency (bundled into the Worker and page) for the command registry's input schemas | PLAN 6.1 and CONTRACT §cmd.registry require a Zod input per command; zod was already in the lockfile transitively. S-64 still owes the Zod CPU check. | accepted |  |
 | D-457 | Nov 3 | Phase 4 starts before the scratch-copy check (B-732) runs; the check stays a gate for going live | Matt, in the build chat: go with the default answers and unlock Phase 4. The check needs a live export only Matt can make, so it moves from Gate 3 to the cutover checklist (run on a restricted copy, counts only, D-453). | accepted |  |
 | D-456 | Nov 2 | S-11 deviations: Babel parses for ESLint and @swc/core transpiles for dependency-cruiser, because TypeScript 7 has no JS compiler API; ban-ts-comment becomes no-warning-comments on @ts- terms | typescript-eslint and dependency-cruiser do not support TypeScript 7. Revisit when they do. Added dev deps: @babel/core, @babel/eslint-parser, @babel/preset-typescript, @swc/core. | accepted |  |
