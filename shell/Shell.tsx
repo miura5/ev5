@@ -8,6 +8,7 @@ import {
   type GlyphType,
   type PaletteGroup,
 } from "../kit/index.ts";
+import { Ev4Offer } from "./Ev4Offer.tsx";
 import type { Services } from "./services.ts";
 import { AREAS, areaFor, type AreaEntry } from "./areas.ts";
 import "./shell.css";
@@ -122,6 +123,7 @@ export function Shell({
       </nav>
       <main className="shell-main">
         <div className="shell-col">
+          <Ev4Offer ev4={services?.ev4} />
           {View ? <View services={services} /> : null}
         </div>
       </main>
