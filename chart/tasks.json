@@ -14165,12 +14165,12 @@
   "title": "S-77: The offline outbox, and the ev4-outbox import",
   "dod": "Offline note journey passes",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "f741b3d",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:18:40.088Z"
@@ -14574,12 +14574,12 @@
   "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
   "dod": "Offline note journey passes in the browser (e2e)",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-751"
   ],
   "notes": "Done: HTTP transport (shell/outbox/http.ts), shell Services handed to area views, Notes loads from /docs and saves a title through queueNote with saved/not saved. Follow-ups filed: import offer, practice answers, collections/editor.",
-  "commit": null,
+  "commit": "0324880",
   "source": "B-751",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:40:43.920Z"
@@ -14590,12 +14590,12 @@
   "title": "Server document routes (list, get, conditional put) over data repositories",
   "dod": "Routes pass tests with the compat protocol",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "135e65b",
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:25:10.109Z"
