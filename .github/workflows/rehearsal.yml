@@ -1,0 +1,180 @@
+name: rehearsal
+# Rehearsal 1 of the rollback runbook (ops/ROLLBACK.md): a throwaway Worker + D1 pair, both named ev5-rehearsal,
+# never the live Worker or its D1 (CONTRACT §sec.account). Dispatch-only; uses the staging token.
+# Needs a read token for the ev4 repository (secret EV4_CHECKOUT_TOKEN): see ops/ROLLBACK.md, "Rehearsal 1".
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: run or cleanup
+        default: run
+        type: choice
+        options: [run, cleanup]
+      ev4_ref:
+        description: ev4 commit or tag to deploy (the build the runbook would restore)
+        required: true
+        type: string
+      ev4_config:
+        description: path of ev4's wrangler config inside its repository
+        default: pwa/wrangler.toml
+        type: string
+      ev4_schema:
+        description: path of ev4's D1 schema inside its repository
+        default: pwa/schema.sql
+        type: string
+      ev4_token_secret:
+        description: name of the Worker secret that holds ev4's bearer token
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency: rehearsal
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_STAGING }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  NAME: ev5-rehearsal
+  WRANGLER: wrangler@4.156.2
+
+jobs:
+  rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Cleanup
+        if: inputs.action == 'cleanup'
+        run: |
+          # wrangler delete lists KV first and the staging token has no KV scope, so call the API directly.
+          curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME?force=true" | cut -c1-300
+          echo
+          npx --yes $WRANGLER d1 delete "$NAME" -y || true
+
+      - name: Check out ev4 at the requested ref
+        if: inputs.action == 'run'
+        uses: actions/checkout@v4
+        with:
+          repository: miura5/ev4
+          ref: ${{ inputs.ev4_ref }}
+          token: ${{ secrets.EV4_CHECKOUT_TOKEN }}
+          path: ev4
+
+      - name: Build ev4's rehearsal config (throwaway names only)
+        if: inputs.action == 'run'
+        run: |
+          set -eu
+          npm ci
+          npx --yes $WRANGLER d1 create "$NAME" || true
+          npx --yes $WRANGLER d1 info "$NAME" --json > d1.json
+          echo "DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")" >> "$GITHUB_ENV"
+          export DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")
+          # Keep ev4's bindings, but point them at the throwaway pair and drop everything that reaches ev4's own
+          # resources: routes, cron triggers (the nightly export writes to R2) and R2 buckets.
+          node --input-type=commonjs - <<'JS'
+          const fs = require('fs');
+          const src = `ev4/${process.env.CFG_PATH}`;
+          let t = fs.readFileSync(src, 'utf8');
+          t = t.replace(/^\[\[r2_buckets\]\][\s\S]*?(?=^\[|(?![\s\S]))/gm, '');
+          t = t.replace(/^\[triggers\][\s\S]*?(?=^\[|(?![\s\S]))/gm, '');
+          t = t.replace(/^\s*routes?\s*=.*(\n\s*[\[{].*)*$/gm, '');
+          t = t.replace(/^name\s*=.*$/m, `name = "${process.env.NAME}"`);
+          t = t.replace(/^(\s*database_name\s*=).*$/gm, `$1 "${process.env.NAME}"`);
+          t = t.replace(/^(\s*database_id\s*=).*$/gm, `$1 "${process.env.DBID}"`);
+          t = `workers_dev = true\n${t}`;
+          fs.writeFileSync('ev4/rehearsal.toml', t);
+          JS
+          # Refuse to deploy anything that still names the live Worker or an R2 bucket, route or cron.
+          if grep -En 'ev-l[i]ve|r2_buckets|^\s*routes?\s*=|\[triggers\]|crons' ev4/rehearsal.toml; then
+            echo "ev4's config still reaches shared resources; stop"; exit 1
+          fi
+          cat ev4/rehearsal.toml
+        env:
+          CFG_PATH: ${{ inputs.ev4_config }}
+
+      - name: 1. Deploy ev4 with the synthetic record
+        if: inputs.action == 'run'
+        run: |
+          set -eu -o pipefail
+          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file "ev4/$SCHEMA"
+          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file data/staging/seed.sql
+          (cd ev4 && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee ../deploy-ev4.log)
+          grep -o 'https://[^ ]*workers.dev' deploy-ev4.log | head -1 | tee url.txt
+          TOK=$(openssl rand -hex 24); echo "::add-mask::$TOK"
+          printf %s "$TOK" | npx --yes $WRANGLER secret put "$TOKEN_SECRET" --name "$NAME"
+          printf %s "$TOK" > token.txt
+          sleep 10
+          bash ops/rollback/verify.sh ev4-up "$(cat url.txt)" "$TOK"
+        env:
+          SCHEMA: ${{ inputs.ev4_schema }}
+          TOKEN_SECRET: ${{ inputs.ev4_token_secret }}
+
+      - name: 2. Deploy empty v5 over it (keeping a PlanJob stub)
+        if: inputs.action == 'run'
+        run: |
+          set -eu -o pipefail
+          npm run build
+          # The rehearsal entry keeps the PlanJob class as the live v5 build must (CONTRACT §deliver.window).
+          cat > rehearsal-entry.ts <<'TS'
+          import app from './server/index.ts';
+          export default app;
+          export class PlanJob {
+            fetch(): Response { return new Response('PlanJob stub', { status: 410 }); }
+          }
+          TS
+          cat > rehearsal-v5.jsonc <<CFG
+          { "name": "$NAME", "main": "rehearsal-entry.ts", "compatibility_date": "2026-10-01",
+            "workers_dev": true, "vars": { "ENV_NAME": "rehearsal" },
+            "d1_databases": [{ "binding": "DB", "database_name": "$NAME", "database_id": "$DBID" }],
+            "durable_objects": { "bindings": [{ "name": "$DO_BINDING", "class_name": "PlanJob" }] },
+            "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] } }
+          CFG
+          npx --yes $WRANGLER deploy -c rehearsal-v5.jsonc --var COMMIT:${{ github.sha }} 2>&1 | tee deploy-v5.log
+          sleep 10
+        env:
+          DO_BINDING: PLAN_JOB
+
+      - name: 3. ev4's routes answer 410
+        id: gone
+        if: inputs.action == 'run'
+        continue-on-error: true
+        run: bash ops/rollback/verify.sh v5-gone "$(cat url.txt)" "$(cat token.txt)"
+
+      - name: 4. Roll back with the runbook (drain, redeploy ev4's build, ev4 tasks)
+        if: inputs.action == 'run'
+        run: |
+          set -eu -o pipefail
+          echo "drain: v5 is empty, so there are no Workflow instances to drain"
+          echo "ev4 tasks: none exist in the rehearsal"
+          (cd ev4 && npx --yes $WRANGLER deploy -c rehearsal.toml 2>&1 | tee ../deploy-back.log)
+          sleep 10
+
+      - name: 5. ev4 boots, reads and writes; PlanJob intact
+        id: back
+        if: inputs.action == 'run'
+        continue-on-error: true
+        run: |
+          set -u
+          bash ops/rollback/verify.sh ev4-up "$(cat url.txt)" "$(cat token.txt)"
+          rc=$?
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME/settings" > settings.json
+          if node -e "const b=JSON.parse(require('fs').readFileSync('settings.json','utf8')).result?.bindings??[];process.exit(b.some(x=>x.type==='durable_object_namespace'&&x.class_name==='PlanJob')?0:1)"; then
+            echo "ok   PlanJob binding present after the rollback"
+          else
+            echo "FAIL PlanJob binding missing after the rollback"; rc=1
+          fi
+          echo "NOT CHECKED here: PlanJob stored state (needs an ev4 probe route) and ev4's IndexedDB (client side; v5 uses another name)"
+          exit $rc
+
+      - name: Result
+        if: inputs.action == 'run' && always()
+        run: |
+          echo "ev4 routes 410 under v5: ${{ steps.gone.outcome }}"
+          echo "ev4 back after rollback: ${{ steps.back.outcome }}"
+          [ "${{ steps.gone.outcome }}" = success ] && [ "${{ steps.back.outcome }}" = success ]
