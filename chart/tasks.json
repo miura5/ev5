@@ -14408,5 +14408,19 @@
   "source": "B-767 leftovers",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:34:24.974Z"
+ },
+ {
+  "id": "B-769",
+  "kind": "task",
+  "title": "Wiring: command handlers and /api/v1 routes calling startJob/continueJob, with an app-only ceilings route",
+  "dod": "routes for practice-set and study-plan start/continue/status behind scoped tokens; app-only ceilings route; tests with fake adapter",
+  "milestone": "Phase 4",
+  "status": "done",
+  "depends": [],
+  "notes": "server/job-routes.ts: POST /api/v1/jobs/{practice-set,study-plan}, POST /jobs/:id/continue, GET /jobs[/:id], GET/PUT /ceilings (app only). Command-name handlers (set.write_with_ev, studyplan.ask_changes) not wired: need excerpts/planHome.",
+  "commit": "pending",
+  "source": "handover Next",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T14:36:39.806Z"
  }
 ]

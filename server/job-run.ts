@@ -73,6 +73,21 @@ export async function loadCeilingConfig(db: D1Like): Promise<CeilingConfig> {
   };
 }
 
+export async function saveCeilingConfig(
+  db: D1Like,
+  c: CeilingConfig,
+  at: number,
+): Promise<void> {
+  for (const [name, key] of Object.entries(CEILING_KEYS))
+    await db
+      .prepare(
+        "INSERT INTO claude_settings (key, value, at) VALUES (?, ?, ?) " +
+          "ON CONFLICT (key) DO UPDATE SET value = excluded.value, at = excluded.at",
+      )
+      .bind(key, c[name as keyof CeilingConfig], at)
+      .run();
+}
+
 /** Practice set content between steps: the result and any failure, in job_plans (keyed by job id). */
 export function d1PracticeStore(
   db: D1Like,

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { bearerAuth } from "./auth.ts";
 import type { AuthEnv, AuthVars } from "./auth.ts";
+import { jobRoutes } from "./job-routes.ts";
 import { isEv4Route } from "./ev4-routes.ts";
 import type { D1Like } from "../jobs/index.ts";
 
@@ -46,6 +47,8 @@ app.get("/api/health", async (c) => {
 // v5 routes live under /api/v1 behind a scoped bearer token; commands plug in here as handlers.
 app.use("/api/v1/*", bearerAuth());
 app.get("/api/v1/whoami", (c) => c.json({ caller: c.get("caller") }));
+
+app.route("/api/v1", jobRoutes);
 
 app.all("/api/*", (c) =>
   isEv4Route(c.req.path)
