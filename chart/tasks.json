@@ -14461,13 +14461,18 @@
   "title": "Export domain course/collection/pin parsers and Draft/set types from domain/index.ts",
   "dod": "domain/index.ts exports the parsers and types; tsc and tests green",
   "milestone": "Phase 4",
-  "status": "in progress",
+  "status": "declined",
   "depends": [],
   "notes": "Handover Next (d)",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "run16",
-  "claimedAt": "2026-11-03T14:58:32.825Z"
+  "claimedAt": "2026-11-03T14:58:32.825Z",
+  "triage": {
+   "outcome": "declined",
+   "reason": "knip fails on exports with no consumer; export each when the first caller needs it",
+   "at": "2026-11-03T15:01:58.227Z"
+  }
  },
  {
   "id": "B-773",
