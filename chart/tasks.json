@@ -13511,9 +13511,11 @@
   "depends": [
    "B-709"
   ],
-  "notes": "",
+  "notes": "PR #68: Button, Field, Toast with stories and tests, shown in /kit Components section via kit STORIES. Remaining first-set components still to do; stays open.",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-711",
+  "claimedAt": "2026-11-03T09:49:45.374Z"
  },
  {
   "id": "B-712",
