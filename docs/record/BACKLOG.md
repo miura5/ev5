@@ -95,10 +95,10 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open | Parsers wired for exams, notes, objectives, sessions, sets, weakspots (#92); course, collection, pin wait for a barrel export |
 | B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | blocked | Moved to the cutover checklist (D-457): run on a restricted copy of a live export, counts only, before going live. |
 | B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731 | v5 P3 | open | Per D-457 the scratch-copy check (B-732) moved to the cutover checklist; Phase 4 does not wait for it. |
-| B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713 | v5 P4 | open |  |
+| B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713 | v5 P4 | in progress |  |
 | B-735 | S-61: The job record, defineJob, executors and job_status Done when: Job lifecycle tests pass | B-713 | v5 P4 | in progress |  |
 | B-736 | S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation Done when: Continuation is idempotent | B-713 | v5 P4 | open |  |
-| B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713 | v5 P4 | open |  |
+| B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713 | v5 P4 | in progress |  |
 | B-738 | S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date Done when: A forced invalid output and max_tokens fail cleanly | B-713 | v5 P4 | open |  |
 | B-739 | S-65: The practice set job (mock exam variant; drafts output for Write with E.V.) Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |
 | B-740 | S-66: The study plan job Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |
