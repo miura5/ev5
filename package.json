@@ -6,7 +6,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/migrations/ server/*.test.ts && vitest run",
+    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/migrations/ data/docs/ server/*.test.ts && vitest run",
     "checks": "node ops/checks/cli.ts",
     "test:compat": "node --test data/compat/ data/migrations/",
     "generate": "node ops/generate/cli.ts",
