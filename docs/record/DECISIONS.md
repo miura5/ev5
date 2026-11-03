@@ -7,6 +7,7 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-455 | Nov 2 | Gate 0 passed: S-04 to S-08 done, Matt's yes on the hard limits (D-451); Workflows stays on the Free plan | S-07 part 2 passed all four tests on Free (CI run 41573826112, cleanup run on main), S-08 and S-06 reports and tests are in docs/ and data/compat, CONTRACT.md hard limits carry D-451. Two follow-ups: real Zod CPU check in S-64, and the fate of a mid-sleep instance under a binding-removing redeploy in S-17. | accepted |  |
 | D-454 | Nov 2 | Canvas sync stays on the Mac through Matt's signed-in browser, as in ev4 | Matt chose the Mac over trying a Canvas token. S-81 needs him present once. | accepted |  |
 | D-453 | Nov 2 | Matt's OK for S-53: one read-only, counts-only parse of a restricted scratch copy of live data | Given ahead of Phase 3 so the build doesn't stop for it. Counts and errors only; no content shown to anyone. | accepted |  |
 | D-452 | Nov 2 | The build runs hourly, nonstop, until cutover | Matt wants development nonstop until v5 is on staging and live. Hourly (7 past each hour) is the minimum interval; runs can overlap, so the task claim is the lock and a run never works a task another run claimed. Risk accepted: hourly runs share plan usage with ev4's scheduled runs. | accepted |  |
