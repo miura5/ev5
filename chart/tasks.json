@@ -14165,13 +14165,15 @@
   "title": "S-77: The offline outbox, and the ev4-outbox import",
   "dod": "Offline note journey passes",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:18:40.088Z"
  },
  {
   "id": "B-752",
@@ -14540,13 +14542,15 @@
   "title": "Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today)",
   "dod": "Each screen shows staging data and the Detail panel opens from a row",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-743"
   ],
   "notes": "",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:19:53.225Z"
  },
  {
   "id": "B-777",
@@ -14558,10 +14562,24 @@
   "depends": [
    "B-746"
   ],
-  "notes": "Slice A done (PR): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data (wiring waits on commands).",
+  "notes": "Slice A done (PR #156): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
-  "claimedAt": "2026-11-03T23:19:43.742Z"
+  "claimedAt": "2026-11-03T23:25:26.257Z"
+ },
+ {
+  "id": "B-778",
+  "kind": "task",
+  "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
+  "dod": "Offline note journey passes in the browser (e2e)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-751"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-751"
  }
 ]

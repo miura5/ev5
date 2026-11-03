@@ -98,7 +98,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Session view merged (#148). Left: real note blocks and checks, save to Progress and toast, Space/Esc keys, Start session button on the note page. |
 | B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Collection and Recently deleted areas merged (#149), empty until wired. Left: /collection/:id route, hiding Collection from the nav, saved-view page, item menu. |
-| B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | open |  |
+| B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | in progress |  |
 | B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
 | B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |
 | B-754 | S-80: Scheduled commands: morning, evening, weekly Done when: Tested across DST | B-753 | v5 P6 | open |  |
@@ -112,8 +112,9 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
-| B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | open |  |
-| B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Slice A done (PR): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data (wiring waits on commands). |
+| B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | in progress |  |
+| B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Slice A done (PR #156): sets tab with type filter (Tile, TextOptions now in kit), accuracy line, set page view mode (SetPage.view.tsx, props-driven). Left: Edit mode, exam plan Detail (needs dashed proposal row in kit), study mode, practice hint; screens still pass no data. |
+| B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
 
 ## Your turn
 
