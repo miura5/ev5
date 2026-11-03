@@ -102,7 +102,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-725 | S-48c: New entity: item properties with repeat (PLAN §5.10) Done when: Migration, repository and compat fixture; materialization idempotent | B-709 | v5 P3 | open |  |
 | B-726 | S-48d: New entities: own set, items and attempts (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
 | B-727 | S-48e: New entity: draft (PLAN §5.10) Done when: Migration, repository and compat fixture | B-709 | v5 P3 | open |  |
-| B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | open |  |
+| B-728 | S-49: D1 repositories over docs, with Zod parsing and the protocol Done when: Pass the data/compat protocol suite | B-709 | v5 P3 | in progress |  |
 | B-729 | S-50: The migration baseline and the deletions table Done when: Baseline is a no-op on a copy of ev4's schema | B-709 | v5 P3 | in progress |  |
 | B-730 | S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch Done when: Counts and SHA-256 match after restore | B-709 | v5 P3 | open |  |
 | B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | open | Matt's OK given ahead (D-453): run it when Phase 3 reaches it, counts only |

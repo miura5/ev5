@@ -6,9 +6,9 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/migrations/ server/*.test.ts && vitest run",
+    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/docs/ data/migrations/ server/*.test.ts && vitest run",
     "checks": "node ops/checks/cli.ts",
-    "test:compat": "node --test data/compat/ data/migrations/",
+    "test:compat": "node --test data/compat/ data/docs/ data/migrations/",
     "generate": "node ops/generate/cli.ts",
     "generate:check": "node ops/generate/cli.ts --check",
     "typecheck": "tsc -p .",
@@ -18,6 +18,9 @@
     "deps": "depcruise areas shell kit commands jobs domain data server ops --config .dependency-cruiser.cjs",
     "stylelint": "stylelint \"**/*.css\" --allow-empty-input",
     "knip": "knip"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@babel/core": "8.1.0",

@@ -13767,13 +13767,15 @@
   "title": "S-49: D1 repositories over docs, with Zod parsing and the protocol",
   "dod": "Pass the data/compat protocol suite",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-728",
+  "claimedAt": "2026-11-03T09:13:40.608Z"
  },
  {
   "id": "B-729",
