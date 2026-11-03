@@ -42,7 +42,7 @@ A design that does Matt's thinking for him is a defect.
 ## 2. Fixed ground
 
 ### 2.1 Hard limits
-1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in his private repo. Secrets still never go in files (§10), and staging, fixtures, logs and builder prompts stay synthetic or id-only (C15, answered 2026-11-02).
+1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in the repo. The repo is public (C10), so anything committed is public. Secrets still never go in files (§10), and staging, fixtures, logs and builder prompts stay synthetic or id-only (C15, answered 2026-11-02).
 2. Canvas is read-only: GETs through Matt's signed-in browser, never a token.
 3. Nothing is deleted, except items Matt deletes himself, which are purged after 30 days (D-425). How the purge is timed is in §5.6.
 4. Live deploys happen only on Matt's word, and only through staging.

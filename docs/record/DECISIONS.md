@@ -7,6 +7,31 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-450 | Nov 2 | The evening command does the prep check; weak-spot parking stays retired as in ev4 | ev4 retired parking; cutover matches ev4, so PLAN §8's 'evening weak-spot parking' is read as the evening prep check. | accepted |  |
+| D-449 | Nov 2 | Keep Matt's Mac backups (nightly plus Sunday mirror) in the v5 export design | A copy Matt owns outside Cloudflare; data safety comes first. | accepted |  |
+| D-448 | Nov 2 | Phase 0 tools are TypeScript on Node's native type stripping with node:test; S-10 moves tests to Vitest | No build step needed before Phase 1. | accepted |  |
+| D-447 | Nov 2 | Repeat rules are written in domain/time, with no recurrence library | Daily, weekdays, weekly, every N days is enough. | accepted |  |
+| D-446 | Nov 2 | Weak spots keep no glyph; Mark as learned is ev4's solid event | Weak spots are not one of the eight item types; no new storage. | accepted |  |
+| D-445 | Nov 2 | No new job kind: Write with E.V. is the practice set job's drafts output; Make cards is the same job with cards, after cutover | Keeps PLAN §6.4's two cutover jobs. | accepted |  |
+| D-444 | Nov 2 | A top-level shell/ folder holds the sidebar, Detail host, ⌘K and the cross-type screens; areas/ stays six areas | The collection page, saved view and Recently deleted belong to no one area. | accepted |  |
+| D-443 | Nov 2 | The approved mock-up's rules are folded into PLAN, each edit marked [Mock-up: ...] | design/mockup.html from ev5-mockup-kit-approved.zip (round 7), SHA-256 d7da8531...684f42. | accepted |  |
+| D-442 | Nov 2 | C15 / E-2: staging, fixtures, logs and builder prompts stay synthetic or id-only | Default accepted; only the repo opens to personal data. | accepted |  |
+| D-441 | Nov 2 | C14 / E-1: editing a set E.V. wrote in ev4 copies it into Matt's own set on first edit | Default accepted. ev4 sets are immutable and answers are keyed by item id; the original and its history stay untouched. | accepted |  |
+| D-440 | Nov 2 | C13: hand-made question sets with drafts, collections, pins and Recently deleted are in cutover | Default accepted; each new table is in the export and restore drill first (PLAN §5.10). | accepted |  |
+| D-439 | Nov 2 | C12: E.V. is a personal knowledge app with a study partner built in; collections and pins are his own | Default accepted. | accepted |  |
+| D-438 | Nov 2 | C11: trim ev4's watchdog from 8 to 2 runs a day | Default accepted. Current docs show no daily cap on cloud scheduled tasks (hourly limits plus subscription usage), so this is about usage, not a cap. | accepted |  |
+| D-437 | Nov 2 | v5 staging shares ev-live's Cloudflare account | Matt declined a separate account. Tokens cover the whole account, so CI refuses any non-live config naming ev-live; staging and live tokens stay separate secrets. | accepted |  |
+| D-436 | Nov 2 | C10: the ev5 repo is public | GitHub Free gives private repos no branch protection and no approval gate; required reviewers on a private repo need Enterprise (GitHub docs, 2026-11-02). Matt made miura5/ev5 public. | accepted |  |
+| D-435 | Nov 2 | C9: after cutover Matt rates confidence first, then E.V. critiques and proposes | Default accepted. | accepted |  |
+| D-434 | Nov 2 | C8: remove the Mac path and Canvas host from ev4's HEAD, with no history rewrite | Default accepted; done in ev4 through ev4's process. | accepted |  |
+| D-433 | Nov 2 | C7: phone pushes come from a thin cloud task that reads v5's summary | Default accepted. | accepted |  |
+| D-432 | Nov 2 | C6: the rollback window ends on Matt's word, after one exam on v5 | Default accepted. | accepted |  |
+| D-431 | Nov 2 | C5: start on Workers Free; move to paid only if a spike or the rollback window needs it; the Console spend limit is set | Default accepted. The S-07 CPU-per-step test may bring this back to Matt. | accepted |  |
+| D-430 | Nov 2 | C4: purge live only, after the rollback window; backups keep everything | Default accepted. | accepted |  |
+| D-429 | Nov 2 | C3: cards and FSRS come after cutover, starting fresh | Default accepted. | accepted |  |
+| D-428 | Nov 2 | C2: cutover includes notes with sessions and the study plan job | Default accepted. | accepted |  |
+| D-427 | Nov 2 | C1: staging data is synthetic only, plus one read-only, counts-only check of a scratch copy | Default accepted (all defaults). | accepted |  |
+| D-426 | Nov 2 | Personal data may be in the ev5 repo (PLAN §2.1.1 removed) | Matt is accountable for his own data. The CI personal-data scan becomes a secrets scan; secrets still never go in files. | accepted |  |
 | D-425 | Nov 1 | Items Matt deletes himself are purged after 30 days in Recently deleted | Matt, Nov 1 (B-686): delete like Linear, with a 30-day Recently deleted view, then permanent deletion. An exception to the hard limit 'nothing is deleted anywhere' for items he deletes himself through Delete; everything else is still retired by marking. | accepted |  |
 | D-424 | Nov 1 | E.V.'s study-session comments belong to the session, not to his notes | Matt, Nov 1: Record's Notes list is buried under her session questions (about 20 a day). His notes are what he logs; her comments are part of the session that made them, so they live under that session in Record. | accepted |  |
 | D-423 | Nov 1 | core/deploy.mjs is exempt from the D-307 lint: it prints the single remaining ArtifactData read (system/worker) until phase 2 | B-473 phase 1 moves system documents to the Worker; only the run token stays in the artifact, read through deploy's printed call | accepted |  |
