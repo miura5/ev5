@@ -148,6 +148,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-761 | S-90: The whole-repo review Done when: No open findings on lost data, cost, security, crashes, unreachable controls | B-760 | v5 P7 | open |  |
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
+| B-764 | v5 answers ev4's /api routes with 410 Done when: server/ returns 410 for each route in data/compat/routes.json; test proves it | — | Phase 1 | in progress |  |
 
 ## Your turn
 
