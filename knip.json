@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6.44.1/schema.json",
-  "entry": ["**/*.test.{ts,tsx}", "server/index.ts", "areas/registry.generated.ts", "commands/client.ts"],
+  "entry": ["**/*.test.{ts,tsx}", "server/index.ts", "areas/registry.generated.ts", "commands/client.ts", "data/export/index.ts"],
   "project": ["{areas,shell,kit,domain,commands,jobs,data,server,ops,e2e}/**/*.{ts,tsx}"],
   "ignoreExportsUsedInFile": true,
   "ignoreBinaries": ["rehearsal.toml", "rehearsal-v5.jsonc"],
