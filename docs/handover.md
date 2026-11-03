@@ -11,6 +11,7 @@
 - If the CPU-per-step test fails on Free, ask Matt under C5 (CONTRACT §hard.money) through the "For Matt" issue, and carry on with Phase 1.
 
 ### Notes for the next run
+- Matt's answers ahead of time: hourly runs (D-452); the S-53 scratch-copy OK is given (D-453); Canvas sync stays on the Mac (D-454), and S-81 needs him present.
 - `main` is protected: a PR from a `claude/` branch with the `checks` job green, up to date with `main` (`gh pr update-branch` when it shows BEHIND), auto-merge squash.
 - Record commits after the squash merge: the squash hash differs from the branch hash.
 - Hard limits are CONTRACT §1 (five). The Chart holds decisions D-426…D-451 and seed tasks B-691…B-763 (`docs/record/`).
