@@ -14373,11 +14373,13 @@
   "title": "Wiring: D1 JobStore, CeilingStore (atomic check-and-add), PlanStore and the draft/set save step",
   "dod": "D1 stores pass the same tests as the in-memory ones on fake-d1; save step adds id/state/at/v",
   "milestone": "Phase 4",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "",
   "commit": null,
-  "source": "handover Next (b)"
+  "source": "handover Next (b)",
+  "claimedBy": "build-run-15",
+  "claimedAt": "2026-11-03T13:59:47.167Z"
  },
  {
   "id": "B-767",
