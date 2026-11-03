@@ -13408,12 +13408,12 @@
   "title": "S-14: Guard-failure fixtures: one PR per guard that must go red, recorded",
   "dod": "Every PLAN §13 Phase 1 guard shown red",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "ops/guards/guards.test.ts + docs/guards.md: all 9 guards shown red. Wired into npm test in the handover PR.",
+  "commit": "a9d0cbf",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run5",
   "claimedAt": "2026-11-03T04:21:43.695Z"
@@ -13424,12 +13424,12 @@
   "title": "S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live",
   "dod": "Staging deploys on merge; live waits in the live environment",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "staging.yml deploys on push to main; live.yml dispatch-only in the live environment; ops/checks/account.ts refuses ev-live elsewhere. Live needs secret CLOUDFLARE_API_TOKEN_LIVE and environment reviewers before first use (cutover).",
+  "commit": "216a198",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run5",
   "claimedAt": "2026-11-03T04:21:44.362Z"
@@ -13460,7 +13460,7 @@
   "depends": [
    "B-700"
   ],
-  "notes": "",
+  "notes": "Runbook ops/ROLLBACK.md, verify.sh and dispatch-only rehearsal.yml merged (fb4db26, #29). Rehearsal 1 NOT run: needs repo secret EV4_CHECKOUT_TOKEN, an ev4 ref, ev4's bearer-token secret name; v5 returns 404 not 410 for ev4 routes (needs S-67 410 handler or a small task). ev4 file paths in the workflow are guesses.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "run5",
