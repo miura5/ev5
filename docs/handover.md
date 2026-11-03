@@ -1,8 +1,12 @@
-## Phase      2/3 in parallel · Gate 1 passed (B-709 done): rehearsal 1 green, actions run 41616883069 (ev4 9d9af38 deployed on throwaway ev5-rehearsal, v5 answered 410 on ev4 routes, ev4 redeployed, read/wrote, PlanJob binding intact). Cleanup was dispatched; confirm ev5-rehearsal is gone.
-## Running    other runs hold claude/B-710-tokens (PR #77), B-711-kit-part2, B-730-export, B-716..B-728 stale branches (several merged: delete them)
-## Waiting on Matt   nothing
-## Next       Phase 2: B-710 tokens (#77), B-711 further kit components, then Gate 2 (B-713). Phase 3: B-730 export, B-732 scratch-copy check (counts only, D-453), then Gate 3 (B-733); Chart rows for merged B-710..B-731 may lag main: check `git log` against tasks.json first. Then Phase 4 (B-734..).
+## Phase      2/3 in parallel · Gate 1 passed (B-709 done)
+## Running    nothing known; stale branches to delete: B-711-kit-first/part3/part5, B-714, B-716*, B-717, B-720, B-721, B-724*, B-725, B-728*, B-732-scratch-check, B-764, spike-s-08-editor, test-data-docs, old handover-* branches
+## Waiting on Matt   nothing (B-732 scratch-copy check merged; D-453 already OK'd it: run `node data/scratch-check/cli.ts <copy outside repo>` only with a chmod 600 copy)
+## Next       Phase 2: B-711 remaining kit components (check kit/index.ts against PLAN §7 list), B-712 Playwright visual baselines in Docker, then Gate 2 (B-713). Phase 3: rest of B-728 (D1 repositories for exams, objectives, weak spots, sets, sessions, notes with Zod parsing; only `docs` repo exists), then Gate 3 (B-733). Chart rows for B-710, B-711 (parts 1-5), B-724, B-728 (slice 1), B-729, B-730, B-731, B-732 may lag main: check `git log` first and record them. Then Phase 4 (B-734..).
 ## Staging    ev5-staging, deploys on push to main   ## Live  ev4 build (unchanged)
+
+### Eleventh/twelfth run (2026-11-03 10:50Z)
+- PRs #82, #83, #85 sat in conflict (kit/index.ts, package.json) after others merged. A force-push over another run's branch was refused, so they were re-made as new branches and closed: #88 (B-732, merged) and #87 (B-711 parts 3 and 5, merged). Lesson: put both sides of an additive conflict in; update-branch after each merge. Handover PR #86 superseded.
+- Not run locally: kit tests need node_modules (absent here); CI was green on both.
 
 ### Tenth run (2026-11-03 10:08Z)
 - Ran rehearsal 1 (rehearsal.yml worked as is, no changes needed) and recorded B-708/B-709 done (#80). Little was unclaimed: concurrent runs hold the other branches. Handover PRs #74 and #76 are superseded.
