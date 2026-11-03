@@ -14014,7 +14014,7 @@
   "title": "G-4: Gate 4: commands, runtime, server",
   "dod": "PLAN §13 Phase 4 gate items all true",
   "milestone": "v5 P4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-734",
    "B-735",
@@ -14025,8 +14025,8 @@
    "B-740",
    "B-741"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Gate 4 proven on staging: practice set (cost 0.099c) and study plan (needs-you, cost ~0.5-0.7c) ran with the real model; e2e-set items landed in D1 (gate4-e2e runs 41727677206, 41728334576). PRs #139, #142.",
+  "commit": "8857ed4",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run24",
   "claimedAt": "2026-11-03T21:39:52.361Z"
