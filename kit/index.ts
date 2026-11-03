@@ -15,6 +15,12 @@ import { Story as FieldStory } from "./components/Field/Field.story";
 import { Story as ToastStory } from "./components/Toast/Toast.story";
 import { Story as SourceStory } from "./components/Source/Source.story";
 import { Story as RowStory } from "./components/Row/Row.story";
+import "./components/Suggestion/Suggestion.css";
+import "./components/TextOptions/TextOptions.css";
+import "./components/Menu/Menu.css";
+import { Story as SuggestionStory } from "./components/Suggestion/Suggestion.story";
+import { Story as TextOptionsStory } from "./components/TextOptions/TextOptions.story";
+import { Story as MenuStory } from "./components/Menu/Menu.story";
 import { Story as TileStory } from "./components/Tile/Tile.story";
 
 /** Every component's story, in gallery order; the /kit route renders each under its name. */
@@ -25,4 +31,7 @@ export const STORIES = [
   { name: "Source", Story: SourceStory },
   { name: "Row", Story: RowStory },
   { name: "Tile", Story: TileStory },
+  { name: "Suggestion", Story: SuggestionStory },
+  { name: "Text options", Story: TextOptionsStory },
+  { name: "Menu", Story: MenuStory },
 ] as const;

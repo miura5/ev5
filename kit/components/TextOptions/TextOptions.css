@@ -1,0 +1,43 @@
+.kit-opts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  font-family: var(--sans);
+}
+
+.kit-opts-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.kit-opts-sep {
+  color: var(--line2);
+}
+
+.kit-opt {
+  all: unset;
+  cursor: pointer;
+  color: var(--faint);
+  font-size: var(--fs-body);
+  line-height: var(--sp-8);
+  transition-property: color;
+  transition-duration: var(--dur-1);
+}
+
+.kit-opt:hover,
+.kit-opt-on {
+  color: var(--text);
+}
+
+.kit-opt:focus-visible {
+  outline: var(--hairline) solid var(--text);
+  outline-offset: var(--sp-1);
+}
+
+.kit-opt-n {
+  margin-left: var(--sp-1);
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
