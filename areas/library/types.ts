@@ -14,6 +14,8 @@ export interface PracticeSession {
   position: number;
   total: number;
   source: string;
+  /** A nudge that does not give the answer; shown only when he asks. */
+  hint?: string;
 }
 
 export interface WeakSpot {
@@ -68,4 +70,33 @@ export interface SetPageData {
   kind: SetKind;
   meta: string;
   items: readonly SetItem[];
+}
+
+/** The set page in Edit mode: same data, every field editable. */
+export type SetEditData = SetPageData;
+
+/** One study card: the attempt comes first, then the back with its source. */
+export interface StudyItem {
+  id: string;
+  /** Term, Question or Step 2. */
+  kicker: string;
+  front: string;
+  back: string;
+  /** Where the back came from; absent means "unverified". */
+  from?: string;
+  /** E.V.s one line shown with the back. */
+  note?: string;
+}
+
+/** An exam as a date with its plan: properties plus E.V.s dashed session proposals. */
+export interface ExamPlanData {
+  id: string;
+  title: string;
+  /** Date and time, e.g. "Thursday, Nov 5 · 9:00 am". */
+  when: string;
+  course: string;
+  readiness: string;
+  /** Plan state, e.g. "plan waiting for you". */
+  plan: string;
+  proposals: readonly { id: string; text: string }[];
 }
