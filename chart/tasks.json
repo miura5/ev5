@@ -13900,13 +13900,15 @@
   "title": "S-61: The job record, defineJob, executors and job_status",
   "dod": "Job lifecycle tests pass",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-735-job-record",
+  "claimedAt": "2026-11-03T13:14:25.173Z"
  },
  {
   "id": "B-736",
