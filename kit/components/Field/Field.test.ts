@@ -8,9 +8,7 @@ afterEach(cleanup);
 
 test("a field is found by its label", () => {
   render(createElement(Field, { label: "Title", defaultValue: "Heparin" }));
-  expect(
-    (screen.getByRole("textbox", { name: "Title" }) as HTMLInputElement).value,
-  ).toBe("Heparin");
+  expect((screen.getByRole("textbox", { name: "Title" }) as HTMLInputElement).value).toBe("Heparin");
 });
 
 test("a segmented choice marks one option on and reports a tap", () => {
@@ -23,9 +21,7 @@ test("a segmented choice marks one option on and reports a tap", () => {
       onChange,
     }),
   );
-  expect(
-    screen.getByRole("button", { name: "3" }).getAttribute("aria-pressed"),
-  ).toBe("true");
+  expect(screen.getByRole("button", { name: "3" }).getAttribute("aria-pressed")).toBe("true");
   fireEvent.click(screen.getByRole("button", { name: "5" }));
   expect(onChange).toHaveBeenCalledWith("5");
 });
@@ -33,10 +29,6 @@ test("a segmented choice marks one option on and reports a tap", () => {
 test("the story moves the choice", () => {
   render(createElement(Story));
   fireEvent.click(screen.getByRole("button", { name: "8" }));
-  expect(
-    screen.getByRole("button", { name: "8" }).getAttribute("aria-pressed"),
-  ).toBe("true");
-  expect(
-    screen.getByRole("button", { name: "5" }).getAttribute("aria-pressed"),
-  ).toBe("false");
+  expect(screen.getByRole("button", { name: "8" }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("button", { name: "5" }).getAttribute("aria-pressed")).toBe("false");
 });

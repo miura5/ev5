@@ -15,10 +15,7 @@ test("a button defaults to secondary and never submits a form", () => {
 
 test("the key hint sits beside the label", () => {
   render(createElement(Button, { kind: "primary", hint: "C" }, "New note"));
-  expect(
-    screen.getByRole("button", { name: /New note/ }).querySelector("kbd")
-      ?.textContent,
-  ).toBe("C");
+  expect(screen.getByRole("button", { name: /New note/ }).querySelector("kbd")?.textContent).toBe("C");
 });
 
 test("a disabled button does not click", () => {
@@ -30,10 +27,6 @@ test("a disabled button does not click", () => {
 
 test("the story shows every kind", () => {
   const { container } = render(createElement(Story));
-  const kinds = [...container.querySelectorAll("[data-kind]")].map((n) =>
-    n.getAttribute("data-kind"),
-  );
-  expect(new Set(kinds)).toEqual(
-    new Set(["primary", "secondary", "text", "icon"]),
-  );
+  const kinds = [...container.querySelectorAll("[data-kind]")].map((n) => n.getAttribute("data-kind"));
+  expect(new Set(kinds)).toEqual(new Set(["primary", "secondary", "text", "icon"]));
 });

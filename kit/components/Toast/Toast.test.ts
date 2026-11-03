@@ -8,9 +8,7 @@ afterEach(cleanup);
 
 test("a toast says one line and offers Undo only when it can be undone", () => {
   const onUndo = vi.fn();
-  const { rerender } = render(
-    createElement(Toast, { message: "Saved", onUndo }),
-  );
+  const { rerender } = render(createElement(Toast, { message: "Saved", onUndo }));
   expect(screen.getByRole("status").textContent).toContain("Saved");
   fireEvent.click(screen.getByRole("button", { name: "Undo" }));
   expect(onUndo).toHaveBeenCalledTimes(1);
