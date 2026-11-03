@@ -250,7 +250,7 @@ export async function saveOutput(
         .prepare(
           "INSERT OR IGNORE INTO own_set_items (set_id, item_id, pos, body, at, v) VALUES (?, ?, ?, ?, ?, 1)",
         )
-        .bind(a.targetId, itemIds[n], n, json(q), at),
+        .bind(a.targetId, itemIds[n]!, n, json(q), at),
     ),
     ...a.drafts.map((d, n) =>
       db
@@ -258,7 +258,7 @@ export async function saveOutput(
           "INSERT OR IGNORE INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
         )
         .bind(
-          draftIds[n],
+          draftIds[n]!,
           d.jobId,
           d.kind,
           d.targetC,

@@ -14387,10 +14387,12 @@
   "title": "Wiring: Worker WorkflowEntrypoint + wrangler binding running runJob with practice-set and study-plan handlers",
   "dod": "wrangler.jsonc binds the workflow; handlers registered; test with fake adapter",
   "milestone": "Phase 4",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "",
   "commit": null,
-  "source": "handover Next (c)"
+  "source": "handover Next (c)",
+  "claimedBy": "claude-builder",
+  "claimedAt": "2026-11-03T14:18:37.652Z"
  }
 ]
