@@ -24,6 +24,10 @@ jobs:
       - run: npm test
       - run: npx tsc -p .
       - run: npx vite build
+      - run: npm run lint
+      - run: npm run deps
+      - run: npm run stylelint
+      - run: npm run knip
       - run: node ops/record/cli.ts lint
       - run: node ops/record/cli.ts render --check
       - run: node ops/checks/cli.ts
