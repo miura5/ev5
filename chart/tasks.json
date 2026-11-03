@@ -13777,12 +13777,12 @@
   "title": "S-49: D1 repositories over docs, with Zod parsing and the protocol",
   "dod": "Pass the data/compat protocol suite",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "Parsers wired for exams, notes, objectives, sessions, sets, weakspots (#92); course, collection, pin wait for a barrel export",
-  "commit": null,
+  "commit": "31e6ccb",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -14357,12 +14357,12 @@
   "title": "Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw)",
   "dod": "jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test",
   "milestone": "Phase 4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-738"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "313aa3a",
   "source": "handover Next (a)",
   "claimedBy": "build-run-15",
   "claimedAt": "2026-11-03T13:58:44.717Z"
@@ -14445,12 +14445,12 @@
   "title": "Wiring: call studyplan.askChanges from the study-plan job continuation",
   "dod": "change request continuation on a draft plan produces an updated draft; fake-adapter test",
   "milestone": "Phase 4",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-770"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "394794e",
   "source": "ops/record",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:42:11.984Z"
@@ -14480,10 +14480,10 @@
   "title": "Study plan: allow more than one change round per job; surface ceilings defaults for review",
   "dod": "A draft plan can take several ask_changes rounds in one job; fake-adapter test",
   "milestone": "Phase 4",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Handover Next (b)",
-  "commit": null,
+  "commit": "6db8db2",
   "source": "ops/record",
   "claimedBy": "run16",
   "claimedAt": "2026-11-03T14:58:33.209Z"
