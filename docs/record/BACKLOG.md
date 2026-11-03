@@ -116,6 +116,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-761 | S-90: The whole-repo review Done when: No open findings on lost data, cost, security, crashes, unreachable controls | B-760 | v5 P7 | open |  |
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
+| B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
 
 ## Your turn
 

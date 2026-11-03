@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { expect, test, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, expect, test, vi } from "vitest";
 import { Shell } from "./Shell.tsx";
+
+afterEach(cleanup);
 
 const areas = [
   { id: "today", route: "/", nav: "Today", view: () => <h1>Today view</h1> },
