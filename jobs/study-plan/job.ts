@@ -3,7 +3,6 @@
 // in domain (§cmd.code-first); the model only arranges them into tasks. The model call and the store are injected.
 import { defineJob } from '../runtime/define.ts';
 import { checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
-import { askChanges } from './changes.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
 import { addDays, examDaysLeft, type Exam } from '../../domain/index.ts';
 
@@ -184,9 +183,14 @@ export type Deps = {
   call: ModelCall;
   system: string;
   changesSystem?: string;
+  /** studyplan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
+  askChanges?: (
+    d: { call: ModelCall; system: string },
+    input: { draft: Plan; ctx: PlanContext; note: string },
+  ) => Promise<{ ok: true; plan: Plan; costCents: number } | { ok: false; reason: string; costCents: number }>;
 };
 
-export function studyPlanHandlers({ store, call, system, changesSystem }: Deps): StepHandlers {
+export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
   return {
     gather: async (c) => {
       const found = await store.load(parseInput(c.input).examId);
@@ -224,7 +228,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem }: Deps):
     revise: async (c) => {
       const a = parseAnswer(c.input);
       if (a.decision !== 'change') return { ids: [] };
-      if (!changesSystem) throw new Error('Changing a plan is not set up on this Worker.');
+      if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
       const failed = await store.getFailure(c.jobId);
       if (failed) throw new Error(failed);
       const ctx = await store.getContext(c.jobId);

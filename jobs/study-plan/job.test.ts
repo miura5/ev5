@@ -8,6 +8,7 @@ import { fakeWorkflows } from '../runtime/workflow.fake.ts';
 import type { ModelCall, ModelReply, ModelRequest } from '../runtime/output.ts';
 import { buildContext, checkPlan, parseDecision, parsePlan, studyPlanHandlers, studyPlanJob } from './job.ts';
 import type { Plan, PlanContext, PlanStore } from './job.ts';
+import { askChanges } from './changes.ts';
 
 const T = '2026-11-03T12:00:00Z';
 const exam = {
@@ -79,6 +80,7 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     call,
     system: 'sys',
     changesSystem: 'chg',
+    askChanges,
   });
   const wf = fakeWorkflows((step, p) =>
     runJob({ store: jobs, ceilings, now: () => T }, step, studyPlanJob, handlers, p),

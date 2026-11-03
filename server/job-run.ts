@@ -1,6 +1,7 @@
 // What a Workflow instance does (CONTRACT §job.steps): pick the job kind's definition and handlers, then runJob.
 // Kept apart from the WorkflowEntrypoint class so tests run it in Node with the fake Workflows and no Cloudflare runtime.
 import {
+  askChanges,
   d1CeilingStore,
   d1JobStore,
   d1PlanStore,
@@ -150,6 +151,7 @@ export function jobKinds(
         call: env.call,
         system: env.prompts.study_plan,
         changesSystem: env.prompts.study_plan_changes,
+        askChanges,
       }),
     },
   };
