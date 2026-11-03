@@ -13493,12 +13493,12 @@
   "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
   "dod": "Tokens match the mock-up",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "e4763df",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13523,12 +13523,12 @@
   "title": "S-39: The /kit gallery route and Playwright visual baselines in Docker",
   "dod": "Baselines committed",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "Gallery route done; baselines generated in the Playwright image (e2e/baselines). New dev dependency @playwright/test 1.64.1 still needs a Chart decision. Gate 2 = B-710/711/712 done, then B-713.",
-  "commit": null,
+  "commit": "653f513",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13537,14 +13537,14 @@
   "title": "G-2: Gate 2: kit",
   "dod": "Baselines committed, and the gallery matches the mock-up",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-710",
    "B-711",
    "B-712"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Gate 2: tokens parity (#77), all 15 first-set components with stories and tests, /kit route, dark and light baselines committed (e2e/baselines; dark reviewed against the mock-up). Follow-ups: @playwright/test needs a Chart decision; the visual CI job is not a required check.",
+  "commit": "653f513",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13713,12 +13713,12 @@
   "title": "S-48b: New entity: pin (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "48c3309",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-724",
   "claimedAt": "2026-11-03T09:49:26.899Z"
@@ -13791,12 +13791,12 @@
   "title": "S-50: The migration baseline and the deletions table",
   "dod": "Baseline is a no-op on a copy of ev4's schema",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "4ae5edb",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-729",
   "claimedAt": "2026-11-03T09:09:41.680Z"
@@ -13807,12 +13807,12 @@
   "title": "S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch",
   "dod": "Counts and SHA-256 match after restore",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "baed1d0",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run",
   "claimedAt": "2026-11-03T10:09:17.000Z"
@@ -13839,13 +13839,15 @@
   "title": "S-53: The scratch-copy parse check (needs Matt's OK; counts only)",
   "dod": "Zero parse errors",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "blocked",
   "depends": [
    "B-709"
   ],
   "notes": "Check code merged (#88). Not yet run on a real scratch copy: needs a live export (Matt, counts only, D-453).",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "waitingOn": "Matt",
+  "waitingWhere": "mac"
  },
  {
   "id": "B-733",
