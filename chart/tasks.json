@@ -13916,13 +13916,15 @@
   "title": "S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation",
   "dod": "Continuation is idempotent",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-736-workflows-runtime",
+  "claimedAt": "2026-11-03T13:18:28.927Z"
  },
  {
   "id": "B-737",
