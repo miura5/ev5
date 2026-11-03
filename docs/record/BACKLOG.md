@@ -100,7 +100,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-736 | S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation Done when: Continuation is idempotent | B-713 | v5 P4 | in progress |  |
 | B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713 | v5 P4 | in progress |  |
 | B-738 | S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date Done when: A forced invalid output and max_tokens fail cleanly | B-713 | v5 P4 | in progress |  |
-| B-739 | S-65: The practice set job (mock exam variant; drafts output for Write with E.V.) Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |
+| B-739 | S-65: The practice set job (mock exam variant; drafts output for Write with E.V.) Done when: Runs on v5 staging | B-713 | v5 P4 | in progress |  |
 | B-740 | S-66: The study plan job Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |
 | B-741 | S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s Done when: Route tests pass | B-713 | v5 P4 | in progress |  |
 | B-742 | G-4: Gate 4: commands, runtime, server Done when: PLAN §13 Phase 4 gate items all true | B-734, B-735, B-736, B-737, B-738, B-739, B-740, B-741 | v5 P4 | open |  |
