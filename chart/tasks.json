@@ -14401,10 +14401,10 @@
   "title": "Wiring: study-plan planHome (exam and weak-spot load, approve-to-Today) and ceiling config defaults",
   "dod": "planHome no longer throws; ceilings have documented defaults when claude_settings ceiling_* keys are unset; tests on fake D1",
   "milestone": "Phase 4",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
-  "notes": "",
-  "commit": null,
+  "notes": "server/plan-home.ts: load (exam + active weak spots with answers, Central today) and apply (plans doc + exam.planId, idempotent); DEFAULT_CEILINGS in job-run.ts (D-460).",
+  "commit": "eba88ea",
   "source": "B-767 leftovers",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:34:24.974Z"
