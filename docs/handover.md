@@ -1,8 +1,11 @@
-## Phase      1 · gate items 8 / 9 done except rehearsal 1 (Gate 0 passed, D-455); S-10…S-16 done; S-17 runbook done, rehearsal 1 waits on Matt
-## Running    nothing
-## Waiting on Matt   nothing. (Before the first live deploy only: the `live` environment and CLOUDFLARE_API_TOKEN_LIVE, already set up.)
-## Next       Rehearsal 1 (S-17): ev4 is a public repo and is now checked out read-only at ../ev4, so no token is needed. Fix rehearsal.yml to clone it over https, correct its guessed paths and secret name from ../ev4, dispatch it, then Gate 1. In parallel: S-20 tokens.css (Phase 2) and the Phase 3 entities (S-42…), porting ev4's tests from ../ev4.
-## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
+## Phase      2/3 in parallel · Gate 1 passed (B-709 done): rehearsal 1 green, actions run 41616883069 (ev4 9d9af38 deployed on throwaway ev5-rehearsal, v5 answered 410 on ev4 routes, ev4 redeployed, read/wrote, PlanJob binding intact). Cleanup was dispatched; confirm ev5-rehearsal is gone.
+## Running    other runs hold claude/B-710-tokens (PR #77), B-711-kit-part2, B-730-export, B-716..B-728 stale branches (several merged: delete them)
+## Waiting on Matt   nothing
+## Next       Phase 2: B-710 tokens (#77), B-711 further kit components, then Gate 2 (B-713). Phase 3: B-730 export, B-732 scratch-copy check (counts only, D-453), then Gate 3 (B-733); Chart rows for merged B-710..B-731 may lag main: check `git log` against tasks.json first. Then Phase 4 (B-734..).
+## Staging    ev5-staging, deploys on push to main   ## Live  ev4 build (unchanged)
+
+### Tenth run (2026-11-03 10:08Z)
+- Ran rehearsal 1 (rehearsal.yml worked as is, no changes needed) and recorded B-708/B-709 done (#80). Little was unclaimed: concurrent runs hold the other branches. Handover PRs #74 and #76 are superseded.
 
 ### Build manager (Matt's chat), 2026-11-03 08:50Z
 - Runs were ending after one small task (~3 minutes each), and the chain broke because handover PRs were opened before the task PR merged, went BEHIND and never merged (#41, #43, closed). START-BUILD item 4a: keep claiming batches for about 50 minutes; item 7: open the handover only after this run's PRs merge, cut from latest main. AGENTS §3 step 10 matches.
