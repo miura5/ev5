@@ -20,7 +20,7 @@
 .shell-group {
   padding: var(--sp-6) var(--sp-2) var(--sp-1);
   font-size: var(--fs-meta);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: var(--faint);
 }
 
