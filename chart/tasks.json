@@ -14127,13 +14127,15 @@
   "title": "S-76: Study sessions and read-along",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-749-sessions",
+  "claimedAt": "2026-11-03T22:25:02.693Z"
  },
  {
   "id": "B-750",
