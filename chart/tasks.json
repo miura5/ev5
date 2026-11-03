@@ -13374,13 +13374,15 @@
   "title": "S-12: Custom checks: presence, registry-only definitions, CONTRACT/skill/README rule check, interface trailer, secrets scan",
   "dod": "Each runs in CI",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-2026-11-03-c",
+  "claimedAt": "2026-11-03T03:57:18.384Z"
  },
  {
   "id": "B-704",
