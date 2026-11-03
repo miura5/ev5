@@ -13456,12 +13456,12 @@
   "title": "S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair",
   "dod": "Rehearsal 1 passes all five steps",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
-  "notes": "Runbook ops/ROLLBACK.md, verify.sh and dispatch-only rehearsal.yml merged (fb4db26, #29). Rehearsal 1 NOT run: needs repo secret EV4_CHECKOUT_TOKEN, an ev4 ref, ev4's bearer-token secret name; v5 returns 404 not 410 for ev4 routes (needs S-67 410 handler or a small task). ev4 file paths in the workflow are guesses.",
-  "commit": null,
+  "notes": "Rehearsal 1 passed: actions run 41616883069 (ev4 9d9af38 with its synthetic record, v5 410 on ev4 routes, ev4 redeployed and read/wrote, PlanJob binding intact). Throwaway cleaned up.",
+  "commit": "0e68b04",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run5",
   "claimedAt": "2026-11-03T04:24:29.686Z"
@@ -13472,7 +13472,7 @@
   "title": "G-1: Gate 1: repo, guards, walking skeleton",
   "dod": "Every guard shown to fail, and rehearsal 1 passes",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-701",
    "B-702",
@@ -13483,8 +13483,8 @@
    "B-707",
    "B-708"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Gate 1 passed: S-10..S-17 done, rehearsal 1 green (run 41616883069).",
+  "commit": "0e68b04",
   "source": "AGENTS.md §4.3"
  },
  {
