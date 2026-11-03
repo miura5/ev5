@@ -13948,13 +13948,15 @@
   "title": "S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date",
   "dod": "A forced invalid output and max_tokens fail cleanly",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-b738",
+  "claimedAt": "2026-11-03T13:19:50.864Z"
  },
  {
   "id": "B-739",
