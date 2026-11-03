@@ -1,5 +1,5 @@
 // The Anthropic SDK behind ModelCall (CONTRACT §model.output). Retries are off: runStructured owns the one repair ask.
-// Model ids come only from models.ts. Prompts are loaded by callers with Vite `?raw` imports (prompt.md?raw).
+// Model ids come only from models.ts. Prompts are loaded by callers as wrangler Text modules (import of prompt.md).
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { modelInfo } from './models.ts';

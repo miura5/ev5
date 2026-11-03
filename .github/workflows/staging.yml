@@ -42,6 +42,16 @@ jobs:
           set -o pipefail
           npx --yes $WRANGLER deploy --var COMMIT:${{ github.sha }} 2>&1 | tee deploy.log
           grep -o 'https://[^ ]*workers.dev' deploy.log | head -1 | tee url.txt
+      - name: Worker secrets
+        # GitHub secrets go to the Worker through stdin only: never a file, never the log (CONTRACT §hard.no-secrets-in-files).
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY_STAGING }}
+          TOKEN_APP: ${{ secrets.TOKEN_APP_STAGING }}
+          TOKEN_SCHEDULE: ${{ secrets.TOKEN_SCHEDULE_STAGING }}
+          TOKEN_EXECUTOR: ${{ secrets.TOKEN_EXECUTOR_STAGING }}
+        run: |
+          node -e "const k=['ANTHROPIC_API_KEY','TOKEN_APP','TOKEN_SCHEDULE','TOKEN_EXECUTOR'];if(k.some(n=>!process.env[n]))throw new Error('missing staging secret');process.stdout.write(JSON.stringify(Object.fromEntries(k.map(n=>[n,process.env[n]]))))" \
+            | npx --yes $WRANGLER secret bulk --name "$NAME"
       - name: Health
         run: |
           U=$(cat url.txt); sleep 10

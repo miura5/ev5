@@ -30,7 +30,7 @@ import type {
 export type JobRunEnv = {
   db: D1Like;
   call: ModelCall;
-  /** Each kind's system prompt (prompt.md), loaded by the Worker with Vite `?raw`. */
+  /** Each kind's system prompt (prompt.md), loaded by the Worker as a wrangler Text module. */
   prompts: { practice_set: string; study_plan: string; study_plan_changes: string };
   /** Where the study plan reads its exam and approves its tasks (ev4 docs; server/plan-home.ts). */
   planHome: {

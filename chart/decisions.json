@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-461",
+  "date": "Nov 3",
+  "title": "A gate held up only by Matt or an outside input doesn't stop the build: the next phase's tasks that don't need that input start, and the gate closes when it arrives. Gate 6 and anything live still wait for every earlier gate. Staging tokens are generated into GitHub secrets and copied to the Worker by the staging deploy.",
+  "why": "Matt, 2026-11-03: unblock it. Runs 18-23 idled six hours behind Gate 4's staging secrets.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ops/record"
+ },
+ {
   "id": "D-460",
   "date": "Nov 3",
   "title": "Ceiling defaults when claude_settings ceiling_* are unset: per job $1, hourly $2, daily $5, monthly $40 (builder's guesses)",
