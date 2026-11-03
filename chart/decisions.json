@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-459",
+  "date": "Nov 3",
+  "title": "Add @anthropic-ai/sdk 1.4.0 as the only model client (B-765)",
+  "why": "ModelCall needs the official SDK for output_config.format; pinned exact, maxRetries 0, no network in tests.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ops/record"
+ },
+ {
   "id": "D-458",
   "date": "Nov 3",
   "title": "Add zod 4.6.7 as a dev dependency (bundled into the Worker and page) for the command registry's input schemas",

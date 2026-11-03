@@ -9,3 +9,4 @@ export { runJob, workflowExecutor, cloudflareAdapter } from './workflow.ts';
 export type { Ceilings, StepHandlers } from './workflow.ts';
 export { runStructured, checkCitations } from './output.ts';
 export type { ModelCall, ModelReply } from './output.ts';
+export { sdkModelCall, outputSchema } from './model-call.ts';
