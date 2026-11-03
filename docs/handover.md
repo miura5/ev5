@@ -4,7 +4,10 @@
 ## Next       Code that doesn't wait on Matt: a v5 410 handler for ev4's routes (data/compat/routes.json; server/, needed by rehearsal step 3); S-20 tokens.css (Phase 2); S-40 domain/time (Phase 3). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
 
-### Last run (2026-11-03, fifth run)
+### Sixth run (2026-11-03)
+- B-709 (#32): the guard tests failed on every PR run (GITHUB_BASE_REF leaked into the temp repo); fixed and merged. #31's handover was red for that reason; this branch supersedes it. Matt has not answered the rehearsal question yet.
+
+### Fifth run (2026-11-03)
 - B-706 (#28): staging.yml deploys on push to main; live.yml is dispatch-only in the `live` environment (never triggered); ops/checks/account.ts fails any config/workflow naming ev-live except live.yml. spike.yml and spike/ removed.
 - B-705 (#30): ops/guards/guards.test.ts makes all 9 guards red in temp repos; docs/guards.md records the output. Now part of `npm test`.
 - B-708 (#29): ops/ROLLBACK.md, ops/rollback/verify.sh, dispatch-only rehearsal.yml (throwaway ev5-rehearsal Worker+D1; has a cleanup action). Not run. ev4 file paths in it (pwa/wrangler.toml, pwa/schema.sql) are guesses; PlanJob state, ev4's IndexedDB and ev4's synthetic record aren't covered by it. v5 returns 404, not 410, for ev4 routes, and has no PlanJob binding (the rehearsal stubs one).
