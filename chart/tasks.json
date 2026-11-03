@@ -14496,12 +14496,12 @@
   "title": "Stream the model call (the SDK refuses a long non-streamed request); found by the Gate 4 staging run",
   "dod": null,
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "e1fe662",
   "source": "ops/record"
  }
 ]
