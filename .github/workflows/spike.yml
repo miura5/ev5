@@ -29,7 +29,14 @@ jobs:
       - name: Cleanup
         if: inputs.action == 'cleanup'
         run: |
-          npx --yes wrangler@4 delete --name "$NAME" --force || true
+          # wrangler delete lists KV first and the staging token has no KV scope, so call the API directly.
+          for W in ev5-spike-wf ev5-spike-cpu; do
+            curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workflows/$W" | cut -c1-300 || true
+          done
+          curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME?force=true" | cut -c1-300
+          echo
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME" | cut -c1-200
+          echo
           npx --yes wrangler@4 d1 delete "$NAME" -y || true
       - name: Create D1
         if: inputs.action == 'run'
