@@ -14037,12 +14037,12 @@
   "title": "S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "b8b3578",
   "source": "AGENTS.md §4.3",
   "claimedBy": "b743-builder",
   "claimedAt": "2026-11-03T22:03:14.511Z"
@@ -14053,12 +14053,12 @@
   "title": "S-71: Activity",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "24b80cd",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b744",
   "claimedAt": "2026-11-03T22:03:08.685Z"
@@ -14069,12 +14069,12 @@
   "title": "S-72: Today",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "0704860",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-745-today",
   "claimedAt": "2026-11-03T22:12:06.446Z"
@@ -14089,7 +14089,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "",
+  "notes": "Slice 1 merged (#150): Library home with practice, weak spots, exams. Left: sets tab, accuracy line, set page, Edit mode, exam plan Detail (needs a dashed proposal row in the kit), study mode, practice hint.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b746",
@@ -14101,12 +14101,12 @@
   "title": "S-74: Ask E.V.",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "b8b3578",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-747-ask",
   "claimedAt": "2026-11-03T22:12:02.645Z"
@@ -14117,13 +14117,15 @@
   "title": "S-75: The notes editor: home list and note page",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:10:17.099Z"
  },
  {
   "id": "B-749",
@@ -14131,13 +14133,15 @@
   "title": "S-76: Study sessions and read-along",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
-  "notes": "",
+  "notes": "Session view merged (#148). Left: real note blocks and checks, save to Progress and toast, Space/Esc keys, Start session button on the note page.",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-749-sessions",
+  "claimedAt": "2026-11-03T22:25:02.693Z"
  },
  {
   "id": "B-750",
@@ -14149,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "",
+  "notes": "Collection and Recently deleted areas merged (#149), empty until wired. Left: /collection/:id route, hiding Collection from the nav, saved-view page, item menu.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
@@ -14169,7 +14173,7 @@
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder",
-  "claimedAt": "2026-11-03T23:10:49.687Z"
+  "claimedAt": "2026-11-03T23:18:40.088Z"
  },
  {
   "id": "B-752",
@@ -14534,6 +14538,34 @@
  },
  {
   "id": "B-776",
+  "kind": "task",
+  "title": "Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today)",
+  "dod": "Each screen shows staging data and the Detail panel opens from a row",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-743"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-777",
+  "kind": "task",
+  "title": "Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6)",
+  "dod": "Matches the mock-up",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-746"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-778",
   "kind": "task",
   "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
   "dod": "Offline note journey passes in the browser (e2e)",

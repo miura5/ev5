@@ -94,14 +94,10 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-699 | S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec Done when: Shipped through ev4's own process; not built here | — | v5 P0 | blocked | ev4 task: ships through ev4's own process, never from this repo |
 | B-732 | S-53: The scratch-copy parse check (needs Matt's OK; counts only) Done when: Zero parse errors | B-709 | v5 P3 | blocked | Moved to the cutover checklist (D-457): run on a restricted copy of a live export, counts only, before going live. |
 | B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731 | v5 P3 | open | Per D-457 the scratch-copy check (B-732) moved to the cutover checklist; Phase 4 does not wait for it. |
-| B-743 | S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-744 | S-71: Activity Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-747 | S-74: Ask E.V. Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
-| B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
-| B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
+| B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Slice 1 merged (#150): Library home with practice, weak spots, exams. Left: sets tab, accuracy line, set page, Edit mode, exam plan Detail (needs a dashed proposal row in the kit), study mode, practice hint. |
+| B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
+| B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Session view merged (#148). Left: real note blocks and checks, save to Progress and toast, Space/Esc keys, Start session button on the note page. |
+| B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Collection and Recently deleted areas merged (#149), empty until wired. Left: /collection/:id route, hiding Collection from the nav, saved-view page, item menu. |
 | B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | in progress |  |
 | B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
 | B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |
@@ -116,7 +112,9 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-775 | Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons) Done when: Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins | B-711 | v5 P5 | open |  |
-| B-776 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
+| B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | open |  |
+| B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | open |  |
+| B-778 | S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer Done when: Offline note journey passes in the browser (e2e) | B-751 | v5 P5 | open |  |
 
 ## Your turn
 
