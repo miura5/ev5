@@ -13583,13 +13583,15 @@
   "title": "S-42: Entity: objective",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "019bc81",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T08:46:21.761Z"
  },
  {
   "id": "B-717",
