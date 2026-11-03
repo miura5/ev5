@@ -14037,13 +14037,15 @@
   "title": "S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "b743-builder",
+  "claimedAt": "2026-11-03T22:03:14.511Z"
  },
  {
   "id": "B-744",
@@ -14095,13 +14097,15 @@
   "title": "S-74: Ask E.V.",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-747-ask",
+  "claimedAt": "2026-11-03T22:12:02.645Z"
  },
  {
   "id": "B-748",
@@ -14505,5 +14509,19 @@
   "notes": "",
   "commit": "e1fe662",
   "source": "ops/record"
+ },
+ {
+  "id": "B-775",
+  "kind": "task",
+  "title": "Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons)",
+  "dod": "Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-711"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-743"
  }
 ]
