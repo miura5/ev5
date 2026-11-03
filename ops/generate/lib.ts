@@ -50,10 +50,27 @@ export function registryFile(root: string): string {
   return lines.join('\n');
 }
 
+const commandFiles = (root: string): string[] => filesOf(root, 'commands').filter(f => f.endsWith('.command.ts'));
+
+/** Command names declared in commands/*.command.ts (`name: 'a.b'`), in file then source order. */
+function commandNamesOf(root: string): string[] {
+  return commandFiles(root).flatMap(f => [...read(root, `commands/${f}`).matchAll(/\bname:\s*'([^']+)'/g)].map(m => m[1]!));
+}
+
 export function clientFile(root: string): string {
-  const names = filesOf(root, 'commands').filter(f => f.endsWith('.command.ts')).map(f => f.slice(0, -'.command.ts'.length));
+  const names = commandNamesOf(root);
   const union = names.length ? names.map(n => JSON.stringify(n)).join(' | ') : 'never';
   return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', ''].join('\n');
+}
+
+/** commands/all.generated.ts: every command array exported by a *.command.ts file, joined for the catalog. */
+export function allCommandsFile(root: string): string {
+  const groups = commandFiles(root).flatMap(f => {
+    const name = /^export const (\w+) = \[/m.exec(read(root, `commands/${f}`))?.[1];
+    return name ? [{ f, name }] : [];
+  });
+  return [HEADER, '', ...groups.map(g => `import { ${g.name} } from "./${g.f}";`), '',
+    `export const all = [${groups.map(g => `...${g.name}`).join(', ')}] as const;`, ''].join('\n');
 }
 
 // What a folder offers: index.ts exports, schema and command files, job kinds, areas. '(none yet)' when empty.
@@ -106,6 +123,7 @@ export function generate(root: string): Map<string, string> {
   const out = new Map<string, string>();
   out.set('areas/registry.generated.ts', registryFile(root));
   out.set('commands/client.ts', clientFile(root));
+  out.set('commands/all.generated.ts', allCommandsFile(root));
   const rules = importRules(root);
   for (const f of readmes(root)) {
     const text = read(root, f);

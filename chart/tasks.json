@@ -13886,13 +13886,15 @@
   "title": "S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list)",
   "dod": "Tools, ⌘K and schedule generated from it",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-734-command-registry",
+  "claimedAt": "2026-11-03T13:16:16.583Z"
  },
  {
   "id": "B-735",
