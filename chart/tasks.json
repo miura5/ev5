@@ -13282,10 +13282,10 @@
   "title": "S-07: Spike: Workflows on the current plan tier",
   "dod": "A report with pass/fail per PLAN §13 item and a recommendation",
   "milestone": "v5 P0",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
-  "notes": "Part 1 (limits) done in bff3100. Part 2 needs throwaway deploys, not allowed in the build chat",
-  "commit": null,
+  "notes": "S-07 complete. All four part-2 tests pass on the Free plan (run 41573826112); report in docs/spikes/S-07-workflows.md. ev5-spike Worker, Workflows and D1 deleted.",
+  "commit": "8695bf8",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-chat-2026-11-02",
   "claimedAt": "2026-11-03T03:12:13.626Z"
@@ -13323,7 +13323,7 @@
   "title": "G-0: Gate 0: decide and freeze",
   "dod": "S-04…S-08 done and Matt's yes on the CONTRACT hard limits",
   "milestone": "v5 P0",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-691",
    "B-692",
@@ -13334,8 +13334,8 @@
    "B-697",
    "B-698"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Recorded as the Gate 0 decision; Phase 1 starts with S-10.",
+  "commit": "8695bf8",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13344,13 +13344,15 @@
   "title": "S-10: TypeScript, Vite, React and Vitest base, with one \"hello\" area",
   "dod": "Builds and tests green in CI",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "3c295b3",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-2026-11-03",
+  "claimedAt": "2026-11-03T03:52:40.619Z"
  },
  {
   "id": "B-702",
@@ -13358,13 +13360,15 @@
   "title": "S-11: ESLint, dependency-cruiser, Stylelint (tokens only), knip, per PLAN §4 and §11",
   "dod": "Each runs in CI",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "b7ee94e",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-2026-11-03-c",
+  "claimedAt": "2026-11-03T03:57:16.003Z"
  },
  {
   "id": "B-703",
@@ -13372,13 +13376,15 @@
   "title": "S-12: Custom checks: presence, registry-only definitions, CONTRACT/skill/README rule check, interface trailer, secrets scan",
   "dod": "Each runs in CI",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "3c8d415",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "build-run-2026-11-03-c",
+  "claimedAt": "2026-11-03T03:57:18.384Z"
  },
  {
   "id": "B-704",
@@ -13386,13 +13392,15 @@
   "title": "S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI",
   "dod": "CI fails on a stale generated file",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "commit": "c36c055",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run4",
+  "claimedAt": "2026-11-03T04:09:12.658Z"
  },
  {
   "id": "B-705",
@@ -13428,13 +13436,15 @@
   "title": "S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record",
   "dod": "The empty app answers on staging",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-700"
   ],
-  "notes": "",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
+  "notes": "Deployed by staging.yml run 41576956292 (workflow_dispatch on main): health step passed, app HTML served.",
+  "commit": "fa42c19",
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run4",
+  "claimedAt": "2026-11-03T04:09:38.480Z"
  },
  {
   "id": "B-708",

@@ -2,4 +2,7 @@
 
 The Worker (Hono): routes → commands → domain / jobs / data.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: Env
+Imports: other folders through their index.ts (§drift.imports)
+<!-- generated:end -->

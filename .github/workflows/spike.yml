@@ -1,0 +1,90 @@
+name: spike
+# S-07 part 2: deploy a throwaway Worker + D1, both named ev5-spike, never ev-live (CONTRACT §sec.account).
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: run or cleanup
+        default: run
+        type: choice
+        options: [run, cleanup]
+
+permissions:
+  contents: read
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_STAGING }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  NAME: ev5-spike
+
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Cleanup
+        if: inputs.action == 'cleanup'
+        run: |
+          # wrangler delete lists KV first and the staging token has no KV scope, so call the API directly.
+          for W in ev5-spike-wf ev5-spike-cpu; do
+            curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workflows/$W" | cut -c1-300 || true
+          done
+          curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME?force=true" | cut -c1-300
+          echo
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$NAME" | cut -c1-200
+          echo
+          npx --yes wrangler@4 d1 delete "$NAME" -y || true
+      - name: Create D1
+        if: inputs.action == 'run'
+        working-directory: spike/worker
+        run: |
+          npx --yes wrangler@4 d1 create "$NAME" || true
+          npx --yes wrangler@4 d1 info "$NAME" --json | tee d1.json
+          echo "DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")" >> "$GITHUB_ENV"
+      - name: Deploy, with Workflows
+        if: inputs.action == 'run'
+        working-directory: spike/worker
+        run: |
+          set -o pipefail
+          cat > wrangler.jsonc <<CFG
+          { "name": "$NAME", "main": "src.js", "compatibility_date": "2026-10-01",
+            "d1_databases": [{ "binding": "DB", "database_name": "$NAME", "database_id": "$DBID" }],
+            "workflows": [
+              { "name": "ev5-spike-wf", "binding": "WF", "class_name": "SpikeWorkflow" },
+              { "name": "ev5-spike-cpu", "binding": "CPU", "class_name": "CpuWorkflow" } ] }
+          CFG
+          npx --yes wrangler@4 deploy 2>&1 | tee deploy.log
+          grep -o 'https://[^ ]*workers.dev' deploy.log | head -1 | tee url.txt
+      - name: Tests 1, 2 and 4
+        if: inputs.action == 'run'
+        working-directory: spike/worker
+        run: |
+          U=$(cat url.txt); sleep 10
+          curl -s "$U/init"; echo
+          echo "== test 1: needs-you ends the instance, a continuation finishes it"
+          curl -s "$U/start?id=n1"; echo; sleep 45; curl -s "$U/status?id=n1"; echo
+          curl -s "$U/start?id=n1c"; echo; sleep 3; curl -s "$U/event?id=n1c"; echo; sleep 5; curl -s "$U/status?id=n1c"; echo
+          curl -s "$U/start?id=n1c"; echo   # duplicate id: must be refused or idempotent
+          curl -s "$U/marks"; echo
+          echo "== test 2: deploy while an instance runs"
+          curl -s "$U/start?id=d1&slow=1"; echo
+          npx --yes wrangler@4 deploy 2>&1 | tail -3
+          sleep 50; curl -s "$U/status?id=d1"; echo; curl -s "$U/marks"; echo
+          echo "== test 4: CPU per step on the Free plan (native 10 ms limit)"
+          for n in 1 2 3; do I=$(curl -s "$U/cpu?id=c$n" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).id"); sleep 8; curl -s "$U/status?id=$I&w=cpu"; echo; done
+      - name: Test 3, redeploy without the Workflow binding
+        if: inputs.action == 'run'
+        working-directory: spike/worker
+        run: |
+          U=$(cat url.txt)
+          curl -s "$U/start?id=r1&slow=1"; echo
+          cat > wrangler.jsonc <<CFG
+          { "name": "$NAME", "main": "src.js", "compatibility_date": "2026-10-01",
+            "d1_databases": [{ "binding": "DB", "database_name": "$NAME", "database_id": "$DBID" }] }
+          CFG
+          npx --yes wrangler@4 deploy 2>&1 | tail -8 || echo "DEPLOY FAILED"
+          sleep 5; curl -s "$U/marks"; echo; curl -s "$U/"; echo
