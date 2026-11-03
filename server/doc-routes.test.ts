@@ -1,0 +1,128 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import app from "./index.ts";
+import type { Env } from "./index.ts";
+import { sqliteD1 } from "./sqlite-d1.test.ts";
+
+async function setup() {
+  const DB = sqliteD1();
+  await DB.prepare(
+    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  const env = {
+    DB,
+    TOKEN_APP: "app-t",
+    TOKEN_SCHEDULE: "sch-t",
+  } as unknown as Env;
+  return (method: string, url: string, body?: unknown, token = "app-t") =>
+    app.request(
+      "/api/v1/docs" + url,
+      {
+        method,
+        headers: { authorization: `Bearer ${token}` },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      },
+      env,
+    );
+}
+type Call = Awaited<ReturnType<typeof setup>>;
+
+const put = (call: Call, id: string, data: unknown, v?: number) =>
+  call(
+    "PUT",
+    `?collection=scratch&id=${id}${v ? `&if_version=${v}` : ""}`,
+    data,
+  );
+
+test("create, get, list and a conditional put", async () => {
+  const call = await setup();
+  const r1 = await put(call, "a", { b: 1, a: 2 });
+  assert.equal(r1.status, 200);
+  assert.equal(((await r1.json()) as { version: number }).version, 1);
+  const got = (await (
+    await call("GET", "?collection=scratch&id=a")
+  ).json()) as { v: number; data: unknown };
+  assert.equal(got.v, 1);
+  assert.deepEqual(got.data, { a: 2, b: 1 });
+  assert.equal(
+    ((await (await put(call, "a", { a: 3 }, 1)).json()) as { version: number })
+      .version,
+    2,
+  );
+  await put(call, "b", { x: 1 });
+  const list = (await (await call("GET", "?collection=scratch")).json()) as {
+    docs: { id: string; v: number }[];
+  };
+  assert.deepEqual(
+    list.docs.map((d) => [d.id, d.v]),
+    [
+      ["a", 2],
+      ["b", 1],
+    ],
+  );
+});
+
+test("a stale or missing version is 409 and writes nothing", async () => {
+  const call = await setup();
+  await put(call, "a", { n: 1 });
+  const stale = await put(call, "a", { n: 2 }, 5);
+  assert.equal(stale.status, 409);
+  assert.equal(
+    ((await stale.json()) as { current_version: number }).current_version,
+    1,
+  );
+  assert.equal((await put(call, "a", { n: 2 })).status, 409);
+  const got = (await (
+    await call("GET", "?collection=scratch&id=a")
+  ).json()) as { data: { n: number } };
+  assert.equal(got.data.n, 1);
+});
+
+test("missing document is 404, bad input is 400", async () => {
+  const call = await setup();
+  assert.equal((await call("GET", "?collection=scratch&id=nope")).status, 404);
+  assert.equal((await call("GET", "")).status, 400);
+  assert.equal((await call("PUT", "?collection=scratch", {})).status, 400);
+  assert.equal((await call("GET", "?since=x")).status, 400);
+});
+
+test("changes since, and an all-or-nothing batch", async () => {
+  const call = await setup();
+  await put(call, "a", { n: 1 });
+  const since = (await (await call("GET", "?since=0")).json()) as {
+    docs: unknown[];
+  };
+  assert.equal(since.docs.length, 1);
+  const bad = await call("POST", "/batch", {
+    writes: [
+      { op: "set", collection: "scratch", doc_id: "c", data: { n: 1 } },
+      {
+        op: "set",
+        collection: "scratch",
+        doc_id: "a",
+        data: { n: 9 },
+        if_version: 7,
+      },
+    ],
+  });
+  assert.equal(bad.status, 409);
+  assert.equal((await call("GET", "?collection=scratch&id=c")).status, 404);
+  const ok = await call("POST", "/batch", {
+    writes: [{ op: "set", collection: "scratch", doc_id: "c", data: { n: 1 } }],
+  });
+  assert.equal(ok.status, 200);
+  assert.equal((await call("GET", "?collection=scratch&id=c")).status, 200);
+});
+
+test("there is no delete, and the bearer token is required", async () => {
+  const call = await setup();
+  assert.equal((await call("DELETE", "?collection=scratch&id=a")).status, 403);
+  assert.equal(
+    (await call("GET", "?collection=scratch", undefined, "wrong")).status,
+    401,
+  );
+  assert.equal(
+    (await call("GET", "?collection=scratch", undefined, "sch-t")).status,
+    403,
+  );
+});

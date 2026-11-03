@@ -14581,5 +14581,21 @@
   "notes": "",
   "commit": null,
   "source": "B-751"
+ },
+ {
+  "id": "B-779",
+  "kind": "task",
+  "title": "Server document routes (list, get, conditional put) over data repositories",
+  "dod": "Routes pass tests with the compat protocol",
+  "milestone": "v5 P5",
+  "status": "in progress",
+  "depends": [
+   "B-742"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:25:10.109Z"
  }
 ]

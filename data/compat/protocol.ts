@@ -150,7 +150,7 @@ export function planBatch(
 ): { ok: true; rows: PlannedRow[] } | Refusal {
   const rows: PlannedRow[] = [];
   for (let i = 0; i < writes.length; i++) {
-    const w = writes[i];
+    const w = writes[i] as Write;
     const cur = current.get(w.collection + '\n' + w.doc_id) ?? null;
     const have = cur ? cur.v : null;
     const want = w.if_version == null ? null : w.if_version;

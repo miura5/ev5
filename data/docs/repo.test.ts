@@ -1,14 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { registerProtocolSuite } from "../compat/index.ts";
-import { docsRepo } from "./repo.ts";
+import { checkedDocsRepo } from "./checked.ts";
 import { parsingProblem, type ParserRegistry } from "./registry.ts";
 import { fakeD1 } from "./fake-d1.ts";
 
 // The same suite the in-memory reference passes, run over the D1 repository (with only ev4's Worker check, as there).
 registerProtocolSuite(
   "d1 repository",
-  (clock) => docsRepo(fakeD1(), { clock }),
+  (clock) => checkedDocsRepo(fakeD1(), { clock }),
   test,
 );
 
@@ -38,7 +38,7 @@ const spot = {
 };
 
 test("collections in the parser registry are parsed before a write", async () => {
-  const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000, parsers });
+  const repo = checkedDocsRepo(fakeD1(), { clock: () => 1_800_000_000_000, parsers });
   assert.ok((await repo.save("exams", "e1", JSON.stringify(exam), null)).ok);
   const bad = await repo.save(
     "exams",
@@ -67,7 +67,7 @@ test("a collection without a parser passes the registry untouched", () => {
 
 test("a write landing between the read and the batch is a 409 and nothing is written", async () => {
   const db = fakeD1();
-  const repo = docsRepo(db, { clock: () => 1_800_000_000_000 });
+  const repo = checkedDocsRepo(db, { clock: () => 1_800_000_000_000 });
   await repo.save("scratch", "a", '{"n":1}', null);
   await repo.save("scratch", "b", '{"n":1}', null);
   db.beforeBatch = () => void db.docs.get("scratch\nb")!.v++;
@@ -98,7 +98,7 @@ test("a write landing between the read and the batch is a 409 and nothing is wri
 test("markDeleted writes a deletions row and leaves the document where it is", async () => {
   const db = fakeD1();
   let now = 1_800_000_000_000;
-  const repo = docsRepo(db, { clock: () => now });
+  const repo = checkedDocsRepo(db, { clock: () => now });
   await repo.save("scratch", "gone", '{"n":1}', null);
   assert.equal(await repo.markDeleted("scratch", "nope"), false);
   assert.equal(await repo.markDeleted("scratch", "gone"), true);
