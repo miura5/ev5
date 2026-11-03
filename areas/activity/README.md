@@ -3,6 +3,6 @@
 Activity: jobs by state.
 
 <!-- generated:start -->
-Interface: (none yet)
+Interface: activityArea
 Imports: kit, domain, commands/client (§drift.imports)
 <!-- generated:end -->
