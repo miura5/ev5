@@ -1,6 +1,7 @@
 // What a Workflow instance does (CONTRACT §job.steps): pick the job kind's definition and handlers, then runJob.
 // Kept apart from the WorkflowEntrypoint class so tests run it in Node with the fake Workflows and no Cloudflare runtime.
 import {
+  askChanges,
   d1CeilingStore,
   d1JobStore,
   d1PlanStore,
@@ -30,7 +31,7 @@ export type JobRunEnv = {
   db: D1Like;
   call: ModelCall;
   /** Each kind's system prompt (prompt.md), loaded by the Worker with Vite `?raw`. */
-  prompts: { practice_set: string; study_plan: string };
+  prompts: { practice_set: string; study_plan: string; study_plan_changes: string };
   /** Where the study plan reads its exam and approves its tasks (ev4 docs; server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
@@ -149,6 +150,8 @@ export function jobKinds(
         store: d1PlanStore(env.db, clock, env.planHome),
         call: env.call,
         system: env.prompts.study_plan,
+        changesSystem: env.prompts.study_plan_changes,
+        askChanges,
       }),
     },
   };

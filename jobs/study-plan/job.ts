@@ -14,7 +14,10 @@ const MAX_DAY_MINUTES = 180;
 const MAX_TASKS = 80;
 
 export type StudyPlanInput = { examId: string };
-export type Decision = { decision: 'approve' | 'put_away' };
+export type Decision = {
+  decision: 'approve' | 'put_away' | 'change';
+  note?: string;
+};
 export type Task = {
   date: string;
   title: string;
@@ -63,6 +66,13 @@ export function parseDecision(raw: unknown): Decision {
   const d = rec(raw, 'answer').decision;
   if (d !== 'approve' && d !== 'put_away') throw new Error('answer: decision must be approve or put_away');
   return { decision: d };
+}
+
+/** The continuation from `approve`: a change request (decision 'change' plus Matt's note) or an approve/put away. */
+export function parseAnswer(raw: unknown): Decision {
+  const o = rec(raw, 'answer');
+  if (o.decision !== 'change') return parseDecision(raw);
+  return { decision: 'change', note: text(o.note, 'note', 2000) };
 }
 
 export function parsePlan(raw: unknown): Plan {
@@ -157,7 +167,7 @@ export const studyPlanJob = defineJob({
   model: MODEL,
   maxTokens: MAX_TOKENS,
   costCapCents: COST_CAP_CENTS,
-  steps: ['gather', 'draft', 'approve', 'save'],
+  steps: ['gather', 'draft', 'approve', 'revise', 'save'],
   wording: {
     running: 'E.V. is building your study plan.',
     needsYou: 'Your study plan is ready. Approve it or put it away.',
@@ -168,9 +178,19 @@ export const studyPlanJob = defineJob({
   executor: 'workflow',
 });
 
-export type Deps = { store: PlanStore; call: ModelCall; system: string };
+export type Deps = {
+  store: PlanStore;
+  call: ModelCall;
+  system: string;
+  changesSystem?: string;
+  /** studyplan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
+  askChanges?: (
+    d: { call: ModelCall; system: string },
+    input: { draft: Plan; ctx: PlanContext; note: string },
+  ) => Promise<{ ok: true; plan: Plan; costCents: number } | { ok: false; reason: string; costCents: number }>;
+};
 
-export function studyPlanHandlers({ store, call, system }: Deps): StepHandlers {
+export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
   return {
     gather: async (c) => {
       const found = await store.load(parseInput(c.input).examId);
@@ -203,6 +223,28 @@ export function studyPlanHandlers({ store, call, system }: Deps): StepHandlers {
       const ctx = await store.getContext(c.jobId);
       return {
         needsYou: `Your study plan for ${ctx.exam.title} is ready. Approve it or put it away.`,
+      };
+    },
+    revise: async (c) => {
+      const a = parseAnswer(c.input);
+      if (a.decision !== 'change') return { ids: [] };
+      if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
+      const failed = await store.getFailure(c.jobId);
+      if (failed) throw new Error(failed);
+      const ctx = await store.getContext(c.jobId);
+      await c.reserve(COST_CAP_CENTS);
+      const r = await askChanges(
+        { call, system: changesSystem },
+        { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
+      );
+      await c.spend(r.costCents);
+      if (!r.ok) {
+        await store.putFailure(c.jobId, r.reason);
+        throw new Error(r.reason);
+      }
+      await store.putDraft(c.jobId, r.plan);
+      return {
+        needsYou: `Your study plan for ${ctx.exam.title} was changed. Approve it or put it away.`,
       };
     },
     save: async (c) => {

@@ -8,6 +8,7 @@ import { fakeWorkflows } from '../runtime/workflow.fake.ts';
 import type { ModelCall, ModelReply, ModelRequest } from '../runtime/output.ts';
 import { buildContext, checkPlan, parseDecision, parsePlan, studyPlanHandlers, studyPlanJob } from './job.ts';
 import type { Plan, PlanContext, PlanStore } from './job.ts';
+import { askChanges } from './changes.ts';
 
 const T = '2026-11-03T12:00:00Z';
 const exam = {
@@ -54,11 +55,11 @@ function memStore(over: { exam?: typeof exam | undefined } = {}) {
     approve: async (j, p) => (log.push(`approve ${p.tasks.length}`), `plan-${j}`),
     putAway: async (j) => (log.push('put away'), `away-${j}`),
   };
-  return { store, log };
+  return { store, log, rows };
 }
 
 function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
-  const { store, log } = memStore(over);
+  const { store, log, rows: planRows } = memStore(over);
   const rows = new Map<string, JobRecord>();
   const jobs: JobStore = {
     get: async (id) => rows.get(id),
@@ -74,7 +75,13 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     reserve: async () => {},
     record: async (_k, _j, c) => void spent.push(c),
   };
-  const handlers = studyPlanHandlers({ store, call, system: 'sys' });
+  const handlers = studyPlanHandlers({
+    store,
+    call,
+    system: 'sys',
+    changesSystem: 'chg',
+    askChanges,
+  });
   const wf = fakeWorkflows((step, p) =>
     runJob({ store: jobs, ceilings, now: () => T }, step, studyPlanJob, handlers, p),
   );
@@ -85,7 +92,7 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     now: () => T,
     newId: () => `j${++n}`,
   };
-  return { env, jobs, wf, log, spent };
+  return { env, jobs, wf, log, spent, planRows };
 }
 
 test('only Matt can start it, never a schedule or the Mac', async () => {
@@ -113,6 +120,35 @@ test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   assert.equal(done.state, 'done');
   assert.deepEqual(log, ['approve 2']);
   assert.equal(reqs.length, 1);
+});
+
+test('a change request on the draft calls Haiku, stores the patched draft, then approve saves it', async () => {
+  const reqs: ModelRequest[] = [];
+  const { env, jobs, wf, log, planRows } = setup(async (r) => {
+    reqs.push(r);
+    return r.model === 'haiku' ? reply({ summary: 'Lighter.', ops: [{ op: 'remove', task: 2 }] }) : reply(good);
+  });
+  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  await wf.idle();
+  await continueJob(env, studyPlanJob, job.id, {
+    decision: 'change',
+    note: 'drop the light review',
+  });
+  await wf.idle();
+  const waiting = (await jobs.get(job.id))!;
+  assert.equal(waiting.state, 'needs-you');
+  assert.match(waiting.reason!, /was changed/);
+  assert.deepEqual(
+    reqs.map((r) => r.model),
+    ['sonnet', 'haiku'],
+  );
+  const d = planRows.get(`d${job.id}`) as Plan;
+  assert.equal(d.summary, 'Lighter.');
+  assert.equal(d.tasks.length, 1);
+  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' });
+  await wf.idle();
+  assert.equal((await jobs.get(job.id))!.state, 'done');
+  assert.deepEqual(log, ['approve 1']);
 });
 
 test('put away keeps the draft and approves nothing', async () => {

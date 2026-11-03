@@ -14438,5 +14438,21 @@
   "source": "ops/record",
   "claimedBy": "build-run",
   "claimedAt": "2026-11-03T14:38:57.043Z"
+ },
+ {
+  "id": "B-771",
+  "kind": "task",
+  "title": "Wiring: call studyplan.askChanges from the study-plan job continuation",
+  "dod": "change request continuation on a draft plan produces an updated draft; fake-adapter test",
+  "milestone": "Phase 4",
+  "status": "in progress",
+  "depends": [
+   "B-770"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "build-run",
+  "claimedAt": "2026-11-03T14:42:11.984Z"
  }
 ]
