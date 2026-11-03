@@ -14069,13 +14069,15 @@
   "title": "S-72: Today",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "claude/B-745-today",
+  "claimedAt": "2026-11-03T22:12:06.446Z"
  },
  {
   "id": "B-746",
