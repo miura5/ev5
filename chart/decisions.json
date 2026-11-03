@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-455",
+  "date": "Nov 2",
+  "title": "Gate 0 passed: S-04 to S-08 done, Matt's yes on the hard limits (D-451); Workflows stays on the Free plan",
+  "why": "S-07 part 2 passed all four tests on Free (CI run 41573826112, cleanup run on main), S-08 and S-06 reports and tests are in docs/ and data/compat, CONTRACT.md hard limits carry D-451. Two follow-ups: real Zod CPU check in S-64, and the fate of a mid-sleep instance under a binding-removing redeploy in S-17.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-700"
+ },
+ {
   "id": "D-454",
   "date": "Nov 2",
   "title": "Canvas sync stays on the Mac through Matt's signed-in browser, as in ev4",

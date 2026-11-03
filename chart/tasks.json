@@ -13282,10 +13282,10 @@
   "title": "S-07: Spike: Workflows on the current plan tier",
   "dod": "A report with pass/fail per PLAN §13 item and a recommendation",
   "milestone": "v5 P0",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
-  "notes": "Part 1 done in bff3100. Part 2 in progress on claude/B-697-spike-workflows (build run 2026-11-03; the earlier chat claim was stale)",
-  "commit": null,
+  "notes": "S-07 complete. All four part-2 tests pass on the Free plan (run 41573826112); report in docs/spikes/S-07-workflows.md. ev5-spike Worker, Workflows and D1 deleted.",
+  "commit": "8695bf8",
   "source": "AGENTS.md §4.3",
   "claimedBy": "build-chat-2026-11-02",
   "claimedAt": "2026-11-03T03:12:13.626Z"
@@ -13323,7 +13323,7 @@
   "title": "G-0: Gate 0: decide and freeze",
   "dod": "S-04…S-08 done and Matt's yes on the CONTRACT hard limits",
   "milestone": "v5 P0",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-691",
    "B-692",
@@ -13334,8 +13334,8 @@
    "B-697",
    "B-698"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Recorded as the Gate 0 decision; Phase 1 starts with S-10.",
+  "commit": "8695bf8",
   "source": "AGENTS.md §4.3"
  },
  {
