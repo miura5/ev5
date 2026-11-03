@@ -4,6 +4,9 @@
 ## Next       (a) Command-name handlers behind commands/ (set.write_with_ev needs excerpts; the registry's cadences daily/weekly:sun are guesses). (b) Study-plan change rounds are now up to 5 per job (B-773, MAX_CHANGE_ROUNDS, a guess); ceilings default to $1/job, $2/h, $5/day, $40/month (guesses, D-460), review them. (c) planHome's `plans` doc shape for Today and the weak-spot-to-answer link are unverified against the app; `apply` is not one transaction. (d) Chart decision for @playwright/test 1.64.1; Zod CPU check (S-64); `visual` CI job isn't required. (e) When Matt's secrets exist: one real end-to-end run on staging (practice set and study plan), then B-742 Gate 4. (f) Open call: a practice set with some unsourced items returns sourced items as set items and only unsourced ones as drafts (PLAN §6.4 may mean the whole set goes through drafts).
 ## Staging    ev5-staging, deploys on push to main; the job Worker and routes (/api/v1/jobs, /ceilings) are merged but untried without secrets   ## Live  ev4 build (unchanged)
 
+### Twentieth run (2026-11-03 18:10-18:15Z)
+- Nothing buildable: still behind Gate 4 (B-742), which needs Matt's staging secrets; no new answer on "For Matt", no open PRs. Wait branch so the chain pauses.
+
 ### Nineteenth run (2026-11-03 17:10-17:16Z)
 - Nothing buildable: still behind Gate 4 (B-742), which needs Matt's staging secrets; no new comment from him, no open PRs. Wait branch so the chain pauses.
 
