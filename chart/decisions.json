@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-461",
+  "date": "Nov 3",
+  "title": "Pin @playwright/test 1.64.1 for the visual baselines",
+  "why": "Baselines are generated in the Docker image; the test package must match its browser build. Recorded per handover Next (d).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ops/record"
+ },
+ {
   "id": "D-460",
   "date": "Nov 3",
   "title": "Ceiling defaults when claude_settings ceiling_* are unset: per job $1, hourly $2, daily $5, monthly $40 (builder's guesses)",

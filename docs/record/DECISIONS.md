@@ -7,6 +7,7 @@ Superseded decisions are in chart/decisions.json.
 
 | Id | Date | Decision | Why | Status | Links |
 | --- | --- | --- | --- | --- | --- |
+| D-461 | Nov 3 | Pin @playwright/test 1.64.1 for the visual baselines | Baselines are generated in the Docker image; the test package must match its browser build. Recorded per handover Next (d). | accepted |  |
 | D-460 | Nov 3 | Ceiling defaults when claude_settings ceiling_* are unset: per job $1, hourly $2, daily $5, monthly $40 (builder's guesses) | B-768. Unset ceilings stopped every call (0). Amounts are config, not in PLAN or CONTRACT, so these are conservative guesses in DEFAULT_CEILINGS (server/job-run.ts, micro-dollars): ceiling_per_job 1000000, ceiling_hourly 2000000, ceiling_daily 5000000, ceiling_monthly 40000000. One study plan (cap 60 cents) or practice set (50 cents) fits the per-job cap. A value Matt stores, even 0, wins. Matt may change them any time; not tuned to real use. | accepted |  |
 | D-459 | Nov 3 | Add @anthropic-ai/sdk 1.4.0 as the only model client (B-765) | ModelCall needs the official SDK for output_config.format; pinned exact, maxRetries 0, no network in tests. | accepted |  |
 | D-458 | Nov 3 | Add zod 4.6.7 as a dev dependency (bundled into the Worker and page) for the command registry's input schemas | PLAN 6.1 and CONTRACT §cmd.registry require a Zod input per command; zod was already in the lockfile transitively. S-64 still owes the Zod CPU check. | accepted |  |

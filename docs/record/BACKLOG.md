@@ -117,9 +117,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-761 | S-90: The whole-repo review Done when: No open findings on lost data, cost, security, crashes, unreachable controls | B-760 | v5 P7 | open |  |
 | B-762 | S-91: A UX pass against the rules and the mock-up Done when: Findings fixed or filed | B-760 | v5 P7 | open |  |
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
-| B-765 | Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw) Done when: jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test | B-738 | Phase 4 | in progress |  |
-| B-771 | Wiring: call studyplan.askChanges from the study-plan job continuation Done when: change request continuation on a draft plan produces an updated draft; fake-adapter test | B-770 | Phase 4 | in progress |  |
-| B-773 | Study plan: allow more than one change round per job; surface ceilings defaults for review Done when: A draft plan can take several ask_changes rounds in one job; fake-adapter test | — | Phase 4 | in progress | Handover Next (b) |
 
 ## Your turn
 
