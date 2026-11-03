@@ -63,3 +63,5 @@ export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
 export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
+export { Tile } from "./components/Tile/Tile";
+export { TextOptions } from "./components/TextOptions/TextOptions";

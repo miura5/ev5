@@ -4,9 +4,11 @@ import { libraryArea } from "./area.ts";
 import {
   LibraryView,
   type LibraryExam,
+  type LibrarySet,
   type PracticeSession,
   type WeakSpot,
 } from "./Library.view.tsx";
+import { SetPageView } from "./SetPage.view.tsx";
 
 afterEach(cleanup);
 
@@ -87,4 +89,62 @@ test("empty tabs say so", () => {
   expect(screen.getByText("No weak spots.")).toBeTruthy();
   fireEvent.click(screen.getByRole("tab", { name: /Exams/ }));
   expect(screen.getByText("No exams.")).toBeTruthy();
+});
+
+test("sets tab filters tiles by type and opens a set; accuracy line shows", () => {
+  const onOpenSet = vi.fn();
+  const sets: LibrarySet[] = [
+    {
+      id: "s1",
+      title: "Heart",
+      kind: "cards",
+      meta: "BIO 201 · 24 cards",
+      due: "6 due",
+    },
+    {
+      id: "s2",
+      title: "Dosage",
+      kind: "questions",
+      meta: "NUR 112 · 10 questions",
+    },
+  ];
+  render(
+    <LibraryView
+      practice={null}
+      weakSpots={[]}
+      exams={[]}
+      sets={sets}
+      accuracy={{ text: "72%, up from 66%" }}
+      onOpenSet={onOpenSet}
+    />,
+  );
+  expect(screen.getByText("72%, up from 66%")).toBeTruthy();
+  fireEvent.click(screen.getByRole("tab", { name: /Sets/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Questions/ }));
+  expect(screen.queryByText("Heart")).toBeNull();
+  fireEvent.click(screen.getByText("Dosage"));
+  expect(onOpenSet).toHaveBeenCalledWith("s2");
+  fireEvent.click(screen.getByRole("button", { name: /Steps/ }));
+  expect(screen.getByText("No steps sets yet.")).toBeTruthy();
+});
+
+test("set page lists items with answers and starts study", () => {
+  const onStudy = vi.fn();
+  render(
+    <SetPageView
+      set={{
+        id: "s1",
+        title: "Heart",
+        kind: "cards",
+        meta: "1 card",
+        items: [
+          { id: "a", front: "Preload", back: "Stretch at end of filling" },
+        ],
+      }}
+      onStudy={onStudy}
+    />,
+  );
+  expect(screen.getByText("Stretch at end of filling")).toBeTruthy();
+  fireEvent.click(screen.getByText("Study"));
+  expect(onStudy).toHaveBeenCalled();
 });

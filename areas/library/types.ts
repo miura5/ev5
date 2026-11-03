@@ -35,3 +35,37 @@ export interface LibraryExam {
   /** Readiness, e.g. "58%". */
   readiness: string;
 }
+
+export type SetKind = "cards" | "questions" | "steps";
+
+/** A set as a Library tile. */
+export interface LibrarySet {
+  id: string;
+  title: string;
+  kind: SetKind;
+  /** Course and size, e.g. "BIO 201 · 24 cards". */
+  meta: string;
+  /** Quiet value top right, e.g. "6 due"; empty when nothing is due. */
+  due?: string;
+}
+
+/** The first-try accuracy line under the header, e.g. "72%, up from 66%". */
+export interface Accuracy {
+  text: string;
+}
+
+/** One item on a set page; step sets use only `front`. */
+export interface SetItem {
+  id: string;
+  front: string;
+  back?: string;
+}
+
+/** The set page in view mode. */
+export interface SetPageData {
+  id: string;
+  title: string;
+  kind: SetKind;
+  meta: string;
+  items: readonly SetItem[];
+}
