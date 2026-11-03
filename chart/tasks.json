@@ -13986,13 +13986,15 @@
   "title": "S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s",
   "dod": "Route tests pass",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-b741",
+  "claimedAt": "2026-11-03T13:21:53.456Z"
  },
  {
   "id": "B-742",
