@@ -3,7 +3,7 @@
 // SDK runs with maxRetries: 0); "needs you" ends the instance and Matt's answer starts a continuation `jobId:step`.
 import type { JobDef } from './define.ts';
 import { continuationId, type Executor } from './executors.ts';
-import { transition, update, type JobStore } from './record.ts';
+import { addCost, transition, update, type JobStore } from './record.ts';
 
 export type StepConfig = {
   retries: {
@@ -129,7 +129,11 @@ export async function runJob(
         input: p.input,
         prior,
         reserve: (cents) => env.ceilings.reserve(p.jobId, cents),
-        spend: (cents) => env.ceilings.record(`${instanceId}:${name}:${c.attempt}`, p.jobId, cents),
+        spend: async (cents) => {
+          await env.ceilings.record(`${instanceId}:${name}:${c.attempt}`, p.jobId, cents);
+          // The job record shows what the job cost (B-742: it stayed 0 because only the ceilings were told).
+          await update(env.store, p.jobId, (r) => addCost(r, cents, env.now()));
+        },
       };
       const r = await handlers[name]!(ctx);
       if ('ids' in r) checkIds(name, r.ids);

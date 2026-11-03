@@ -1,7 +1,4 @@
-import { Glyph } from "../../kit/components/Glyph/Glyph.tsx";
-import { Row } from "../../kit/components/Row/Row.tsx";
-import "../../kit/components/Row/Row.css";
-import "../../kit/components/Glyph/Glyph.css";
+import { Glyph, Row } from "../../kit/index.ts";
 import "./activity.css";
 
 /** One job as job_status reports it (jobs/runtime/status.ts); areas never import jobs, so the shape is restated. */
