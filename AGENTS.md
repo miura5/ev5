@@ -6,7 +6,8 @@ How the agents turn `PLAN.md` into tasks and build v5 with almost no time from M
 
 | Role | Who | Does | Never |
 |---|---|---|---|
-| **Build manager** | A cloud scheduled Claude Code task ("E.V. v5 build"), one run at a time | Picks the batch, starts builders, reviews, ships staging, writes the handover and release card, asks Matt only what §6 allows | Deploys live, changes ev4's live data or tasks, decides a §6 question for Matt |
+| **Build manager** | A cloud scheduled Claude Code task ("E.V. v5 build"), one run at a time (the run lock, §3 step 0) | Picks the batch, starts builders, reviews, ships staging, writes the handover and release card, asks Matt only what §6 allows | Deploys live, changes ev4's live data or tasks, decides a §6 question for Matt |
+| **Supervisor** | Claude in Matt's chat (since 2026-11-03) | Checks the handover, CI, staging and the run lock a few times a day; fixes stalls and overlaps; tells Matt when something is ready to try or needs him | Builds tasks while a run holds the lock, deploys live, decides a §6 question for Matt |
 | **Builder** | A subagent started by the build manager, one per task | Builds one task in its slice, proves it, opens a PR | Touches folders outside its slice, ships, writes the Chart, holds Cloudflare credentials |
 | **Spike** | A subagent | Answers one question in a throwaway branch, then reports causes, counts and a recommendation | Commits to main |
 | **Reviewer** | A fresh subagent, once per release | Reads the release diff for lost or wrong data, cost, security, crashes and unreachable controls | Edits code |
@@ -22,12 +23,14 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 |---|---|
 | Rules | `CONTRACT.md` (`PLAN.md` before Phase 0's gate) |
 | Tasks, decisions, history | the Chart: `chart/*.json`, written only by `ops/record` (Phase 0 task S-02). Before it exists: `docs/handover.md` |
+| Run lock | the branch `claude/build-lock`, moved only by `ops/build-lock.sh` (§3 step 0) |
 | Current state | `docs/handover.md`, rewritten at the end of every run (see the format in §7) |
 | Questions for Matt | one pinned GitHub issue, **"For Matt"**, mirrored in the handover's **Waiting on Matt** |
 | What Matt sees | the release card (§8), posted as a comment on the "For Matt" issue. He gets it as a GitHub notification and replies there |
 
 ## 3. One build run, step by step
 
+0. **Take the run lock** before anything else: `ops/build-lock.sh take`. Exit 3 means another run is working: end this run at once, with no handover, wait branch or PR. After each merged batch, run `ops/build-lock.sh renew`. Run `ops/build-lock.sh release` just before you open the handover or wait PR (step 10), and also when the run ends early. A lock held for more than 75 minutes is stale and the next run takes it.
 1. **Read** `docs/handover.md`, then CONTRACT.md (PLAN.md before Phase 0's gate).
 2. **Check on last run's work:** open PRs, CI results, staging health. A red main, or a red `staging` deploy on main, is fixed first, before anything else.
 3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live", "go back"). File each one in the Chart. A bug that breaks studying jumps the queue.
@@ -37,7 +40,7 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 7. **Ship staging:** merging to main deploys the v5 staging Worker automatically. When a batch changes model behaviour, a job or an outside call, do **one real end-to-end run** on staging.
 8. **Gates:** when a phase's gate conditions are all true, record the proof (links to CI runs, drill output) as a Chart decision and move the handover to the next phase.
 9. **Card:** when something is on staging that Matt can try, update the release card (§8). Otherwise send no message.
-10. **Repeat or hand over:** while there is time left in the run (about 50 minutes) and work that doesn't wait on Matt, go back to step 4. Then wait for this run's PRs to merge, rewrite the handover from the latest main (§7), and open it last.
+10. **Repeat or hand over:** while there is time left in the run (about 50 minutes) and work that doesn't wait on Matt, go back to step 4. Then wait for this run's PRs to merge, rewrite the handover from the latest main (§7), release the run lock, and open the handover PR last.
 
 **Stop early when:**
 - the next step needs Matt (§6): write the question and keep doing everything else it doesn't block;
