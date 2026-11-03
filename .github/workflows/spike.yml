@@ -42,9 +42,9 @@ jobs:
         if: inputs.action == 'run'
         working-directory: spike/worker
         run: |
+          set -o pipefail
           cat > wrangler.jsonc <<CFG
           { "name": "$NAME", "main": "src.js", "compatibility_date": "2026-10-01",
-            "limits": { "cpu_ms": 10 },
             "d1_databases": [{ "binding": "DB", "database_name": "$NAME", "database_id": "$DBID" }],
             "workflows": [
               { "name": "ev5-spike-wf", "binding": "WF", "class_name": "SpikeWorkflow" },
@@ -67,7 +67,7 @@ jobs:
           curl -s "$U/start?id=d1&slow=1"; echo
           npx --yes wrangler@4 deploy 2>&1 | tail -3
           sleep 50; curl -s "$U/status?id=d1"; echo; curl -s "$U/marks"; echo
-          echo "== test 4: CPU per step with cpu_ms=10 (Free-tier limit)"
+          echo "== test 4: CPU per step on the Free plan (native 10 ms limit)"
           for n in 1 2 3; do I=$(curl -s "$U/cpu?id=c$n" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).id"); sleep 8; curl -s "$U/status?id=$I&w=cpu"; echo; done
       - name: Test 3, redeploy without the Workflow binding
         if: inputs.action == 'run'
