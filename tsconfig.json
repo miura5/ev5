@@ -13,5 +13,5 @@
     "allowImportingTsExtensions": true,
     "types": ["vite/client"]
   },
-  "include": ["areas", "shell", "kit", "domain", "commands", "vite.config.ts"]
+  "include": ["areas", "shell", "kit", "domain", "commands", "server", "vite.config.ts"]
 }
