@@ -13392,12 +13392,12 @@
   "title": "S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI",
   "dod": "CI fails on a stale generated file",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "c36c055",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run4",
   "claimedAt": "2026-11-03T04:09:12.658Z"
@@ -13436,12 +13436,12 @@
   "title": "S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record",
   "dod": "The empty app answers on staging",
   "milestone": "v5 P1",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-700"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Deployed by staging.yml run 41576956292 (workflow_dispatch on main): health step passed, app HTML served.",
+  "commit": "fa42c19",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run4",
   "claimedAt": "2026-11-03T04:09:38.480Z"

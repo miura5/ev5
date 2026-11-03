@@ -1,14 +1,13 @@
-## Phase      1 · gate items 3 / 8 (Gate 0 passed, D-455); S-10, S-11, S-12 done; S-13 and S-16 in review
-## Running    B-704 · claude/B-704-generated-files · PR #23 auto-merge; B-707 · claude/B-707-staging-worker · PR #24 auto-merge (needs an update from main after #23)
+## Phase      1 · gate items 5 / 8 (Gate 0 passed, D-455); S-10, S-11, S-12, S-13, S-16 done
+## Running    nothing
 ## Waiting on Matt   nothing
-## Next       Dispatch .github/workflows/staging.yml from main once #24 merges (first run untested; fix wrangler flags as needed) to meet S-16's bar; then S-15 (B-706) CI, S-14 (B-705)
-## Staging    none yet   ## Live  ev4 build (unchanged)
+## Next       S-15 (B-706) CI: auto-merge/staging deploy on merge (reuse staging.yml: add a push-to-main trigger), live workflow behind approval, ev-live config refusal check; S-14 (B-705) guard-failure fixtures; S-17 (B-708) rollback runbook
+## Staging    ev5-staging Worker deployed by staging.yml run 41576956292 (main fa42c19): /api/health and the empty app answer; URL is in that run's log   ## Live  ev4 build (unchanged)
 
 ### Last run (2026-11-03, fourth run)
-- B-704 (S-13) built: `ops/generate` writes `areas/registry.generated.ts`, `commands/client.ts` and the interface/imports blocks of folder READMEs; CI step `generate --check`. Not done: shell/main.tsx does not use the area registry (area.ts has no component; needs a design call, so the registry is a knip entry for now).
-- B-707 (S-16) built: Hono Worker `server/index.ts` (`/api/health`), `wrangler.jsonc` (ev5-staging), `data/staging/` synthetic schema and seed, dispatch-only `staging.yml`. NOT yet run: a workflow can be dispatched only once it is on main. Only the `docs` table is restated in the staging schema; add ev4's other five tables from the real schema.sql. The workers.dev subdomain is unconfirmed.
-- Both are PRs with auto-merge; if either is not merged when the next run starts, check its CI first. The stale `claude/spike-s-08-editor` branch can be deleted (S-08 doc is on main).
-- Loose ends from before still apply (Stylelint untested on real CSS; trailer check heuristic). The ev4 chart claims for B-704/B-707 say "claimed by run4"; mark them done with the squash hash after merge.
+- B-704 (S-13) merged: `ops/generate` writes `areas/registry.generated.ts`, `commands/client.ts` and README interface/imports blocks; CI runs `generate --check`. After adding an index.ts/schema/command file run `node ops/generate/cli.ts`. shell/main.tsx does not use the area registry yet (area.ts has no component; needs a design call; the registry is a knip entry meanwhile).
+- B-707 (S-16) merged and run: Hono Worker `server/index.ts` (`/api/health`), `wrangler.jsonc` (ev5-staging), `data/staging/` synthetic schema/seed, dispatch-only `staging.yml`. The first run passed on main. Only the `docs` table is restated in the staging schema; add ev4's other five tables from the real schema.sql. A workflow can be dispatched only once it is on main.
+- The stale `claude/spike-s-08-editor` branch can be deleted (S-08 doc is on main). Merging a PR makes the others need "update branch"; a conflict in knip.json arose once.
 
 ### Third run (2026-11-03)
 - B-702 merged (#21, b7ee94e): ESLint, dependency-cruiser, Stylelint, knip, each a CI step. TypeScript 7 has no JS compiler API, so Babel parses for ESLint and `@swc/core` transpiles for dependency-cruiser; `ban-ts-comment` became `no-warning-comments` on `@ts-` terms (D-456). Revisit when those tools support TS 7.
