@@ -6,7 +6,15 @@ import type { Env, JobRecord, JobStore, Ceilings } from '../runtime/index.ts';
 import { cloudflareAdapter, runJob, workflowExecutor } from '../runtime/index.ts';
 import { fakeWorkflows } from '../runtime/workflow.fake.ts';
 import type { ModelCall, ModelReply, ModelRequest } from '../runtime/output.ts';
-import { buildContext, checkPlan, parseDecision, parsePlan, studyPlanHandlers, studyPlanJob } from './job.ts';
+import {
+  MAX_CHANGE_ROUNDS,
+  buildContext,
+  checkPlan,
+  parseDecision,
+  parsePlan,
+  studyPlanHandlers,
+  studyPlanJob,
+} from './job.ts';
 import type { Plan, PlanContext, PlanStore } from './job.ts';
 import { askChanges } from './changes.ts';
 
@@ -151,6 +159,48 @@ test('a change request on the draft calls Haiku, stores the patched draft, then 
   assert.deepEqual(log, ['approve 1']);
 });
 
+test('several change rounds on one draft, then approve saves the last', async () => {
+  const reqs: ModelRequest[] = [];
+  const { env, jobs, wf, log, planRows, spent } = setup(async (r) => {
+    reqs.push(r);
+    const ops = [{ op: 'update', task: 1, minutes: 20 + reqs.length }];
+    return r.model === 'haiku' ? reply({ summary: `Round ${reqs.length - 1}.`, ops }) : reply(good);
+  });
+  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  await wf.idle();
+  for (let i = 1; i <= 3; i++) {
+    await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: `note ${i}` });
+    await wf.idle();
+    const w = (await jobs.get(job.id))!;
+    assert.equal(w.state, 'needs-you');
+    assert.match(w.reason!, /was changed/);
+  }
+  assert.deepEqual(reqs.map((r) => r.model), ['sonnet', 'haiku', 'haiku', 'haiku']);
+  assert.equal(spent.length, 4);
+  assert.equal((planRows.get(`d${job.id}`) as Plan).summary, 'Round 3.');
+  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' });
+  await wf.idle();
+  assert.equal((await jobs.get(job.id))!.state, 'done');
+  assert.equal(log.length, 1);
+});
+
+test('after the last change round another change fails the job in plain words', async () => {
+  const ops = [{ op: 'update', task: 1, minutes: 25 }];
+  const { env, jobs, wf } = setup(async (r) => (r.model === 'haiku' ? reply({ ops }) : reply(good)));
+  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  await wf.idle();
+  for (let i = 0; i <= MAX_CHANGE_ROUNDS; i++) {
+    await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: 'again' });
+    await wf.idle();
+    const w = (await jobs.get(job.id))!;
+    if (i < MAX_CHANGE_ROUNDS) assert.equal(w.state, 'needs-you', `round ${i}: ${w.reason}`);
+    else {
+      assert.equal(w.state, 'failed');
+      assert.match(w.reason!, /Approve it or put it away/);
+    }
+  }
+});
+
 test('put away keeps the draft and approves nothing', async () => {
   const { env, jobs, wf, log } = setup(async () => reply(good));
   const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
@@ -197,23 +247,9 @@ test('buildContext: days stop the day before the exam, worst weak spot first', (
     ctx.weakSpots.map((w) => w.id),
     ['w2', 'w1'],
   );
-  assert.equal(
-    buildContext({
-      exam: { ...exam, date: '2027-03-01' },
-      spots,
-      today: '2026-11-03',
-    }).days.length,
-    28,
-  );
-  assert.throws(
-    () =>
-      buildContext({
-        exam: { ...exam, date: '2026-11-03' },
-        spots,
-        today: '2026-11-03',
-      }),
-    /today or past/,
-  );
+  const today = '2026-11-03';
+  assert.equal(buildContext({ exam: { ...exam, date: '2027-03-01' }, spots, today }).days.length, 28);
+  assert.throws(() => buildContext({ exam: { ...exam, date: today }, spots, today }), /today or past/);
 });
 
 test('checkPlan: window, daily cap and citations', () => {
@@ -229,26 +265,11 @@ test('checkPlan: window, daily cap and citations', () => {
 });
 
 test('parsers refuse bad shapes; ask_changes is not offered yet', () => {
-  assert.throws(
-    () =>
-      parsePlan({
-        summary: 's',
-        tasks: [{ date: 'x', title: 't', minutes: 30 }],
-      }),
-    /bad date/,
-  );
-  assert.throws(
-    () =>
-      parsePlan({
-        summary: 's',
-        tasks: [{ date: '2026-11-03', title: 't', minutes: 5 }],
-      }),
-    /minutes/,
-  );
+  const one = (date: string, minutes: number) => ({ summary: 's', tasks: [{ date, title: 't', minutes }] });
+  assert.throws(() => parsePlan(one('x', 30)), /bad date/);
+  assert.throws(() => parsePlan(one('2026-11-03', 5)), /minutes/);
   assert.throws(() => parseDecision({ decision: 'ask_changes' }), /approve or put_away/);
-  assert.deepEqual(parseDecision({ decision: 'approve' }), {
-    decision: 'approve',
-  });
+  assert.deepEqual(parseDecision({ decision: 'approve' }), { decision: 'approve' });
 });
 
 test('prompt.md exists and names the reply fields', () => {

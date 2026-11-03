@@ -159,6 +159,12 @@ export const PLAN_SCHEMA = {
   },
 };
 
+/** Change rounds on one draft. Each round is its own step so its continuation id (`jobId:step`) is new (§job.needs-you). */
+export const MAX_CHANGE_ROUNDS = 5;
+export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
+  i === 0 ? 'revise' : `revise_${i + 1}`,
+);
+
 export const studyPlanJob = defineJob({
   kind: 'study_plan',
   title: 'Study plan',
@@ -167,7 +173,7 @@ export const studyPlanJob = defineJob({
   model: MODEL,
   maxTokens: MAX_TOKENS,
   costCapCents: COST_CAP_CENTS,
-  steps: ['gather', 'draft', 'approve', 'revise', 'save'],
+  steps: ['gather', 'draft', 'approve', ...REVISE_STEPS, 'save'],
   wording: {
     running: 'E.V. is building your study plan.',
     needsYou: 'Your study plan is ready. Approve it or put it away.',
@@ -191,6 +197,29 @@ export type Deps = {
 };
 
 export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
+  const revise: StepHandlers[string] = async (c) => {
+    const a = parseAnswer(c.input);
+    if (a.decision !== 'change') return { ids: [] };
+    if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
+    const failed = await store.getFailure(c.jobId);
+    if (failed) throw new Error(failed);
+    const ctx = await store.getContext(c.jobId);
+    await c.reserve(COST_CAP_CENTS);
+    const r = await askChanges(
+      { call, system: changesSystem },
+      { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
+    );
+    await c.spend(r.costCents);
+    if (!r.ok) {
+      await store.putFailure(c.jobId, r.reason);
+      throw new Error(r.reason);
+    }
+    await store.putDraft(c.jobId, r.plan);
+    return {
+      needsYou: `Your study plan for ${ctx.exam.title} was changed. Approve it or put it away.`,
+    };
+  };
+
   return {
     gather: async (c) => {
       const found = await store.load(parseInput(c.input).examId);
@@ -225,29 +254,11 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
         needsYou: `Your study plan for ${ctx.exam.title} is ready. Approve it or put it away.`,
       };
     },
-    revise: async (c) => {
-      const a = parseAnswer(c.input);
-      if (a.decision !== 'change') return { ids: [] };
-      if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
-      const failed = await store.getFailure(c.jobId);
-      if (failed) throw new Error(failed);
-      const ctx = await store.getContext(c.jobId);
-      await c.reserve(COST_CAP_CENTS);
-      const r = await askChanges(
-        { call, system: changesSystem },
-        { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
-      );
-      await c.spend(r.costCents);
-      if (!r.ok) {
-        await store.putFailure(c.jobId, r.reason);
-        throw new Error(r.reason);
-      }
-      await store.putDraft(c.jobId, r.plan);
-      return {
-        needsYou: `Your study plan for ${ctx.exam.title} was changed. Approve it or put it away.`,
-      };
-    },
+    ...Object.fromEntries(REVISE_STEPS.map((name) => [name, revise])),
     save: async (c) => {
+      const answer = rec(c.input, 'answer');
+      if (answer.decision === 'change')
+        throw new Error(`A plan can be changed ${MAX_CHANGE_ROUNDS} times. Approve it or put it away.`);
       const { decision } = parseDecision(c.input);
       return {
         ids: [
