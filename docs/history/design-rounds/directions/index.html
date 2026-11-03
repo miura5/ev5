@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E.V. v5 · four design directions</title>
+<style>
+  /* Neutral page on purpose: each direction brings its own design system; this page shouldn't compete with them. */
+  :root{--bg:#18181a;--panel:#1f1f22;--line:#2c2c30;--text:#ececef;--quiet:#b0b0b8;--faint:#8e8e96}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  main{max-width:1280px;margin:0 auto;padding:56px 40px 96px;display:flex;flex-direction:column;gap:56px}
+  h1,h2{font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:24px} h2{font-size:22px}
+  p{margin:0}
+  .label{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.02em}
+  .quiet{color:var(--quiet)} .faint{color:var(--faint)}
+  .lead{color:var(--quiet);max-width:900px}
+  .d{background:var(--panel);border-radius:14px;padding:32px;display:flex;flex-direction:column;gap:22px}
+  .head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .grow{flex:1}
+  .tag{font-size:12px;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+  a.open{display:inline-flex;align-items:center;height:34px;padding:0 16px;border-radius:8px;color:var(--text);text-decoration:none;border:1px solid #44444a;font-weight:500}
+  a.open:hover{background:#2a2a2e}
+  .shots{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:12px}
+  .shots figure{margin:0}
+  .shots figure:first-child{grid-row:span 2}
+  .shots a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .shots img{display:block;width:100%;height:auto;aspect-ratio:1280/860;object-fit:cover;object-position:top}
+  .shots figcaption{font-size:12px;color:var(--faint);padding-top:6px}
+  .cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px}
+  .cols ul{margin:6px 0 0;padding-left:18px;color:var(--quiet);font-size:14px}
+  .cols li{margin:3px 0}
+  .rec{border:1px dashed #4a4a50;border-radius:14px;padding:26px 30px;display:flex;flex-direction:column;gap:12px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{text-align:left;padding:9px 14px 9px 0;border-top:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;font-weight:600;color:var(--faint)}
+  td{color:var(--quiet)} td:first-child{color:var(--text)}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+<main>
+
+<header style="display:flex;flex-direction:column;gap:10px">
+  <span class="label">E.V. v5 · design directions E–H · synthetic data</span>
+  <h1>Four different E.V.s. Which one feels like yours?</h1>
+  <p class="lead">Each direction has its own design system (colour, type, shape, motion, components) and its own personality. All four aim at your words: calm, restrained, one accent, flat, keyboard-first, focus on one thing. They just get there differently. All four keep the coach rules: you try first, every fact is cited, and E.V. proposes while you decide. E and F follow your priorities (a Quizlet-style Library, the Peter Parker feel). G and H are my own proposals.</p>
+  <p class="lead">How to judge: open each one cold and spend a minute on Today, then the flashcards. Notice which one you want to <i>study in</i> on a tired Tuesday night. Every direction is clickable, <b>\</b> switches its theme, and each has a design-system page (the last screenshot in each row).</p>
+</header>
+
+<section class="rec">
+  <p class="label">My recommendation as lead</p>
+  <p><b>E · Darkroom</b>, unless F or G grabs you at first sight. E is the closest to everything you've written (dark first, one warm accent, monochrome, precise), and it adds the personality A–D lacked. The personality comes from layout and captions, not decoration, so it should age well. Its Library (a contact sheet, then one card under a loupe) gives you the Quizlet flow without becoming carousel-driven, and it changes the plan's tokens, not its structure.</p>
+  <p class="quiet"><b>F</b> is the warmest and the most "study tool"; pick it if light paper and a real card in your hand feels right. <b>G</b> is the calmest to read and the one most likely to look as good in ten years; pick it if you'd rather study on a page than in an app. <b>H</b> is the fastest, but you'd type commands every day; I'd only pick it if that thrills you.</p>
+  <p class="quiet">Tell me a letter, or a letter plus something you liked elsewhere (for example "E, with F's card flip"). That direction's system becomes Proprietary in <span class="faint">kit/</span>, its mock-up becomes <span class="faint">design/mockup.html</span>, and I'll update the plan to match. One scope note: every direction's Library uses flashcard decks, and in the plan cards come after the switch (C3). Choosing any of these, I'd still bring decks right after the switch, with the practice part of the Library ready at the switch itself.</p>
+</section>
+
+<!-- E -->
+<section class="d">
+  <div class="head"><h2>E · Darkroom</h2><span class="tag">your priorities</span><span class="faint">a photographer's darkroom and contact sheet</span><span class="grow"></span><a class="open" href="e-darkroom/mockup.html">Open E</a></div>
+  <p class="quiet"><span class="sw" style="background:#0A0A0A"></span>Pure neutral black · <span class="sw" style="background:#E8613C"></span>one safelight orange-red · Schibsted Grotesk with IBM Plex Mono "film-edge" captions (FR 03 / 12). Status is shown by how filled a mark is (ring, half, dot), never by colour. Keyboard focus is four crop marks, and E.V.'s mark is a registration mark. The light theme is "Print".</p>
+  <div class="shots">
+    <figure><a href="e-darkroom/mockup.html#today"><img src="e-darkroom/screens/01-today.png" alt=""></a><figcaption>Today</figcaption></figure>
+    <figure><a href="e-darkroom/mockup.html#library"><img src="e-darkroom/screens/02-library-contact-sheet.png" alt=""></a><figcaption>Library · contact sheet</figcaption></figure>
+    <figure><a href="e-darkroom/mockup.html#library"><img src="e-darkroom/screens/04-study-back.png" alt=""></a><figcaption>One card under the loupe · after the flip</figcaption></figure>
+    <figure><a href="e-darkroom/mockup.html"><img src="e-darkroom/screens/11-notes-session.png" alt=""></a><figcaption>Notes · study session</figcaption></figure>
+    <figure><a href="e-darkroom/mockup.html#system"><img src="e-darkroom/screens/18-system.png" alt=""></a><figcaption>Design system · spec sheet</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Feels like</p><ul><li>Precise, nocturnal, focused</li><li>A tool a science-and-photo nerd built for himself</li></ul></div>
+    <div><p class="label">Good for</p><ul><li>Late-night study without glare</li><li>A deck you can see at a glance, studied one frame at a time</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Pure black is stark in daylight (Print theme covers it)</li><li>Mono captions must stay sparse</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>New tokens: safelight instead of orange, two new fonts</li><li>One extra size (28) for the loupe card</li><li>No structure change</li></ul></div>
+  </div>
+</section>
+
+<!-- F -->
+<section class="d">
+  <div class="head"><h2>F · Index</h2><span class="tag">your priorities</span><span class="faint">the index card, on a warm paper desk</span><span class="grow"></span><a class="open" href="f-index/mockup.html">Open F</a></div>
+  <p class="quiet"><span class="sw" style="background:#f2ede4"></span>Warm paper, light first · <span class="sw" style="background:#26408b"></span>fountain-pen blue ink as the only colour · Newsreader serif on cards and in E.V.'s voice, Source Sans 3 for the interface. A 5:3 ruled index card is the signature object, with one card in focus per screen. The dark theme is "Desk lamp".</p>
+  <div class="shots">
+    <figure><a href="f-index/mockup.html#library/study"><img src="f-index/screens/03-study-front.png" alt=""></a><figcaption>Flashcards · Quizlet-style carousel, attempt first</figcaption></figure>
+    <figure><a href="f-index/mockup.html#today"><img src="f-index/screens/01-today.png" alt=""></a><figcaption>Today · the next block is a card</figcaption></figure>
+    <figure><a href="f-index/mockup.html#library/study"><img src="f-index/screens/04-study-back.png" alt=""></a><figcaption>After the flip</figcaption></figure>
+    <figure><a href="f-index/mockup.html#notes"><img src="f-index/screens/12-notes-session.png" alt=""></a><figcaption>Notes · a check card slid under the page</figcaption></figure>
+    <figure><a href="f-index/mockup.html#system"><img src="f-index/screens/20-system.png" alt=""></a><figcaption>Design system · specimen cards</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Feels like</p><ul><li>Warm, tactile, honest</li><li>Your own stack of cards, made beautiful</li></ul></div>
+    <div><p class="label">Good for</p><ul><li>The closest to Quizlet's flow, but calm</li><li>Writing your answer before the card turns</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Light first, a change from your dark preference</li><li>Long answers need a pattern beyond 5:3</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>Top bar instead of a sidebar</li><li>Sizes 26 and 16 inside cards (an exception to the 3-size rule)</li><li>Same six areas</li></ul></div>
+  </div>
+</section>
+
+<!-- G -->
+<section class="d">
+  <div class="head"><h2>G · Margins</h2><span class="tag">my proposal</span><span class="faint">a finely set textbook page; E.V. in the margin</span><span class="grow"></span><a class="open" href="g-margins/mockup.html">Open G</a></div>
+  <p class="quiet"><span class="sw" style="background:#f8f6f1"></span>Warm paper · <span class="sw" style="background:#a8352a"></span>one rubrication red · Source Serif 4 with oldstyle figures and small caps. E.V. speaks as numbered sidenotes beside what she means. Data shows as word-sized sparklines. Practice is set like a workbook exercise, and flashcards turn like leaves. The dark theme is "Night reading".</p>
+  <div class="shots">
+    <figure><a href="g-margins/mockup.html#today"><img src="g-margins/screens/01-today.png" alt=""></a><figcaption>Today · E.V. in the margin</figcaption></figure>
+    <figure><a href="g-margins/mockup.html#library/leaves"><img src="g-margins/screens/04-leaves-revealed.png" alt=""></a><figcaption>Flashcards · turning leaves</figcaption></figure>
+    <figure><a href="g-margins/mockup.html#library/practice"><img src="g-margins/screens/06-practice-committed.png" alt=""></a><figcaption>Practice · a workbook exercise</figcaption></figure>
+    <figure><a href="g-margins/mockup.html#notes"><img src="g-margins/screens/10-notes-session.png" alt=""></a><figcaption>Notes · checks answered in the margin</figcaption></figure>
+    <figure><a href="g-margins/mockup.html#system"><img src="g-margins/screens/16-system.png" alt=""></a><figcaption>Design system · colophon</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Feels like</p><ul><li>Quiet, scholarly, timeless</li><li>A textbook that talks back</li></ul></div>
+    <div><p class="label">Good for</p><ul><li>Long reading and note-taking</li><li>Never covering your work: E.V. sits beside it</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Light first, and serif throughout</li><li>Needs a wide screen (about 1100 px)</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>The Detail panel becomes the margin</li><li>New tokens (red, serif, 23/17/13)</li><li>Progress folds into Library and Today</li></ul></div>
+  </div>
+</section>
+
+<!-- H -->
+<section class="d">
+  <div class="head"><h2>H · Console</h2><span class="tag">my proposal</span><span class="faint">a calm command surface</span><span class="grow"></span><a class="open" href="h-console/mockup.html">Open H</a></div>
+  <p class="quiet"><span class="sw" style="background:#15171c"></span>Soft blue-black · <span class="sw" style="background:#e8a15a"></span>one warm cursor accent · IBM Plex Mono for structure, Plex Sans for reading. One column of output and one command line: type <i>today</i>, <i>cards nur112</i>, <i>plan exam3</i>, or pick from completions. Status is a glyph's shape (○ ◐ ● ◆). The light theme is "Paper terminal".</p>
+  <div class="shots">
+    <figure><a href="h-console/mockup.html"><img src="h-console/screens/01-today.png" alt=""></a><figcaption>Today · the stream and the command line</figcaption></figure>
+    <figure><a href="h-console/mockup.html"><img src="h-console/screens/07-study-after-flip.png" alt=""></a><figcaption>Flashcards · ‹ 3 / 12 ›</figcaption></figure>
+    <figure><a href="h-console/mockup.html"><img src="h-console/screens/02-today-completions.png" alt=""></a><figcaption>Completions teach the commands</figcaption></figure>
+    <figure><a href="h-console/mockup.html"><img src="h-console/screens/12-notes-session.png" alt=""></a><figcaption>Notes · study session</figcaption></figure>
+    <figure><a href="h-console/mockup.html"><img src="h-console/screens/17-system.png" alt=""></a><figcaption>Design system · type and glyphs</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Feels like</p><ul><li>Fast, intimate, nerdy in a good way</li><li>Peter Parker's own code</li></ul></div>
+    <div><p class="label">Good for</p><ul><li>Never touching the mouse</li><li>One command registry drives everything</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Typing commands every day isn't for everyone</li><li>The least glanceable</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>A console shell replaces the sidebar and Detail panel</li><li>Areas register commands, not nav items</li><li>Keyboard paths in every e2e test</li></ul></div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:12px">
+  <h2>Side by side</h2>
+  <table>
+    <tr><th></th><th>E · Darkroom</th><th>F · Index</th><th>G · Margins</th><th>H · Console</th></tr>
+    <tr><td>Default</td><td>Dark</td><td>Light</td><td>Light</td><td>Dark</td></tr>
+    <tr><td>Accent</td><td>Safelight orange-red</td><td>Fountain-pen blue</td><td>Rubric red</td><td>Warm amber cursor</td></tr>
+    <tr><td>Type</td><td>Grotesk + mono captions</td><td>Serif cards + humanist sans</td><td>Text serif throughout</td><td>Mono + sans</td></tr>
+    <tr><td>Where E.V. speaks</td><td>One line with a registration mark</td><td>Ink notes, a pen dot</td><td>Sidenotes in the margin</td><td>Lines in the stream</td></tr>
+    <tr><td>Flashcards</td><td>Contact sheet → loupe</td><td>Stack → carousel, card flip</td><td>Turning leaves</td><td>One framed card, ‹ 3 / 12 ›</td></tr>
+    <tr><td>Getting around</td><td>Numbered sidebar</td><td>Top bar</td><td>Contents rail</td><td>Typing and completions</td></tr>
+    <tr><td>Change to the plan</td><td>Tokens only</td><td>Tokens + top bar</td><td>Tokens + margin layout</td><td>New shell</td></tr>
+    <tr><td>In five years</td><td>Holds up (photographic minimalism)</td><td>Holds up if kept flat</td><td>Holds up best (book typography)</td><td>Holds up if kept calm</td></tr>
+  </table>
+  <p class="faint" style="font-size:13px">The earlier round (A–D, one shared system) is in <a href="../variants/index.html" style="color:inherit">../variants/index.html</a>.</p>
+</section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>E.V. v5 · J · Studio</title>
+<!--
+  E.V. v5 · round 3 · direction J "Studio": the Airbnb-modern midpoint between productivity and consumer UI.
+  Synthetic study content only.
+  File layout:
+    1. <style>: tokens (light, dark), base, shell, the object language (one block per type), components, screens.
+    2. <svg> sprite: UI icons (i-*) and type glyphs (g-*).
+    3. Shell: sidebar, main area, detail sheet, palette, add-course dialog.
+    4. <script>: data, object renderers (row / tile / link per type), screens, router, keys.
+  Deep links: #today #today/item #library #set #study #exam #procedure #notes #course/nur112 #course/bio201
+  #course/psy110 #course/new #ask #activity #proposal #palette #system #phone.  "\" toggles the theme.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* ============ 1. Tokens ============ */
+[data-theme="light"]{
+  --bg:#FAF9F7; --side:#F2F0EC; --surface:#FFFFFF; --sunk:#F5F3EF; --hover:#F1EEEA; --sel:#EAE6E0;
+  --line:#E9E5DF; --line2:#D8D3CB; --track:#ECE8E2;
+  --text:#211F1C; --quiet:#56514A; --faint:#6D6860;
+  --accent:#B4502A; --accent-hover:#9F4523; --on-accent:#FFFFFF; --accent-soft:#F8EBE4;
+  --ok:#3B7D58; --ok-soft:#E5F0E9; --warn:#B07E22; --warn-soft:#F7EEDC; --bad:#B8503D; --bad-soft:#F8E7E3;
+  /* type families (glyph tint + soft field) */
+  --t-flash:#3D62A4; --t-flash-soft:#E9EEF7;
+  --t-prac:#1E7479; --t-prac-soft:#E2F0F0;
+  --t-mock:#75509A; --t-mock-soft:#F0EAF6;
+  --t-proc:#8C5E16; --t-proc-soft:#F6EEDF;
+  --t-note:#6D6860; --t-note-soft:#F0EDE8;
+  /* course families (covers and swatches) */
+  --c-nur:#4C7D62; --c-nur-soft:#E3EDE6;
+  --c-bio:#A04E68; --c-bio-soft:#F4E5EA;
+  --c-psy:#6C772F; --c-psy-soft:#EDEFDD;
+  --c-new:#4F6C8F; --c-new-soft:#E4EAF2;
+  --motif:.26;
+  --shadow-hover:0 1px 2px rgba(33,31,28,.04),0 10px 28px rgba(33,31,28,.09);
+  --shadow-pop:0 0 0 1px var(--line),0 24px 64px rgba(33,31,28,.18);
+  --shadow-sheet:-1px 0 0 var(--line);
+  --scrim:rgba(33,31,28,.28);
+  --phone-body:#1B1A18;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:#1C1B19; --side:#151413; --surface:#242321; --sunk:#201F1D; --hover:#2A2927; --sel:#33312E;
+  --line:#302E2B; --line2:#3E3B37; --track:#35332F;
+  --text:#EEEBE6; --quiet:#BDB7AE; --faint:#A19A90;
+  --accent:#E58B65; --accent-hover:#EE9C79; --on-accent:#1E0F08; --accent-soft:#3A2A22;
+  --ok:#74C095; --ok-soft:#1F3328; --warn:#DCB05E; --warn-soft:#3A3020; --bad:#E7826E; --bad-soft:#3D2522;
+  --t-flash:#93B0EA; --t-flash-soft:#25303F;
+  --t-prac:#72C4C8; --t-prac-soft:#1D3233;
+  --t-mock:#BE9FE2; --t-mock-soft:#30283B;
+  --t-proc:#DDB167; --t-proc-soft:#382E1F;
+  --t-note:#AAA399; --t-note-soft:#2D2B28;
+  --c-nur:#84B79A; --c-nur-soft:#22312A;
+  --c-bio:#DC8EA6; --c-bio-soft:#3A2530;
+  --c-psy:#B2BC6F; --c-psy-soft:#2F3221;
+  --c-new:#97B0D2; --c-new-soft:#25303C;
+  --motif:.30;
+  --shadow-hover:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --shadow-pop:0 0 0 1px var(--line2),0 24px 64px rgba(0,0,0,.55);
+  --shadow-sheet:-1px 0 0 var(--line);
+  --scrim:rgba(0,0,0,.5);
+  --phone-body:#0C0C0B;
+  color-scheme:dark;
+}
+:root{
+  --sans:Inter,"Inter Variable",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* type scale: 12 meta · 13 label/chip · 15 body · 17 heading · 20 sheet title · 28 page title · 32 card face */
+  --fs-xs:12px; --fs-sm:13px; --fs-md:15px; --fs-lg:17px; --fs-xl:20px; --fs-2xl:28px; --fs-face:32px;
+  --lh:1.55; --lh-tight:1.25;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-12:48px; --sp-16:64px;
+  --r-xs:6px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-pill:999px;
+  --side-w:240px; --col:720px; --col-wide:920px; --sheet-w:408px;
+  --row:44px; --ctl:36px; --ctl-lg:44px;
+  --dur-1:120ms; --dur-2:180ms; --dur-3:320ms; --ease:cubic-bezier(.2,0,0,1);
+}
+
+/* ============ Base ============ */
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--side);color:var(--text);font:400 var(--fs-md)/var(--lh) var(--sans);
+  -webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss03";}
+h1,h2,h3,h4,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+svg.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-sm)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ============ Shell ============ */
+.app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh}
+.app.focus{grid-template-columns:1fr}
+.app.focus .side{display:none}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:var(--sp-4) var(--sp-3);gap:2px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;height:36px;padding:0 var(--sp-2);font-weight:600;font-size:var(--fs-md);margin-bottom:var(--sp-2)}
+.searchbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-2);height:36px;padding:0 var(--sp-2) 0 var(--sp-3);margin-bottom:var(--sp-3);border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--faint);font-size:var(--fs-sm);cursor:pointer}
+.searchbtn .kbd{margin-left:auto}
+.nav{display:flex;align-items:center;gap:var(--sp-3);height:36px;padding:0 var(--sp-2) 0 10px;border-radius:var(--r-sm);color:var(--quiet);font-size:var(--fs-md);cursor:pointer}
+.nav:hover{background:var(--hover);color:var(--text)}
+.nav.on{background:var(--sel);color:var(--text);font-weight:500}
+.nav .n{margin-left:auto;font-size:var(--fs-xs);color:var(--faint)}
+.nav .n.need{min-width:20px;height:20px;border-radius:var(--r-pill);background:var(--accent-soft);color:var(--accent);font-weight:600;display:inline-grid;place-items:center;padding:0 6px}
+.navgrp{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-6) var(--sp-2) var(--sp-1) 10px;font-size:var(--fs-xs);font-weight:600;color:var(--faint);letter-spacing:.02em}
+.navgrp button{all:unset;cursor:pointer;display:grid;place-items:center;width:22px;height:22px;border-radius:var(--r-xs)}
+.navgrp button:hover{background:var(--hover);color:var(--text)}
+.nav.course{gap:10px}
+.nav.course .code{font-weight:500;color:var(--text);white-space:nowrap}
+.nav.course .nm{color:var(--faint);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav.add{color:var(--faint);font-size:var(--fs-sm)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px;padding-top:var(--sp-4)}
+.jobline{display:flex;align-items:center;gap:10px;padding:var(--sp-2) 10px;border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--quiet);cursor:pointer;line-height:1.35}
+.jobline:hover{background:var(--hover)}
+.jobline small{display:block;color:var(--faint);font-size:var(--fs-xs)}
+.themebtn{all:unset;display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 var(--sp-2) 0 10px;border-radius:var(--r-sm);color:var(--faint);font-size:var(--fs-sm);cursor:pointer}
+.themebtn:hover{background:var(--hover)}
+
+.area{margin:var(--sp-2) var(--sp-2) var(--sp-2) 0;background:var(--bg);border-radius:var(--r-lg);box-shadow:0 0 0 1px var(--line);min-height:calc(100vh - 16px);display:grid;grid-template-columns:1fr;min-width:0}
+.app.focus .area{margin:0;border-radius:0;box-shadow:none;min-height:100vh}
+.area.has-sheet{grid-template-columns:1fr var(--sheet-w)}
+.main{min-width:0;padding:var(--sp-12) var(--sp-10) var(--sp-16)}
+.col{max-width:var(--col);margin:0 auto}
+.col.wide{max-width:var(--col-wide)}
+
+/* page head */
+.ph{display:flex;align-items:flex-end;gap:var(--sp-4);margin-bottom:var(--sp-6)}
+.ph h1{font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.02em;line-height:var(--lh-tight)}
+.ph .sub{color:var(--faint);font-size:var(--fs-md);padding-bottom:3px}
+.ph .grow{flex:1}
+.crumbs{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);color:var(--faint);margin-bottom:var(--sp-3)}
+.crumbs a:hover{color:var(--text)}
+.sec{margin-top:var(--sp-12)}
+.sh{display:flex;align-items:baseline;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+.sh h2{font-size:var(--fs-lg);font-weight:600;letter-spacing:-.01em}
+.sh .n{color:var(--faint);font-size:var(--fs-sm)}
+.sh .grow{flex:1}
+.sh .lnk{font-size:var(--fs-sm);color:var(--quiet);cursor:pointer}
+.sh .lnk:hover{color:var(--text)}
+.meta{font-size:var(--fs-sm);color:var(--faint)}
+.quiet{color:var(--quiet)}
+.grow{flex:1;min-width:0}
+.line{display:flex;align-items:center}
+.g1{gap:var(--sp-1)}.g2{gap:var(--sp-2)}.g3{gap:var(--sp-3)}.g4{gap:var(--sp-4)}.g6{gap:var(--sp-6)}
+.stack{display:flex;flex-direction:column}
+
+/* ============ Components ============ */
+.btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2);height:var(--ctl);padding:0 14px;border-radius:10px;font-size:var(--fs-md);font-weight:500;color:var(--text);cursor:pointer;white-space:nowrap;transition:background var(--dur-1) var(--ease)}
+.btn.primary{background:var(--accent);color:var(--on-accent);font-weight:600}
+.btn.primary:hover{background:var(--accent-hover)}
+.btn.primary .kbd{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--on-accent) 45%,transparent);color:var(--on-accent);opacity:.9}
+.btn.secondary{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.secondary:hover{background:var(--hover)}
+.btn.quiet{color:var(--quiet);padding:0 10px}
+.btn.quiet:hover{background:var(--hover);color:var(--text)}
+.btn.lg{height:var(--ctl-lg);padding:0 18px;border-radius:var(--r-md)}
+.btn.sm{height:30px;padding:0 10px;font-size:var(--fs-sm);border-radius:var(--r-sm)}
+.btn.icon{width:var(--ctl);padding:0}
+.btn[disabled],.btn.is-disabled{background:var(--track);color:var(--faint);cursor:not-allowed;box-shadow:none}
+.btn.is-focus{outline:2px solid var(--accent);outline-offset:2px}
+.btn.is-hover.primary{background:var(--accent-hover)} .btn.is-hover.secondary{background:var(--hover)}
+.kbd{display:inline-grid;place-items:center;height:20px;min-width:20px;padding:0 5px;border-radius:5px;box-shadow:inset 0 0 0 1px var(--line2);font:500 var(--fs-xs)/1 var(--sans);color:var(--faint)}
+
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);background:var(--surface);font-size:var(--fs-sm);color:var(--quiet);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;cursor:pointer;vertical-align:middle}
+.chip:hover{box-shadow:inset 0 0 0 1px var(--line2);color:var(--text)}
+.chip svg.i{width:14px;height:14px}
+.chip .tx{overflow:hidden;text-overflow:ellipsis}
+.chip.plain{background:transparent;box-shadow:none;padding:0 4px;cursor:default}
+.chip.unverified{border:1px dashed var(--line2);box-shadow:none;color:var(--faint);background:transparent}
+
+.tabs{display:flex;gap:var(--sp-1);flex-wrap:wrap}
+.tab{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:36px;padding:0 14px;border-radius:var(--r-pill);color:var(--quiet);font-size:var(--fs-md);cursor:pointer;box-shadow:inset 0 0 0 1px transparent}
+.tab:hover{background:var(--hover);color:var(--text)}
+.tab.on{background:var(--text);color:var(--bg);font-weight:500}
+.tab .n{font-size:var(--fs-xs);opacity:.75}
+.tab svg.i{width:15px;height:15px}
+.utabs{display:flex;gap:var(--sp-6);border-bottom:1px solid var(--line)}
+.utab{all:unset;cursor:pointer;height:40px;color:var(--quiet);font-size:var(--fs-md)}
+.utab.on{color:var(--text);font-weight:500;box-shadow:inset 0 -2px 0 var(--text)}
+
+.seg{display:inline-flex;padding:3px;gap:2px;border-radius:10px;background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line)}
+.seg button{all:unset;cursor:pointer;white-space:nowrap;height:30px;padding:0 12px;border-radius:7px;font-size:var(--fs-sm);color:var(--quiet);display:inline-flex;align-items:center}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--surface);color:var(--text);font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 0 0 1px var(--line2)}
+
+.input{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--ctl-lg);padding:0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-md)}
+.input input,.input textarea{all:unset;flex:1;min-width:0;font:inherit;color:var(--text)}
+.input input::placeholder,.input textarea::placeholder{color:var(--faint)}
+.input.focus{box-shadow:inset 0 0 0 1.5px var(--accent)}
+textarea.ta{all:unset;box-sizing:border-box;display:block;width:100%;min-height:84px;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2);font:inherit;line-height:var(--lh);color:var(--text);white-space:pre-wrap}
+
+.check{width:18px;height:18px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--line2);display:inline-grid;place-items:center;flex:none;background:var(--surface)}
+.check.on{background:var(--text);box-shadow:none;color:var(--bg)}
+.check.on svg.i{width:12px;height:12px;stroke-width:2.4}
+
+/* meters */
+.bar{display:flex;height:6px;border-radius:var(--r-pill);overflow:hidden;background:var(--track);gap:2px}
+.bar i{display:block;height:100%}
+.bar .m{background:var(--ok)} .bar .l{background:var(--warn)}
+.pbar{height:4px;border-radius:var(--r-pill);background:var(--track);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--text);border-radius:inherit}
+.pips{display:flex;gap:4px;align-items:center}
+.pips i{width:8px;height:8px;border-radius:50%;background:var(--track)}
+.pips i.y{background:var(--ok)} .pips i.x{background:var(--bad)} .pips i.w{background:var(--warn)}
+.legend{display:flex;gap:var(--sp-4);font-size:var(--fs-xs);color:var(--faint)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+.state{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:var(--fs-xs);font-weight:600;white-space:nowrap}
+.state.need{background:var(--accent-soft);color:var(--accent)}
+.state.run{background:var(--t-flash-soft);color:var(--t-flash)}
+.state.done{background:var(--ok-soft);color:var(--ok)}
+.state.fail{background:var(--bad-soft);color:var(--bad)}
+
+/* ============ Object language ============ */
+/* Type glyph: a soft rounded square in the type's family. Every library type and the note use it; nothing else does. */
+.glyph{width:28px;height:28px;border-radius:var(--r-sm);display:inline-grid;place-items:center;flex:none}
+.glyph svg.i{width:16px;height:16px}
+.glyph.sm{width:22px;height:22px;border-radius:var(--r-xs)} .glyph.sm svg.i{width:13px;height:13px}
+.glyph.lg{width:48px;height:48px;border-radius:var(--r-md)} .glyph.lg svg.i{width:22px;height:22px}
+.ty-flash{--ty:var(--t-flash);--ty-soft:var(--t-flash-soft)}
+.ty-prac{--ty:var(--t-prac);--ty-soft:var(--t-prac-soft)}
+.ty-mock{--ty:var(--t-mock);--ty-soft:var(--t-mock-soft)}
+.ty-proc{--ty:var(--t-proc);--ty-soft:var(--t-proc-soft)}
+.ty-note{--ty:var(--t-note);--ty-soft:var(--t-note-soft)}
+.glyph{background:var(--ty-soft);color:var(--ty)}
+.ty-label{font-size:var(--fs-xs);font-weight:600;color:var(--ty);letter-spacing:.01em}
+.chip.link svg.i{color:var(--ty)}
+
+/* Course: a patterned swatch (small) and a patterned cover (large). */
+.co-nur{--co:var(--c-nur);--co-soft:var(--c-nur-soft)}
+.co-bio{--co:var(--c-bio);--co-soft:var(--c-bio-soft)}
+.co-psy{--co:var(--c-psy);--co-soft:var(--c-psy-soft)}
+.co-new{--co:var(--c-new);--co-soft:var(--c-new-soft)}
+.sw{width:10px;height:10px;border-radius:3px;background:var(--co);flex:none;display:inline-block}
+.sw.md{width:18px;height:18px;border-radius:5px;overflow:hidden;background:var(--co-soft);position:relative}
+.sw.md svg{position:absolute;inset:0;width:100%;height:100%}
+.cover{position:relative;overflow:hidden;background:var(--co-soft)}
+.cover svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* E.V.'s mark: a dotted ring in the accent. Her voice is the mark + one line + sources; no bubble. */
+.mark{width:16px;height:16px;border-radius:50%;border:2px dotted var(--accent);flex:none;display:inline-block}
+.mark.lg{width:22px;height:22px}
+.mark.run{animation:turn 6s linear infinite}
+@keyframes turn{to{transform:rotate(360deg)}}
+.voice{display:flex;align-items:flex-start;gap:var(--sp-3);color:var(--quiet);font-size:var(--fs-md)}
+.voice .mark{margin-top:4px}
+.voice b{color:var(--text);font-weight:600}
+.voice .srcs{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:4px;vertical-align:middle}
+
+/* Plan item: a Linear row. Only plan items carry the status ring; properties sit under the title as chips. */
+.ring{all:unset;box-sizing:border-box;width:18px;height:18px;border-radius:50%;border:1.6px solid var(--faint);flex:none;display:grid;place-items:center;cursor:pointer;margin-top:2px}
+.ring:hover{border-color:var(--text)}
+.ring.done{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.ring.done svg.i{width:11px;height:11px;stroke-width:2.6}
+.ring.prop{border-style:dashed}
+.ring.half{background:conic-gradient(var(--warn) 0 50%,transparent 50%);border-color:var(--warn)}
+.pi{display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-3) var(--sp-3);margin:0 calc(-1 * var(--sp-3));border-radius:var(--r-md);cursor:pointer}
+.pi:hover{background:var(--hover)}
+.pi.sel{background:var(--sel)}
+.pi .pt{font-size:var(--fs-md);font-weight:500;line-height:22px;display:flex;align-items:center;gap:var(--sp-2)}
+.pi .props{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pi .props .chip{height:24px;font-size:var(--fs-xs);padding:0 8px}
+.pi .when{font-size:var(--fs-sm);color:var(--faint);white-space:nowrap;line-height:22px}
+.pi.done .pt{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line2)}
+.pi.done .props{display:none}
+.prio{display:inline-flex;gap:2px;align-items:flex-end;height:12px}
+.prio i{width:3px;border-radius:1px;background:var(--line2)}
+.prio i:nth-child(1){height:5px}.prio i:nth-child(2){height:8px}.prio i:nth-child(3){height:12px}
+.prio.high i{background:var(--quiet)}
+.planlist{display:flex;flex-direction:column;gap:2px}
+.proposal{display:flex;align-items:center;gap:var(--sp-3);min-height:52px;padding:var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);margin:var(--sp-2) calc(-1 * var(--sp-3)) 0;border-radius:var(--r-md);border:1.5px dashed var(--line2);color:var(--quiet)}
+.proposal b{color:var(--text);font-weight:500}
+
+/* Exam: a date block. */
+.dateb{width:48px;height:52px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line2);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;line-height:1}
+.dateb small{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--accent)}
+.dateb b{font-size:var(--fs-xl);font-weight:600;margin-top:4px}
+.dateb.co{box-shadow:inset 0 3px 0 var(--co),inset 0 0 0 1px var(--line2)}
+.exrow{display:flex;align-items:center;gap:var(--sp-4);padding:10px var(--sp-3);margin:0 calc(-1 * var(--sp-3));border-radius:var(--r-md);cursor:pointer}
+.exrow:hover{background:var(--hover)}
+.exrow .t{font-weight:500}
+.exrow .rd{width:132px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+
+/* Weak spot: a fraction with its pips. */
+.wsrow{display:flex;align-items:center;gap:var(--sp-4);padding:10px var(--sp-3);margin:0 calc(-1 * var(--sp-3));border-radius:var(--r-md)}
+.wsrow:hover{background:var(--hover)}
+.target{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--warn-soft);color:var(--warn);flex:none}
+.target svg.i{width:16px;height:16px}
+
+/* Note: paper. Neutral page glyph, title + one-line excerpt + folder. No chips, no colour, no meter. */
+.docrow{display:flex;align-items:flex-start;gap:var(--sp-3);padding:10px var(--sp-3);margin:0 calc(-1 * var(--sp-3));border-radius:var(--r-md);cursor:pointer}
+.docrow:hover{background:var(--hover)}
+.docrow.sel{background:var(--sel)}
+.docrow .pg{width:22px;height:28px;flex:none;border-radius:3px 7px 3px 3px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2);position:relative;margin-top:1px}
+.docrow .pg::before{content:"";position:absolute;left:5px;right:5px;top:9px;height:1.5px;background:var(--line2);box-shadow:0 4px 0 var(--line2),0 8px 0 var(--line2)}
+.docrow .dt{font-weight:500;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.docrow .ex{font-size:var(--fs-sm);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+
+/* Library set row (search/course lists) */
+.setrow{display:flex;align-items:center;gap:var(--sp-3);padding:10px var(--sp-3);margin:0 calc(-1 * var(--sp-3));border-radius:var(--r-md);cursor:pointer}
+.setrow:hover{background:var(--hover)}
+.setrow .st{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Tiles: browsable cards. Flat at rest, one soft shadow on hover. Each type adds its own face. */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 20px}
+.tile{position:relative;display:flex;flex-direction:column;gap:var(--sp-3);height:224px;padding:18px 20px;border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;transition:box-shadow var(--dur-2) var(--ease)}
+.tile:hover,.tile.is-hover{box-shadow:inset 0 0 0 1px var(--line),var(--shadow-hover)}
+.tile .th{display:flex;align-items:center;gap:var(--sp-2)}
+.tile .th .co-tag{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--faint);white-space:nowrap}
+.tile .tt{font-size:16px;font-weight:600;line-height:1.35;letter-spacing:-.005em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .face{flex:1;min-height:0}
+.tile .tf{display:flex;flex-direction:column;gap:8px;font-size:var(--fs-xs);color:var(--faint)}
+.tile .tf .line{justify-content:space-between}
+/* Flashcard set: a deck - two card edges peek out below (painted under the tile; the parent isolates). */
+:has(> .tile.flash){isolation:isolate}
+.tile.flash::before,.tile.flash::after{content:"";position:absolute;z-index:-1;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:0 0 var(--r-lg) var(--r-lg)}
+.tile.flash::before{left:12px;right:12px;bottom:-6px;height:24px}
+.tile.flash::after{left:24px;right:24px;bottom:-11px;height:24px;z-index:-2}
+.tile.flash .count{font-size:var(--fs-sm);color:var(--quiet)}
+/* Practice: the last attempt as pips. */
+.tile.prac .pips i{width:10px;height:10px}
+/* Mock exam: a ticket - stats above a perforation, notches at the edges. */
+.tile.mock .ticket{display:flex;gap:var(--sp-5);align-items:baseline}
+.tile.mock .ticket b{font-size:var(--fs-xl);font-weight:600}
+.tile.mock .ticket span{font-size:var(--fs-xs);color:var(--faint);margin-left:4px}
+.perf{position:relative;height:0;border-top:1.5px dashed var(--line2);margin:0 -20px}
+.perf::before,.perf::after{content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line)}
+.perf::before{left:-9px;clip-path:inset(0 0 0 50%)}
+.perf::after{right:-9px;clip-path:inset(0 50% 0 0)}
+/* Procedure: a numbered ladder. */
+.ladder{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;position:relative}
+.ladder li{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--quiet);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}
+.ladder li span.tx{overflow:hidden;text-overflow:ellipsis}
+.ladder .nd{width:20px;height:20px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--ty);background:var(--ty-soft)}
+.ladder li:not(:last-child)::after{content:"";position:absolute;left:9.5px;top:20px;height:6px;width:1px;background:var(--line2)}
+.ladder li.more{color:var(--faint);font-size:var(--fs-xs);padding-left:30px}
+.ladder li.more::after{display:none}
+/* Note tile: a sheet of paper with lines. */
+.tile.note{background:var(--surface)}
+.tile.note .paper{flex:1;border-radius:var(--r-sm);background:repeating-linear-gradient(to bottom,transparent 0 13px,var(--line) 13px 14px);opacity:.9}
+/* Course tile: cover on top. */
+.tile.course{padding:0;overflow:hidden;gap:0}
+.tile.course .cover{height:96px}
+.tile.course .cb{padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+/* Job: E.V. is working. A sunk card with her mark and a step trail. */
+.job{border-radius:var(--r-lg);background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-5) var(--sp-6)}
+.job .jh{display:flex;align-items:center;gap:var(--sp-3)}
+.job .jt{font-weight:600;font-size:var(--fs-md)}
+.job .jl{font-size:var(--fs-xs);color:var(--faint);font-weight:500}
+.steps{list-style:none;margin:var(--sp-4) 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.steps li{display:flex;align-items:center;gap:var(--sp-3);font-size:var(--fs-sm);color:var(--quiet);min-height:28px;position:relative}
+.steps li .s{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;flex:none}
+.steps li.ok .s{background:var(--ok-soft);color:var(--ok)} .steps li.ok .s svg.i{width:11px;height:11px;stroke-width:2.6}
+.steps li.now{color:var(--text);font-weight:500}
+.steps li.now .s{box-shadow:inset 0 0 0 2px var(--t-flash);background:var(--surface)}
+.steps li.now .s::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--t-flash)}
+.steps li.wait{color:var(--text);font-weight:500}
+.steps li.wait .s{box-shadow:inset 0 0 0 2px var(--accent);background:var(--surface)}
+.steps li.wait .s::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.steps li.todo .s{box-shadow:inset 0 0 0 1.5px var(--line2)}
+.steps li.err{color:var(--bad)} .steps li.err .s{background:var(--bad-soft);color:var(--bad)}
+.steps li .r{margin-left:auto;font-size:var(--fs-xs);color:var(--faint);font-weight:400}
+.job .jf{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--faint)}
+.job.compact{padding:var(--sp-3) var(--sp-4);display:flex;align-items:center;gap:var(--sp-3)}
+.tile.jobtile{background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line)}
+.tile.jobtile .steps{margin-top:0}
+.tile.jobtile .steps li{min-height:24px;font-size:var(--fs-xs)}
+.tile.jobtile .steps li .s{width:16px;height:16px}
+
+/* Resume ("Jump back in") cards */
+.resume-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.resume{display:flex;gap:var(--sp-4);align-items:center;padding:var(--sp-4);border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;transition:box-shadow var(--dur-2) var(--ease);min-width:0}
+.resume:hover{box-shadow:inset 0 0 0 1px var(--line),var(--shadow-hover)}
+.resume .rt{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.resume .rm{font-size:var(--fs-xs);color:var(--faint);margin:2px 0 8px}
+
+/* Detail sheet (plan item) */
+.sheet{position:sticky;top:0;height:calc(100vh - 16px);overflow:auto;border-left:1px solid var(--line);background:var(--surface);border-radius:0 var(--r-lg) var(--r-lg) 0;padding:var(--sp-5) var(--sp-6) var(--sp-8)}
+.sheet .bar-top{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);color:var(--faint);margin-bottom:var(--sp-5)}
+.sheet h2{font-size:var(--fs-xl);font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.props-grid{display:grid;grid-template-columns:120px 1fr;row-gap:2px;margin-top:var(--sp-5)}
+.props-grid .k{font-size:var(--fs-sm);color:var(--faint);height:34px;display:flex;align-items:center;gap:var(--sp-2)}
+.props-grid .k svg.i{width:14px;height:14px}
+.props-grid .v{height:34px;display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);padding:0 var(--sp-2);margin-left:calc(-1 * var(--sp-2));border-radius:var(--r-sm);cursor:pointer;min-width:0;white-space:nowrap}
+.props-grid .v:hover{background:var(--hover)}
+.props-grid .v.add{color:var(--faint)}
+.subtasks{display:flex;flex-direction:column;gap:2px;margin-top:var(--sp-2)}
+.subtasks .st{display:flex;align-items:center;gap:var(--sp-3);height:34px;font-size:var(--fs-sm)}
+.subtasks .st.done span{color:var(--faint);text-decoration:line-through}
+.sheet .lbl{font-size:var(--fs-xs);font-weight:600;color:var(--faint);letter-spacing:.02em;margin-top:var(--sp-6)}
+.divider{height:1px;background:var(--line);margin:var(--sp-5) 0}
+
+/* Weekly review card */
+.review{border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-5) var(--sp-6);display:flex;align-items:center;gap:var(--sp-8)}
+.stat b{display:block;font-size:var(--fs-xl);font-weight:600;letter-spacing:-.01em}
+.stat span{font-size:var(--fs-xs);color:var(--faint)}
+
+/* Set page */
+.set-head{display:flex;gap:var(--sp-6);align-items:flex-end}
+.modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);margin-top:var(--sp-8)}
+.mode{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-3);padding:14px var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}
+.mode:hover{box-shadow:inset 0 0 0 1px var(--line2);background:var(--hover)}
+.mode b{display:block;font-weight:600;font-size:var(--fs-md)}
+.mode span{display:block;font-size:var(--fs-xs);color:var(--faint)}
+.mode .mi{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--sunk);color:var(--quiet);flex:none}
+.deck{position:relative;isolation:isolate;margin-top:var(--sp-8);perspective:1600px}
+.deck::before,.deck::after{content:"";position:absolute;z-index:-1;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:0 0 var(--r-xl) var(--r-xl)}
+.deck::before{left:18px;right:18px;bottom:-8px;height:30px}
+.deck::after{left:36px;right:36px;bottom:-15px;height:30px;z-index:-2}
+.fcard{position:relative;height:340px;transform-style:preserve-3d;transition:transform var(--dur-3) var(--ease);cursor:pointer}
+.fcard.flipped{transform:rotateY(180deg)}
+.fface{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-xl);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;padding:var(--sp-5) var(--sp-6)}
+.fface.back{transform:rotateY(180deg)}
+.fface .fh{display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-xs);color:var(--faint);font-weight:500}
+.fface .fb{flex:1;display:grid;place-items:center;text-align:center;padding:0 var(--sp-8)}
+.fface .term{font-size:var(--fs-face);font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.fface .def{font-size:var(--fs-xl);line-height:1.5;color:var(--text);max-width:520px}
+.carousel-nav{display:flex;align-items:center;justify-content:center;gap:var(--sp-5);margin-top:var(--sp-8)}
+.circle-btn{all:unset;box-sizing:border-box;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line2);background:var(--surface);cursor:pointer}
+.circle-btn:hover{background:var(--hover)}
+.terms{border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.term-row{display:grid;grid-template-columns:200px 1fr 120px;gap:var(--sp-6);align-items:center;padding:14px var(--sp-6);border-top:1px solid var(--line)}
+.term-row:first-child{border-top:0}
+.term-row .tm{font-weight:600}
+.term-row .df{font-size:var(--fs-sm);color:var(--quiet)}
+.mast{display:flex;align-items:center;gap:var(--sp-2);justify-content:flex-end;font-size:var(--fs-xs);color:var(--faint)}
+.mast .pips i{width:7px;height:7px}
+
+/* Focus modes (study, exam, procedure) */
+.focusbar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr minmax(240px,420px) 1fr;align-items:center;gap:var(--sp-6);height:68px;padding:0 var(--sp-6);background:var(--bg);border-bottom:1px solid var(--line)}
+.focusbar .fl{display:flex;align-items:center;gap:var(--sp-3);min-width:0}
+.focusbar .fr{display:flex;align-items:center;gap:var(--sp-3);justify-content:flex-end}
+.focusbar .ftitle{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.focusbar .fp{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:var(--fs-xs);color:var(--faint)}
+.focusbar .fp .pbar{width:100%}
+.fmain{max-width:760px;margin:0 auto;padding:var(--sp-10) var(--sp-6) var(--sp-16)}
+.study-card{height:300px}
+.attempt{margin-top:var(--sp-6)}
+.attempt .lb{font-size:var(--fs-sm);color:var(--quiet);margin-bottom:var(--sp-2);display:flex;align-items:center;gap:var(--sp-2)}
+.actions{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-5)}
+.actions .grow{flex:1}
+.yours{margin-top:var(--sp-4);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--sunk);font-size:var(--fs-sm);color:var(--quiet);text-align:left}
+.yours b{color:var(--text);font-weight:600}
+.rate{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);flex:1}
+.rate .btn{height:52px;border-radius:var(--r-md);flex-direction:column;gap:0;font-weight:600}
+.rate .btn small{font-size:var(--fs-xs);font-weight:400;opacity:.8}
+
+/* Exam */
+.exam-wrap{display:grid;grid-template-columns:220px 1fr;gap:var(--sp-10);max-width:1040px;margin:0 auto;padding:var(--sp-10) var(--sp-8) var(--sp-16)}
+.navgrid{display:grid;grid-template-columns:repeat(5,32px);gap:6px}
+.navgrid button{all:unset;box-sizing:border-box;width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;font-size:var(--fs-xs);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}
+.navgrid button.a{background:var(--sel);color:var(--text);box-shadow:none}
+.navgrid button.cur{box-shadow:inset 0 0 0 2px var(--text);color:var(--text);font-weight:600}
+.navgrid button.f{position:relative}
+.navgrid button.f::after{content:"";position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--warn)}
+.navgrid button.y{background:var(--ok-soft);color:var(--ok);box-shadow:none}
+.navgrid button.x{background:var(--bad-soft);color:var(--bad);box-shadow:none}
+.qstem{font-size:var(--fs-xl);line-height:1.5;font-weight:500;letter-spacing:-.005em;margin-top:var(--sp-3)}
+.opts{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-6)}
+.opt{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-4);min-height:56px;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}
+.opt:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.opt .k{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;font-size:var(--fs-sm);font-weight:600;color:var(--quiet);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
+.opt.on{box-shadow:inset 0 0 0 2px var(--text)}
+.opt.on .k{background:var(--text);color:var(--bg);box-shadow:none}
+.opt.right{box-shadow:inset 0 0 0 2px var(--ok);background:var(--ok-soft)}
+.opt.right .k{background:var(--ok);color:var(--surface);box-shadow:none}
+.opt.wrong{box-shadow:inset 0 0 0 2px var(--bad)}
+.opt.wrong .k{background:var(--bad);color:var(--surface);box-shadow:none}
+.opt .tag{margin-left:auto;font-size:var(--fs-xs);font-weight:600}
+.feedback{margin-top:var(--sp-6);padding:var(--sp-5) var(--sp-6);border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.feedback .fbh{display:flex;align-items:center;gap:var(--sp-3);font-weight:600}
+.feedback p{margin-top:var(--sp-3);color:var(--quiet);line-height:1.6}
+.feedback .srcs{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-4)}
+.hidden{display:none!important}
+
+/* Procedure */
+.proc-wrap{max-width:820px;margin:0 auto;padding:var(--sp-10) var(--sp-6) var(--sp-16)}
+.slots{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-5)}
+.slot{display:flex;align-items:center;gap:var(--sp-4);min-height:52px;padding:var(--sp-2) var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.slot .nd{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:var(--fs-sm);font-weight:600;background:var(--t-proc-soft);color:var(--t-proc);flex:none}
+.slot .grip{color:var(--faint);margin-left:auto}
+.slot.next{background:transparent;box-shadow:none;border:1.5px dashed var(--line2);padding:var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4)}
+.slot.next .nd{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2);color:var(--faint)}
+.slot .res{white-space:nowrap;margin-left:auto;font-size:var(--fs-xs);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.slot.ok .res{color:var(--ok)}
+.slot.moved{box-shadow:inset 0 0 0 1.5px var(--warn);background:var(--warn-soft)}
+.slot.moved .res{color:var(--warn)}
+.bank{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-4)}
+.bank .chip{height:36px;padding:0 var(--sp-3);font-size:var(--fs-sm);color:var(--text);border-radius:10px}
+
+/* Notes */
+.notes{display:grid;grid-template-columns:288px 1fr;min-height:calc(100vh - 16px)}
+.notes .pane{border-right:1px solid var(--line);padding:var(--sp-6) var(--sp-4)}
+.notes .pane h3{font-size:var(--fs-xs);font-weight:600;color:var(--faint);letter-spacing:.02em;margin:0 var(--sp-2) var(--sp-2);display:flex;justify-content:space-between;align-items:center}
+.folder{display:flex;align-items:center;gap:10px;height:34px;padding:0 var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--quiet);cursor:pointer}
+.folder:hover{background:var(--hover)}
+.folder.on{background:var(--sel);color:var(--text);font-weight:500}
+.folder .n{margin-left:auto;font-size:var(--fs-xs);color:var(--faint);font-weight:400}
+.folder svg.i{width:15px;height:15px;color:var(--faint)}
+.notes .docs{margin-top:var(--sp-6);padding-top:var(--sp-5);border-top:1px solid var(--line)}
+.notes .docs .dt{white-space:normal}
+.notes .docs .docrow{margin:0}
+.editor{padding:var(--sp-4) var(--sp-12) var(--sp-16);min-width:0}
+.sessbar > *{white-space:nowrap}
+.sessbar{position:sticky;top:8px;z-index:4;display:flex;align-items:center;gap:var(--sp-3);height:48px;padding:0 var(--sp-2) 0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 4px 14px rgba(0,0,0,.04);font-size:var(--fs-sm)}
+.sessbar .rec{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.sessbar .tm{font-weight:600;font-variant-numeric:tabular-nums}
+.toolbar{display:flex;gap:2px;margin:var(--sp-6) 0 0}
+.toolbar button{all:unset;cursor:pointer;height:30px;min-width:30px;padding:0 8px;border-radius:var(--r-xs);display:inline-grid;place-items:center;font-size:var(--fs-sm);color:var(--faint);font-weight:600}
+.toolbar button:hover{background:var(--hover);color:var(--text)}
+.doc{max-width:640px;margin-top:var(--sp-4)}
+.doc h1{font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.doc h2{font-size:var(--fs-lg);font-weight:600;margin:var(--sp-6) 0 var(--sp-2)}
+.doc p,.doc li{line-height:1.7;color:var(--text)}
+.doc p{margin:var(--sp-2) 0}
+.doc ul{margin:var(--sp-2) 0;padding-left:22px}
+.doc li{margin:2px 0}
+.doc .reading{clear:both;background:var(--accent-soft);border-radius:var(--r-xs);box-shadow:0 0 0 5px var(--accent-soft)}
+.doc figure{float:right;width:220px;margin:4px 0 var(--sp-3) var(--sp-6);}
+.doc figure .fig{border-radius:var(--r-md);background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-3)}
+.doc figcaption{font-size:var(--fs-xs);color:var(--faint);margin-top:6px}
+.doc .cl{display:flex;align-items:center;gap:var(--sp-3);margin:6px 0;line-height:1.5}
+.doc .cl.done span{color:var(--faint);text-decoration:line-through}
+.evcheck{clear:both;margin-top:var(--sp-8);padding:var(--sp-5) var(--sp-6);border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.saved{display:flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--faint)}
+
+/* Course page */
+.course-cover{height:176px;border-radius:var(--r-lg)}
+.course-id{display:flex;align-items:flex-start;gap:var(--sp-5);padding:0 var(--sp-6);position:relative}
+.course-id .badge{margin-top:-36px;flex:none}
+.course-id .ctx{padding-top:14px}
+.course-id .btn{margin-top:22px}
+.course-id .badge{width:72px;height:72px;border-radius:var(--r-lg);background:var(--surface);box-shadow:0 0 0 4px var(--bg),inset 0 0 0 1px var(--line);display:grid;place-items:center;overflow:hidden}
+.course-id .badge .sw.md{width:44px;height:44px;border-radius:var(--r-md)}
+.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3)}
+.mini{display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;min-width:0;transition:box-shadow var(--dur-2) var(--ease)}
+.mini:hover{box-shadow:inset 0 0 0 1px var(--line),var(--shadow-hover)}
+.mini .mt{font-weight:600;font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mm{font-size:var(--fs-xs);color:var(--faint)}
+.mini.flash{box-shadow:inset 0 0 0 1px var(--line),0 3px 0 -1px var(--surface),0 3px 0 0 var(--line)}
+.mini.mock{border-left:0}
+.sub-h{font-size:var(--fs-xs);font-weight:600;color:var(--faint);letter-spacing:.02em;margin:var(--sp-5) 0 var(--sp-2);display:flex;align-items:center;gap:var(--sp-2)}
+
+/* Ask */
+.chat{display:flex;flex-direction:column;gap:var(--sp-8);padding-bottom:140px}
+.msg.me{align-self:flex-end;max-width:72%;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);background:var(--sel);line-height:1.55}
+.msg.her{display:flex;gap:var(--sp-3);max-width:92%}
+.msg.her .mark{margin-top:4px}
+.msg.her .body{line-height:1.65}
+.msg.her .body p+p{margin-top:var(--sp-2)}
+.msg .srcs{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-3)}
+.msg .who{font-size:var(--fs-xs);color:var(--faint);font-weight:600;margin-bottom:4px}
+.composer{position:fixed;bottom:24px;left:calc(var(--side-w) + (100vw - var(--side-w)) / 2);transform:translateX(-50%);width:min(var(--col),calc(100vw - var(--side-w) - 80px));border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2),0 8px 30px rgba(0,0,0,.06);padding:var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-5);display:flex;align-items:center;gap:var(--sp-3)}
+.composer .ph-t{flex:1;color:var(--faint)}
+
+/* Proposal */
+.conf{display:flex;flex-direction:column;gap:2px;margin-top:var(--sp-3)}
+.conf .cr{display:flex;align-items:center;gap:var(--sp-4);min-height:52px;padding:6px 0;border-top:1px solid var(--line)}
+.conf .cr:first-child{border-top:0}
+.cardbox{border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-5) var(--sp-6)}
+.stepnum{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;background:var(--text);color:var(--bg);font-size:var(--fs-xs);font-weight:700;flex:none}
+.stepnum.off{background:var(--track);color:var(--faint)}
+.dashlist{border:1.5px dashed var(--line2);border-radius:var(--r-lg);padding:var(--sp-2) var(--sp-5)}
+.dashlist .pi{margin:0 calc(-1 * var(--sp-2));padding:var(--sp-3) var(--sp-2)}
+.actbar{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-6)}
+
+/* Palette */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:20;display:none}
+.scrim.open{display:block}
+.palette{position:fixed;top:96px;left:50%;transform:translateX(-50%);width:640px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-pop);z-index:21;display:none;overflow:hidden}
+.palette.open{display:block}
+.palette .pin{display:flex;align-items:center;gap:var(--sp-3);height:60px;padding:0 var(--sp-5);border-bottom:1px solid var(--line)}
+.palette .pin input{all:unset;flex:1;font-size:var(--fs-lg);color:var(--text)}
+.palette .pres{max-height:520px;overflow:auto;padding:var(--sp-2)}
+.palette .pg{font-size:var(--fs-xs);font-weight:600;color:var(--faint);padding:var(--sp-3) var(--sp-3) var(--sp-1)}
+.palette .pr{display:flex;align-items:center;gap:var(--sp-3);min-height:48px;padding:6px var(--sp-3);border-radius:var(--r-sm);cursor:pointer}
+.palette .pr.on,.palette .pr:hover{background:var(--hover)}
+.palette .pr .tl{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.palette .pr .sm{font-size:var(--fs-xs);color:var(--faint)}
+.palette .pfoot{display:flex;gap:var(--sp-5);padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--line);font-size:var(--fs-xs);color:var(--faint)}
+.palette .pfoot span{display:inline-flex;gap:6px;align-items:center}
+
+/* Add course dialog */
+.dialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--shadow-pop);z-index:21;display:none;overflow:hidden}
+.dialog.open{display:block}
+.dialog .cover{height:120px}
+.dialog .db{padding:var(--sp-6)}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:var(--sp-4)}
+.field label{font-size:var(--fs-sm);font-weight:500;color:var(--quiet)}
+.swpick{display:flex;gap:var(--sp-2)}
+.swpick button{all:unset;cursor:pointer;width:44px;height:32px;border-radius:var(--r-sm);overflow:hidden;position:relative;box-shadow:inset 0 0 0 1px var(--line)}
+.swpick button.on{outline:2px solid var(--text);outline-offset:2px}
+
+/* System page */
+.sys{max-width:1200px;margin:0 auto;padding:var(--sp-12) var(--sp-8) var(--sp-16)}
+.sys h2.sh2{font-size:var(--fs-xl);font-weight:600;margin:var(--sp-12) 0 var(--sp-4);letter-spacing:-.01em}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.tpanel{border-radius:var(--r-lg);background:var(--bg);color:var(--text);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-5)}
+.swgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--sp-3);margin-top:var(--sp-3)}
+.swc{font-size:11px;color:var(--faint);line-height:1.3}
+.swc i{display:block;height:40px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:6px}
+.olang{border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.olang .orow{display:grid;grid-template-columns:150px 1fr 264px 210px;gap:var(--sp-6);align-items:center;padding:var(--sp-5) var(--sp-6);border-top:1px solid var(--line)}
+.olang .orow:first-child{border-top:0}
+.olang .ohead{font-size:var(--fs-xs);font-weight:600;color:var(--faint);padding-top:var(--sp-3);padding-bottom:var(--sp-3)}
+.olang .on{font-weight:600}
+.olang .on small{display:block;font-weight:400;color:var(--faint);font-size:var(--fs-xs);line-height:1.4;margin-top:2px}
+.olang .tile{height:auto;min-height:150px}
+.spec-row{display:flex;align-items:flex-end;gap:var(--sp-5);flex-wrap:wrap}
+.spec-box{display:flex;flex-direction:column;gap:6px;font-size:var(--fs-xs);color:var(--faint);align-items:flex-start}
+
+/* Phone */
+.phones{display:flex;gap:var(--sp-12);justify-content:center;align-items:flex-start;padding:var(--sp-8) var(--sp-6) var(--sp-12);background:var(--side);min-height:100vh}
+.device{width:414px;padding:12px;border-radius:64px;background:var(--phone-body);box-shadow:0 30px 80px rgba(0,0,0,.18),inset 0 0 0 1px rgba(255,255,255,.08);flex:none}
+.screen{position:relative;width:390px;height:844px;border-radius:52px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000;z-index:3}
+.status{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 34px 0 42px;font-size:var(--fs-md);font-weight:600}
+.status .sic{display:flex;gap:6px;align-items:center}
+.pscroll{flex:1;overflow:hidden;padding:0 20px}
+.tabbar{flex:none;height:84px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);padding-top:8px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--faint);font-weight:500}
+.tabbar a svg.i{width:22px;height:22px}
+.tabbar a.on{color:var(--text)}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--text);opacity:.85}
+.phead{display:flex;align-items:center;justify-content:space-between;margin:var(--sp-2) 0 var(--sp-3)}
+.phead h1{font-size:30px;font-weight:700;letter-spacing:-.02em}
+.round-ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.hscroll{display:flex;gap:var(--sp-3);overflow:hidden;margin:0 -20px;padding:0 20px 4px}
+.hscroll .resume{width:280px;flex:none;padding:14px}
+.pills{display:flex;gap:6px;overflow:hidden;margin:0 -20px;padding:0 20px}
+.pills .tab{height:34px;padding:0 13px;font-size:var(--fs-sm);flex:none;box-shadow:inset 0 0 0 1px var(--line)}
+.pills .tab.on{box-shadow:none}
+.ptiles{display:flex;flex-direction:column;gap:22px;margin-top:var(--sp-4)}
+.ptiles .tile{height:auto;padding:16px;gap:10px}
+.study-phone .pscroll{display:flex;flex-direction:column;padding:0 20px 20px}
+.study-phone .fcardp{position:relative;isolation:isolate;margin-top:var(--sp-4)}
+.study-phone .fcardp::before,.study-phone .fcardp::after{content:"";position:absolute;z-index:-1;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:0 0 var(--r-xl) var(--r-xl)}
+.study-phone .fcardp::before{left:14px;right:14px;bottom:-7px;height:24px}
+.study-phone .fcardp::after{left:28px;right:28px;bottom:-13px;height:24px;z-index:-2}
+.study-phone .pface{border-radius:var(--r-xl);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-5);min-height:372px;display:flex;flex-direction:column}
+.caption{max-width:380px;font-size:var(--fs-sm);color:var(--quiet);margin-top:var(--sp-4);text-align:center}
+.caption b{color:var(--text)}
+</style>
+</head>
+<body>
+<!-- ============ 2. Sprite ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-today" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v1.8M10 15.7v1.8M2.5 10h1.8M15.7 10h1.8M4.7 4.7l1.3 1.3M14 14l1.3 1.3M4.7 15.3 6 14M14 6l1.3-1.3"/></symbol>
+    <symbol id="i-ask" viewBox="0 0 20 20"><path d="M4 4.5h12a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 3v-3H4A1.5 1.5 0 0 1 2.5 13V6A1.5 1.5 0 0 1 4 4.5z"/></symbol>
+    <symbol id="i-library" viewBox="0 0 20 20"><rect x="3" y="3.5" width="3.5" height="13" rx="1"/><rect x="8" y="3.5" width="3.5" height="13" rx="1"/><path d="m13.2 4.6 3.1-.8 2.6 11.9-3.1.8z"/></symbol>
+    <symbol id="i-notes" viewBox="0 0 20 20"><path d="M5 2.8h7l3.5 3.5v10.9H5z"/><path d="M12 2.8v3.5h3.5M7.8 10h5M7.8 13h3.5"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 20 20"><path d="M2.5 10h3l2.2-5 4 10 2.3-5h3.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="m13.2 13.2 3.8 3.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 20 20"><path d="m8 5 5 5-5 5"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 20 20"><path d="m12 5-5 5 5 5"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 20 20"><path d="m5 8 5 5 5-5"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 20 20"><path d="M4 10h12M11 5l5 5-5 5"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 20 20"><path d="M4 8a6 6 0 0 1 11-2.5M16 12a6 6 0 0 1-11 2.5"/><path d="M15.5 2.5v3.3h-3.3M4.5 17.5v-3.3h3.3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l2.5 2"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 20 20"><path d="M4 9V8a3 3 0 0 1 3-3h9l-2.5-2.5M16 11v1a3 3 0 0 1-3 3H4l2.5 2.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.5v3.5M13 2.5v3.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 20 20"><path d="m4.5 10.5 3.5 3.5 7.5-8"/></symbol>
+    <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r=".9"/><circle cx="10" cy="10" r=".9"/><circle cx="15" cy="10" r=".9"/></symbol>
+    <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.5 11.5a3 3 0 0 0 4.2 0l2.6-2.6a3 3 0 0 0-4.2-4.2l-1 1M11.5 8.5a3 3 0 0 0-4.2 0l-2.6 2.6a3 3 0 0 0 4.2 4.2l1-1"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 20 20"><path d="M5 17V3.5M5 4h9l-2 3.5 2 3.5H5"/></symbol>
+    <symbol id="i-status" viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.5"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 20 20"><path d="M3 3h6.5l7.5 7.5-6.5 6.5L3 9.5z"/><circle cx="6.5" cy="6.5" r="1"/></symbol>
+    <symbol id="i-play" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 20 20"><path d="M7 4.5v11M13 4.5v11"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 20 20"><circle cx="7.5" cy="5" r=".9"/><circle cx="12.5" cy="5" r=".9"/><circle cx="7.5" cy="10" r=".9"/><circle cx="12.5" cy="10" r=".9"/><circle cx="7.5" cy="15" r=".9"/><circle cx="12.5" cy="15" r=".9"/></symbol>
+    <symbol id="i-image" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><circle cx="7.5" cy="8.5" r="1.3"/><path d="m3.5 14.5 4-4 3 3 2-2 4 4"/></symbol>
+    <symbol id="i-list" viewBox="0 0 20 20"><path d="M8 5.5h9M8 10h9M8 14.5h9"/><circle cx="4" cy="5.5" r=".9"/><circle cx="4" cy="10" r=".9"/><circle cx="4" cy="14.5" r=".9"/></symbol>
+    <symbol id="i-checklist" viewBox="0 0 20 20"><rect x="3" y="3.5" width="5" height="5" rx="1.2"/><rect x="3" y="11.5" width="5" height="5" rx="1.2"/><path d="M11 6h6M11 14h6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 20 20"><path d="M2.5 5.5A1.5 1.5 0 0 1 4 4h3.5l1.8 2H16a1.5 1.5 0 0 1 1.5 1.5v7.5A1.5 1.5 0 0 1 16 16.5H4A1.5 1.5 0 0 1 2.5 15z"/></symbol>
+    <symbol id="i-retry" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.8-4.3M4 3.5v3.5h3.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 20 20"><path d="M4 5.5h7M15 5.5h1M4 14.5h1M9 14.5h7"/><circle cx="13" cy="5.5" r="2"/><circle cx="7" cy="14.5" r="2"/></symbol>
+    <symbol id="i-learn" viewBox="0 0 20 20"><path d="M3 7.5 10 4l7 3.5-7 3.5z"/><path d="M6 9v4c1 1.2 2.4 2 4 2s3-.8 4-2V9"/></symbol>
+    <symbol id="i-test" viewBox="0 0 20 20"><rect x="4" y="3" width="12" height="14.5" rx="2"/><path d="M7 7.5h6M7 11h6M7 14.5h3"/></symbol>
+    <symbol id="i-explain" viewBox="0 0 20 20"><path d="M14 3.5 16.5 6 8 14.5l-3.3.8.8-3.3z"/><path d="M3.5 17.5h13"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 13V3.5M6 7l4-4 4 4M3.5 13v2.5A1.5 1.5 0 0 0 5 17h10a1.5 1.5 0 0 0 1.5-1.5V13"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 26 14"><rect x="1" y="1.5" width="21" height="11" rx="3"/><rect x="3" y="3.5" width="15" height="7" rx="1.5" fill="currentColor" stroke="none"/><path d="M24 5.5v3"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 20 14"><rect x="1" y="9" width="3" height="4" rx="1" fill="currentColor" stroke="none"/><rect x="6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor" stroke="none"/><rect x="11" y="4" width="3" height="9" rx="1" fill="currentColor" stroke="none"/><rect x="16" y="1" width="3" height="12" rx="1" fill="currentColor" stroke="none"/></symbol>
+    <!-- type glyphs -->
+    <symbol id="g-flash" viewBox="0 0 20 20"><rect x="2.8" y="6.5" width="11.5" height="10" rx="2"/><path d="M6 3.5h9.2a2 2 0 0 1 2 2v7.3"/></symbol>
+    <symbol id="g-prac" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="3.5"/><path d="m6.8 10.2 2.3 2.3 4.3-4.8"/></symbol>
+    <symbol id="g-mock" viewBox="0 0 20 20"><circle cx="10" cy="11" r="6"/><path d="M10 11V8M8 2.5h4M15.2 5.6l1.1-1.1"/></symbol>
+    <symbol id="g-proc" viewBox="0 0 20 20"><circle cx="5" cy="4.5" r="1.8"/><circle cx="5" cy="10" r="1.8"/><circle cx="5" cy="15.5" r="1.8"/><path d="M5 6.3v1.9M5 11.8v1.9M9.5 4.5h7M9.5 10h7M9.5 15.5h5"/></symbol>
+    <symbol id="g-note" viewBox="0 0 20 20"><path d="M5 2.8h7l3.5 3.5v10.9H5z"/><path d="M12 2.8v3.5h3.5M7.8 10h5M7.8 13h3.5"/></symbol>
+    <symbol id="g-target" viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.8"/><circle cx="10" cy="10" r="3.4"/><circle cx="10" cy="10" r=".6" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 3. Shell ============ -->
+<div class="app" id="app">
+  <aside class="side" aria-label="Primary">
+    <div class="brand"><span class="mark"></span>E.V.</div>
+    <button class="searchbtn" data-act="palette"><svg class="i"><use href="#i-search"/></svg>Search or ask<span class="kbd">⌘K</span></button>
+    <a class="nav" data-nav="today" href="#today"><svg class="i"><use href="#i-today"/></svg>Today<span class="n">4</span></a>
+    <a class="nav" data-nav="ask" href="#ask"><svg class="i"><use href="#i-ask"/></svg>Ask E.V.</a>
+    <a class="nav" data-nav="library" href="#library"><svg class="i"><use href="#i-library"/></svg>Library</a>
+    <a class="nav" data-nav="notes" href="#notes"><svg class="i"><use href="#i-notes"/></svg>Notes</a>
+    <a class="nav" data-nav="activity" href="#activity"><svg class="i"><use href="#i-activity"/></svg>Activity<span class="n need" title="1 needs you">1</span></a>
+    <div class="navgrp">Courses <button data-act="addcourse" title="Add course"><svg class="i" style="width:14px;height:14px"><use href="#i-plus"/></svg></button></div>
+    <div id="courseNav"></div>
+    <a class="nav add" data-act="addcourse"><svg class="i"><use href="#i-plus"/></svg>Add course</a>
+    <div class="side-foot">
+      <div class="jobline" data-go="activity"><span class="mark run"></span><div>Writing Exam 3 mock<small>step 3 of 5 · 28 of 40</small></div></div>
+      <button class="themebtn" data-act="theme"><span id="themeLabel">Dark theme</span><span class="kbd">\</span></button>
+    </div>
+  </aside>
+  <main class="area" id="area">
+    <div class="main" id="main"></div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="palette" id="palette" role="dialog" aria-label="Search">
+  <div class="pin"><svg class="i" style="color:var(--faint)"><use href="#i-search"/></svg><input id="pq" placeholder="Search sets, notes, plan, jobs… or ask E.V." autocomplete="off"><span class="kbd">esc</span></div>
+  <div class="pres" id="pres"></div>
+  <div class="pfoot"><span><span class="kbd">↑↓</span>move</span><span><span class="kbd">↵</span>open</span><span><span class="kbd">Tab</span>ask E.V. instead</span></div>
+</div>
+<div class="dialog" id="dialog" role="dialog" aria-label="Add course"></div>
+
+<!-- ============ 4. Script ============ -->
+<script>
+/* ---------- Data (synthetic) ---------- */
+const COURSES = {
+  nur112:{code:"NUR 112",name:"Fundamentals of Nursing",v:"nur",pat:"dots",when:"Mon & Wed · 9:00 am",next:"Exam 3 · Thu"},
+  bio201:{code:"BIO 201",name:"Anatomy & Physiology",v:"bio",pat:"waves",when:"Tue & Thu · 1:00 pm",next:"Lab practical 2 · Nov 9"},
+  psy110:{code:"PSY 110",name:"Lifespan Development",v:"psy",pat:"arcs",when:"Online · weekly",next:"Quiz 4 · Nov 12"},
+};
+const TYPES = {
+  flash:{label:"Flashcards",g:"g-flash",unit:"cards"},
+  prac:{label:"Practice",g:"g-prac",unit:"problems"},
+  mock:{label:"Mock exam",g:"g-mock",unit:"questions"},
+  proc:{label:"Procedure",g:"g-proc",unit:"steps"},
+  note:{label:"Note",g:"g-note"},
+};
+const GLOVING = ["Perform hand hygiene","Check the package for size, dryness and expiry","Place the inner package on a clean, dry surface at waist height","Open the inner wrapper, touching only its outer edges","Pick up the first glove by its folded cuff","Slide the dominant hand in, thumb tucked","Slide gloved fingers under the cuff of the second glove","Pull the second glove on without touching skin","Adjust both gloves, touching only sterile surfaces"];
+const SETS = [
+  {id:"cardiac",t:"flash",title:"Cardiac output terms",c:"bio201",n:24,m:[12,7],by:"E.V. · from Ch 9 notes",resume:"card 14 of 24",rp:58},
+  {id:"dosage",t:"prac",title:"Dosage by weight",c:"nur112",n:10,pips:"yyxyyyxyxy",last:"Last try 7 of 10 · yesterday",resume:"problem 4 of 10",rp:30},
+  {id:"gloving",t:"proc",title:"Sterile gloving",c:"nur112",n:9,steps:GLOVING,rec:"Recalled 7 of 9 in order",m:[7,1],resume:"step 5 of 9",rp:50},
+  {id:"exam3",job:true,t:"mock",title:"Exam 3 mock",c:"nur112",n:40,min:60},
+  {id:"fluids",t:"flash",title:"Fluid & electrolyte basics",c:"nur112",n:32,m:[20,8],by:"you"},
+  {id:"upperlimb",t:"flash",title:"Bones of the upper limb",c:"bio201",n:28,m:[9,10],by:"E.V. · from Lab 6 notes"},
+  {id:"exam2",t:"mock",title:"Exam 2 mock",c:"nur112",n:35,min:50,best:"81%",last:"Taken Oct 19"},
+  {id:"h2t",t:"proc",title:"Head-to-toe assessment order",c:"nur112",n:14,steps:["General survey and vital signs","Skin, hair and nails","Head and face"],rec:"Recalled 9 of 14 in order",m:[9,3]},
+  {id:"oral",t:"prac",title:"Oral liquid doses",c:"nur112",n:9,pips:"yxxyxyx--",last:"Weak spot · 4 of 9 · Fri"},
+  {id:"abbrev",t:"flash",title:"Medical abbreviations",c:"nur112",n:40,m:[31,6],by:"you"},
+  {id:"lab2",t:"mock",title:"Lab practical 2 mock",c:"bio201",n:30,min:45,best:"—",last:"Not taken yet"},
+  {id:"cocalc",t:"prac",title:"Cardiac output calculations",c:"bio201",n:8,pips:"yyyyxyyy",last:"Last try 7 of 8 · Oct 28"},
+  {id:"medrights",t:"proc",title:"Medication rights check",c:"nur112",n:8,steps:["Right patient · two identifiers","Right medication · check the label three times","Right dose · calculate, then compare"],rec:"Recalled 8 of 8 in order",m:[8,0]},
+  {id:"erikson",t:"flash",title:"Erikson's eight stages",c:"psy110",n:8,m:[6,2],by:"you"},
+];
+const byId = id => SETS.find(s => s.id === id);
+const TERMS = [
+  ["Cardiac output","Volume of blood one ventricle pumps per minute. CO = heart rate × stroke volume; about 5 L/min at rest.","m"],
+  ["Stroke volume","Volume ejected by a ventricle in one beat: end-diastolic volume minus end-systolic volume.","m"],
+  ["Preload","How far the ventricle is stretched at the end of filling; set mainly by venous return.","l"],
+  ["Afterload","The resistance the ventricle must push against to eject blood.","l"],
+  ["Contractility","Strength of contraction at a given stretch, independent of preload.","m"],
+  ["Frank–Starling law","More stretch at the end of filling gives a stronger contraction, within limits.","n"],
+  ["Ejection fraction","Stroke volume ÷ end-diastolic volume; about 55–70% in a healthy heart.","l"],
+  ["End-diastolic volume","Blood in the ventricle at the end of filling, just before it contracts.","n"],
+];
+const PLAN = [
+  {id:"p1",done:true,title:"Morning review · 8 questions",link:["prac","Morning review set"],c:"nur112",est:"10m",time:"6:30 am"},
+  {id:"p2",title:"Oral liquid doses",link:["prac","Oral liquid doses"],c:"nur112",est:"20m",time:"10:30 am",prio:"high",rec:"Weekdays"},
+  {id:"p3",title:"Review cardiac output terms",link:["flash","Cardiac output terms"],c:"bio201",est:"15m",time:"12:15 pm"},
+  {id:"p4",title:"Read Ch 9 lecture with read-along",link:["note","Ch 9 lecture · cardiac output"],c:"bio201",est:"30m",time:"2:00 pm"},
+  {id:"p5",title:"Recall the sterile gloving order",link:["proc","Sterile gloving"],c:"nur112",est:"10m",time:"4:00 pm",rec:"Mon · Wed · Fri"},
+];
+const NOTES = [
+  {id:"ch9",title:"Ch 9 lecture · cardiac output",ex:"Cardiac output is the volume each ventricle pumps per minute…",f:"BIO 201 · Lectures",when:"Today"},
+  {id:"ch8",title:"Ch 8 lecture · the cardiac cycle",ex:"Systole and diastole; valves open on pressure differences…",f:"BIO 201 · Lectures",when:"Thu"},
+  {id:"lab6",title:"Lab 6 · bones of the upper limb",ex:"Scapula, clavicle, humerus; landmarks to find by touch…",f:"BIO 201 · Labs",when:"Oct 28"},
+  {id:"ch7",title:"Ch 7 lecture · blood vessels",ex:"Arteries carry blood away from the heart under higher pressure…",f:"BIO 201 · Lectures",when:"Oct 26"},
+  {id:"ch6",title:"Ch 6 lecture · muscle tissue",ex:"The crossbridge cycle: attach, power stroke, detach, re-cock…",f:"BIO 201 · Lectures",when:"Oct 21"},
+];
+const NURNOTES = [
+  {title:"Pharm · dosage calculation steps",ex:"Convert to kg first; then dose × weight; then divide by frequency…",f:"NUR 112 · Pharm",when:"Fri"},
+  {title:"Skills lab · sterile technique",ex:"The inner wrapper becomes your sterile field; 1 inch border is not sterile…",f:"NUR 112 · Skills",when:"Oct 30"},
+  {title:"Fluid balance · intake and output",ex:"Count all liquids at room temperature; ice chips at half volume…",f:"NUR 112 · Lectures",when:"Oct 27"},
+];
+
+/* ---------- Helpers: the object language as renderers ---------- */
+const ic = (id, extra="") => `<svg class="i" ${extra}><use href="#${id}"/></svg>`;
+const glyph = (t, size="") => `<span class="glyph ${size} ty-${t}">${ic(TYPES[t].g)}</span>`;
+let uid = 0;
+function pattern(c, scale=1){
+  const v = COURSES[c] ? COURSES[c].v : c, kind = COURSES[c] ? COURSES[c].pat : ({nur:"dots",bio:"waves",psy:"arcs",new:"grid"}[c]||"dots");
+  const id = "pt" + (++uid), m = `fill:var(--c-${v});opacity:var(--motif)`, s = `stroke:var(--c-${v});opacity:var(--motif);fill:none`;
+  const k = scale;
+  const P = {
+    dots:`<pattern id="${id}" width="${24*k}" height="${24*k}" patternUnits="userSpaceOnUse"><circle cx="${6*k}" cy="${6*k}" r="${3*k}" style="${m}"/><circle cx="${18*k}" cy="${18*k}" r="${3*k}" style="${m}"/></pattern>`,
+    waves:`<pattern id="${id}" width="${48*k}" height="${26*k}" patternUnits="userSpaceOnUse"><path d="M0 ${13*k} q${12*k} -${7*k} ${24*k} 0 t${24*k} 0" style="${s};stroke-width:${2.5*k}"/></pattern>`,
+    arcs:`<pattern id="${id}" width="${36*k}" height="${36*k}" patternUnits="userSpaceOnUse"><path d="M0 ${36*k} a${30*k} ${30*k} 0 0 1 ${30*k} -${30*k}" style="${s};stroke-width:${3*k}"/><path d="M0 ${36*k} a${16*k} ${16*k} 0 0 1 ${16*k} -${16*k}" style="${s};stroke-width:${3*k}"/></pattern>`,
+    grid:`<pattern id="${id}" width="${28*k}" height="${28*k}" patternUnits="userSpaceOnUse"><rect x="${4*k}" y="${4*k}" width="${10*k}" height="${10*k}" rx="${2*k}" style="${m}"/></pattern>`,
+    stripes:`<pattern id="${id}" width="${16*k}" height="${16*k}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="${5*k}" height="${16*k}" style="${m}"/></pattern>`,
+  };
+  return `<svg aria-hidden="true" preserveAspectRatio="none"><defs>${P[kind]}</defs><rect width="100%" height="100%" style="fill:var(--c-${v}-soft)"/><rect width="100%" height="100%" fill="url(#${id})"/></svg>`;
+}
+const sw = c => `<span class="sw co-${COURSES[c].v}"></span>`;
+const swmd = c => `<span class="sw md co-${COURSES[c].v}">${pattern(c,.5)}</span>`;
+const courseChip = c => `<a class="chip" href="#course/${c}">${sw(c)}<span class="tx">${COURSES[c].code}</span></a>`;
+const linkChip = (t, title, href) => t === "note"
+  ? `<a class="chip link ty-note" href="${href||"#notes"}">${ic("g-note")}<span class="tx">${title}</span></a>`
+  : `<a class="chip link ty-${t}" href="${href||"#set"}">${ic(TYPES[t].g)}<span class="tx">${title}</span></a>`;
+const unverified = `<span class="chip unverified">unverified</span>`;
+function mbar(m, n){ const a = m[0]/n*100, b = m[1]/n*100; return `<div class="bar"><i class="m" style="width:${a}%"></i><i class="l" style="width:${b}%"></i></div>`; }
+function pips(str){ return `<span class="pips">${[...str].map(ch => `<i class="${ch==="-"?"":ch}"></i>`).join("")}</span>`; }
+
+/* Plan item row */
+function planRow(p, opts={}){
+  const ring = p.done ? `<span class="ring done">${ic("i-check")}</span>` : `<span class="ring ${opts.proposal?"prop":""}"></span>`;
+  const prio = p.prio ? `<span class="prio high" title="High priority"><i></i><i></i><i></i></span>` : "";
+  const props = [
+    linkChip(p.link[0], p.link[1], p.link[0]==="note" ? "#notes" : p.link[0]==="proc" ? "#procedure" : "#set"),
+    courseChip(p.c),
+    `<span class="chip">${ic("i-clock")}${p.est}</span>`,
+    p.rec ? `<span class="chip">${ic("i-repeat")}${p.rec}</span>` : "",
+    p.prio ? `<span class="chip">${prio}High</span>` : "",
+  ].join("");
+  return `<div class="pi ${p.done?"done":""} ${opts.sel?"sel":""}" data-href="${opts.href||"#today/item"}">${ring}<div class="grow"><div class="pt">${p.title}</div><div class="props">${props}</div></div><div class="when num">${p.time}</div></div>`;
+}
+/* Exam row */
+function examRow(mon, day, c, title, sub, ready, extra=""){
+  return `<div class="exrow" data-href="#course/${c}"><span class="dateb co co-${COURSES[c].v}"><small>${mon}</small><b>${day}</b></span><div class="grow"><div class="t">${COURSES[c].code} · ${title}</div><div class="meta">${sub}</div></div><div class="rd"><span class="meta num">${ready}% ready</span><div class="bar" style="width:120px"><i class="m" style="width:${ready*.7}%"></i><i class="l" style="width:${ready*.3}%"></i></div></div>${extra}</div>`;
+}
+/* Weak spot row */
+function weakRow(title, have, of, c, src, compact){
+  let s = ""; for (let i=0;i<of;i++) s += i<have ? "w" : "-";
+  return `<div class="wsrow"><span class="target">${ic("g-target")}</span><div class="grow"><div style="font-weight:500">${title}</div><div class="meta">${COURSES[c].code} · from ${src}</div></div>${pips(s)}<span class="meta num" style="width:52px;text-align:right">${have} of ${of}</span>${compact?"":`<a class="btn sm secondary" href="#exam">Practise</a>`}</div>`;
+}
+/* Note (doc) row */
+function docRow(n, sel, compact){
+  return compact
+    ? `<div class="docrow ${sel?"sel":""}" data-href="#notes"><span class="pg"></span><div class="grow"><div class="dt">${n.title}</div><div class="ex">${n.when} · ${n.ex}</div></div></div>`
+    : `<div class="docrow ${sel?"sel":""}" data-href="#notes"><span class="pg"></span><div class="grow"><div class="dt">${n.title}</div><div class="ex">${n.ex}</div></div><span class="meta" style="white-space:nowrap;line-height:20px">${n.when}</span></div>`;
+}
+/* Set row (lists, search) */
+function setRow(s){
+  const T = TYPES[s.t];
+  const right = s.m ? `<div style="width:110px">${mbar(s.m,s.n)}</div>` : s.pips ? pips(s.pips) : s.min ? `<span class="meta num">${s.min} min</span>` : "";
+  return `<div class="setrow" data-href="${s.t==="proc"?"#procedure":s.t==="flash"?"#set":"#exam"}">${glyph(s.t)}<div class="grow"><div class="st">${s.title}</div><div class="meta">${T.label} · ${s.n} ${T.unit} · ${COURSES[s.c].code}</div></div>${right}</div>`;
+}
+/* Tile (browsable card) */
+function tile(s){
+  if (s.job) return jobTile();
+  const T = TYPES[s.t], co = COURSES[s.c];
+  const head = `<div class="th">${glyph(s.t,"sm")}<span class="ty-label ty-${s.t}">${T.label}</span><span class="co-tag">${sw(s.c)}${co.code}</span></div>`;
+  const href = s.t==="flash" ? "#set" : s.t==="proc" ? "#procedure" : "#exam";
+  let face = "", foot = "";
+  if (s.t === "flash"){
+    face = `<div class="count">${s.n} cards · ${s.by==="you"?"made by you":"made by "+s.by}</div>`;
+    foot = `${mbar(s.m,s.n)}<div class="line"><span>${s.m[0]} mastered · ${s.m[1]} learning</span><span>${Math.round(s.m[0]/s.n*100)}%</span></div>`;
+  } else if (s.t === "prac"){
+    face = `<div class="count meta" style="color:var(--quiet)">${s.n} problems</div>`;
+    foot = `${pips(s.pips)}<div class="line"><span>${s.last}</span></div>`;
+  } else if (s.t === "mock"){
+    face = `<div class="ticket"><div><b class="num">${s.n}</b><span>questions</span></div><div><b class="num">${s.min}</b><span>minutes</span></div></div>`;
+    foot = `<div class="perf"></div><div class="line" style="padding-top:6px"><span>Best ${s.best}</span><span>${s.last}</span></div>`;
+  } else if (s.t === "proc"){
+    face = `<ol class="ladder ty-proc">${s.steps.slice(0,2).map((x,i)=>`<li><span class="nd">${i+1}</span><span class="tx">${x}</span></li>`).join("")}<li class="more">+ ${s.n-2} more steps</li></ol>`;
+    foot = `${mbar(s.m,s.n)}<div class="line"><span>${s.rec}</span></div>`;
+  }
+  return `<div class="tile ${s.t}" data-href="${href}">${head}<div class="tt">${s.title}</div><div class="face">${face}</div><div class="tf">${foot}</div></div>`;
+}
+function jobTile(){
+  return `<div class="tile jobtile" data-href="#activity"><div class="th"><span class="mark run"></span><span class="ty-label" style="color:var(--quiet)">E.V. is writing</span><span class="co-tag">${sw("nur112")}NUR 112</span></div><div class="tt">Exam 3 mock</div><div class="face"><ul class="steps"><li class="ok"><span class="s">${ic("i-check")}</span>Picked 40 objectives</li><li class="now"><span class="s"></span>Writing questions<span class="r num">28 of 40</span></li><li class="todo"><span class="s"></span>Checking sources</li></ul></div><div class="tf"><div class="line"><span>Lands here when it's ready</span><span>about 6 min</span></div></div></div>`;
+}
+function noteTile(n){
+  return `<div class="tile note" data-href="#notes"><div class="th">${glyph("note","sm")}<span class="ty-label ty-note">Note</span><span class="co-tag">${n.f}</span></div><div class="tt">${n.title}</div><div class="paper"></div><div class="tf"><span>Edited ${n.when}</span></div></div>`;
+}
+function courseTile(c){
+  const co = COURSES[c];
+  return `<div class="tile course" data-href="#course/${c}" style="height:200px"><div class="cover co-${co.v}">${pattern(c)}</div><div class="cb"><div class="line g2">${sw(c)}<b style="font-size:var(--fs-sm)">${co.code}</b></div><div style="font-weight:600">${co.name}</div><div class="meta">${co.next}</div></div></div>`;
+}
+function resumeCard(s){
+  return `<div class="resume" data-href="${s.t==="flash"?"#study":s.t==="proc"?"#procedure":"#exam"}">${glyph(s.t,"lg")}<div class="grow"><div class="rt">${s.title}</div><div class="rm">${TYPES[s.t].label} · ${s.resume}</div><div class="pbar"><i style="width:${s.rp}%"></i></div></div></div>`;
+}
+const voice = (html) => `<div class="voice"><span class="mark"></span><div>${html}</div></div>`;
+
+/* ---------- Screens ---------- */
+const S = {};
+
+S.today = () => `
+<div class="col">
+  <div class="ph"><div><h1>Today</h1></div><span class="sub">Monday, November 2</span><span class="grow"></span><a class="btn primary" href="#exam">Start next <span class="kbd">S</span></a></div>
+  ${voice(`<b>Exam 3 is Thursday.</b> Oral liquid doses is your weakest spot, so it's first after the morning review. <span class="srcs">${`<span class="chip"><span class="target" style="width:16px;height:16px">${ic("g-target",'style="width:11px;height:11px"')}</span>Oral liquid doses · 4 of 9</span>`}</span>`)}
+  <section class="sec" style="margin-top:40px">
+    <div class="sh"><h2>Plan</h2><span class="n">4 to do · about 1 h 15 m</span><span class="grow"></span><span class="lnk">${ic("i-sliders",'style="width:14px;height:14px;vertical-align:-2px"')} Display</span></div>
+    <div class="planlist">${PLAN.map(p => planRow(p, {sel: state.sheet && p.id==="p2"})).join("")}</div>
+    <div class="proposal"><span class="ring prop" style="margin:0"></span><div class="grow"><div><b>5 dosage-by-weight problems tonight</b> · 10m</div><div class="meta">E.V. suggests · from your miss on problem 6 yesterday</div></div><button class="btn sm quiet">Edit <span class="kbd">E</span></button><button class="btn sm secondary">Accept <span class="kbd">A</span></button></div>
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Upcoming exams</h2><span class="grow"></span><span class="legend"><span><i style="background:var(--ok)"></i>learned</span><span><i style="background:var(--warn)"></i>familiar</span><span><i style="background:var(--track)"></i>not yet</span></span></div>
+    ${examRow("NOV","5","nur112","Exam 3","Thursday · <a href='#proposal' style='color:var(--accent);font-weight:500'>study plan waiting for you</a>",58)}
+    ${examRow("NOV","9","bio201","Lab practical 2","Monday · plan after Exam 3",71)}
+    ${examRow("NOV","16","nur112","Med math check","Monday · no plan yet",40)}
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>This week</h2></div>
+    <div class="review"><div class="grow"><div style="font-weight:600">Weekly review</div><div class="meta">Sunday · E.V. drafts it, you confirm the weak spots</div></div><div class="stat"><b class="num">5 h 10 m</b><span>studied</span></div><div class="stat"><b class="num">72%</b><span>accuracy, up 6</span></div><div class="stat"><b class="num">3</b><span>weak spots to confirm</span></div></div>
+  </section>
+</div>`;
+
+S.sheet = () => `
+<aside class="sheet" aria-label="Plan item">
+  <div class="bar-top">${sw("nur112")} NUR 112 <span>›</span> Plan <span class="grow"></span><button class="btn icon sm quiet" title="More">${ic("i-more")}</button><a class="btn icon sm quiet" href="#today" title="Close (Esc)">${ic("i-x")}</a></div>
+  <div class="line g3" style="align-items:flex-start"><span class="ring" style="margin-top:6px"></span><h2>Oral liquid doses</h2></div>
+  <p class="quiet" style="margin-top:10px;font-size:var(--fs-sm)">Work the 9 problems without a calculator first, then check units. Focus on mL vs mg conversions.</p>
+  <div class="props-grid">
+    <div class="k">${ic("i-status")}Status</div><div class="v"><span class="ring" style="width:14px;height:14px;margin:0"></span>To do</div>
+    <div class="k">${ic("i-tag")}Type</div><div class="v">${glyph("prac","sm")}Practice</div>
+    <div class="k">${ic("i-library")}Course</div><div class="v">${sw("nur112")}NUR 112 · Fundamentals</div>
+    <div class="k">${ic("i-link")}Material</div><div class="v">${linkChip("prac","Oral liquid doses · 9 problems","#exam")}</div>
+    <div class="k">${ic("i-clock")}Estimate</div><div class="v">20 min</div>
+    <div class="k">${ic("i-cal")}When</div><div class="v">Today · 10:30 am</div>
+    <div class="k">${ic("i-repeat")}Repeats</div><div class="v">Weekdays until Exam 3</div>
+    <div class="k">${ic("i-flag")}Priority</div><div class="v"><span class="prio high"><i></i><i></i><i></i></span>High</div>
+    <div class="k">${ic("i-cal")}For exam</div><div class="v"><span class="dateb" style="width:22px;height:22px;border-radius:6px"><small style="font-size:7px">NOV</small></span>Exam 3 · Thu Nov 5</div>
+    <div class="k"></div><div class="v add">${ic("i-plus")}Add property</div>
+  </div>
+  <div class="lbl">SUBTASKS · 1 OF 3</div>
+  <div class="subtasks">
+    <div class="st done"><span class="check on">${ic("i-check")}</span><span>Re-read the dosage steps note</span></div>
+    <div class="st"><span class="check"></span><span>Problems 1–5 without a calculator</span></div>
+    <div class="st"><span class="check"></span><span>Problems 6–9, then check units</span></div>
+  </div>
+  <div class="lbl">NOTES</div>
+  <div class="quiet" style="font-size:var(--fs-sm);margin-top:8px;line-height:1.6">Last time I mixed up mL and mg on the suspension problems. Write the units on every line.</div>
+  <div class="divider"></div>
+  ${voice(`<span style="font-size:var(--fs-sm)">Added from your Exam 3 plan. You missed 5 of 9 on Friday. <span class="srcs">${linkChip("note","Pharm · dosage steps")}</span></span>`)}
+  <div style="margin-top:var(--sp-6)"><a class="btn primary" style="width:100%" href="#exam">Start practice <span class="kbd">S</span></a></div>
+</aside>`;
+
+S.library = () => {
+  const counts = {all:0, flash:0, prac:0, mock:0, proc:0};
+  SETS.filter(s => !s.job).forEach(s => { counts.all++; counts[s.t]++; }); counts.all = SETS.filter(s=>!s.job).length;
+  const tabs = [["all","All"],["flash","Flashcards"],["prac","Practice"],["mock","Mock exams"],["proc","Procedures"]];
+  const list = SETS.filter(s => (state.lt==="all"||s.t===state.lt) && (state.lc==="all"||s.c===state.lc));
+  return `
+<div class="col wide">
+  <div class="ph"><h1>Library</h1><span class="sub">13 sets across 3 courses</span><span class="grow"></span><button class="btn secondary">${ic("i-upload")}Import</button><button class="btn primary">${ic("i-plus")}Create set <span class="kbd">C</span></button></div>
+  <section style="margin-top:32px">
+    <div class="sh"><h2>Jump back in</h2></div>
+    <div class="resume-row">${["cardiac","dosage","gloving"].map(id => resumeCard(byId(id))).join("")}</div>
+  </section>
+  <section class="sec">
+    <div class="sh" style="margin-bottom:16px"><h2>Your sets</h2><span class="grow"></span>
+      <div class="seg">${["all","nur112","bio201","psy110"].map(c => `<button class="${state.lc===c?"on":""}" data-lc="${c}">${c==="all"?"All courses":`<span class="line g2">${sw(c)}${COURSES[c].code}</span>`}</button>`).join("")}</div></div>
+    <div class="tabs" style="margin-bottom:28px">${tabs.map(([k,l]) => `<button class="tab ${state.lt===k?"on":""}" data-lt="${k}">${k!=="all"?ic(TYPES[k].g):""}${l}<span class="n">${counts[k]}</span></button>`).join("")}</div>
+    <div class="grid">${list.map(tile).join("")}</div>
+  </section>
+</div>`;
+};
+
+S.set = () => {
+  const t = TERMS[state.ci % TERMS.length];
+  return `
+<div class="col">
+  <div class="crumbs"><a href="#library">Library</a>${ic("i-chev-r",'style="width:12px;height:12px"')}<a href="#library">Flashcards</a></div>
+  <div class="set-head"><div class="grow">
+    <div class="line g2" style="margin-bottom:10px">${glyph("flash","sm")}<span class="ty-label ty-flash">Flashcard set</span><span class="meta">·</span>${courseChip("bio201")}</div>
+    <h1 style="font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.02em;line-height:1.2">Cardiac output terms</h1>
+    <div class="meta" style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span>24 cards</span>·<span>made by E.V. from</span>${linkChip("note","Ch 9 lecture · cardiac output")}<span>· updated Oct 30</span></div>
+  </div><button class="btn secondary">Edit</button><button class="btn icon secondary">${ic("i-more")}</button></div>
+  <div class="modes">
+    <a class="mode" href="#study"><span class="mi" style="background:var(--t-flash-soft);color:var(--t-flash)">${ic("g-flash")}</span><div><b>Flashcards</b><span>Try, flip, rate</span></div></a>
+    <button class="mode"><span class="mi">${ic("i-learn")}</span><div><b>Learn</b><span>Adaptive</span></div></button>
+    <button class="mode"><span class="mi">${ic("i-test")}</span><div><b>Test</b><span>Timed quiz</span></div></button>
+    <button class="mode"><span class="mi">${ic("i-explain")}</span><div><b>Explain</b><span>Your own words</span></div></button>
+  </div>
+  <div class="deck">
+    <div class="fcard ${state.flip?"flipped":""}" data-act="flip">
+      <div class="fface"><div class="fh"><span>Term</span><span class="line g2">${ic("i-flip",'style="width:14px;height:14px"')}Click or <span class="kbd">Space</span> to flip</span></div><div class="fb"><div class="term">${t[0]}</div></div></div>
+      <div class="fface back"><div class="fh"><span>Definition</span><span>${linkChip("note","Ch 9 lecture · ¶"+(state.ci%TERMS.length+2))}</span></div><div class="fb"><div class="def">${t[1]}</div></div></div>
+    </div>
+  </div>
+  <div class="carousel-nav"><button class="circle-btn" data-act="prev" title="Previous (←)">${ic("i-chev-l")}</button><span class="num" style="min-width:64px;text-align:center;font-weight:500">${state.ci%TERMS.length+1} / 24</span><button class="circle-btn" data-act="next" title="Next (→)">${ic("i-chev-r")}</button></div>
+  <div style="display:flex;justify-content:center;margin-top:24px"><a class="btn primary lg" href="#study">Study these 24 cards <span class="kbd">S</span></a></div>
+  <section class="sec">
+    <div class="sh"><h2>Terms in this set</h2><span class="n">24</span><span class="grow"></span><div class="seg"><button class="on">All</button><button>Learning 7</button><button>Mastered 12</button><button>New 5</button></div></div>
+    <div class="terms">${TERMS.map(([a,b,m]) => `<div class="term-row"><div class="tm">${a}</div><div class="df">${b}</div><div class="mast">${pips(m==="m"?"yyy":m==="l"?"ww-":"---")}<span style="width:58px">${m==="m"?"Mastered":m==="l"?"Learning":"New"}</span></div></div>`).join("")}</div>
+  </section>
+</div>`;
+};
+
+S.study = () => `
+<div class="focusbar">
+  <div class="fl"><a class="btn icon quiet" href="#set" title="Close (Esc)">${ic("i-x")}</a>${glyph("flash","sm")}<span class="ftitle">Cardiac output terms</span><span class="meta">· Flashcards</span></div>
+  <div class="fp"><div class="pbar"><i style="width:33%"></i></div><span class="num">8 of 24</span></div>
+  <div class="fr"><span class="meta"><span style="color:var(--ok);font-weight:600">5</span> good · <span style="color:var(--warn);font-weight:600">2</span> again</span><button class="btn icon quiet">${ic("i-sliders")}</button></div>
+</div>
+<div class="fmain">
+  <div class="deck" style="margin-top:0">
+    <div class="fcard study-card ${state.sflip?"flipped":""}">
+      <div class="fface"><div class="fh"><span>Term · 8 of 24</span><span class="line g2">${sw("bio201")}BIO 201</span></div><div class="fb"><div class="term">Preload</div></div></div>
+      <div class="fface back"><div class="fh"><span>Definition</span><span class="line g2">From ${linkChip("note","Ch 9 lecture · ¶4")}</span></div><div class="fb"><div><div class="def">How far the ventricle is stretched at the end of filling; set mainly by venous return.</div></div></div></div>
+    </div>
+  </div>
+  ${state.sflip ? `
+  <div class="yours" style="margin-top:28px"><b>Your try:</b> how much blood is in the ventricle before it squeezes, so how stretched it is.</div>
+  <div class="actions">${voice(`<span style="font-size:var(--fs-sm)">Close. You have the volume; the key word is <b>stretch</b>.</span>`)}</div>
+  <div class="actions"><div class="rate"><button class="btn secondary">Again<small>1 · see it in a minute</small></button><button class="btn primary" data-act="next-card">Good<small>2 · see it in 3 days</small></button></div></div>
+  ` : `
+  <div class="attempt" style="margin-top:32px"><div class="lb">Your try first <span class="meta">· in your own words, or say it out loud</span></div>
+    <div class="input focus"><input value="How much blood is in the ventricle before it squeezes, so how stretched it is" aria-label="Your attempt"></div></div>
+  <div class="actions"><button class="btn quiet" data-act="sflip">Just tell me</button><span class="grow"></span><button class="btn primary lg" data-act="sflip">Flip <span class="kbd">Space</span></button></div>`}
+</div>`;
+
+S.exam = () => {
+  const opts = [["A","100 mg"],["B","200 mg"],["C","220 mg"],["D","440 mg"]];
+  const nav = Array.from({length:40},(_,i)=>{
+    const n=i+1; let c="";
+    if (n<14) c = [3,9].includes(n)?"x":"y";
+    if (n===14) c = state.committed ? (state.pick==="A"?"y":"x") : "cur";
+    if (n===7||n===11) c += " f";
+    return `<button class="${c}">${n}</button>`;}).join("");
+  const o = opts.map(([k,v]) => {
+    let cls = "", tag = "";
+    if (state.committed){ if (k==="A"){cls="right";tag=`<span class="tag" style="color:var(--ok)">Correct answer</span>`;} else if (k===state.pick){cls="wrong";tag=`<span class="tag" style="color:var(--bad)">Your answer</span>`;} }
+    else if (k===state.pick) cls="on";
+    return `<button class="opt ${cls}" data-pick="${k}"><span class="k">${k}</span><span>${v}</span>${tag}</button>`;}).join("");
+  return `
+<div class="focusbar">
+  <div class="fl"><a class="btn icon quiet" href="#library" title="Close (Esc)">${ic("i-x")}</a>${glyph("mock","sm")}<span class="ftitle">Exam 2 mock</span><span class="meta">· ${COURSES.nur112.code}</span></div>
+  <div class="fp"><div class="pbar"><i style="width:35%"></i></div><span class="num">Question 14 of 35</span></div>
+  <div class="fr"><span class="line g2 num" style="font-weight:600">${ic("i-clock",'style="color:var(--faint)"')}31:18</span><div class="seg"><button class="on">Feedback each</button><button>At the end</button></div></div>
+</div>
+<div class="exam-wrap">
+  <aside>
+    <div class="meta" style="font-weight:600;margin-bottom:12px">Questions</div>
+    <div class="navgrid">${nav.split("</button>").slice(0,35).join("</button>")}</button></div>
+    <div class="legend" style="flex-direction:column;gap:8px;margin-top:20px"><span><i style="background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok)"></i>right</span><span><i style="background:var(--bad-soft);box-shadow:inset 0 0 0 1px var(--bad)"></i>missed</span><span><i style="background:var(--warn);border-radius:50%"></i>flagged</span></div>
+  </aside>
+  <div>
+    <div class="line g3"><span class="meta">Question 14 · Dosage calculation</span><span class="grow"></span><button class="btn sm quiet">${ic("i-flag")}Flag <span class="kbd">F</span></button></div>
+    <div class="qstem">A child who weighs 22 lb is prescribed amoxicillin 20 mg/kg/day, divided every 12 hours. How many milligrams are given per dose?</div>
+    <div class="opts">${o}</div>
+    ${state.committed ? `
+    <div class="feedback"><div class="fbh"><span class="mark"></span>Not quite. You gave the daily total.</div>
+      <p>22 lb ÷ 2.2 = 10 kg. 20 mg/kg/day × 10 kg = 200 mg per day. Divided every 12 hours, that's two doses: <b>100 mg per dose</b>.</p>
+      <div class="srcs">${linkChip("note","Pharm · dosage calculation steps")}${linkChip("prac","Dosage by weight · problem 6","#exam")}</div>
+      <div class="meta" style="margin-top:12px">Added to your weak spot <b style="color:var(--text);font-weight:500">Divided doses</b> · now 3 of 7</div>
+    </div>
+    <div class="actions"><span class="grow"></span><button class="btn primary lg">Next question <span class="kbd">↵</span></button></div>` : `
+    <div class="actions"><span class="meta">Pick one, then commit. Feedback comes after.</span><span class="grow"></span><button class="btn primary lg" data-act="commit" ${state.pick?"":"disabled"}>Commit <span class="kbd">↵</span></button></div>`}
+  </div>
+</div>`;
+};
+
+S.procedure = () => {
+  const placed = state.pchecked ? GLOVING.map((s,i)=>[s,i]) : [[GLOVING[0],0],[GLOVING[1],1],[GLOVING[3],3],[GLOVING[2],2]];
+  const yourOrder = [0,1,3,2,4,5,6,7,8];
+  const slots = state.pchecked
+    ? yourOrder.map((k,i) => { const ok = k===i; return `<div class="slot ${ok?"ok":"moved"}"><span class="nd">${i+1}</span><span>${GLOVING[k]}</span><span class="res">${ok?ic("i-check")+"In place":"Swap with step "+(i===2?4:3)}</span></div>`; }).join("")
+    : placed.map(([s],i)=>`<div class="slot"><span class="nd">${i+1}</span><span>${s}</span><span class="grip">${ic("i-grip")}</span></div>`).join("") +
+      `<div class="slot next"><span class="nd">5</span><div class="input" style="flex:1;min-height:40px;box-shadow:none;background:transparent;padding:0"><input placeholder="Type step 5, or pick it below" value="Pick up the first glove by the cuff"></div><button class="btn sm secondary">Place <span class="kbd">↵</span></button></div>`;
+  const bank = [GLOVING[6],GLOVING[4],GLOVING[8],GLOVING[5],GLOVING[7]];
+  return `
+<div class="focusbar">
+  <div class="fl"><a class="btn icon quiet" href="#library" title="Close (Esc)">${ic("i-x")}</a>${glyph("proc","sm")}<span class="ftitle">Sterile gloving</span><span class="meta">· ${COURSES.nur112.code}</span></div>
+  <div class="fp"><div class="pbar"><i style="width:${state.pchecked?100:44}%"></i></div><span class="num">${state.pchecked?"9 of 9 placed":"4 of 9 placed"}</span></div>
+  <div class="fr"><div class="seg"><button class="on">Put in order</button><button>Type each step</button></div></div>
+</div>
+<div class="proc-wrap">
+  <div class="line g3"><h1 style="font-size:var(--fs-xl);font-weight:600">${state.pchecked?"7 of 9 in the right place":"What comes next?"}</h1><span class="grow"></span><span class="meta">${state.pchecked?"Checked against your skills-lab note":"Recall from memory; reorder by dragging or ⌥↑↓"}</span></div>
+  <div class="slots">${slots}</div>
+  ${state.pchecked ? `
+  <div class="feedback"><div class="fbh"><span class="mark"></span>Steps 3 and 4 are swapped.</div>
+    <p>Place the inner package on a clean, dry surface at waist height <b>before</b> you open it. Once open, the inner wrapper is your sterile field, and anything below waist height counts as contaminated.</p>
+    <div class="srcs">${linkChip("note","Skills lab · sterile technique")}${linkChip("proc","Sterile gloving · step 3","#procedure")}</div></div>
+  <div class="actions"><button class="btn quiet" data-act="pcheck">Try again</button><span class="grow"></span><a class="btn primary lg" href="#library">Done · see it again Wed <span class="kbd">↵</span></a></div>` : `
+  <div class="sub-h" style="margin-top:28px">REMAINING STEPS, SHUFFLED</div>
+  <div class="bank">${bank.map(b=>`<span class="chip">${b}</span>`).join("")}</div>
+  <div class="actions" style="margin-top:28px"><button class="btn quiet">Just show me the order</button><span class="grow"></span><button class="btn primary lg" data-act="pcheck">Check order <span class="kbd">↵</span></button></div>`}
+</div>`;
+};
+
+S.notes = () => `
+<div class="notes">
+  <div class="pane">
+    <h3>FOLDERS <button class="btn icon sm quiet" style="width:24px;height:24px">${ic("i-plus",'style="width:14px;height:14px"')}</button></h3>
+    <div class="folder on">${sw("bio201")}Lectures<span class="n">5</span></div>
+    <div class="folder">${sw("bio201")}Labs<span class="n">3</span></div>
+    <div class="folder">${sw("nur112")}Pharm<span class="n">4</span></div>
+    <div class="folder">${sw("nur112")}Skills<span class="n">6</span></div>
+    <div class="folder">${sw("psy110")}Readings<span class="n">2</span></div>
+    <div class="folder">${ic("i-folder")}Unfiled<span class="n">1</span></div>
+  <div class="docs">
+    <h3>BIO 201 · LECTURES <button class="btn icon sm quiet" style="width:24px;height:24px" title="New doc">${ic("i-plus",'style="width:14px;height:14px"')}</button></h3>
+    ${NOTES.map((n,i)=>docRow(n,i===0,true)).join("")}
+  </div>
+  </div>
+  <div class="editor">
+    <div class="sessbar"><span class="rec"></span><span style="font-weight:500">Study session</span><span class="tm">18:42</span><span class="meta">·</span><span class="quiet">Read-along · ¶4 of 11</span><span class="grow"></span><button class="btn sm quiet">${ic("i-pause")}Pause</button><button class="btn sm secondary">End session</button></div>
+    <div class="toolbar"><button>H1</button><button>H2</button><button>${ic("i-list")}</button><button>${ic("i-checklist")}</button><button>${ic("i-image")}</button><span class="grow"></span><span class="saved">${ic("i-check",'style="width:13px;height:13px"')}Saved on this device · 2:14 pm</span></div>
+    <div class="doc">
+      <h1>Ch 9 lecture · cardiac output</h1>
+      <div class="meta" style="margin-top:6px;display:flex;gap:8px;align-items:center">${courseChip("bio201")}<span>Lectures · Oct 30 · 11 paragraphs</span></div>
+      <h2>Cardiac output</h2>
+      <p>Cardiac output (CO) is the volume of blood one ventricle pumps per minute. <b>CO = heart rate × stroke volume.</b> At rest it's about 5 L/min.</p>
+      <figure><div class="fig"><svg viewBox="0 0 200 130" width="100%" aria-label="Frank–Starling curve"><path d="M24 110H190M24 110V10" stroke="var(--line2)" stroke-width="1.5" fill="none"/><path d="M24 104C60 96 80 50 112 34s50-10 72-12" stroke="var(--text)" stroke-width="2" fill="none"/><text x="110" y="125" font-size="9" fill="var(--faint)" font-family="Inter" text-anchor="middle">preload (EDV)</text><text x="12" y="60" font-size="9" fill="var(--faint)" font-family="Inter" transform="rotate(-90 12 60)" text-anchor="middle">stroke volume</text></svg></div><figcaption>Frank–Starling curve, redrawn from slide 14</figcaption></figure>
+      <h2>What changes stroke volume</h2>
+      <ul>
+        <li><b>Preload:</b> how far the ventricle stretches at the end of filling.</li>
+        <li><b>Afterload:</b> the pressure the ventricle has to push against.</li>
+        <li><b>Contractility:</b> strength of contraction at a given stretch.</li>
+      </ul>
+      <p class="reading">More stretch at the end of filling makes the next contraction stronger, within limits. This is the Frank–Starling law, and it's why stroke volume rises when venous return rises.</p>
+      <p>Heart rate is set by the SA node, nudged by the autonomic nervous system.</p>
+      <h2>Before Thursday</h2>
+      <div class="cl done"><span class="check on">${ic("i-check")}</span><span>Re-read slides 12–18</span></div>
+      <div class="cl"><span class="check"></span><span>Make cards for ejection fraction and EDV</span></div>
+      <div class="cl"><span class="check"></span><span>Ask in lab how afterload is measured</span></div>
+      <div class="evcheck">
+        <div class="line g3" style="align-items:flex-start"><span class="mark" style="margin-top:3px"></span><div class="grow"><div style="font-weight:600">Check · in your own words</div><div class="quiet" style="margin-top:2px">Why does a bigger preload raise stroke volume?</div></div><span class="meta">1 of 3</span></div>
+        <textarea class="ta" style="margin-top:14px;min-height:72px">More blood stretches the ventricle wall, and stretched fibres contract harder, so more blood gets pushed out.</textarea>
+        <div class="line g3" style="margin-top:12px"><button class="btn quiet sm">Just tell me</button><span class="grow"></span><button class="btn primary">Check answer <span class="kbd">⌘↵</span></button></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+S.course = (id) => {
+  const co = COURSES[id] || COURSES.nur112; id = COURSES[id] ? id : "nur112";
+  const sets = SETS.filter(s => s.c===id && !s.job);
+  const groups = ["flash","prac","mock","proc"].map(t => [t, sets.filter(s=>s.t===t)]).filter(g=>g[1].length);
+  const mini = s => `<div class="mini ${s.t}" data-href="${s.t==="flash"?"#set":s.t==="proc"?"#procedure":"#exam"}">${glyph(s.t)}<div class="grow"><div class="mt">${s.title}</div><div class="mm">${s.n} ${TYPES[s.t].unit}${s.m?` · ${Math.round(s.m[0]/s.n*100)}% mastered`:s.best?` · best ${s.best}`:""}</div></div></div>`;
+  const notes = id==="nur112" ? NURNOTES : NOTES.slice(0,3);
+  return `
+<div class="col">
+  <div class="cover course-cover co-${co.v}">${pattern(id,1.4)}</div>
+  <div class="course-id"><span class="badge"><span class="sw md co-${co.v}">${pattern(id,.8)}</span></span><div class="grow ctx"><div class="meta" style="font-weight:600">${co.code}</div><h1 style="font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.02em;line-height:1.2">${co.name}</h1><div class="meta" style="margin-top:6px">${co.when} · Fall term · ${sets.length} sets · ${notes.length+3} notes</div></div><a class="btn primary" href="#proposal">Study for ${id==="nur112"?"Exam 3":co.next.split(" · ")[0]} <span class="kbd">S</span></a></div>
+  <div class="utabs" style="margin-top:28px"><button class="utab on">Overview</button><button class="utab">Materials</button><button class="utab">Notes</button><button class="utab">Exams</button></div>
+  <section style="margin-top:32px">
+    <div class="sh"><h2>Exams</h2></div>
+    ${id==="nur112" ? examRow("NOV","5","nur112","Exam 3","Thursday · Ch 7–9 · plan waiting for you",58) + examRow("NOV","16","nur112","Med math check","Monday · no plan yet",40) + examRow("DEC","10","nur112","Final","Thursday · cumulative",22)
+     : examRow("NOV","9","bio201","Lab practical 2","Monday · plan after Exam 3",71)}
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Weak spots</h2><span class="n">${id==="nur112"?3:1}</span></div>
+    ${id==="nur112" ? weakRow("Oral liquid doses",4,9,"nur112","practice") + weakRow("Divided doses",3,7,"nur112","Exam 2 mock") + weakRow("Sterile field boundaries",5,8,"nur112","procedure recall")
+     : weakRow("Afterload vs preload",3,6,"bio201","flashcards")}
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Materials</h2><span class="n">${sets.length}</span><span class="grow"></span><a class="lnk" href="#library">Open in Library</a></div>
+    ${groups.map(([t,l]) => `<div class="sub-h">${TYPES[t].label.toUpperCase()} · ${l.length}</div><div class="mini-grid">${l.map(mini).join("")}</div>`).join("")}
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Notes</h2><span class="grow"></span><a class="lnk" href="#notes">All notes</a></div>
+    ${notes.map(n=>docRow(n)).join("")}
+  </section>
+</div>`;
+};
+
+S.ask = () => `
+<div class="col">
+  <div class="ph"><h1>Ask E.V.</h1><span class="sub">Today · 3 questions</span></div>
+  <div class="chat" style="margin-top:32px">
+    <div class="msg me">Why does a higher preload raise stroke volume?</div>
+    <div class="msg her"><span class="mark"></span><div class="body"><div class="who">E.V.</div><p>Have a go first: what happens to the heart muscle fibres when more blood fills the ventricle?</p><div class="line g2" style="margin-top:10px"><button class="btn sm quiet">Just tell me <span class="kbd">⌥↵</span></button></div></div></div>
+    <div class="msg me">They stretch more, so they contract harder?</div>
+    <div class="msg her"><span class="mark"></span><div class="body"><div class="who">E.V.</div><p>Yes, that's it. More filling stretches the fibres, and a stretched fibre contracts with more force, within limits. That's the Frank–Starling law, so more blood is ejected per beat.</p><div class="srcs">${linkChip("note","Ch 9 lecture · ¶4")}${linkChip("flash","Cardiac output terms · card 6")}</div></div></div>
+    <div class="msg me">Is the mock exam ready?</div>
+    <div class="msg her"><span class="mark"></span><div class="body"><div class="who">E.V.</div><p>Not yet. I'm writing question 28 of 40, about 6 minutes left. It will land in your Library under Mock exams.</p>
+      <div class="job compact" style="margin-top:12px;cursor:pointer" data-href="#activity"><span class="mark run"></span><div class="grow"><div style="font-weight:600;font-size:var(--fs-sm)">Writing Exam 3 mock</div><div class="meta">Step 3 of 5 · writing questions · 28 of 40</div></div><span class="state run">Running</span></div>
+      <div class="srcs"><span class="chip">${ic("i-activity")}from job status · 11:43 am</span></div></div></div>
+  </div>
+</div>
+<div class="composer"><span class="ph-t">Ask anything. E.V. will ask for your try first.</span><span class="kbd">⌘J</span><button class="btn primary sm">Send <span class="kbd">↵</span></button></div>`;
+
+S.activity = () => `
+<div class="col">
+  <div class="ph"><h1>Activity</h1><span class="sub">What E.V. is doing for you</span></div>
+  <section style="margin-top:32px">
+    <div class="sh"><h2>Needs you</h2><span class="n">1</span></div>
+    <div class="job"><div class="jh"><span class="mark lg"></span><div class="grow"><div class="jt">Exam 3 study plan</div><div class="jl">Finished 6:02 am · waiting on your confidence ratings</div></div><span class="state need">Needs you</span></div>
+      <ul class="steps"><li class="ok"><span class="s">${ic("i-check")}</span>Read Ch 7–9 notes and your weak spots</li><li class="ok"><span class="s">${ic("i-check")}</span>Drafted 6 sessions, Mon–Wed</li><li class="wait"><span class="s"></span>Your confidence, then approve</li></ul>
+      <div class="jf"><span>Lands in Today · Plan</span><span>·</span><span class="num">$0.04</span><span class="grow"></span><a class="btn primary" href="#proposal">Rate and review <span class="kbd">↵</span></a></div></div>
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Running</h2><span class="n">1</span></div>
+    <div class="job"><div class="jh"><span class="mark lg run"></span><div class="grow"><div class="jt">Writing Exam 3 mock</div><div class="jl">Started 11:31 am · about 6 min left</div></div><span class="state run">Running</span></div>
+      <ul class="steps"><li class="ok"><span class="s">${ic("i-check")}</span>Read Ch 7–9 notes<span class="r">3 notes</span></li><li class="ok"><span class="s">${ic("i-check")}</span>Picked 40 objectives<span class="r">from the syllabus</span></li><li class="now"><span class="s"></span>Writing questions<span class="r num">28 of 40</span></li><li class="todo"><span class="s"></span>Checking every answer has a source</li><li class="todo"><span class="s"></span>Saving to Library</li></ul>
+      <div class="jf"><span>Lands in ${linkChip("mock","Library · Mock exams","#library")}</span><span class="num">$0.21 so far · cap $1.00</span><span class="grow"></span><button class="btn sm quiet">Stop</button></div></div>
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Failed</h2><span class="n">1</span></div>
+    <div class="job"><div class="jh"><span class="mark lg" style="border-color:var(--bad)"></span><div class="grow"><div class="jt">Import Lab practical 2 rubric</div><div class="jl">10:05 am</div></div><span class="state fail">Failed</span></div>
+      <ul class="steps"><li class="ok"><span class="s">${ic("i-check")}</span>Downloaded the file</li><li class="err"><span class="s">${ic("i-x")}</span>Couldn't read it: the PDF is a scan with no text in it</li></ul>
+      <div class="jf"><span>Nothing was saved. Upload a text PDF or paste the rubric, and I'll try again.</span><span class="grow"></span><button class="btn sm secondary">${ic("i-retry")}Retry</button></div></div>
+  </section>
+  <section class="sec">
+    <div class="sh"><h2>Done today</h2><span class="n">2</span></div>
+    <div class="job compact"><span class="state done">${ic("i-check",'style="width:12px;height:12px"')}Done</span><div class="grow"><b style="font-weight:600">Morning review set</b> <span class="meta">· 8 questions</span></div><span class="meta">4:25 am · $0.03</span>${linkChip("prac","Morning review","#exam")}</div>
+    <div class="job compact" style="margin-top:8px"><span class="state done">${ic("i-check",'style="width:12px;height:12px"')}Done</span><div class="grow"><b style="font-weight:600">Flashcards from Ch 9 notes</b> <span class="meta">· 24 cards</span></div><span class="meta">Oct 30 · $0.06</span>${linkChip("flash","Cardiac output terms")}</div>
+  </section>
+</div>`;
+
+S.proposal = () => {
+  const topics = [["Oral liquid doses","4 of 9 last time"],["Divided doses","3 of 7"],["Fluid balance, I&O","from Ch 8"],["Sterile field boundaries","5 of 8"]];
+  const lab = ["Not yet","Shaky","OK","Solid"];
+  const rated = topics.every((_,i)=>state.conf[i]!=null);
+  const items = [
+    {title:"Oral liquid doses, then divided doses",link:["prac","Oral liquid doses"],c:"nur112",est:"25m",time:"Mon 7:00 pm"},
+    {title:"Fluid balance cards",link:["flash","Fluid & electrolyte basics"],c:"nur112",est:"15m",time:"Tue 12:15 pm"},
+    {title:"Sterile gloving recall",link:["proc","Sterile gloving"],c:"nur112",est:"10m",time:"Tue 4:00 pm"},
+    {title:"Exam 3 mock, timed",link:["mock","Exam 3 mock"],c:"nur112",est:"60m",time:"Wed 6:00 pm"},
+  ];
+  return `
+<div class="col">
+  <div class="crumbs"><a href="#activity">Activity</a>${ic("i-chev-r",'style="width:12px;height:12px"')}<span>Proposal</span></div>
+  <div class="ph" style="margin-bottom:12px"><div><div class="line g2 meta" style="font-weight:600;margin-bottom:6px"><span class="mark" style="width:14px;height:14px"></span>Study plan · proposed by E.V.</div><h1>Exam 3, Thursday</h1></div><span class="grow"></span><span class="dateb co co-nur"><small>NOV</small><b>5</b></span></div>
+  <div class="meta">${courseChip("nur112")} &nbsp;Ch 7–9 · 3 days · 6 sessions · about 2 h 20 m</div>
+  <section style="margin-top:32px" class="cardbox">
+    <div class="line g3"><span class="stepnum">1</span><h2 style="font-size:var(--fs-lg);font-weight:600">First, how sure are you on each?</h2><span class="grow"></span><span class="meta">${Object.keys(state.conf).length} of 4 rated</span></div>
+    <div class="conf" style="margin-top:12px">${topics.map(([t,s],i)=>`<div class="cr"><span class="target" style="width:24px;height:24px">${ic("g-target",'style="width:14px;height:14px"')}</span><div class="grow"><div style="font-weight:500">${t}</div><div class="meta">${s}</div></div><div class="seg">${lab.map((l,j)=>`<button class="${state.conf[i]===j?"on":""}" data-conf="${i}:${j}">${l}</button>`).join("")}</div></div>`).join("")}</div>
+  </section>
+  <section style="margin-top:24px">
+    <div class="line g3" style="margin-bottom:12px"><span class="stepnum ${rated?"":"off"}">2</span><h2 style="font-size:var(--fs-lg);font-weight:600">Proposed sessions</h2><span class="meta">· dashed until you approve</span></div>
+    ${rated ? voice(`You rated <b>divided doses</b> shaky, so I put it with oral liquid doses on Monday and kept Wednesday for the timed mock. <span class="srcs">${linkChip("mock","Exam 2 mock · Q14","#exam")}</span>`) : `<div class="meta" style="margin-bottom:8px">Rate all four and I'll order the sessions around your answers.</div>`}
+    <div class="dashlist" style="margin-top:14px;${rated?"":"opacity:.55"}">${items.map(p=>planRow(p,{proposal:true,href:"#proposal"})).join("")}</div>
+  </section>
+  <div class="actbar"><button class="btn primary lg" ${rated?"":"disabled"}>Approve plan <span class="kbd">⌘↵</span></button><button class="btn secondary lg">Ask for changes</button><span class="grow"></span><button class="btn quiet">Put away</button></div>
+</div>`;
+};
+
+/* System page */
+S.system = () => {
+  const swatches = [["bg","--bg"],["side","--side"],["surface","--surface"],["sunk","--sunk"],["hover","--hover"],["line","--line2"],["text","--text"],["quiet","--quiet"],["faint","--faint"],["accent","--accent"],["accent soft","--accent-soft"],["ok","--ok"],["warn","--warn"],["bad","--bad"],["flashcards","--t-flash"],["practice","--t-prac"],["mock exam","--t-mock"],["procedure","--t-proc"],["NUR 112","--c-nur"],["BIO 201","--c-bio"],["PSY 110","--c-psy"],["track","--track"],["flash soft","--t-flash-soft"],["proc soft","--t-proc-soft"]];
+  const panel = th => `<div class="tpanel" data-theme="${th}"><div class="line g2"><b>${th==="light"?"Light · default":"Dark"}</b><span class="meta">warm white / warm charcoal</span></div><div class="swgrid">${swatches.map(([n,v])=>`<div class="swc"><i style="background:var(${v})"></i>${n}<br>${v}</div>`).join("")}</div>
+    <div class="line g3" style="margin-top:20px;flex-wrap:wrap"><button class="btn primary">Primary</button><button class="btn secondary">Secondary</button>${linkChip("flash","Cardiac output terms")}${courseChip("nur112")}<span class="state need">Needs you</span></div></div>`;
+  const P = byId;
+  const o = (name, desc, list, tl, link) => `<div class="orow"><div class="on">${name}<small>${desc}</small></div><div>${list}</div><div>${tl}</div><div>${link}</div></div>`;
+  return `
+<div class="sys">
+  <div class="line g3"><span class="mark lg"></span><h1 style="font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.02em">Studio · design system</h1><span class="grow"></span><a class="btn secondary" href="#today">Back to the app</a></div>
+  <p class="quiet" style="margin-top:8px;max-width:720px">One family (Inter), calm warm neutrals, one terracotta accent for the primary action and E.V.'s mark. Muted colour families tell types and courses apart; nothing else is coloured.</p>
+
+  <h2 class="sh2">Tokens · both themes</h2>
+  <div class="themes">${panel("light")}${panel("dark")}</div>
+
+  <h2 class="sh2">Type scale · Inter</h2>
+  <div class="cardbox stack g3">
+    <div class="line g6"><span class="meta" style="width:130px">32 · 600 · card face</span><span style="font-size:32px;font-weight:600;letter-spacing:-.02em">Preload</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">28 · 600 · page</span><span style="font-size:28px;font-weight:600;letter-spacing:-.02em">Cardiac output terms</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">20 · 600 · sheet / stem</span><span style="font-size:20px;font-weight:600">Oral liquid doses</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">17 · 600 · section</span><span style="font-size:17px;font-weight:600">Upcoming exams</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">15 · 400 · body, 1.55</span><span>More stretch at the end of filling makes the next contraction stronger.</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">13 · chips, labels</span><span style="font-size:13px" class="quiet">24 cards · made by E.V. from Ch 9 notes</span></div>
+    <div class="line g6"><span class="meta" style="width:130px">12 · meta</span><span style="font-size:12px" class="meta">Started 11:31 am · about 6 min left</span></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+  <div><h2 class="sh2">Spacing · 8 px rhythm</h2><div class="cardbox spec-row">${[4,8,12,16,24,32,48,64].map(n=>`<div class="spec-box"><i style="display:block;width:${n}px;height:${n}px;background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)"></i>${n}</div>`).join("")}</div>
+    <p class="meta" style="margin-top:8px">48 between sections · 720 column (920 for Library) · 240 sidebar · 408 sheet</p></div>
+  <div><h2 class="sh2">Radii</h2><div class="cardbox spec-row">${[["6","chip-sm"],["8","chip, glyph"],["12","control, mini"],["16","tile, card, job"],["20","flashcard, dialog"],["999","pill tab"]].map(([r,l])=>`<div class="spec-box"><i style="display:block;width:52px;height:40px;border-radius:${r==="999"?20:r}px;background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line2)"></i>${r} · ${l}</div>`).join("")}</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+  <div><h2 class="sh2">Elevation</h2><div class="cardbox spec-row" style="gap:24px">
+    <div class="spec-box"><div style="width:96px;height:56px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)"></div>0 · flat (rows, lists, at rest)</div>
+    <div class="spec-box"><div style="width:96px;height:56px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-hover)"></div>1 · hover, browsable cards only</div>
+    <div class="spec-box"><div style="width:96px;height:56px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-pop)"></div>2 · palette, dialog</div></div></div>
+  <div><h2 class="sh2">Motion</h2><div class="cardbox stack g2" style="font-size:var(--fs-sm)">
+    <div class="line"><span class="grow">Hover, press</span><span class="meta num">120 ms · ease-out</span></div>
+    <div class="line"><span class="grow">Card shadow, sheet open</span><span class="meta num">180 ms</span></div>
+    <div class="line"><span class="grow">Flashcard flip (one turn, no bounce)</span><span class="meta num">320 ms</span></div>
+    <div class="line"><span class="grow">E.V.'s mark while a job runs</span><span class="meta num">one turn per 6 s</span></div>
+    <div class="line"><span class="grow">prefers-reduced-motion</span><span class="meta">all off</span></div></div></div>
+  </div>
+
+  <h2 class="sh2">Object language · list, tile, link</h2>
+  <div class="olang">
+    <div class="orow ohead"><div>TYPE</div><div>LIST FORM (scanning)</div><div>TILE FORM (browsing)</div><div>LINK FORM (inline, sources)</div></div>
+    ${o("Course","Patterned cover; swatch in lists",`<div class="nav course" style="pointer-events:none">${swmd("nur112")}<span class="code">NUR 112</span><span class="nm">Fundamentals</span></div>`,courseTile("nur112"),courseChip("nur112"))}
+    ${o("Flashcard set","A deck: card edges peek below",setRow(P("cardiac")),tile(P("cardiac")),linkChip("flash","Cardiac output terms"))}
+    ${o("Practice set","Last attempt as pips",setRow(P("dosage")),tile(P("dosage")),linkChip("prac","Dosage by weight"))}
+    ${o("Mock exam","A ticket: count and minutes over a perforation",setRow(P("exam2")),tile(P("exam2")),linkChip("mock","Exam 2 mock"))}
+    ${o("Procedure set","A numbered ladder",setRow(P("gloving")),tile(P("gloving")),linkChip("proc","Sterile gloving"))}
+    ${o("Note","Paper: neutral, no chips or meters",docRow(NOTES[0]),noteTile(NOTES[0]),linkChip("note","Ch 9 lecture · ¶4"))}
+    ${o("Plan item","The only thing with a status ring; properties as chips",planRow(PLAN[1],{href:"#today/item"}),`<div class="meta">Rows only. Opens in the detail sheet with every property editable.</div>`,`<span class="chip"><span class="ring" style="width:12px;height:12px;margin:0;border-width:1.4px"></span>Oral liquid doses · 10:30</span>`)}
+    ${o("Proposal","Anything E.V. proposes is dashed",`<div class="proposal" style="margin:0"><span class="ring prop" style="margin:0"></span><div class="grow"><b>5 problems tonight</b> · 10m</div><button class="btn sm secondary">Accept</button></div>`,`<div class="meta">Dashed list inside the plan proposal.</div>`,`<span class="chip" style="border:1px dashed var(--line2);box-shadow:none">proposed · 6 sessions</span>`)}
+    ${o("Agentic job","Sunk card, E.V.'s mark, a step trail, cost, where it lands",`<div class="job compact"><span class="mark run"></span><div class="grow"><b style="font-weight:600;font-size:var(--fs-sm)">Writing Exam 3 mock</b><div class="meta">Step 3 of 5 · 28 of 40</div></div><span class="state run">Running</span></div>`,jobTile(),`<span class="chip"><span class="mark" style="width:12px;height:12px;border-width:1.5px"></span>Exam 3 mock · running</span>`)}
+    ${o("Exam","A date block with the course's top edge",examRow("NOV","5","nur112","Exam 3","Thursday",58),`<div class="line g3"><span class="dateb co co-nur"><small>NOV</small><b>5</b></span><div><b>Exam 3</b><div class="meta">58% ready</div></div></div>`,`<span class="chip"><span class="dateb" style="width:16px;height:16px;border-radius:4px;box-shadow:inset 0 2px 0 var(--c-nur),inset 0 0 0 1px var(--line2)"></span>Exam 3 · Thu</span>`)}
+    ${o("Weak spot","Amber target and a fraction of pips",weakRow("Oral liquid doses",4,9,"nur112","practice",true),`<div class="line g3"><span class="target">${ic("g-target")}</span>${pips("wwww-----")}<b class="num">4 of 9</b></div>`,`<span class="chip"><span class="target" style="width:16px;height:16px">${ic("g-target",'style="width:11px;height:11px"')}</span>Oral liquid doses · 4 of 9</span>`)}
+    ${o("E.V.'s voice","Her dotted mark, one line, sources; never a bubble",voice(`Exam 3 is Thursday. <span class="srcs">${linkChip("note","Ch 9 lecture")}</span>`),`<div class="meta">Never a tile. Sits where the thing she's talking about is.</div>`,`<span class="chip unverified">unverified</span>`)}
+  </div>
+
+  <h2 class="sh2">Components and states</h2>
+  <div class="cardbox stack g6">
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Buttons</span><button class="btn primary">Primary <span class="kbd">S</span></button><button class="btn primary is-hover">Hover</button><button class="btn primary is-focus">Focus</button><button class="btn primary" disabled>Disabled</button><button class="btn secondary">Secondary</button><button class="btn secondary is-hover">Hover</button><button class="btn quiet">Quiet</button></div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Tabs, segments</span><div class="tabs"><button class="tab on">All<span class="n">13</span></button><button class="tab">${ic("g-flash")}Flashcards<span class="n">5</span></button><button class="tab">${ic("g-mock")}Mock exams</button></div><div class="seg"><button class="on">Not yet</button><button>Shaky</button><button>OK</button><button>Solid</button></div></div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Status ring</span><span class="ring"></span>to do<span class="ring half"></span>started<span class="ring done">${ic("i-check")}</span>done<span class="ring prop"></span>proposed</div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Job state</span><span class="state need">Needs you</span><span class="state run">Running</span><span class="state done">Done</span><span class="state fail">Failed</span></div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Meters</span><div style="width:160px">${mbar([12,7],24)}</div>${pips("yyxyyyxyxy")}<div class="pbar" style="width:160px"><i style="width:58%"></i></div></div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Inputs</span><div class="input" style="width:280px"><input placeholder="Your try first"></div><div class="input focus" style="width:280px"><input value="Focused"></div><span class="check"></span><span class="check on">${ic("i-check")}</span></div>
+    <div class="line g3" style="flex-wrap:wrap"><span class="meta" style="width:110px">Answer option</span><button class="opt" style="width:180px"><span class="k">A</span>Idle</button><button class="opt on" style="width:180px"><span class="k">B</span>Picked</button><button class="opt right" style="width:180px"><span class="k">C</span>Right</button><button class="opt wrong" style="width:180px"><span class="k">D</span>Wrong</button></div>
+  </div>
+</div>`;
+};
+
+/* Phone */
+S.phone = () => {
+  const ptiles = ["cardiac","exam2","dosage","gloving","fluids"].map(id => tile(byId(id))).join("");
+  return `
+<div class="phones">
+  <div><div class="device" id="phone-lib"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span class="num">9:41</span><span class="sic">${ic("i-signal",'viewBox="0 0 20 14" style="width:18px;height:12px;stroke:none;fill:currentColor"')}<svg class="i" viewBox="0 0 26 14" style="width:26px;height:13px"><use href="#i-battery"/></svg></span></div>
+    <div class="pscroll">
+      <div class="phead"><h1>Library</h1><div class="line g2"><span class="round-ic">${ic("i-search")}</span><span class="round-ic" style="background:var(--accent);color:var(--on-accent);box-shadow:none">${ic("i-plus")}</span></div></div>
+      <div class="sh" style="margin:6px 0 10px"><h2 style="font-size:var(--fs-md)">Jump back in</h2></div>
+      <div class="hscroll">${["cardiac","dosage"].map(id=>resumeCard(byId(id))).join("")}</div>
+      <div class="pills" style="margin-top:20px"><button class="tab on">All</button><button class="tab">${ic("g-flash")}Flashcards</button><button class="tab">${ic("g-prac")}Practice</button><button class="tab">${ic("g-mock")}Mock</button></div>
+      <div class="line" style="justify-content:space-between;margin-top:14px"><span class="meta">13 sets · all courses</span><span class="meta line g1">${sw("nur112")}${sw("bio201")}${sw("psy110")}&nbsp;Course ${ic("i-chev-d",'style="width:13px;height:13px"')}</span></div>
+      <div class="ptiles">${ptiles}</div>
+    </div>
+    <nav class="tabbar"><a>${ic("i-today")}Today</a><a class="on">${ic("i-library")}Library</a><a>${ic("i-notes")}Notes</a><a>${ic("i-ask")}Ask</a></nav>
+    <div class="homebar"></div>
+  </div></div><div class="caption"><b>Library home on the phone.</b> The same tiles stack one per row; "Jump back in" scrolls sideways; type pills scroll too.</div></div>
+
+  <div><div class="device study-phone" id="phone-study"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span class="num">9:41</span><span class="sic">${ic("i-signal",'viewBox="0 0 20 14" style="width:18px;height:12px;stroke:none;fill:currentColor"')}<svg class="i" viewBox="0 0 26 14" style="width:26px;height:13px"><use href="#i-battery"/></svg></span></div>
+    <div class="pscroll">
+      <div class="line g3" style="margin-top:6px"><span class="round-ic">${ic("i-x")}</span><div class="grow" style="text-align:center"><div style="font-weight:600;font-size:var(--fs-sm)">Cardiac output terms</div><div class="meta num">8 of 24</div></div><span class="round-ic">${ic("i-sliders")}</span></div>
+      <div class="pbar" style="margin-top:14px"><i style="width:33%"></i></div>
+      <div class="fcardp"><div class="pface"><div class="line" style="justify-content:space-between;font-size:var(--fs-xs);color:var(--faint);font-weight:500"><span>Definition</span><span class="line g2">${sw("bio201")}BIO 201</span></div>
+        <div style="text-align:center;margin:auto 0;padding:0 6px"><div class="meta" style="font-weight:600;margin-bottom:10px">PRELOAD</div><div style="font-size:var(--fs-xl);line-height:1.45">How far the ventricle is stretched at the end of filling; set mainly by venous return.</div></div>
+        <div style="display:flex;justify-content:center">${linkChip("note","Ch 9 lecture · ¶4")}</div></div></div>
+      <div class="yours" style="margin-top:28px"><b>Your try:</b> how much blood is in the ventricle before it squeezes.</div>
+      <div style="margin-top:12px">${voice(`<span style="font-size:var(--fs-sm)">Close. The key word is <b>stretch</b>.</span>`)}</div>
+      <div class="meta" style="margin-top:auto;text-align:center;margin-bottom:10px"><span style="color:var(--ok);font-weight:600">5</span> good · <span style="color:var(--warn);font-weight:600">2</span> again · 16 to go</div>
+      <div class="rate" style="flex:none"><button class="btn secondary">Again<small>in a minute</small></button><button class="btn primary">Good<small>in 3 days</small></button></div>
+    </div>
+    <div style="height:34px;flex:none"></div>
+    <div class="homebar"></div>
+  </div></div><div class="caption"><b>Flashcard study on the phone.</b> He typed his try before the flip; the back carries its source; Again and Good sit under his thumb.</div></div>
+</div>`;
+};
+
+/* ---------- Palette ---------- */
+const PAL = [
+  {g:"Sets", html:() => `${glyph("flash")}<div class="grow"><div class="tl">Cardiac output terms</div><div class="sm">Flashcards · 24 cards · BIO 201</div></div>`, k:"cardiac output terms flashcards", href:"#set"},
+  {g:"Sets", html:() => `${glyph("prac")}<div class="grow"><div class="tl">Cardiac output calculations</div><div class="sm">Practice · 8 problems · BIO 201</div></div>${pips("yyyyxyyy")}`, k:"cardiac output calculations practice", href:"#exam"},
+  {g:"Notes", html:() => `<span class="docrow" style="padding:0;margin:0;background:none"><span class="pg"></span></span><div class="grow"><div class="tl">Ch 9 lecture · cardiac output</div><div class="sm">Note · BIO 201 / Lectures · edited today</div></div>`, k:"ch 9 lecture cardiac output note", href:"#notes"},
+  {g:"Plan", html:() => `<span class="ring" style="margin:0"></span><div class="grow"><div class="tl">Review cardiac output terms</div><div class="sm">Plan item · today 12:15 pm · 15m</div></div>${sw("bio201")}`, k:"review cardiac output terms plan", href:"#today/item"},
+  {g:"Jobs", html:() => `<span class="mark run"></span><div class="grow"><div class="tl">Writing Exam 3 mock</div><div class="sm">Job · running · 28 of 40 · uses your cardiac output notes</div></div><span class="state run">Running</span>`, k:"exam 3 mock job cardiac", href:"#activity"},
+  {g:"Weak spots", html:() => `<span class="target" style="width:28px;height:28px">${ic("g-target")}</span><div class="grow"><div class="tl">Afterload vs preload</div><div class="sm">Weak spot · BIO 201 · from Cardiac output terms</div></div><span class="meta num">3 of 6</span>`, k:"afterload preload weak cardiac", href:"#course/bio201"},
+  {g:"Courses", html:() => `${swmd("bio201")}<div class="grow"><div class="tl">BIO 201 · Anatomy & Physiology</div><div class="sm">Course · Ch 9 cardiac output this week</div></div>`, k:"bio 201 anatomy cardiac course", href:"#course/bio201"},
+];
+function renderPalette(q){
+  q = (q||"").toLowerCase().trim();
+  const hits = PAL.filter(p => !q || q.split(/\s+/).every(w => p.k.includes(w)));
+  let out = "", last = "";
+  hits.forEach((p,i) => { if (p.g!==last){ out += `<div class="pg">${p.g}</div>`; last=p.g; } out += `<div class="pr ${i===state.pi?"on":""}" data-href="${p.href}">${p.html()}</div>`; });
+  out += `<div class="pg">Ask E.V.</div><div class="pr" data-href="#ask"><span class="mark"></span><div class="grow"><div class="tl">“${q||"…"}”</div><div class="sm">Hand this to E.V. · she'll ask for your try first</div></div><span class="kbd">Tab</span></div>`;
+  document.getElementById("pres").innerHTML = out;
+}
+function openPalette(q="cardiac"){ state.pi = 0; const i = document.getElementById("pq"); i.value = q; renderPalette(q); document.getElementById("palette").classList.add("open"); document.getElementById("scrim").classList.add("open"); setTimeout(()=>i.focus(),0); }
+function closeOverlays(){ ["palette","scrim","dialog"].forEach(id => document.getElementById(id).classList.remove("open")); }
+
+/* ---------- Add course dialog ---------- */
+function openAddCourse(){
+  const d = document.getElementById("dialog");
+  d.innerHTML = `<div class="cover co-new">${pattern("new",1.2)}</div><div class="db">
+    <h2 style="font-size:var(--fs-xl);font-weight:600">Add a course</h2><p class="meta" style="margin-top:4px">It gets its own page, a sidebar entry and a cover. Sets and notes can be filed under it.</p>
+    <div style="display:grid;grid-template-columns:140px 1fr;gap:12px"><div class="field"><label>Code</label><div class="input"><input value="NUR 114"></div></div><div class="field"><label>Name</label><div class="input focus"><input value="Health Assessment"></div></div></div>
+    <div class="field"><label>Cover</label><div class="swpick">${["new","nur","bio","psy"].map((v,i)=>`<button class="${i===0?"on":""}">${pattern(v,.6)}</button>`).join("")}</div></div>
+    <div class="field"><label>Import from Canvas <span class="meta">· optional</span></label><div class="input"><input placeholder="Find the course in your Canvas list"></div></div>
+    <div class="line g3" style="margin-top:24px"><span class="grow"></span><button class="btn quiet" data-act="close">Cancel</button><button class="btn primary">Add course <span class="kbd">↵</span></button></div></div>`;
+  d.classList.add("open"); document.getElementById("scrim").classList.add("open");
+}
+
+/* ---------- Router ---------- */
+const state = {lt:"all", lc:"all", ci:2, flip:false, sflip:false, pick:null, committed:false, pchecked:false, conf:{}, pi:0, sheet:false};
+const FOCUS = ["study","exam","procedure","system","phone"];
+function render(){
+  const h = (location.hash.slice(1) || "today");
+  const [base, sub] = h.split("/");
+  const app = document.getElementById("app"), area = document.getElementById("area"), main = document.getElementById("main");
+  closeOverlays();
+  app.classList.toggle("focus", FOCUS.includes(base));
+  state.sheet = (base==="today" && sub==="item");
+  let html;
+  if (base==="course") html = sub==="new" ? S.course("nur112") : S.course(sub);
+  else if (base==="palette") html = S.today();
+  else html = (S[base] || S.today)();
+  main.innerHTML = html;
+  main.style.padding = FOCUS.includes(base) || base==="notes" ? "0" : "";
+  const old = area.querySelector(".sheet"); if (old) old.remove();
+  area.classList.toggle("has-sheet", state.sheet);
+  if (state.sheet) area.insertAdjacentHTML("beforeend", S.sheet());
+  document.querySelectorAll(".nav[data-nav]").forEach(n => n.classList.toggle("on", n.dataset.nav===(base==="palette"?"today":base) || (base==="set"&&n.dataset.nav==="library")));
+  document.querySelectorAll(".nav.course").forEach(n => n.classList.toggle("on", base==="course" && n.dataset.course===sub));
+  if (base==="palette") openPalette();
+  if (base==="course" && sub==="new") openAddCourse();
+  window.scrollTo(0, base==="ask" ? document.body.scrollHeight : 0);
+}
+function rerender(){ const y = window.scrollY; const h = location.hash; render(); window.scrollTo(0,y); }
+document.getElementById("courseNav").innerHTML = Object.entries(COURSES).map(([id,c]) =>
+  `<a class="nav course" data-course="${id}" href="#course/${id}">${swmd(id)}<span class="code">${c.code}</span><span class="nm">${c.name.split(" ")[0]}</span>${id==="nur112"?'<span class="n">Thu</span>':""}</a>`).join("");
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-act]");
+  if (a){
+    const act = a.dataset.act;
+    if (act==="theme") return toggleTheme();
+    if (act==="palette") return openPalette("");
+    if (act==="addcourse") return openAddCourse();
+    if (act==="close") return closeOverlays();
+    if (act==="flip"){ state.flip=!state.flip; document.querySelector(".fcard").classList.toggle("flipped", state.flip); return; }
+    if (act==="next"||act==="prev"){ state.ci = (state.ci + (act==="next"?1:TERMS.length-1)) % TERMS.length; state.flip=false; return rerender(); }
+    if (act==="sflip"){ state.sflip=true; return rerender(); }
+    if (act==="next-card"){ state.sflip=false; return rerender(); }
+    if (act==="commit"){ if(!state.pick) return; state.committed=true; return rerender(); }
+    if (act==="pcheck"){ state.pchecked=!state.pchecked; return rerender(); }
+  }
+  const lt = e.target.closest("[data-lt]"); if (lt){ state.lt = lt.dataset.lt; return rerender(); }
+  const lc = e.target.closest("[data-lc]"); if (lc){ state.lc = lc.dataset.lc; return rerender(); }
+  const pk = e.target.closest("[data-pick]"); if (pk && !state.committed){ state.pick = pk.dataset.pick; return rerender(); }
+  const cf = e.target.closest("[data-conf]"); if (cf){ const [i,j] = cf.dataset.conf.split(":").map(Number); state.conf[i]=j; return rerender(); }
+  if (e.target.id==="scrim"){ closeOverlays(); if (location.hash==="#palette"||location.hash==="#course/new") history.replaceState(null,"","#today"); return; }
+  const go = e.target.closest("[data-go]"); if (go){ location.hash = go.dataset.go; return; }
+  if (e.target.closest("a,button,input,textarea")) return;
+  const hr = e.target.closest("[data-href]"); if (hr){ location.hash = hr.dataset.href.slice(1); closeOverlays(); }
+});
+document.getElementById("pq").addEventListener("input", e => { state.pi=0; renderPalette(e.target.value); });
+function toggleTheme(){
+  const r = document.documentElement, d = r.dataset.theme==="dark" ? "light" : "dark";
+  r.dataset.theme = d; document.getElementById("themeLabel").textContent = d==="dark" ? "Light theme" : "Dark theme";
+}
+document.addEventListener("keydown", e => {
+  const typing = e.target.closest && e.target.closest("input,textarea");
+  if ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openPalette(""); return; }
+  if (e.key==="Escape"){ if (document.getElementById("palette").classList.contains("open")||document.getElementById("dialog").classList.contains("open")) return closeOverlays(); if (location.hash.startsWith("#today/")) location.hash="today"; return; }
+  if (typing) return;
+  if (e.key==="\\"){ e.preventDefault(); toggleTheme(); return; }
+  const base = location.hash.slice(1).split("/")[0];
+  if (base==="set" && e.key===" "){ e.preventDefault(); document.querySelector("[data-act=flip]").click(); }
+  if (base==="set" && (e.key==="ArrowRight"||e.key==="ArrowLeft")) document.querySelector(`[data-act=${e.key==="ArrowRight"?"next":"prev"}]`).click();
+  if (base==="study" && e.key===" "){ e.preventDefault(); state.sflip=true; rerender(); }
+});
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>

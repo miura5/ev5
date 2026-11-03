@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>E.V. v5 · variant B · One thing now</title>
+<!--
+  E.V. v5 mock-up · variant B, "One thing now" (focus-first). Synthetic content only.
+  Layout of this file:
+    1. <style>: kit.css and "Added for the v5 mock-up", verbatim from design/mockup.html,
+       then "Added for variant B" (new reusable classes, tokens only).
+    2. Shell: a slim top bar (E.V. mark, tabs Now · Notes · Library · Ask, job line, needs-you count, ⌘K). No sidebar.
+    3. Screens, one <section data-screen="…"> each: Now, Notes, Note, Library, Plan, Ask, Activity, Progress, Item.
+    4. Focus screens (the chrome fades away): Practice, Session.
+    5. Item templates (what the Detail panel showed in the base mock-up, shown here as a page).
+    6. ⌘K palette and toast.
+    7. <script>: navigation, the Now list, focus screens, plan, keys.
+  Deep links: #now #palette #notes #note #library #library/weak #library/exams #plan #plan/rated
+  #practice #practice/done #session #session/answered #ask #activity #progress #item/<name>
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* E.V. v5 · Proprietary revision · the one source for every board on this canvas.
+   Tokens first (dark and light), then type, then components. Boards use only these classes. */
+
+/* ---------- Tokens ---------- */
+.ev{
+  --side:#101012; --bg:#151517; --surface:#1b1b1e; --hover:#222226; --sel:#2a2a2f;
+  --line:#232327; --line2:#303036;
+  --text:#ececef; --quiet:#a3a3ab; --faint:#92929a;
+  --her:#e0743a; --her2:#cf5a45; --on-her:#1a0d05;
+  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62; --info:#6b9cf5; --violet:#a189f2; --teal:#45bdb6;
+  --scrim:rgba(0,0,0,.5); --shadow-pop:0 0 0 1px #303036,0 24px 60px rgba(0,0,0,.5);
+  --fs-meta:12px; --fs-body:14px; --fs-title:20px; --fw-title:600; --lh:1.5;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-14:56px;
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --row:40px; --col:720px; --side-w:220px;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+.ev[data-theme="light"]{
+  --side:#f3f3f4; --bg:#fbfbfb; --surface:#ffffff; --hover:#efeff0; --sel:#e9e9eb;
+  --line:#ececee; --line2:#dedee1;
+  --text:#1c1c1f; --quiet:#5f5f66; --faint:#66666c;
+  --her:#b6541d; --her2:#bc4741; --on-her:#ffffff;
+  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45; --info:#2f6fde; --violet:#7c5cdb; --teal:#1e8a84;
+  --scrim:rgba(0,0,0,.25); --shadow-pop:0 0 0 1px #dedee1,0 16px 40px rgba(0,0,0,.12);
+  color-scheme:light;
+}
+
+/* ---------- Base ---------- */
+.ev{background:var(--side);color:var(--text);font:var(--fs-body)/var(--lh) var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+.ev,.ev *{box-sizing:border-box}
+.ev a{color:inherit;text-decoration:none}
+.ev h1,.ev h2,.ev h3,.ev p{margin:0}
+
+/* ---------- Type (three sizes) ---------- */
+.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.01em;line-height:1.3}
+.t-body{font-size:var(--fs-body)}
+.t-meta{font-size:var(--fs-meta);color:var(--faint)}
+.t-label{font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
+.t-strong{font-weight:var(--fw-title)}
+.c-quiet{color:var(--quiet)} .c-faint{color:var(--faint)} .c-her{color:var(--her)}
+.mono{font-family:var(--mono);font-size:var(--fs-meta)}
+
+/* ---------- Layout helpers ---------- */
+.stack{display:flex;flex-direction:column}
+.line{display:flex;align-items:center}
+.wrap{flex-wrap:wrap}
+.g1{gap:var(--sp-1)} .g2{gap:var(--sp-2)} .g3{gap:var(--sp-3)} .g4{gap:var(--sp-4)} .g6{gap:var(--sp-6)} .g8{gap:var(--sp-8)} .g12{gap:var(--sp-12)}
+.grow{flex:1;min-width:0}
+.rule{border-top:1px solid var(--line)}
+
+/* ---------- Shell (Sidebar, Area, Detail) ---------- */
+.shell{display:flex;flex-wrap:wrap;min-height:100%}
+.sidebar{flex:0 0 var(--side-w);padding:14px 10px;display:flex;flex-direction:column;gap:1px}
+.ws{display:flex;align-items:center;gap:var(--sp-2);padding:4px 8px 14px;font-weight:600}
+.search{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;padding:6px 8px;border-radius:7px;color:var(--faint);font-size:13px;box-shadow:inset 0 0 0 1px var(--line)}
+.nav{display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:var(--r-sm);color:var(--quiet);font-size:13.5px}
+.nav.on{background:var(--hover);color:var(--text)}
+.nav svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6}
+.nav .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
+.navgrp{font-size:var(--fs-meta);color:var(--faint);padding:20px 8px 4px}
+.area{flex:999 1 560px;min-width:0;margin:8px 8px 8px 0;border-radius:10px;background:var(--bg);display:flex;flex-wrap:wrap;overflow:hidden}
+.col{flex:999 1 440px;min-width:0;padding:var(--sp-14) 40px 40px;display:flex;flex-direction:column;gap:var(--sp-12)}
+.col.center{max-width:var(--col);margin:0 auto}
+.detail{flex:1 1 340px;max-width:400px;border-left:1px solid var(--line);padding:24px 28px;display:flex;flex-direction:column;gap:var(--sp-6)}
+
+/* ---------- Components ---------- */
+.mark{width:16px;height:16px;border-radius:50%;border:2px dotted var(--her);flex:none;display:inline-block}
+.dot{width:6px;height:6px;border-radius:50%;flex:none;display:inline-block}
+.spin{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line2);border-top-color:var(--info);flex:none;display:inline-block}
+
+.btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:30px;padding:0 12px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--her);color:var(--on-her)}
+.btn.secondary{box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.text{color:var(--quiet);padding:0 8px}
+
+.kbd{display:inline-block;font:11px var(--sans);color:var(--faint);border:1px solid var(--line2);border-radius:4px;padding:0 4px;min-width:16px;text-align:center}
+.tag{display:inline-flex;align-items:center;font-size:11px;color:var(--quiet);border:1px solid var(--line2);border-radius:4px;padding:0 6px;white-space:nowrap}
+
+.meter{display:flex;gap:2px;height:4px;border-radius:2px;overflow:hidden;background:var(--line);width:100%}
+.meter i{display:block;height:100%}
+.m-ok{background:var(--ok)} .m-warn{background:var(--warn)} .m-bad{background:var(--bad)}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-info{background:var(--info)} .d-violet{background:var(--violet)} .d-teal{background:var(--teal)} .d-her{background:var(--her)} .d-faint{background:var(--faint)}
+
+.tabs{display:flex;gap:18px}
+.tabs button{all:unset;color:var(--quiet);font-size:13px;cursor:pointer;padding-bottom:4px}
+.tabs button.on{color:var(--text);box-shadow:inset 0 -1.5px 0 var(--text)}
+
+.row{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:0 -10px;border-radius:7px}
+.row.hover,.row.sel{background:var(--hover)}
+.row .t{flex:1;min-width:0}
+.row .t > div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{color:var(--faint);font-size:var(--fs-meta)}
+.row .act{visibility:hidden}.row.hover .act{visibility:visible}
+
+.ev-line{display:flex;align-items:flex-start;gap:10px;color:var(--quiet)}
+.ev-line b{color:var(--text);font-weight:500}
+.suggest{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:4px -10px 0;border-radius:7px;border:1px dashed var(--line2);color:var(--quiet)}
+
+.qcard{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2);padding:18px;display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:0 -10px;border-radius:7px}
+.opt.on{background:var(--hover)}
+.box{width:15px;height:15px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.opt.on .box{background:var(--text);box-shadow:none}
+
+.kv{display:flex;justify-content:space-between;gap:var(--sp-3);font-size:13px;color:var(--quiet);padding:3px 0}
+.kv b{color:var(--text);font-weight:400}
+
+.steps .st{display:flex;gap:var(--sp-3);align-items:flex-start;padding:7px 0;font-size:13px}
+.steps .st .dot{width:8px;height:8px;margin-top:6px}
+
+.pop{border-radius:14px;background:var(--surface);box-shadow:var(--shadow-pop);overflow:hidden}
+
+/* ---------- Informational boards ---------- */
+.board{background:var(--bg);color:var(--text);padding:var(--sp-14) 64px;display:flex;flex-direction:column;gap:36px;position:relative;overflow:hidden}
+.lead{color:var(--quiet);max-width:820px;margin-top:6px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 48px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 32px}
+.fact{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.fact span{font-size:13px;font-weight:400;color:var(--faint);margin-left:6px}
+.note{color:var(--faint);font-size:var(--fs-meta)}
+.item-r{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.item-r:first-child{border-top:none}
+.num{flex:0 0 22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line2);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--quiet)}
+.num.solid{background:var(--text);color:var(--bg);box-shadow:none;font-weight:600}
+.tree{font:13px/1.75 var(--mono);color:var(--quiet);white-space:pre}
+.tree b{color:var(--text);font-weight:500}
+.tree i{font-style:normal;color:var(--faint)}
+.code{font:12px/1.7 var(--mono);color:var(--quiet);white-space:pre;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);padding:16px 18px}
+.code b{color:var(--text);font-weight:400}
+.code i{color:var(--faint);font-style:normal}
+.spec{display:flex;flex-direction:column;gap:10px}
+.specname{display:flex;align-items:baseline;gap:8px;font-weight:600}
+.stage{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line);padding:16px;display:flex;flex-direction:column;gap:10px;justify-content:center;min-height:88px;background:var(--bg)}
+.swatch{height:40px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line2)}
+.dg-box{position:absolute;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line2);padding:12px 14px;background:var(--surface)}
+.dg-box b{display:block;font-weight:600}
+.dg-box span{display:block;color:var(--faint);font-size:var(--fs-meta);margin-top:2px}
+.dg-box.key{box-shadow:inset 0 0 0 1.5px var(--her)}
+.dg-ln{position:absolute;background:var(--line2)}
+.dg-ar{position:absolute;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--line2)}
+.dg-lab{position:absolute;font-size:11.5px;color:var(--faint)}
+.wire{position:relative;border-radius:var(--r-lg);background:var(--side);box-shadow:inset 0 0 0 1px var(--line)}
+.wire .rg{position:absolute;border-radius:var(--r-md);padding:12px;font-size:var(--fs-meta);color:var(--faint);display:flex;flex-direction:column}
+.wire .rg b{color:var(--text);font-size:13px}
+
+/* ---------- Added for the v5 mock-up (candidates for kit/) ---------- */
+/* Every rule below uses only kit tokens. Sizes: --fs-meta, --fs-body, --fs-title only. */
+
+/* App frame: the shell fills the window; each screen scrolls on its own. */
+html,body{height:100%;margin:0}
+.ev [hidden]{display:none !important}
+.ev.app{height:100vh;flex-wrap:nowrap;overflow:hidden}
+.app .sidebar{overflow-y:auto}
+.app .area{flex-wrap:nowrap}
+.view{max-height:100%;overflow-y:auto}
+.app .detail{max-height:100%;overflow-y:auto;flex:0 0 400px}
+.app .split:not([hidden]) ~ .detail{flex-basis:340px}
+.ev button,.ev input,.ev textarea{font-family:inherit}
+.ev :focus-visible{outline:1.5px solid var(--quiet);outline-offset:1px}
+.sec{display:flex;flex-direction:column}
+.sec > h2{margin-bottom:var(--sp-2)}
+.head{display:flex;align-items:baseline;gap:var(--sp-3)}
+
+/* Interaction states for kit pieces (the kit draws the static .hover/.sel states). */
+.nav,.search,.row,.opt{cursor:pointer}
+.nav:hover{background:var(--hover);color:var(--text)}
+.search:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.row:hover,.opt:hover,.row:focus-visible{background:var(--hover);outline:none}
+.row:hover .act,.row:focus-within .act,.row:focus-visible .act{visibility:visible}
+.btn:hover{background:var(--hover)}
+.row .btn:hover,.row.sel .btn:hover{background:var(--sel)}
+.btn.primary:hover{background:var(--her);filter:brightness(1.08)}
+.btn.text:hover{color:var(--text)}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* Panel leads: when the Detail panel holds a primary action, it takes the orange and the
+   screen's own primary steps down to secondary. Keeps rule 3 (one orange per screen). */
+.area.panel-leads .view .btn.primary{background:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+
+/* Mark, quiet: E.V.'s mark where it is not the screen's orange element. */
+.mark.quiet{border-color:var(--faint)}
+/* Spinner motion. */
+.spin{animation:ev-spin 1s linear infinite}
+@keyframes ev-spin{to{transform:rotate(360deg)}}
+.steps .st .spin{margin-top:5px}
+.steps .st .dot{margin-left:2px;margin-right:2px}
+.row > .dot{margin:0 3px}  /* dots take the spinner's 12 px slot so row titles line up */
+
+/* Sidebar foot: the running-job line and the theme toggle. */
+.jobline{display:flex;align-items:center;gap:var(--sp-2);margin-top:auto;padding:var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer}
+.jobline:hover{background:var(--hover);color:var(--text)}
+.btn.text.themebtn{justify-content:flex-start;font-size:var(--fs-meta);color:var(--faint)}
+.btn.text.themebtn:hover{color:var(--text)}
+
+/* Plain row: a 40 px line that is not clickable (forms, ratings). */
+.lrow{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row)}
+.lrow > .grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta-r{text-align:right}
+.q-text{font-weight:500}
+
+/* Source chip and the "unverified" mark: every fact E.V. gives carries one of these. */
+.cite{display:inline-flex;align-items:center;gap:var(--sp-1);height:20px;padding:0 6px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
+.cite:hover{background:var(--hover);color:var(--text)}
+.cite svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6}
+.unverified{font-size:var(--fs-meta);color:var(--faint);border-bottom:1px dashed var(--line2);cursor:help;white-space:nowrap}
+
+/* Field: the one bordered input. */
+.field{display:block;width:100%;min-height:40px;padding:9px 12px;border:0;border-radius:var(--r-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-body);line-height:var(--lh);outline:none;resize:none}
+.field::placeholder{color:var(--faint)}
+.field:focus{box-shadow:inset 0 0 0 1px var(--quiet)}
+.field:focus-visible,.palette-in:focus-visible{outline:none}
+
+/* Segmented control: a short choice (confidence, course). */
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
+.seg button{all:unset;height:20px;line-height:20px;padding:0 var(--sp-2);border-radius:4px;font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--sel);color:var(--text)}
+
+/* Toast: one quiet confirmation, bottom centre. */
+.toast{position:fixed;left:50%;bottom:var(--sp-6);transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-3);height:40px;padding:0 var(--sp-2) 0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-pop);z-index:20}
+
+/* ⌘K palette (sits on .pop). */
+.scrim{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:120px;background:var(--scrim)}
+.palette{width:560px;display:flex;flex-direction:column}
+.palette-in{height:48px;padding:0 var(--sp-6);border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:var(--fs-body);outline:none}
+.palette-in::placeholder{color:var(--faint)}
+.palette-list{display:flex;flex-direction:column;padding:var(--sp-2) var(--sp-6);max-height:400px;overflow-y:auto}
+.palette-list .t-label{padding:var(--sp-2) 0 var(--sp-1)}
+.palette-foot{display:flex;gap:var(--sp-4);padding:var(--sp-2) var(--sp-6);border-top:1px solid var(--line);font-size:var(--fs-meta);color:var(--faint)}
+
+/* Ask E.V.: the conversation. Matt's turns sit right on a soft fill; E.V.'s are unboxed beside her mark. */
+.chat{display:flex;flex-direction:column;gap:var(--sp-6)}
+.msg{display:flex;gap:var(--sp-3);align-items:flex-start}
+.msg > .mark{margin-top:3px}
+.msg .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.msg.me{justify-content:flex-end}
+.msg.me .say{flex:0 1 auto;max-width:80%;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-lg);background:var(--hover)}
+.chat-time{align-self:center;font-size:var(--fs-meta);color:var(--faint)}
+.composer{position:sticky;bottom:0;margin-top:auto;padding:var(--sp-4) 0 0;background:var(--bg)}
+
+/* Practice feedback inside the question card (shown only after Commit or Hint). */
+.box.radio{border-radius:50%}
+.opt .mk{margin-left:auto}
+.qcard.locked .opt{cursor:default}
+.qcard.locked .opt:not(.on):hover{background:none}
+.reveal{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-2);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+
+/* Notes: list column, session bar, and the editor surface built from blocks. */
+.split{flex:999 1 440px;min-width:0;max-height:100%;display:flex;overflow:hidden}
+.notelist{flex:0 0 232px;display:flex;flex-direction:column;padding:var(--sp-14) var(--sp-4) var(--sp-4) var(--sp-6);border-right:1px solid var(--line);overflow-y:auto}
+.editor{flex:1;min-width:0;display:flex;flex-direction:column}
+.editor .view{flex:1}
+.sessionbar{flex:none;display:flex;align-items:center;gap:var(--sp-3);height:48px;padding:0 var(--sp-6);border-bottom:1px solid var(--line);color:var(--quiet)}
+.doc{display:flex;flex-direction:column;gap:var(--sp-3);outline:none}
+.doc ul{margin:0;padding-left:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
+.doc ul ul{margin-top:var(--sp-1)}
+.blk{position:relative}
+.blk::before{content:"⋮⋮";white-space:nowrap;position:absolute;left:-24px;top:0;width:16px;font-size:var(--fs-meta);letter-spacing:-2px;color:var(--faint);opacity:0}
+.blk:hover::before{opacity:1}
+.checks{display:flex;flex-direction:column}
+.check{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
+.check.done{color:var(--faint);text-decoration:line-through}
+.check.done .box{background:var(--quiet);box-shadow:none}
+.cols2{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.ph{display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-3);border-radius:var(--r-md);background:var(--hover);color:var(--faint);font-size:var(--fs-meta)}
+.ph svg{width:100%;height:auto;stroke:var(--quiet);fill:none;stroke-width:1.5}
+
+/* Session comments in the Detail panel. */
+.cmt{display:flex;gap:var(--sp-3);align-items:flex-start}
+.cmt > .mark{margin-top:3px}
+.cmt .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.answer{padding-left:var(--sp-3);border-left:2px solid var(--line2);color:var(--quiet)}
+
+/* Progress: a plain CSS bar series. */
+.bars{display:flex;gap:var(--sp-2);height:96px}
+.bars > span{flex:1;display:flex;justify-content:center;align-items:flex-end}
+.bars i{display:block;width:16px;min-height:2px;border-radius:2px 2px 0 0;background:var(--line2)}
+.bars i.now{background:var(--faint)}
+.bars-x{display:flex;gap:var(--sp-2)}
+.bars-x span{flex:1;text-align:center;font-size:var(--fs-meta);color:var(--faint)}
+
+/* ---------- Added for variant B · "One thing now" (candidates for kit/) ---------- */
+/* Tokens only. Sizes: --fs-meta, --fs-body, --fs-title only. No token changes. */
+
+/* Shell without a sidebar: a slim top bar on the shell tone, the working surface under it. */
+.ev.app.vb{display:flex;flex-direction:column;flex-wrap:nowrap;height:100vh;overflow:hidden}
+.topbar{flex:none;display:flex;align-items:center;gap:var(--sp-2);height:48px;padding:0 var(--sp-4) 0 var(--sp-6);transition:opacity .2s ease-out}
+.brand{display:flex;align-items:center;gap:var(--sp-2);font-weight:var(--fw-title);margin-right:var(--sp-8);cursor:pointer}
+.toptabs{display:flex;gap:var(--sp-6);align-self:stretch}
+.toptabs a{display:flex;align-items:center;color:var(--quiet);cursor:pointer}
+.toptabs a:hover{color:var(--text)}
+.toptabs a.on{color:var(--text);box-shadow:inset 0 -1.5px 0 var(--text)}
+.barlink{display:inline-flex;align-items:center;gap:var(--sp-2);height:28px;padding:0 var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer;white-space:nowrap}
+.barlink:hover,.barlink.on{background:var(--hover);color:var(--text)}
+.barsearch{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-6);height:28px;margin-left:var(--sp-2);padding:0 var(--sp-1) 0 var(--sp-3);border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.barsearch:hover{box-shadow:inset 0 0 0 1px var(--line2);color:var(--quiet)}
+.surface{flex:1;min-height:0;display:flex;margin:0 var(--sp-2) var(--sp-2);border-radius:10px;background:var(--bg);overflow:hidden}
+.surface > .view{flex:1}
+.col.narrow{max-width:640px}
+.btn.text.back{align-self:flex-start;margin-left:calc(-1 * var(--sp-2));color:var(--faint)}
+.btn.text.back:hover{color:var(--text)}
+.btn .kbd{margin-left:var(--sp-1)}
+.line[data-go]{cursor:pointer}
+.btn.primary .kbd{color:var(--on-her);border-color:var(--on-her);opacity:.6}
+
+/* Now: one statement of the next thing, the rest of today dim beneath it. */
+.col.now{max-width:600px;padding-top:88px}
+.next{display:flex;flex-direction:column}
+.next > .t-label{margin-bottom:var(--sp-3)}
+.next > .c-quiet{margin-top:var(--sp-1)}
+.next > .line{margin-top:var(--sp-6)}
+.next.swap{animation:vb-rise .2s ease-out}
+.row.dim{color:var(--quiet)}
+.row.dim:hover,.row.dim:focus-visible{color:var(--text)}
+/* Reorderable rows: a grip on hover, a hairline where the row will land. */
+.row[draggable="true"]{position:relative}
+.row[draggable="true"]::before{content:"⋮⋮";position:absolute;left:-12px;letter-spacing:-2px;font-size:var(--fs-meta);color:var(--faint);opacity:0;cursor:grab}
+.row[draggable="true"]:hover::before{opacity:1}
+.row.dragging{opacity:.4}
+.row.drop{box-shadow:inset 0 1.5px 0 var(--quiet)}
+
+/* Decide bar: a proposal's Approve / Ask for changes / Put away stay in reach while it scrolls. */
+.decide{position:sticky;bottom:0;margin-top:calc(-1 * var(--sp-6));padding:var(--sp-6) 0 var(--sp-2);background:var(--bg)}
+
+/* Dashed proposals: per-item actions wait for hover or focus, like rows. */
+.suggest .act{visibility:hidden}
+.suggest:hover .act,.suggest:focus-within .act{visibility:visible}
+
+/* Focus: a full-window layer with no chrome. A thin timer line, one strip of quiet status, the work. */
+.app.focusing .topbar{opacity:0}
+.focus{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;background:var(--bg);animation:vb-fade .2s ease-out}
+.timeline{flex:none;height:2px;background:var(--line)}
+.timeline i{display:block;height:100%;background:var(--faint);transition:width 1s linear}
+.strip{flex:none;display:flex;align-items:center;gap:var(--sp-4);height:40px;padding:0 var(--sp-4) 0 var(--sp-6);font-size:var(--fs-meta);color:var(--faint)}
+.strip .btn.text{font-size:var(--fs-meta);color:var(--faint);padding:0 var(--sp-2)}
+.strip .btn.text:hover{color:var(--text)}
+.focus-scroll{flex:1;min-height:0;overflow-y:auto}
+.focus-col{max-width:600px;margin:0 auto;padding:var(--sp-14) 0 96px;display:flex;flex-direction:column;gap:var(--sp-8)}
+.focus-col.doc-col{max-width:640px;gap:var(--sp-12)}
+.after{display:flex;flex-direction:column;gap:var(--sp-3);animation:vb-rise .25s ease-out}
+/* Read-along: the block being read gets the hover tone, nothing louder. */
+.blk.reading{background:var(--hover);border-radius:var(--r-sm);margin:0 calc(-1 * var(--sp-2));padding:var(--sp-1) var(--sp-2)}
+@keyframes vb-fade{from{opacity:0}}
+@keyframes vb-rise{from{opacity:0;transform:translateY(6px)}}
+</style>
+</head>
+<body>
+<div class="ev app vb" id="app" data-theme="dark">
+
+<!-- ================= SHELL · Top bar (no sidebar) ================= -->
+<header class="topbar" aria-label="Primary">
+  <a class="brand" href="#now" data-go="now" title="Now (1)"><span class="mark quiet"></span>E.V.</a>
+  <nav class="toptabs" aria-label="Areas">
+    <a href="#now" data-go="now" data-tab-for="now" title="Now (1)">Now</a>
+    <a href="#notes" data-go="notes" data-tab-for="notes" title="Notes (2)">Notes</a>
+    <a href="#library" data-go="library" data-tab-for="library" title="Library (3)">Library</a>
+    <a href="#ask" data-go="ask" data-tab-for="ask" title="Ask E.V. (4 or ⌘J)">Ask</a>
+  </nav>
+  <span class="grow"></span>
+  <a class="barlink" href="#item/job-mock" data-go="item" data-sub="job-mock" title="A job is running · open it"><i class="spin"></i>Writing mock exam · 9 of 15</a>
+  <a class="barlink" href="#activity" data-go="activity" data-tab-for="activity" id="needs" title="Activity: jobs, and what needs you">2 need you</a>
+  <button class="barsearch" data-act="palette" title="Go anywhere, run a command, or ask E.V.">Search or ask<span class="kbd">⌘K</span></button>
+</header>
+
+<main class="surface" id="surface">
+
+<!-- ================= NOW (home) ================= -->
+<section class="view" data-screen="now" aria-label="Now">
+  <div class="col center now">
+    <div class="next" id="next">
+      <span class="t-label">Next · Monday, November 2</span>
+      <h1 class="t-title" id="next-title"></h1>
+      <p class="c-quiet" id="next-sub"></p>
+      <div class="line g2">
+        <button class="btn primary" data-act="start" title="Start (↵)">Start<span class="kbd">↵</span></button>
+        <button class="btn text" data-act="else" title="Something else (E): moves this to the end of today">Something else<span class="kbd">E</span></button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="head"><h2 class="t-label">Then</h2><span class="t-meta" id="then-count"></span><span class="grow"></span><span class="t-meta">your order · drag or ⌥↑↓</span></div>
+      <div id="then"></div>
+      <div class="suggest" id="suggest"><span class="c-faint">+</span><span class="grow">5 dosage-by-weight problems tonight · 10m</span><button class="btn text" data-act="accept" title="Accept (A)">Accept</button><button class="btn text" data-act="edit-suggest">Edit</button></div>
+    </div>
+
+    <div class="ev-line"><span class="mark quiet" style="margin-top:3px"></span><span><b>Exam 3 is Thursday.</b> Oral liquid doses is your weakest spot, 4 of 9 right lately, so I put it first. <span class="cite" data-go="item" data-sub="cite-weak">from Weak spots</span></span></div>
+
+    <div class="sec">
+      <h2 class="t-label">Coming up</h2>
+      <div class="row dim" tabindex="0" data-go="item" data-sub="exam-3"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Exam 3</div></div><div class="meter" style="width:96px" title="58% ready"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div><span class="t-meta ta-r" style="width:56px">Thu</span></div>
+      <div class="row dim" tabindex="0" data-go="plan"><i class="dot d-ok"></i><div class="t"><div>BIO 201 · Exam 2 <span class="c-faint">· study plan waiting for you</span></div></div><div class="meter" style="width:96px" title="64% ready"><i class="m-ok" style="width:44%"></i><i class="m-warn" style="width:20%"></i><i class="m-bad" style="width:36%"></i></div><span class="t-meta ta-r" style="width:56px">Nov 10</span></div>
+      <div class="row dim" tabindex="0" data-go="item" data-sub="weekly"><i class="dot d-faint"></i><div class="t"><div>Weekly review <span class="c-faint">· 3 weak spots to confirm</span></div></div><span class="t-meta ta-r" style="width:56px">Sun</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NOTES (list) ================= -->
+<section class="view" data-screen="notes" aria-label="Notes" hidden>
+  <div class="col center narrow">
+    <div class="head"><h1 class="t-title">Notes</h1><span class="t-meta">5 notes · BIO 201 and NUR 112</span><span class="grow"></span><button class="btn text" data-act="new-note" title="New note (N)">New<span class="kbd">N</span></button></div>
+    <div class="stack">
+      <div class="row" tabindex="0" data-go="note"><i class="dot d-ok"></i><div class="t"><div>Ch 9 · Cardiac output</div><span class="sub">BIO 201 · draft · a study session is on today's list</span></div><button class="btn text act" data-act="go-session">Study session</button><span class="t-meta">now</span></div>
+      <div class="row" tabindex="0" data-go="note"><i class="dot d-violet"></i><div class="t"><div>Med math rules</div><span class="sub">NUR 112 · cited by 2 sets</span></div><button class="btn text act" data-act="go-session">Study session</button><span class="t-meta">yest.</span></div>
+      <div class="row" tabindex="0" data-go="note"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">NUR 112</span></div><button class="btn text act" data-act="go-session">Study session</button><span class="t-meta">Fri</span></div>
+      <div class="row" tabindex="0" data-go="note"><i class="dot d-ok"></i><div class="t"><div>Muscle · crossbridge cycle</div><span class="sub">BIO 201</span></div><button class="btn text act" data-act="go-session">Study session</button><span class="t-meta">Oct 28</span></div>
+      <div class="row" tabindex="0" data-go="note"><i class="dot d-violet"></i><div class="t"><div>Exam 3 objectives</div><span class="sub">NUR 112 · from Canvas</span></div><button class="btn text act" data-act="go-session">Study session</button><span class="t-meta">Oct 27</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NOTE (one note, chrome on) ================= -->
+<section class="view" data-screen="note" aria-label="Note" hidden>
+  <div class="col center narrow">
+    <div class="stack g4">
+      <div class="line g3"><button class="btn text back" data-act="back" title="Back (Esc)">← Notes</button><span class="grow"></span><span class="t-meta line g2"><i class="dot d-ok"></i>Saved on this device</span><button class="btn primary" data-act="go-session" title="Start a study session (S)">Study session<span class="kbd">S</span></button></div>
+      <article class="doc" id="note-doc" contenteditable="true" spellcheck="false"></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIBRARY ================= -->
+<section class="view" data-screen="library" aria-label="Library" hidden>
+  <div class="col center narrow">
+    <div class="stack g4">
+      <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">practice, weak spots and exams</span></div>
+      <div class="line g3" data-go="progress" role="link" title="Open Progress"><span class="c-quiet">Retrieval accuracy, last 14 days</span><span>72% ↑</span><div class="meter" style="width:96px" title="72% · up from 66%"><i class="m-ok" style="width:72%"></i></div></div>
+    </div>
+
+    <div class="stack g6">
+      <div class="tabs" id="libtabs"><button data-tab="practice" class="on">Practice</button><button data-tab="weak">Weak spots · 4</button><button data-tab="exams">Exams · 3</button></div>
+
+      <div class="stack g12" data-tab-panel="practice">
+        <div class="sec">
+          <h2 class="t-label">Ready</h2>
+          <div class="row" tabindex="0" data-act="go-practice"><i class="dot d-teal"></i><div class="t"><div>Morning review · 8 questions</div><span class="sub">due today · cardiac output, fluid balance, med math</span></div><button class="btn text act">Start</button><span class="t-meta">10m</span></div>
+          <div class="row" tabindex="0" data-act="go-practice"><i class="dot d-violet"></i><div class="t"><div>Oral liquid doses · 10 problems</div><span class="sub">from your Exam 3 plan · next on Now</span></div><button class="btn text act">Start</button><span class="t-meta">20m</span></div>
+          <div class="row" tabindex="0" data-go="item" data-sub="job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">E.V. is writing it · 9 of 15 questions</span></div><span class="t-meta">~1 min</span></div>
+        </div>
+        <div class="sec">
+          <div class="head"><h2 class="t-label">Sets</h2><span class="t-meta">4</span><span class="grow"></span><button class="btn text" data-act="make-set">Make a set…</button></div>
+          <div class="row" tabindex="0" data-go="item" data-sub="set-dose"><i class="dot d-violet"></i><div class="t"><div>Dosage by weight</div><span class="sub">10 problems · made by E.V. yesterday · last try 6 of 10</span></div><button class="btn text act" data-act="go-practice">Practice</button><span class="t-meta">yest.</span></div>
+          <div class="row" tabindex="0" data-go="item" data-sub="set-co"><i class="dot d-ok"></i><div class="t"><div>Cardiac output</div><span class="sub">12 questions · from your Ch 9 notes</span></div><button class="btn text act" data-act="go-practice">Practice</button><span class="t-meta">Sat</span></div>
+          <div class="row" tabindex="0" data-go="item" data-sub="set-cb"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">8 questions · from your Ch 6 notes</span></div><button class="btn text act" data-act="go-practice">Practice</button><span class="t-meta">Oct 28</span></div>
+          <div class="row" tabindex="0" data-go="item" data-sub="set-el"><i class="dot d-violet"></i><div class="t"><div>Electrolytes, quick facts <span class="unverified" title="No source yet. Link a note or set to verify.">unverified</span></div><span class="sub">14 cards · typed in by you</span></div><button class="btn text act" data-act="go-practice">Practice</button><span class="t-meta">Oct 26</span></div>
+        </div>
+      </div>
+
+      <div class="stack" data-tab-panel="weak" hidden>
+        <div class="row" tabindex="0" data-go="item" data-sub="cite-weak"><i class="dot d-violet"></i><div class="t"><div>Oral liquid doses</div><span class="sub">NUR 112 · 4 of 9 right lately · misses on mg to mL</span></div><button class="btn text act" data-act="go-practice">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:20%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:55%"></i></div><span class="t-meta ta-r" style="width:64px">due today</span></div>
+        <div class="row" tabindex="0" data-go="item" data-sub="set-cb"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">BIO 201 · 5 of 9 right lately</span></div><button class="btn text act" data-act="go-practice">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:30%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:40%"></i></div><span class="t-meta ta-r" style="width:64px">tomorrow</span></div>
+        <div class="row" tabindex="0" data-go="item" data-sub="weak-fluid"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">NUR 112 · 6 of 10 right lately</span></div><button class="btn text act" data-act="go-practice">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:40%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:30%"></i></div><span class="t-meta ta-r" style="width:64px">Thu</span></div>
+        <div class="row" tabindex="0" data-go="item" data-sub="cite-co"><i class="dot d-ok"></i><div class="t"><div>Afterload</div><span class="sub">BIO 201 · 7 of 10 right lately</span></div><button class="btn text act" data-act="go-practice">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:55%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:20%"></i></div><span class="t-meta ta-r" style="width:64px">Fri</span></div>
+        <p class="t-meta" style="margin-top:16px">A weak spot leaves this list after 3 right answers on different days.</p>
+      </div>
+
+      <div class="stack" data-tab-panel="exams" hidden>
+        <div class="row" tabindex="0" data-go="item" data-sub="exam-3"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Exam 3</div><span class="sub">Thursday, Nov 5 · plan approved Sat · 2 of 4 sessions done</span></div><div class="meter" style="width:96px" title="58% ready"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div><span class="t-meta ta-r" style="width:40px">58%</span></div>
+        <div class="row" tabindex="0" data-go="plan"><i class="dot d-ok"></i><div class="t"><div>BIO 201 · Exam 2</div><span class="sub">Tuesday, Nov 10 · study plan waiting for you</span></div><button class="btn text act">Review plan</button><div class="meter" style="width:96px" title="64% ready"><i class="m-ok" style="width:44%"></i><i class="m-warn" style="width:20%"></i><i class="m-bad" style="width:36%"></i></div><span class="t-meta ta-r" style="width:40px">64%</span></div>
+        <div class="row" tabindex="0" data-go="item" data-sub="exam-math"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Med math check</div><span class="sub">Monday, Nov 16 · no plan yet</span></div><div class="meter" style="width:96px" title="40% ready"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></div><span class="t-meta ta-r" style="width:40px">40%</span></div>
+        <div style="margin-top:8px"><button class="btn text" style="margin-left:-8px" data-go="item" data-sub="add-exam">Add exam…</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLAN (an exam's study-plan proposal, as a page) ================= -->
+<section class="view" data-screen="plan" aria-label="Study plan proposal" hidden>
+  <div class="col center narrow">
+    <div class="stack g3">
+      <button class="btn text back" data-act="back" title="Back (Esc)">← Back</button>
+      <span class="t-label">Proposal · study plan · E.V. made it at 6:02 am</span>
+      <h1 class="t-title">Study plan for BIO 201 · Exam 2</h1>
+      <span class="t-meta">Tuesday, Nov 10 · 4 sessions, 1 h 40 m · from the objectives and your Ch 6, 9 notes</span>
+    </div>
+
+    <div class="sec">
+      <h2 class="t-label">1 · Your confidence</h2>
+      <span class="t-meta" id="conf-note">Rate these first. E.V. shapes the plan around your ratings, then shows it.</span>
+      <div class="lrow" data-acc="5 of 9 right lately"><span class="grow">Crossbridge cycle</span><span class="t-meta" data-accout></span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+      <div class="lrow" data-acc="9 of 12 right lately"><span class="grow">Cardiac output</span><span class="t-meta" data-accout></span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+      <div class="lrow" data-acc="7 of 10 right lately"><span class="grow">Preload and afterload</span><span class="t-meta" data-accout></span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+      <div class="lrow" data-acc="3 of 6 right lately"><span class="grow">Frank–Starling</span><span class="t-meta" data-accout></span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    </div>
+
+    <div class="sec">
+      <h2 class="t-label">2 · E.V.'s plan</h2>
+      <span class="t-meta" id="plan-wait">Shows here once all four are rated.</span>
+      <div class="stack g3" id="plan-body" hidden>
+        <div class="ev-line"><span class="mark quiet" style="margin-top:3px"></span><span>You rated Frank–Starling <b>Sure</b>, but it's 3 of 6 right lately, so it keeps a session. <span class="cite" data-go="item" data-sub="cite-co">from Weak spots</span></span></div>
+        <div class="stack" id="plan-items">
+          <div class="suggest"><span class="t-meta" style="width:32px">Fri</span><span class="grow">Crossbridge cycle · 8 questions</span><button class="btn text act" data-act="toast" data-msg="Edit this session: change, move or drop it">Edit</button><span class="t-meta">20m</span></div>
+          <div class="suggest"><span class="t-meta" style="width:32px">Sat</span><span class="grow">Frank–Starling · explain it in your words, 3 prompts</span><button class="btn text act" data-act="toast" data-msg="Edit this session: change, move or drop it">Edit</button><span class="t-meta">15m</span></div>
+          <div class="suggest"><span class="t-meta" style="width:32px">Sun</span><span class="grow">Crossbridge cycle with afterload · mixed set</span><button class="btn text act" data-act="toast" data-msg="Edit this session: change, move or drop it">Edit</button><span class="t-meta">25m</span></div>
+          <div class="suggest"><span class="t-meta" style="width:32px">Mon</span><span class="grow">Mock exam · Ch 6 and 9</span><button class="btn text act" data-act="toast" data-msg="Edit this session: change, move or drop it">Edit</button><span class="t-meta">40m</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="line g2 decide" id="plan-acts">
+      <button class="btn primary" data-act="approve" id="approve" disabled title="Approve plan (⌘↵)">Approve plan<span class="kbd">⌘↵</span></button>
+      <button class="btn secondary" data-act="plan-changes">Ask for changes</button>
+      <button class="btn text" data-act="put-away" title="Put away; it stays in Activity">Put away</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASK E.V. ================= -->
+<section class="view" data-screen="ask" aria-label="Ask E.V." hidden>
+  <div class="col center narrow" style="min-height:100%;gap:32px">
+    <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">she'll want your try first</span></div>
+    <div class="chat" id="chat">
+      <div class="chat-time">9:12 am</div>
+      <div class="msg me"><div class="say">what's the difference between preload and afterload?</div></div>
+      <div class="msg"><span class="mark quiet"></span><div class="say">
+        <div>Try it in one line first: what stretches the ventricle?</div>
+        <div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me (⌥↵) · logged">Just tell me</button></div>
+      </div></div>
+      <div class="msg me"><div class="say">preload is the blood filling it before it squeezes, afterload is what it pushes against?</div></div>
+      <div class="msg"><span class="mark quiet"></span><div class="say">
+        <div>Both right. Preload is the stretch at the end of filling, set mostly by venous return. Afterload is the pressure the ventricle has to beat to eject, mostly arterial pressure.</div>
+        <div><span class="cite" data-go="item" data-sub="cite-co"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/></svg>from Note · Cardiac output</span></div>
+      </div></div>
+      <div class="chat-time">11:40 am</div>
+      <div class="msg me"><div class="say">is the mock exam ready?</div></div>
+      <div class="msg"><span class="mark"></span><div class="say">
+        <div>Not yet. It's on step 3 of 4, writing questions, 9 of 15 done. It goes to Library when it's checked.</div>
+        <div class="row" tabindex="0" data-go="item" data-sub="job-mock" title="Open the job"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">job · writing questions · 9 of 15</span></div><span class="t-meta">~1 min</span></div>
+      </div></div>
+    </div>
+    <div class="composer">
+      <textarea class="field" id="composer" rows="1" placeholder="Ask E.V., or answer her" title="Enter to send · Shift+Enter for a new line"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY ================= -->
+<section class="view" data-screen="activity" aria-label="Activity" hidden>
+  <div class="col center narrow">
+    <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta">what E.V. and the schedule are doing</span></div>
+    <div class="sec">
+      <h2 class="t-label">Needs you</h2>
+      <div class="row" tabindex="0" data-go="plan"><i class="dot d-her"></i><div class="t"><div>Study plan for BIO 201 · Exam 2 is ready</div><span class="sub">4 sessions through Monday · rate your confidence first</span></div><button class="btn text act">Review</button><span class="t-meta">6:02 am</span></div>
+      <div class="row" tabindex="0" data-go="item" data-sub="weekly"><i class="dot d-her"></i><div class="t"><div>Weekly review: 3 weak spots to confirm</div><span class="sub">crossbridge cycle · oral liquid doses · fluid balance</span></div><button class="btn text act">Review</button><span class="t-meta">Sun</span></div>
+    </div>
+    <div class="sec">
+      <h2 class="t-label">Running</h2>
+      <div class="row" tabindex="0" data-go="item" data-sub="job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">step 3 of 4 · writing questions, 9 of 15 · you asked in Ask E.V.</span></div><span class="t-meta">~1 min</span></div>
+    </div>
+    <div class="sec">
+      <h2 class="t-label">Done today</h2>
+      <div class="row" tabindex="0" data-go="item" data-sub="job-plan"><i class="dot d-ok"></i><div class="t"><div>Plan for today</div><span class="sub">morning run · 4 items and 1 suggestion, on Now</span></div><span class="t-meta">4:25 am</span></div>
+      <div class="row" tabindex="0" data-go="item" data-sub="job-review"><i class="dot d-ok"></i><div class="t"><div>Morning review set</div><span class="sub">8 questions, on Now</span></div><span class="t-meta">4:26 am</span></div>
+      <div class="row" tabindex="0" data-go="item" data-sub="job-failed"><i class="dot d-bad"></i><div class="t"><div>Study guide · Fluid balance</div><span class="sub">failed: the answer ran out of room · nothing was saved</span></div><button class="btn text act" data-act="retry">Retry</button><span class="t-meta">7:10 am</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROGRESS (minimal) ================= -->
+<section class="view" data-screen="progress" aria-label="Progress" hidden>
+  <div class="col center narrow">
+    <div class="stack g3"><button class="btn text back" data-act="back" title="Back (Esc)">← Back</button>
+    <div class="head"><h1 class="t-title">Progress</h1><span class="t-meta">last 8 weeks</span></div></div>
+    <div class="sec g4">
+      <h2 class="t-label">Retrieval accuracy</h2>
+      <div class="line g3" style="align-items:baseline"><span class="t-title">72%</span><span class="t-meta">↑ 14 points since mid-September · first try, from memory</span></div>
+      <div class="stack g2">
+        <div class="bars"><span><i style="height:58%" title="Sep 13 · 58%"></i></span><span><i style="height:61%" title="Sep 20 · 61%"></i></span><span><i style="height:60%" title="Sep 27 · 60%"></i></span><span><i style="height:64%" title="Oct 4 · 64%"></i></span><span><i style="height:66%" title="Oct 11 · 66%"></i></span><span><i style="height:63%" title="Oct 18 · 63%"></i></span><span><i style="height:69%" title="Oct 25 · 69%"></i></span><span><i class="now" style="height:72%" title="Nov 1 · 72%"></i></span></div>
+        <div class="bars-x"><span>Sep 13</span><span>20</span><span>27</span><span>Oct 4</span><span>11</span><span>18</span><span>25</span><span>Nov 1</span></div>
+      </div>
+    </div>
+    <div class="sec g4">
+      <h2 class="t-label">Focused minutes, last 7 days</h2>
+      <div class="line g3" style="align-items:baseline"><span class="t-title">5 h 10 m</span><span class="t-meta">28 blocks started from Now · 164 answers</span></div>
+    </div>
+    <p class="t-meta">More here after the switch.</p>
+  </div>
+</section>
+
+<!-- ================= ITEM (the Detail pattern, as a page) ================= -->
+<section class="view" data-screen="item" aria-label="Item" hidden>
+  <div class="col center narrow">
+    <div class="stack g6">
+      <button class="btn text back" data-act="back" title="Back (Esc)">← Back</button>
+      <div class="stack g6" id="item-body"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOCUS · Practice ================= -->
+<section class="focus" data-screen="practice" aria-label="Practice, focused" hidden>
+  <div class="timeline" title="Time in this block"><i id="p-line"></i></div>
+  <div class="strip"><span>Oral liquid doses · for Exam 3</span><span class="grow"></span><span>3 of 10</span><span id="p-clock">6:24 of 20 min</span><button class="btn text" data-act="leave" title="Leave (Esc) · progress is kept">Leave<span class="kbd">Esc</span></button></div>
+  <div class="focus-scroll">
+    <div class="focus-col">
+      <div class="qcard" id="q">
+        <div class="q-text">Ordered: amoxicillin 400 mg by mouth every 12 hours. On hand: amoxicillin oral suspension, 250 mg per 5 mL. How many mL do you give per dose?</div>
+        <div style="height:8px"></div>
+        <div class="opt" data-opt="a"><span class="box radio"></span>3.1 mL<span class="kbd mk">1</span></div>
+        <div class="opt" data-opt="b" data-right><span class="box radio"></span>8 mL<span class="kbd mk">2</span></div>
+        <div class="opt" data-opt="c"><span class="box radio"></span>10 mL<span class="kbd mk">3</span></div>
+        <div class="opt" data-opt="d"><span class="box radio"></span>16 mL<span class="kbd mk">4</span></div>
+        <div class="reveal" id="q-hint" hidden><span class="c-quiet">Hint: what you want goes on top, what you have goes underneath.</span></div>
+        <div class="reveal" id="q-feedback" hidden>
+          <div class="line g2" id="q-verdict"></div>
+          <div class="c-quiet">Want ÷ have × volume: 400 mg ÷ 250 mg × 5 mL = 8 mL. 3.1 mL comes from putting what you have on top.</div>
+          <div class="line g2 wrap"><span class="cite" data-go="item" data-sub="cite-math">from Note · Med math rules</span><span class="cite" data-go="item" data-sub="set-dose">Set · Dosage by weight</span></div>
+        </div>
+        <div style="height:8px"></div>
+        <div class="line g2"><span class="t-meta">NUR 112 · oral liquid doses</span><span class="grow"></span>
+          <button class="btn text" id="q-tell" data-act="q-tell" title="Show the answer · logged">Just tell me</button>
+          <button class="btn text" id="q-hint-btn" data-act="hint" title="Hint (H) · logged">Hint<span class="kbd">H</span></button>
+          <button class="btn primary" id="q-commit" data-act="commit" disabled title="Commit answer (↵)">Commit answer<span class="kbd">↵</span></button></div>
+      </div>
+
+      <div class="after" id="q-check" hidden>
+        <div class="ev-line"><span class="mark quiet" style="margin-top:3px"></span><span>Before the next one: say the rule back in one line. What goes on top?</span></div>
+        <textarea class="field" id="q-check-in" rows="2" placeholder="Your words · Enter to send, or skip with ↵ Next" title="Enter to send"></textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOCUS · Note study session ================= -->
+<section class="focus" data-screen="session" aria-label="Study session, focused" hidden>
+  <div class="timeline" title="Session time, of the 30 min you planned"><i id="s-line"></i></div>
+  <div class="strip"><i class="dot d-info" id="s-dot"></i><span>Study session · Ch 9 · Cardiac output</span><span class="grow"></span><span class="line g2" title="Saved on this device; sends to the server when online"><i class="dot d-ok"></i>Saved on this device</span><span id="s-clock">18:20</span><span>Read-along on</span><button class="btn text" data-act="pause" id="s-pause" title="Pause (Space when not typing)">Pause</button><button class="btn text" data-act="leave" title="End the session (Esc)">End<span class="kbd">Esc</span></button></div>
+  <div class="focus-scroll">
+    <div class="focus-col doc-col">
+      <article class="doc" id="doc" contenteditable="true" spellcheck="false">
+        <h1 class="t-title blk">Ch 9 · Cardiac output</h1>
+        <p class="blk">Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume. A resting adult is about 5 L/min.</p>
+        <ul class="blk">
+          <li>Heart rate: set by the SA node, nudged by autonomic tone</li>
+          <li>Stroke volume: depends on preload, afterload and contractility</li>
+          <li>Afterload rises with arterial pressure; the ventricle works harder</li>
+        </ul>
+        <p class="blk reading">Frank–Starling: the more the ventricle fills, the more it stretches and the harder it contracts, so stroke volume rises. Past a point the fibres overstretch and the curve flattens.</p>
+        <div class="checks blk" contenteditable="false">
+          <div class="check done" data-check><span class="box"></span>Read pp. 212–219</div>
+          <div class="check" data-check><span class="box"></span>Draw the Frank–Starling curve</div>
+        </div>
+      </article>
+
+      <div class="cmt" id="s-check"><span class="mark"></span><div class="say" id="s-say">
+        <div>Check: explain Frank–Starling in your own words.</div>
+        <textarea class="field" id="s-check-in" rows="3" placeholder="Your words" title="Enter to send · Shift+Enter for a new line"></textarea>
+        <div><button class="btn text" style="margin-left:-8px" data-act="s-tell" title="Just tell me · logged">Just tell me</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ITEM TEMPLATES ================= -->
+<template id="t-exam-3">
+  <div class="stack g2"><span class="t-label">Exam</span><h1 class="t-title">NUR 112 · Exam 3</h1><span class="t-meta">Thursday, Nov 5 · 58% ready · plan approved Saturday</span></div>
+  <div class="meter"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div>
+  <div class="sec"><h2 class="t-label">Your plan</h2>
+    <div class="lrow"><span class="t-meta" style="width:32px">Sat</span><span class="grow c-faint">Dosage by weight · mixed set · done</span><span class="t-meta">25m</span></div>
+    <div class="lrow"><span class="t-meta" style="width:32px">Sun</span><span class="grow c-faint">Fluid balance · I&amp;O · done</span><span class="t-meta">20m</span></div>
+    <div class="lrow"><span class="t-meta" style="width:32px">Mon</span><span class="grow">Oral liquid doses · 10 problems · on Now</span><span class="t-meta">20m</span></div>
+    <div class="lrow"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Mock exam · Chapter 9</span><span class="t-meta">45m</span></div>
+  </div>
+  <div><div class="kv"><span>Objectives</span><b>12 · 5 learned, 3 familiar, 4 weak</b></div><div class="kv"><span>Source</span><b>Note · Exam 3 objectives</b></div></div>
+</template>
+<template id="t-exam-math">
+  <div class="stack g2"><span class="t-label">Exam</span><h1 class="t-title">NUR 112 · Med math check</h1><span class="t-meta">Monday, Nov 16 · 40% ready</span></div>
+  <div class="meter"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></div>
+  <div><div class="kv"><span>Objectives</span><b>6 · 1 learned, 1 familiar, 4 weak</b></div><div class="kv"><span>Plan</span><b>none yet</b></div><div class="kv"><span>Source</span><b>Note · Med math rules</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="toast" data-msg="E.V. is drafting a plan · it shows in Activity">Ask E.V. for a plan</button></div>
+</template>
+<template id="t-add-exam">
+  <div class="stack g2"><span class="t-label">New exam</span><h1 class="t-title">Add exam</h1><span class="t-meta">E.V. proposes a study plan once it's added; you rate your confidence first.</span></div>
+  <div class="stack g3"><input class="field" placeholder="Name, e.g. Exam 4"><input class="field" placeholder="Date, e.g. Dec 3">
+    <div class="lrow"><span class="grow c-quiet">Course</span><span class="seg"><button class="on">NUR 112</button><button>BIO 201</button></span></div></div>
+  <div class="line g2"><button class="btn primary" data-act="toast" data-msg="Exam added · E.V. will propose a plan">Add exam</button><button class="btn text" data-act="back">Cancel</button></div>
+</template>
+<template id="t-weekly">
+  <div class="stack g2"><span class="t-label">Job · weekly review</span><h1 class="t-title">Weekly review is ready</h1><span class="t-meta">Sunday 5:57 pm · scheduled · 21 s · under 1¢</span></div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Gathered the week<div class="t-meta">28 blocks, 5 h 10 m, 164 answers</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Wrote the summary<div class="t-meta">accuracy 72%, up from 69% · in Progress</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>3 new weak spots for you to confirm<div class="t-meta">crossbridge cycle · oral liquid doses · fluid balance</div></div></div>
+  </div>
+  <div class="line g2" data-swap><button class="btn primary" data-act="weekly-add">Add all 3</button><button class="btn secondary" data-act="toast" data-msg="Tick the ones to add">Pick</button><button class="btn text" data-act="back">Not now</button></div>
+</template>
+<template id="t-job-mock">
+  <div class="stack g2"><span class="t-label">Job · mock exam</span><h1 class="t-title">Mock exam · Chapter 9</h1><span class="t-meta">started 11:38 am · you asked in Ask E.V. · about 2¢ so far</span></div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the chapter<div class="t-meta">3 notes, Exam 3 objectives</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Planned 15 questions<div class="t-meta">weak spots first, 12 objectives</div></div></div>
+    <div class="st"><i class="spin"></i><div>Writing questions<div class="t-meta">9 of 15</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Checking each answer against its source<div class="t-meta">next</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>You · Ask E.V.</b></div><div class="kv"><span>Output</span><b>Library · Ready, when done</b></div></div>
+  <div class="line g2"><button class="btn text" style="margin-left:-8px" data-act="toast" data-msg="Stopped · nothing was saved">Stop</button></div>
+</template>
+<template id="t-job-failed">
+  <div class="stack g2"><span class="t-label">Job · study guide</span><h1 class="t-title">Study guide · Fluid balance</h1><span class="t-meta">today 7:10 am · scheduled · 48 s · under 1¢</span></div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the note<div class="t-meta">Note · Fluid balance · I&amp;O</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>Wrote the guide<div class="t-meta">failed: the answer ran out of room</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Saved<div class="t-meta">nothing was saved</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn secondary" data-act="retry">Retry, shorter</button><button class="btn text" data-act="back">Dismiss</button></div>
+</template>
+<template id="t-job-plan">
+  <div class="stack g2"><span class="t-label">Job · daily plan</span><h1 class="t-title">Plan for today</h1><span class="t-meta">today 4:25 am · scheduled · 9 s · under 1¢</span></div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read your plans and weak spots<div class="t-meta">Exam 3 plan, 4 weak spots</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Wrote today's list<div class="t-meta">4 items in your order from yesterday, 1 suggestion</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · morning</b></div><div class="kv"><span>Output</span><b>Now</b></div></div>
+</template>
+<template id="t-job-review">
+  <div class="stack g2"><span class="t-label">Job · review set</span><h1 class="t-title">Morning review set</h1><span class="t-meta">today 4:26 am · scheduled · 14 s · under 1¢</span></div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Picked what's due<div class="t-meta">8 questions from 3 sets</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Checked each against its source<div class="t-meta">8 of 8 cited</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · morning</b></div><div class="kv"><span>Output</span><b>Now · Review · 8 questions</b></div></div>
+</template>
+<template id="t-cite-weak">
+  <div class="stack g2"><span class="t-label">Weak spot</span><h1 class="t-title">Oral liquid doses</h1><span class="t-meta">NUR 112 · weakest of 4</span></div>
+  <div class="meter"><i class="m-ok" style="width:20%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:55%"></i></div>
+  <div><div class="kv"><span>Lately</span><b>4 of 9 right</b></div><div class="kv"><span>Missed on</span><b>converting mg to mL</b></div><div class="kv"><span>Source</span><b>Set · Dosage by weight</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="go-practice">Drill now</button></div>
+</template>
+<template id="t-weak-fluid">
+  <div class="stack g2"><span class="t-label">Weak spot</span><h1 class="t-title">Fluid balance · I&amp;O</h1><span class="t-meta">NUR 112 · 6 of 10 right lately</span></div>
+  <div class="meter"><i class="m-ok" style="width:40%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:30%"></i></div>
+  <div><div class="kv"><span>Missed on</span><b>counting IV flushes as intake</b></div><div class="kv"><span>Source</span><b>Note · Fluid balance · I&amp;O</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="go-practice">Drill now</button></div>
+</template>
+<template id="t-cite-co">
+  <div class="stack g2"><span class="t-label">Source · note</span><h1 class="t-title">Cardiac output</h1><span class="t-meta">BIO 201 · Ch 9 lecture notes · edited now</span></div>
+  <p class="answer">More preload → more stretch → bigger stroke volume (Frank–Starling). Afterload rises with arterial pressure; the ventricle works harder.</p>
+  <div class="line g2"><button class="btn secondary" data-go="note">Open note</button></div>
+</template>
+<template id="t-cite-math">
+  <div class="stack g2"><span class="t-label">Source · note</span><h1 class="t-title">Med math rules</h1><span class="t-meta">NUR 112 · edited yesterday</span></div>
+  <p class="answer">Liquids: want ÷ have × volume. Weight-based: dose = kg × mg/kg, then split a daily dose by the number of doses.</p>
+  <div class="line g2"><button class="btn secondary" data-go="note">Open note</button></div>
+</template>
+<template id="t-set-dose">
+  <div class="stack g2"><span class="t-label">Set</span><h1 class="t-title">Dosage by weight</h1><span class="t-meta">NUR 112 · 10 problems · made by E.V. yesterday</span></div>
+  <div><div class="kv"><span>Last try</span><b>6 of 10 · yesterday</b></div><div class="kv"><span>Source</span><b>Note · Med math rules</b></div><div class="kv"><span>Made by</span><b>Job · practice set</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="go-practice">Practice</button></div>
+</template>
+<template id="t-generic">
+  <div class="stack g2"><span class="t-label">Set</span><h1 class="t-title" data-f="title">Set</h1><span class="t-meta">This set's questions would list here.</span></div>
+  <div class="line g2"><button class="btn secondary" data-act="go-practice">Practice</button></div>
+</template>
+
+<!-- ================= ⌘K PALETTE: the main way around ================= -->
+<div class="scrim" id="palette" hidden>
+  <div class="pop palette" role="dialog" aria-label="Commands">
+    <input class="palette-in" id="palette-in" placeholder="Go anywhere, run a command, or ask E.V." autocomplete="off">
+    <div class="palette-list" id="palette-list">
+      <div class="t-label">Next</div>
+      <div class="row" data-cmd="start"><div class="t"><div>Start: <span id="pal-next">Oral liquid doses</span></div></div><span class="t-meta">20m</span></div>
+      <div class="t-label">Commands</div>
+      <div class="row" data-cmd="go-practice"><div class="t"><div>Start morning review</div></div><span class="t-meta">8 questions</span></div>
+      <div class="row" data-cmd="go-session"><div class="t"><div>Start a study session</div></div><span class="t-meta">Ch 9 · Cardiac output</span></div>
+      <div class="row" data-cmd="new-note"><div class="t"><div>New note</div></div><span class="kbd">N</span></div>
+      <div class="row" data-cmd="make-set"><div class="t"><div>Make practice set…</div></div></div>
+      <div class="row" data-cmd="add-exam"><div class="t"><div>Add exam…</div></div></div>
+      <div class="t-label">Go to</div>
+      <div class="row" data-cmd="go:now"><div class="t"><div>Now</div></div><span class="kbd">1</span></div>
+      <div class="row" data-cmd="go:notes"><div class="t"><div>Notes</div></div><span class="kbd">2</span></div>
+      <div class="row" data-cmd="go:library"><div class="t"><div>Library</div></div><span class="kbd">3</span></div>
+      <div class="row" data-cmd="go:ask"><div class="t"><div>Ask E.V.</div></div><span class="kbd">4</span></div>
+      <div class="row" data-cmd="go:activity"><div class="t"><div>Activity</div></div><span class="t-meta">2 need you</span></div>
+      <div class="row" data-cmd="go:progress"><div class="t"><div>Progress</div></div></div>
+      <div class="row" data-cmd="theme"><div class="t"><div>Switch theme</div></div><span class="kbd">\</span></div>
+      <div class="row" data-cmd="ask" id="palette-ask" hidden><div class="t"><div>Ask E.V.: <span id="palette-q"></span></div></div><span class="kbd">Tab</span></div>
+    </div>
+    <div class="palette-foot"><span>Tab to ask E.V.</span><span class="grow"></span><span>↑↓ to move · ↵ to run · Esc to close</span></div>
+  </div>
+</div>
+
+<!-- ================= TOAST ================= -->
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo">Undo</button></div>
+
+</div>
+
+<script>
+/* ================= Helpers and state ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app');
+const state = { screen: 'now', sub: '', back: 'now', undo: null, pSec: 6 * 60 + 24, sSec: 18 * 60 + 20, paused: false };
+const DETAIL = ['item', 'plan', 'note', 'progress'];   // pages with a back link
+const FOCUS = ['practice', 'session'];                  // chrome fades away
+const TAB_OF = { now: 'now', notes: 'notes', note: 'notes', library: 'library', plan: 'library', ask: 'ask', activity: 'activity' };
+
+/* ================= Navigation ================= */
+function go(screen, sub) {
+  if (!$(`[data-screen="${screen}"]`)) { screen = 'now'; sub = ''; }
+  const from = state.screen;
+  if (!DETAIL.includes(from) && !FOCUS.includes(from) && (DETAIL.includes(screen) || FOCUS.includes(screen))) state.back = from + (state.sub ? '/' + state.sub : '');
+  if (!DETAIL.includes(screen) && !FOCUS.includes(screen)) state.back = screen;
+  state.screen = screen; state.sub = sub || '';
+  $$('[data-screen]').forEach(s => (s.hidden = s.dataset.screen !== screen));
+  app.classList.toggle('focusing', FOCUS.includes(screen));
+  const tab = TAB_OF[screen] || TAB_OF[state.back.split('/')[0]];
+  $$('[data-tab-for]').forEach(t => t.classList.toggle('on', t.dataset.tabFor === tab));
+  ({ library: () => setTab(sub || 'practice'), item: () => openItem(sub), plan: () => resetPlan(sub === 'rated'),
+     practice: () => resetPractice(sub === 'done'), session: () => resetSession(sub === 'answered'),
+     ask: () => { const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight; } })[screen]?.();
+  history.replaceState(null, '', '#' + screen + (sub ? '/' + sub : ''));
+}
+function back() { const [s, sub] = state.back.split('/'); go(s, sub); }
+
+/* ================= Now: the next thing, then his list ================= */
+const items = [
+  { title: 'Oral liquid doses', sub: '10 problems · about 20 min · for Exam 3 on Thursday', dot: 'd-violet', min: 20, start: 'practice' },
+  { title: 'Review · 8 questions', sub: 'morning set · cardiac output, fluid balance, med math · about 10 min', dot: 'd-teal', min: 10, start: 'practice' },
+  { title: 'Write: Ch 9 lecture notes', sub: 'a study session with read-along · BIO 201 · about 30 min', dot: 'd-ok', min: 30, start: 'session' },
+  { title: 'Frank–Starling, in your own words', sub: '3 prompts from your Cardiac output note · about 10 min', dot: 'd-ok', min: 10, start: 'practice' },
+];
+function renderNow(animate) {
+  const [n, ...rest] = items;
+  $('#next-title').textContent = n.title;
+  $('#next-sub').textContent = n.sub;
+  $('#pal-next').textContent = n.title;
+  if (animate) { const x = $('#next'); x.classList.remove('swap'); void x.offsetWidth; x.classList.add('swap'); }
+  $('#then').replaceChildren(...rest.map((it, i) => {
+    const r = document.createElement('div');
+    r.className = 'row dim'; r.tabIndex = 0; r.draggable = true; r.dataset.i = i + 1;
+    r.innerHTML = `<i class="dot ${it.dot}"></i><div class="t"><div></div></div><button class="btn text act" data-act="make-next" title="Make this the next thing">Make next</button><span class="t-meta">${it.min}m</span>`;
+    $('.t > div', r).textContent = it.title;
+    return r;
+  }));
+  const mins = rest.reduce((a, it) => a + it.min, 0);
+  $('#then-count').textContent = `${rest.length} · ${mins >= 60 ? Math.floor(mins / 60) + ' h' + (mins % 60 ? ' ' + (mins % 60) + ' m' : '') : mins + ' min'}`;
+}
+function move(from, to) { const [it] = items.splice(from, 1); items.splice(to, 0, it); renderNow(from === 0 || to === 0); }
+function somethingElse() {
+  const snapshot = items.slice();
+  move(0, items.length - 1);
+  toast('Moved to the end of today', () => { items.splice(0, items.length, ...snapshot); renderNow(true); });
+}
+function makeNext(btn) { move(+btn.closest('.row').dataset.i, 0); }
+function acceptSuggest() {
+  const s = $('#suggest'); if (!s.isConnected) return;
+  items.push({ title: 'Dosage by weight · 5 problems', sub: 'tonight · you accepted E.V.\'s suggestion · about 10 min', dot: 'd-violet', min: 10, start: 'practice' });
+  s.remove(); renderNow();
+  toast('Added to today', () => { items.pop(); $('#then').after(s); renderNow(); });
+}
+function editSuggest() {
+  const t = $('#suggest .grow'); t.contentEditable = 'true'; t.focus(); getSelection().selectAllChildren(t);
+  t.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); t.contentEditable = 'false'; } };
+}
+function start() { go(items[0].start); }
+/* Drag to reorder (the list is his). */
+let dragI = null;
+$('#then').addEventListener('dragstart', e => { const r = e.target.closest('.row'); dragI = +r.dataset.i; r.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+$('#then').addEventListener('dragover', e => { const r = e.target.closest('.row'); if (!r) return; e.preventDefault(); $$('#then .drop').forEach(x => x.classList.remove('drop')); r.classList.add('drop'); });
+$('#then').addEventListener('drop', e => { const r = e.target.closest('.row'); if (!r) return; e.preventDefault(); move(dragI, +r.dataset.i); });
+$('#then').addEventListener('dragend', () => renderNow());
+
+/* ================= Library ================= */
+function setTab(tab) {
+  $$('#libtabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $$('[data-tab-panel]').forEach(p => (p.hidden = p.dataset.tabPanel !== tab));
+  state.sub = tab === 'practice' ? '' : tab;
+  history.replaceState(null, '', '#library' + (state.sub ? '/' + state.sub : ''));
+}
+
+/* ================= Item pages (the Detail pattern, full width) ================= */
+function openItem(id) {
+  const tpl = document.getElementById('t-' + id) || $('#t-generic');
+  $('#item-body').replaceChildren(tpl.content.cloneNode(true));
+  const named = { 'set-co': 'Cardiac output', 'set-cb': 'Crossbridge cycle', 'set-el': 'Electrolytes, quick facts' }[id];
+  if (named) $('[data-f="title"]', $('#item-body')).textContent = named;
+}
+
+/* ================= Plan proposal: confidence first ================= */
+function resetPlan(rated) {
+  $$('[data-conf] button').forEach(b => b.classList.remove('on'));
+  $$('[data-accout]').forEach(a => (a.textContent = ''));
+  $$('#plan-items > *').forEach(s => (s.className = 'suggest'));
+  $('#plan-acts').hidden = false; $('#approve').disabled = true;
+  $('#plan-body').hidden = true; $('#plan-wait').hidden = false;
+  $('#conf-note').textContent = 'Rate these first. E.V. shapes the plan around your ratings, then shows it.';
+  if (rated) ['Low', 'Some', 'Some', 'Sure'].forEach((v, i) => rateConf($$('[data-conf]')[i].children[['Low', 'Some', 'Sure'].indexOf(v)], true));
+}
+function rateConf(btn, quiet) {
+  const seg = btn.parentElement, row = seg.closest('.lrow');
+  $$('button', seg).forEach(b => b.classList.toggle('on', b === btn));
+  if (row?.dataset.acc) $('[data-accout]', row).textContent = row.dataset.acc;
+  const segs = $$('[data-conf]');
+  if (seg.matches('[data-conf]') && segs.every(s => $('.on', s))) {
+    $('#conf-note').textContent = "Thanks. Beside each rating is how you've actually done lately.";
+    $('#plan-wait').hidden = true; $('#plan-body').hidden = false; $('#approve').disabled = false;
+  }
+}
+function approve() {
+  if ($('#approve').disabled) return;
+  $$('#plan-items .suggest').forEach(s => (s.className = 'lrow'));
+  $('#plan-acts').hidden = true;
+  toast('Plan approved · each session lands on Now on its day');
+}
+
+/* ================= Focus · Practice ================= */
+let tick;
+function clock() {
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (state.screen === 'practice') { state.pSec++; paintClocks(); }
+    if (state.screen === 'session' && !state.paused) { state.sSec++; paintClocks(); }
+  }, 1000);
+}
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+function paintClocks() {
+  $('#p-clock').textContent = `${mmss(state.pSec)} of 20 min`;
+  $('#p-line').style.width = Math.min(100, state.pSec / 12) + '%';
+  $('#s-clock').textContent = mmss(state.sSec);
+  $('#s-line').style.width = Math.min(100, state.sSec / 18) + '%';
+}
+function resetPractice(done) {
+  const q = $('#q');
+  q.classList.remove('locked');
+  $$('.opt', q).forEach(o => { o.classList.remove('on'); $('i.mk', o)?.remove(); $('.kbd.mk', o).hidden = false; });
+  ['#q-hint', '#q-feedback', '#q-check'].forEach(s => ($(s).hidden = true));
+  $('#q-hint-btn').hidden = false; $('#q-hint-btn').disabled = false; $('#q-tell').hidden = false;
+  $('#q-commit').disabled = true; $('#q-commit').firstChild.textContent = 'Commit answer';
+  if (done) { pickOpt($('[data-opt="a"]')); commit(); }
+}
+function pickOpt(opt) {
+  const q = $('#q'); if (q.classList.contains('locked')) return;
+  $$('.opt', q).forEach(o => o.classList.toggle('on', o === opt));
+  $('#q-commit').disabled = false;
+}
+function commit() {
+  const q = $('#q');
+  if (q.classList.contains('locked')) return toast('Question 4 of 10 would load here');
+  const picked = $('.opt.on', q); if (!picked) return;
+  q.classList.add('locked');
+  $$('.kbd.mk', q).forEach(k => (k.hidden = true));
+  const right = picked.hasAttribute('data-right');
+  const mk = cls => Object.assign(document.createElement('i'), { className: 'dot mk ' + cls });
+  $('[data-right]', q).append(mk('d-ok'));
+  if (!right) picked.append(mk('d-bad'));
+  $('#q-verdict').innerHTML = right ? '<i class="dot d-ok"></i><span>Right: 8 mL a dose.</span>' : '<i class="dot d-bad"></i><span>Not quite. It\'s 8 mL a dose.</span>';
+  $('#q-hint').hidden = true; $('#q-feedback').hidden = false;
+  $('#q-hint-btn').hidden = true; $('#q-tell').hidden = true;
+  $('#q-commit').firstChild.textContent = 'Next question';
+  if (!right) $('#q-check').hidden = false;
+}
+function sendQCheck() {
+  const f = $('#q-check-in'); if (!f.value.trim()) return;
+  const a = Object.assign(document.createElement('div'), { className: 'answer', textContent: f.value.trim() });
+  const r = document.createElement('div'); r.className = 'c-quiet';
+  r.innerHTML = 'Yes: what you want on top. <span class="cite" data-go="item" data-sub="cite-math">Note · Med math rules</span>';
+  f.replaceWith(a, r);
+}
+
+/* ================= Focus · Note session ================= */
+const askHTML = $('#s-say').innerHTML;
+function resetSession(answered) {
+  state.paused = false; $('#s-pause').textContent = 'Pause'; $('#s-dot').className = 'dot d-info';
+  $('#s-say').innerHTML = askHTML;
+  if (answered) { $('#s-check-in').value = 'When the ventricle fills more it stretches, and the stretched muscle squeezes harder, so more blood goes out with each beat.'; sendCheck(); }
+}
+function sendCheck() {
+  const f = $('#s-check-in'); if (!f || !f.value.trim()) return;
+  const a = Object.assign(document.createElement('div'), { className: 'answer', textContent: f.value.trim() });
+  const r = document.createElement('div'); r.className = 'c-quiet';
+  r.innerHTML = 'Right: that\'s stroke volume rising with preload. Add where it stops: past a point the curve flattens. <span class="cite" data-go="item" data-sub="cite-co">Note · Cardiac output</span>';
+  const n = Object.assign(document.createElement('div'), { className: 't-meta', textContent: 'Next check after the Afterload section.' });
+  f.replaceWith(a, r, n);
+  $('[data-act="s-tell"]')?.parentElement.remove();
+}
+function togglePause() {
+  state.paused = !state.paused;
+  $('#s-pause').textContent = state.paused ? 'Resume' : 'Pause';
+  $('#s-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-info');
+}
+function leave() {
+  const wasSession = state.screen === 'session';
+  back();
+  toast(wasSession ? `Session saved · ${Math.floor(state.sSec / 60)} min · on this device` : 'Left at 3 of 10 · it stays next on Now');
+}
+
+/* ================= Ask E.V. ================= */
+function addMsg(html, me) {
+  const m = document.createElement('div');
+  m.className = 'msg' + (me ? ' me' : '');
+  m.innerHTML = me ? '<div class="say"></div>' : `<span class="mark"></span><div class="say">${html}</div>`;
+  if (me) m.firstChild.textContent = html;
+  $$('#chat .msg > .mark').forEach(k => k.classList.add('quiet'));
+  $('#chat').append(m);
+  const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight;
+}
+function sendChat() {
+  const f = $('#composer'), v = f.value.trim(); if (!v) return;
+  addMsg(v, true); f.value = '';
+  setTimeout(() => addMsg('<div>Good question. Your best guess first, in one line?</div><div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me (⌥↵) · logged">Just tell me</button></div>'), 400);
+}
+function askEV(text) { closePalette(); go('ask'); const f = $('#composer'); f.value = text || ''; f.focus(); }
+
+/* ================= Theme and toast ================= */
+function toggleTheme() { app.dataset.theme = app.dataset.theme === 'dark' ? 'light' : 'dark'; }
+let toastTimer;
+function toast(msg, undo) {
+  $('#toast-msg').textContent = msg; $('#toast-undo').hidden = !undo; state.undo = undo || null;
+  $('#toast').hidden = false; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => ($('#toast').hidden = true), 4000);
+}
+
+/* ================= ⌘K palette ================= */
+const pal = $('#palette'), palIn = $('#palette-in');
+let palIdx = 0;
+const palRows = () => $$('#palette-list .row').filter(r => !r.hidden);
+function openPalette() { pal.hidden = false; palIn.value = ''; filterPalette(); palIn.focus(); }
+function closePalette() { pal.hidden = true; }
+function filterPalette() {
+  const q = palIn.value.trim().toLowerCase();
+  $$('#palette-list .row').forEach(r => { if (r.id !== 'palette-ask') r.hidden = q && !r.textContent.toLowerCase().includes(q); });
+  $$('#palette-list .t-label').forEach(l => {
+    let n = l.nextElementSibling, any = false;
+    while (n && !n.classList.contains('t-label')) { if (!n.hidden && n.id !== 'palette-ask') any = true; n = n.nextElementSibling; }
+    l.hidden = !any;
+  });
+  $('#palette-ask').hidden = !q; $('#palette-q').textContent = palIn.value.trim();
+  palIdx = 0; markPalette();
+}
+function markPalette() { palRows().forEach((r, i) => r.classList.toggle('sel', i === palIdx)); }
+function runCmd(cmd) {
+  closePalette();
+  if (cmd.startsWith('go:')) return go(cmd.slice(3));
+  if (cmd === 'ask') return askEV(palIn.value.trim());
+  if (cmd === 'add-exam') return go('item', 'add-exam');
+  actions[cmd]?.();
+}
+palIn.addEventListener('input', filterPalette);
+pal.addEventListener('click', e => { if (e.target === pal) return closePalette(); const r = e.target.closest('[data-cmd]'); if (r) runCmd(r.dataset.cmd); });
+
+/* ================= Actions (data-act) ================= */
+const actions = {
+  palette: openPalette, theme: toggleTheme, start, else: somethingElse, accept: acceptSuggest, 'edit-suggest': editSuggest,
+  'make-next': makeNext, back, leave, commit, hint: () => { $('#q-hint').hidden = false; $('#q-hint-btn').disabled = true; },
+  'q-tell': () => { pickOpt($('[data-right]')); commit(); $('#q-verdict').innerHTML = '<i class="dot d-faint"></i><span>Shown, not answered: 8 mL a dose. Logged; it comes back tomorrow.</span>'; },
+  's-tell': b => { b.parentElement.replaceWith(Object.assign(document.createElement('div'), { className: 'c-quiet', textContent: 'More filling, more stretch, a stronger beat. Logged; this check comes back next session.' })); },
+  'go-practice': () => go('practice'), 'go-session': () => go('session'),
+  'new-note': () => { go('note'); $('#note-doc').innerHTML = '<h1 class="t-title blk">Untitled</h1><p class="blk c-faint">Type, or press / for blocks</p>'; $('#note-doc').focus(); },
+  'make-set': () => askEV('Make a practice set on '),
+  approve, 'plan-changes': () => askEV('Changes to the Exam 2 plan: '),
+  'put-away': () => { back(); toast('Put away · it stays in Activity'); },
+  'weekly-add': () => { $('[data-swap]', $('#item-body')).outerHTML = '<span class="t-meta">Added · Library · Weak spots</span>'; toast('3 weak spots added'); },
+  pause: togglePause, retry: () => toast('Retrying, shorter · see Activity'),
+  'just-tell': b => b.replaceWith(Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' })),
+  toast: b => toast(b.dataset.msg), undo: () => { state.undo?.(); $('#toast').hidden = true; },
+};
+
+/* ================= Clicks (one delegated handler) ================= */
+app.addEventListener('click', e => {
+  if (e.target.closest('#palette')) return;
+  const seg = e.target.closest('.seg button'); if (seg) return rateConf(seg);
+  const act = e.target.closest('[data-act]'); if (act) { e.preventDefault(); e.stopPropagation(); return actions[act.dataset.act]?.(act); }
+  const check = e.target.closest('[data-check]'); if (check) return check.classList.toggle('done');
+  const opt = e.target.closest('.opt'); if (opt) return pickOpt(opt);
+  const tab = e.target.closest('#libtabs button'); if (tab) return setTab(tab.dataset.tab);
+  const nav = e.target.closest('[data-go]'); if (nav) { e.preventDefault(); return go(nav.dataset.go, nav.dataset.sub); }
+});
+
+/* ================= Keys ================= */
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  const typing = e.target.matches('input, textarea, [contenteditable="true"], [contenteditable="true"] *');
+  if (!pal.hidden) {
+    const rows = palRows();
+    if (e.key === 'Escape') return closePalette();
+    if (e.key === 'ArrowDown') { e.preventDefault(); palIdx = Math.min(palIdx + 1, rows.length - 1); return markPalette(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); palIdx = Math.max(palIdx - 1, 0); return markPalette(); }
+    if (e.key === 'Enter') { e.preventDefault(); return rows[palIdx] && runCmd(rows[palIdx].dataset.cmd); }
+    if (e.key === 'Tab') { e.preventDefault(); return askEV(palIn.value.trim()); }
+    return;
+  }
+  if (mod && k === 'k') { e.preventDefault(); return openPalette(); }
+  if (mod && k === 'j') { e.preventDefault(); go('ask'); return $('#composer').focus(); }
+  if (e.key === 'Escape') { if (typing) return e.target.blur(); if (FOCUS.includes(state.screen)) return leave(); if (DETAIL.includes(state.screen)) return back(); return; }
+  if (mod && e.key === 'Enter' && state.screen === 'plan') { e.preventDefault(); return approve(); }
+  if (e.altKey && e.key === 'Enter' && state.screen === 'ask') { e.preventDefault(); const b = $$('#chat [data-act="just-tell"]').pop(); return b && actions['just-tell'](b); }
+  if (e.target.id === 'composer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendChat(); }
+  if (e.target.id === 's-check-in' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendCheck(); }
+  if (e.target.id === 'q-check-in' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendQCheck(); }
+  if (typing) return;
+  if (e.key === '\\') return toggleTheme();
+  if (state.screen === 'practice') {
+    if ('1234'.includes(e.key) && e.key) return pickOpt($$('#q .opt')[+e.key - 1]);
+    if (k === 'h') return actions.hint();
+    if (e.key === 'Enter' && !$('#q-commit').disabled) return commit();
+    return;
+  }
+  if (state.screen === 'session') { if (e.key === ' ') { e.preventDefault(); togglePause(); } return; }
+  if (!mod && '1234'.includes(e.key) && e.key) return go(['now', 'notes', 'library', 'ask'][+e.key - 1]);
+  if (k === 'n' && !mod) return actions['new-note']();
+  if (state.screen === 'note' && k === 's') return go('session');
+  if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.target.closest('#then .row')) {
+    e.preventDefault(); const i = +e.target.closest('.row').dataset.i, j = e.key === 'ArrowUp' ? Math.max(1, i - 1) : Math.min(items.length - 1, i + 1);
+    move(i, j); return $(`#then .row[data-i="${j}"]`)?.focus();
+  }
+  if (e.key === 'Enter' && e.target.matches('.row')) return e.target.click();
+  if (state.screen === 'now') {
+    if (e.key === 'Enter') return start();
+    if (k === 'e') return somethingElse();
+    if (k === 'a') return acceptSuggest();
+  }
+});
+
+/* ================= Start ================= */
+$('#note-doc').innerHTML = $('#doc').innerHTML.replace(' reading', '');
+renderNow(); paintClocks(); clock();
+function route() {
+  const [screen, sub] = (location.hash.slice(1) || 'now').split('/');
+  if (screen === 'palette') { go('now'); return openPalette(); }
+  if (screen === 'item') go(/^(job|weekly)/.test(sub || '') ? 'activity' : 'library');
+  go(screen, sub);
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E.V. v5 · choose a direction</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{--side:#101012;--bg:#151517;--hover:#222226;--line:#232327;--line2:#303036;--text:#ececef;--quiet:#a3a3ab;--faint:#92929a;--her:#e0743a;--on-her:#1a0d05}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--side);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+  main{max-width:1240px;margin:0 auto;padding:56px 40px 96px;display:flex;flex-direction:column;gap:48px}
+  h1{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0}
+  h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0}
+  p{margin:0}
+  .meta{font-size:12px;color:var(--faint)}
+  .label{font-size:12px;font-weight:500;color:var(--faint)}
+  .quiet{color:var(--quiet)}
+  .lead{color:var(--quiet);max-width:860px}
+  .v{background:var(--bg);border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:24px}
+  .vhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .vhead .grow{flex:1}
+  a.btn{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:6px;font-weight:500;text-decoration:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+  a.btn:hover{background:var(--hover)}
+  .shots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .shots a{display:block;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+  .shots img{display:block;width:100%;height:auto}
+  .shots figcaption{font-size:12px;color:var(--faint);padding-top:6px}
+  .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+  .cols ul{margin:6px 0 0;padding-left:18px;color:var(--quiet)}
+  .cols li{margin:2px 0}
+  .rec{border:1px dashed var(--line2);border-radius:12px;padding:24px 28px;display:flex;flex-direction:column;gap:10px}
+  .mark{width:14px;height:14px;border-radius:50%;border:2px dotted var(--her);display:inline-block;vertical-align:-2px;margin-right:8px}
+  table{border-collapse:collapse;width:100%}
+  th,td{text-align:left;padding:8px 12px 8px 0;border-top:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;font-weight:500;color:var(--faint)}
+  td{color:var(--quiet)} td:first-child{color:var(--text)}
+</style>
+</head>
+<body>
+<main>
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span class="label">E.V. v5 · design directions · synthetic data</span>
+  <h1>Four ways E.V. could feel. Pick one, or mix.</h1>
+  <p class="lead">All four use Proprietary: your graphite, the one ember, Inter at 20/14/12, dashed suggestions, and E.V. asking for your try first. They differ in what greets you and how you move around. A is your own description, applied strictly. B, C and D are my own directions, each pushing one thing you said you're drawn to (focus, low mental load, control) further. Click any screenshot to open that mock-up and use it. Every one is clickable, and <span class="quiet">\</span> switches the theme.</p>
+</header>
+
+<section class="rec">
+  <p class="label"><span class="mark"></span>My recommendation as lead</p>
+  <p><b>Start from A and borrow B's focus mode.</b> A changes nothing in the plan's structure, so it is the safest base for cutover. B's full-window focus mode for practice and study sessions is the single idea that most protects your attention, and it is a small, self-contained addition.</p>
+  <p class="quiet">After cutover, add D's objectives view (your confidence beside your accuracy) as a tab in Today. It is the strongest learning feature here, but it changes how you plan, and the plan keeps changes to your daily routine out of the switch itself. C is the most novel, but a chat-shaped home is the easiest to slide from coach to crutch, and it changes the most structure.</p>
+  <p class="quiet">Tell me "A", "B", "C", "D", or a mix like "A + B's focus mode". The one you pick becomes <span class="quiet">design/mockup.html</span>, and I'll update PLAN.md §4, §7 and §8 to match.</p>
+</section>
+
+<!-- A -->
+<section class="v">
+  <div class="vhead"><h2>A · Calm desk</h2><span class="meta">your description, done strictly</span><span class="grow"></span><a class="btn" href="a-calm-desk/mockup.html">Open A</a></div>
+  <p class="quiet">The structure you've seen: a sidebar, one calm column and a detail panel, raised to your spec. Every size is 20/14/12, Ask E.V. has no chat bubbles, small key hints sit beside actions (Start next S, Commit ↵), counts are plain grey numbers, meters are the 4 px segmented ones, there's a crisp focus ring and 150–250 ms fades. Ember appears only on the one action and E.V.'s mark.</p>
+  <div class="shots">
+    <figure style="margin:0"><a href="a-calm-desk/mockup.html#today"><img src="a-calm-desk/screens/today.png" alt="A Today"></a><figcaption>Today</figcaption></figure>
+    <figure style="margin:0"><a href="a-calm-desk/mockup.html#ask"><img src="a-calm-desk/screens/ask.png" alt="A Ask"></a><figcaption>Ask E.V. · no bubbles</figcaption></figure>
+    <figure style="margin:0"><a href="a-calm-desk/mockup.html#library/practice"><img src="a-calm-desk/screens/library-answered.png" alt="A practice"></a><figcaption>Practice · after you commit</figcaption></figure>
+    <figure style="margin:0"><a href="a-calm-desk/mockup.html#notes/session"><img src="a-calm-desk/screens/notes.png" alt="A notes"></a><figcaption>Notes · study session</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Good for</p><ul><li>Seeing your whole day and your exams at a glance</li><li>Familiarity: the same places as ev4, only calmer</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>The least new; Today still lists everything</li><li>Key hints add small marks to the screen</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>Key hints may sit beside actions (UI rule 8)</li><li>Two-line rows are 48 px</li><li>No change to structure or scope</li></ul></div>
+  </div>
+</section>
+
+<!-- B -->
+<section class="v">
+  <div class="vhead"><h2>B · One thing now</h2><span class="meta">focus first · my direction</span><span class="grow"></span><a class="btn" href="b-one-thing/mockup.html">Open B</a></div>
+  <p class="quiet">There's no sidebar. Home is <b>Now</b>: one quiet statement of the next block with one Start, then the rest of today as your list to reorder. Starting a block fades everything away, leaving just the question or the note, a thin timer line, and E.V.'s checks one at a time below the work. ⌘K is how you get around.</p>
+  <div class="shots">
+    <figure style="margin:0"><a href="b-one-thing/mockup.html#now"><img src="b-one-thing/screens/now.png" alt="B Now"></a><figcaption>Now</figcaption></figure>
+    <figure style="margin:0"><a href="b-one-thing/mockup.html#practice"><img src="b-one-thing/screens/practice-feedback.png" alt="B practice"></a><figcaption>Practice in focus mode</figcaption></figure>
+    <figure style="margin:0"><a href="b-one-thing/mockup.html#session"><img src="b-one-thing/screens/session.png" alt="B session"></a><figcaption>Study session in focus mode</figcaption></figure>
+    <figure style="margin:0"><a href="b-one-thing/mockup.html#plan"><img src="b-one-thing/screens/plan-rated.png" alt="B plan"></a><figcaption>Study plan · confidence first</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Good for</p><ul><li>Starting without deciding: beats putting it off</li><li>Retrieval with nothing else in view</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Less overview; exams and weak spots are a tab away</li><li>Progress and Activity are only reached by ⌘K or the bar</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>The sidebar becomes a top bar, plus a new focus layer</li><li>The detail panel becomes a full page</li><li>Today is renamed Now; same folders and scope</li></ul></div>
+  </div>
+</section>
+
+<!-- C -->
+<section class="v">
+  <div class="vhead"><h2>C · The thread</h2><span class="meta">Slack-led · my direction</span><span class="grow"></span><a class="btn" href="c-thread/mockup.html">Open C</a></div>
+  <p class="quiet">Today is one calm thread per day with E.V. She posts the plan in the morning, and the day collects quiet lines: "Review set done · 6 of 8 · 2 misses → weak spots", "Mock exam is writing… 9 of 15". Practice questions appear inline, one at a time. Each course is a channel. You ask E.V. right in the thread.</p>
+  <div class="shots">
+    <figure style="margin:0"><a href="c-thread/mockup.html#today"><img src="c-thread/screens/today.png" alt="C morning"></a><figcaption>Today · morning</figcaption></figure>
+    <figure style="margin:0"><a href="c-thread/mockup.html#today/later"><img src="c-thread/screens/today-later.png" alt="C later"></a><figcaption>Today · later in the day</figcaption></figure>
+    <figure style="margin:0"><a href="c-thread/mockup.html#practice/after"><img src="c-thread/screens/practice-after.png" alt="C practice"></a><figcaption>Inline practice · miss → weak spot</figcaption></figure>
+    <figure style="margin:0"><a href="c-thread/mockup.html#nur112"><img src="c-thread/screens/channel-nur112.png" alt="C channel"></a><figcaption>Course channel · NUR 112</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Good for</p><ul><li>One place tells the day's story</li><li>You watch misses turn into weak spots</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>A chat-shaped home invites "just answer me"</li><li>The plan scrolls out of view; long sets feel cramped inline</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>Adds a courses area; Ask E.V. merges into the thread</li><li>New rule: one current E.V. line per screen</li><li>The most structural change of the four</li></ul></div>
+  </div>
+</section>
+
+<!-- D -->
+<section class="v">
+  <div class="vhead"><h2>D · The runway</h2><span class="meta">exam-led, built for self-assessment · my direction</span><span class="grow"></span><a class="btn" href="d-runway/mockup.html">Open D</a></div>
+  <p class="quiet">Home is the days from today to your next exam. Today is open with one Start; future days are one line each, so you see topics come back. Objectives shows your own confidence (Low / Some / Sure) beside your actual tries, with a quiet "overconfident" where they disagree. You rate first, E.V. proposes blocks into the days, and you move them.</p>
+  <div class="shots">
+    <figure style="margin:0"><a href="d-runway/mockup.html#runway"><img src="d-runway/screens/runway.png" alt="D runway"></a><figcaption>Runway</figcaption></figure>
+    <figure style="margin:0"><a href="d-runway/mockup.html#objectives"><img src="d-runway/screens/objectives.png" alt="D objectives"></a><figcaption>Objectives · confidence vs tries</figcaption></figure>
+    <figure style="margin:0"><a href="d-runway/mockup.html#plan"><img src="d-runway/screens/plan-proposal.png" alt="D plan"></a><figcaption>Plan · rate, then proposal</figcaption></figure>
+    <figure style="margin:0"><a href="d-runway/mockup.html#practice/after"><img src="d-runway/screens/practice-after.png" alt="D practice"></a><figcaption>Practice updates your objective</figcaption></figure>
+  </div>
+  <div class="cols">
+    <div><p class="label">Good for</p><ul><li>Seeing spacing: topics recur across days</li><li>Training your judgement of what you know</li></ul></div>
+    <div><p class="label">Watch out</p><ul><li>Everything leans on an exam date</li><li>Calibration can sting; it's kept to quiet grey words</li></ul></div>
+    <div><p class="label">Plan impact</p><ul><li>Today becomes Runway; Progress folds into it</li><li>Brings calibration and you-first planning into cutover (your call)</li><li>One new field, additive</li></ul></div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:12px">
+  <h2>Side by side</h2>
+  <table>
+    <tr><th></th><th>A · Calm desk</th><th>B · One thing now</th><th>C · The thread</th><th>D · The runway</th></tr>
+    <tr><td>Greets you with</td><td>Your day's list</td><td>The one next thing</td><td>E.V.'s morning post</td><td>The days to your exam</td></tr>
+    <tr><td>Getting around</td><td>Sidebar</td><td>Top tabs and ⌘K</td><td>Sidebar with channels</td><td>Sidebar</td></tr>
+    <tr><td>While studying</td><td>A calm page</td><td>Full-window focus</td><td>Inline in the thread</td><td>A calm page</td></tr>
+    <tr><td>Learning lever</td><td>Attempt first</td><td>Attempt first, no distractions</td><td>A visible miss → weak spot loop</td><td>Calibration and spacing</td></tr>
+    <tr><td>Change to the plan</td><td>Smallest</td><td>Layout only</td><td>Largest</td><td>Structure and scope</td></tr>
+  </table>
+</section>
+
+</main>
+</body>
+</html>

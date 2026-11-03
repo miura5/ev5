@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>E.V. · Index</title>
+<meta name="viewport" content="width=1280">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   INDEX · the E.V. v5 "Proprietary" for direction F
+   Every value below is a token. Components are built only from tokens.
+   ========================================================================== */
+:root{
+  /* type families: a humanist sans for the interface, a text face for what is written on cards,
+     a mono only for numbers */
+  --f-ui: "Source Sans 3", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+  --f-text: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* type scale: five steps, two of them only for card content */
+  --fs-face: 26px;  --lh-face: 1.25;   /* the held card's face */
+  --fs-title: 20px; --lh-title: 1.3;   /* screen titles, answers */
+  --fs-read: 16px;  --lh-read: 1.55;   /* reading text on cards and notes */
+  --fs-ui: 14px;    --lh-ui: 1.45;     /* the interface */
+  --fs-small: 12px; --lh-small: 1.4;   /* labels, meta, numbers */
+  --w-regular: 400; --w-medium: 500; --w-strong: 600;
+  --track-label: .02em;
+  /* space: a 4 px base */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  /* shape */
+  --r-1: 2px;  /* keys, controls, chips */
+  --r-2: 4px;  /* cards and floating layers */
+  --hair: 1px;
+  --dot: 6px;
+  --meter-h: 2px;
+  --card-ratio: 5 / 3;
+  --card-w: 600px;
+  --card-held-w: 640px;
+  --bar-h: 56px;
+  /* motion: short and functional */
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --t-quiet: 120ms;   /* hover, focus */
+  --t-flip: 200ms;    /* a card turning over */
+  --t-deal: 240ms;    /* the next card sliding in */
+  --t-lift: 160ms;    /* a card being picked up */
+}
+[data-theme="light"]{
+  --desk: #F2EEE6; --desk-sunk: #EAE5DB; --card: #FAF8F3; --card-held: #FDFCF9;
+  --line: #DED7CA; --line-strong: #C4BBAA; --rule-head: #D3CABA;
+  --text: #25221D; --text-2: #555047; --text-3: #6B6458;
+  --hover: rgba(37,34,29,.05);
+  --ink: #26428B; --ink-hover: #1C3473; --on-ink: #FBFAF6; --ink-wash: rgba(38,66,139,.08);
+  --ok: #4C7752; --mid: #94701F; --low: #A24A38;
+  --scrim: rgba(242,238,230,.74);
+  --lift: 0 1px 0 rgba(70,52,25,.04), 0 18px 36px -20px rgba(70,52,25,.32);
+  --float: 0 1px 0 rgba(70,52,25,.05), 0 30px 70px -24px rgba(50,38,20,.40);
+  --lamp: none;
+  color-scheme: light;
+}
+[data-theme="dark"]{
+  --desk: #1C1915; --desk-sunk: #171512; --card: #27241F; --card-held: #2D2A24;
+  --line: #3A352D; --line-strong: #504940; --rule-head: #453F36;
+  --text: #ECE6DA; --text-2: #C0B7A7; --text-3: #A2998A;
+  --hover: rgba(236,230,218,.06);
+  --ink: #A6B7EE; --ink-hover: #BFCCF4; --on-ink: #1C1915; --ink-wash: rgba(166,183,238,.12);
+  --ok: #92B591; --mid: #D6AE5C; --low: #E0927C;
+  --scrim: rgba(20,18,15,.68);
+  --lift: 0 1px 0 rgba(0,0,0,.2), 0 22px 40px -18px rgba(0,0,0,.7);
+  --float: 0 30px 80px -20px rgba(0,0,0,.75);
+  --lamp: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255,214,150,.05), transparent 70%);
+  color-scheme: dark;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--desk) var(--lamp) no-repeat;color:var(--text);
+  font:var(--w-regular) var(--fs-ui)/var(--lh-ui) var(--f-ui);-webkit-font-smoothing:antialiased;
+  transition:background-color var(--t-lift) var(--ease)}
+[data-theme]{color:var(--text)}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+p{margin:0}
+h1,h2,h3{margin:0;font-weight:var(--w-regular)}
+ul{margin:0;padding:0;list-style:none}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:var(--r-1)}
+::selection{background:var(--ink-wash)}
+
+/* ---------- type roles ---------- */
+.t-face{font:var(--w-regular) var(--fs-face)/var(--lh-face) var(--f-text);letter-spacing:-.005em}
+.t-title{font:var(--w-regular) var(--fs-title)/var(--lh-title) var(--f-text)}
+.t-read{font:var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text)}
+.t-ui{font:var(--w-regular) var(--fs-ui)/var(--lh-ui) var(--f-ui)}
+.t-small{font:var(--w-regular) var(--fs-small)/var(--lh-small) var(--f-ui)}
+.label{font:var(--w-medium) var(--fs-small)/var(--lh-small) var(--f-ui);letter-spacing:var(--track-label);color:var(--text-3)}
+.num{font-family:var(--f-num);font-size:var(--fs-small);font-variant-numeric:tabular-nums;letter-spacing:0}
+.soft{color:var(--text-2)} .muted{color:var(--text-3)}
+.strong{font-weight:var(--w-medium)}
+
+/* ---------- the bar ---------- */
+.bar{height:var(--bar-h);display:flex;align-items:center;gap:var(--s-7);padding:0 var(--s-8);
+  border-bottom:var(--hair) solid var(--line)}
+.mark{display:flex;align-items:center;gap:var(--s-2);font:italic var(--w-regular) var(--fs-title)/1 var(--f-text)}
+.ev-dot{width:8px;height:8px;border-radius:50%;background:var(--ink);flex:none;display:inline-block}
+.nav{display:flex;gap:var(--s-5);align-self:stretch}
+.nav a{color:var(--text-3);display:flex;align-items:center;border-bottom:var(--hair) solid transparent;margin-bottom:-1px;
+  transition:color var(--t-quiet) var(--ease)}
+.nav a:hover{color:var(--text)}
+.nav a[aria-current="page"]{color:var(--text);border-bottom-color:var(--text)}
+.nav a:focus-visible{outline-offset:-2px}
+.bar__end{margin-left:auto;display:flex;align-items:center;gap:var(--s-5);color:var(--text-3);font-size:var(--fs-small)}
+.bar__end a,.bar__end button{display:inline-flex;align-items:center;gap:var(--s-2);color:var(--text-3);transition:color var(--t-quiet) var(--ease)}
+.bar__end a:hover,.bar__end button:hover{color:var(--text)}
+
+main{height:calc(100vh - var(--bar-h));overflow:auto}
+.screen{display:none;padding:var(--s-6) var(--s-8) var(--s-7)}
+.screen.is-on{display:block}
+
+/* ---------- keys ---------- */
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--s-1);
+  font:var(--w-regular) var(--fs-small)/1 var(--f-num);color:var(--text-3);border:var(--hair) solid var(--line);
+  border-radius:var(--r-1);background:transparent}
+.keys{display:flex;gap:var(--s-4);align-items:center;color:var(--text-3);font-size:var(--fs-small)}
+.keys span{display:inline-flex;gap:var(--s-1);align-items:center}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:var(--s-2);height:32px;padding:0 var(--s-3);border-radius:var(--r-1);
+  border:var(--hair) solid transparent;color:var(--text-2);font-weight:var(--w-medium);white-space:nowrap;
+  transition:background-color var(--t-quiet) var(--ease),color var(--t-quiet) var(--ease),border-color var(--t-quiet) var(--ease)}
+.btn:hover{background:var(--hover);color:var(--text)}
+.btn--line{border-color:var(--line-strong);color:var(--text)}
+.btn--line:hover{border-color:var(--text-3);background:transparent}
+.btn--ink{background:var(--ink);color:var(--on-ink)}
+.btn--ink:hover{background:var(--ink-hover);color:var(--on-ink)}
+.btn--ink .kbd{color:var(--on-ink);border-color:color-mix(in srgb,var(--on-ink) 40%,transparent)}
+.btn--text{height:auto;padding:0;color:var(--text-3);font-weight:var(--w-regular)}
+.btn--text:hover{background:none;color:var(--text);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.btn[disabled]{color:var(--text-3);opacity:.55;cursor:default;background:none}
+.btn--ink[disabled]{background:var(--line-strong);color:var(--card);opacity:1}
+.is-hover.btn{background:var(--hover);color:var(--text)}
+.is-hover.btn--ink{background:var(--ink-hover);color:var(--on-ink)}
+.is-focus{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ---------- the index card: the one signature object ---------- */
+.card{position:relative;background:var(--card);border:var(--hair) solid var(--line);border-radius:var(--r-2);
+  aspect-ratio:var(--card-ratio);display:flex;flex-direction:column;padding:var(--s-5) var(--s-6);
+  transition:box-shadow var(--t-lift) var(--ease),background-color var(--t-lift) var(--ease)}
+.card--held{background:var(--card-held);box-shadow:var(--lift);border-color:var(--line-strong)}
+.card--free{aspect-ratio:auto}
+.card__head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-4);
+  padding-bottom:var(--s-2);border-bottom:var(--hair) solid var(--rule-head);margin-bottom:var(--s-5);
+  font-size:var(--fs-small);color:var(--text-3)}
+.card__no{font:var(--w-regular) var(--fs-small)/1 var(--f-num);color:var(--text-3);letter-spacing:.04em}
+.card__body{flex:1;display:flex;flex-direction:column;min-height:0}
+.card__foot{display:flex;align-items:center;gap:var(--s-2);margin-top:auto;padding-top:var(--s-4)}
+.card__foot .push{margin-left:auto}
+
+/* a neat stack: the same card with two edges showing below it */
+.stack{position:relative;isolation:isolate;padding-bottom:10px}
+.stack>.card{position:relative;z-index:2}
+.stack::before,.stack::after{content:"";position:absolute;left:0;right:0;top:0;bottom:10px;border:var(--hair) solid var(--line);
+  border-radius:var(--r-2);background:var(--card);z-index:1}
+.stack::before{transform:translateY(5px) scaleX(.985)}
+.stack::after{transform:translateY(10px) scaleX(.97);z-index:0}
+
+/* a small pile, shown as a count */
+.pile{display:inline-flex;align-items:center;gap:var(--s-3);color:var(--text-2)}
+.pile__cards{position:relative;width:30px;height:18px}
+.pile__cards i{position:absolute;inset:0;border:var(--hair) solid var(--line-strong);border-radius:var(--r-1);background:var(--card)}
+.pile__cards i:nth-child(1){transform:translateY(4px) scaleX(.94)}
+.pile__cards i:nth-child(2){transform:translateY(2px) scaleX(.97)}
+.pile__n{font:var(--w-medium) var(--fs-ui)/1 var(--f-num);color:var(--text)}
+.pile.is-bump .pile__n{animation:bump var(--t-deal) var(--ease)}
+@keyframes bump{40%{transform:translateY(-3px)}}
+
+/* ---------- the ruled answer line (inputs are lines, never boxes) ---------- */
+.field{display:flex;flex-direction:column;gap:var(--s-1)}
+.ruled{display:block;width:100%;border:0;border-bottom:var(--hair) solid var(--line-strong);background:transparent;
+  font:var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text);color:var(--text);padding:var(--s-1) 0;outline:none;
+  border-radius:0;transition:border-color var(--t-quiet) var(--ease),box-shadow var(--t-quiet) var(--ease)}
+.ruled::placeholder{color:var(--text-3);font-style:italic}
+.ruled:focus,.ruled.is-focus{border-bottom-color:var(--ink);box-shadow:0 1px 0 var(--ink);outline:none}
+.ruled--ui{font:var(--w-regular) var(--fs-ui)/var(--lh-ui) var(--f-ui)}
+textarea.ruled{resize:none;
+  background-image:linear-gradient(to bottom,transparent calc(100% - 1px),var(--line) calc(100% - 1px));
+  background-size:100% calc(var(--fs-read) * var(--lh-read));background-position:0 calc(var(--s-1) - 1px);border-bottom-color:transparent}
+.nudge{font:italic var(--w-regular) var(--fs-small)/var(--lh-small) var(--f-text);color:var(--text-2);min-height:17px}
+
+/* ---------- E.V.: her mark, her voice (the text face), her ink ---------- */
+.ev{display:flex;gap:var(--s-3);align-items:baseline;font:var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text);color:var(--text)}
+.ev::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink);flex:none;transform:translateY(-2px)}
+.ev--q{color:var(--text)}
+.ink-note{font:italic var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text);color:var(--ink)}
+.src{font:var(--w-regular) var(--fs-small)/var(--lh-small) var(--f-ui);color:var(--text-3);white-space:nowrap}
+.src::before{content:"↳ "}
+a.src:hover{color:var(--text);text-decoration:underline;text-underline-offset:3px}
+.src--unverified::before{content:"○ "}
+.src--unverified{font-style:italic}
+
+/* a proposal: dashed, waiting for his yes */
+.proposal{display:flex;align-items:center;gap:var(--s-3);border:var(--hair) dashed var(--line-strong);border-radius:var(--r-2);
+  padding:var(--s-3) var(--s-3) var(--s-3) var(--s-4)}
+.proposal__text{flex:1;min-width:0}
+.proposal .ev{font-size:var(--fs-ui);line-height:var(--lh-ui);font-family:var(--f-ui)}
+
+/* ---------- status: dots and thin meters only ---------- */
+.dot{width:var(--dot);height:var(--dot);border-radius:50%;background:var(--text-3);display:inline-block;flex:none}
+.dot--ok{background:var(--ok)} .dot--mid{background:var(--mid)} .dot--low{background:var(--low)}
+.dot--run{background:var(--text-2);outline:1px solid var(--line-strong);outline-offset:2px;animation:breathe 2.4s ease-in-out infinite}
+.dot--wait{background:transparent;border:1.5px solid var(--text-2);width:8px;height:8px}
+.dot--fail{background:var(--low);border-radius:1px;transform:rotate(45deg)}
+@keyframes breathe{50%{opacity:.35}}
+.meter{position:relative;height:var(--meter-h);width:96px;background:var(--line);display:inline-block;vertical-align:middle;flex:none}
+.meter>i{position:absolute;left:0;top:0;bottom:0;width:var(--v,50%);background:var(--text-2)}
+.meter--ok>i{background:var(--ok)} .meter--mid>i{background:var(--mid)} .meter--low>i{background:var(--low)}
+.ticks{display:flex;gap:3px}
+.ticks i{width:14px;height:var(--meter-h);background:var(--line)}
+.ticks i.on{background:var(--text-2)} .ticks i.now{background:var(--text)}
+
+/* ---------- lists (plain paper, hairline-ruled) ---------- */
+.list{border-top:var(--hair) solid var(--line)}
+.row{display:grid;grid-template-columns:52px 1fr auto;gap:var(--s-3);align-items:baseline;padding:var(--s-3) var(--s-2);
+  margin:0 calc(var(--s-2) * -1);border-bottom:var(--hair) solid var(--line);border-radius:var(--r-1);
+  transition:background-color var(--t-quiet) var(--ease)}
+.row:hover,.row.is-hover{background:var(--hover)}
+.row.is-sel{background:var(--desk-sunk);box-shadow:inset 2px 0 0 var(--text)}
+.row__lead{color:var(--text-3);display:flex;align-items:center;gap:var(--s-2)}
+.row__title{color:var(--text)}
+.row__meta{color:var(--text-3);font-size:var(--fs-small);display:block}
+.row__end{display:flex;align-items:center;gap:var(--s-3);color:var(--text-3);font-size:var(--fs-small)}
+.row__act{opacity:0;transition:opacity var(--t-quiet) var(--ease)}
+.row:hover .row__act,.row:focus-within .row__act,.row.is-hover .row__act{opacity:1}
+.row--proposed{border:var(--hair) dashed var(--line-strong);border-radius:var(--r-2);margin-top:var(--s-2)}
+.row--proposed:hover{background:transparent}
+.today .row--proposed{margin-left:0;margin-right:0}
+.sec{margin-bottom:var(--s-6)}
+.sec__h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--s-2)}
+
+/* ---------- sub tabs, segments ---------- */
+.tabs{display:flex;gap:var(--s-5);border-bottom:var(--hair) solid var(--line);margin-bottom:var(--s-6)}
+.tabs a{color:var(--text-3);padding:0 0 var(--s-2);border-bottom:var(--hair) solid transparent;margin-bottom:-1px;
+  transition:color var(--t-quiet) var(--ease)}
+.tabs a:hover{color:var(--text)}
+.tabs a[aria-current="page"]{color:var(--text);border-bottom-color:var(--text)}
+.tabs .n{font-family:var(--f-num);font-size:var(--fs-small);color:var(--text-3);margin-left:var(--s-1)}
+.seg{display:inline-flex;border:var(--hair) solid var(--line-strong);border-radius:var(--r-1)}
+.seg button{height:26px;padding:0 var(--s-3);font-size:var(--fs-small);color:var(--text-2);border-left:var(--hair) solid var(--line);
+  transition:background-color var(--t-quiet) var(--ease),color var(--t-quiet) var(--ease)}
+.seg button:first-child{border-left:0}
+.seg button:hover{background:var(--hover);color:var(--text)}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--desk)}
+
+.head{display:flex;align-items:baseline;gap:var(--s-4);margin-bottom:var(--s-2)}
+.crumb{color:var(--text-3)} .crumb:hover{color:var(--text)}
+
+/* ==========================================================================
+   SCREENS (layout only)
+   ========================================================================== */
+/* today */
+.today{display:grid;grid-template-columns:var(--card-w) 1fr;gap:var(--s-8);align-items:start}
+.today__left .ev{margin:var(--s-3) 0 var(--s-6);max-width:560px}
+.today__card .t-face{margin-bottom:var(--s-3)}
+.day-sum{margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--text-3);font-size:var(--fs-small)}
+
+/* library overview */
+.lib{display:grid;grid-template-columns:540px 1fr;gap:var(--s-8);align-items:start}
+.deck-row{grid-template-columns:1fr 104px 52px;cursor:pointer}
+.deck-row .row__end{justify-content:flex-end}
+
+/* study carousel */
+.study-top{display:flex;align-items:baseline;justify-content:space-between;width:940px;margin:0 auto}
+.stage{position:relative;width:940px;height:440px;margin:var(--s-2) auto 0;overflow:hidden}
+.slide{position:absolute;top:24px;left:50%;width:var(--card-held-w);margin-left:calc(var(--card-held-w) / -2);aspect-ratio:var(--card-ratio);
+  perspective:1800px;transition:transform var(--t-deal) var(--ease),opacity var(--t-deal) var(--ease)}
+.slide.is-cur{z-index:3}
+.slide.is-prev{transform:translateX(-612px) scale(.82);opacity:.42}
+.slide.is-next{transform:translateX(612px) scale(.82);opacity:.42}
+.slide.is-gone-l{transform:translateX(-900px) scale(.7);opacity:0}
+.slide.is-gone-r{transform:translateX(900px) scale(.7);opacity:0}
+.flipper{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform var(--t-flip) var(--ease)}
+.slide.is-flipped .flipper{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face--back{transform:rotateY(180deg)}
+.slide:not(.is-cur) .card{box-shadow:none;border-color:var(--line)}
+.slide .study-q,.slide .field,.slide .nudge,.slide .card__foot{transition:opacity var(--t-deal) var(--ease)}
+.slide:not(.is-cur) .study-q{opacity:.5}
+.slide:not(.is-cur) .field,.slide:not(.is-cur) .nudge,.slide:not(.is-cur) .card__foot{opacity:0}
+.screen[data-screen="study"].is-on{display:flex;flex-direction:column;justify-content:center;min-height:100%;padding-bottom:var(--s-8)}
+.study-q{margin-bottom:auto}
+.attempt-echo{color:var(--text-2);font-size:var(--fs-ui);margin:var(--s-3) 0 var(--s-1)}
+.compare{margin-top:auto;padding-top:var(--s-3);border-top:var(--hair) solid var(--line)}
+.compare .attempt-echo{margin-top:0}
+.compare + .card__foot{margin-top:0}
+.attempt-echo b{display:block}
+.attempt-echo b{font-weight:var(--w-medium);color:var(--text-3);font-size:var(--fs-small)}
+.study-bottom{width:940px;margin:var(--s-2) auto 0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.study-bottom .pile:last-child{justify-self:end}
+
+/* practice */
+.practice{width:680px;margin:0 auto}
+.practice .slide{position:relative;left:auto;top:auto;margin:0;width:680px}
+.opts{display:flex;flex-direction:column;gap:var(--s-1);margin-top:var(--s-4)}
+.opt{display:flex;align-items:baseline;gap:var(--s-3);text-align:left;padding:var(--s-1) var(--s-3);margin:0 calc(var(--s-3) * -1);
+  border:var(--hair) solid transparent;border-radius:var(--r-1);font:var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text);
+  transition:background-color var(--t-quiet) var(--ease),border-color var(--t-quiet) var(--ease)}
+.opt:hover{background:var(--hover)}
+.opt .kbd{transform:translateY(-1px)}
+.opt[aria-checked="true"]{border-color:var(--text);background:transparent}
+.work{font:var(--w-regular) var(--fs-small)/1.9 var(--f-num);color:var(--text-2)}
+.practice-meta{display:flex;justify-content:space-between;align-items:center;margin-top:var(--s-5)}
+
+/* plan */
+.plan{display:grid;grid-template-columns:1fr var(--card-w);gap:var(--s-8);align-items:start}
+.conf-row{grid-template-columns:20px 1fr auto;align-items:center}
+.plan-rows .prow{display:grid;grid-template-columns:76px 1fr auto;gap:var(--s-3);align-items:baseline;padding:6px 0;border-bottom:var(--hair) solid var(--line)}
+.plan-rows .prow:last-child{border-bottom:0}
+.steps{display:flex;gap:var(--s-5);color:var(--text-3);font-size:var(--fs-small);margin-bottom:var(--s-6)}
+.steps span.on{color:var(--text)}
+.steps .num{margin-right:var(--s-1)}
+
+/* notes */
+.sessbar{height:48px;display:flex;align-items:center;gap:var(--s-6);padding:0 var(--s-8);border-bottom:var(--hair) solid var(--line);
+  background:var(--desk-sunk);font-size:var(--fs-small);color:var(--text-3)}
+.sessbar .timer{font:var(--w-regular) var(--fs-ui)/1 var(--f-num);color:var(--text)}
+.sessbar .grow{flex:1}
+.notes{display:grid;grid-template-columns:150px 600px 1fr;gap:0 var(--s-6);padding:var(--s-5) var(--s-8) 0}
+.outline a{display:block;color:var(--text-3);padding:2px 0} .outline a:hover,.outline a.on{color:var(--text)}
+.outline a.sub{padding-left:var(--s-3)}
+.page{position:relative;z-index:2;background:var(--card);border:var(--hair) solid var(--line);border-radius:var(--r-2);
+  padding:var(--s-6) var(--s-7);min-height:640px}
+.editor{outline:none;font:var(--w-regular) var(--fs-read)/var(--lh-read) var(--f-text)}
+.editor h1{font-size:var(--fs-face);line-height:var(--lh-face);margin:0 0 var(--s-3)}
+.editor h2{font-size:var(--fs-title);line-height:var(--lh-title);margin:var(--s-5) 0 var(--s-2)}
+.editor p{margin:0 0 var(--s-3)}
+.editor ul{margin:0 0 var(--s-3)}
+.editor ul.bul li{position:relative;padding-left:var(--s-4)}
+.editor ul.bul li::before{content:"";position:absolute;left:2px;top:.75em;width:5px;height:1px;background:var(--text-2)}
+.editor ul.chk li{display:flex;gap:var(--s-3);align-items:baseline}
+.editor ul.chk li.done span{color:var(--text-3);text-decoration:line-through;text-decoration-thickness:1px}
+.box{width:12px;height:12px;border:var(--hair) solid var(--text-3);border-radius:var(--r-1);flex:none;transform:translateY(1px);display:inline-grid;place-items:center}
+.done .box{background:var(--text-2);border-color:var(--text-2)}
+.done .box::after{content:"";width:6px;height:3px;border-left:1.5px solid var(--card);border-bottom:1.5px solid var(--card);transform:rotate(-45deg) translate(1px,-1px)}
+.fig{float:right;width:236px;margin:var(--s-1) 0 var(--s-3) var(--s-5);color:var(--text-2)}
+.fig figcaption{font:italic var(--w-regular) var(--fs-small)/var(--lh-small) var(--f-text);color:var(--text-3);margin-top:var(--s-1)}
+.s{transition:background-color var(--t-quiet) var(--ease);border-radius:var(--r-1)}
+.s.is-reading{background:var(--ink-wash);box-shadow:0 0 0 2px var(--ink-wash)}
+.side{position:relative}
+.check{position:absolute;top:196px;left:-36px;width:calc(100% + 36px);z-index:1;padding-left:calc(36px + var(--s-5));aspect-ratio:auto;min-height:220px}
+.saved{display:inline-flex;align-items:center;gap:var(--s-2)}
+
+/* ask */
+.ask{width:720px;margin:0 auto;display:flex;flex-direction:column;min-height:calc(100vh - var(--bar-h) - 80px)}
+.turn{margin-bottom:var(--s-5)}
+.turn--me{padding-left:var(--s-7)}
+.turn--me p{font-size:var(--fs-ui);color:var(--text)}
+.turn .who{display:block;margin-bottom:2px}
+.turn--ev{padding-right:var(--s-7)}
+.turn--ev .src{margin-left:calc(7px + var(--s-3))}
+.jobline{display:flex;align-items:center;gap:var(--s-3);margin:var(--s-2) 0 0 calc(7px + var(--s-3));padding:var(--s-2) 0;
+  border-top:var(--hair) solid var(--line);border-bottom:var(--hair) solid var(--line);font-size:var(--fs-small);color:var(--text-2)}
+.composer{margin-top:auto}
+.composer .card{aspect-ratio:auto;padding:var(--s-4) var(--s-5)}
+
+/* activity */
+.act{display:grid;grid-template-columns:1fr var(--card-w);gap:var(--s-8);align-items:start}
+.job-row{grid-template-columns:20px 1fr auto;cursor:pointer}
+.jsteps li{display:flex;gap:var(--s-3);align-items:baseline;padding:3px 0;color:var(--text-2);font-size:var(--fs-ui)}
+.jsteps .num{width:14px;color:var(--text-3)}
+
+/* progress */
+.prog{width:820px}
+.figs{display:flex;gap:var(--s-8);margin:var(--s-5) 0 var(--s-6)}
+.figs .big{font:var(--w-regular) var(--fs-face)/1.1 var(--f-text);display:block}
+
+/* palette */
+.scrim{position:fixed;inset:0;background:var(--scrim);display:none;z-index:50}
+.scrim.is-on{display:block}
+.palette{position:absolute;top:96px;left:50%;width:var(--card-w);margin-left:calc(var(--card-w) / -2);box-shadow:var(--float);
+  border-color:var(--line-strong);background:var(--card-held);padding:var(--s-4) var(--s-5) var(--s-3)}
+.palette .card__head{margin-bottom:var(--s-2)}
+.palette .ruled{font:var(--w-regular) var(--fs-title)/var(--lh-title) var(--f-text);margin-bottom:var(--s-2)}
+.pal-list{overflow:hidden;flex:1}
+.pal-group{margin-top:var(--s-2)}
+.pal-item{display:flex;align-items:center;gap:var(--s-3);padding:5px var(--s-2);margin:0 calc(var(--s-2) * -1);border-radius:var(--r-1);color:var(--text-2);cursor:pointer}
+.pal-item .grow{flex:1;color:var(--text)}
+.pal-item .enter{opacity:0}
+.pal-item.is-sel{background:var(--desk-sunk)}
+.pal-item.is-sel .enter{opacity:1}
+
+/* system: a specimen card set */
+.sys-intro{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-6);margin-bottom:var(--s-7);align-items:end}
+.specs{display:grid;grid-template-columns:repeat(2,544px);gap:var(--s-6);justify-content:center}
+.spec{overflow:hidden}
+.spec .card__head{margin-bottom:var(--s-4)}
+.swatches{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2) var(--s-5)}
+.sw{display:flex;align-items:center;gap:var(--s-3);font-size:var(--fs-small)}
+.sw i{width:26px;height:18px;border-radius:var(--r-1);border:var(--hair) solid var(--line);flex:none}
+.sw b{font-weight:var(--w-medium);color:var(--text);min-width:78px}
+.sw .num{color:var(--text-3)}
+.scale-row{display:grid;grid-template-columns:44px 1fr;align-items:baseline;gap:var(--s-3);padding:3px 0;border-bottom:var(--hair) solid var(--line)}
+.scale-row:last-child{border-bottom:0}
+.spacer-row{display:flex;align-items:center;gap:var(--s-3);font-size:var(--fs-small);color:var(--text-3);height:22px}
+.spacer-row i{height:8px;background:var(--text-2);display:block}
+.demo-grid{display:grid;grid-template-columns:96px 1fr;gap:var(--s-3) var(--s-4);align-items:center}
+.demo-grid>.label{align-self:center}
+.mini{width:120px;aspect-ratio:var(--card-ratio);padding:var(--s-2) var(--s-3)}
+.mini .card__head{margin-bottom:var(--s-2);padding-bottom:var(--s-1)}
+.tiny-stage{position:relative;height:116px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%)}
+.tiny-stage .card{position:absolute;top:6px;left:50%;width:170px;margin-left:-85px;padding:var(--s-2) var(--s-3)}
+.tiny-stage .card .card__head{margin-bottom:var(--s-2);padding-bottom:var(--s-1)}
+.motion-demo{width:150px;height:90px;perspective:900px}
+.motion-demo .flipper{cursor:pointer}
+.motion-demo .card{padding:var(--s-2) var(--s-3);height:100%}
+.callout{font-size:var(--fs-small);color:var(--text-3);display:flex;gap:var(--s-2);align-items:baseline}
+.callout .num{color:var(--text-2)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:1ms !important;animation-duration:1ms !important;animation-iteration-count:1 !important}
+  .slide.is-flipped .flipper{transform:rotateY(180deg)}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="mark" href="#today" aria-label="E.V. home"><span class="ev-dot"></span>E.V.</a>
+  <nav class="nav" aria-label="Areas">
+    <a href="#today" data-area="today">Today</a>
+    <a href="#ask" data-area="ask">Ask E.V.</a>
+    <a href="#library" data-area="library">Library</a>
+    <a href="#notes" data-area="notes">Notes</a>
+    <a href="#progress" data-area="progress">Progress</a>
+    <a href="#activity" data-area="activity">Activity</a>
+  </nav>
+  <div class="bar__end">
+    <a href="#activity" title="Running job"><span class="dot dot--run"></span>Mock exam · <span class="num">18/40</span></a>
+    <a href="#activity" title="Jobs that need you"><span class="dot dot--wait"></span>2 need you</a>
+    <button type="button" id="open-pal"><span class="kbd">⌘K</span></button>
+    <button type="button" id="theme-btn" title="Switch theme"><span class="kbd">\</span><span id="theme-name">Lamp</span></button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= TODAY ================= -->
+<section class="screen" data-screen="today" aria-label="Today">
+  <div class="today">
+    <div class="today__left">
+      <p class="label">Monday · November 2</p>
+      <h1 class="t-title" style="margin-top:var(--s-1)">Today</h1>
+      <p class="ev">Exam 3 is Thursday. Oral liquid doses is your weakest spot, so it comes straight after review.</p>
+
+      <article class="card card--held today__card" aria-label="Next block">
+        <div class="card__head"><span>Next · <span class="num">8:40</span> · 10 min</span><span class="card__no">01</span></div>
+        <div class="card__body">
+          <h2 class="t-face">Morning review</h2>
+          <p class="t-read soft">Eight cards due from three decks. Write each answer before the card turns.</p>
+          <div style="margin-top:auto;display:flex;gap:var(--s-6)" class="t-small">
+            <span><span class="label" style="display:block">Cardiac output</span><span class="num soft">3 cards</span></span>
+            <span><span class="label" style="display:block">Fluid balance</span><span class="num soft">3 cards</span></span>
+            <span><span class="label" style="display:block">Med math</span><span class="num soft">2 cards</span></span>
+          </div>
+          <div class="card__foot" style="margin-top:0;padding-top:var(--s-5)">
+            <a class="btn btn--ink" href="#library/study">Start <span class="kbd">↵</span></a>
+            <button class="btn" type="button">Later</button>
+            <span class="src push">morning set · written 6:00 am</span>
+          </div>
+        </div>
+      </article>
+      <div class="day-sum"><span>4 blocks · 1 h 10 m · done by 3:10 pm</span><span class="keys"><span><span class="kbd">J</span><span class="kbd">K</span> move</span></span></div>
+    </div>
+
+    <div class="today__right">
+      <div class="sec">
+        <div class="sec__h"><span class="label">Rest of today</span></div>
+        <div class="list">
+          <a class="row" href="#library/practice"><span class="row__lead num">9:15</span><span><span class="row__title">Oral liquid doses</span><span class="row__meta">10 problems · plan for Exam 3</span></span><span class="row__end"><span class="dot dot--low"></span><span class="num">20m</span></span></a>
+          <a class="row" href="#notes"><span class="row__lead num">12:30</span><span><span class="row__title">Write: Ch 9 lecture notes</span><span class="row__meta">note task · read-along session</span></span><span class="row__end"><span class="num">30m</span></span></a>
+          <a class="row" href="#ask"><span class="row__lead num">3:00</span><span><span class="row__title">Frank–Starling, in your own words</span><span class="row__meta">3 prompts · plan for Exam 3</span></span><span class="row__end"><span class="dot dot--mid"></span><span class="num">10m</span></span></a>
+          <div class="row row--proposed"><span class="row__lead"><span class="ev-dot" style="width:6px;height:6px"></span><span class="num">7:30</span></span><span><span class="row__title">5 dosage-by-weight problems</span><span class="row__meta">proposed · you missed 2 of 3 yesterday</span></span><span class="row__end"><button class="btn btn--line" type="button" style="height:26px">Accept</button><button class="btn btn--text" type="button">Edit</button><button class="btn btn--text" type="button">Dismiss</button></span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec__h"><span class="label">Exams</span><span class="label">ready</span></div>
+        <div class="list">
+          <a class="row" href="#plan"><span class="row__lead num">Thu</span><span><span class="row__title">NUR 112 · Exam 3</span><span class="row__meta">study plan waiting for you</span></span><span class="row__end"><span class="meter meter--mid" style="--v:58%"><i></i></span><span class="num">58%</span></span></a>
+          <a class="row" href="#library/exams"><span class="row__lead num">Nov 9</span><span><span class="row__title">BIO 201 · Lab practical 2</span><span class="row__meta">plan after Exam 3</span></span><span class="row__end"><span class="meter meter--ok" style="--v:71%"><i></i></span><span class="num">71%</span></span></a>
+          <a class="row" href="#library/exams"><span class="row__lead num">Nov 16</span><span><span class="row__title">NUR 112 · Med math check</span><span class="row__meta">no plan yet</span></span><span class="row__end"><span class="meter meter--low" style="--v:40%"><i></i></span><span class="num">40%</span></span></a>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec__h"><span class="label">This week</span></div>
+        <div class="list">
+          <a class="row" href="#progress"><span class="row__lead num">Sun</span><span><span class="row__title">Weekly review</span><span class="row__meta">5 h 10 m studied · accuracy 72% · 3 weak spots to confirm</span></span><span class="row__end">open</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIBRARY ================= -->
+<section class="screen" data-screen="library" aria-label="Library">
+  <div class="head"><h1 class="t-title">Library</h1></div>
+  <nav class="tabs" aria-label="Library">
+    <a href="#library" data-sub="decks">Decks<span class="n">5</span></a>
+    <a href="#library/practice" data-sub="practice">Practice</a>
+    <a href="#library/weak" data-sub="weak">Weak spots<span class="n">4</span></a>
+    <a href="#library/exams" data-sub="exams">Exams<span class="n">3</span></a>
+  </nav>
+
+  <!-- decks -->
+  <div data-panel="decks">
+    <div class="lib">
+      <div>
+        <div class="stack">
+          <article class="card card--held" id="deck-card" aria-label="Selected deck">
+            <div class="card__head"><span id="dk-course">Deck · NUR 112</span><span class="card__no" id="dk-n">12</span></div>
+            <div class="card__body">
+              <h2 class="t-face" id="dk-title">Cardiac output &amp; Frank–Starling</h2>
+              <p class="t-read soft" id="dk-meta" style="margin-top:var(--s-2)">12 cards · 5 due today · last studied yesterday</p>
+              <p class="label" style="margin-top:auto">On top of the stack</p>
+              <p class="t-read" id="dk-top" style="margin-top:2px">What is preload?</p>
+              <div class="card__foot">
+                <a class="btn btn--ink" href="#library/study">Study 5 due <span class="kbd">↵</span></a>
+                <a class="btn" href="#library/study">All cards</a>
+                <span class="push" style="display:flex;align-items:center;gap:var(--s-2)"><span class="meter meter--mid" id="dk-meter" style="--v:62%;width:64px"><i></i></span><span class="num muted" id="dk-pct">62%</span></span>
+              </div>
+            </div>
+          </article>
+        </div>
+        <p class="keys" style="margin-top:var(--s-5)"><span><span class="kbd">↑</span><span class="kbd">↓</span> pick a deck</span><span><span class="kbd">↵</span> study</span></p>
+      </div>
+      <div>
+        <div class="sec__h"><span class="label">Decks</span><span class="label">known · due</span></div>
+        <div class="list" id="deck-list">
+          <div class="row deck-row is-sel" data-deck="0" tabindex="0"><span><span class="row__title">Cardiac output &amp; Frank–Starling</span><span class="row__meta">NUR 112 · 12 cards</span></span><span class="row__end"><span class="meter meter--mid" style="--v:62%;width:64px"><i></i></span></span><span class="row__end num">5</span></div>
+          <div class="row deck-row" data-deck="1" tabindex="0"><span><span class="row__title">Fluid balance &amp; I&amp;O</span><span class="row__meta">NUR 112 · 18 cards</span></span><span class="row__end"><span class="meter meter--ok" style="--v:78%;width:64px"><i></i></span></span><span class="row__end num">3</span></div>
+          <div class="row deck-row" data-deck="2" tabindex="0"><span><span class="row__title">Oral liquid doses</span><span class="row__meta">NUR 112 · 20 cards</span></span><span class="row__end"><span class="meter meter--low" style="--v:34%;width:64px"><i></i></span></span><span class="row__end num">8</span></div>
+          <div class="row deck-row" data-deck="3" tabindex="0"><span><span class="row__title">Muscle: the crossbridge cycle</span><span class="row__meta">BIO 201 · 15 cards</span></span><span class="row__end"><span class="meter meter--ok" style="--v:70%;width:64px"><i></i></span></span><span class="row__end num">2</span></div>
+          <div class="row deck-row" data-deck="4" tabindex="0"><span><span class="row__title">Med math basics</span><span class="row__meta">NUR 112 · 22 cards</span></span><span class="row__end"><span class="meter meter--mid" style="--v:55%;width:64px"><i></i></span></span><span class="row__end num">0</span></div>
+        </div>
+        <div class="proposal" style="margin-top:var(--s-5)">
+          <div class="proposal__text"><p class="ev">14 new cards on dosage by weight, from your Ch 9 note.</p><span class="src" style="margin-left:calc(7px + var(--s-3))">Note · Med math, ¶2–¶6</span></div>
+          <button class="btn btn--line" type="button">Review</button><button class="btn btn--text" type="button">Put away</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- practice -->
+  <div data-panel="practice">
+    <div class="practice">
+      <div class="slide is-cur" id="pq">
+        <div class="flipper">
+          <article class="card card--held face face--front" aria-label="Practice question">
+            <div class="card__head"><span>Practice · Dosage by weight · 3 of 10</span><span class="card__no">03</span></div>
+            <div class="card__body">
+              <p class="t-title">A child weighs 22 lb. Amoxicillin is ordered at 40 mg/kg/day, divided every 12 hours. You have 250 mg/5 mL. How many mL per dose?</p>
+              <div class="opts" role="radiogroup" aria-label="Choices">
+                <button class="opt" role="radio" aria-checked="false" data-opt="0"><span class="kbd">A</span>2 mL</button>
+                <button class="opt" role="radio" aria-checked="false" data-opt="1"><span class="kbd">B</span>4 mL</button>
+                <button class="opt" role="radio" aria-checked="false" data-opt="2"><span class="kbd">C</span>8 mL</button>
+                <button class="opt" role="radio" aria-checked="false" data-opt="3"><span class="kbd">D</span>16 mL</button>
+              </div>
+              <div class="card__foot">
+                <button class="btn btn--ink" id="pq-commit" type="button" disabled>Commit <span class="kbd">↵</span></button>
+                <button class="btn btn--text" type="button" id="pq-tell" style="margin-left:var(--s-3)">Just tell me</button>
+                <span class="src push">Set · Dosage by weight</span>
+              </div>
+            </div>
+          </article>
+          <article class="card card--held face face--back" aria-label="Feedback">
+            <div class="card__head"><span id="pq-verdict">Not quite</span><span class="card__no">03</span></div>
+            <div class="card__body">
+              <p class="t-title">B · 4 mL per dose</p>
+              <p class="attempt-echo"><b>You chose</b> <span id="pq-chose">C · 8 mL</span></p>
+              <p class="work" style="margin-top:var(--s-2)">22 lb ÷ 2.2 = 10 kg<br>40 mg × 10 kg = 400 mg a day ÷ 2 doses = 200 mg<br>200 mg ÷ 250 mg × 5 mL = 4 mL</p>
+              <p class="ink-note" style="margin-top:var(--s-3)" id="pq-note">8 mL is the whole day's volume. Split it across the two doses.</p>
+              <div class="card__foot">
+                <button class="btn btn--ink" type="button" id="pq-next">Next question <span class="kbd">→</span></button>
+                <button class="btn" type="button">Explain more</button>
+                <span class="push" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><a class="src" href="#notes">Note · Med math, ¶5</a><span class="src">Set · Dosage by weight, item 3</span></span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="practice-meta">
+        <span class="ticks" aria-label="Question 3 of 10"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="keys"><span><span class="kbd">A</span>–<span class="kbd">D</span> choose</span><span><span class="kbd">↵</span> commit</span><span><span class="kbd">→</span> next</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- weak spots -->
+  <div data-panel="weak">
+    <div style="width:820px">
+      <p class="ev" style="margin-bottom:var(--s-5)">Four spots, all on Exam 3. Two of them are the same mistake: the daily dose never gets split.</p>
+      <div class="sec__h"><span class="label">Weak spot</span><span class="label">strength · exam</span></div>
+      <div class="list">
+        <div class="row" style="grid-template-columns:20px 1fr auto"><span class="row__lead"><span class="dot dot--low"></span></span><span><span class="row__title">Oral liquid doses</span><span class="row__meta">missed 4 of 6 this week · <span class="src">Set · Oral liquid doses</span></span></span><span class="row__end"><a class="btn btn--line row__act" href="#library/practice" style="height:26px">Practice 5</a><span class="meter meter--low" style="--v:30%;width:64px"><i></i></span><span style="width:56px">Exam 3</span></span></div>
+        <div class="row is-hover" style="grid-template-columns:20px 1fr auto"><span class="row__lead"><span class="dot dot--low"></span></span><span><span class="row__title">Dosage by weight: dividing the daily dose</span><span class="row__meta">missed 3 of 5 · last on Friday · <span class="src">Note · Med math, ¶5</span></span></span><span class="row__end"><a class="btn btn--line row__act" href="#library/practice" style="height:26px">Practice 5</a><span class="meter meter--low" style="--v:38%;width:64px"><i></i></span><span style="width:56px">Exam 3</span></span></div>
+        <div class="row" style="grid-template-columns:20px 1fr auto"><span class="row__lead"><span class="dot dot--mid"></span></span><span><span class="row__title">Preload vs afterload</span><span class="row__meta">mixed up twice in cards · <span class="src">Note · Cardiac output, ¶4</span></span></span><span class="row__end"><a class="btn btn--line row__act" href="#library/study" style="height:26px">Study 4</a><span class="meter meter--mid" style="--v:52%;width:64px"><i></i></span><span style="width:56px">Exam 3</span></span></div>
+        <div class="row" style="grid-template-columns:20px 1fr auto"><span class="row__lead"><span class="dot dot--mid"></span></span><span><span class="row__title">I&amp;O totals across a shift</span><span class="row__meta">1 miss · E.V. isn't sure yet · <span class="src src--unverified">unverified</span></span></span><span class="row__end"><button class="btn btn--line row__act" type="button" style="height:26px">Confirm</button><span class="meter meter--mid" style="--v:60%;width:64px"><i></i></span><span style="width:56px">Exam 3</span></span></div>
+      </div>
+      <p class="keys" style="margin-top:var(--s-4)"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">P</span> practise this</span></p>
+    </div>
+  </div>
+
+  <!-- exams -->
+  <div data-panel="exams">
+    <div style="width:820px">
+      <div class="sec__h"><span class="label">Exam</span><span class="label">ready</span></div>
+      <div class="list">
+        <a class="row" href="#plan" style="grid-template-columns:72px 1fr auto"><span class="row__lead num">Thu 5</span><span><span class="row__title">NUR 112 · Exam 3 · cardiac, fluids, med math</span><span class="row__meta">study plan waiting for you · confidence first</span></span><span class="row__end"><span class="dot dot--wait"></span><span class="meter meter--mid" style="--v:58%"><i></i></span><span class="num">58%</span></span></a>
+        <div class="row" style="grid-template-columns:72px 1fr auto"><span class="row__lead num">Mon 9</span><span><span class="row__title">BIO 201 · Lab practical 2 · muscle</span><span class="row__meta">plan after Exam 3</span></span><span class="row__end"><span class="meter meter--ok" style="--v:71%"><i></i></span><span class="num">71%</span></span></div>
+        <div class="row" style="grid-template-columns:72px 1fr auto"><span class="row__lead num">Mon 16</span><span><span class="row__title">NUR 112 · Med math check</span><span class="row__meta">no plan yet · <button class="btn btn--text" type="button">ask for one</button></span></span><span class="row__end"><span class="meter meter--low" style="--v:40%"><i></i></span><span class="num">40%</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STUDY (flashcard carousel) ================= -->
+<section class="screen" data-screen="study" aria-label="Study deck">
+  <div class="study-top">
+    <div class="head" style="margin:0"><a class="crumb" href="#library">Library</a><span class="muted">/</span><h1 class="t-title">Cardiac output &amp; Frank–Starling</h1></div>
+    <span class="muted"><span class="num" id="st-pos">07 / 12</span> · <span id="st-left">6 left</span></span>
+  </div>
+  <div class="stage" id="stage" aria-live="polite"></div>
+  <div class="study-bottom">
+    <div class="pile" id="pile-again"><span class="pile__cards"><i></i><i></i><i></i></span><span><span class="label" style="display:block">Again</span><span class="pile__n" id="n-again">2</span></span></div>
+    <div class="keys"><span><span class="kbd">←</span><span class="kbd">→</span> deal</span><span><span class="kbd">Space</span> flip</span><span><span class="kbd">1</span> again</span><span><span class="kbd">2</span> good</span></div>
+    <div class="pile" id="pile-good"><span style="text-align:right"><span class="label" style="display:block">Good</span><span class="pile__n" id="n-good">4</span></span><span class="pile__cards"><i></i><i></i><i></i></span></div>
+  </div>
+</section>
+
+<!-- ================= PLAN ================= -->
+<section class="screen" data-screen="plan" aria-label="Exam study plan">
+  <div class="head"><a class="crumb" href="#library/exams">Exams</a><span class="muted">/</span><h1 class="t-title">NUR 112 · Exam 3</h1><span class="muted">Thursday, Nov 5 · 3 days</span></div>
+  <div class="steps" id="plan-steps"><span class="on"><span class="num">1</span>Your confidence</span><span id="st2"><span class="num">2</span>E.V.'s proposal</span><span id="st3"><span class="num">3</span>Your call</span></div>
+  <div class="plan">
+    <div>
+      <p class="ev" style="margin-bottom:var(--s-4)">Rate each first. I'll weigh the plan by what you say, then by your misses.</p>
+      <div class="list" id="conf">
+        <div class="row conf-row"><span class="num muted">1</span><span class="row__title">Calculate cardiac output from HR and SV</span><span class="seg" data-c="3"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">2</span><span class="row__title">Explain the Frank–Starling law</span><span class="seg" data-c="2"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">3</span><span class="row__title">Tell preload from afterload</span><span class="seg" data-c="1"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">4</span><span class="row__title">Oral liquid dose calculations</span><span class="seg" data-c="1"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">5</span><span class="row__title">Pediatric dosage by weight</span><span class="seg" data-c="0"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">6</span><span class="row__title">Fluid balance and I&amp;O totals</span><span class="seg" data-c="2"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+        <div class="row conf-row"><span class="num muted">7</span><span class="row__title">Signs of fluid volume excess</span><span class="seg" data-c="-1"><button>Lost</button><button>Shaky</button><button>OK</button><button>Solid</button></span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--s-3);margin-top:var(--s-5)">
+        <button class="btn btn--ink" id="draft" type="button" disabled>Draft my plan <span class="kbd">↵</span></button>
+        <span class="muted t-small" id="conf-left">1 left to rate</span>
+      </div>
+    </div>
+    <div id="plan-right">
+      <div class="card" id="plan-empty" style="border-style:dashed;background:transparent">
+        <div class="card__head"><span>Proposal</span><span class="card__no">—</span></div>
+        <div class="card__body"><p class="t-read muted">The proposal is written here after you rate. It's a job, so you can leave and come back; it waits in Activity.</p></div>
+      </div>
+      <div class="card" id="plan-job" hidden>
+        <div class="card__head"><span>Job · Study plan · Exam 3</span><span class="card__no">J-219</span></div>
+        <div class="card__body">
+          <p class="t-title" style="display:flex;gap:var(--s-3);align-items:center"><span class="dot dot--run"></span>Drafting</p>
+          <ul class="jsteps" style="margin-top:var(--s-4)">
+            <li><span class="num">✓</span>Read your 7 ratings</li>
+            <li><span class="num">✓</span>Read 14 misses from the last two weeks</li>
+            <li><span class="num">·</span>Fitting blocks around clinical on Tuesday</li>
+          </ul>
+        </div>
+      </div>
+      <article class="card card--held" id="plan-card" hidden aria-label="Study plan proposal">
+        <div class="card__head"><span>Proposal · 6 blocks · 2 h 10 m before Thursday</span><span class="card__no">v1</span></div>
+        <div class="card__body">
+          <div class="plan-rows">
+            <div class="prow"><span class="num muted">Mon 7:30p</span><span>Oral liquid doses · 10 problems<span class="row__meta">you said Shaky · 4 misses</span></span><span class="num muted">20m</span></div>
+            <div class="prow"><span class="num muted">Tue 8:40a</span><span>Preload vs afterload · cards + prompts<span class="row__meta">you said Shaky · mixed up twice</span></span><span class="num muted">25m</span></div>
+            <div class="prow"><span class="num muted">Tue 6:00p</span><span>Pediatric dosage by weight · 8 problems<span class="row__meta">you said Lost · after clinical</span></span><span class="num muted">20m</span></div>
+            <div class="prow"><span class="num muted">Wed 8:40a</span><span>Mock exam · ch 9 · 40 questions<span class="row__meta">being written now · ready tonight</span></span><span class="num muted">45m</span></div>
+          </div>
+          <p class="t-small muted" style="margin-top:var(--s-2)">+ 2 short reviews Wed and Thu morning. Left out: the CO formula (you said Solid, no misses).</p>
+          <div class="card__foot">
+            <button class="btn btn--ink" type="button">Approve <span class="kbd">↵</span></button>
+            <button class="btn btn--line" type="button">Ask for changes</button>
+            <button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Put away</button>
+            <span class="src push">Weak spots · your ratings</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NOTES ================= -->
+<section class="screen" data-screen="notes" aria-label="Notes in a study session" style="padding:0">
+  <div class="sessbar">
+    <span style="display:flex;align-items:center;gap:var(--s-2)"><span class="dot dot--ok"></span><span class="soft">Study session</span> · NUR 112 · Ch 9</span>
+    <span class="timer" id="timer">18:42</span>
+    <button class="btn" type="button" id="read-btn" style="height:28px"><span id="read-ico">▶</span> Read along</button>
+    <span id="read-pos">paragraph 3 of 7</span>
+    <span class="grow"></span>
+    <span class="saved"><span class="dot dot--ok"></span>Saved on this device · <span id="saved-ago">just now</span></span>
+    <button class="btn btn--line" type="button" style="height:28px">End session</button>
+  </div>
+  <div class="notes">
+    <aside class="outline">
+      <p class="label" style="margin-bottom:var(--s-2)">In this note</p>
+      <a href="#notes" class="on">Cardiac output</a>
+      <a href="#notes" class="sub">Frank–Starling</a>
+      <a href="#notes" class="sub">Before Thursday</a>
+      <p class="label" style="margin:var(--s-6) 0 var(--s-2)">Session</p>
+      <p class="t-small muted">Started 8:52 am<br>1 check answered<br>2 checklist items left</p>
+      <p class="keys" style="margin-top:var(--s-6);flex-direction:column;align-items:flex-start;gap:var(--s-2)"><span><span class="kbd">#</span> heading</span><span><span class="kbd">-</span> bullet</span><span><span class="kbd">[ ]</span> checklist</span><span><span class="kbd">R</span> read along</span></p>
+    </aside>
+    <div class="page">
+      <div class="editor" contenteditable="true" spellcheck="false" aria-label="Note editor">
+        <h1>Cardiac output</h1>
+        <p><span class="s">Cardiac output is the volume the heart pumps each minute: CO = HR × SV.</span> <span class="s">At rest it is about 5 L/min.</span></p>
+        <h2>Frank–Starling</h2>
+        <figure class="fig" contenteditable="false">
+          <svg viewBox="0 0 236 140" width="236" height="140" role="img" aria-label="Frank–Starling curve: stroke volume rises with preload, then levels off">
+            <line x1="22" y1="8" x2="22" y2="118" stroke="currentColor" stroke-width="1"/>
+            <line x1="22" y1="118" x2="230" y2="118" stroke="currentColor" stroke-width="1"/>
+            <path d="M24 112 C 70 104, 92 46, 140 30 S 210 22, 228 21" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="104" y1="118" x2="104" y2="56" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
+            <circle cx="104" cy="54" r="3" fill="currentColor"/>
+            <text x="228" y="134" text-anchor="end" font-family="Newsreader, Georgia, serif" font-style="italic" font-size="12" fill="currentColor">preload (EDV)</text>
+            <text x="14" y="10" font-family="Newsreader, Georgia, serif" font-style="italic" font-size="12" fill="currentColor" transform="rotate(-90 14 10)" text-anchor="end">stroke volume</text>
+          </svg>
+          <figcaption>Drawn in lecture: SV climbs with stretch, then levels off.</figcaption>
+        </figure>
+        <p><span class="s">The more the ventricle fills, the harder it contracts, up to a point.</span> <span class="s is-reading" id="reading">More stretch means more overlap between actin and myosin.</span></p>
+        <ul class="bul">
+          <li><b class="strong">Preload</b>: stretch at the end of diastole (EDV)</li>
+          <li><b class="strong">Afterload</b>: the pressure the ventricle pushes against</li>
+          <li><b class="strong">Contractility</b>: force at a given stretch</li>
+        </ul>
+        <h2>Before Thursday</h2>
+        <ul class="chk">
+          <li class="done"><span class="box"></span><span>Redo the 3 missed CO problems</span></li>
+          <li><span class="box"></span><span>Draw the curve from memory</span></li>
+          <li><span class="box"></span><span>Ask E.V. why afterload rises in hypertension</span></li>
+        </ul>
+      </div>
+    </div>
+    <aside class="side">
+      <article class="card card--held check" aria-label="E.V.'s check question">
+        <div class="card__head"><span style="display:flex;align-items:center;gap:var(--s-2)"><span class="ev-dot" style="width:6px;height:6px"></span>Check · Frank–Starling</span><span class="card__no">C2</span></div>
+        <div class="card__body">
+          <p class="t-read">In your own words: why does a fuller ventricle beat harder?</p>
+          <div class="field" style="margin-top:var(--s-3)">
+            <textarea class="ruled" id="check-in" rows="2" aria-label="Your answer">The fibres stretch, so more crossbridges can form and it squeezes harder.</textarea>
+          </div>
+          <div class="card__foot" id="check-foot" style="padding-top:var(--s-3)">
+            <button class="btn btn--ink" type="button" id="check-send" style="height:28px">Send <span class="kbd">↵</span></button>
+            <button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Just tell me</button>
+          </div>
+          <div id="check-reply" hidden style="margin-top:auto;padding-top:var(--s-3)">
+            <p class="ink-note" style="font-size:var(--fs-ui);line-height:var(--lh-ui)">Yes, that's the length–tension idea. Add it under the curve?</p>
+            <a class="src" href="#notes">Note · Cardiac output, ¶3</a>
+          </div>
+        </div>
+      </article>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= ASK ================= -->
+<section class="screen" data-screen="ask" aria-label="Ask E.V.">
+  <div class="ask">
+    <div class="head" style="margin-bottom:var(--s-6)"><h1 class="t-title">Ask E.V.</h1><span class="muted">attempt first is on · <button class="btn btn--text" type="button">new thread</button></span></div>
+    <div class="turn turn--me"><span class="label who">You · 4:31 pm</span><p>Why does higher afterload lower stroke volume?</p></div>
+    <div class="turn turn--ev"><p class="ev">Try it first: what is the ventricle pushing against when it ejects?</p><span class="t-small muted" style="margin-left:calc(7px + var(--s-3))">Your attempt first, or <button class="btn btn--text" type="button" style="font-size:inherit">Just tell me</button></span></div>
+    <div class="turn turn--me"><span class="label who">You</span><p>The pressure in the aorta. If it's higher, less blood gets out?</p></div>
+    <div class="turn turn--ev"><p class="ev">Yes. Against higher aortic pressure the aortic valve opens later and closes sooner, so less blood leaves with each beat, and stroke volume falls.</p><a class="src" href="#notes">Note · Cardiac output, ¶5</a></div>
+    <div class="turn turn--me"><span class="label who">You · 4:36 pm</span><p>is the mock exam ready?</p></div>
+    <div class="turn turn--ev">
+      <p class="ev">Not yet. It's on question 18 of 40, started at 4:12 pm, so about 20 more minutes. It goes on Today when it's done.</p>
+      <a class="jobline" href="#activity"><span class="dot dot--run"></span><span>Job · Mock exam · ch 9</span><span class="meter" style="--v:45%;width:120px"><i></i></span><span class="num">18/40</span><span style="margin-left:auto">from Activity</span></a>
+    </div>
+    <div class="composer">
+      <div class="card card--held">
+        <div class="field"><input class="ruled ruled--ui" placeholder="Ask, or answer…" aria-label="Message E.V."></div>
+        <div class="card__foot" style="padding-top:var(--s-3)">
+          <span class="keys"><span><span class="kbd">↵</span> send</span><span><span class="kbd">⇧↵</span> new line</span><span><span class="kbd">@</span> cite a note</span></span>
+          <button class="btn btn--ink push" type="button" style="height:28px">Send <span class="kbd">↵</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY ================= -->
+<section class="screen" data-screen="activity" aria-label="Activity">
+  <div class="head" style="margin-bottom:var(--s-5)"><h1 class="t-title">Activity</h1><span class="muted">jobs E.V. is doing for you</span></div>
+  <div class="act">
+    <div id="jobs">
+      <div class="sec"><div class="sec__h"><span class="label">Needs you</span><span class="label num">2</span></div>
+        <div class="list">
+          <div class="row job-row" data-job="plan" tabindex="0"><span class="row__lead"><span class="dot dot--wait"></span></span><span><span class="row__title">Study plan · Exam 3</span><span class="row__meta">ready for your ratings and OK</span></span><span class="row__end">10:02 am</span></div>
+          <div class="row job-row" data-job="cards" tabindex="0"><span class="row__lead"><span class="dot dot--wait"></span></span><span><span class="row__title">14 new cards · dosage by weight</span><span class="row__meta">review before they join your deck</span></span><span class="row__end">9:40 am</span></div>
+        </div></div>
+      <div class="sec"><div class="sec__h"><span class="label">Running</span></div>
+        <div class="list">
+          <div class="row job-row" data-job="mock" tabindex="0"><span class="row__lead"><span class="dot dot--run"></span></span><span><span class="row__title">Mock exam · ch 9</span><span class="row__meta">writing question 18 of 40 · started 4:12 pm</span></span><span class="row__end"><span class="meter" style="--v:45%;width:64px"><i></i></span></span></div>
+          <div class="row job-row" data-job="week" tabindex="0"><span class="row__lead"><span class="dot dot--run"></span></span><span><span class="row__title">Weekly review</span><span class="row__meta">gathering this week's sessions</span></span><span class="row__end"><span class="meter" style="--v:20%;width:64px"><i></i></span></span></div>
+        </div></div>
+      <div class="sec"><div class="sec__h"><span class="label">Failed</span></div>
+        <div class="list">
+          <div class="row job-row is-sel" data-job="fail" tabindex="0"><span class="row__lead"><span class="dot dot--fail"></span></span><span><span class="row__title">Practice set · Med math check</span><span class="row__meta">stopped: no notes to cite yet</span></span><span class="row__end">6:02 am</span></div>
+        </div></div>
+      <div class="sec" style="margin-bottom:0"><div class="sec__h"><span class="label">Done</span><span class="label">today</span></div>
+        <div class="list">
+          <div class="row job-row" data-job="morning" tabindex="0"><span class="row__lead"><span class="dot dot--ok"></span></span><span><span class="row__title">Morning review set · 8 cards</span></span><span class="row__end">6:00 am</span></div>
+          <div class="row job-row" data-job="oral" tabindex="0"><span class="row__lead"><span class="dot dot--ok"></span></span><span><span class="row__title">Practice set · oral liquid doses</span></span><span class="row__end">yesterday</span></div>
+        </div></div>
+    </div>
+    <article class="card card--held" id="job-card" aria-live="polite">
+      <div class="card__head"><span id="jc-kind">Job · Practice set</span><span class="card__no" id="jc-no">J-214</span></div>
+      <div class="card__body">
+        <p class="t-title" id="jc-title">Med math check, 10 questions</p>
+        <p class="t-small" id="jc-state" style="display:flex;gap:var(--s-2);align-items:center;margin:var(--s-1) 0 var(--s-3);color:var(--text-2)"><span class="dot dot--fail"></span>Failed at 6:02 am</p>
+        <p class="t-read" id="jc-text">I stopped because the Med math set has no notes yet, so none of the questions could cite a source. I didn't write uncited ones.</p>
+        <ul class="jsteps" id="jc-steps" style="margin-top:var(--s-3)">
+          <li><span class="num">✓</span>Read the exam's objectives</li>
+          <li><span class="num">✓</span>Looked for source notes · found 0</li>
+          <li><span class="num">×</span>Write 10 cited questions · stopped</li>
+        </ul>
+        <div class="card__foot" id="jc-foot">
+          <button class="btn btn--ink" type="button">Retry with Ch 7 note <span class="kbd">↵</span></button>
+          <button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Dismiss</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= PROGRESS ================= -->
+<section class="screen" data-screen="progress" aria-label="Progress">
+  <div class="prog">
+    <div class="head"><h1 class="t-title">Progress</h1><span class="muted">week of Oct 26</span></div>
+    <div class="figs">
+      <div><span class="big">5 h 10 m</span><span class="label">studied this week</span></div>
+      <div><span class="big">72%</span><span class="label">accuracy · up from 64%</span></div>
+      <div><span class="big">3</span><span class="label">weak spots to confirm</span></div>
+    </div>
+    <div class="sec__h"><span class="label">Accuracy, six weeks</span><span class="label">practice + cards</span></div>
+    <svg viewBox="0 0 820 140" width="820" height="140" style="color:var(--text-2);display:block;border-top:var(--hair) solid var(--line);border-bottom:var(--hair) solid var(--line)" role="img" aria-label="Accuracy rose from 58% to 72% over six weeks">
+      <line x1="0" y1="70" x2="820" y2="70" stroke="var(--line)" stroke-dasharray="2 4"/>
+      <polyline points="40,104 190,96 340,88 490,92 640,70 780,56" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <g fill="var(--desk)" stroke="currentColor" stroke-width="1.5"><circle cx="40" cy="104" r="3"/><circle cx="190" cy="96" r="3"/><circle cx="340" cy="88" r="3"/><circle cx="490" cy="92" r="3"/><circle cx="640" cy="70" r="3"/></g>
+      <circle cx="780" cy="56" r="3.5" fill="currentColor"/>
+      <text x="780" y="44" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="currentColor">72%</text>
+    </svg>
+    <p class="ev" style="margin-top:var(--s-5)">Sunday's review is being gathered now. It'll ask you to confirm three weak spots.</p>
+  </div>
+</section>
+
+<!-- ================= SYSTEM ================= -->
+<section class="screen" data-screen="system" aria-label="Design system">
+  <div class="sys-intro">
+    <div>
+      <p class="label">E.V. v5 · direction F · the Proprietary</p>
+      <h1 class="t-face" style="margin-top:var(--s-2)">Index</h1>
+      <p class="t-read soft" style="margin-top:var(--s-3);max-width:520px">One card in focus. Everything else is quiet paper and type. The index card is the only object; the rest is a desk, a hairline and a single blue-black ink.</p>
+    </div>
+    <div class="keys" style="justify-content:flex-end"><span><span class="kbd">\</span> switch theme</span><span><span class="kbd">⌘K</span> palette</span><span>16 cards in this set</span></div>
+  </div>
+
+  <div class="specs">
+    <!-- 01 -->
+    <article class="card spec">
+      <div class="card__head"><span>Principles</span><span class="card__no">01</span></div>
+      <div class="card__body">
+        <p class="t-title">A calm desk with one card on it.</p>
+        <ul class="t-ui soft" style="margin-top:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2)">
+          <li><b class="strong" style="color:var(--text)">One held card per screen.</b> Only the thing being answered gets a frame and a lift.</li>
+          <li><b class="strong" style="color:var(--text)">One ink.</b> The single primary action, E.V.'s mark and her annotations.</li>
+          <li><b class="strong" style="color:var(--text)">Depth is a tone step and a hairline.</b> Shadow only on the held card and floating layers.</li>
+          <li><b class="strong" style="color:var(--text)">Type and keys are the icons.</b> ↵ ← → ↳ ○ ● and nothing else.</li>
+        </ul>
+      </div>
+    </article>
+    <!-- 02 -->
+    <article class="card spec">
+      <div class="card__head"><span>Colour · Daylight (default)</span><span class="card__no">02</span></div>
+      <div class="card__body">
+        <div class="swatches">
+          <span class="sw"><i style="background:#F2EEE6"></i><b>desk</b><span class="num">#F2EEE6</span></span>
+          <span class="sw"><i style="background:#26428B;border-color:#26428B"></i><b>ink</b><span class="num">#26428B</span></span>
+          <span class="sw"><i style="background:#EAE5DB"></i><b>desk-sunk</b><span class="num">#EAE5DB</span></span>
+          <span class="sw"><i style="background:#25221D;border-color:#25221D"></i><b>text</b><span class="num">#25221D</span></span>
+          <span class="sw"><i style="background:#FAF8F3"></i><b>card</b><span class="num">#FAF8F3</span></span>
+          <span class="sw"><i style="background:#555047;border-color:#555047"></i><b>text-2</b><span class="num">#555047</span></span>
+          <span class="sw"><i style="background:#FDFCF9"></i><b>card-held</b><span class="num">#FDFCF9</span></span>
+          <span class="sw"><i style="background:#6B6458;border-color:#6B6458"></i><b>text-3</b><span class="num">#6B6458</span></span>
+          <span class="sw"><i style="background:#DED7CA"></i><b>line</b><span class="num">#DED7CA</span></span>
+          <span class="sw"><i style="background:#4C7752;border-color:#4C7752"></i><b>ok</b><span class="num">#4C7752</span></span>
+          <span class="sw"><i style="background:#C4BBAA"></i><b>line-strong</b><span class="num">#C4BBAA</span></span>
+          <span class="sw"><i style="background:#94701F;border-color:#94701F"></i><b>mid</b><span class="num">#94701F</span></span>
+          <span class="sw"><i style="background:#D3CABA"></i><b>rule-head</b><span class="num">#D3CABA</span></span>
+          <span class="sw"><i style="background:#A24A38;border-color:#A24A38"></i><b>low</b><span class="num">#A24A38</span></span>
+        </div>
+        <p class="t-small muted" style="margin-top:auto">Also: <span class="num">hover</span> text at 5% · <span class="num">ink-wash</span> ink at 8% (read-along) · <span class="num">scrim</span> desk at 74%</p>
+      </div>
+    </article>
+    <!-- 03 -->
+    <article class="card spec" data-theme="dark" style="background:#1C1915">
+      <div class="card__head"><span>Colour · Desk lamp (dark)</span><span class="card__no">03</span></div>
+      <div class="card__body">
+        <div class="swatches">
+          <span class="sw"><i style="background:#1C1915"></i><b>desk</b><span class="num">#1C1915</span></span>
+          <span class="sw"><i style="background:#A6B7EE;border-color:#A6B7EE"></i><b>ink</b><span class="num">#A6B7EE</span></span>
+          <span class="sw"><i style="background:#171512"></i><b>desk-sunk</b><span class="num">#171512</span></span>
+          <span class="sw"><i style="background:#ECE6DA;border-color:#ECE6DA"></i><b>text</b><span class="num">#ECE6DA</span></span>
+          <span class="sw"><i style="background:#27241F"></i><b>card</b><span class="num">#27241F</span></span>
+          <span class="sw"><i style="background:#C0B7A7;border-color:#C0B7A7"></i><b>text-2</b><span class="num">#C0B7A7</span></span>
+          <span class="sw"><i style="background:#2D2A24"></i><b>card-held</b><span class="num">#2D2A24</span></span>
+          <span class="sw"><i style="background:#A2998A;border-color:#A2998A"></i><b>text-3</b><span class="num">#A2998A</span></span>
+          <span class="sw"><i style="background:#3A352D"></i><b>line</b><span class="num">#3A352D</span></span>
+          <span class="sw"><i style="background:#92B591;border-color:#92B591"></i><b>ok</b><span class="num">#92B591</span></span>
+          <span class="sw"><i style="background:#504940"></i><b>line-strong</b><span class="num">#504940</span></span>
+          <span class="sw"><i style="background:#D6AE5C;border-color:#D6AE5C"></i><b>mid</b><span class="num">#D6AE5C</span></span>
+          <span class="sw"><i style="background:#453F36"></i><b>rule-head</b><span class="num">#453F36</span></span>
+          <span class="sw"><i style="background:#E0927C;border-color:#E0927C"></i><b>low</b><span class="num">#E0927C</span></span>
+        </div>
+        <p class="t-small muted" style="margin-top:auto">A warm dark desk, cards in soft charcoal, and a faint lamp glow from the top of the screen.</p>
+      </div>
+    </article>
+    <!-- 04 -->
+    <article class="card spec">
+      <div class="card__head"><span>Type · three faces, three jobs</span><span class="card__no">04</span></div>
+      <div class="card__body" style="gap:var(--s-3)">
+        <div><span class="label">Newsreader · what is written on a card, and E.V.'s voice</span><p class="t-face" style="margin-top:2px">Preload stretches; <i>afterload resists.</i></p></div>
+        <div><span class="label">Source Sans 3 · the interface</span><p class="t-ui" style="margin-top:2px">Today · Library · Start review · 4 blocks, done by 3:10 pm</p></div>
+        <div><span class="label">IBM Plex Mono · numbers only</span><p class="num" style="font-size:var(--fs-ui);margin-top:2px">07 / 12 · 18:42 · 250 mg / 5 mL · 58%</p></div>
+      </div>
+    </article>
+    <!-- 05 -->
+    <article class="card spec">
+      <div class="card__head"><span>Type · the scale, five steps</span><span class="card__no">05</span></div>
+      <div class="card__body">
+        <div class="scale-row"><span class="num muted">26</span><span class="t-face">Card face</span></div>
+        <div class="scale-row"><span class="num muted">20</span><span class="t-title">Titles and answers</span></div>
+        <div class="scale-row"><span class="num muted">16</span><span class="t-read">Reading text on cards and in notes</span></div>
+        <div class="scale-row"><span class="num muted">14</span><span class="t-ui">Interface: rows, buttons, nav <span class="muted">· 400 / 500</span></span></div>
+        <div class="scale-row"><span class="num muted">12</span><span class="label">Labels, meta, numbers, keys</span></div>
+      </div>
+    </article>
+    <!-- 06 -->
+    <article class="card spec">
+      <div class="card__head"><span>Space · shape</span><span class="card__no">06</span></div>
+      <div class="card__body" style="flex-direction:row;gap:var(--s-6)">
+        <div style="flex:1">
+          <span class="label">Space · 4 px base</span>
+          <div style="margin-top:var(--s-2)">
+            <div class="spacer-row"><span class="num" style="width:22px">4</span><i style="width:4px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">8</span><i style="width:8px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">12</span><i style="width:12px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">16</span><i style="width:16px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">24</span><i style="width:24px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">32</span><i style="width:32px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">48</span><i style="width:48px"></i></div>
+            <div class="spacer-row"><span class="num" style="width:22px">64</span><i style="width:64px"></i></div>
+          </div>
+        </div>
+        <div style="flex:1.3;display:flex;flex-direction:column;gap:var(--s-3)">
+          <span class="label">Radii and proportion</span>
+          <div style="display:flex;gap:var(--s-4);align-items:center"><span class="kbd" style="width:40px;height:26px">2</span><span class="t-small muted">r-1 · keys, controls</span></div>
+          <div style="display:flex;gap:var(--s-4);align-items:center"><span class="card mini" style="width:40px;padding:0"></span><span class="t-small muted">r-2 · cards, floating</span></div>
+          <div style="display:flex;gap:var(--s-4);align-items:center"><span class="card mini" style="width:90px;padding:0;display:grid;place-items:center"><span class="num muted">5 : 3</span></span><span class="t-small muted">every card, always</span></div>
+          <div style="display:flex;gap:var(--s-4);align-items:center"><span style="width:40px;border-top:1px solid var(--line-strong)"></span><span class="t-small muted">1 px hairline, never 2</span></div>
+        </div>
+      </div>
+    </article>
+    <!-- 07 -->
+    <article class="card spec">
+      <div class="card__head"><span>Depth</span><span class="card__no">07</span></div>
+      <div class="card__body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-5);align-items:end;padding:0 var(--s-1)">
+          <div><div style="height:96px;background:var(--desk-sunk);border-radius:var(--r-2)"></div><p class="t-small muted" style="margin-top:var(--s-2)"><b class="strong soft">Sunk</b> · bars, wells</p></div>
+          <div><div class="card" style="aspect-ratio:auto;height:96px;padding:0"></div><p class="t-small muted" style="margin-top:var(--s-2)"><b class="strong soft">Resting</b> · tone + hairline</p></div>
+          <div><div class="card card--held" style="aspect-ratio:auto;height:96px;padding:0"></div><p class="t-small muted" style="margin-top:var(--s-2)"><b class="strong soft">Held</b> · the one soft lift</p></div>
+        </div>
+        <p class="t-small muted" style="margin-top:var(--s-4)">Floating layers (⌘K) use <span class="num">--float</span>; nothing else casts a shadow.</p>
+      </div>
+    </article>
+    <!-- 08 -->
+    <article class="card spec">
+      <div class="card__head"><span>Motion · short and functional</span><span class="card__no">08</span></div>
+      <div class="card__body" style="flex-direction:row;gap:var(--s-6);align-items:center">
+        <div class="motion-demo" id="motion-demo" title="Click to flip">
+          <div class="flipper">
+            <div class="card face" style="aspect-ratio:auto"><div class="card__head" style="margin-bottom:var(--s-2);padding-bottom:var(--s-1)"><span>front</span><span class="card__no">08</span></div><p class="t-ui">Click to flip</p></div>
+            <div class="card face face--back" style="aspect-ratio:auto"><div class="card__head" style="margin-bottom:var(--s-2);padding-bottom:var(--s-1)"><span>back</span><span class="card__no">08</span></div><p class="t-ui">200 ms, then still</p></div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="scale-row"><span class="num muted">120</span><span class="t-small">quiet · hover and focus</span></div>
+          <div class="scale-row"><span class="num muted">160</span><span class="t-small">lift · a card is picked up</span></div>
+          <div class="scale-row"><span class="num muted">200</span><span class="t-small">flip · the card turns over</span></div>
+          <div class="scale-row"><span class="num muted">240</span><span class="t-small">deal · the next card slides in</span></div>
+          <p class="t-small muted" style="margin-top:var(--s-2)">One curve: <span class="num">cubic-bezier(.2,.7,.2,1)</span>. Reduced motion: every change is instant.</p>
+        </div>
+      </div>
+    </article>
+    <!-- 09 -->
+    <article class="card spec">
+      <div class="card__head"><span>Buttons · one ink per screen</span><span class="card__no">09</span></div>
+      <div class="card__body">
+        <div class="demo-grid">
+          <span class="label">Ink</span><span style="display:flex;gap:var(--s-3)"><button class="btn btn--ink">Start <span class="kbd">↵</span></button><button class="btn btn--ink is-hover">Hover</button><button class="btn btn--ink is-focus">Focus</button><button class="btn btn--ink" disabled>Disabled</button></span>
+          <span class="label">Line</span><span style="display:flex;gap:var(--s-3)"><button class="btn btn--line">Accept</button><button class="btn btn--line is-focus">Focus</button><button class="btn btn--line" disabled>Disabled</button></span>
+          <span class="label">Quiet</span><span style="display:flex;gap:var(--s-3)"><button class="btn">Later</button><button class="btn is-hover">Hover</button><button class="btn is-focus">Focus</button></span>
+          <span class="label">Text</span><span style="display:flex;gap:var(--s-5);align-items:center"><button class="btn btn--text">Just tell me</button><button class="btn btn--text">Put away</button><span class="keys"><span class="kbd">⌘K</span><span class="kbd">Space</span><span class="kbd">←</span></span></span>
+        </div>
+      </div>
+    </article>
+    <!-- 10 -->
+    <article class="card spec">
+      <div class="card__head"><span>The answer line · attempt first</span><span class="card__no">10</span></div>
+      <div class="card__body" style="gap:var(--s-3)">
+        <div class="field"><span class="label">Empty</span><input class="ruled" placeholder="Your answer" aria-label="Empty example"></div>
+        <div class="field"><span class="label">Focused</span><input class="ruled is-focus" value="It rises, because the heart" aria-label="Focused example"></div>
+        <div class="field"><span class="label">Space with nothing written</span><span class="nudge">Write a guess first, even a rough one. Space again shows the answer.</span></div>
+      </div>
+    </article>
+    <!-- 11 -->
+    <article class="card spec">
+      <div class="card__head"><span>Status · dots and thin meters</span><span class="card__no">11</span></div>
+      <div class="card__body">
+        <div class="demo-grid" style="grid-template-columns:96px 1fr 1fr">
+          <span class="label">Strength</span><span class="t-small" style="display:flex;gap:var(--s-2);align-items:center"><span class="dot dot--ok"></span>solid <span class="dot dot--mid" style="margin-left:var(--s-2)"></span>shaky <span class="dot dot--low" style="margin-left:var(--s-2)"></span>weak</span><span></span>
+          <span class="label">Readiness</span><span style="display:flex;gap:var(--s-2);align-items:center"><span class="meter meter--ok" style="--v:71%"><i></i></span><span class="num">71%</span></span><span style="display:flex;gap:var(--s-2);align-items:center"><span class="meter meter--low" style="--v:40%"><i></i></span><span class="num">40%</span></span>
+          <span class="label">Jobs</span><span class="t-small" style="display:flex;flex-direction:column;gap:var(--s-2)"><span style="display:flex;gap:var(--s-2);align-items:center"><span class="dot dot--wait"></span>needs you</span><span style="display:flex;gap:var(--s-2);align-items:center"><span class="dot dot--run"></span>running</span></span><span class="t-small" style="display:flex;flex-direction:column;gap:var(--s-2)"><span style="display:flex;gap:var(--s-2);align-items:center"><span class="dot dot--ok"></span>done</span><span style="display:flex;gap:var(--s-2);align-items:center"><span class="dot dot--fail"></span>failed, with a reason</span></span>
+          <span class="label">Progress</span><span class="ticks"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i></span><span class="num muted">3 of 6</span>
+        </div>
+      </div>
+    </article>
+    <!-- 12 -->
+    <article class="card spec">
+      <div class="card__head"><span>E.V. · her mark, voice and ink</span><span class="card__no">12</span></div>
+      <div class="card__body" style="gap:var(--s-3)">
+        <p class="ev">Exam 3 is Thursday. Doses come first.</p>
+        <p class="ink-note" style="padding-left:calc(7px + var(--s-3))">Right direction. Add why: more stretch, more overlap.</p>
+        <p style="display:flex;gap:var(--s-5);padding-left:calc(7px + var(--s-3))"><span class="src">Note · Cardiac output, ¶3</span><span class="src src--unverified">unverified</span></p>
+        <div class="proposal"><div class="proposal__text"><p class="ev">Add 5 dosage problems at 7:30 pm?</p></div><button class="btn btn--line" style="height:26px">Accept</button><button class="btn btn--text">Edit</button></div>
+      </div>
+    </article>
+    <!-- 13 -->
+    <article class="card spec">
+      <div class="card__head"><span>Lists · plain paper</span><span class="card__no">13</span></div>
+      <div class="card__body">
+        <div class="list">
+          <div class="row"><span class="row__lead num">9:15</span><span><span class="row__title">Resting row</span><span class="row__meta">meta in 12, text-3</span></span><span class="row__end"><span class="num">20m</span></span></div>
+          <div class="row is-hover"><span class="row__lead num">12:30</span><span><span class="row__title">Hovered row</span><span class="row__meta">actions appear only now</span></span><span class="row__end"><button class="btn btn--line row__act" style="height:24px">Open</button></span></div>
+          <div class="row is-sel"><span class="row__lead num">3:00</span><span><span class="row__title">Selected row</span><span class="row__meta">sunk tone, a 2 px text edge</span></span><span class="row__end"><span class="num">10m</span></span></div>
+        </div>
+        <nav class="tabs" style="margin:var(--s-4) 0 0;border-bottom:0"><a aria-current="page" href="#system">Selected tab</a><a href="#system">Tab</a><a href="#system">Tab<span class="n">4</span></a><span class="seg" style="margin-left:auto"><button>Lost</button><button aria-pressed="true">Shaky</button><button>OK</button><button>Solid</button></span></nav>
+      </div>
+    </article>
+    <!-- 14 -->
+    <article class="card spec">
+      <div class="card__head"><span>The card · anatomy</span><span class="card__no">14</span></div>
+      <div class="card__body" style="flex-direction:row;gap:var(--s-5);align-items:center">
+        <div class="card card--held" style="width:250px;padding:var(--s-3) var(--s-4);flex:none">
+          <div class="card__head" style="margin-bottom:var(--s-3)"><span>Frank–Starling</span><span class="card__no">07</span></div>
+          <p class="t-read">What happens to SV when preload rises?</p>
+          <div style="margin-top:auto;border-bottom:1px solid var(--line-strong);height:18px"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:var(--s-2)">
+          <span class="callout"><span class="num">a</span>5 : 3, r-2, hairline border</span>
+          <span class="callout"><span class="num">b</span>the ruled header line, rule-head</span>
+          <span class="callout"><span class="num">c</span>the hand-set number, mono 12</span>
+          <span class="callout"><span class="num">d</span>face in Newsreader</span>
+          <span class="callout"><span class="num">e</span>the answer line, before the flip</span>
+          <span class="callout"><span class="num">f</span>held: card-held + lift</span>
+        </div>
+      </div>
+    </article>
+    <!-- 15 -->
+    <article class="card spec">
+      <div class="card__head"><span>Stack · carousel · piles</span><span class="card__no">15</span></div>
+      <div class="card__body">
+        <div class="tiny-stage">
+          <div class="card" style="transform:translateX(-178px) scale(.82);opacity:.5"><div class="card__head"><span>prev</span><span class="card__no">06</span></div></div>
+          <div class="card card--held" style="z-index:2"><div class="card__head"><span>held</span><span class="card__no">07</span></div><p class="t-small">One card, centred.</p></div>
+          <div class="card" style="transform:translateX(178px) scale(.82);opacity:.5"><div class="card__head"><span>next</span><span class="card__no">08</span></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--s-3)">
+          <div class="stack" style="width:96px"><div class="card" style="padding:0"></div></div>
+          <span class="t-small muted" style="max-width:150px;text-align:center">a deck rests as a stack, then fans out to study</span>
+          <div class="pile"><span class="pile__cards"><i></i><i></i><i></i></span><span><span class="label" style="display:block">Again</span><span class="pile__n">2</span></span></div>
+          <div class="pile"><span class="pile__cards"><i></i><i></i><i></i></span><span><span class="label" style="display:block">Good</span><span class="pile__n">4</span></span></div>
+        </div>
+      </div>
+    </article>
+    <!-- 16 -->
+    <article class="card spec">
+      <div class="card__head"><span>Floating · the ⌘K card</span><span class="card__no">16</span></div>
+      <div class="card__body" style="background:var(--desk-sunk);margin:0 calc(var(--s-6) * -1) calc(var(--s-5) * -1);padding:var(--s-4) var(--s-6);border-radius:0 0 var(--r-2) var(--r-2)">
+        <div class="card" style="aspect-ratio:auto;box-shadow:var(--float);background:var(--card-held);border-color:var(--line-strong);padding:var(--s-3) var(--s-4)">
+          <input class="ruled" style="font-size:var(--fs-title)" value="starling" aria-label="Palette example">
+          <div class="pal-item is-sel" style="margin-top:var(--s-2)"><span class="label" style="width:40px">Card</span><span class="grow">07 · SV when preload rises</span><span class="kbd enter">↵</span></div>
+          <div class="pal-item"><span class="label" style="width:40px">Note</span><span class="grow">Cardiac output · Frank–Starling</span><span class="kbd enter">↵</span></div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= ⌘K palette ================= -->
+<div class="scrim" id="scrim">
+  <div class="card palette" role="dialog" aria-label="Command palette" aria-modal="true">
+    <div class="card__head"><span>Go, do or find</span><span class="keys"><span><span class="kbd">↑</span><span class="kbd">↓</span></span><span><span class="kbd">↵</span></span><span><span class="kbd">Esc</span></span></span></div>
+    <input class="ruled" id="pal-in" placeholder="Type a command or search" aria-label="Search" autocomplete="off">
+    <div class="pal-list" id="pal-list"></div>
+    <p class="t-small muted" style="border-top:var(--hair) solid var(--line);padding-top:var(--s-2)">No match? <span class="kbd">↵</span> asks E.V. instead.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const root = document.documentElement;
+
+/* ---------- theme ---------- */
+function setTheme(t){ root.dataset.theme = t; $('#theme-name').textContent = t === 'light' ? 'Lamp' : 'Daylight'; }
+$('#theme-btn').addEventListener('click', () => setTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
+const typing = el => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+
+/* ---------- router ---------- */
+const areaOf = { today:'today', ask:'ask', library:'library', study:'library', plan:'library', notes:'notes', progress:'progress', activity:'activity', system:'' };
+let route = 'today';
+function go(){
+  const h = (location.hash || '#today').slice(1);
+  const [a, b] = h.split('/');
+  let screen = a, sub = null;
+  if (a === 'palette'){ screen = 'today'; openPal(); }
+  if (a === 'library'){ sub = b || 'decks'; if (sub === 'study'){ screen = 'study'; sub = null; } }
+  if (!areaOf.hasOwnProperty(screen)) screen = 'today';
+  route = screen + (sub ? '/' + sub : '');
+  $$('.screen').forEach(s => s.classList.toggle('is-on', s.dataset.screen === screen));
+  $$('.nav a').forEach(n => n.dataset.area === areaOf[screen] ? n.setAttribute('aria-current','page') : n.removeAttribute('aria-current'));
+  if (screen === 'library'){
+    $$('[data-panel]').forEach(p => p.hidden = p.dataset.panel !== sub);
+    $$('.tabs [data-sub]').forEach(t => t.dataset.sub === sub ? t.setAttribute('aria-current','page') : t.removeAttribute('aria-current'));
+  }
+  if (screen === 'plan') planState(b === 'proposal' ? 'proposal' : 'rate');
+  if (screen === 'study') renderDeck(true);
+  $('#main').scrollTop = 0;
+}
+window.addEventListener('hashchange', go);
+
+/* ---------- decks overview ---------- */
+const decks = [
+  {c:'Deck · NUR 112', n:'12', t:'Cardiac output & Frank–Starling', m:'12 cards · 5 due today · last studied yesterday', due:5, v:62, k:'mid', top:'What is preload?'},
+  {c:'Deck · NUR 112', n:'18', t:'Fluid balance & I&O', m:'18 cards · 3 due today · last studied Friday', due:3, v:78, k:'ok', top:'Name three things counted as intake on an I&O sheet.'},
+  {c:'Deck · NUR 112', n:'20', t:'Oral liquid doses', m:'20 cards · 8 due today · your weakest deck', due:8, v:34, k:'low', top:'Order: 250 mg. Supply: 125 mg/5 mL. How many mL?'},
+  {c:'Deck · BIO 201', n:'15', t:'Muscle: the crossbridge cycle', m:'15 cards · 2 due today · last studied Thursday', due:2, v:70, k:'ok', top:'Which step of the cycle needs ATP to release myosin?'},
+  {c:'Deck · NUR 112', n:'22', t:'Med math basics', m:'22 cards · nothing due · next due Wednesday', due:0, v:55, k:'mid', top:'Convert 44 lb to kg.'}];
+function pickDeck(i){
+  const d = decks[i];
+  $$('.deck-row').forEach(r => r.classList.toggle('is-sel', +r.dataset.deck === i));
+  $('#dk-course').textContent = d.c; $('#dk-n').textContent = d.n; $('#dk-title').textContent = d.t; $('#dk-meta').textContent = d.m; $('#dk-top').textContent = d.top;
+  $('#dk-meter').className = 'meter meter--' + d.k; $('#dk-meter').style.setProperty('--v', d.v + '%'); $('#dk-pct').textContent = d.v + '%';
+  $('#deck-card .btn--ink').firstChild.textContent = d.due ? `Study ${d.due} due ` : 'Study all ';
+}
+$$('.deck-row').forEach(r => { r.addEventListener('click', () => pickDeck(+r.dataset.deck)); r.addEventListener('focus', () => pickDeck(+r.dataset.deck)); });
+
+/* ---------- the flashcard carousel ---------- */
+const cards = [
+  {t:'Cardiac output', q:'Write the formula for cardiac output.', a:'CO = HR × SV. About 5 L/min at rest.', s:'Note · Cardiac output, ¶1'},
+  {t:'Preload', q:'What is preload?', a:'The stretch on the ventricle at the end of diastole; roughly, end-diastolic volume.', s:'Note · Cardiac output, ¶4'},
+  {t:'Afterload', q:'What is afterload?', a:'The resistance the ventricle must overcome to eject, mostly aortic pressure.', s:'Note · Cardiac output, ¶5'},
+  {t:'Frank–Starling', q:'State the Frank–Starling law in one line.', a:'Within limits, the more the ventricle stretches in diastole, the harder it contracts.', s:'Note · Cardiac output, ¶3'},
+  {t:'Afterload', q:'Afterload rises, as in hypertension. What happens to stroke volume, all else equal?', a:'It falls: the ventricle ejects less against higher pressure.', s:'Set · Cardiac review, item 9'},
+  {t:'Crossbridge cycle', q:'Which step of the crossbridge cycle needs ATP to release myosin from actin?', a:'Detachment. ATP binding releases the myosin head from actin.', s:'Note · BIO 201 Muscle, ¶6'},
+  {t:'Frank–Starling', q:'Within normal limits, what happens to stroke volume when preload increases?', a:'It increases. More stretch gives more actin–myosin overlap, so the beat is stronger.', s:'Note · Cardiac output, ¶3', tryit:'It goes up, because the heart fills more', ink:'Right direction. Add why: more stretch, more overlap, a stronger beat.'},
+  {t:'Fluid balance', q:'What is the minimum normal adult urine output per hour?', a:'About 0.5 mL/kg/h, roughly 30 mL/h for most adults.', s:'Note · Fluid balance, ¶3'},
+  {t:'I&O', q:'Name three things counted as intake on an I&O sheet.', a:'Oral fluids, IV fluids and tube feedings.', s:'Set · I&O basics, item 2'},
+  {t:'Med math', q:'Convert 44 lb to kg.', a:'20 kg (44 ÷ 2.2).', s:'Note · Med math, ¶2'},
+  {t:'Med math', q:'Order: 250 mg. Supply: 125 mg/5 mL. How many mL?', a:'10 mL (250 ÷ 125 × 5).', s:'Note · Med math, ¶4'},
+  {t:'Cardiac output', q:'Which raises cardiac output: a higher heart rate or a higher afterload?', a:'A higher heart rate, up to a point. Higher afterload lowers stroke volume.', s:null}
+];
+const pad = n => String(n).padStart(2, '0');
+let cur = 6, flipped = false, nudged = false, again = 2, good = 4;
+const rated = {0:'g',1:'g',2:'a',3:'g',4:'a',5:'g'};
+const stage = $('#stage');
+cards.forEach((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'slide'; el.dataset.i = i;
+  el.innerHTML = `<div class="flipper">
+    <article class="card face face--front" aria-label="Card ${i+1}, front">
+      <div class="card__head"><span>${c.t}</span><span class="card__no">${pad(i+1)}</span></div>
+      <div class="card__body">
+        <p class="t-face study-q">${c.q}</p>
+        <div class="field"><span class="label">Your answer</span><input class="ruled" data-try placeholder="Write it before you turn the card" aria-label="Your answer" autocomplete="off"></div>
+        <p class="nudge" data-nudge></p>
+        <div class="card__foot" style="padding-top:var(--s-2)">
+          <button class="btn btn--ink" type="button" data-flip>Turn over <span class="kbd">↵</span></button>
+          <button class="btn btn--text" type="button" data-tell style="margin-left:var(--s-3)">Just tell me</button>
+          <span class="push keys"><span><span class="kbd">Space</span> flip</span></span>
+        </div>
+      </div>
+    </article>
+    <article class="card face face--back" aria-label="Card ${i+1}, back">
+      <div class="card__head"><span>${c.t} · answer</span><span class="card__no">${pad(i+1)}</span></div>
+      <div class="card__body">
+        <p class="t-face">${c.a}</p>
+        <div class="compare">
+          <p class="attempt-echo" data-echo></p>
+          ${c.ink ? `<p class="ink-note">${c.ink}</p>` : ''}
+        </div>
+        <div class="card__foot">
+          <button class="btn btn--line" type="button" data-rate="a">Again <span class="kbd">1</span></button>
+          <button class="btn btn--line" type="button" data-rate="g">Good <span class="kbd">2</span></button>
+          ${c.s ? `<a class="src push" href="#notes">${c.s}</a>` : `<span class="src src--unverified push">unverified · no note covers this yet</span>`}
+        </div>
+      </div>
+    </article></div>`;
+  stage.appendChild(el);
+});
+const slides = $$('.slide', stage);
+function renderDeck(focus){
+  slides.forEach((el, i) => {
+    const d = i - cur;
+    el.className = 'slide ' + (d === 0 ? 'is-cur' : d === -1 ? 'is-prev' : d === 1 ? 'is-next' : d < 0 ? 'is-gone-l' : 'is-gone-r') + (d === 0 && flipped ? ' is-flipped' : '');
+    el.inert = d !== 0;
+    $('.face--front', el).classList.toggle('card--held', d === 0 && !flipped);
+    $('.face--back', el).classList.toggle('card--held', d === 0 && flipped);
+  });
+  $('#st-pos').textContent = `${pad(cur+1)} / ${cards.length}`;
+  const left = cards.length - Object.keys(rated).length;
+  $('#st-left').textContent = left ? `${left} left` : 'all sorted';
+  $('#n-again').textContent = again; $('#n-good').textContent = good;
+  if (focus && !flipped && route === 'study') setTimeout(() => { const inp = $('[data-try]', slides[cur]); inp && inp.focus({preventScroll:true}); }, 10);
+}
+function flip(tell){
+  const el = slides[cur], inp = $('[data-try]', el), v = inp.value.trim();
+  if (flipped){ flipped = false; renderDeck(true); return; }
+  if (!v && !tell && !nudged){ nudged = true; $('[data-nudge]', el).textContent = 'Write a guess first, even a rough one. Space again shows the answer.'; return; }
+  $('[data-echo]', el).innerHTML = v ? `<b>You wrote</b> ${v.replace(/</g,'&lt;')}` : `<b>No attempt</b>You asked to be told.`;
+  flipped = true; renderDeck(); document.activeElement && document.activeElement.blur();
+  $('[data-rate="g"]', el).focus({preventScroll:true});
+}
+function deal(n){
+  const nx = Math.max(0, Math.min(cards.length - 1, cur + n));
+  if (nx === cur) return;
+  cur = nx; flipped = false; nudged = false; $('[data-nudge]', slides[cur]).textContent = '';
+  renderDeck(true);
+}
+function rate(r){
+  if (!flipped) return;
+  if (!(cur in rated)){ r === 'a' ? again++ : good++; }
+  else if (rated[cur] !== r){ r === 'a' ? (again++, good--) : (good++, again--); }
+  rated[cur] = r;
+  const p = $(r === 'a' ? '#pile-again' : '#pile-good'); p.classList.remove('is-bump'); void p.offsetWidth; p.classList.add('is-bump');
+  if (cur < cards.length - 1) deal(1); else { flipped = false; renderDeck(); }
+}
+stage.addEventListener('click', e => {
+  const s = e.target.closest('.slide'); if (!s) return;
+  const i = +s.dataset.i;
+  if (i !== cur){ deal(i - cur); return; }
+  if (e.target.closest('[data-flip]')) flip();
+  if (e.target.closest('[data-tell]')) flip(true);
+  const r = e.target.closest('[data-rate]'); if (r) rate(r.dataset.rate);
+});
+cards[6].tryit && ($('[data-try]', slides[6]).value = cards[6].tryit);
+
+/* ---------- practice ---------- */
+let choice = -1, committed = false;
+const pq = $('#pq'), letters = ['A','B','C','D'], vals = ['2 mL','4 mL','8 mL','16 mL'];
+function choose(i){ if (committed) return; choice = i; $$('.opt').forEach((o, j) => o.setAttribute('aria-checked', j === i)); $('#pq-commit').disabled = false; }
+function commit(tell){
+  if (committed || (choice < 0 && !tell)) return;
+  committed = true;
+  const right = choice === 1;
+  $('#pq-verdict').textContent = tell ? 'Answer' : right ? 'Correct' : 'Not quite';
+  $('#pq-chose').textContent = choice < 0 ? 'nothing · you asked to be told' : `${letters[choice]} · ${vals[choice]}`;
+  $('#pq-note').textContent = right ? 'Clean work: weight, daily dose, split, then volume.' : choice === 2 ? "8 mL is the whole day's volume. Split it across the two doses." : 'Go step by step: kilograms, the day, the split, then millilitres.';
+  pq.classList.add('is-flipped');
+  $('.face--front', pq).classList.remove('card--held'); $('#pq-next').focus({preventScroll:true});
+}
+function resetPractice(){ committed = false; choice = -1; pq.classList.remove('is-flipped'); $$('.opt').forEach(o => o.setAttribute('aria-checked', 'false')); $('#pq-commit').disabled = true; }
+$$('.opt').forEach(o => o.addEventListener('click', () => choose(+o.dataset.opt)));
+$('#pq-commit').addEventListener('click', () => commit());
+$('#pq-tell').addEventListener('click', () => commit(true));
+$('#pq-next').addEventListener('click', resetPractice);
+
+/* ---------- plan ---------- */
+$$('#conf .seg').forEach(seg => {
+  const c = +seg.dataset.c;
+  $$('button', seg).forEach((b, i) => { b.setAttribute('aria-pressed', i === c); b.type = 'button';
+    b.addEventListener('click', () => { $$('button', seg).forEach(x => x.setAttribute('aria-pressed', x === b)); seg.dataset.c = i; confCount(); }); });
+});
+function confCount(){
+  const left = $$('#conf .seg').filter(s => +s.dataset.c < 0).length;
+  $('#draft').disabled = left > 0;
+  $('#conf-left').textContent = left ? `${left} left to rate` : 'all rated';
+}
+function planState(s){
+  if (s === 'proposal'){ $$('#conf .seg').forEach(seg => { if (+seg.dataset.c < 0){ seg.dataset.c = 2; $$('button', seg)[2].setAttribute('aria-pressed', 'true'); } }); }
+  confCount();
+  $('#plan-empty').hidden = s !== 'rate'; $('#plan-job').hidden = s !== 'job'; $('#plan-card').hidden = s !== 'proposal';
+  $('#draft').classList.toggle('btn--ink', s === 'rate'); $('#draft').classList.toggle('btn--line', s !== 'rate');
+  $('#draft').firstChild.textContent = s === 'rate' ? 'Draft my plan ' : 'Redraft ';
+  $('#st2').classList.toggle('on', s !== 'rate'); $('#st3').classList.toggle('on', s === 'proposal');
+}
+$('#draft').addEventListener('click', () => { planState('job'); setTimeout(() => { if (route === 'plan') planState('proposal'); }, 1400); });
+
+/* ---------- notes: timer, read-along, check ---------- */
+let secs = 18 * 60 + 42;
+setInterval(() => { secs++; $('#timer').textContent = `${Math.floor(secs/60)}:${pad(secs%60)}`; }, 1000);
+const sents = $$('.editor .s'); let rIdx = sents.indexOf($('#reading')), reading = null;
+$('#read-btn').addEventListener('click', () => {
+  if (reading){ clearInterval(reading); reading = null; $('#read-ico').textContent = '▶'; return; }
+  $('#read-ico').textContent = '❚❚';
+  reading = setInterval(() => { sents[rIdx].classList.remove('is-reading'); rIdx = (rIdx + 1) % sents.length; sents[rIdx].classList.add('is-reading'); $('#read-pos').textContent = `paragraph ${Math.min(7, rIdx + 2)} of 7`; }, 2400);
+});
+let edits = 0; $('.editor').addEventListener('input', () => { $('#saved-ago').textContent = 'just now'; edits++; });
+$('#check-send').addEventListener('click', () => { $('#check-foot').hidden = true; $('#check-reply').hidden = false; });
+$('#check-in').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); $('#check-send').click(); } });
+
+/* ---------- activity ---------- */
+const jobs = {
+  fail:{k:'Job · Practice set', no:'J-214', t:'Med math check, 10 questions', st:['fail','Failed at 6:02 am'], x:"I stopped because the Med math set has no notes yet, so none of the questions could cite a source. I didn't write uncited ones.", steps:[['✓','Read the exam\'s objectives'],['✓','Looked for source notes · found 0'],['×','Write 10 cited questions · stopped']], f:'<button class="btn btn--ink" type="button">Retry with Ch 7 note <span class="kbd">↵</span></button><button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Dismiss</button>'},
+  mock:{k:'Job · Mock exam', no:'J-218', t:'Mock exam, ch 9, 40 questions', st:['run','Running · 18 of 40 · about 20 min left'], x:'Writing questions from your Ch 9 notes and the Cardiac review set. Each one carries its source. It goes on Today when it is done.', steps:[['✓','Read 3 notes and 2 sets'],['✓','Planned 40 questions across 6 objectives'],['·','Writing question 18']], f:'<span class="meter" style="--v:45%;width:160px"><i></i></span><button class="btn btn--text push" type="button">Stop</button>'},
+  plan:{k:'Job · Study plan', no:'J-219', t:'Study plan for Exam 3', st:['wait','Needs you · your ratings first'], x:'I have your misses. Before I propose blocks, rate how sure you feel on the seven objectives.', steps:[['✓','Read 14 misses'],['·','Waiting for your 7 ratings']], f:'<a class="btn btn--ink" href="#plan">Rate and see the plan <span class="kbd">↵</span></a><button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Put away</button>'},
+  cards:{k:'Job · New cards', no:'J-216', t:'14 cards on dosage by weight', st:['wait','Needs you · review before they join'], x:'Drafted from your Ch 9 note. Keep the ones that read right; I drop the rest.', steps:[['✓','Read Note · Med math, ¶2–¶6'],['✓','Wrote 14 cards, each cited'],['·','Waiting for your review']], f:'<a class="btn btn--ink" href="#library">Review cards <span class="kbd">↵</span></a><button class="btn btn--text" type="button" style="margin-left:var(--s-2)">Put away</button>'},
+  week:{k:'Job · Weekly review', no:'J-220', t:'Weekly review for Oct 26', st:['run','Running · gathering sessions'], x:'Collecting this week\'s sessions, accuracy and misses. It\'s ready for Sunday.', steps:[['·','Reading 9 sessions']], f:''},
+  morning:{k:'Job · Review set', no:'J-217', t:'Morning review set, 8 cards', st:['ok','Done at 6:00 am'], x:'Picked the 8 cards most due across three decks.', steps:[['✓','Chose 8 cards'],['✓','Added to Today']], f:'<a class="btn btn--line" href="#library/study">Open</a>'},
+  oral:{k:'Job · Practice set', no:'J-212', t:'Oral liquid doses, 10 problems', st:['ok','Done yesterday at 9:10 pm'], x:'Ten problems, each cited to Note · Med math.', steps:[['✓','Wrote 10 problems'],['✓','Checked every citation']], f:'<a class="btn btn--line" href="#library/practice">Open</a>'}
+};
+function showJob(id){
+  const j = jobs[id];
+  $$('.job-row').forEach(r => r.classList.toggle('is-sel', r.dataset.job === id));
+  $('#jc-kind').textContent = j.k; $('#jc-no').textContent = j.no; $('#jc-title').textContent = j.t;
+  $('#jc-state').innerHTML = `<span class="dot dot--${j.st[0]}"></span>${j.st[1]}`;
+  $('#jc-text').textContent = j.x;
+  $('#jc-steps').innerHTML = j.steps.map(s => `<li><span class="num">${s[0]}</span>${s[1]}</li>`).join('');
+  $('#jc-foot').innerHTML = j.f;
+}
+$$('.job-row').forEach(r => r.addEventListener('click', () => showJob(r.dataset.job)));
+
+/* ---------- ⌘K palette ---------- */
+const palItems = [
+  {g:'Do', l:'Start morning review', h:'#library/study'},
+  {g:'Do', l:'Study Cardiac output & Frank–Starling', h:'#library/study'},
+  {g:'Do', l:'Practise oral liquid doses', h:'#library/practice'},
+  {g:'Do', l:'Rate confidence for Exam 3', h:'#plan'},
+  {g:'Card', l:'07 · SV when preload rises', h:'#library/study'},
+  {g:'Card', l:'04 · State the Frank–Starling law', h:'#library/study'},
+  {g:'Note', l:'Cardiac output · Frank–Starling', h:'#notes'},
+  {g:'Today', l:'Frank–Starling, in your own words · 3:00', h:'#today'},
+  {g:'Go', l:'Today', h:'#today'}, {g:'Go', l:'Ask E.V.', h:'#ask'}, {g:'Go', l:'Library', h:'#library'},
+  {g:'Go', l:'Notes', h:'#notes'}, {g:'Go', l:'Activity', h:'#activity'}, {g:'Go', l:'Design system', h:'#system'},
+  {g:'Do', l:'Switch theme', h:'theme'}
+];
+let palSel = 0, palShown = [];
+function renderPal(){
+  const q = $('#pal-in').value.trim().toLowerCase();
+  palShown = (q ? palItems.filter(i => i.l.toLowerCase().includes(q) || i.g.toLowerCase().includes(q)) : palItems.filter(i => i.g === 'Do' || i.g === 'Go')).slice(0, 7);
+  palSel = Math.min(palSel, Math.max(0, palShown.length - 1));
+  $('#pal-list').innerHTML = palShown.length ? palShown.map((i, k) => `<div class="pal-item${k === palSel ? ' is-sel' : ''}" data-k="${k}"><span class="label" style="width:44px">${i.g}</span><span class="grow">${i.l}</span><span class="kbd enter">↵</span></div>`).join('')
+    : `<p class="t-small muted" style="padding:var(--s-2) 0">Nothing matches. <span class="soft">↵</span> asks E.V. instead.</p>`;
+}
+function openPal(){ $('#scrim').classList.add('is-on'); $('#pal-in').value = ''; palSel = 0; renderPal(); $('#pal-in').focus(); }
+function closePal(){ $('#scrim').classList.remove('is-on'); if (location.hash === '#palette') history.replaceState(null, '', '#today'); }
+function runPal(k){ const i = palShown[k]; if (!i) return; closePal(); if (i.h === 'theme') setTheme(root.dataset.theme === 'light' ? 'dark' : 'light'); else location.hash = i.h; }
+$('#pal-in').addEventListener('input', () => { palSel = 0; renderPal(); });
+$('#pal-list').addEventListener('click', e => { const it = e.target.closest('.pal-item'); if (it) runPal(+it.dataset.k); });
+$('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closePal(); });
+$('#open-pal').addEventListener('click', openPal);
+
+/* motion demo on #system */
+$('#motion-demo').addEventListener('click', e => e.currentTarget.classList.toggle('is-flipped'));
+const md = document.createElement('style'); md.textContent = '#motion-demo.is-flipped .flipper{transform:rotateY(180deg)}'; document.head.appendChild(md);
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown', e => {
+  const palOpen = $('#scrim').classList.contains('is-on');
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); palOpen ? closePal() : openPal(); return; }
+  if (palOpen){
+    if (e.key === 'Escape') closePal();
+    else if (e.key === 'ArrowDown'){ e.preventDefault(); palSel = Math.min(palShown.length - 1, palSel + 1); renderPal(); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); palSel = Math.max(0, palSel - 1); renderPal(); }
+    else if (e.key === 'Enter'){ e.preventDefault(); runPal(palSel); }
+    return;
+  }
+  const t = e.target, inField = typing(t);
+  if (e.key === '\\' && !inField){ e.preventDefault(); setTheme(root.dataset.theme === 'light' ? 'dark' : 'light'); return; }
+
+  if (route === 'study'){
+    const isTry = t.matches && t.matches('[data-try]');
+    if (isTry){
+      if (e.key === 'Enter'){ e.preventDefault(); flip(); }
+      else if (e.key === ' ' && !t.value.trim()){ e.preventDefault(); flip(); }
+      else if (e.key === 'Escape') t.blur();
+      else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !t.value){ e.preventDefault(); deal(e.key === 'ArrowRight' ? 1 : -1); }
+      return;
+    }
+    if (inField) return;
+    if (e.key === ' '){ e.preventDefault(); flip(); }
+    else if (e.key === 'ArrowRight'){ e.preventDefault(); deal(1); }
+    else if (e.key === 'ArrowLeft'){ e.preventDefault(); deal(-1); }
+    else if (e.key === '1') rate('a');
+    else if (e.key === '2') rate('g');
+    else if (e.key === 'Enter' && !flipped){ e.preventDefault(); flip(); }
+    return;
+  }
+  if (route === 'library/practice' && !inField){
+    const m = {a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3}[e.key.toLowerCase()];
+    if (m !== undefined && !committed){ choose(m); return; }
+    if (e.key === 'Enter' && !committed && !t.closest('button,a')){ e.preventDefault(); commit(); return; }
+    if (e.key === 'ArrowRight' && committed){ resetPractice(); return; }
+  }
+  if (route === 'library/decks' && !inField && (e.key === 'ArrowDown' || e.key === 'ArrowUp')){
+    e.preventDefault(); const i = $$('.deck-row').findIndex(r => r.classList.contains('is-sel'));
+    const n = Math.max(0, Math.min(decks.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1))); $$('.deck-row')[n].focus();
+  }
+});
+
+setTheme('light');
+go();
+renderDeck();
+})();
+</script>
+</body>
+</html>

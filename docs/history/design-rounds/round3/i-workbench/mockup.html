@@ -1,0 +1,1814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>E.V. v5 · I · Workbench</title>
+<!--
+  E.V. v5 · direction I · "Workbench" (about 70% productivity, 30% consumer). Synthetic content only.
+  A's graphite, Inter, spacing and sidebar + column + detail layout, with C's Courses in the sidebar,
+  and a rich object language: every object type has one "type tile" (a 22 px tinted square with a line glyph),
+  plan items behave like Linear issues, jobs wear E.V.'s dotted ring with a progress line.
+  File layout:
+    1. <style>: tokens (dark, light) → base → shell → object language → components → screens.
+    2. SVG glyph sprite.
+    3. Shell: sidebar, area (one <section data-screen> per screen), detail panel, palette, toast.
+    4. <script>: router, hydration of tiles, and the small per-screen behaviours.
+  Deep links: #today #item #library #set #study #study/back #exam #exam/review #procedure #procedure/check
+  #notes #notes/session #course/nur112 #course/new #ask #activity #activity/job #proposal #proposal/rated
+  #palette #system #phone #progress.   Keys: ⌘K palette · \ theme · S start · N new · Space flip · Esc.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* =====================================================================
+   1 · TOKENS · dark is the default; light is a full second set.
+   ===================================================================== */
+:root,[data-theme="dark"]{
+  /* surfaces (A's graphite) */
+  --side:#101012; --bg:#151517; --surface:#1b1b1e; --fill:#1b1b1e; --hover:#222226; --sel:#2a2a2f; --float:#1d1d21;
+  --line:#232327; --line2:#303036;
+  /* ink: three greys */
+  --text:#ececef; --quiet:#a3a3ab; --faint:#92929a;
+  /* the one ember */
+  --her:#e0743a; --on-her:#1a0d05;
+  /* status */
+  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62; --info:#6b9cf5;
+  /* object families: muted, used for glyphs, tints and swatches, never for body text */
+  --t-flash:#86a9e6; --t-practice:#72c29b; --t-mock:#ab97e6; --t-proc:#d2aa66;
+  --t-note:#a3a3ab; --t-weak:#e48572; --t-plan:#a3a3ab; --t-exam:#c8c8ce;
+  /* course swatches */
+  --c-nur112:#c9809f; --c-bio201:#55aebb; --c-nur114:#a4ad67;
+  --c-clay:#cf946a; --c-slate:#8da2c2; --c-plum:#b48fc4;   /* free swatches for new courses */
+  --tint:16%;          /* how much of a family colour goes into a tile's ground */
+  --scrim:rgba(0,0,0,.5);
+  --shadow-pop:0 0 0 1px #303036,0 24px 60px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+[data-theme="light"]{
+  --side:#f3f3f4; --bg:#fbfbfb; --surface:#ffffff; --fill:#f1f1f3; --hover:#efeff0; --sel:#e7e7ea; --float:#ffffff;
+  --line:#ececee; --line2:#dcdce0;
+  --text:#1c1c1f; --quiet:#5f5f66; --faint:#66666c;
+  --her:#b6541d; --on-her:#ffffff;
+  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45; --info:#2f6fde;
+  --t-flash:#3f6fc0; --t-practice:#2c8a5c; --t-mock:#7357c4; --t-proc:#9c6f1c;
+  --t-note:#66666c; --t-weak:#c0553f; --t-plan:#66666c; --t-exam:#3a3a40;
+  --c-nur112:#b05a80; --c-bio201:#2a8796; --c-nur114:#77822f;
+  --c-clay:#a8653a; --c-slate:#56708f; --c-plum:#8a5b9c;
+  --tint:13%;
+  --scrim:rgba(0,0,0,.25);
+  --shadow-pop:0 0 0 1px #dcdce0,0 16px 40px rgba(0,0,0,.12);
+  color-scheme:light;
+}
+:root{
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fs-meta:12px; --fs-body:14px; --fs-title:20px; --fs-card:24px;   /* --fs-card: card faces only */
+  --fw-med:500; --fw-title:600; --lh:1.5;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-12:48px; --sp-14:56px;
+  --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px;
+  --row:40px; --row2:48px; --col:720px; --side-w:224px; --detail-w:360px;
+  --tile:22px; --tile-sm:16px; --tile-lg:32px; --icon:16px; --ring:14px;
+  --dur-1:150ms; --dur-2:200ms; --dur-3:250ms; --ease:cubic-bezier(.2,0,0,1); --rise:4px;
+}
+
+/* =====================================================================
+   2 · BASE
+   ===================================================================== */
+html,body{height:100%;margin:0}
+body{background:var(--side);color:var(--text);font:var(--fs-body)/var(--lh) var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p,figure,ul,ol{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+[hidden]{display:none !important}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--text);outline-offset:-2px;border-radius:var(--r-sm)}
+svg.g{width:var(--icon);height:var(--icon);flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* type: three sizes; 600 only for titles */
+.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.01em;line-height:1.3}
+.t-meta{font-size:var(--fs-meta);color:var(--faint)}
+.t-label{font-size:var(--fs-meta);font-weight:var(--fw-med);color:var(--faint)}
+.t-med{font-weight:var(--fw-med)}
+.c-quiet{color:var(--quiet)} .c-faint{color:var(--faint)} .c-text{color:var(--text)}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nowrap{white-space:nowrap}
+
+/* layout helpers (layout only) */
+.stack{display:flex;flex-direction:column}
+.line{display:flex;align-items:center}
+.wrap{flex-wrap:wrap}
+.g1{gap:var(--sp-1)} .g2{gap:var(--sp-2)} .g3{gap:var(--sp-3)} .g4{gap:var(--sp-4)} .g6{gap:var(--sp-6)} .g8{gap:var(--sp-8)} .g12{gap:var(--sp-12)}
+.grow{flex:1;min-width:0}
+.ta-r{text-align:right}
+
+/* =====================================================================
+   3 · SHELL · sidebar, area, column, detail
+   ===================================================================== */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{flex:0 0 var(--side-w);padding:var(--sp-4) var(--sp-2);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.ws{display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);margin-bottom:var(--sp-2);font-weight:var(--fw-title)}
+.search{display:flex;align-items:center;gap:var(--sp-2);height:32px;margin:0 0 var(--sp-3);padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}
+.search:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.nav{display:flex;align-items:center;gap:10px;height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--quiet);cursor:pointer;transition:background-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
+.nav:hover{background:var(--hover);color:var(--text)}
+.nav.on{background:var(--hover);color:var(--text)}
+.nav > svg.g{color:var(--quiet)}
+.nav .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
+.nav.add{color:var(--faint)}
+.navgrp{display:flex;align-items:center;justify-content:space-between;height:32px;margin-top:var(--sp-4);padding:0 var(--sp-1) 0 var(--sp-2);font-size:var(--fs-meta);font-weight:var(--fw-med);color:var(--faint)}
+.sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:2px;padding-top:var(--sp-4)}
+.jobline{display:flex;align-items:center;gap:var(--sp-2);height:40px;padding:0 var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer}
+.jobline:hover{background:var(--hover);color:var(--text)}
+.jobline .pline{width:40px}
+
+.area{flex:1;min-width:0;margin:var(--sp-2) var(--sp-2) var(--sp-2) 0;border-radius:var(--r-lg);background:var(--bg);display:flex;overflow:hidden;position:relative}
+.view{flex:1;min-width:0;overflow-y:auto;max-height:100%}
+.col{max-width:var(--col);margin:0 auto;padding:var(--sp-14) var(--sp-10) var(--sp-12);display:flex;flex-direction:column;gap:var(--sp-12)}
+.col.wide{max-width:880px}
+.detail{flex:0 0 var(--detail-w);border-left:1px solid var(--line);padding:var(--sp-6) var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-6);overflow-y:auto;max-height:100%}
+.sec{display:flex;flex-direction:column}
+.sec-head{display:flex;align-items:center;gap:var(--sp-2);min-height:32px;margin-bottom:var(--sp-1)}
+.head{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
+.crumb{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+.crumb a:hover{color:var(--text)}
+
+/* =====================================================================
+   4 · OBJECT LANGUAGE
+   One device per type, reused in lists, tiles, links and search.
+   ===================================================================== */
+/* family keys: set --k once, everything inside reads it */
+.k-flash{--k:var(--t-flash)} .k-practice{--k:var(--t-practice)} .k-mock{--k:var(--t-mock)} .k-proc{--k:var(--t-proc)}
+.k-note{--k:var(--t-note)} .k-weak{--k:var(--t-weak)} .k-plan{--k:var(--t-plan)} .k-exam{--k:var(--t-exam)}
+.k-nur112{--k:var(--c-nur112)} .k-bio201{--k:var(--c-bio201)} .k-nur114{--k:var(--c-nur114)}
+.k-clay{--k:var(--c-clay)} .k-slate{--k:var(--c-slate)} .k-plum{--k:var(--c-plum)}
+
+/* Type tile: a rounded square, a muted tint of the family, a line glyph in the family colour. */
+.tile{font-style:normal;display:inline-flex;align-items:center;justify-content:center;flex:none;width:var(--tile);height:var(--tile);border-radius:var(--r-sm);background:color-mix(in srgb,var(--k) var(--tint),transparent);color:var(--k)}
+.tile svg.g{width:14px;height:14px}
+.tile.sm{width:var(--tile-sm);height:var(--tile-sm);border-radius:var(--r-xs)}
+.tile.sm svg.g{width:11px;height:11px;stroke-width:1.6}
+.tile.lg{width:var(--tile-lg);height:var(--tile-lg);border-radius:var(--r-md)}
+.tile.lg svg.g{width:18px;height:18px}
+/* Exam tile: the same square, drawn as a calendar leaf; its top band is the course colour. */
+.tile.exam{background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-meta);font-weight:var(--fw-title);line-height:1;padding-top:3px;position:relative;overflow:hidden}
+.tile.exam::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--k)}
+.tile.exam.lg{font-size:var(--fs-body);padding-top:5px}
+.tile.exam.lg::before{height:6px}
+/* Course swatch: a small filled square, the course's own colour. */
+.sw{display:inline-block;flex:none;width:10px;height:10px;border-radius:3px;background:var(--k)}
+.sw.lg{width:var(--tile);height:var(--tile);border-radius:var(--r-sm)}
+.sw.xl{width:var(--tile-lg);height:var(--tile-lg);border-radius:var(--r-md)}
+
+/* Plan status ring (Linear-like): todo, started, done, proposed. */
+.ring{flex:none;width:var(--ring);height:var(--ring);border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);display:inline-flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+.ring.started{background:conic-gradient(var(--warn) 0 50%,transparent 50% 100%);box-shadow:inset 0 0 0 1.5px var(--warn);background-clip:content-box;padding:3px}
+.ring.done{background:var(--quiet);box-shadow:none}
+.ring.done::after{content:"";width:6px;height:3px;border:solid var(--bg);border-width:0 0 1.5px 1.5px;transform:translateY(-1px) rotate(-45deg)}
+.ring.proposed{box-shadow:none;border:1.5px dashed var(--faint)}
+.ring.lg{--ring:18px}
+
+/* Job ring: E.V.'s dotted ring, coloured by state; always paired with a progress line and a step count. */
+.jring{flex:none;width:16px;height:16px;border-radius:50%;border:2px dotted var(--js,var(--faint));display:inline-block}
+.j-run{--js:var(--info)} .j-need{--js:var(--warn)} .j-done{--js:var(--ok)} .j-fail{--js:var(--bad)} .j-idle{--js:var(--faint)}
+.j-run .jring,.jring.j-run{animation:ev-spin 6s linear infinite}
+.pline{display:block;flex:none;width:96px;height:2px;border-radius:1px;background:var(--line2);position:relative;overflow:hidden}
+.pline > i{position:absolute;left:0;top:0;bottom:0;background:var(--js,var(--quiet));border-radius:1px}
+.steps-n{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+
+/* E.V.'s mark (her voice). Ember only when it is the screen's one ember element. */
+.mark{flex:none;width:16px;height:16px;border-radius:50%;border:2px dotted var(--her);display:inline-block}
+.mark.quiet{border-color:var(--faint)}
+
+/* Meter (readiness / mastery): learned · familiar · weak. Pips: n of m. */
+.meter{display:flex;gap:2px;height:4px;width:96px;flex:none}
+.meter i{display:block;height:100%;border-radius:1px}
+.m-ok{background:var(--ok)} .m-warn{background:var(--warn)} .m-bad{background:var(--bad)} .m-rest{background:var(--line2)}
+.pips{display:inline-flex;gap:2px;flex:none}
+.pips i{width:6px;height:6px;border-radius:2px;background:var(--line2)}
+.pips i.on{background:var(--k,var(--quiet))}
+.dot{width:6px;height:6px;border-radius:50%;flex:none;display:inline-block}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-info{background:var(--info)} .d-faint{background:var(--faint)} .d-rest{background:var(--line2)}
+
+/* Link form: a tile.sm and a name, inline in text, rows and chips. */
+.olink{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 6px 0 3px;border-radius:var(--r-sm);color:var(--text);white-space:nowrap;cursor:pointer;vertical-align:middle;max-width:100%}
+.olink:hover{background:var(--hover)}
+.olink > span{overflow:hidden;text-overflow:ellipsis}
+/* Source chip: the link form inside a hairline; every fact E.V. states carries one, or "unverified". */
+.cite{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px 0 3px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
+.cite:hover{background:var(--hover);color:var(--text)}
+.unverified{font-size:var(--fs-meta);color:var(--faint);border-bottom:1px dashed var(--line2);cursor:help;white-space:nowrap}
+
+/* Property chip (plan items): a hairline pill holding a swatch or a tile.sm. */
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;flex:none;max-width:180px}
+.chip > span{overflow:hidden;text-overflow:ellipsis}
+.chip.tl{padding-left:4px}
+.prop-t{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;flex:none;text-align:right}
+
+/* ---------- Rows: each type has its own row ---------- */
+.rows{display:flex;flex-direction:column}
+.r{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm);cursor:pointer;transition:background-color var(--dur-1) var(--ease)}
+.r:hover,.r.sel{background:var(--hover)}
+.r.two{min-height:var(--row2)}
+.r .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.r .t > b{font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.r .t > small{font-size:var(--fs-meta);color:var(--faint);line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .pips{width:76px;justify-content:flex-end}
+.r .act{visibility:hidden}
+.r:hover .act,.r:focus-within .act{visibility:visible}
+/* plan item row: ring · tile · title · chips · estimate · time */
+.prow{gap:var(--sp-3)}
+.prow > .tile{margin-left:-2px}
+.prow .t > b{font-weight:400}
+.prow.done .t > b{color:var(--faint)}
+.prow .est{width:32px}
+.prow .when{width:56px}
+/* proposal row: the same plan row, dashed, waiting for Accept */
+.prow.proposed{border:1px dashed var(--line2);margin-top:var(--sp-1);cursor:default}
+.prow.proposed:hover{background:none}
+.prow.proposed .t > b{color:var(--quiet)}
+/* group header: part of day */
+.grp{display:flex;align-items:center;gap:var(--sp-2);height:32px;margin-top:var(--sp-2);font-size:var(--fs-meta);font-weight:var(--fw-med);color:var(--quiet)}
+.grp:first-child{margin-top:0}
+.grp svg.g{width:14px;height:14px;color:var(--faint)}
+.grp .n{color:var(--faint);font-weight:400}
+.grp .sum{margin-left:auto;font-weight:400;color:var(--faint)}
+/* note row: a doc with a two-line preview (Quip) */
+.nrow{align-items:flex-start;padding-top:10px;padding-bottom:10px}
+.nrow > .tile{margin-top:1px}
+.nrow .t > p{font-size:var(--fs-meta);color:var(--faint);line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
+.nrow .t > b{font-weight:var(--fw-med)}
+.nrow .when{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;line-height:20px}
+/* job row: dotted ring · title / current step · progress line · step count */
+.jrow{align-items:center}
+.jrow .t > b{font-weight:400}
+.jrow .jmeter{display:flex;flex-direction:column;align-items:flex-end;gap:6px;width:112px;flex:none}
+.jrow .jmeter .pline{width:100%}
+.jrow > :last-child{width:72px;flex:none;justify-content:flex-end}
+/* exam row: calendar tile · name · readiness meter · date */
+.xrow .when{width:64px;text-align:right}
+
+/* =====================================================================
+   5 · COMPONENTS
+   ===================================================================== */
+.btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-3);border-radius:var(--r-sm);font-size:var(--fs-body);font-weight:var(--fw-med);color:var(--text);cursor:pointer;white-space:nowrap;transition:background-color var(--dur-1) var(--ease)}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--her);color:var(--on-her)}
+.btn.primary:hover{background:var(--her);filter:brightness(1.08)}
+.btn.secondary{box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.text{color:var(--quiet);padding:0 var(--sp-2)}
+.btn.text:hover{color:var(--text)}
+.btn.icon{width:32px;padding:0;justify-content:center;color:var(--quiet)}
+.btn.sm{height:24px;padding:0 var(--sp-2);font-size:var(--fs-meta)}
+.btn:disabled,.btn[aria-disabled="true"]{cursor:default}
+.btn.primary:disabled{background:none;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);filter:none}
+.btn.primary:disabled .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+/* Panel leads: when the Detail panel holds the primary action, the screen's own primary steps down (one ember per screen). */
+.area:has(.detail:not([hidden]) .btn.primary) .view .btn.primary{background:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.area:has(.detail:not([hidden]) .btn.primary) .view .btn.primary .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+.btn:focus-visible{outline:2px solid var(--text);outline-offset:1px}
+.kbd{display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding:0 var(--sp-1);border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--line2);font:400 var(--fs-meta)/1 var(--sans);color:var(--faint);flex:none}
+.btn .kbd{margin-right:-4px}
+.btn.primary .kbd{color:var(--on-her);box-shadow:inset 0 0 0 1px currentColor;opacity:.55}
+.hint{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+
+.field{display:block;width:100%;min-height:40px;padding:9px var(--sp-3);border:0;border-radius:var(--r-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-body);line-height:var(--lh);resize:none}
+.field:focus{box-shadow:inset 0 0 0 1px var(--quiet)}
+.field::placeholder{color:var(--faint)}
+
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
+.seg button{all:unset;height:24px;line-height:24px;padding:0 var(--sp-3);border-radius:var(--r-xs);font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--sel);color:var(--text)}
+
+/* Filter pills (Library): a tile.sm, a name, a count. */
+.filters{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+.pill{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer;white-space:nowrap}
+.pill:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.pill.on{background:var(--sel);color:var(--text);box-shadow:none}
+.pill .n{color:var(--faint)}
+.pill.tl{padding-left:6px}
+.vsep{width:1px;height:16px;background:var(--line2);margin:0 var(--sp-1)}
+
+/* E.V. line: her mark, one sentence, a source. */
+.evline{display:flex;align-items:flex-start;gap:var(--sp-3);color:var(--quiet)}
+.evline > .mark{margin-top:2px}
+.evline b{color:var(--text);font-weight:var(--fw-med)}
+
+/* Key-value property (detail panel, Linear-like): label left, editable value right. */
+.props{display:flex;flex-direction:column;gap:2px}
+.prop{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;min-height:32px;gap:var(--sp-2)}
+.prop > span:first-child{font-size:var(--fs-meta);color:var(--faint)}
+.pval{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);margin-left:calc(-1 * var(--sp-2));border-radius:var(--r-sm);color:var(--text);cursor:pointer;min-width:0;white-space:nowrap}
+.pval:hover{background:var(--hover)}
+.pval > span{overflow:hidden;text-overflow:ellipsis}
+.pval svg.g{color:var(--quiet);width:14px;height:14px}
+.kv{display:flex;justify-content:space-between;gap:var(--sp-3);min-height:32px;align-items:center;color:var(--quiet)}
+.kv b{color:var(--text);font-weight:400;text-align:right}
+
+/* Floating layers: the only things with a shadow. */
+.pop{border-radius:var(--r-lg);background:var(--float);box-shadow:var(--shadow-pop);overflow:hidden}
+.menu{position:absolute;z-index:15;min-width:220px;padding:var(--sp-1)}
+.menu .mi{display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);cursor:pointer;color:var(--quiet)}
+.menu .mi:hover,.menu .mi.on{background:var(--hover);color:var(--text)}
+.menu .mi .kbd{margin-left:auto}
+.scrim{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:112px;background:var(--scrim)}
+.palette{width:600px;display:flex;flex-direction:column}
+.palette-in{height:52px;padding:0 var(--sp-6);border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:var(--fs-body);outline:none}
+.palette-in:focus-visible{outline:none}
+.palette-list{display:flex;flex-direction:column;padding:var(--sp-2);max-height:540px;overflow-y:auto}
+.palette-list .t-label{padding:var(--sp-2) var(--sp-2) var(--sp-1)}
+.palette-list .r{margin:0}
+.palette-list .kind{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+.palette-foot{display:flex;align-items:center;gap:var(--sp-4);height:40px;padding:0 var(--sp-6);border-top:1px solid var(--line);font-size:var(--fs-meta);color:var(--faint)}
+.toast{position:fixed;left:50%;bottom:var(--sp-6);transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-3);height:40px;padding:0 var(--sp-1) 0 var(--sp-4);border-radius:var(--r-md);background:var(--float);box-shadow:var(--shadow-pop);z-index:20}
+
+/* Motion: short fades and small rises only. */
+@keyframes ev-spin{to{transform:rotate(360deg)}}
+@keyframes ev-fade{from{opacity:0}}
+@keyframes ev-rise{from{opacity:0;transform:translateY(var(--rise))}}
+.view:not([hidden]){animation:ev-fade var(--dur-1) var(--ease)}
+.detail:not([hidden]){animation:ev-rise var(--dur-2) var(--ease)}
+.reveal:not([hidden]){animation:ev-rise var(--dur-3) var(--ease)}
+.pop:not([hidden]){animation:ev-rise var(--dur-2) var(--ease)}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none !important;transition:none !important}}
+</style>
+<style>
+/* =====================================================================
+   6 · SCREEN PATTERNS (still tokens only)
+   ===================================================================== */
+
+/* ---------- Library: Jump back in ---------- */
+.jumps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3)}
+.jtile{display:flex;flex-direction:column;gap:var(--sp-3);padding:var(--sp-4);border-radius:var(--r-lg);background:var(--fill);cursor:pointer;min-width:0;transition:background-color var(--dur-1) var(--ease)}
+.jtile:hover{background:var(--hover)}
+.jtile .t{display:flex;flex-direction:column;min-width:0}
+.jtile .t > b{font-weight:var(--fw-med);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jtile .t > small{font-size:var(--fs-meta);color:var(--faint)}
+.jtile .pline{width:100%;--js:var(--k)}
+.jtile .foot{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+
+/* ---------- Library: set tiles; the shape tells the type ---------- */
+.sgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-4) var(--sp-3)}
+.stile{position:relative;display:flex;flex-direction:column;gap:var(--sp-3);min-height:176px;padding:var(--sp-4);border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2);background:var(--bg);cursor:pointer;min-width:0;transition:background-color var(--dur-1) var(--ease)}
+.stile:hover{background:var(--fill)}
+.stile .top{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint);min-width:0;white-space:nowrap}
+.stile .top .crs{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex:none}
+.stile .name{font-weight:var(--fw-med);line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stile .body{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--sp-2);min-width:0}
+.stile .foot{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+/* flashcards: a stacked-card edge under the tile, and the first term */
+.stile.flash{margin-bottom:8px}
+.stile.flash::before,.stile.flash::after{content:"";position:absolute;top:100%;left:8px;right:8px;height:4px;border:1px solid var(--line2);border-top:0;border-radius:0 0 var(--r-md) var(--r-md);pointer-events:none}
+.stile.flash::after{top:calc(100% + 4px);left:16px;right:16px}
+.stile .term{padding-top:var(--sp-2);border-top:1px solid var(--line)}
+.stile .term b{display:block;font-weight:var(--fw-med);font-size:var(--fs-body)}
+.stile .term span{display:block;font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* mock exam: questions · minutes · last score */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);padding-top:var(--sp-2)}
+.stats > div{display:flex;flex-direction:column}
+.stats > div + div{padding-left:var(--sp-3);border-left:1px solid var(--line)}
+.stats b{font-weight:var(--fw-med)}
+.stats span{font-size:var(--fs-meta);color:var(--faint)}
+/* practice: problems and accuracy as pips */
+.acc{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:var(--sp-2)}
+.acc .pips i{width:12px;height:8px}
+/* procedure: a short numbered preview */
+.stepsprev{display:flex;flex-direction:column;border-top:1px solid var(--line);padding-top:var(--sp-2);font-size:var(--fs-meta);color:var(--quiet)}
+.stepsprev > div{display:flex;gap:var(--sp-2);line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stepsprev > div > i{font-style:normal;color:var(--faint);width:12px;flex:none;text-align:right}
+.stepsprev > div.more{color:var(--faint)}
+/* a set E.V. is still writing: the job form, in a tile */
+.stile.writing{box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}
+.stile.writing .name{color:var(--quiet)}
+
+/* ---------- Set page (Quizlet-like) ---------- */
+.modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3)}
+.mode{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-3);height:56px;padding:0 var(--sp-4);border-radius:var(--r-lg);background:var(--fill);cursor:pointer;min-width:0;transition:background-color var(--dur-1) var(--ease)}
+.mode:hover{background:var(--hover)}
+.mode svg.g{color:var(--t-flash)}
+.mode .t{display:flex;flex-direction:column;min-width:0}
+.mode .t b{font-weight:var(--fw-med)}
+.mode .t small{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+.hero{position:relative;margin-bottom:10px}
+.hcard{position:relative;z-index:1;display:flex;flex-direction:column;height:280px;padding:var(--sp-4) var(--sp-6);border-radius:var(--r-xl);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line2);cursor:pointer;user-select:none}
+.hero::before,.hero::after{content:"";position:absolute;top:100%;left:12px;right:12px;height:5px;border:1px solid var(--line2);border-top:0;border-radius:0 0 var(--r-lg) var(--r-lg)}
+.hero::after{top:calc(100% + 5px);left:24px;right:24px}
+.hcard .face{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:var(--fs-card);font-weight:var(--fw-med);line-height:1.35;letter-spacing:-.01em;padding:0 var(--sp-8)}
+.hcard .face.back{font-size:var(--fs-body);font-weight:400;line-height:1.6;color:var(--text);max-width:520px;margin:0 auto}
+.hcard .hc-top,.hcard .hc-foot{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+.hctl{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-top:var(--sp-5)}
+.terms .term-r{display:grid;grid-template-columns:200px minmax(0,1fr) 96px;gap:var(--sp-6);align-items:start;padding:var(--sp-3) 0;border-top:1px solid var(--line)}
+.terms .term-r:first-child{border-top:0}
+.terms .term-r b{font-weight:var(--fw-med)}
+.terms .term-r p{color:var(--quiet)}
+.mast{display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--quiet);justify-content:flex-end;line-height:21px}
+
+/* ---------- Study modes (flashcards, mock exam, procedure): a focused take-over ---------- */
+.studybar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:var(--sp-3);height:56px;padding:0 var(--sp-6);background:var(--bg);border-bottom:1px solid var(--line)}
+.studybar .pline{width:160px;--js:var(--k)}
+.scol{max-width:var(--col);margin:0 auto;padding:var(--sp-14) var(--sp-10) var(--sp-12);display:flex;flex-direction:column;gap:var(--sp-6)}
+.scard{position:relative;z-index:1;display:flex;flex-direction:column;gap:var(--sp-4);min-height:280px;padding:var(--sp-6);border-radius:var(--r-xl);box-shadow:inset 0 0 0 1px var(--line2);background:var(--surface)}
+.scard .face{font-size:var(--fs-card);font-weight:var(--fw-med);letter-spacing:-.01em;line-height:1.35}
+.scard .lbl{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+.attempt{padding-left:var(--sp-3);border-left:2px solid var(--line2);color:var(--quiet)}
+.rate{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3)}
+.rate .btn{height:48px;justify-content:center}
+.answer{padding-left:var(--sp-3);border-left:2px solid var(--line2);color:var(--quiet)}
+
+/* mock exam navigator: one square per question */
+.exam-wrap{display:flex;gap:var(--sp-8);max-width:960px;margin:0 auto;padding:var(--sp-10) var(--sp-10) var(--sp-12)}
+.exam-wrap > .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-6)}
+.navig{flex:0 0 216px;display:flex;flex-direction:column;gap:var(--sp-4)}
+.qgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.qgrid i{height:22px;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--line2);font-style:normal;font-size:var(--fs-meta);color:var(--faint);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.qgrid i.done{background:var(--sel);box-shadow:none;color:var(--quiet)}
+.qgrid i.cur{box-shadow:inset 0 0 0 1.5px var(--text);color:var(--text)}
+.qgrid i.flag{box-shadow:inset 0 0 0 1px var(--warn)}
+.qgrid i.miss{background:color-mix(in srgb,var(--bad) 22%,transparent);box-shadow:none;color:var(--text)}
+.qgrid i.right{background:color-mix(in srgb,var(--ok) 10%,transparent);box-shadow:none}
+.qcard{display:flex;flex-direction:column;gap:var(--sp-1);padding:var(--sp-6);border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2)}
+.qcard .q{font-weight:var(--fw-med);margin-bottom:var(--sp-3)}
+.opt{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm);cursor:pointer}
+.opt:hover,.opt.on{background:var(--hover)}
+.opt .box{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.opt.on .box{background:var(--text);box-shadow:inset 0 0 0 4px var(--hover),inset 0 0 0 16px var(--text)}
+.opt .kbd{margin-left:auto}
+.opt .mk{margin-left:auto}
+
+/* procedure recall */
+.plist{display:flex;flex-direction:column}
+.pstep{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:var(--sp-3);align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.pstep:first-child{border-top:0}
+.pstep .num{width:24px;height:24px;border-radius:var(--r-sm);display:inline-flex;align-items:center;justify-content:center;font-size:var(--fs-meta);color:var(--quiet);box-shadow:inset 0 0 0 1px var(--line2)}
+.pstep.placed .num{background:color-mix(in srgb,var(--t-proc) var(--tint),transparent);color:var(--t-proc);box-shadow:none}
+.pstep.placed > div{color:var(--quiet)}
+.pstep > div{line-height:24px}
+.pstep.slot .num{box-shadow:inset 0 0 0 1.5px var(--text);color:var(--text)}
+.pstep.ghost{color:var(--faint)}
+.pstep.ghost .num{box-shadow:inset 0 0 0 1px var(--line);color:var(--faint)}
+
+/* ---------- Notes (Quip-like): folder tree · doc list · doc ---------- */
+.notes{flex:1;min-width:0;display:flex;max-height:100%;overflow:hidden}
+.ntree{flex:0 0 200px;padding:var(--sp-6) var(--sp-3) var(--sp-4);border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.fold{display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--quiet);cursor:pointer;white-space:nowrap}
+.fold:hover,.fold.on{background:var(--hover);color:var(--text)}
+.fold svg.g{width:14px;height:14px;color:var(--faint)}
+.fold .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
+.fold.sub{padding-left:30px}
+.fold .chev{transition:transform var(--dur-1) var(--ease)}
+.fold.closed .chev{transform:rotate(-90deg)}
+.ndocs{flex:0 0 288px;padding:var(--sp-6) var(--sp-4) var(--sp-4);border-right:1px solid var(--line);overflow-y:auto}
+.ndocs .r{margin:0 calc(-1 * var(--sp-2))}
+.editor{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.editor .view{flex:1}
+.sessionbar{flex:none;display:flex;align-items:center;gap:var(--sp-3);height:48px;padding:0 var(--sp-6);border-bottom:1px solid var(--line);color:var(--quiet)}
+.dcol{max-width:680px;margin:0 auto;padding:var(--sp-10) var(--sp-10) var(--sp-12);display:flex;flex-direction:column;gap:var(--sp-4)}
+.doc{display:flex;flex-direction:column;gap:var(--sp-3);outline:none;line-height:1.6}
+.doc h2{font-size:var(--fs-body);font-weight:var(--fw-title);margin-top:var(--sp-3)}
+.doc ul{padding-left:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
+.doc ul ul{margin-top:var(--sp-1)}
+.checks{display:flex;flex-direction:column}
+.check{display:flex;align-items:center;gap:var(--sp-3);min-height:32px;cursor:pointer}
+.check .box{width:16px;height:16px;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.check.done{color:var(--faint);text-decoration:line-through}
+.check.done .box{background:var(--quiet);box-shadow:none}
+.cols2{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.ph{display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-3);border-radius:var(--r-md);background:var(--hover);color:var(--faint);font-size:var(--fs-meta)}
+.ph svg{width:100%;height:auto;stroke:var(--quiet);fill:none;stroke-width:1.5}
+.reading{background:var(--hover);border-radius:var(--r-sm);box-shadow:0 0 0 6px var(--hover)}
+.cmt{display:flex;gap:var(--sp-3);align-items:flex-start}
+.cmt > .mark{margin-top:2px}
+.cmt .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+
+/* ---------- Course page ---------- */
+.mats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3)}
+.mat{display:flex;flex-direction:column;gap:2px;padding:var(--sp-4);border-radius:var(--r-lg);background:var(--fill);cursor:pointer;min-width:0}
+.mat:hover{background:var(--hover)}
+.mat > .line{margin-bottom:var(--sp-2)}
+.mat small{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Ask E.V. (A's plain turns) ---------- */
+.chat{display:flex;flex-direction:column;gap:var(--sp-6)}
+.msg{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:var(--sp-3);align-items:start}
+.msg > .mark{margin-top:2px}
+.msg .say{grid-column:2;display:flex;flex-direction:column;gap:var(--sp-2)}
+.msg .who{display:flex;align-items:baseline;gap:var(--sp-2);font-size:var(--fs-meta);font-weight:var(--fw-med);color:var(--faint)}
+.msg .who time{font-weight:400}
+.msg .say > div{max-width:600px}
+.msg .jobcard{max-width:520px}
+.chat-break{height:1px;background:var(--line)}
+.composer{position:sticky;bottom:0;padding:var(--sp-4) 0 var(--sp-2);background:var(--bg);display:flex;flex-direction:column;gap:var(--sp-2)}
+/* the job card: the job form at a larger size, for chat and the detail panel */
+.jobcard{display:flex;flex-direction:column;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-lg);background:var(--surface);cursor:pointer}
+.jobcard:hover{background:var(--hover)}
+.jobcard .pline{width:100%}
+.jsteps{display:flex;flex-direction:column}
+.jstep{display:grid;grid-template-columns:16px minmax(0,1fr);gap:var(--sp-3);padding:var(--sp-2) 0}
+.jstep > i{margin-top:3px}
+.jstep .dot{width:8px;height:8px;margin:6px 4px 0}
+.jstep small{display:block;font-size:var(--fs-meta);color:var(--faint)}
+
+/* ---------- Study plan proposal ---------- */
+.conf .lrow{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row)}
+.conf .lrow > .grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.locked > .dayh,.locked > .prow{display:none}
+.proposed-ph{border:1px dashed var(--line2);padding:var(--sp-3) var(--sp-4);margin:var(--sp-1) 0 0;cursor:default}
+.proposed-ph:hover{background:none}
+#prop-items:not(.locked) .proposed-ph{display:none}
+.dayh{font-size:var(--fs-meta);color:var(--faint);font-weight:var(--fw-med);margin-top:var(--sp-3);height:24px;display:flex;align-items:center}
+
+/* ---------- #system ---------- */
+.sys .col{max-width:1000px}
+.sys h2.t-title{margin-bottom:var(--sp-4)}
+.sw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4)}
+.themebox{padding:var(--sp-6);border-radius:var(--r-lg);background:var(--bg);box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);display:flex;flex-direction:column;gap:var(--sp-4)}
+.chips-sw{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--sp-3)}
+.chips-sw > div{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-meta);color:var(--faint);min-width:0}
+.chips-sw > div > i{height:28px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);background:var(--c)}
+.objtable{display:grid;grid-template-columns:132px 64px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);gap:0 var(--sp-6);align-items:stretch}
+.objtable > div{padding:var(--sp-3) 0;border-top:1px solid var(--line);min-width:0;display:flex;align-items:center}
+.objtable > div > .r,.objtable > div > .stile,.objtable > div > .mat,.objtable > div > .jobcard,.objtable > div > .evline{flex:1;min-width:0}
+.objtable > .h{font-size:var(--fs-meta);color:var(--faint);font-weight:var(--fw-med);border-top:0;padding-top:0}
+.specrow{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap}
+.specbox{display:flex;flex-direction:column;gap:var(--sp-2);font-size:var(--fs-meta);color:var(--faint)}
+.spacer{background:color-mix(in srgb,var(--info) 30%,transparent);height:16px;border-radius:2px}
+.rad{flex:none;width:48px;height:48px;box-shadow:inset 0 0 0 1px var(--line2);background:var(--surface)}
+.app.static{height:auto;overflow:visible}
+.app.static .area,.app.static .view{overflow:visible;max-height:none}
+
+/* ---------- #phone: the Library on a 390 × 844 frame ---------- */
+.phones{display:flex;gap:var(--sp-8);justify-content:center;padding:var(--sp-8) var(--sp-6) var(--sp-12)}
+.phone{width:390px;height:844px;flex:none;border-radius:44px;box-shadow:inset 0 0 0 1px var(--line2);background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.ph-status{flex:none;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;font-size:var(--fs-meta);font-weight:var(--fw-title);color:var(--text)}
+.ph-scroll{flex:1;overflow:hidden;padding:var(--sp-2) var(--sp-5) var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-6)}
+.ph-tabs{flex:none;height:80px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:var(--sp-2) var(--sp-2) 26px;background:var(--side)}
+.ph-tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:var(--fs-meta);color:var(--faint)}
+.ph-tabs a.on{color:var(--text)}
+.hscroll{display:flex;gap:var(--sp-3);overflow:hidden;margin-right:calc(-1 * var(--sp-5))}
+.hscroll .jtile{flex:0 0 200px}
+.phone .filters{flex-wrap:nowrap;overflow:hidden;margin-right:calc(-1 * var(--sp-5))}
+.phone .sgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3)}
+.phone .stile{min-height:152px;padding:var(--sp-3)}
+.phone .scard{min-height:0}
+.ph-study{flex:1;display:flex;flex-direction:column;gap:var(--sp-4);padding:var(--sp-2) var(--sp-5) var(--sp-5)}
+.ph-study .scard{flex:none}
+.ph-study .rate{margin-top:auto}
+.ph-study .btn.wide{height:48px;justify-content:center;width:100%}
+</style>
+</head>
+<body>
+<!-- ================= GLYPHS · 16 px line icons, stroke 1.5, used through <use> ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- object types -->
+  <symbol id="g-flash" viewBox="0 0 16 16"><rect x="2.5" y="5.5" width="9" height="8" rx="1.5"/><path d="M5 3h7a1.5 1.5 0 0 1 1.5 1.5V11"/></symbol>
+  <symbol id="g-practice" viewBox="0 0 16 16"><path d="M3 13l.7-2.8 7-7 2.1 2.1-7 7z"/><path d="M9.3 4.6l2.1 2.1"/></symbol>
+  <symbol id="g-mock" viewBox="0 0 16 16"><circle cx="8" cy="9" r="5"/><path d="M8 9V6.5M6.5 2.5h3M12 4.6l1-1"/></symbol>
+  <symbol id="g-proc" viewBox="0 0 16 16"><path d="M2.5 13.5H6V10h3.5V6.5H13V3"/></symbol>
+  <symbol id="g-note" viewBox="0 0 16 16"><path d="M4 2.5h5.5L12 5v8.5H4z"/><path d="M6 8h4M6 10.5h2.5"/></symbol>
+  <symbol id="g-weak" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></symbol>
+  <symbol id="g-plan" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M5.8 8.2l1.5 1.5 3-3.2"/></symbol>
+  <symbol id="g-course" viewBox="0 0 16 16"><path d="M6.5 2.5 5 13.5M11 2.5 9.5 13.5M3 6h10.5M2.5 10H13"/></symbol>
+  <symbol id="g-review" viewBox="0 0 16 16"><path d="M3 13V9M8 13V4M13 13V7"/></symbol>
+  <!-- navigation -->
+  <symbol id="g-today" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3l2 1.5"/></symbol>
+  <symbol id="g-ask" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></symbol>
+  <symbol id="g-library" viewBox="0 0 16 16"><path d="M3 2.5h3v11H3zM7.5 2.5h3v11h-3z"/><path d="m11.5 3 2.5.6-2 10-2.5-.6"/></symbol>
+  <symbol id="g-notes" viewBox="0 0 16 16"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6 8h4.5M6 10.5h3"/></symbol>
+  <symbol id="g-progress" viewBox="0 0 16 16"><path d="M3 13V8M8 13V3M13 13v-6"/></symbol>
+  <symbol id="g-activity" viewBox="0 0 16 16"><path d="M2 8h3l2-4 2 8 2-4h3"/></symbol>
+  <!-- utility -->
+  <symbol id="g-plus" viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9"/></symbol>
+  <symbol id="g-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="g-chev" viewBox="0 0 16 16"><path d="M4.5 6.5 8 10l3.5-3.5"/></symbol>
+  <symbol id="g-chevr" viewBox="0 0 16 16"><path d="M6.5 4.5 10 8l-3.5 3.5"/></symbol>
+  <symbol id="g-left" viewBox="0 0 16 16"><path d="M12.5 8h-9M7 4.5 3.5 8 7 11.5"/></symbol>
+  <symbol id="g-right" viewBox="0 0 16 16"><path d="M3.5 8h9M9 4.5 12.5 8 9 11.5"/></symbol>
+  <symbol id="g-folder" viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v6.5h-11z"/></symbol>
+  <symbol id="g-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.75"/><path d="M8 1.75v1.5M8 12.75v1.5M1.75 8h1.5M12.75 8h1.5M3.6 3.6l1 1M11.4 11.4l1 1M3.6 12.4l1-1M11.4 4.6l1-1"/></symbol>
+  <symbol id="g-noon" viewBox="0 0 16 16"><path d="M2 12.5h12"/><path d="M4.5 12.5a3.5 3.5 0 0 1 7 0"/><path d="M8 4.5V6M3.8 6.8l1 1M12.2 6.8l-1 1"/></symbol>
+  <symbol id="g-moon" viewBox="0 0 16 16"><path d="M12.5 10A5 5 0 0 1 6 3.5a5 5 0 1 0 6.5 6.5z"/></symbol>
+  <symbol id="g-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l1.5 1"/></symbol>
+  <symbol id="g-cal" viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></symbol>
+  <symbol id="g-repeat" viewBox="0 0 16 16"><path d="M3 7V6a2 2 0 0 1 2-2h7.5M10.5 2l2 2-2 2M13 9v1a2 2 0 0 1-2 2H3.5M5.5 14l-2-2 2-2"/></symbol>
+  <symbol id="g-prio" viewBox="0 0 16 16"><path d="M3.5 12.5v-2M8 12.5v-5M12.5 12.5v-8"/></symbol>
+  <symbol id="g-est" viewBox="0 0 16 16"><path d="M5.5 2.5h5M5.5 13.5h5M6 2.5c0 3 4 3 4 5.5s-4 2.5-4 5.5M10 2.5c0 3-4 3-4 5.5"/></symbol>
+  <symbol id="g-link" viewBox="0 0 16 16"><path d="M7 9a2.5 2.5 0 0 0 3.5 0l2-2A2.5 2.5 0 0 0 9 3.5l-.7.7M9 7a2.5 2.5 0 0 0-3.5 0l-2 2A2.5 2.5 0 0 0 7 12.5l.7-.7"/></symbol>
+  <symbol id="g-play" viewBox="0 0 16 16"><path d="M5 3.5v9l7-4.5z"/></symbol>
+  <symbol id="g-flag" viewBox="0 0 16 16"><path d="M4 13.5V3h7l-1.5 2.5L11 8H4"/></symbol>
+  <symbol id="g-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 13.5 13.5"/></symbol>
+  <symbol id="g-learn" viewBox="0 0 16 16"><path d="M13 6.5A5 5 0 0 0 3.5 5M3 9.5A5 5 0 0 0 12.5 11"/><path d="M3.5 2.5V5H6M12.5 13.5V11H10"/></symbol>
+  <symbol id="g-test" viewBox="0 0 16 16"><rect x="3.5" y="2.5" width="9" height="11" rx="1.5"/><path d="M6 6h4M6 8.5h4M6 11h2"/></symbol>
+  <symbol id="g-match" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></symbol>
+  <symbol id="g-shuffle" viewBox="0 0 16 16"><path d="M2.5 4.5h2.5l6 7h2.5M2.5 11.5h2.5l1.7-2M9.3 6.5l1.7-2h2.5M11.5 2.5l2 2-2 2M11.5 9.5l2 2-2 2"/></symbol>
+  <symbol id="g-dots" viewBox="0 0 16 16"><path d="M4 8h.01M8 8h.01M12 8h.01" stroke-width="2.5"/></symbol>
+  <symbol id="g-sub" viewBox="0 0 16 16"><path d="M4 3v6.5a1.5 1.5 0 0 0 1.5 1.5H12M9.5 8.5 12 11l-2.5 2.5"/></symbol>
+  <symbol id="g-sound" viewBox="0 0 16 16"><path d="M3 6.5v3h2.5L9 12.5v-9L5.5 6.5z"/><path d="M11 6a3 3 0 0 1 0 4"/></symbol>
+</svg>
+
+<div class="app" id="app">
+
+<!-- ================= SHELL · Sidebar ================= -->
+<aside class="sidebar" aria-label="Primary">
+  <div class="ws"><span class="mark quiet"></span>E.V.</div>
+  <div class="search" data-act="palette" role="button" tabindex="0" title="Search or ask (⌘K)"><svg class="g"><use href="#g-search"/></svg><span class="grow">Search or ask</span><span class="kbd">⌘K</span></div>
+  <a class="nav" href="#today" data-nav="today item"><svg class="g"><use href="#g-today"/></svg>Today<span class="n">6</span></a>
+  <a class="nav" href="#ask" data-nav="ask"><svg class="g"><use href="#g-ask"/></svg>Ask E.V.</a>
+  <a class="nav" href="#library" data-nav="library set study exam procedure"><svg class="g"><use href="#g-library"/></svg>Library</a>
+  <a class="nav" href="#notes" data-nav="notes"><svg class="g"><use href="#g-notes"/></svg>Notes</a>
+  <a class="nav" href="#progress" data-nav="progress"><svg class="g"><use href="#g-progress"/></svg>Progress</a>
+  <a class="nav" href="#activity" data-nav="activity proposal"><svg class="g"><use href="#g-activity"/></svg>Activity<span class="n" title="2 need you">2</span></a>
+
+  <div class="navgrp"><span>Courses</span><a class="btn icon sm" href="#course/new" title="Add course" aria-label="Add course" style="width:24px"><svg class="g" style="width:14px;height:14px"><use href="#g-plus"/></svg></a></div>
+  <a class="nav" href="#course/nur112" data-nav="course/nur112"><i class="sw k-nur112"></i>NUR 112<span class="n">Exam Thu</span></a>
+  <a class="nav" href="#course/bio201" data-nav="course/bio201"><i class="sw k-bio201"></i>BIO 201</a>
+  <a class="nav" href="#course/nur114" data-nav="course/nur114"><i class="sw k-nur114"></i>NUR 114</a>
+  <a class="nav add" href="#course/new" data-nav="course/new"><svg class="g" style="width:10px;height:10px;margin:0 0 0 0"><use href="#g-plus"/></svg>Add course</a>
+
+  <div class="sidefoot">
+    <a class="jobline j-run" href="#activity/job" title="Open in Activity"><i class="jring"></i><span class="grow ell">Exam 3 mock · B</span><span class="pline"><i style="width:66%"></i></span></a>
+    <button class="btn text" data-act="theme" style="justify-content:space-between;font-size:var(--fs-meta);color:var(--faint)" title="Switch theme (\)"><span id="themelabel">Light theme</span><span class="kbd">\</span></button>
+  </div>
+</aside>
+
+<main class="area" id="area">
+
+<!-- ================= SCREEN 1 · Today ================= -->
+<section class="view" data-screen="today" aria-label="Today">
+ <div class="col">
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Today</h1><span class="t-meta">Monday, November 2 · 6 items · 1 h 45 m</span><span class="grow"></span>
+      <button class="btn primary" data-act="start-next" title="Start the next item (S)">Start next<span class="kbd">S</span></button></div>
+    <div class="evline"><span class="mark quiet"></span><span><b>Exam 3 is Thursday.</b> Your weakest spot is oral liquid doses. <a class="cite k-weak" href="#library"><i data-t="weak" class="sm"></i>Weak spots</a></span></div>
+  </div>
+
+  <div class="sec" id="plan">
+    <div class="grp"><svg class="g"><use href="#g-sun"/></svg>Morning<span class="n">2</span><span class="sum">25m</span></div>
+    <div class="rows">
+      <a class="r prow done" href="#item"><i class="ring done"></i><i data-t="flash"></i><span class="t"><b>Review 8 due cards</b></span><span class="chip tl"><i data-t="flash" class="sm"></i><span>Cardiac output terms</span></span><span class="chip"><i class="sw k-bio201"></i>BIO 201</span><span class="prop-t est">10m</span><span class="prop-t when">7:00 am</span></a>
+      <a class="r prow" href="#item"><i class="ring started"></i><i data-t="proc"></i><span class="t"><b>Walk the steps from memory</b></span><span class="chip tl"><i data-t="proc" class="sm"></i><span>Sterile gloving</span></span><span class="chip"><i class="sw k-nur114"></i>NUR 114</span><span class="prop-t est">15m</span><span class="prop-t when">9:30 am</span></a>
+    </div>
+    <div class="grp"><svg class="g"><use href="#g-noon"/></svg>Afternoon<span class="n">2</span><span class="sum">50m</span></div>
+    <div class="rows">
+      <a class="r prow" href="#item"><i class="ring"></i><i data-t="note"></i><span class="t"><b>Write up the Ch 9 lecture</b></span><span class="chip tl"><i data-t="note" class="sm"></i><span>Ch 9 lecture · cardiac output</span></span><span class="chip"><i class="sw k-bio201"></i>BIO 201</span><span class="prop-t est">30m</span><span class="prop-t when">2:00 pm</span></a>
+      <a class="r prow" href="#item"><i class="ring"></i><i data-t="practice"></i><span class="t"><b>Oral liquid doses</b></span><span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="chip"><i class="sw k-nur112"></i>NUR 112</span><span class="prop-t est">20m</span><span class="prop-t when">4:00 pm</span></a>
+    </div>
+    <div class="grp"><svg class="g"><use href="#g-moon"/></svg>Evening<span class="n">1</span><span class="sum">30m</span></div>
+    <div class="rows">
+      <a class="r prow" href="#item"><i class="ring"></i><i data-t="mock"></i><span class="t"><b>Mock exam, first half</b></span><span class="chip tl"><i data-t="mock" class="sm"></i><span>Exam 3 mock · A</span></span><span class="chip"><i class="sw k-nur112"></i>NUR 112</span><span class="prop-t est">30m</span><span class="prop-t when">7:30 pm</span></a>
+      <div class="r prow proposed" id="suggest"><i class="ring proposed"></i><i data-t="practice"></i><span class="t"><b>5 dosage problems before bed</b></span><button class="btn text sm" data-act="accept" title="Accept (A)">Accept<span class="kbd">A</span></button><button class="btn text sm" data-act="toast" data-msg="Edit the suggestion in place" title="Edit (E)">Edit<span class="kbd">E</span></button><span class="prop-t est">10m</span><span class="prop-t when">9:00 pm</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Coming up</h2><span class="grow"></span><span class="t-meta">ready: <span class="nowrap"><i class="dot d-ok"></i> learned</span> <span class="nowrap"><i class="dot d-warn"></i> familiar</span> <span class="nowrap"><i class="dot d-bad"></i> weak</span></span></div>
+    <div class="rows">
+      <a class="r xrow" href="#proposal"><i class="tile exam k-nur112">5</i><span class="t"><b>NUR 112 · Exam 3</b></span><span class="chip" style="border:0"><i class="jring j-need" style="width:12px;height:12px;border-width:1.5px"></i>study plan needs you</span><span class="meter"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></span><span class="prop-t when" style="width:64px">Thu Nov 5</span></a>
+      <a class="r xrow" href="#course/nur112"><i class="tile exam k-nur114">9</i><span class="t"><b>NUR 114 · Skills check-off</b></span><span class="meter"><i class="m-ok" style="width:52%"></i><i class="m-warn" style="width:19%"></i><i class="m-bad" style="width:29%"></i></span><span class="prop-t when" style="width:64px">Mon Nov 9</span></a>
+      <a class="r xrow" href="#course/nur112"><i class="tile exam k-bio201">13</i><span class="t"><b>BIO 201 · Exam 2</b></span><span class="meter"><i class="m-ok" style="width:44%"></i><i class="m-warn" style="width:26%"></i><i class="m-bad" style="width:30%"></i></span><span class="prop-t when" style="width:64px">Fri Nov 13</span></a>
+      <a class="r" href="#progress"><i class="tile k-plan"><svg class="g"><use href="#g-review"/></svg></i><span class="t"><b>Weekly review</b></span><span class="t-meta">5 h 10 m studied · accuracy 72% ↑ · 3 weak spots to confirm</span><span class="prop-t when" style="width:64px">Sun</span></a>
+    </div>
+  </div>
+
+ </div>
+</section>
+
+<!-- ================= SCREEN 2 · Plan item detail (Linear issue) ================= -->
+<section class="view" data-screen="item" aria-label="Plan item" hidden>
+ <div class="col" style="gap:var(--sp-8)">
+  <div class="head">
+    <div class="crumb"><a href="#today">Today</a><svg class="g" style="width:12px;height:12px"><use href="#g-chevr"/></svg><span>Afternoon</span><svg class="g" style="width:12px;height:12px"><use href="#g-chevr"/></svg><a href="#proposal" class="line g1"><i class="tile sm k-plan"><svg class="g"><use href="#g-plan"/></svg></i>Exam 3 plan</a></div>
+    <span class="grow"></span><span class="t-meta">4 of 6</span>
+    <button class="btn primary" data-act="go" data-to="exam" title="Start (↵)">Start<span class="kbd">↵</span></button>
+  </div>
+
+  <div class="stack g4">
+    <div class="line g3"><i class="ring lg" data-act="cycle-ring" title="Change status"></i><h1 class="t-title" contenteditable="true" spellcheck="false">Oral liquid doses</h1></div>
+    <p class="c-quiet" contenteditable="true" spellcheck="false" style="line-height:1.6">Redo yesterday's misses first, then the new problems. Watch the mg → mL step: write the "have" over the "want" before multiplying. If I miss more than two, stop and reread the rule.</p>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Subtasks</h2><span class="t-meta">1 of 3</span><span class="meter" style="width:48px;margin-left:var(--sp-1)"><i class="m-rest" style="width:100%;background:linear-gradient(90deg,var(--quiet) 33%,var(--line2) 33%)"></i></span></div>
+    <div class="rows">
+      <div class="r prow done"><i class="ring done" data-act="cycle-ring"></i><span class="t"><b>Redo yesterday's 4 misses</b></span><span class="prop-t">5m</span></div>
+      <div class="r prow"><i class="ring" data-act="cycle-ring"></i><span class="t"><b>10 new problems, mg → mL</b></span><span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="prop-t">12m</span></div>
+      <div class="r prow"><i class="ring" data-act="cycle-ring"></i><span class="t"><b>Explain the formula to E.V. in one line</b></span><span class="chip tl"><i class="tile sm" style="--k:var(--faint)"><svg class="g"><use href="#g-ask"/></svg></i><span>Ask E.V.</span></span><span class="prop-t">3m</span></div>
+      <div class="r c-faint" data-act="toast" data-msg="New subtask"><svg class="g" style="width:14px;margin:0 1px"><use href="#g-plus"/></svg><span class="t-meta">Add subtask</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Links</h2></div>
+    <div class="rows">
+      <a class="r" href="#exam"><i data-t="practice"></i><span class="t"><b>Dosage by weight</b></span><span class="t-meta">Practice set · 10 problems · 6 of 10 last try</span></a>
+      <a class="r" href="#notes"><i data-t="note"></i><span class="t"><b>Med math rules</b></span><span class="t-meta">Note · NUR 112 › Med math · edited yesterday</span></a>
+      <a class="r" href="#library"><i data-t="weak"></i><span class="t"><b>Oral liquid doses</b></span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="t-meta">Weak spot · 4 of 9</span></a>
+      <a class="r" href="#proposal"><i class="tile exam k-nur112">5</i><span class="t"><b>NUR 112 · Exam 3</b></span><span class="t-meta">Exam · Thu Nov 5</span></a>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">History</h2></div>
+    <div class="stack g2 t-meta">
+      <div class="line g3"><span class="mark quiet" style="width:12px;height:12px;border-width:1.5px"></span><span>E.V. proposed it in <a href="#proposal" class="c-quiet">Study plan for Exam 3</a>; you approved · Sat 6:14 pm</span></div>
+      <div class="line g3"><i class="dot d-faint" style="margin:0 3px"></i><span>You moved it from 7:30 pm to 4:00 pm · today 7:12 am</span></div>
+      <div class="line g3"><i class="dot d-faint" style="margin:0 3px"></i><span>You set it to repeat every other day until Exam 3 · today 7:13 am</span></div>
+    </div>
+  </div>
+ </div>
+</section>
+<!-- the item's properties live in the shared Detail panel (template d-item) -->
+
+<!-- ================= SCREEN 3 · Library home (Quizlet-like) ================= -->
+<section class="view" data-screen="library" aria-label="Library" hidden>
+ <div class="col wide">
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">11 sets · accuracy 72% ↑ over 14 days</span><span class="grow"></span>
+      <button class="btn primary" data-act="new-set" title="New set (N)"><svg class="g"><use href="#g-plus"/></svg>New set<span class="kbd">N</span></button></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Jump back in</h2></div>
+    <div class="jumps">
+      <a class="jtile k-flash" href="#study"><div class="line g3"><i data-t="flash" class="lg"></i><span class="t"><b>Cardiac output terms</b><small>Flashcards · BIO 201</small></span></div><span class="pline"><i style="width:33%"></i></span><div class="foot"><span>card 8 of 24</span><span class="grow"></span><span>yesterday</span></div></a>
+      <a class="jtile k-proc" href="#procedure"><div class="line g3"><i data-t="proc" class="lg"></i><span class="t"><b>Sterile gloving</b><small>Procedure · NUR 114</small></span></div><span class="pline"><i style="width:44%"></i></span><div class="foot"><span>step 5 of 9</span><span class="grow"></span><span>today</span></div></a>
+      <a class="jtile k-mock" href="#exam/review"><div class="line g3"><i data-t="mock" class="lg"></i><span class="t"><b>Exam 3 mock · A</b><small>Mock exam · NUR 112</small></span></div><span class="pline"><i style="width:100%"></i></span><div class="foot"><span>review 9 misses</span><span class="grow"></span><span>Sat</span></div></a>
+    </div>
+  </div>
+
+  <div class="sec" style="gap:var(--sp-4)">
+    <div class="filters" id="libfilters">
+      <button class="pill on" data-f="all">All<span class="n">11</span></button>
+      <button class="pill tl" data-f="flash"><i data-t="flash" class="sm"></i>Flashcards<span class="n">3</span></button>
+      <button class="pill tl" data-f="practice"><i data-t="practice" class="sm"></i>Practice<span class="n">2</span></button>
+      <button class="pill tl" data-f="mock"><i data-t="mock" class="sm"></i>Mock exams<span class="n">3</span></button>
+      <button class="pill tl" data-f="proc"><i data-t="proc" class="sm"></i>Procedures<span class="n">3</span></button>
+      <span class="grow"></span>
+      <button class="pill" data-act="course-menu" title="Filter by course"><span id="coursefilter">All courses</span><svg class="g" style="width:12px;height:12px"><use href="#g-chev"/></svg></button>
+    </div>
+    <div class="sgrid" id="sgrid">
+      <a class="stile flash k-flash" href="#set" data-type="flash" data-course="bio201">
+        <div class="top"><i data-t="flash" class="sm"></i>Flashcards · 24<span class="crs"><i class="sw k-bio201"></i>BIO 201</span></div>
+        <div class="name">Cardiac output terms</div>
+        <div class="body"><div class="term"><b>Preload</b><span>The stretch on the ventricle at the end of filling</span></div></div>
+        <div class="foot"><span class="meter" style="width:64px"><i class="m-ok" style="width:62%"></i><i class="m-warn" style="width:21%"></i><i class="m-bad" style="width:17%"></i></span><span>62% known</span></div>
+      </a>
+      <a class="stile k-practice" href="#exam" data-type="practice" data-course="nur112">
+        <div class="top"><i data-t="practice" class="sm"></i>Practice · 10<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">Dosage by weight</div>
+        <div class="body"><div class="acc"><span class="pips k-practice"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i></span><span class="t-meta">6 of 10 right, last try</span></div></div>
+        <div class="foot"><span>yesterday</span><span class="grow"></span><span>made by E.V.</span></div>
+      </a>
+      <a class="stile k-mock" href="#exam" data-type="mock" data-course="nur112">
+        <div class="top"><i data-t="mock" class="sm"></i>Mock exam<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">Exam 3 mock · A</div>
+        <div class="body"><div class="stats"><div><b>40</b><span>questions</span></div><div><b>60</b><span>minutes</span></div><div><b>78%</b><span>last score</span></div></div></div>
+        <div class="foot"><span>taken Sat</span></div>
+      </a>
+      <a class="stile k-proc" href="#procedure" data-type="proc" data-course="nur114">
+        <div class="top"><i data-t="proc" class="sm"></i>Procedure · 9 steps<span class="crs"><i class="sw k-nur114"></i>NUR 114</span></div>
+        <div class="name">Sterile gloving</div>
+        <div class="body"><div class="stepsprev"><div><i>1</i><span class="ell">Perform hand hygiene</span></div><div><i>2</i><span class="ell">Check the package: size, dry, in date</span></div><div><i>3</i><span class="ell">Open the outer wrapper at waist height</span></div><div class="more"><i></i>+ 6 more</div></div></div>
+      </a>
+      <a class="stile writing j-run" href="#activity/job" data-type="mock" data-course="nur112">
+        <div class="top"><i class="jring" style="width:14px;height:14px"></i>Mock exam · writing<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">Exam 3 mock · B</div>
+        <div class="body"><span class="pline" style="width:100%"><i style="width:66%"></i></span><div class="foot"><span>E.V. · step 3 of 4 · 26 of 40 written</span></div></div>
+      </a>
+      <a class="stile flash k-flash" href="#set" data-type="flash" data-course="nur112">
+        <div class="top"><i data-t="flash" class="sm"></i>Flashcards · 18<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">Electrolyte normal ranges</div>
+        <div class="body"><div class="term"><b>Potassium (K⁺)</b><span>3.5–5.0 mEq/L</span></div></div>
+        <div class="foot"><span class="meter" style="width:64px"><i class="m-ok" style="width:40%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:30%"></i></span><span class="grow"></span><span class="unverified" title="No source linked yet">unverified</span></div>
+      </a>
+      <a class="stile k-proc" href="#procedure" data-type="proc" data-course="nur112">
+        <div class="top"><i data-t="proc" class="sm"></i>Procedure · 6 rights<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">Medication administration rights</div>
+        <div class="body"><div class="stepsprev"><div><i>1</i><span class="ell">Right patient</span></div><div><i>2</i><span class="ell">Right medication</span></div><div><i>3</i><span class="ell">Right dose</span></div><div class="more"><i></i>+ 3 more</div></div></div>
+      </a>
+      <a class="stile k-practice" href="#exam" data-type="practice" data-course="nur112">
+        <div class="top"><i data-t="practice" class="sm"></i>Practice · 12<span class="crs"><i class="sw k-nur112"></i>NUR 112</span></div>
+        <div class="name">IV drip rates</div>
+        <div class="body"><div class="acc"><span class="pips k-practice"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span><span class="t-meta">9 of 12 right, last try</span></div></div>
+        <div class="foot"><span>Oct 29</span><span class="grow"></span><span>made by E.V.</span></div>
+      </a>
+      <a class="stile k-mock" href="#exam" data-type="mock" data-course="bio201">
+        <div class="top"><i data-t="mock" class="sm"></i>Mock exam<span class="crs"><i class="sw k-bio201"></i>BIO 201</span></div>
+        <div class="name">Exam 2 mock · heart and vessels</div>
+        <div class="body"><div class="stats"><div><b>30</b><span>questions</span></div><div><b>45</b><span>minutes</span></div><div><b class="c-faint">–</b><span>not taken</span></div></div></div>
+        <div class="foot"><span>made Fri</span></div>
+      </a>
+      <a class="stile k-proc" href="#procedure" data-type="proc" data-course="nur114">
+        <div class="top"><i data-t="proc" class="sm"></i>Procedure · 14 steps<span class="crs"><i class="sw k-nur114"></i>NUR 114</span></div>
+        <div class="name">Head-to-toe assessment order</div>
+        <div class="body"><div class="stepsprev"><div><i>1</i><span class="ell">General survey</span></div><div><i>2</i><span class="ell">Vital signs</span></div><div><i>3</i><span class="ell">Skin, hair and nails</span></div><div class="more"><i></i>+ 11 more</div></div></div>
+      </a>
+      <a class="stile flash k-flash" href="#set" data-type="flash" data-course="nur114">
+        <div class="top"><i data-t="flash" class="sm"></i>Flashcards · 12<span class="crs"><i class="sw k-nur114"></i>NUR 114</span></div>
+        <div class="name">Cranial nerves</div>
+        <div class="body"><div class="term"><b>CN I · Olfactory</b><span>Smell; test each nostril with a familiar scent</span></div></div>
+        <div class="foot"><span class="meter" style="width:64px"><i class="m-ok" style="width:75%"></i><i class="m-warn" style="width:17%"></i><i class="m-bad" style="width:8%"></i></span><span>75% known</span></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Weak spots</h2><span class="t-meta">4</span><span class="grow"></span><span class="t-meta">right lately</span></div>
+    <div class="rows">
+      <a class="r" href="#exam"><i data-t="weak"></i><span class="t"><b>Oral liquid doses</b></span><span class="chip"><i class="sw k-nur112"></i>NUR 112</span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">4 of 9</span><span class="prop-t" style="width:64px">due today</span></a>
+      <a class="r" href="#set"><i data-t="weak"></i><span class="t"><b>Afterload</b></span><span class="chip"><i class="sw k-bio201"></i>BIO 201</span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">5 of 9</span><span class="prop-t" style="width:64px">tomorrow</span></a>
+      <a class="r" href="#procedure"><i data-t="weak"></i><span class="t"><b>Second glove, thumb position</b></span><span class="chip"><i class="sw k-nur114"></i>NUR 114</span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">5 of 8</span><span class="prop-t" style="width:64px">Wed</span></a>
+      <a class="r" href="#exam"><i data-t="weak"></i><span class="t"><b>Fluid balance · I&amp;O</b></span><span class="chip"><i class="sw k-nur112"></i>NUR 112</span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">6 of 10</span><span class="prop-t" style="width:64px">Thu</span></a>
+    </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 4 · Set page (flashcards) ================= -->
+<section class="view" data-screen="set" aria-label="Set" hidden>
+ <div class="col" style="gap:var(--sp-8)">
+  <div class="stack g4">
+    <div class="crumb"><a href="#library">Library</a><svg class="g" style="width:12px;height:12px"><use href="#g-chevr"/></svg><span class="line g1"><i class="sw k-bio201" style="width:8px;height:8px"></i>BIO 201</span></div>
+    <div class="head" style="align-items:flex-start">
+      <i data-t="flash" class="lg"></i>
+      <div class="stack grow" style="gap:2px"><h1 class="t-title">Cardiac output terms</h1>
+        <span class="t-meta">Flashcards · 24 cards · 8 due · BIO 201</span><span class="t-meta line g1" style="margin-top:2px">Made by E.V. on Sat from <a class="olink" href="#notes" style="color:var(--quiet);height:20px"><i data-t="note" class="sm"></i><span>Ch 9 lecture · cardiac output</span></a></span></div>
+      <button class="btn primary" data-act="go" data-to="study" title="Study the 8 due (S)">Study 8 due<span class="kbd">S</span></button>
+    </div>
+  </div>
+
+  <div class="modes">
+    <a class="mode" href="#study"><svg class="g"><use href="#g-flash"/></svg><span class="t"><b>Flashcards</b><small>try, flip, rate</small></span></a>
+    <a class="mode" href="#study"><svg class="g"><use href="#g-learn"/></svg><span class="t"><b>Learn</b><small>misses come back</small></span></a>
+    <a class="mode" href="#exam"><svg class="g"><use href="#g-test"/></svg><span class="t"><b>Test</b><small>written, scored</small></span></a>
+    <button class="mode" data-act="toast" data-msg="Match: pair terms with meanings, timed by you"><svg class="g"><use href="#g-match"/></svg><span class="t"><b>Match</b><small>pair them up</small></span></button>
+  </div>
+
+  <div>
+    <div class="hero">
+      <div class="hcard" id="hcard" data-act="flip-hero" role="button" tabindex="0" title="Flip (Space)">
+        <div class="hc-top"><span>Term</span><span class="grow"></span><span id="hc-n">1 / 24</span></div>
+        <div class="face" id="hc-face">Preload</div>
+        <div class="hc-foot"><span class="grow"></span><span class="hint"><span class="kbd">Space</span>flip</span></div>
+      </div>
+    </div>
+    <div class="hctl">
+      <span></span>
+      <div class="line g4">
+        <button class="btn icon secondary" data-act="hero-prev" title="Previous (←)" aria-label="Previous"><svg class="g"><use href="#g-left"/></svg></button>
+        <span class="t-meta" id="hc-pos" style="width:48px;text-align:center">1 / 24</span>
+        <button class="btn icon secondary" data-act="hero-next" title="Next (→)" aria-label="Next"><svg class="g"><use href="#g-right"/></svg></button>
+      </div>
+      <div class="line" style="justify-content:flex-end"><button class="btn text" data-act="toast" data-msg="Shuffled"><svg class="g"><use href="#g-shuffle"/></svg>Shuffle</button></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Terms</h2><span class="t-meta">24</span><span class="grow"></span><span class="t-meta">10 learned · 6 familiar · 4 weak · 4 new</span></div>
+    <div class="terms" id="terms"></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 5 · Flashcard study ================= -->
+<section class="view k-flash" data-screen="study" aria-label="Flashcards" hidden>
+  <div class="studybar">
+    <a class="btn icon" href="#set" title="Leave (Esc)" aria-label="Leave"><svg class="g"><use href="#g-close"/></svg></a>
+    <i data-t="flash" class="sm"></i><span class="t-med">Cardiac output terms</span><span class="t-meta">Flashcards</span>
+    <span class="grow"></span><span class="t-meta">9 of 24</span><span class="pline"><i style="width:37%"></i></span>
+  </div>
+  <div class="scol">
+    <div class="hero">
+    <div class="scard" id="scard">
+      <div class="lbl"><span>Term</span><span class="grow"></span><span>BIO 201</span></div>
+      <div class="face">Afterload</div>
+      <div id="st-front" class="stack g3">
+        <label class="t-meta" for="st-try">Your answer first, in your own words</label>
+        <textarea class="field" id="st-try" rows="2" placeholder="What is it?">the pressure the heart has to push against to get the blood out</textarea>
+      </div>
+      <div id="st-back" class="stack g4 reveal" hidden>
+        <div class="stack g1"><span class="t-meta">You wrote</span><div class="attempt">the pressure the heart has to push against to get the blood out</div></div>
+        <div class="stack g1"><span class="t-meta">Back of the card</span><div>The pressure the ventricle must overcome to eject blood. Mostly set by arterial pressure and the aortic valve; it rises in hypertension.</div></div>
+        <div class="line g2 wrap"><a class="cite" href="#notes"><i data-t="note" class="sm"></i>Ch 9 lecture · cardiac output</a></div>
+      </div>
+    </div>
+    </div>
+    <div id="st-front-act" class="line g3"><button class="btn text" data-act="just-tell" title="Just tell me · logged">Just tell me</button><span class="grow"></span><button class="btn primary" data-act="flip-study" title="Flip (Space)">Flip<span class="kbd">Space</span></button></div>
+    <div id="st-back-act" class="stack g3" hidden>
+      <div class="rate"><button class="btn secondary" data-act="rate" title="Again (1)">Again<span class="kbd">1</span></button><button class="btn primary" data-act="rate" title="Good (2)">Good<span class="kbd">2</span></button></div>
+      <span class="t-meta" style="text-align:center">Again brings it back in this session. Good moves it to Thursday.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 6 · Mock exam (in progress, then the review) ================= -->
+<section class="view k-mock" data-screen="exam" aria-label="Mock exam" hidden>
+  <div class="studybar">
+    <a class="btn icon" href="#library" title="Leave (Esc): your answers are kept" aria-label="Leave"><svg class="g"><use href="#g-close"/></svg></a>
+    <i data-t="mock" class="sm"></i><span class="t-med">Exam 3 mock · A</span><span class="t-meta" id="ex-mode">Mock exam · answers shown after you submit</span>
+    <span class="grow"></span><span class="line g2 t-meta" id="ex-timer"><svg class="g" style="width:14px"><use href="#g-clock"/></svg>38:12 left</span><span class="pline"><i style="width:28%" id="ex-pl"></i></span>
+  </div>
+  <div class="exam-wrap" id="ex-live">
+    <div class="main">
+      <div class="qcard" id="exq">
+        <div class="line g3"><span class="t-meta">Question 12 of 40</span><span class="grow"></span><button class="btn text sm" data-act="toast" data-msg="Flagged for review"><svg class="g" style="width:12px"><use href="#g-flag"/></svg>Flag</button></div>
+        <div class="q">A client with heart failure is due for furosemide 40 mg IV. Which finding should the nurse report before giving it?</div>
+        <div class="opt" data-opt tabindex="0"><span class="box"></span>Blood pressure 128/76 mm Hg<span class="kbd">1</span></div>
+        <div class="opt on" data-opt tabindex="0"><span class="box"></span>Potassium 3.1 mEq/L<span class="kbd">2</span></div>
+        <div class="opt" data-opt tabindex="0"><span class="box"></span>Weight up 0.5 kg since yesterday<span class="kbd">3</span></div>
+        <div class="opt" data-opt tabindex="0"><span class="box"></span>Fine crackles at both bases<span class="kbd">4</span></div>
+      </div>
+      <div class="line g3"><button class="btn text" data-act="toast" data-msg="Question 11"><svg class="g"><use href="#g-left"/></svg>Previous</button><span class="grow"></span><span class="t-meta">answer, then commit; you can change it until you submit</span><button class="btn primary" data-act="toast" data-msg="Saved · question 13 would load here">Commit<span class="kbd">↵</span></button></div>
+    </div>
+    <aside class="navig">
+      <div class="t-label">Questions</div>
+      <div class="qgrid" id="qgrid"></div>
+      <div class="stack g1 t-meta"><span class="line g2"><i class="dot" style="background:var(--sel)"></i>11 answered</span><span class="line g2"><i class="dot" style="box-shadow:inset 0 0 0 1px var(--warn)"></i>1 flagged</span><span class="line g2"><i class="dot d-rest"></i>28 to go</span></div>
+      <button class="btn secondary" data-act="go" data-to="exam/review" style="justify-content:center">Submit exam</button>
+    </aside>
+  </div>
+
+  <div class="exam-wrap" id="ex-review" hidden>
+    <div class="main">
+      <div class="stack g2">
+        <div class="line g3"><h1 class="t-title">78%</h1><span class="c-quiet">31 of 40 · 52 min</span><span class="grow"></span><span class="t-meta">Sat, Oct 31</span></div>
+        <div class="meter" style="width:100%"><i class="m-ok" style="width:78%"></i><i class="m-bad" style="width:22%"></i></div>
+      </div>
+      <div class="qcard">
+        <div class="line g3"><span class="t-meta">Question 12 of 40 · missed</span><span class="grow"></span><span class="t-meta">3 of 9 misses</span></div>
+        <div class="q">A client with heart failure is due for furosemide 40 mg IV. Which finding should the nurse report before giving it?</div>
+        <div class="opt"><span class="box"></span>Blood pressure 128/76 mm Hg</div>
+        <div class="opt"><span class="box"></span>Potassium 3.1 mEq/L<i class="dot d-ok mk"></i><span class="t-meta">right answer</span></div>
+        <div class="opt"><span class="box"></span>Weight up 0.5 kg since yesterday</div>
+        <div class="opt on"><span class="box"></span>Fine crackles at both bases<i class="dot d-bad mk"></i><span class="t-meta">your answer</span></div>
+        <div class="stack g3 reveal" style="margin-top:var(--sp-3);padding-top:var(--sp-4);border-top:1px solid var(--line)">
+          <div class="c-quiet">Furosemide wastes potassium, so a level of 3.1 (below 3.5) makes the dose unsafe until the prescriber knows. Crackles are why the client needs the drug, not a reason to hold it.</div>
+          <div class="line g2 wrap"><a class="cite" href="#notes"><i data-t="note" class="sm"></i>Diuretics and electrolytes</a><a class="cite" href="#set"><i data-t="flash" class="sm"></i>Electrolyte normal ranges · K⁺</a></div>
+        </div>
+      </div>
+      <div class="line g3"><button class="btn text"><svg class="g"><use href="#g-left"/></svg>Previous miss</button><span class="grow"></span><button class="btn secondary">Make a drill of the 9 misses</button><button class="btn primary" data-act="toast" data-msg="Next miss: question 17">Next miss<span class="kbd">→</span></button></div>
+    </div>
+    <aside class="navig">
+      <div class="t-label">Review</div>
+      <div class="qgrid" id="qgrid-r"></div>
+      <div class="stack g1 t-meta"><span class="line g2"><i class="dot" style="background:color-mix(in srgb,var(--ok) 40%,transparent)"></i>31 right</span><span class="line g2"><i class="dot" style="background:color-mix(in srgb,var(--bad) 50%,transparent)"></i>9 missed</span></div>
+      <div class="t-meta">Misses by topic: electrolytes 4 · dosage 3 · I&amp;O 2</div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= SCREEN 7 · Procedure set: recall the steps in order ================= -->
+<section class="view k-proc" data-screen="procedure" aria-label="Procedure" hidden>
+  <div class="studybar">
+    <a class="btn icon" href="#library" title="Leave (Esc)" aria-label="Leave"><svg class="g"><use href="#g-close"/></svg></a>
+    <i data-t="proc" class="sm"></i><span class="t-med">Sterile gloving</span><span class="t-meta">Procedure · in order, from memory</span>
+    <span class="grow"></span><span class="t-meta">step 5 of 9</span><span class="pline"><i style="width:44%"></i></span>
+  </div>
+  <div class="scol">
+    <div class="plist" id="plist">
+      <div class="pstep placed"><span class="num">1</span><div>Perform hand hygiene</div></div>
+      <div class="pstep placed"><span class="num">2</span><div>Check the package: right size, dry, in date</div></div>
+      <div class="pstep placed"><span class="num">3</span><div>Open the outer wrapper; set the inner wrapper on a clean, dry surface at waist height</div></div>
+      <div class="pstep placed"><span class="num">4</span><div>Open the inner wrapper, touching only its outer edges</div></div>
+      <div class="pstep slot" id="pslot"><span class="num">5</span>
+        <div class="stack g3">
+          <div class="c-text t-med">What comes next?</div>
+          <textarea class="field" id="p-try" rows="2">pick up the first glove by the folded cuff with my other hand</textarea>
+          <div class="stack g1" id="p-said" hidden><span class="t-meta">You wrote</span><div class="attempt">pick up the first glove by the folded cuff with my other hand</div></div>
+          <div id="p-check" class="stack g3 reveal" hidden>
+            <div class="line g2"><i class="dot d-ok"></i><span>Right step. One detail to add:</span></div>
+            <div class="answer">With the non-dominant hand, grasp the <b class="c-text t-med">inside</b> of the folded cuff of the dominant-hand glove. Touch only the inside; the outside stays sterile.</div>
+            <div class="line g2 wrap"><a class="cite" href="#notes"><i data-t="note" class="sm"></i>Skills lab 4 · sterile technique</a><a class="cite" href="#procedure"><i data-t="proc" class="sm"></i>Sterile gloving · step 5</a></div>
+          </div>
+        </div><span></span></div>
+      <div class="pstep ghost"><span class="num">6</span><div>· · ·</div></div>
+      <div class="pstep ghost"><span class="num">7</span><div>· · ·</div></div>
+    </div>
+    <div class="line g3" id="p-act"><button class="btn text" data-act="just-tell" title="Just tell me · logged">Just tell me</button><button class="btn text" data-act="toast" data-msg="Arrange: drag the 5 remaining steps into order">Arrange instead</button><span class="grow"></span><button class="btn primary" data-act="proc-check" title="Check (↵)">Check<span class="kbd">↵</span></button></div>
+    <div class="line g3" id="p-act2" hidden><span class="t-meta">Step 5 counts as right, with the detail noted for next time.</span><span class="grow"></span><button class="btn primary" data-act="toast" data-msg="Step 6 of 9">Next step<span class="kbd">↵</span></button></div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 8 · Notes (Quip-like) ================= -->
+<section class="notes" data-screen="notes" aria-label="Notes" hidden>
+  <nav class="ntree" aria-label="Folders" id="ntree">
+    <div class="line g2" style="margin:0 0 var(--sp-3) var(--sp-2)"><h1 class="t-title grow">Notes</h1><button class="btn icon" data-act="toast" data-msg="New note (N)" title="New note (N)" aria-label="New note"><svg class="g"><use href="#g-plus"/></svg></button></div>
+    <div class="fold" data-fold="nur112"><svg class="g chev"><use href="#g-chev"/></svg><i class="sw k-nur112"></i>NUR 112<span class="n">9</span></div>
+    <div class="fold sub" data-in="nur112"><svg class="g"><use href="#g-folder"/></svg>Lectures<span class="n">5</span></div>
+    <div class="fold sub" data-in="nur112"><svg class="g"><use href="#g-folder"/></svg>Med math<span class="n">4</span></div>
+    <div class="fold" data-fold="bio201"><svg class="g chev"><use href="#g-chev"/></svg><i class="sw k-bio201"></i>BIO 201<span class="n">11</span></div>
+    <div class="fold sub on" data-in="bio201"><svg class="g"><use href="#g-folder"/></svg>Lectures<span class="n">8</span></div>
+    <div class="fold sub" data-in="bio201"><svg class="g"><use href="#g-folder"/></svg>Labs<span class="n">3</span></div>
+    <div class="fold closed" data-fold="nur114"><svg class="g chev"><use href="#g-chev"/></svg><i class="sw k-nur114"></i>NUR 114<span class="n">6</span></div>
+    <div class="fold sub" data-in="nur114" hidden><svg class="g"><use href="#g-folder"/></svg>Skills lab<span class="n">6</span></div>
+    <div class="fold"><svg class="g" style="visibility:hidden"><use href="#g-chev"/></svg><svg class="g"><use href="#g-folder"/></svg>Unfiled<span class="n">2</span></div>
+  </nav>
+  <div class="ndocs" id="ndocs">
+    <div class="line g2" style="height:32px;margin-bottom:var(--sp-3)"><span class="t-label grow">BIO 201 › Lectures</span><span class="t-meta">by edited</span></div>
+    <div class="rows">
+      <div class="r nrow sel"><i data-t="note" class="sm"></i><span class="t"><b>Ch 9 lecture · cardiac output</b><p>Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume.</p></span><span class="when">now</span></div>
+      <div class="r nrow"><i data-t="note" class="sm"></i><span class="t"><b>Ch 8 lecture · the cardiac cycle</b><p>Systole and diastole; the valves close in order, which gives the two heart sounds, S1 then S2.</p></span><span class="when">Thu</span></div>
+      <div class="r nrow"><i data-t="note" class="sm"></i><span class="t"><b>Ch 7 lecture · blood vessels</b><p>Arteries, arterioles, capillaries, venules, veins. Resistance lives mostly in the arterioles.</p></span><span class="when">Oct 27</span></div>
+      <div class="r nrow"><i data-t="note" class="sm"></i><span class="t"><b>Ch 6 · muscle and the crossbridge cycle</b><p>Calcium binds troponin, tropomyosin moves, myosin heads bind actin and pull. ATP releases them.</p></span><span class="when">Oct 22</span></div>
+      <div class="r nrow"><i data-t="note" class="sm"></i><span class="t"><b>Ch 5 · tissues review</b><p>Four types: epithelial, connective, muscle, nervous. Know one example and one job for each.</p></span><span class="when">Oct 15</span></div>
+    </div>
+  </div>
+  <div class="editor">
+    <div class="sessionbar" id="sessionbar" hidden>
+      <i class="dot d-info" id="session-dot"></i><span class="nowrap">Study session · <span id="timer">18:20</span></span><span class="line g1 t-meta nowrap"><svg class="g" style="width:14px"><use href="#g-sound"/></svg>read-along on</span><span class="grow"></span>
+      <button class="btn text" data-act="pause" title="Pause (Space)"><span id="pausebtn">Pause</span><span class="kbd">Space</span></button>
+      <button class="btn secondary" data-act="end-session">End</button>
+    </div>
+    <div class="view">
+      <div class="dcol">
+        <div class="line g3 t-meta"><span class="line g2"><i class="sw k-bio201" style="width:8px;height:8px"></i>BIO 201 › Lectures</span><span>edited now</span><span class="grow"></span><span class="line g2" title="Saved on this device; sending to the server when online"><i class="dot d-faint"></i>Saved on this device</span><button class="btn secondary sm" id="start-session" data-act="start-session">Start session</button></div>
+        <article class="doc" id="doc" contenteditable="true" spellcheck="false">
+          <h1 class="t-title">Ch 9 lecture · cardiac output</h1>
+          <p>Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume. A resting adult is about 5 L/min.</p>
+          <h2>What sets stroke volume</h2>
+          <ul>
+            <li>Preload: the stretch at the end of filling, mostly venous return</li>
+            <li class="rd">Afterload: the pressure the ventricle must beat to eject
+              <ul><li>Rises with arterial pressure; the heart works harder</li></ul>
+            </li>
+            <li>Contractility: the force at a given stretch</li>
+          </ul>
+          <div class="checks" contenteditable="false">
+            <div class="check done" data-check><span class="box"></span>Read pp. 212–219</div>
+            <div class="check" data-check><span class="box"></span>Draw the Frank–Starling curve</div>
+            <div class="check" data-check><span class="box"></span>Make flashcards from this note</div>
+          </div>
+          <div class="cols2">
+            <figure class="ph" contenteditable="false">
+              <svg viewBox="0 0 176 112" aria-hidden="true"><path d="M16 8v88h152"/><path d="M20 92C52 86 72 40 104 30s44-4 60 4"/></svg>
+              <span>Image · Frank–Starling curve</span>
+            </figure>
+            <p>As the ventricle fills more, it stretches and contracts harder, so stroke volume rises. Past a point the fibres overstretch and the curve flattens; in heart failure the whole curve sits lower.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 9 · Course page ================= -->
+<section class="view" data-screen="course" aria-label="Course" hidden>
+ <div class="col">
+  <div class="stack g4">
+    <div class="head" style="align-items:flex-start">
+      <i class="tile lg k-nur112" id="crs-sw"><svg class="g"><use href="#g-course"/></svg></i>
+      <div class="stack grow" style="gap:2px"><h1 class="t-title" id="crs-title">NUR 112 · Fundamentals of Nursing</h1><span class="t-meta" id="crs-meta">Fall 2026 · 2 exams · 6 sets · 9 notes</span></div>
+      <button class="btn primary" data-to="proposal" data-act="go" id="crs-cta">Open Exam 3 plan</button>
+    </div>
+  </div>
+  <div id="crs-body" class="stack g12">
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Exams</h2><span class="grow"></span><button class="btn text sm" data-act="toast" data-msg="Add exam: name, date, objectives"><svg class="g" style="width:12px"><use href="#g-plus"/></svg>Add exam</button></div>
+    <div class="rows">
+      <a class="r xrow two" href="#proposal"><i class="tile exam k-nur112">5</i><span class="t"><b>Exam 3 · Ch 7–9</b><small>Thu Nov 5 · 14 objectives · study plan needs you</small></span><span class="meter"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></span><span class="prop-t" style="width:40px">58%</span></a>
+      <a class="r xrow two" href="#course/nur112"><i class="tile exam k-nur112">16</i><span class="t"><b>Med math check</b><small>Mon Nov 16 · 6 objectives · no plan yet</small></span><span class="meter"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></span><span class="prop-t" style="width:40px">40%</span></a>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Materials</h2><span class="t-meta">6</span><span class="grow"></span><a class="btn text sm" href="#library">All in Library</a></div>
+    <div class="mats">
+      <a class="mat k-flash" href="#set"><div class="line g2"><i data-t="flash"></i><span class="grow"></span><span class="t-meta">1</span></div><b class="t-med">Flashcards</b><small>Electrolyte normal ranges</small></a>
+      <a class="mat k-practice" href="#exam"><div class="line g2"><i data-t="practice"></i><span class="grow"></span><span class="t-meta">2</span></div><b class="t-med">Practice</b><small>Dosage by weight · IV drip rates</small></a>
+      <a class="mat k-mock" href="#exam"><div class="line g2"><i data-t="mock"></i><span class="grow"></span><span class="t-meta">2</span></div><b class="t-med">Mock exams</b><small>Exam 3 · A, and B being written</small></a>
+      <a class="mat k-proc" href="#procedure"><div class="line g2"><i data-t="proc"></i><span class="grow"></span><span class="t-meta">1</span></div><b class="t-med">Procedures</b><small>Medication administration rights</small></a>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Weak spots</h2><span class="t-meta">2</span></div>
+    <div class="rows">
+      <a class="r" href="#exam"><i data-t="weak"></i><span class="t"><b>Oral liquid doses</b></span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">4 of 9</span><span class="prop-t" style="width:64px">due today</span></a>
+      <a class="r" href="#exam"><i data-t="weak"></i><span class="t"><b>Fluid balance · I&amp;O</b></span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span><span class="prop-t" style="width:40px">6 of 10</span><span class="prop-t" style="width:64px">Thu</span></a>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Notes</h2><span class="t-meta">9</span><span class="grow"></span><a class="btn text sm" href="#notes">Open folder</a></div>
+    <div class="rows">
+      <a class="r nrow" href="#notes"><i data-t="note" class="sm"></i><span class="t"><b>Med math rules</b><p>Weight-based: dose = kg × mg/kg. Split a daily dose by the number of doses. Liquids: (want ÷ have) × volume.</p></span><span class="when">yesterday</span></a>
+      <a class="r nrow" href="#notes"><i data-t="note" class="sm"></i><span class="t"><b>Diuretics and electrolytes</b><p>Loop diuretics waste potassium: check K⁺ before each dose and report under 3.5 mEq/L.</p></span><span class="when">Fri</span></a>
+    </div>
+  </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 10 · Ask E.V. ================= -->
+<section class="view" data-screen="ask" aria-label="Ask E.V." hidden>
+ <div class="col" style="min-height:100%;gap:var(--sp-8)">
+  <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">she'll want your try first</span></div>
+  <div class="chat" id="chat">
+    <div class="msg"><span></span><div class="say"><div class="who">You<time>9:12 am</time></div><div>why does afterload matter for a heart failure patient?</div></div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say"><div>Your try first, in one line: when afterload goes up, what does the ventricle have to do?</div><div><button class="btn text sm" style="margin-left:-8px" data-act="just-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div></div></div>
+    <div class="msg"><span></span><div class="say"><div class="who">You<time>9:13 am</time></div><div>squeeze harder to get the same blood out, so it gets tired?</div></div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say"><div>Yes. Higher afterload means more work and more oxygen demand for the same stroke volume, and a failing ventricle can't keep up, so output drops. That's why afterload-lowering drugs help.</div><div class="line g2 wrap"><a class="cite" href="#notes"><i data-t="note" class="sm"></i>Ch 9 lecture · cardiac output</a><span class="unverified" title="Not in your notes or sets yet">drug classes: unverified</span></div></div></div>
+    <div class="chat-break" role="separator"></div>
+    <div class="msg"><span></span><div class="say"><div class="who">You<time>11:40 am</time></div><div>is the mock exam ready?</div></div></div>
+    <div class="msg"><span class="mark"></span><div class="say"><div>Not yet. It's on step 3 of 4: 26 of 40 questions written. Then I check each answer against your notes. It lands in Library, under NUR 112.</div>
+      <a class="jobcard j-run" href="#activity/job"><div class="line g3"><i class="jring"></i><span class="grow t-med">Exam 3 mock · B</span><span class="steps-n">step 3 of 4</span></div><span class="pline"><i style="width:66%"></i></span><div class="line g2 t-meta"><span>Writing questions · 26 of 40</span><span class="grow"></span><span>→</span><i data-t="mock" class="sm"></i><span>Library · NUR 112</span></div></a>
+      <div class="t-meta">from job status · 11:40 am</div></div></div>
+  </div>
+  <div class="composer" style="margin-top:auto">
+    <textarea class="field" id="composer" rows="1" placeholder="Ask E.V., or answer her" aria-label="Message to E.V."></textarea>
+    <div class="line g4"><span class="hint"><span class="kbd">↵</span>send</span><span class="hint"><span class="kbd">⇧↵</span>new line</span><span class="grow"></span><span class="hint"><span class="kbd">⌘J</span>from anywhere</span></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 11 · Activity: jobs ================= -->
+<section class="view" data-screen="activity" aria-label="Activity" hidden>
+ <div class="col">
+  <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta">every job E.V. and the schedule run</span></div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Needs you</h2><span class="t-meta">2</span></div>
+    <div class="rows">
+      <a class="r two jrow j-need" href="#proposal"><i class="jring"></i><span class="t"><b>Study plan for Exam 3</b><small>ready · rate your confidence, then approve · 6:02 am</small></span><span class="jmeter"><span class="steps-n">3 of 3 · waiting</span><span class="pline"><i style="width:100%"></i></span></span><span class="btn text sm act">Review<span class="kbd">↵</span></span></a>
+      <a class="r two jrow j-need" href="#procedure"><i class="jring"></i><span class="t"><b>Medication rights · procedure set</b><small>one step cites a page your notes don't have · confirm or edit it</small></span><span class="jmeter"><span class="steps-n">4 of 5 · waiting</span><span class="pline"><i style="width:80%"></i></span></span><span class="btn text sm act">Review<span class="kbd">↵</span></span></a>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Running</h2><span class="t-meta">1</span></div>
+    <div class="rows">
+      <a class="r two jrow j-run" id="job-mock-row" href="#activity/job"><i class="jring"></i><span class="t"><b>Exam 3 mock · B</b><small>writing questions, 26 of 40 · you asked in Ask E.V. · ~2 min left</small></span><span class="jmeter"><span class="steps-n">step 3 of 4</span><span class="pline"><i style="width:66%"></i></span></span><span class="btn text sm act" data-act="toast" data-msg="Stopped · nothing was saved">Stop</span></a>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Done today</h2><span class="t-meta">3</span></div>
+    <div class="rows">
+      <a class="r two jrow j-done" href="#today"><i class="jring"></i><span class="t"><b>Plan for today</b><small>morning run · 6 items, 1 suggestion → <span class="c-quiet">Today</span></small></span><span class="jmeter"><span class="steps-n">2 of 2</span><span class="pline"><i style="width:100%"></i></span></span><span class="prop-t">4:25 am</span></a>
+      <a class="r two jrow j-done" href="#set"><i class="jring"></i><span class="t"><b>Flashcards from Ch 9 notes</b><small>24 cards, each cited → <span class="c-quiet">Cardiac output terms</span></small></span><span class="jmeter"><span class="steps-n">3 of 3</span><span class="pline"><i style="width:100%"></i></span></span><span class="prop-t">8:10 am</span></a>
+      <a class="r two jrow j-fail" href="#activity"><i class="jring"></i><span class="t"><b>Study guide · fluid balance</b><small>failed: the I&amp;O note has nothing to cite yet · nothing saved</small></span><span class="jmeter"><span class="steps-n">1 of 3 · failed</span><span class="pline"><i style="width:33%"></i></span></span><span class="btn text sm" data-act="toast" data-msg="Retrying · see Running">Retry</span></a>
+    </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 12 · Study plan proposal ================= -->
+<section class="view" data-screen="proposal" aria-label="Study plan proposal" hidden>
+ <div class="col" style="gap:var(--sp-10)">
+  <div class="stack g4">
+    <div class="crumb"><a href="#activity">Activity</a><svg class="g" style="width:12px;height:12px"><use href="#g-chevr"/></svg><span>Needs you</span></div>
+    <div class="head" style="align-items:flex-start">
+      <i class="tile lg k-plan" style="border:1.5px dashed var(--line2);background:none"><svg class="g"><use href="#g-plan"/></svg></i>
+      <div class="stack grow" style="gap:2px"><h1 class="t-title">Study plan for Exam 3</h1><span class="t-meta line g2">Proposal · <i class="tile exam k-nur112" style="width:16px;height:16px;font-size:0;padding:0"></i>NUR 112 · Exam 3 · Thu Nov 5 · drafted by E.V. at 6:02 am</span></div>
+    </div>
+    <div class="line g2" id="prop-act" style="padding-left:44px"><button class="btn primary" data-act="approve" disabled title="Rate your confidence first">Approve<span class="kbd">⌘↵</span></button><button class="btn secondary" data-act="go" data-to="ask">Ask for changes</button><button class="btn text" data-act="toast" data-msg="Put away · it stays in Activity">Put away</button></div>
+  </div>
+  <div class="sec conf">
+    <div class="sec-head"><h2 class="t-label">1 · How sure are you?</h2><span class="grow"></span><span class="t-meta" id="conf-note">Rate all four first. The plan is shaped around your answers.</span></div>
+    <div class="lrow"><i data-t="weak" class="sm"></i><span class="grow">Oral liquid doses</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><i data-t="practice" class="sm"></i><span class="grow">Dosage by weight</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><i data-t="weak" class="sm"></i><span class="grow">Fluid balance · I&amp;O</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><i data-t="flash" class="sm"></i><span class="grow">Electrolyte normal ranges</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+  </div>
+  <div class="sec locked" id="prop-items">
+    <div class="sec-head"><h2 class="t-label">2 · Proposed plan</h2><span class="t-meta">6 sessions · 2 h 20 m</span><span class="grow"></span><span id="prop-lock"></span></div>
+    <div class="evline" id="prop-why" hidden style="margin-bottom:var(--sp-2)"><span class="mark quiet"></span><span>You said <b>Some</b> on oral liquid doses; your answers say 4 of 9. I gave it two sessions. <a class="cite k-weak" href="#library"><i data-t="weak" class="sm"></i>Weak spots</a></span></div>
+    <div class="r proposed-ph" id="prop-ph"><span class="t-meta">E.V. has drafted 6 sessions. They appear here once you have rated all four, so her plan doesn't steer your answers.</span></div>
+    <div class="dayh">Mon · today</div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="practice"></i><span class="t"><b>Oral liquid doses</b></span><span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="prop-t est">20m</span><span class="prop-t when">4:00 pm</span></div>
+    <div class="dayh">Tue</div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="flash"></i><span class="t"><b>Electrolytes, due cards</b></span><span class="chip tl"><i data-t="flash" class="sm"></i><span>Electrolyte normal ranges</span></span><span class="prop-t est">15m</span><span class="prop-t when">7:00 am</span></div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="practice"></i><span class="t"><b>Oral liquid doses, again</b></span><span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="prop-t est">20m</span><span class="prop-t when">6:00 pm</span></div>
+    <div class="dayh">Wed</div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="mock"></i><span class="t"><b>Full mock exam</b></span><span class="chip tl"><i data-t="mock" class="sm"></i><span>Exam 3 mock · B</span></span><span class="prop-t est">60m</span><span class="prop-t when">6:30 pm</span></div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="note"></i><span class="t"><b>Fill in the I&amp;O note</b></span><span class="chip tl"><i data-t="note" class="sm"></i><span>Fluid balance · I&amp;O</span></span><span class="prop-t est">15m</span><span class="prop-t when">8:00 pm</span></div>
+    <div class="dayh">Thu · exam day</div>
+    <div class="r prow proposed"><i class="ring proposed"></i><i data-t="weak"></i><span class="t"><b>Misses only, before the exam</b></span><span class="chip tl"><i data-t="mock" class="sm"></i><span>Exam 3 mock · B</span></span><span class="prop-t est">10m</span><span class="prop-t when">7:00 am</span></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= Progress (minimal; after the switch) ================= -->
+<section class="view" data-screen="progress" aria-label="Progress" hidden>
+ <div class="col">
+  <div class="head"><h1 class="t-title">Progress</h1><span class="t-meta">last 14 days</span></div>
+  <div class="sec g4"><h2 class="t-label">Retrieval accuracy</h2><div class="line g3"><span class="t-title">72%</span><span class="t-meta">↑ from 66% · first try, from memory</span></div><div class="meter" style="width:100%"><i class="m-ok" style="width:72%"></i><i class="m-rest" style="width:28%"></i></div></div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">Weekly review</h2><span class="t-meta">Sun</span></div><div class="c-quiet">5 h 10 m studied · 28 sessions · 164 answers · 3 weak spots to confirm</div></div>
+  <p class="t-meta">More here after the switch.</p>
+ </div>
+</section>
+
+<!-- ================= SCREEN 14 · #system ================= -->
+<section class="view sys" data-screen="system" aria-label="Design system" hidden>
+ <div class="col" style="gap:var(--sp-14)">
+  <div class="stack g2"><h1 class="t-title">E.V. design system · I · Workbench</h1><p class="c-quiet">A's graphite, Inter and spacing. One object language: each type has a type tile (or ring), a list form, a tile form and a link form, all built from the tokens below. Press <span class="kbd">\</span> to switch the whole page.</p></div>
+
+  <div class="sec">
+    <h2 class="t-title">Tokens · both themes</h2>
+    <div class="sw-grid">
+      <div class="themebox" data-theme="dark" id="tb-dark"></div>
+      <div class="themebox" data-theme="light" id="tb-light"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="t-title">Type · Inter, one family</h2>
+    <div class="stack g4">
+      <div class="line g6"><span class="t-meta" style="width:160px">20 / 600 · titles</span><span class="t-title">Cardiac output terms</span></div>
+      <div class="line g6"><span class="t-meta" style="width:160px">14 / 500 · names</span><span class="t-med">Sterile gloving · 9 steps</span></div>
+      <div class="line g6"><span class="t-meta" style="width:160px">14 / 400 · body, 1.5</span><span>Afterload is the pressure the ventricle must overcome to eject blood.</span></div>
+      <div class="line g6"><span class="t-meta" style="width:160px">12 / 400 · meta</span><span class="t-meta">24 cards · made by E.V. from Ch 9 notes</span></div>
+      <div class="line g6"><span class="t-meta" style="width:160px">24 / 500 · card faces only</span><span style="font-size:var(--fs-card);font-weight:var(--fw-med);letter-spacing:-.01em">Preload</span></div>
+    </div>
+  </div>
+
+  <div class="sw-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-8)">
+    <div class="sec"><h2 class="t-title">Spacing · 8 px rhythm</h2>
+      <div class="stack g2" id="spacing"></div></div>
+    <div class="sec"><h2 class="t-title">Radii</h2>
+      <div class="specrow">
+        <div class="specbox"><i class="rad" style="border-radius:var(--r-xs)"></i>4 · kbd, pips</div>
+        <div class="specbox"><i class="rad" style="border-radius:var(--r-sm)"></i>6 · rows, tiles, chips</div>
+        <div class="specbox"><i class="rad" style="border-radius:var(--r-lg)"></i>12 · set tiles, pops</div>
+        <div class="specbox"><i class="rad" style="border-radius:var(--r-xl)"></i>16 · cards</div>
+      </div></div>
+    <div class="sec"><h2 class="t-title">Elevation and motion</h2>
+      <div class="stack g4">
+        <div class="line g4"><i class="rad" style="border-radius:var(--r-lg);background:var(--bg)"></i><span class="t-meta">Flat: everything on the page. Hairlines and tints, never shadows.</span></div>
+        <div class="line g4"><i class="rad pop" style="display:block"></i><span class="t-meta">Float: ⌘K, menus, toast. The only shadow.</span></div>
+        <div class="t-meta">Motion: fade 150 ms, rise 4 px over 200 ms, reveal 250 ms, ease (.2,0,0,1). The running job ring turns once per 6 s. Reduced motion turns all of it off.</div>
+      </div></div>
+  </div>
+
+  <div class="sec">
+    <h2 class="t-title">Object language</h2>
+    <p class="c-quiet" style="margin-bottom:var(--sp-6)">Read across a row: one type, one device, four places. Read down the tile column: no two types share a shape and a colour.</p>
+    <div class="objtable">
+      <div class="h">Type</div><div class="h">Mark</div><div class="h">List form</div><div class="h">Tile form</div><div class="h">Link form</div>
+
+      <div class="t-med">Course</div><div><i class="sw lg k-nur112"></i></div>
+      <div><div class="r" style="margin:0"><i class="sw k-nur112"></i><span class="t"><b>NUR 112</b></span><span class="prop-t">Exam Thu</span></div></div>
+      <div><div class="mat"><div class="line g2" style="margin:0"><i class="tile k-nur112"><svg class="g"><use href="#g-course"/></svg></i><b class="t-med">NUR 112</b></div><small>2 exams · 6 sets · 9 notes</small></div></div>
+      <div><span class="chip"><i class="sw k-nur112"></i>NUR 112</span></div>
+
+      <div class="t-med">Flashcard set</div><div><i data-t="flash"></i></div>
+      <div><div class="r two" style="margin:0"><i data-t="flash"></i><span class="t"><b>Cardiac output terms</b><small>24 cards · 62% known</small></span></div></div>
+      <div><div class="stile flash k-flash" style="min-height:0"><div class="top"><i data-t="flash" class="sm"></i>Flashcards · 24</div><div class="term"><b>Preload</b><span>The stretch at end of filling</span></div></div></div>
+      <div><span class="cite"><i data-t="flash" class="sm"></i>Cardiac output terms</span></div>
+
+      <div class="t-med">Practice set</div><div><i data-t="practice"></i></div>
+      <div><div class="r two" style="margin:0"><i data-t="practice"></i><span class="t"><b>Dosage by weight</b><small>10 problems · 6 of 10</small></span></div></div>
+      <div><div class="stile k-practice" style="min-height:0"><div class="top"><i data-t="practice" class="sm"></i>Practice · 10</div><div class="acc"><span class="pips k-practice"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i></span></div></div></div>
+      <div><span class="cite"><i data-t="practice" class="sm"></i>Dosage by weight</span></div>
+
+      <div class="t-med">Mock exam</div><div><i data-t="mock"></i></div>
+      <div><div class="r two" style="margin:0"><i data-t="mock"></i><span class="t"><b>Exam 3 mock · A</b><small>40 q · 60 min · 78%</small></span></div></div>
+      <div><div class="stile k-mock" style="min-height:0"><div class="top"><i data-t="mock" class="sm"></i>Mock exam</div><div class="stats"><div><b>40</b><span>q</span></div><div><b>60</b><span>min</span></div><div><b>78%</b><span>last</span></div></div></div></div>
+      <div><span class="cite"><i data-t="mock" class="sm"></i>Exam 3 mock · A</span></div>
+
+      <div class="t-med">Procedure set</div><div><i data-t="proc"></i></div>
+      <div><div class="r two" style="margin:0"><i data-t="proc"></i><span class="t"><b>Sterile gloving</b><small>9 steps · step 5 next</small></span></div></div>
+      <div><div class="stile k-proc" style="min-height:0"><div class="top"><i data-t="proc" class="sm"></i>Procedure · 9</div><div class="stepsprev"><div><i>1</i><span class="ell">Hand hygiene</span></div><div><i>2</i><span class="ell">Check package</span></div></div></div></div>
+      <div><span class="cite"><i data-t="proc" class="sm"></i>Sterile gloving · step 5</span></div>
+
+      <div class="t-med">Note</div><div><i data-t="note"></i></div>
+      <div><div class="r nrow" style="margin:0"><i data-t="note" class="sm"></i><span class="t"><b>Ch 9 lecture</b><p>Cardiac output is the blood the heart pumps in a minute…</p></span></div></div>
+      <div><div class="stack g1 c-quiet t-meta">Notes stay documents: a doc row with a two-line preview. No tile form.</div></div>
+      <div><span class="cite"><i data-t="note" class="sm"></i>Ch 9 lecture</span></div>
+
+      <div class="t-med">Plan item</div><div><i class="ring"></i></div>
+      <div><div class="r prow" style="margin:0"><i class="ring"></i><i data-t="practice"></i><span class="t"><b>Oral liquid doses</b></span><span class="prop-t">4:00 pm</span></div></div>
+      <div><div class="stack g1 t-meta">Opens as an issue: title, notes, subtasks, links; properties in Detail.</div></div>
+      <div><span class="cite"><i class="ring" style="--ring:12px"></i>Oral liquid doses · 4:00 pm</span></div>
+
+      <div class="t-med">Agentic job</div><div class="j-run"><i class="jring"></i></div>
+      <div><div class="r jrow j-run" style="margin:0"><i class="jring"></i><span class="t"><b>Exam 3 mock · B</b></span><span class="jmeter" style="width:88px"><span class="steps-n">step 3 of 4</span><span class="pline"><i style="width:66%"></i></span></span></div></div>
+      <div><div class="jobcard j-run"><div class="line g2"><i class="jring"></i><span class="grow t-med">Mock · B</span><span class="steps-n">3 of 4</span></div><span class="pline"><i style="width:66%"></i></span></div></div>
+      <div><span class="cite j-run"><i class="jring" style="width:12px;height:12px;border-width:1.5px"></i>Job · Exam 3 mock · B</span></div>
+
+      <div class="t-med">Exam</div><div><i class="tile exam k-nur112">5</i></div>
+      <div><div class="r xrow" style="margin:0"><i class="tile exam k-nur112">5</i><span class="t"><b>NUR 112 · Exam 3</b></span><span class="meter" style="width:56px"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></span></div></div>
+      <div><div class="mat"><div class="line g2"><i class="tile exam lg k-nur112">5</i><span class="stack"><b class="t-med">Exam 3</b><small>Thu Nov 5 · 58%</small></span></div></div></div>
+      <div><span class="cite"><i class="tile exam sm k-nur112" style="font-size:0;padding:0"></i>NUR 112 · Exam 3</span></div>
+
+      <div class="t-med">Weak spot</div><div><i data-t="weak"></i></div>
+      <div><div class="r" style="margin:0"><i data-t="weak"></i><span class="t"><b>Oral liquid doses</b></span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span></div></div>
+      <div><div class="stack g1 t-meta">Always shown with its pips: n of m right lately.</div></div>
+      <div><span class="cite"><i data-t="weak" class="sm"></i>Oral liquid doses · 4 of 9</span></div>
+
+      <div class="t-med">E.V.'s voice</div><div><span class="mark"></span></div>
+      <div style="grid-column:span 3"><div class="evline"><span class="mark quiet"></span><span><b>Exam 3 is Thursday.</b> One line, once per screen, with a source. <a class="cite"><i data-t="weak" class="sm"></i>Weak spots</a> <span class="unverified">or unverified</span></span></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="t-title">Components and states</h2>
+    <div class="stack g6">
+      <div class="specrow"><span class="t-meta" style="width:120px">Buttons</span><button class="btn primary">Start next<span class="kbd">S</span></button><button class="btn primary" disabled>Approve<span class="kbd">⌘↵</span></button><button class="btn secondary">Ask for changes</button><button class="btn text">Put away</button><button class="btn" style="background:var(--hover)">Hover</button><button class="btn icon secondary"><svg class="g"><use href="#g-right"/></svg></button></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Plan status</span><span class="line g2 t-meta"><i class="ring"></i>To do</span><span class="line g2 t-meta"><i class="ring started"></i>Started</span><span class="line g2 t-meta"><i class="ring done"></i>Done</span><span class="line g2 t-meta"><i class="ring proposed"></i>Proposed</span></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Job state</span><span class="line g2 t-meta j-run"><i class="jring"></i>Running</span><span class="line g2 t-meta j-need"><i class="jring"></i>Needs you</span><span class="line g2 t-meta j-done"><i class="jring"></i>Done</span><span class="line g2 t-meta j-fail"><i class="jring"></i>Failed</span><span class="line g2 t-meta j-run"><span class="pline" style="width:80px"><i style="width:66%"></i></span>progress line</span></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Chips and pills</span><span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="chip"><i class="sw k-bio201"></i>BIO 201</span><button class="pill on">All<span class="n">11</span></button><button class="pill tl"><i data-t="proc" class="sm"></i>Procedures<span class="n">3</span></button><span class="seg"><button>Low</button><button class="on">Some</button><button>Sure</button></span></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Meters</span><span class="meter"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></span><span class="t-meta">readiness</span><span class="pips k-weak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="t-meta">n of m</span><span class="kbd">⌘K</span><span class="kbd">Space</span></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Field</span><input class="field" style="width:240px" placeholder="Your answer first"><input class="field" style="width:240px;box-shadow:inset 0 0 0 1px var(--quiet)" value="Focused"></div>
+      <div class="specrow"><span class="t-meta" style="width:120px">Suggestion</span><div class="r prow proposed" style="flex:1;margin:0;max-width:560px"><i class="ring proposed"></i><i data-t="practice"></i><span class="t"><b>5 dosage problems before bed</b></span><button class="btn text sm">Accept<span class="kbd">A</span></button><span class="prop-t">10m</span></div></div>
+    </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= SCREEN 15 · #phone ================= -->
+<section class="view" data-screen="phone" aria-label="Phone" hidden>
+ <div class="phones">
+  <!-- Phone · Library home -->
+  <div class="phone" id="phone-lib">
+    <div class="ph-status"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="ph-scroll">
+      <div class="line g2"><h1 class="t-title grow">Library</h1><button class="btn icon" aria-label="Search"><svg class="g"><use href="#g-search"/></svg></button><button class="btn icon secondary" aria-label="New set"><svg class="g"><use href="#g-plus"/></svg></button></div>
+      <div class="filters"><button class="pill on">All<span class="n">11</span></button><button class="pill tl"><i data-t="flash" class="sm"></i>Flashcards</button><button class="pill tl"><i data-t="practice" class="sm"></i>Practice</button><button class="pill tl"><i data-t="mock" class="sm"></i>Mock</button></div>
+      <div class="sec"><div class="sec-head"><h2 class="t-label">Jump back in</h2></div>
+        <div class="hscroll">
+          <a class="jtile k-flash" href="#study"><div class="line g3"><i data-t="flash" class="lg"></i><span class="t"><b>Cardiac output terms</b><small>Flashcards</small></span></div><span class="pline"><i style="width:33%"></i></span><div class="foot"><span>card 8 of 24</span></div></a>
+          <a class="jtile k-proc" href="#procedure"><div class="line g3"><i data-t="proc" class="lg"></i><span class="t"><b>Sterile gloving</b><small>Procedure</small></span></div><span class="pline"><i style="width:44%"></i></span><div class="foot"><span>step 5 of 9</span></div></a>
+        </div></div>
+      <div class="sec"><div class="sec-head"><h2 class="t-label">Sets</h2><span class="grow"></span><span class="t-meta">All courses</span></div>
+        <div class="sgrid">
+          <a class="stile flash k-flash"><div class="top"><i data-t="flash" class="sm"></i>24<span class="crs"><i class="sw k-bio201"></i></span></div><div class="name">Cardiac output terms</div><div class="body"><div class="term"><b>Preload</b><span>The stretch at end of filling</span></div></div></a>
+          <a class="stile k-mock"><div class="top"><i data-t="mock" class="sm"></i>Mock<span class="crs"><i class="sw k-nur112"></i></span></div><div class="name">Exam 3 mock · A</div><div class="body"><div class="stats"><div><b>40</b><span>q</span></div><div><b>60</b><span>min</span></div><div><b>78%</b><span>last</span></div></div></div></a>
+          <a class="stile k-proc"><div class="top"><i data-t="proc" class="sm"></i>9 steps<span class="crs"><i class="sw k-nur114"></i></span></div><div class="name">Sterile gloving</div><div class="body"><div class="stepsprev"><div><i>1</i><span class="ell">Hand hygiene</span></div><div><i>2</i><span class="ell">Check package</span></div><div class="more"><i></i>+ 7 more</div></div></div></a>
+          <a class="stile k-practice"><div class="top"><i data-t="practice" class="sm"></i>10<span class="crs"><i class="sw k-nur112"></i></span></div><div class="name">Dosage by weight</div><div class="body"><div class="acc"><span class="pips k-practice"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i></span><span class="t-meta">6 of 10</span></div></div></a>
+        </div></div>
+    </div>
+    <nav class="ph-tabs"><a><svg class="g"><use href="#g-today"/></svg>Today</a><a class="on"><svg class="g"><use href="#g-library"/></svg>Library</a><a><svg class="g"><use href="#g-notes"/></svg>Notes</a><a><svg class="g"><use href="#g-ask"/></svg>Ask E.V.</a></nav>
+  </div>
+
+  <!-- Phone · Flashcard study -->
+  <div class="phone k-flash" id="phone-study">
+    <div class="ph-status"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="line g2" style="height:48px;padding:0 var(--sp-3) 0 var(--sp-2)"><button class="btn icon" aria-label="Leave"><svg class="g"><use href="#g-close"/></svg></button><span class="t-med grow ell">Cardiac output terms</span><span class="t-meta">9 of 24</span></div>
+    <div style="padding:0 var(--sp-5)"><span class="pline" style="width:100%;--js:var(--k)"><i style="width:37%"></i></span></div>
+    <div class="ph-study">
+      <div class="hero">
+      <div class="scard">
+        <div class="lbl"><i data-t="flash" class="sm"></i><span>Term</span></div>
+        <div class="face">Afterload</div>
+        <div class="stack g1"><span class="t-meta">You wrote</span><div class="attempt">the pressure the heart has to push against to get the blood out</div></div>
+        <div class="stack g1"><span class="t-meta">Back of the card</span><div>The pressure the ventricle must overcome to eject blood. Mostly set by arterial pressure; it rises in hypertension.</div></div>
+        <div><a class="cite"><i data-t="note" class="sm"></i>Ch 9 lecture · cardiac output</a></div>
+      </div>
+      </div>
+      <div class="rate"><button class="btn secondary">Again</button><button class="btn primary">Good</button></div>
+      <span class="t-meta" style="text-align:center">swipe left for Again, right for Good</span>
+    </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= DETAIL PANEL (shared) ================= -->
+<aside class="detail" id="detail" aria-label="Detail" hidden></aside>
+</main>
+
+<!-- ================= DETAIL TEMPLATES ================= -->
+<template id="d-item">
+  <div class="line g2"><span class="t-label grow">Properties</span><button class="btn icon" data-act="toast" data-msg="Copied link to this item" title="Copy link" aria-label="Copy link"><svg class="g"><use href="#g-link"/></svg></button><button class="btn icon" title="More" aria-label="More"><svg class="g"><use href="#g-dots"/></svg></button></div>
+  <div class="props">
+    <div class="prop"><span>Status</span><button class="pval" data-menu="status"><i class="ring"></i><span>To do</span></button></div>
+    <div class="prop"><span>Priority</span><button class="pval" data-menu="priority"><svg class="g"><use href="#g-prio"/></svg><span>High</span></button></div>
+    <div class="prop"><span>Course</span><button class="pval" data-menu="course"><i class="sw k-nur112"></i><span>NUR 112</span></button></div>
+    <div class="prop"><span>Type</span><button class="pval" data-menu="type"><i data-t="practice" class="sm"></i><span>Practice</span></button></div>
+    <div class="prop"><span>Linked set</span><button class="pval" data-menu="type"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></button></div>
+  </div>
+  <div class="props" style="border-top:1px solid var(--line);padding-top:var(--sp-4)">
+    <div class="prop"><span>Estimate</span><button class="pval" data-menu="estimate"><svg class="g"><use href="#g-est"/></svg><span>20 min</span></button></div>
+    <div class="prop"><span>Scheduled</span><button class="pval" data-menu="when"><svg class="g"><use href="#g-clock"/></svg><span>Today · 4:00 pm</span></button></div>
+    <div class="prop"><span>Due</span><button class="pval"><i class="tile exam sm k-nur112" style="font-size:0;padding:0"></i><span>Thu Nov 5 · Exam 3</span></button></div>
+    <div class="prop"><span>Repeats</span><button class="pval" data-menu="repeat"><svg class="g"><use href="#g-repeat"/></svg><span>Every other day</span></button></div>
+  </div>
+  <div class="props" style="border-top:1px solid var(--line);padding-top:var(--sp-4)">
+    <div class="prop"><span>Plan</span><a class="pval" href="#proposal"><i class="tile sm k-plan"><svg class="g"><use href="#g-plan"/></svg></i><span>Study plan for Exam 3</span></a></div>
+    <div class="prop"><span>Added by</span><span class="pval" style="cursor:default"><span class="mark quiet" style="width:12px;height:12px;border-width:1.5px"></span><span>E.V., approved by you</span></span></div>
+  </div>
+  <div class="t-meta" style="margin-top:auto">Click any value to change it. <span class="kbd">S</span> status · <span class="kbd">P</span> priority · <span class="kbd">R</span> repeat</div>
+</template>
+
+<template id="d-job">
+  <div class="line g2"><span class="t-label grow">Job · mock exam</span><a class="btn icon" href="#activity" title="Close (Esc)" aria-label="Close"><svg class="g"><use href="#g-close"/></svg></a></div>
+  <div class="stack g3 j-run">
+    <div class="line g3"><i class="jring"></i><h2 class="t-title">Exam 3 mock · B</h2></div>
+    <span class="pline" style="width:100%"><i style="width:66%"></i></span>
+    <div class="line t-meta"><span>step 3 of 4 · 26 of 40 written</span><span class="grow"></span><span>~2 min left</span></div>
+  </div>
+  <div class="jsteps">
+    <div class="jstep"><i class="dot d-ok"></i><div>Read Ch 7–9 and the objectives<small>3 notes, 14 objectives</small></div></div>
+    <div class="jstep"><i class="dot d-ok"></i><div>Planned 40 questions<small>weak spots first: electrolytes, dosage, I&amp;O</small></div></div>
+    <div class="jstep j-run"><i class="jring" style="width:12px;height:12px;border-width:1.5px;margin:2px"></i><div>Writing questions<small>26 of 40</small></div></div>
+    <div class="jstep"><i class="dot d-rest"></i><div>Check each answer against its source<small>next</small></div></div>
+  </div>
+  <div>
+    <div class="kv"><span>Started by</span><b>You · Ask E.V., 11:38 am</b></div>
+    <div class="kv"><span>Cost so far</span><b>about 3¢</b></div>
+    <div class="kv"><span>Lands in</span><b class="line g2"><i data-t="mock" class="sm"></i>Library · NUR 112</b></div>
+  </div>
+  <div class="line g2"><button class="btn secondary" data-act="toast" data-msg="Stopped · nothing was saved">Stop</button></div>
+</template>
+
+<template id="d-course-new">
+  <div class="line g2"><span class="t-label grow">New course</span><a class="btn icon" href="#course/nur112" title="Close (Esc)" aria-label="Close"><svg class="g"><use href="#g-close"/></svg></a></div>
+  <h2 class="t-title">Add a course</h2>
+  <div class="stack g3">
+    <input class="field" placeholder="Code, e.g. PSY 110" value="PSY 110">
+    <input class="field" placeholder="Name, e.g. Lifespan development" value="Lifespan development">
+    <div class="stack g2"><span class="t-meta">Colour</span>
+      <div class="line g2" id="swpick"><button class="btn icon" style="box-shadow:inset 0 0 0 1.5px var(--text)" aria-label="Clay"><i class="sw k-clay"></i></button><button class="btn icon secondary" aria-label="Slate"><i class="sw k-slate"></i></button><button class="btn icon secondary" aria-label="Plum"><i class="sw k-plum"></i></button></div></div>
+    <div class="stack g2"><span class="t-meta">Bring in</span>
+      <div class="lrow line g3" style="min-height:32px"><span class="grow c-quiet">Exams and due dates from Canvas</span><span class="seg"><button class="on">Yes</button><button>Later</button></span></div>
+      <div class="lrow line g3" style="min-height:32px"><span class="grow c-quiet">A notes folder with Lectures</span><span class="seg"><button class="on">Yes</button><button>No</button></span></div></div>
+  </div>
+  <div class="line g2"><button class="btn primary" data-act="toast" data-msg="PSY 110 added · it's in the sidebar">Add course</button><a class="btn text" href="#course/nur112">Cancel</a></div>
+</template>
+
+<template id="d-session">
+  <div class="line g2"><span class="t-label grow">E.V.'s checks · this session</span></div>
+  <div class="cmt"><span class="mark quiet"></span><div class="say">
+    <div class="c-quiet">Check: what sets preload?</div>
+    <div class="answer">How full the ventricle gets before it squeezes, mostly venous return.</div>
+    <div class="t-meta line g2 wrap">Right. <a class="cite" href="#notes"><i data-t="note" class="sm"></i>Ch 9 lecture</a></div>
+  </div></div>
+  <div class="cmt"><span class="mark"></span><div class="say">
+    <div>Check: in your own words, why does afterload make the heart work harder?</div>
+    <textarea class="field" id="check-answer" rows="3" placeholder="Your words">it has to push against higher pressure to open the valve and get the blood out</textarea>
+    <div class="line g2"><span class="hint"><span class="kbd">↵</span>send</span><span class="grow"></span><button class="btn text sm" data-act="just-tell">Just tell me</button></div>
+  </div></div>
+  <div>
+    <div class="kv"><span>Read-along</span><b>on · the highlighted line</b></div>
+    <div class="kv"><span>Writing time</span><b>18 min today</b></div>
+    <div class="kv"><span>Saved</span><b>on this device · syncing</b></div>
+  </div>
+</template>
+
+<!-- property menu (floating) -->
+<div class="pop menu" id="menu" hidden></div>
+
+<!-- ================= ⌘K PALETTE ================= -->
+<div class="scrim" id="palette" hidden>
+  <div class="pop palette" role="dialog" aria-label="Search and commands">
+    <input class="palette-in" id="palette-in" placeholder="Search everything, run a command, or ask E.V." autocomplete="off">
+    <div class="palette-list" id="palette-list">
+      <div class="t-label">Sets</div>
+      <a class="r sel" href="#set"><i data-t="flash"></i><span class="t"><b>Cardiac output terms</b></span><span class="kind">Flashcards · 24 · BIO 201</span></a>
+      <a class="r" href="#exam"><i data-t="mock"></i><span class="t"><b>Exam 2 mock · heart and vessels</b></span><span class="kind">Mock exam · 30 q · BIO 201</span></a>
+      <div class="t-label">Notes</div>
+      <a class="r" href="#notes"><i data-t="note"></i><span class="t"><b>Ch 9 lecture · cardiac output</b></span><span class="kind">Note · BIO 201 › Lectures</span></a>
+      <a class="r" href="#notes"><i data-t="note"></i><span class="t"><b>Ch 8 lecture · the cardiac cycle</b></span><span class="kind">Note · BIO 201 › Lectures</span></a>
+      <div class="t-label">Plan, jobs, weak spots</div>
+      <a class="r" href="#item"><span style="width:22px;display:inline-flex;justify-content:center"><i class="ring done"></i></span><span class="t"><b>Review 8 due cards</b></span><span class="kind">Plan item · today 7:00 am</span></a>
+      <a class="r j-done" href="#activity"><span style="width:22px;display:inline-flex;justify-content:center"><i class="jring"></i></span><span class="t"><b>Flashcards from Ch 9 notes</b></span><span class="kind">Job · done 8:10 am</span></a>
+      <a class="r" href="#library"><i data-t="weak"></i><span class="t"><b>Afterload</b></span><span class="kind">Weak spot · 5 of 9</span></a>
+      <div class="t-label">Commands</div>
+      <div class="r" data-act="toast" data-msg="New flashcard set"><i class="tile" style="--k:var(--faint)"><svg class="g"><use href="#g-plus"/></svg></i><span class="t"><b>Make flashcards from “Ch 9 lecture · cardiac output”</b></span><span class="kbd">N</span></div>
+      <div class="r" data-act="ask"><span style="width:22px;display:inline-flex;justify-content:center"><span class="mark quiet"></span></span><span class="t"><b>Ask E.V.: “cardiac”</b></span><span class="kbd">Tab</span></div>
+    </div>
+    <div class="palette-foot"><span class="hint"><span class="kbd">Tab</span>ask E.V.</span><span class="grow"></span><span class="hint"><span class="kbd">↑↓</span>move</span><span class="hint"><span class="kbd">↵</span>open</span><span class="hint"><span class="kbd">Esc</span>close</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo">Undo</button></div>
+</div>
+
+<script>
+/* ================= Helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app'), detail = $('#detail'), area = $('#area');
+const state = { screen: 'today', sub: '', hero: 0, heroBack: false, paused: false, seconds: 18 * 60 + 20 };
+
+/* Type tiles: <i data-t="flash"> becomes a tile with its glyph. One device, everywhere. */
+function hydrate(root = document) {
+  $$('[data-t]', root).forEach(el => {
+    if (el.dataset.h) return;
+    const t = el.dataset.t;
+    el.classList.add('tile', 'k-' + t);
+    el.innerHTML = `<svg class="g"><use href="#g-${t}"/></svg>`;
+    el.dataset.h = '1';
+  });
+}
+
+/* ================= Content generated once ================= */
+const TERMS = [
+  ['Preload', 'The stretch on the ventricle at the end of filling, set mostly by venous return.', 'ok', 'Learned'],
+  ['Afterload', 'The pressure the ventricle must overcome to eject blood; mostly arterial pressure.', 'bad', 'Weak'],
+  ['Stroke volume', 'Blood ejected per beat: end-diastolic minus end-systolic volume, about 70 mL at rest.', 'ok', 'Learned'],
+  ['Cardiac output', 'Heart rate × stroke volume; about 5 L/min in a resting adult.', 'ok', 'Learned'],
+  ['Frank–Starling law', 'More stretch gives a stronger contraction, up to a limit.', 'warn', 'Familiar'],
+  ['Contractility', 'The force of contraction at a given preload; raised by sympathetic tone.', 'warn', 'Familiar'],
+  ['Ejection fraction', 'Stroke volume ÷ end-diastolic volume; normal is about 55–70%.', 'bad', 'Weak'],
+  ['End-diastolic volume', 'The blood in the ventricle at the end of filling, about 120 mL.', 'rest', 'New'],
+];
+function buildTerms() {
+  $('#terms').innerHTML = TERMS.map(([t, d, k, l]) =>
+    `<div class="term-r"><b>${t}</b><p>${d}</p><span class="mast"><i class="dot d-${k}"></i>${l}</span></div>`).join('');
+}
+function buildGrids() {
+  const live = [], rev = [];
+  const miss = [3, 7, 12, 17, 21, 26, 30, 34, 38];
+  for (let i = 1; i <= 40; i++) {
+    live.push(`<i class="${i < 12 ? 'done' : ''}${i === 12 ? 'cur' : ''}${i === 7 ? ' flag' : ''}">${i}</i>`);
+    rev.push(`<i class="${miss.includes(i) ? 'miss' : 'right'}${i === 12 ? ' cur' : ''}">${i}</i>`);
+  }
+  $('#qgrid').innerHTML = live.join(''); $('#qgrid-r').innerHTML = rev.join('');
+}
+/* #system: swatches per theme, read from the live tokens */
+const SW = [
+  ['Surfaces', ['side', 'bg', 'surface', 'hover', 'line', 'line2']],
+  ['Ink and ember', ['text', 'quiet', 'faint', 'her', 'ok', 'warn']],
+  ['Status and families', ['bad', 'info', 't-flash', 't-practice', 't-mock', 't-proc']],
+  ['Families and courses', ['t-note', 't-weak', 't-exam', 'c-nur112', 'c-bio201', 'c-nur114']],
+];
+function buildSystem() {
+  ['dark', 'light'].forEach(th => {
+    const box = $('#tb-' + th);
+    box.innerHTML = `<div class="line"><span class="t-med grow">${th === 'dark' ? 'Dark · default' : 'Light'}</span><span class="t-meta">text ${th === 'dark' ? '15.5' : '16.4'}:1 · quiet ${th === 'dark' ? '7.3' : '6.1'}:1 · faint ${th === 'dark' ? '5.9' : '5.5'}:1 · on ember ${th === 'dark' ? '6.1' : '4.9'}:1</span></div>` +
+      SW.map(([lab, keys]) => `<div class="stack g2"><span class="t-meta">${lab}</span><div class="chips-sw">${keys.map(k => `<div><i style="--c:var(--${k})"></i><span class="ell">${k}</span></div>`).join('')}</div></div>`).join('') +
+      `<div class="line g3 wrap"><i data-t="flash"></i><i data-t="practice"></i><i data-t="mock"></i><i data-t="proc"></i><i data-t="note"></i><i data-t="weak"></i><i class="tile exam k-nur112">5</i><i class="ring"></i><span class="j-run"><i class="jring"></i></span><span class="mark"></span><button class="btn primary sm">Primary</button></div>`;
+  });
+  $('#spacing').innerHTML = [4, 8, 12, 16, 24, 32, 48, 56].map(n =>
+    `<div class="line g3"><span class="t-meta" style="width:24px">${n}</span><i class="spacer" style="width:${n * 2}px"></i>${n === 48 ? '<span class="t-meta">between sections</span>' : n === 8 ? '<span class="t-meta">base unit</span>' : n === 56 ? '<span class="t-meta">column top</span>' : ''}</div>`).join('') +
+    '<div class="t-meta">Rows 40 / 48 · column ≤ 720 · sidebar 224 · detail 360 · tiles 16 / 22 / 32</div>';
+}
+
+/* ================= Router ================= */
+const DETAIL_FOR = { item: 'd-item', 'activity/job': 'd-job', 'course/new': 'd-course-new', 'notes/session': 'd-session' };
+function openDetail(id) {
+  const tpl = document.getElementById(id);
+  detail.replaceChildren(tpl.content.cloneNode(true));
+  hydrate(detail);
+  detail.hidden = false;
+}
+function closeDetail() { detail.hidden = true; detail.replaceChildren(); }
+
+function go(screen, sub = '') {
+  closeMenu(); closePalette();
+  const target = $(`[data-screen="${screen}"]`) ? screen : 'today';
+  $$('[data-screen]').forEach(s => (s.hidden = s.dataset.screen !== target));
+  state.screen = target; state.sub = sub;
+  const key = sub ? `${target}/${sub}` : target;
+  $$('.nav[data-nav]').forEach(n => n.classList.toggle('on', n.dataset.nav.split(' ').some(v => v === key || (v === target && !v.includes('/')))));
+  DETAIL_FOR[key] ? openDetail(DETAIL_FOR[key]) : closeDetail();
+  const v = $(`[data-screen="${target}"]`); if (v.classList.contains('view')) v.scrollTop = 0;
+  ({
+    study: () => setStudy(sub === 'back'),
+    exam: () => { $('#ex-live').hidden = sub === 'review'; $('#ex-review').hidden = sub !== 'review';
+      $('#ex-mode').textContent = sub === 'review' ? 'Review · cited answers' : 'Mock exam · answers shown after you submit';
+      $('#ex-timer').hidden = sub === 'review'; $('#ex-pl').style.width = sub === 'review' ? '100%' : '28%'; },
+    procedure: () => setProc(sub === 'check'),
+    notes: () => setSession(sub === 'session'),
+    proposal: () => setProposal(sub === 'rated'),
+    course: () => setCourse(sub || 'nur112'),
+    today: () => { if (sub === 'palette') openPalette('cardiac'); },
+    activity: () => $('#job-mock-row').classList.toggle('sel', sub === 'job'),
+  })[target]?.();
+}
+function route() {
+  const [s, sub] = (location.hash.slice(1) || 'today').split('/');
+  if (s === 'palette') return go('today', 'palette');
+  go(s, sub);
+}
+window.addEventListener('hashchange', route);
+
+/* ================= Today ================= */
+function acceptSuggest() {
+  const s = $('#suggest'); if (!s) return;
+  s.classList.remove('proposed'); s.id = '';
+  $('.ring', s).className = 'ring';
+  $$('button', s).forEach(b => b.remove());
+  const chips = '<span class="chip tl"><i data-t="practice" class="sm"></i><span>Dosage by weight</span></span><span class="chip"><i class="sw k-nur112"></i>NUR 112</span>';
+  $('.t', s).insertAdjacentHTML('afterend', chips); hydrate(s);
+  toast('Added to Evening', true);
+}
+function cycleRing(r) {
+  const order = ['', 'started', 'done'];
+  const cur = order.find(c => c && r.classList.contains(c)) || '';
+  const next = order[(order.indexOf(cur) + 1) % 3];
+  r.className = 'ring' + (r.classList.contains('lg') ? ' lg' : '') + (next ? ' ' + next : '');
+  r.closest('.prow')?.classList.toggle('done', next === 'done');
+}
+
+/* ================= Set page: hero card ================= */
+function showHero() {
+  const [t, d] = TERMS[state.hero % TERMS.length];
+  const f = $('#hc-face');
+  f.textContent = state.heroBack ? d : t;
+  f.classList.toggle('back', state.heroBack);
+  $('.hc-top span', $('#hcard')).textContent = state.heroBack ? 'Definition' : 'Term';
+  $('#hc-n').textContent = $('#hc-pos').textContent = `${state.hero + 1} / 24`;
+}
+
+/* ================= Study (flashcards) ================= */
+function setStudy(back) {
+  $('#st-front').hidden = back; $('#st-front-act').hidden = back;
+  $('#st-back').hidden = !back; $('#st-back-act').hidden = !back;
+}
+
+/* ================= Procedure ================= */
+function setProc(check) {
+  $('#p-check').hidden = !check; $('#p-act').hidden = check; $('#p-act2').hidden = !check;
+  $('#p-try').hidden = check; $('#p-said').hidden = !check;
+}
+
+/* ================= Notes ================= */
+let timer;
+function setSession(on) {
+  $('#ntree').hidden = on; $('#ndocs').hidden = on;
+  $('#sessionbar').hidden = !on; $('#start-session').hidden = on;
+  $$('#doc .rd').forEach(li => li.classList.toggle('reading', on));
+  clearInterval(timer);
+  if (on) timer = setInterval(() => {
+    if (state.paused) return;
+    state.seconds++;
+    $('#timer').textContent = `${Math.floor(state.seconds / 60)}:${String(state.seconds % 60).padStart(2, '0')}`;
+  }, 1000);
+}
+
+/* ================= Course ================= */
+const COURSES = {
+  nur112: ['NUR 112 · Fundamentals of Nursing', 'Fall 2026 · 2 exams · 6 sets · 9 notes'],
+  bio201: ['BIO 201 · Anatomy & Physiology', 'Fall 2026 · 1 exam · 3 sets · 11 notes'],
+  nur114: ['NUR 114 · Health Assessment', 'Fall 2026 · 1 check-off · 3 sets · 6 notes'],
+};
+function setCourse(id) {
+  const c = COURSES[id] || COURSES.nur112, k = COURSES[id] ? id : 'nur112';
+  $('#crs-title').textContent = c[0]; $('#crs-meta').textContent = c[1];
+  $('#crs-sw').className = 'tile lg k-' + k;
+  $('#crs-body').hidden = k !== 'nur112';
+  $('#crs-cta').hidden = k !== 'nur112';
+  if (k !== 'nur112' && !$('#crs-empty')) $('#crs-body').insertAdjacentHTML('afterend', '<p class="t-meta" id="crs-empty">This mock-up draws NUR 112 in full; the other courses use the same page.</p>');
+  $('#crs-empty') && ($('#crs-empty').hidden = k === 'nur112');
+}
+
+/* ================= Proposal ================= */
+function setProposal(rated) {
+  $$('.conf .seg').forEach((s, i) => $$('button', s).forEach((b, j) => b.classList.toggle('on', rated && j === [1, 1, 0, 1][i])));
+  checkRated();
+}
+function checkRated() {
+  const segs = $$('.conf .seg'), done = segs.every(s => $('.on', s));
+  $('#prop-items').classList.toggle('locked', !done);
+  $('#prop-why').hidden = !done; $('#prop-lock').hidden = done;
+  $('#conf-note').textContent = done ? 'Thanks. The plan below leans on what you rated Low or Some.' : 'Rate all four first. The plan is shaped around your answers.';
+  const ap = $('[data-act="approve"]'); ap.disabled = !done; ap.title = done ? 'Approve (⌘↵)' : 'Rate your confidence first';
+}
+
+/* ================= Property menus (plan item detail) ================= */
+const MENUS = {
+  status: [['<i class="ring"></i>', 'To do'], ['<i class="ring started"></i>', 'Started'], ['<i class="ring done"></i>', 'Done'], ['<i class="ring proposed"></i>', 'Skipped']],
+  priority: [['', 'Urgent'], ['', 'High'], ['', 'Medium'], ['', 'Low'], ['', 'None']],
+  course: [['<i class="sw k-nur112"></i>', 'NUR 112'], ['<i class="sw k-bio201"></i>', 'BIO 201'], ['<i class="sw k-nur114"></i>', 'NUR 114']],
+  type: [['<i data-t="flash" class="sm"></i>', 'Flashcards'], ['<i data-t="practice" class="sm"></i>', 'Practice'], ['<i data-t="mock" class="sm"></i>', 'Mock exam'], ['<i data-t="proc" class="sm"></i>', 'Procedure'], ['<i data-t="note" class="sm"></i>', 'Note task']],
+  estimate: [['', '10 min'], ['', '15 min'], ['', '20 min'], ['', '30 min'], ['', '45 min'], ['', '60 min']],
+  when: [['', 'Today · 4:00 pm'], ['', 'Today · evening'], ['', 'Tomorrow · morning'], ['', 'Wed · before the mock'], ['', 'Pick a time…']],
+  repeat: [['', 'Does not repeat'], ['', 'Every day'], ['', 'Every other day'], ['', 'Weekdays'], ['', 'After each miss, next day'], ['', 'Custom…']],
+};
+const menu = $('#menu'); let menuFor = null;
+function openMenu(btn) {
+  const items = MENUS[btn.dataset.menu]; if (!items) return;
+  const cur = $('span', btn).textContent;
+  menu.innerHTML = items.map(([ic, l], i) => `<div class="mi${l === cur ? ' on' : ''}" data-mi="${l}">${ic}<span>${l}</span>${i < 9 ? `<span class="kbd">${i + 1}</span>` : ''}</div>`).join('');
+  hydrate(menu);
+  const r = btn.getBoundingClientRect(), a = area.getBoundingClientRect();
+  menu.hidden = false; menuFor = btn;
+  menu.style.left = Math.min(r.left - a.left, a.width - menu.offsetWidth - 12) + 'px'; menu.style.top = (r.bottom - a.top + 4) + 'px';
+  area.append(menu);
+}
+function closeMenu() { menu.hidden = true; menuFor = null; }
+function pickMenu(mi) {
+  if (!menuFor) return;
+  const icon = mi.firstElementChild && !mi.firstElementChild.matches('span') ? mi.firstElementChild.outerHTML : null;
+  $('span', menuFor).textContent = mi.dataset.mi;
+  if (icon) { const old = menuFor.firstElementChild; if (old && !old.matches('span')) old.outerHTML = icon; }
+  closeMenu(); toast('Saved');
+}
+function courseMenu(btn) {
+  menu.innerHTML = ['All courses', 'NUR 112', 'BIO 201', 'NUR 114'].map(l => `<div class="mi" data-course="${l}">${l === 'All courses' ? '' : `<i class="sw k-${l.replace(' ', '').toLowerCase()}"></i>`}<span>${l}</span></div>`).join('');
+  const r = btn.getBoundingClientRect(), a = area.getBoundingClientRect();
+  menu.style.left = (r.right - a.left - 220) + 'px'; menu.style.top = (r.bottom - a.top + 4 + $('[data-screen="library"]').scrollTop) + 'px';
+  menu.hidden = false; menuFor = null; $('[data-screen="library"] .col').append(menu);
+  $('[data-screen="library"] .col').style.position = 'relative';
+}
+
+/* ================= Library filters ================= */
+const lib = { type: 'all', course: 'All courses' };
+function filterLib() {
+  $$('#libfilters .pill[data-f]').forEach(p => p.classList.toggle('on', p.dataset.f === lib.type));
+  const c = lib.course.replace(' ', '').toLowerCase();
+  $$('#sgrid .stile').forEach(t => t.hidden = (lib.type !== 'all' && t.dataset.type !== lib.type) || (lib.course !== 'All courses' && t.dataset.course !== c));
+  $('#coursefilter').textContent = lib.course;
+}
+
+/* ================= Palette ================= */
+const pal = $('#palette'), palIn = $('#palette-in');
+function openPalette(q = '') { pal.hidden = false; palIn.value = q; palIn.focus(); }
+function closePalette() { pal.hidden = true; }
+pal.addEventListener('click', e => { if (e.target === pal) closePalette(); });
+palIn.addEventListener('input', () => {
+  const q = palIn.value.trim().toLowerCase();
+  $$('#palette-list .r').forEach(r => r.hidden = q && !r.textContent.toLowerCase().includes(q) && !r.matches('[data-act="ask"]'));
+});
+
+/* ================= Theme and toast ================= */
+function toggleTheme() {
+  const light = document.documentElement.dataset.theme !== 'light';
+  document.documentElement.dataset.theme = light ? 'light' : 'dark';
+  $('#themelabel').textContent = light ? 'Dark theme' : 'Light theme';
+}
+let toastT;
+function toast(msg, undo) {
+  $('#toast-msg').textContent = msg; $('#toast-undo').hidden = !undo; $('#toast').hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => ($('#toast').hidden = true), 3500);
+}
+
+/* ================= Actions ================= */
+const actions = {
+  palette: () => openPalette(),
+  theme: toggleTheme,
+  go: b => (location.hash = b.dataset.to),
+  'start-next': () => (location.hash = 'procedure'),
+  accept: acceptSuggest,
+  'cycle-ring': cycleRing,
+  'new-set': () => toast('New set: flashcards, practice, mock exam or procedure'),
+  'flip-hero': () => { state.heroBack = !state.heroBack; showHero(); },
+  'hero-prev': () => { state.hero = (state.hero + 23) % 24; state.heroBack = false; showHero(); },
+  'hero-next': () => { state.hero = (state.hero + 1) % 24; state.heroBack = false; showHero(); },
+  'flip-study': () => (location.hash = 'study/back'),
+  rate: () => { toast('Card 10 of 24 would load here'); location.hash = 'study'; },
+  'just-tell': b => b.replaceWith(Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' })),
+  'proc-check': () => (location.hash = 'procedure/check'),
+  'start-session': () => (location.hash = 'notes/session'),
+  pause: () => { state.paused = !state.paused; $('#pausebtn').textContent = state.paused ? 'Resume' : 'Pause'; $('#session-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-info'); },
+  'end-session': () => { location.hash = 'notes'; toast(`Session saved · ${Math.floor(state.seconds / 60)} min · in Progress`); },
+  approve: () => { $('#prop-act').innerHTML = '<span class="t-meta">Approved · 6 sessions added to Today and the next three days</span>'; $$('#prop-items .prow').forEach(r => { r.classList.remove('proposed'); $('.ring', r).className = 'ring'; }); toast('Plan approved', true); },
+  'course-menu': courseMenu,
+  ask: () => { closePalette(); location.hash = 'ask'; $('#composer').value = palIn.value; },
+  toast: b => toast(b.dataset.msg),
+  undo: () => ($('#toast').hidden = true),
+};
+
+app.addEventListener('click', e => {
+  const mi = e.target.closest('.mi');
+  if (mi) { if (mi.dataset.course) { lib.course = mi.dataset.course; filterLib(); closeMenu(); } else pickMenu(mi); return; }
+  if (!e.target.closest('#menu') && !e.target.closest('[data-menu]') && !e.target.closest('[data-act="course-menu"]')) closeMenu();
+  const pv = e.target.closest('[data-menu]'); if (pv) { e.preventDefault(); return menuFor === pv ? closeMenu() : openMenu(pv); }
+  const seg = e.target.closest('.seg button');
+  if (seg) { $$('button', seg.parentElement).forEach(b => b.classList.toggle('on', b === seg)); if (seg.closest('.conf')) checkRated(); return; }
+  const fil = e.target.closest('#libfilters .pill[data-f]'); if (fil) { lib.type = fil.dataset.f; return filterLib(); }
+  const fold = e.target.closest('.fold[data-fold]');
+  if (fold) { fold.classList.toggle('closed'); $$(`.fold[data-in="${fold.dataset.fold}"]`).forEach(f => f.hidden = fold.classList.contains('closed')); return; }
+  const sub = e.target.closest('.fold.sub'); if (sub) { $$('.fold.sub').forEach(f => f.classList.toggle('on', f === sub)); return; }
+  const check = e.target.closest('[data-check]'); if (check) return check.classList.toggle('done');
+  const opt = e.target.closest('#exq .opt'); if (opt) { $$('#exq .opt').forEach(o => o.classList.toggle('on', o === opt)); return; }
+  const nrow = e.target.closest('#ndocs .r'); if (nrow) { $$('#ndocs .r').forEach(r => r.classList.toggle('sel', r === nrow)); return; }
+  const act = e.target.closest('[data-act]');
+  if (act) { e.preventDefault(); actions[act.dataset.act]?.(act); }
+});
+
+/* ================= Keys ================= */
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  const typing = e.target.matches('input, textarea, [contenteditable="true"], [contenteditable="true"] *');
+  if (mod && k === 'k') { e.preventDefault(); return pal.hidden ? openPalette() : closePalette(); }
+  if (mod && k === 'j') { e.preventDefault(); location.hash = 'ask'; return $('#composer').focus(); }
+  if (!pal.hidden) {
+    if (e.key === 'Escape') return closePalette();
+    if (e.key === 'Tab') { e.preventDefault(); return actions.ask(); }
+    if (e.key === 'Enter') { const r = $('#palette-list .r.sel:not([hidden])') || $('#palette-list .r:not([hidden])'); r?.click(); return closePalette(); }
+    return;
+  }
+  if (e.key === 'Escape') {
+    if (!menu.hidden) return closeMenu();
+    if (typing) return e.target.blur();
+    if (['study', 'procedure', 'exam'].includes(state.screen)) location.hash = state.screen === 'study' ? 'set' : 'library';
+    if (state.screen === 'item') location.hash = 'today';
+    return;
+  }
+  if (mod && e.key === 'Enter' && state.screen === 'proposal' && !$('[data-act="approve"]').disabled) { e.preventDefault(); return actions.approve(); }
+  if (e.altKey && e.key === 'Enter') { const b = $$(`[data-screen="${state.screen}"] [data-act="just-tell"]`).pop(); return b && actions['just-tell'](b); }
+  if (state.screen === 'procedure' && e.key === 'Enter' && !e.shiftKey && state.sub !== 'check') { e.preventDefault(); return actions['proc-check'](); }
+  if (typing) return;
+  if (e.key === '\\') return toggleTheme();
+  const s = state.screen;
+  if (s === 'today' && k === 's') return actions['start-next']();
+  if (s === 'today' && k === 'a') return acceptSuggest();
+  if (s === 'item' && e.key === 'Enter') return (location.hash = 'exam');
+  if (s === 'library' && k === 'n') return actions['new-set']();
+  if (s === 'set') {
+    if (k === 's') return (location.hash = 'study');
+    if (e.key === ' ') { e.preventDefault(); return actions['flip-hero'](); }
+    if (e.key === 'ArrowRight') return actions['hero-next']();
+    if (e.key === 'ArrowLeft') return actions['hero-prev']();
+  }
+  if (s === 'study') {
+    if (e.key === ' ' && state.sub !== 'back') { e.preventDefault(); return actions['flip-study'](); }
+    if (state.sub === 'back' && (k === '1' || k === '2')) return actions.rate();
+  }
+  if (s === 'exam' && ['1', '2', '3', '4'].includes(k)) { const o = $$('#exq .opt')[+k - 1]; return o && o.click(); }
+  if (s === 'notes' && state.sub === 'session' && e.key === ' ') { e.preventDefault(); return actions.pause(); }
+});
+
+/* ================= Start ================= */
+buildTerms(); buildGrids(); buildSystem(); hydrate(); showHero(); route();
+</script>
+</body>
+</html>

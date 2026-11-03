@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>E.V. v5 · mock-up</title>
+<!--
+  E.V. v5 mock-up · design reference for the build. Synthetic content only.
+  Layout of this file:
+    1. <style>: kit.css verbatim, then "Added for the v5 mock-up" (new reusable classes, tokens only).
+    2. Shell: sidebar.
+    3. Screens, one <section data-screen="…"> each, in sidebar order: Today, Ask E.V., Library, Notes, Progress, Activity.
+    4. Detail panel (one shared <aside class="detail">), filled from the <template id="d-…"> blocks after the screens.
+    5. ⌘K palette and toast.
+    6. <script>: navigation, detail panel, keys, and the small per-screen behaviours, commented by screen.
+  Variant A · "Calm desk". Deep links for review: #today #ask #library/practice #library/weak #library/exams #library/sets
+  #notes #notes/session #progress #activity
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* E.V. v5 · Proprietary revision · the one source for every board on this canvas.
+   Tokens first (dark and light), then type, then components. Boards use only these classes. */
+
+/* ---------- Tokens ---------- */
+.ev{
+  --side:#101012; --bg:#151517; --surface:#1b1b1e; --hover:#222226; --sel:#2a2a2f;
+  --line:#232327; --line2:#303036;
+  --text:#ececef; --quiet:#a3a3ab; --faint:#92929a;
+  --her:#e0743a; --her2:#cf5a45; --on-her:#1a0d05;
+  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62; --info:#6b9cf5; --violet:#a189f2; --teal:#45bdb6;
+  --scrim:rgba(0,0,0,.5); --shadow-pop:0 0 0 1px #303036,0 24px 60px rgba(0,0,0,.5);
+  --fs-meta:12px; --fs-body:14px; --fs-title:20px; --fw-title:600; --lh:1.5;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-14:56px;
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --row:40px; --row2:48px; --col:720px; --side-w:224px;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --icon:16px;
+  --dur-1:150ms; --dur-2:200ms; --dur-3:250ms; --ease:cubic-bezier(.2,0,0,1); --rise:4px;
+  color-scheme:dark;
+}
+.ev[data-theme="light"]{
+  --side:#f3f3f4; --bg:#fbfbfb; --surface:#ffffff; --hover:#efeff0; --sel:#e9e9eb;
+  --line:#ececee; --line2:#dedee1;
+  --text:#1c1c1f; --quiet:#5f5f66; --faint:#66666c;
+  --her:#b6541d; --her2:#bc4741; --on-her:#ffffff;
+  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45; --info:#2f6fde; --violet:#7c5cdb; --teal:#1e8a84;
+  --scrim:rgba(0,0,0,.25); --shadow-pop:0 0 0 1px #dedee1,0 16px 40px rgba(0,0,0,.12);
+  color-scheme:light;
+}
+
+/* ---------- Base ---------- */
+.ev{background:var(--side);color:var(--text);font:var(--fs-body)/var(--lh) var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+.ev,.ev *{box-sizing:border-box}
+.ev a{color:inherit;text-decoration:none}
+.ev h1,.ev h2,.ev h3,.ev p{margin:0}
+
+/* ---------- Type (three sizes) ---------- */
+.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.01em;line-height:1.3}
+.t-body{font-size:var(--fs-body)}
+.t-meta{font-size:var(--fs-meta);color:var(--faint)}
+.t-label{font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
+.t-strong{font-weight:var(--fw-title)}
+.c-quiet{color:var(--quiet)} .c-faint{color:var(--faint)} .c-her{color:var(--her)}
+.mono{font-family:var(--mono);font-size:var(--fs-meta)}
+
+/* ---------- Layout helpers ---------- */
+.stack{display:flex;flex-direction:column}
+.line{display:flex;align-items:center}
+.wrap{flex-wrap:wrap}
+.g1{gap:var(--sp-1)} .g2{gap:var(--sp-2)} .g3{gap:var(--sp-3)} .g4{gap:var(--sp-4)} .g6{gap:var(--sp-6)} .g8{gap:var(--sp-8)} .g12{gap:var(--sp-12)}
+.grow{flex:1;min-width:0}
+.rule{border-top:1px solid var(--line)}
+
+/* ---------- Shell (Sidebar, Area, Detail) ---------- */
+/* Variant A: every size below is one of the three text sizes (12/14/20); spacing is on the 8 px rhythm. */
+.shell{display:flex;flex-wrap:wrap;min-height:100%}
+.sidebar{flex:0 0 var(--side-w);padding:var(--sp-4) var(--sp-2);display:flex;flex-direction:column;gap:2px}
+.ws{display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);margin-bottom:var(--sp-2);font-weight:600}
+.search{display:flex;align-items:center;justify-content:space-between;height:32px;margin:0 0 var(--sp-3);padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--faint);font-size:var(--fs-body);box-shadow:inset 0 0 0 1px var(--line)}
+.nav{display:flex;align-items:center;gap:10px;height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--quiet);font-size:var(--fs-body)}
+.nav.on{background:var(--hover);color:var(--text)}
+.nav svg{width:var(--icon);height:var(--icon);flex:none;stroke:var(--quiet);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.nav .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
+.navgrp{font-size:var(--fs-meta);font-weight:500;color:var(--faint);padding:var(--sp-6) var(--sp-2) var(--sp-1)}
+.area{flex:999 1 560px;min-width:0;margin:var(--sp-2) var(--sp-2) var(--sp-2) 0;border-radius:var(--r-lg);background:var(--bg);display:flex;flex-wrap:wrap;overflow:hidden}
+.col{flex:999 1 440px;min-width:0;padding:var(--sp-14) 40px 40px;display:flex;flex-direction:column;gap:var(--sp-12)}
+.col.center{max-width:var(--col);margin:0 auto}
+.detail{flex:1 1 340px;max-width:400px;border-left:1px solid var(--line);padding:var(--sp-6) var(--sp-8);display:flex;flex-direction:column;gap:var(--sp-6)}
+
+/* ---------- Components ---------- */
+.mark{width:16px;height:16px;border-radius:50%;border:2px dotted var(--her);flex:none;display:inline-block}
+.dot{width:6px;height:6px;border-radius:50%;flex:none;display:inline-block}
+.spin{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line2);border-top-color:var(--info);flex:none;display:inline-block}
+
+.btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-3);border-radius:var(--r-sm);font-size:var(--fs-body);font-weight:500;color:var(--text);cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--her);color:var(--on-her)}
+.btn.secondary{box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.text{color:var(--quiet);padding:0 var(--sp-2)}
+
+.kbd{display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding:0 var(--sp-1);border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font:var(--fs-meta)/1 var(--sans);font-weight:400;color:var(--faint);text-align:center;flex:none}
+.tag{display:inline-flex;align-items:center;height:20px;font-size:var(--fs-meta);color:var(--quiet);border:1px solid var(--line2);border-radius:4px;padding:0 6px;white-space:nowrap}
+
+/* Meter: learned / familiar / weak side by side, 4 px, tiny gaps. */
+.meter{display:flex;gap:2px;height:4px;width:100%;flex:none}
+.meter i{display:block;height:100%;border-radius:1px}
+.m-ok{background:var(--ok)} .m-warn{background:var(--warn)} .m-bad{background:var(--bad)}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-info{background:var(--info)} .d-violet{background:var(--violet)} .d-teal{background:var(--teal)} .d-her{background:var(--her)} .d-faint{background:var(--faint)}
+
+.tabs{display:flex;gap:var(--sp-6)}
+.tabs button{all:unset;display:inline-block;height:32px;line-height:32px;color:var(--quiet);font-size:var(--fs-body);cursor:pointer}
+.tabs button.on{color:var(--text);box-shadow:inset 0 -1.5px 0 var(--text)}
+.tabs button .n{margin-left:6px;font-size:var(--fs-meta);color:var(--faint)}
+
+.row{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm)}
+.row:has(.sub){min-height:var(--row2)}
+.row.hover,.row.sel{background:var(--hover)}
+.row .t{flex:1;min-width:0}
+.row .t > div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.row .sub{display:block;color:var(--faint);font-size:var(--fs-meta);line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .act{visibility:hidden}.row.hover .act{visibility:visible}
+
+.ev-line{display:flex;align-items:flex-start;gap:var(--sp-3);color:var(--quiet)}
+.ev-line > .mark{margin-top:3px}
+.ev-line b{color:var(--text);font-weight:500}
+.suggest{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:var(--sp-1) calc(-1 * var(--sp-2)) 0;border-radius:var(--r-sm);border:1px dashed var(--line2);color:var(--quiet)}
+
+.qcard{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2);padding:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
+.opt{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm)}
+.opt.on{background:var(--hover)}
+.box{width:16px;height:16px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.opt.on .box{background:var(--text);box-shadow:none}
+
+.kv{display:flex;justify-content:space-between;gap:var(--sp-3);font-size:var(--fs-body);color:var(--quiet);min-height:32px;align-items:center}
+.kv b{color:var(--text);font-weight:400;text-align:right}
+
+.steps .st{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-2) 0;font-size:var(--fs-body)}
+.steps .st .dot{width:8px;height:8px;margin-top:6px}
+
+.pop{border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-pop);overflow:hidden}
+
+/* ---------- Informational boards (kit; unused by this mock-up, sizes normalized) ---------- */
+.board{background:var(--bg);color:var(--text);padding:var(--sp-14) 64px;display:flex;flex-direction:column;gap:40px;position:relative;overflow:hidden}
+.lead{color:var(--quiet);max-width:820px;margin-top:var(--sp-2)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 48px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.fact{font-size:var(--fs-title);font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.fact span{font-size:var(--fs-meta);font-weight:400;color:var(--faint);margin-left:6px}
+.note{color:var(--faint);font-size:var(--fs-meta)}
+.item-r{display:flex;gap:var(--sp-4);padding:var(--sp-3) 0;border-top:1px solid var(--line)}
+.item-r:first-child{border-top:none}
+.num{flex:0 0 24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line2);display:inline-flex;align-items:center;justify-content:center;font-size:var(--fs-meta);color:var(--quiet)}
+.num.solid{background:var(--text);color:var(--bg);box-shadow:none;font-weight:600}
+.tree{font:var(--fs-meta)/1.75 var(--mono);color:var(--quiet);white-space:pre}
+.tree b{color:var(--text);font-weight:500}
+.tree i{font-style:normal;color:var(--faint)}
+.code{font:var(--fs-meta)/1.7 var(--mono);color:var(--quiet);white-space:pre;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-4)}
+.code b{color:var(--text);font-weight:400}
+.code i{color:var(--faint);font-style:normal}
+.spec{display:flex;flex-direction:column;gap:var(--sp-2)}
+.specname{display:flex;align-items:baseline;gap:var(--sp-2);font-weight:600}
+.stage{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line);padding:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2);justify-content:center;min-height:88px;background:var(--bg)}
+.swatch{height:40px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line2)}
+.dg-box{position:absolute;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line2);padding:var(--sp-3) var(--sp-4);background:var(--surface)}
+.dg-box b{display:block;font-weight:600}
+.dg-box span{display:block;color:var(--faint);font-size:var(--fs-meta);margin-top:2px}
+.dg-box.key{box-shadow:inset 0 0 0 1.5px var(--her)}
+.dg-ln{position:absolute;background:var(--line2)}
+.dg-ar{position:absolute;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--line2)}
+.dg-lab{position:absolute;font-size:var(--fs-meta);color:var(--faint)}
+.wire{position:relative;border-radius:var(--r-lg);background:var(--side);box-shadow:inset 0 0 0 1px var(--line)}
+.wire .rg{position:absolute;border-radius:var(--r-md);padding:var(--sp-3);font-size:var(--fs-meta);color:var(--faint);display:flex;flex-direction:column}
+.wire .rg b{color:var(--text);font-size:var(--fs-body)}
+/* ---------- Added for the v5 mock-up (candidates for kit/) ---------- */
+/* Every rule below uses only kit tokens. Sizes: --fs-meta, --fs-body, --fs-title only. */
+
+/* App frame: the shell fills the window; each screen scrolls on its own. */
+html,body{height:100%;margin:0}
+.ev [hidden]{display:none !important}
+.ev.app{height:100vh;flex-wrap:nowrap;overflow:hidden}
+.app .sidebar{overflow-y:auto}
+.app .area{flex-wrap:nowrap}
+.view{max-height:100%;overflow-y:auto}
+.app .detail{max-height:100%;overflow-y:auto;flex:0 0 400px}
+.app .split:not([hidden]) ~ .detail{flex-basis:352px}
+.ev button,.ev input,.ev textarea{font-family:inherit}
+.sec{display:flex;flex-direction:column}
+.sec > h2,.sec > .sec-head{margin-bottom:var(--sp-2)}
+.sec-head{display:flex;align-items:center;gap:var(--sp-3)}
+.head{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
+.head .t-meta{position:relative;top:2px}
+
+/* Focus (variant A): a crisp 2 px inset ring in the text colour on everything focusable.
+   Two surfaces are exempt because the caret already shows focus: the note document and the ⌘K input. */
+.ev :focus{outline:none}
+.ev :focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+.ev .doc:focus-visible,.ev .palette-in:focus-visible{outline:none}
+
+/* Interaction states for kit pieces (the kit draws the static .hover/.sel states). */
+.nav,.search,.row,.opt,.cite,.btn,.tabs button,.seg button,.jobline{transition:background-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
+.nav,.search,.row,.opt{cursor:pointer}
+.nav:hover{background:var(--hover);color:var(--text)}
+.search:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.row:hover,.opt:hover{background:var(--hover)}
+.row:hover .act,.row:focus-within .act,.row:focus-visible .act{visibility:visible}
+.btn:hover{background:var(--hover)}
+.row .btn:hover,.row.sel .btn:hover{background:var(--sel)}
+.btn.primary:hover{background:var(--her);filter:brightness(1.08)}
+.btn.text:hover{color:var(--text)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary:disabled{opacity:1;background:none;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);filter:none}
+.btn.primary:disabled .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+.btn.icon{width:32px;padding:0;justify-content:center}
+.btn.icon svg{width:var(--icon);height:var(--icon);stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
+
+/* Key hints beside actions (variant A, Linear-style): small, low-contrast, never the label. */
+.btn .kbd{margin-right:-4px}
+.btn.primary .kbd{color:var(--on-her);box-shadow:inset 0 0 0 1px currentColor;opacity:.55}
+.btn.text .kbd{margin-right:0}
+.hint{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+.row .kbd.act{margin-left:calc(-1 * var(--sp-2))}
+
+/* Panel leads: when the Detail panel holds a primary action, it takes the ember and the
+   screen's own primary steps down to secondary. Keeps rule 3 (one ember element per screen). */
+.area.panel-leads .view .btn.primary{background:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.area.panel-leads .view .btn.primary .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+
+/* Mark, quiet: E.V.'s mark where it is not the screen's ember element. */
+.mark.quiet{border-color:var(--faint)}
+/* Spinner motion. */
+.spin{animation:ev-spin 1s linear infinite}
+@keyframes ev-spin{to{transform:rotate(360deg)}}
+.steps .st .spin{margin-top:5px}
+.steps .st .dot{margin-left:2px;margin-right:2px}
+.row > .dot{margin:0 3px}  /* dots take the spinner's 12 px slot so row titles line up */
+
+/* Motion (variant A): short fades and small rises, 150–250 ms, never bouncy. */
+@keyframes ev-fade{from{opacity:0}}
+@keyframes ev-rise{from{opacity:0;transform:translateY(var(--rise))}}
+.view:not([hidden]),.split:not([hidden]){animation:ev-fade var(--dur-1) var(--ease)}
+.detail:not([hidden]){animation:ev-rise var(--dur-2) var(--ease)}
+.scrim:not([hidden]){animation:ev-fade var(--dur-1) var(--ease)}
+.scrim:not([hidden]) .palette{animation:ev-rise var(--dur-2) var(--ease)}
+.reveal:not([hidden]){animation:ev-rise var(--dur-3) var(--ease)}
+.msg.new{animation:ev-rise var(--dur-2) var(--ease)}
+@media (prefers-reduced-motion:reduce){
+  .ev *,.ev *::before{animation:none !important;transition:none !important}
+  .spin{border-top-color:var(--info);border-right-color:var(--info)}
+}
+
+/* Sidebar foot: the running-job line and the theme toggle. */
+.jobline{display:flex;align-items:center;gap:var(--sp-2);margin-top:auto;height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer}
+.jobline:hover{background:var(--hover);color:var(--text)}
+.btn.text.themebtn{justify-content:space-between;font-size:var(--fs-meta);color:var(--faint);padding:0 var(--sp-2)}
+.btn.text.themebtn:hover{color:var(--text)}
+
+/* Plain row: a 40 px line that is not clickable (forms, ratings). */
+.lrow{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row)}
+.lrow > .grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta-r{text-align:right}
+.nowrap{white-space:nowrap}
+.q-text{font-weight:500}
+.q-head{align-items:flex-start;margin-bottom:var(--sp-3)}
+.q-foot{margin-top:var(--sp-4)}
+[data-tab-panel] > .sec-head{margin-bottom:var(--sp-2)}
+
+/* Source chip and the "unverified" mark: every fact E.V. gives carries one of these. */
+.cite{display:inline-flex;align-items:center;gap:var(--sp-1);height:20px;padding:0 6px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
+.cite:hover{background:var(--hover);color:var(--text)}
+.unverified{font-size:var(--fs-meta);color:var(--faint);border-bottom:1px dashed var(--line2);cursor:help;white-space:nowrap}
+
+/* Field: the one bordered input. */
+.field{display:block;width:100%;min-height:40px;padding:9px var(--sp-3);border:0;border-radius:var(--r-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-body);line-height:var(--lh);resize:none}
+.field::placeholder{color:var(--faint)}
+
+/* Segmented control: a short choice (confidence, course). */
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
+.seg button{all:unset;height:24px;line-height:24px;padding:0 var(--sp-2);border-radius:4px;font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--sel);color:var(--text)}
+
+/* Toast: one quiet confirmation, bottom centre. */
+.toast{position:fixed;left:50%;bottom:var(--sp-6);transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-3);height:40px;padding:0 var(--sp-1) 0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-pop);z-index:20}
+@keyframes ev-toast{from{opacity:0;transform:translate(-50%,var(--rise))}}
+.toast:not([hidden]){animation:ev-toast var(--dur-2) var(--ease)}
+
+/* ⌘K palette (sits on .pop). */
+.scrim{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:120px;background:var(--scrim)}
+.palette{width:560px;display:flex;flex-direction:column}
+.palette-in{height:48px;padding:0 var(--sp-6);border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:var(--fs-body);outline:none}
+.palette-in::placeholder{color:var(--faint)}
+.palette-list{display:flex;flex-direction:column;padding:var(--sp-2) var(--sp-4);max-height:416px;overflow-y:auto}
+.palette-list .row{margin:0}
+.palette-list .t-label{padding:var(--sp-2) var(--sp-2) var(--sp-1)}
+.palette-foot{display:flex;align-items:center;gap:var(--sp-4);height:40px;padding:0 var(--sp-6);border-top:1px solid var(--line);font-size:var(--fs-meta);color:var(--faint)}
+
+/* Ask E.V. (variant A): no bubbles. Every turn is a plain row in one text column, Slack-style.
+   Matt's turns carry a quiet "You" label and a time; E.V.'s carry her dotted ring in the gutter. */
+.chat{display:flex;flex-direction:column;gap:var(--sp-6)}
+.msg{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:var(--sp-3);align-items:start}
+.msg > .mark{margin-top:2px}
+.msg .say{grid-column:2;display:flex;flex-direction:column;gap:var(--sp-2)}
+.msg .who{display:flex;align-items:baseline;gap:var(--sp-2);margin-bottom:calc(-1 * var(--sp-1));font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
+.msg .who time{font-weight:400}
+.msg.me .say > .who + div{color:var(--text)}
+.msg .say > div{max-width:600px}
+.chat-break{height:1px;background:var(--line);margin:var(--sp-2) 0}
+.composer{position:sticky;bottom:0;margin-top:auto;padding:var(--sp-4) 0 0;background:var(--bg);display:flex;flex-direction:column;gap:var(--sp-2)}
+.composer-foot{display:flex;align-items:center;gap:var(--sp-4);padding:0 var(--sp-1)}
+
+/* Practice feedback inside the question card (shown only after Commit or Hint). */
+.box.radio{border-radius:50%}
+.opt .mk{margin-left:auto}
+.opt > .kbd{margin-left:auto}
+.qcard.locked .opt > .kbd{display:none}
+.qcard.locked .opt{cursor:default}
+.qcard.locked .opt:not(.on):hover{background:none}
+.reveal{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-2);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+
+/* Legend for the readiness meter: shown once, where a screen first uses it. */
+.legend{display:inline-flex;align-items:center;gap:var(--sp-3);font-size:var(--fs-meta);color:var(--faint)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:8px;height:4px;border-radius:1px}
+.m-rest{background:var(--line2)}
+
+/* Notes: list column, session bar, and the editor surface built from blocks. */
+.split{flex:999 1 440px;min-width:0;max-height:100%;display:flex;overflow:hidden}
+.notelist{flex:0 0 240px;display:flex;flex-direction:column;padding:var(--sp-14) var(--sp-4) var(--sp-4) var(--sp-6);border-right:1px solid var(--line);overflow-y:auto}
+.editor{flex:1;min-width:0;display:flex;flex-direction:column}
+.editor .view{flex:1}
+.sessionbar{flex:none;display:flex;align-items:center;gap:var(--sp-3);height:48px;padding:0 var(--sp-6);border-bottom:1px solid var(--line);color:var(--quiet)}
+.doc{display:flex;flex-direction:column;gap:var(--sp-3);outline:none}
+.doc ul{margin:0;padding-left:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
+.doc ul ul{margin-top:var(--sp-1)}
+.blk{position:relative}
+.blk::before{content:"⋮⋮";white-space:nowrap;position:absolute;left:-24px;top:0;width:16px;font-size:var(--fs-meta);letter-spacing:-2px;color:var(--faint);opacity:0;transition:opacity var(--dur-1) var(--ease)}
+.blk:hover::before{opacity:1}
+.checks{display:flex;flex-direction:column}
+.check{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
+.check.done{color:var(--faint);text-decoration:line-through}
+.check.done .box{background:var(--quiet);box-shadow:none}
+.cols2{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.ph{display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-3);border-radius:var(--r-md);background:var(--hover);color:var(--faint);font-size:var(--fs-meta)}
+.ph svg{width:100%;height:auto;stroke:var(--quiet);fill:none;stroke-width:1.5}
+
+/* Session comments in the Detail panel. */
+.cmt{display:flex;gap:var(--sp-3);align-items:flex-start}
+.cmt > .mark{margin-top:3px}
+.cmt .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.answer{padding-left:var(--sp-3);border-left:2px solid var(--line2);color:var(--quiet)}
+
+/* Progress: a plain CSS bar series. */
+.bars{display:flex;gap:var(--sp-2);height:96px}
+.bars > span{flex:1;display:flex;justify-content:center;align-items:flex-end}
+.bars i{display:block;width:16px;min-height:2px;border-radius:2px 2px 0 0;background:var(--line2)}
+.bars i.now{background:var(--faint)}
+.bars-x{display:flex;gap:var(--sp-2)}
+.bars-x span{flex:1;text-align:center;font-size:var(--fs-meta);color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="ev shell app" id="app" data-theme="dark">
+
+<!-- ================= SHELL · Sidebar ================= -->
+<aside class="sidebar" aria-label="Primary">
+  <div class="ws"><span class="mark quiet"></span>E.V.</div>
+  <div class="search" data-act="palette" role="button" tabindex="0" title="Search or ask"><span>Search or ask</span><span class="kbd">⌘K</span></div>
+  <a class="nav" href="#today" data-go="today"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3l2 1.5"/></svg>Today<span class="n" id="today-count">4</span></a>
+  <a class="nav" href="#ask" data-go="ask" title="Ask E.V. (⌘J)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>Ask E.V.</a>
+  <a class="nav" href="#library" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h3v11H3zM7.5 2.5h3v11h-3z"/><path d="m11.5 3 2.5.6-2 10-2.5-.6"/></svg>Library</a>
+  <a class="nav" href="#notes" data-go="notes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6 8h4.5M6 10.5h3"/></svg>Notes</a>
+  <a class="nav" href="#progress" data-go="progress"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13V8M8 13V3M13 13v-6"/></svg>Progress</a>
+  <a class="nav" href="#activity" data-go="activity" title="2 need you"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>Activity<span class="n" id="activity-count">2</span></a>
+  <div class="navgrp">Courses</div>
+  <a class="nav" href="#library/exams" data-go="library" data-sub="exams"><i class="dot d-ok"></i>BIO 201</a>
+  <a class="nav" href="#library/exams" data-go="library" data-sub="exams" title="Exam 3 on Thursday"><i class="dot d-violet"></i>NUR 112<span class="n">Thu</span></a>
+  <div class="jobline" data-go="activity" data-detail="d-job-mock" role="button" tabindex="0" title="Open in Activity"><i class="spin"></i>Writing mock exam · ch 9</div>
+  <button class="btn text themebtn" data-act="theme" id="themebtn" title="Switch theme"><span id="themelabel">Light theme</span><span class="kbd">\</span></button>
+</aside>
+
+<main class="area" id="area">
+
+<!-- ================= SCREEN 1 · Today ================= -->
+<section class="col center view" data-screen="today" aria-label="Today">
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Today</h1><span class="t-meta">Monday, November 2</span><span class="grow"></span>
+      <button class="btn primary" data-act="start-next" title="Start the next item">Start next<span class="kbd">S</span></button></div>
+    <div class="ev-line"><span class="mark quiet"></span><span><b>Exam 3 is Thursday.</b> Your weakest spot is oral liquid doses. <span class="cite" data-detail="d-cite-weak" tabindex="0">from Weak spots</span></span></div>
+  </div>
+
+  <div class="sec" id="plan">
+    <div class="sec-head"><h2 class="t-label">Plan</h2><span class="t-meta" id="plan-count">4</span></div>
+    <div class="row" tabindex="0" data-detail="d-today-review"><i class="dot d-teal"></i><div class="t"><div>Review · 8 questions</div><span class="sub">morning set · cardiac output, fluid balance, med math</span></div><button class="btn text act" data-act="start-review">Start</button><span class="t-meta">10m</span></div>
+    <div class="row" tabindex="0" data-detail="d-today-drill"><i class="dot d-violet"></i><div class="t"><div>Oral liquid doses</div><span class="sub">from your plan for Exam 3 · 10 problems</span></div><button class="btn text act" data-act="start-review">Start</button><span class="t-meta">20m</span></div>
+    <div class="row" tabindex="0" data-detail="d-today-note"><i class="dot d-ok"></i><div class="t"><div>Write: Ch 9 lecture notes</div><span class="sub">note task · BIO 201 · read-along session</span></div><button class="btn text act" data-act="start-note">Start</button><span class="t-meta">30m</span></div>
+    <div class="row" tabindex="0" data-detail="d-today-fs"><i class="dot d-violet"></i><div class="t"><div>Frank–Starling, in your own words</div><span class="sub">from your plan for Exam 3 · 3 prompts</span></div><button class="btn text act" data-act="start-review">Start</button><span class="t-meta">10m</span></div>
+    <div class="suggest" id="today-suggest"><span class="c-faint" aria-hidden="true">+</span><span class="grow" id="today-suggest-text">5 dosage-by-weight problems tonight · 10m</span><button class="btn text" data-act="accept-suggest" title="Accept">Accept<span class="kbd">A</span></button><button class="btn text" data-act="edit-suggest" title="Edit">Edit<span class="kbd">E</span></button></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Upcoming</h2><span class="grow"></span><span class="legend" aria-label="Meter legend"><span><i class="m-ok"></i>learned</span><span><i class="m-warn"></i>familiar</span><span><i class="m-bad"></i>weak</span></span></div>
+    <div class="row" tabindex="0" data-detail="d-plan"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Exam 3</div><span class="sub">58% ready · study plan waiting for you</span></div><div class="meter" style="width:96px"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div><span class="t-meta ta-r" style="width:48px">Thu</span></div>
+    <div class="row" tabindex="0" data-detail="d-exam-bio"><i class="dot d-ok"></i><div class="t"><div>BIO 201 · Lab practical 2</div><span class="sub">71% ready · plan after Exam 3</span></div><div class="meter" style="width:96px"><i class="m-ok" style="width:52%"></i><i class="m-warn" style="width:19%"></i><i class="m-bad" style="width:29%"></i></div><span class="t-meta ta-r" style="width:48px">Nov 9</span></div>
+    <div class="row" tabindex="0" data-detail="d-exam-math"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Med math check</div><span class="sub">40% ready · no plan yet</span></div><div class="meter" style="width:96px"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></div><span class="t-meta ta-r" style="width:48px">Nov 16</span></div>
+  </div>
+
+  <div class="sec">
+    <h2 class="t-label">This week</h2>
+    <div class="row" tabindex="0" data-detail="d-weekly"><i class="dot d-faint"></i><div class="t"><div>Weekly review</div><span class="sub">5 h 10 m studied · accuracy 72% ↑ · 3 weak spots to confirm</span></div><span class="t-meta">Sun</span></div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 2 · Ask E.V. ================= -->
+<section class="col center view" data-screen="ask" aria-label="Ask E.V.">
+  <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">ask anything; she'll want your try first</span></div>
+
+  <div class="chat" id="chat">
+    <div class="msg me"><div class="say"><div class="who">You<time>9:12 am</time></div><div>what's the difference between preload and afterload?</div></div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say">
+      <div>Give it a try in one line: what stretches the ventricle?</div>
+      <div class="line g2"><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>
+    </div></div>
+    <div class="msg me"><div class="say"><div class="who">You<time>9:13 am</time></div><div>preload is the blood filling it before it squeezes, afterload is what it pushes against?</div></div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say">
+      <div>Yes, both right. Preload is the stretch on the ventricle at the end of filling, set mostly by venous return. Afterload is the pressure it has to beat to eject, mostly arterial pressure. More stretch gives a stronger beat: that's Frank–Starling.</div>
+      <div><span class="cite" data-detail="d-cite-co" tabindex="0">from Note · Cardiac output</span></div>
+    </div></div>
+    <div class="chat-break" role="separator"></div>
+    <div class="msg me"><div class="say"><div class="who">You<time>11:40 am</time></div><div>is the mock exam ready?</div></div></div>
+    <div class="msg"><span class="mark"></span><div class="say">
+      <div>Still writing, 9 of 15 questions; I'll put it in Library when it's done.</div>
+      <div class="row" tabindex="0" data-go="activity" data-detail="d-job-mock" title="Open in Activity"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">writing questions · 9 of 15 · in Activity</span></div><span class="t-meta">~1 min</span></div>
+    </div></div>
+  </div>
+
+  <div class="composer">
+    <textarea class="field" id="composer" rows="1" placeholder="Ask E.V., or answer her" aria-label="Message to E.V."></textarea>
+    <div class="composer-foot"><span class="hint"><span class="kbd">↵</span>send</span><span class="hint"><span class="kbd">⇧↵</span>new line</span><span class="grow"></span><span class="hint"><span class="kbd">⌘J</span>from anywhere</span></div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 3 · Library ================= -->
+<section class="col center view" data-screen="library" aria-label="Library" hidden>
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">practice, weak spots, exams and sets</span></div>
+    <div class="line g3"><span class="c-quiet">Retrieval accuracy, last 14 days</span><span>72% ↑</span><div class="meter" style="width:96px" title="72% · up from 66%"><i class="m-ok" style="width:72%"></i><i class="m-rest" style="width:28%"></i></div></div>
+  </div>
+
+  <div class="stack g6">
+    <div class="tabs" id="libtabs">
+      <button data-tab="practice" class="on">Practice</button><button data-tab="weak">Weak spots<span class="n">4</span></button><button data-tab="exams">Exams<span class="n">3</span></button><button data-tab="sets">Sets<span class="n">4</span></button>
+    </div>
+
+    <!-- Library · Practice: attempt first; feedback only after Commit, hint only on ask -->
+    <div class="stack g4" data-tab-panel="practice">
+      <div class="line g3"><span class="c-quiet">Morning review · cardiac output, fluid balance, med math</span><span class="grow"></span><button class="btn text" data-act="end-review" title="End review">End review</button></div>
+      <div class="qcard" id="q">
+        <div class="line g3 q-head"><span class="grow q-text">A child who weighs 22 kg is ordered amoxicillin 25 mg/kg/day, divided every 12 hours. The suspension is 250 mg per 5 mL. How many mL per dose?</span><span class="t-meta">1 of 8</span></div>
+        <div class="opt" data-opt="a" tabindex="0"><span class="box radio"></span>2.75 mL<span class="kbd">1</span></div>
+        <div class="opt" data-opt="b" data-right tabindex="0"><span class="box radio"></span>5.5 mL<span class="kbd">2</span></div>
+        <div class="opt" data-opt="c" tabindex="0"><span class="box radio"></span>11 mL<span class="kbd">3</span></div>
+        <div class="opt" data-opt="d" tabindex="0"><span class="box radio"></span>22 mL<span class="kbd">4</span></div>
+        <div class="reveal" id="q-hint" hidden>
+          <span class="c-quiet">Hint: start with the daily dose, weight × mg/kg, then split it.</span>
+        </div>
+        <div class="reveal" id="q-feedback" hidden>
+          <div class="line g2" id="q-verdict"></div>
+          <div class="c-quiet">22 kg × 25 mg/kg = 550 mg a day. Every 12 hours is 2 doses, so 275 mg a dose. 275 mg ÷ 250 mg × 5 mL = 5.5 mL.</div>
+          <div class="line g2 wrap"><span class="cite" data-detail="d-cite-math" tabindex="0">from Note · Med math rules</span><span class="cite" data-detail="d-set-dose" tabindex="0">Set · Dosage by weight</span></div>
+        </div>
+        <div class="line g2 q-foot"><span class="t-meta">NUR 112 · dosage by weight</span><span class="grow"></span>
+          <button class="btn text" id="q-hint-btn" data-act="hint" title="Hint · logged">Hint<span class="kbd">H</span></button>
+          <button class="btn primary" id="q-commit" data-act="commit" disabled title="Commit answer">Commit<span class="kbd">↵</span></button></div>
+      </div>
+    </div>
+
+    <!-- Library · Weak spots -->
+    <div class="stack" data-tab-panel="weak" hidden>
+      <div class="sec-head"><span class="t-label">Due first</span><span class="grow"></span><span class="legend" aria-label="Meter legend"><span><i class="m-ok"></i>learned</span><span><i class="m-warn"></i>familiar</span><span><i class="m-bad"></i>weak</span></span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Set · Dosage by weight"><i class="dot d-violet"></i><div class="t"><div>Oral liquid doses</div><span class="sub">NUR 112 · 4 of 9 right lately</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:20%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:55%"></i></div><span class="t-meta ta-r" style="width:64px">due today</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Muscle · crossbridge cycle"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">BIO 201 · 5 of 9 right lately</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:30%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:40%"></i></div><span class="t-meta ta-r" style="width:64px">tomorrow</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Fluid balance · I&amp;O"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">NUR 112 · 6 of 10 right lately</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:40%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:30%"></i></div><span class="t-meta ta-r" style="width:64px">Thu</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Cardiac output"><i class="dot d-ok"></i><div class="t"><div>Afterload</div><span class="sub">BIO 201 · 7 of 10 right lately</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:55%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:20%"></i></div><span class="t-meta ta-r" style="width:64px">Fri</span></div>
+    </div>
+
+    <!-- Library · Exams: a click opens the exam's study plan proposal in Detail -->
+    <div class="stack" data-tab-panel="exams" hidden>
+      <div class="sec-head"><span class="t-label">By date</span><span class="grow"></span><span class="legend" aria-label="Meter legend"><span><i class="m-ok"></i>learned</span><span><i class="m-warn"></i>familiar</span><span><i class="m-bad"></i>weak</span></span></div>
+      <div class="row" tabindex="0" data-detail="d-plan"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Exam 3</div><span class="sub">Thursday, Nov 5 · plan waiting for you</span></div><div class="meter" style="width:96px" title="58% ready"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div><span class="t-meta ta-r" style="width:40px">58%</span></div>
+      <div class="row" tabindex="0" data-detail="d-exam-bio"><i class="dot d-ok"></i><div class="t"><div>BIO 201 · Lab practical 2</div><span class="sub">Monday, Nov 9 · plan after Exam 3</span></div><div class="meter" style="width:96px" title="71% ready"><i class="m-ok" style="width:52%"></i><i class="m-warn" style="width:19%"></i><i class="m-bad" style="width:29%"></i></div><span class="t-meta ta-r" style="width:40px">71%</span></div>
+      <div class="row" tabindex="0" data-detail="d-exam-math"><i class="dot d-violet"></i><div class="t"><div>NUR 112 · Med math check</div><span class="sub">Monday, Nov 16 · no plan yet</span></div><div class="meter" style="width:96px" title="40% ready"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></div><span class="t-meta ta-r" style="width:40px">40%</span></div>
+    </div>
+
+    <!-- Library · Sets -->
+    <div class="stack" data-tab-panel="sets" hidden>
+      <div class="sec-head"><span class="t-label">Newest first</span></div>
+      <div class="row" tabindex="0" data-detail="d-set-dose"><i class="dot d-violet"></i><div class="t"><div>Dosage by weight</div><span class="sub">10 problems · made by E.V. yesterday</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="t-meta">yest.</span></div>
+      <div class="row" tabindex="0" data-kind="Set" data-source="Note · Cardiac output"><i class="dot d-ok"></i><div class="t"><div>Cardiac output</div><span class="sub">12 questions · from your Ch 9 notes</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="t-meta">Sat</span></div>
+      <div class="row" tabindex="0" data-kind="Set" data-source="Note · Muscle · crossbridge cycle"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">8 questions · from your Ch 6 notes</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="t-meta">Oct 28</span></div>
+      <div class="row" tabindex="0" data-kind="Set"><i class="dot d-violet"></i><div class="t"><div>Electrolytes, quick facts <span class="unverified" title="No source yet. Link a note or set to verify.">unverified</span></div><span class="sub">14 cards · typed in by you</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="t-meta">Oct 26</span></div>
+      <div class="row" tabindex="0" data-go="activity" data-detail="d-job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">writing · 9 of 15 questions</span></div><span class="t-meta">~1 min</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 4 · Notes ================= -->
+<section class="split" data-screen="notes" aria-label="Notes" hidden>
+  <nav class="notelist" aria-label="Notes list">
+    <div class="line g2" style="margin-bottom:16px"><h1 class="t-title grow">Notes</h1><button class="btn text" data-act="new-note" title="New note">New<span class="kbd">N</span></button></div>
+    <div id="notelist">
+      <div class="row sel" tabindex="0" data-note="co"><i class="dot d-ok"></i><div class="t"><div>Ch 9 · Cardiac output</div><span class="sub">edited now</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Med math rules</div><span class="sub">yesterday</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">Fri</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-ok"></i><div class="t"><div>Muscle · crossbridge cycle</div><span class="sub">Oct 28</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Exam 3 objectives</div><span class="sub">Oct 27</span></div></div>
+    </div>
+  </nav>
+
+  <div class="editor">
+    <div class="sessionbar" id="sessionbar" hidden>
+      <i class="dot d-info" id="session-dot"></i><span class="nowrap">Session <span id="timer">18:20</span></span><span class="t-meta nowrap">read-along on</span><span class="grow"></span>
+      <button class="btn text" data-act="pause" title="Pause or resume (Space when not typing)"><span id="pausebtn">Pause</span><span class="kbd">Space</span></button>
+      <button class="btn secondary" data-act="end-session" title="End session">End</button>
+    </div>
+    <div class="col center view">
+      <div class="stack g4">
+        <div class="line g3 t-meta"><span class="line g2"><i class="dot d-ok"></i>BIO 201</span><span>edited now</span><span class="grow"></span><span class="line g2" title="Saved on this device; sending to the server"><i class="dot d-faint"></i>Saved on this device · syncing</span></div>
+        <article class="doc" id="doc" contenteditable="true" spellcheck="false">
+          <h1 class="t-title blk">Ch 9 · Cardiac output</h1>
+          <p class="blk">Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume. A resting adult is about 5 L/min.</p>
+          <ul class="blk">
+            <li>Heart rate: set by the SA node, nudged by autonomic tone</li>
+            <li>Stroke volume: depends on preload, afterload and contractility
+              <ul><li>More preload → more stretch → bigger stroke volume (Frank–Starling)</li></ul>
+            </li>
+            <li>Afterload rises with arterial pressure; the ventricle works harder</li>
+          </ul>
+          <div class="checks blk" contenteditable="false">
+            <div class="check done" data-check><span class="box"></span>Read pp. 212–219</div>
+            <div class="check" data-check><span class="box"></span>Draw the Frank–Starling curve</div>
+            <div class="check" data-check><span class="box"></span>Ask E.V. for 5 questions on afterload</div>
+          </div>
+          <div class="cols2 blk">
+            <figure class="ph" style="margin:0" contenteditable="false">
+              <svg viewBox="0 0 176 112" aria-hidden="true"><path d="M16 8v88h152"/><path d="M20 92C52 86 72 40 104 30s44-4 60 4" stroke-dasharray="0"/></svg>
+              <span>Image · Frank–Starling curve</span>
+            </figure>
+            <p>As the ventricle fills more, it stretches and contracts harder, so stroke volume rises. Past a point the fibres overstretch and the curve flattens; in heart failure it sits lower.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 5 · Progress ================= -->
+<section class="col center view" data-screen="progress" aria-label="Progress" hidden>
+  <div class="head"><h1 class="t-title">Progress</h1><span class="t-meta">last 8 weeks</span></div>
+
+  <div class="sec g4">
+    <h2 class="t-label">Retrieval accuracy</h2>
+    <div class="line g3" style="align-items:baseline"><span class="t-title">72%</span><span class="t-meta">↑ 14 points since mid-September · first try, from memory</span></div>
+    <div class="stack g2">
+      <div class="bars">
+        <span><i style="height:58%" title="Sep 13 · 58%"></i></span><span><i style="height:61%" title="Sep 20 · 61%"></i></span><span><i style="height:60%" title="Sep 27 · 60%"></i></span><span><i style="height:64%" title="Oct 4 · 64%"></i></span><span><i style="height:66%" title="Oct 11 · 66%"></i></span><span><i style="height:63%" title="Oct 18 · 63%"></i></span><span><i style="height:69%" title="Oct 25 · 69%"></i></span><span><i class="now" style="height:72%" title="Nov 1 · 72%"></i></span>
+      </div>
+      <div class="bars-x"><span>Sep 13</span><span>20</span><span>27</span><span>Oct 4</span><span>11</span><span>18</span><span>25</span><span>Nov 1</span></div>
+    </div>
+  </div>
+
+  <div class="sec g4">
+    <h2 class="t-label">Study minutes, last 7 days</h2>
+    <div class="line g3" style="align-items:baseline"><span class="t-title">5 h 10 m</span><span class="t-meta">28 sessions · 164 answers</span></div>
+    <div class="stack g2">
+      <div class="bars">
+        <span><i style="height:60%" title="Tue · 45 min"></i></span><span><i style="height:80%" title="Wed · 60 min"></i></span><span><i style="height:27%" title="Thu · 20 min"></i></span><span><i style="height:100%" title="Fri · 75 min"></i></span><span><i style="height:0" title="Sat · none"></i></span><span><i style="height:67%" title="Sun · 50 min"></i></span><span><i class="now" style="height:80%" title="Today · 60 min"></i></span>
+      </div>
+      <div class="bars-x"><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span><span>Today</span></div>
+    </div>
+  </div>
+
+  <p class="t-meta">More here after the switch.</p>
+</section>
+
+<!-- ================= SCREEN 6 · Activity ================= -->
+<section class="col center view" data-screen="activity" aria-label="Activity" hidden>
+  <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta">every job E.V. and the schedule run, and the ones waiting on you</span></div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Needs you</h2><span class="t-meta">2</span></div>
+    <div class="row" tabindex="0" data-detail="d-plan"><i class="dot d-warn"></i><div class="t"><div>Study plan for Exam 3 is ready to approve</div><span class="sub">4 sessions through Thursday · rate your confidence first</span></div><button class="btn text act">Review<span class="kbd">↵</span></button><span class="t-meta">6:02 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-weekly"><i class="dot d-warn"></i><div class="t"><div>Weekly review: 3 weak spots to confirm</div><span class="sub">crossbridge cycle · oral liquid doses · fluid balance</span></div><button class="btn text act">Review<span class="kbd">↵</span></button><span class="t-meta">Sun</span></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Running</h2><span class="t-meta">1</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">step 3 of 4 · writing questions, 9 of 15 · you asked in Ask E.V.</span></div><span class="t-meta">~1 min</span></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2 class="t-label">Done today</h2><span class="t-meta">3</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-plan"><i class="dot d-ok"></i><div class="t"><div>Plan for today</div><span class="sub">morning run · 4 items, 1 suggestion</span></div><span class="t-meta">4:25 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-review"><i class="dot d-ok"></i><div class="t"><div>Morning review set</div><span class="sub">8 questions → Today</span></div><span class="t-meta">4:26 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-failed"><i class="dot d-bad"></i><div class="t"><div>Study guide · Fluid balance</div><span class="sub">failed: the answer ran out of room · nothing was saved</span></div><button class="btn text act" data-act="retry">Retry</button><span class="t-meta">7:10 am</span></div>
+  </div>
+</section>
+
+<!-- ================= DETAIL PANEL (shared; filled from the templates below) ================= -->
+<aside class="detail" id="detail" aria-label="Detail" hidden></aside>
+</main>
+
+<!-- ================= DETAIL TEMPLATES · Today ================= -->
+<template id="d-today-review">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Review set · morning</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Review · 8 questions</h2>
+    <span class="t-meta">made at 4:26 am by the morning run · about 10 min</span>
+  </div>
+  <div><div class="kv"><span>Cardiac output</span><b>3 questions</b></div><div class="kv"><span>Fluid balance</span><b>3 questions</b></div><div class="kv"><span>Med math</span><b>2 questions</b></div><div class="kv"><span>From</span><b>Sets · Cardiac output, Dosage by weight</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start review</button></div>
+</template>
+
+<template id="d-today-drill">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">From your plan · Exam 3</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Oral liquid doses</h2>
+    <span class="t-meta">NUR 112 · 10 problems · about 20 min</span>
+  </div>
+  <div><div class="kv"><span>Why today</span><b>4 of 9 right this week</b></div><div class="kv"><span>Source</span><b>Set · Dosage by weight</b></div><div class="kv"><span>Plan</span><b>Exam 3 · approved Sat</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start</button><button class="btn text" data-act="toast" data-msg="Moved to tomorrow">Move to tomorrow</button></div>
+</template>
+
+<template id="d-today-note">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Note task</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Write: Ch 9 lecture notes</h2>
+    <span class="t-meta">BIO 201 · about 30 min · a study session</span>
+  </div>
+  <div><div class="kv"><span>Note</span><b>Ch 9 · Cardiac output (draft)</b></div><div class="kv"><span>Read-along</span><b>on</b></div><div class="kv"><span>E.V.</span><b>asks a check after each section</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-note">Start session</button></div>
+</template>
+
+<template id="d-today-fs">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">From your plan · Exam 3</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Frank–Starling, in your own words</h2>
+    <span class="t-meta">BIO 201 · 3 prompts · about 10 min</span>
+  </div>
+  <div><div class="kv"><span>Why</span><b>explaining beats re-reading</b></div><div class="kv"><span>Source</span><b>Note · Cardiac output</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start</button></div>
+</template>
+
+<template id="d-weekly">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · weekly review</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Weekly review is ready</h2>
+    <span class="t-meta">Sunday 5:57 pm · scheduled · 21 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Gathered the week<div class="t-meta">28 sessions, 5 h 10 m, 164 answers</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Wrote the summary<div class="t-meta">accuracy 72%, up from 69% · saved to Progress</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>3 new weak spots<div class="t-meta">crossbridge cycle · oral liquid doses · fluid balance</div></div></div>
+  </div>
+  <div class="line g2" data-swap="weekly"><button class="btn primary" data-act="weekly-add">Add all 3</button><button class="btn secondary" data-act="toast" data-msg="Pick: tick the ones to add">Pick</button><button class="btn text" data-close>Dismiss</button></div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · weekly</b></div><div class="kv"><span>Output</span><b>Progress · weekly review</b></div></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Library (exam plan proposal, sets, sources) ================= -->
+<template id="d-plan">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Proposal · study plan</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Study plan for Exam 3</h2>
+    <span class="t-meta">NUR 112 · Thursday, Nov 5 · 4 sessions, 1&nbsp;h&nbsp;40&nbsp;m</span>
+  </div>
+  <div class="sec">
+    <h2 class="t-label">Your confidence</h2>
+    <span class="t-meta" id="conf-note">Rate these first. E.V. shapes the plan around them.</span>
+    <div class="lrow"><span class="grow">Oral liquid doses</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Dosage by weight</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Fluid balance · I&amp;O</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Preload and afterload</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+  </div>
+  <div class="sec" id="plan-items">
+    <h2 class="t-label">Proposed plan</h2>
+    <div class="suggest"><span class="t-meta" style="width:32px">Mon</span><span class="grow">Oral liquid doses · 10 problems</span><span class="t-meta">20m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Tue</span><span class="grow">Dosage by weight · mixed set</span><span class="t-meta">25m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Mock exam · Chapter 9</span><span class="t-meta">45m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Thu</span><span class="grow">Misses only, before the exam</span><span class="t-meta">10m</span></div>
+  </div>
+  <div><div class="kv"><span>Built from</span><b>Exam 3 objectives · Ch 8–9 notes</b></div><div class="kv"><span>Weighted by</span><b>Weak spots · your ratings</b></div></div>
+  <div class="line g2" data-swap="plan"><button class="btn primary" data-act="approve-plan" title="Rate your confidence first" disabled>Approve<span class="kbd">⌘↵</span></button><button class="btn secondary" data-act="plan-changes">Ask for changes</button><button class="btn text" data-act="put-away" title="Put away; it stays in Activity">Put away</button></div>
+</template>
+
+<template id="d-exam-bio">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Exam</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">BIO 201 · Lab practical 2</h2>
+    <span class="t-meta">Monday, Nov 9 · 71% ready</span>
+  </div>
+  <div class="meter"><i class="m-ok" style="width:52%"></i><i class="m-warn" style="width:19%"></i><i class="m-bad" style="width:29%"></i></div>
+  <div><div class="kv"><span>Objectives</span><b>14 · 7 learned, 3 familiar, 4 weak</b></div><div class="kv"><span>Plan</span><b>E.V. proposes one Friday</b></div><div class="kv"><span>Source</span><b>Note · Lab 2 objectives</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="toast" data-msg="E.V. is drafting a plan · see Activity">Propose a plan now</button></div>
+</template>
+
+<template id="d-exam-math">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Exam</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">NUR 112 · Med math check</h2>
+    <span class="t-meta">Monday, Nov 16 · 40% ready</span>
+  </div>
+  <div class="meter"><i class="m-ok" style="width:22%"></i><i class="m-warn" style="width:18%"></i><i class="m-bad" style="width:60%"></i></div>
+  <div><div class="kv"><span>Objectives</span><b>6 · 1 learned, 1 familiar, 4 weak</b></div><div class="kv"><span>Plan</span><b>none yet</b></div><div class="kv"><span>Source</span><b>Note · Med math rules</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="toast" data-msg="E.V. is drafting a plan · see Activity">Propose a plan</button></div>
+</template>
+
+<template id="d-set-dose">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Set</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Dosage by weight</h2>
+    <span class="t-meta">NUR 112 · 10 problems · made by E.V. yesterday</span>
+  </div>
+  <div><div class="kv"><span>Last try</span><b>6 of 10 · yesterday</b></div><div class="kv"><span>Source</span><b>Note · Med math rules</b></div><div class="kv"><span>Made by</span><b>Job · practice set</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Practice</button></div>
+</template>
+
+<template id="d-cite-math">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Source · note</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Med math rules</h2>
+    <span class="t-meta">NUR 112 · edited yesterday</span>
+  </div>
+  <p class="answer">Weight-based: dose = kg × mg/kg. Split a daily dose by the number of doses. Liquids: (dose ÷ have) × volume.</p>
+  <div class="line g2"><button class="btn secondary" data-go="notes">Open note</button></div>
+</template>
+
+<template id="d-cite-co">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Source · note</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Cardiac output</h2>
+    <span class="t-meta">BIO 201 · Ch 9 lecture notes · edited now</span>
+  </div>
+  <p class="answer">More preload → more stretch → bigger stroke volume (Frank–Starling). Afterload rises with arterial pressure; the ventricle works harder.</p>
+  <div class="line g2"><button class="btn secondary" data-go="notes">Open note</button></div>
+</template>
+
+<template id="d-cite-weak">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Source · weak spots</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Oral liquid doses</h2>
+    <span class="t-meta">NUR 112 · weakest of 4</span>
+  </div>
+  <div class="meter"><i class="m-ok" style="width:20%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:55%"></i></div>
+  <div><div class="kv"><span>Lately</span><b>4 of 9 right</b></div><div class="kv"><span>Missed on</span><b>converting mg to mL</b></div><div class="kv"><span>Source</span><b>Set · Dosage by weight</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-go="library" data-sub="weak">Open weak spots</button></div>
+</template>
+
+<template id="d-add-exam">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">New exam</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Add exam</h2>
+    <span class="t-meta">E.V. proposes a study plan once it's added.</span>
+  </div>
+  <div class="stack g3">
+    <input class="field" placeholder="Name, e.g. Exam 4">
+    <input class="field" placeholder="Date, e.g. Dec 3">
+    <div class="lrow"><span class="grow c-quiet">Course</span><span class="seg" data-conf><button class="on">NUR 112</button><button>BIO 201</button></span></div>
+  </div>
+  <div class="line g2"><button class="btn primary" data-act="add-exam">Add exam</button><button class="btn text" data-close>Cancel</button></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Notes (session comments) ================= -->
+<template id="d-session">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Study session · checks</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">E.V.'s checks</h2>
+    <span class="t-meta">Ch 9 · Cardiac output · one after each section</span>
+  </div>
+  <div class="cmt"><span class="mark quiet"></span><div class="say">
+    <div class="c-quiet">Check: what sets preload?</div>
+    <div class="answer">How full the ventricle gets before it squeezes, mostly venous return.</div>
+    <div class="t-meta">Right. <span class="cite" data-detail="d-cite-co">Note · Cardiac output</span></div>
+  </div></div>
+  <div class="cmt" id="cmt-active"><span class="mark"></span><div class="say">
+    <div>Check: explain Frank–Starling in your own words.</div>
+    <textarea class="field" id="check-answer" rows="3" placeholder="Your words" title="Enter to send · Shift+Enter for a new line"></textarea>
+  </div></div>
+  <span class="t-meta">2 more checks at the end of this section</span>
+  <div><div class="kv"><span>Read-along</span><b>on · reads each block aloud</b></div><div class="kv"><span>Writing time</span><b>18 min today</b></div></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Activity (jobs) ================= -->
+<template id="d-job-mock">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · mock exam</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Mock exam · Chapter 9</h2>
+    <span class="t-meta">started 11:38 am · you asked in Ask E.V. · about 2¢ so far</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the chapter<div class="t-meta">3 notes, Exam 3 objectives</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Planned 15 questions<div class="t-meta">weak spots first, 12 objectives</div></div></div>
+    <div class="st"><i class="spin"></i><div>Writing questions<div class="t-meta">9 of 15</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Checking each answer against its source<div class="t-meta">next</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn text" data-act="toast" data-msg="Stopped · nothing was saved">Stop</button></div>
+  <div><div class="kv"><span>Started by</span><b>You · Ask E.V.</b></div><div class="kv"><span>Cost</span><b>about 2¢ so far</b></div><div class="kv"><span>Output</span><b>Library · Sets, when done</b></div></div>
+</template>
+
+<template id="d-job-failed">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · study guide</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Study guide · Fluid balance</h2>
+    <span class="t-meta">today 7:10 am · scheduled · 48 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the note<div class="t-meta">Note · Fluid balance · I&amp;O</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>Wrote the guide<div class="t-meta">failed: the answer ran out of room</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Saved<div class="t-meta">nothing was saved</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn secondary" data-act="retry">Retry, shorter</button><button class="btn text" data-close>Dismiss</button></div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · nightly</b></div><div class="kv"><span>Cost</span><b>under 1¢</b></div><div class="kv"><span>Output</span><b>none</b></div></div>
+</template>
+
+<template id="d-job-plan">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · daily plan</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Plan for today</h2>
+    <span class="t-meta">today 4:25 am · scheduled · 9 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read your plans and weak spots<div class="t-meta">Exam 3 plan, 4 weak spots</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Wrote today's list<div class="t-meta">4 items, 1 suggestion</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · morning</b></div><div class="kv"><span>Cost</span><b>under 1¢</b></div><div class="kv"><span>Output</span><b>Today · plan</b></div></div>
+</template>
+
+<template id="d-job-review">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · review set</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title">Morning review set</h2>
+    <span class="t-meta">today 4:26 am · scheduled · 14 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Picked what's due<div class="t-meta">8 questions from 3 sets</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Checked each against its source<div class="t-meta">8 of 8 cited</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · morning</b></div><div class="kv"><span>Cost</span><b>under 1¢</b></div><div class="kv"><span>Output</span><b>Today · Review · 8 questions</b></div></div>
+</template>
+
+<!-- Fallback for rows without their own template: title, sub and source come from the row. -->
+<template id="d-generic">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta" data-f="kind">Item</span><span class="grow"></span><button class="btn text icon" data-close title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <h2 class="t-title" data-f="title"></h2>
+    <span class="t-meta" data-f="sub"></span>
+  </div>
+  <div><div class="kv"><span>Source</span><b data-f="source"></b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Practice</button></div>
+</template>
+
+<!-- ================= ⌘K PALETTE ================= -->
+<div class="scrim" id="palette" hidden>
+  <div class="pop palette" role="dialog" aria-label="Commands">
+    <input class="palette-in" id="palette-in" placeholder="Type a command, or a question for E.V." autocomplete="off">
+    <div class="palette-list" id="palette-list">
+      <div class="t-label">Commands</div>
+      <div class="row" data-cmd="start-review"><div class="t"><div>Start review · 8 questions</div></div><span class="kbd">S</span></div>
+      <div class="row" data-cmd="new-note"><div class="t"><div>New note</div></div><span class="kbd">N</span></div>
+      <div class="row" data-cmd="make-set"><div class="t"><div>Make practice set…</div></div></div>
+      <div class="row" data-cmd="add-exam"><div class="t"><div>Add exam…</div></div></div>
+      <div class="row" data-cmd="go:activity"><div class="t"><div>Open Activity</div></div><span class="t-meta">2</span></div>
+      <div class="t-label">Go to</div>
+      <div class="row" data-cmd="go:today"><div class="t"><div>Today</div></div></div>
+      <div class="row" data-cmd="go:ask"><div class="t"><div>Ask E.V.</div></div><span class="kbd">⌘J</span></div>
+      <div class="row" data-cmd="go:library"><div class="t"><div>Library</div></div></div>
+      <div class="row" data-cmd="go:notes"><div class="t"><div>Notes</div></div></div>
+      <div class="row" data-cmd="go:progress"><div class="t"><div>Progress</div></div></div>
+      <div class="row" data-cmd="theme"><div class="t"><div>Switch theme</div></div><span class="kbd">\</span></div>
+      <div class="row" data-cmd="ask" id="palette-ask" hidden><div class="t"><div>Ask E.V.: <span id="palette-q"></span></div></div><span class="kbd">Tab</span></div>
+    </div>
+    <div class="palette-foot"><span class="hint"><span class="kbd">Tab</span>ask E.V.</span><span class="grow"></span><span class="hint"><span class="kbd">↑↓</span>move</span><span class="hint"><span class="kbd">↵</span>run</span><span class="hint"><span class="kbd">Esc</span>close</span></div>
+  </div>
+</div>
+
+<!-- ================= TOAST ================= -->
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo">Undo</button></div>
+
+</div>
+
+<script>
+/* ================= Helpers and state ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app'), area = $('#area'), detail = $('#detail');
+const state = { screen: 'today', session: false, paused: false, seconds: 18 * 60 + 20, undo: null };
+
+/* ================= Navigation ================= */
+function go(screen, sub) {
+  $$('[data-screen]').forEach(s => (s.hidden = s.dataset.screen !== screen));
+  $$('.nav[data-go]').forEach(n => n.classList.toggle('on', n.dataset.go === screen && !n.dataset.sub));
+  state.screen = screen;
+  closeDetail();
+  if (screen === 'library') setTab(sub || 'practice');
+  if (screen === 'notes') setSession(sub === 'session');
+  if (screen === 'ask') { const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight; }
+  history.replaceState(null, '', '#' + screen + (sub ? '/' + sub : ''));
+}
+
+/* ================= Detail panel ================= */
+function openDetail(id, row) {
+  const tpl = document.getElementById(id) || $('#d-generic');
+  detail.replaceChildren(tpl.content.cloneNode(true));
+  if (!document.getElementById(id) && row) {
+    const f = k => $(`[data-f="${k}"]`, detail);
+    f('kind').textContent = row.dataset.kind || 'Item';
+    f('title').textContent = $('.t > div', row).firstChild.textContent.trim();
+    f('sub').textContent = $('.sub', row)?.textContent || '';
+    if (row.dataset.source) f('source').textContent = row.dataset.source;
+    else f('source').innerHTML = '<span class="unverified" title="No source yet. Link a note or set to verify.">unverified</span>';
+  }
+  detail.hidden = true; void detail.offsetWidth; detail.hidden = false;  /* replay the rise */
+  area.classList.toggle('panel-leads', !!$('.btn.primary', detail));
+  $$('.row.sel').forEach(r => { if (!r.dataset.note) r.classList.remove('sel'); });
+  if (row && !row.dataset.note && row.closest('[data-screen]')) row.classList.add('sel');
+}
+function closeDetail() {
+  detail.hidden = true;
+  detail.replaceChildren();
+  area.classList.remove('panel-leads');
+  $$('.row.sel').forEach(r => { if (!r.dataset.note) r.classList.remove('sel'); });
+}
+
+/* ================= Theme ================= */
+function toggleTheme() {
+  const light = app.dataset.theme === 'dark';
+  app.dataset.theme = light ? 'light' : 'dark';
+  $('#themelabel').textContent = light ? 'Dark theme' : 'Light theme';
+}
+
+/* ================= Toast ================= */
+let toastTimer;
+function toast(msg, undo) {
+  $('#toast-msg').textContent = msg;
+  $('#toast-undo').hidden = !undo;
+  state.undo = undo || null;
+  $('#toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => ($('#toast').hidden = true), 4000);
+}
+
+/* ================= Screen 1 · Today ================= */
+function startReview() { go('library', 'practice'); }
+function startNote() { go('notes', 'session'); }
+function acceptSuggest() {
+  const s = $('#today-suggest'), text = $('#today-suggest-text').textContent;
+  const [title, dur] = text.split(' · ');
+  const row = document.createElement('div');
+  row.className = 'row'; row.tabIndex = 0; row.dataset.kind = 'Plan item'; row.dataset.source = 'Set · Dosage by weight';
+  row.innerHTML = `<i class="dot d-violet"></i><div class="t"><div>${title}</div><span class="sub">you accepted E.V.'s suggestion</span></div><button class="btn text act" data-act="start-review">Start</button><span class="t-meta">${dur || ''}</span>`;
+  s.replaceWith(row);
+  $('#today-count').textContent = $('#plan-count').textContent = '5';
+  toast('Added to today', () => { row.replaceWith(s); $('#today-count').textContent = $('#plan-count').textContent = '4'; });
+}
+function editSuggest() {
+  const t = $('#today-suggest-text');
+  t.contentEditable = 'true'; t.focus();
+  getSelection().selectAllChildren(t);
+  t.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); t.contentEditable = 'false'; } };
+}
+
+/* ================= Screen 2 · Ask E.V. ================= */
+const clock = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }).toLowerCase();
+function addMsg(html, me) {
+  const m = document.createElement('div');
+  m.className = 'msg new' + (me ? ' me' : '');
+  m.innerHTML = me ? `<div class="say"><div class="who">You<time>${clock()}</time></div><div></div></div>` : `<span class="mark"></span><div class="say">${html}</div>`;
+  if (me) m.querySelector('.say > div:last-child').textContent = html;
+  $$('#chat .msg > .mark').forEach(k => k.classList.add('quiet'));
+  $('#chat').append(m);
+  const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight;
+}
+function sendChat() {
+  const f = $('#composer'), v = f.value.trim();
+  if (!v) return;
+  addMsg(v, true); f.value = '';
+  setTimeout(() => addMsg(`<div>Good one. Before I answer: what's your best guess, in one line?</div><div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>`), 500);
+}
+
+/* ================= Screen 3 · Library ================= */
+function setTab(tab) {
+  $$('#libtabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $$('[data-tab-panel]').forEach(p => (p.hidden = p.dataset.tabPanel !== tab));
+  history.replaceState(null, '', '#library/' + tab);
+}
+function pickOpt(opt) {
+  const q = $('#q');
+  if (q.classList.contains('locked')) return;
+  $$('.opt', q).forEach(o => o.classList.toggle('on', o === opt));
+  $('#q-commit').disabled = false;
+}
+function commit() {
+  const q = $('#q');
+  if (q.classList.contains('locked')) { toast('Question 2 of 8 would load here'); return; }
+  const picked = $('.opt.on', q);
+  if (!picked) return;
+  q.classList.add('locked');
+  const right = picked.hasAttribute('data-right');
+  const mk = cls => Object.assign(document.createElement('i'), { className: 'dot mk ' + cls });
+  $('[data-right]', q).append(mk('d-ok'));
+  if (!right) picked.append(mk('d-bad'));
+  $('#q-verdict').innerHTML = right
+    ? '<i class="dot d-ok"></i><span>Right: 5.5 mL a dose.</span>'
+    : '<i class="dot d-bad"></i><span>Not quite. It\'s 5.5 mL a dose.</span>';
+  $('#q-hint').hidden = true;
+  $('#q-feedback').hidden = false;
+  $('#q-hint-btn').hidden = true;
+  $('#q-commit').innerHTML = 'Next question<span class="kbd">↵</span>';
+  $('#q-commit').title = 'Next question';
+}
+function showHint() { $('#q-hint').hidden = false; $('#q-hint-btn').disabled = true; }
+
+/* Exam plan proposal (Detail) */
+function approvePlan() {
+  $$('#plan-items .suggest', detail).forEach(s => { s.className = 'lrow'; });
+  $('[data-swap="plan"]', detail).outerHTML = '<span class="t-meta">Approved · 4 sessions added to Today</span>';
+  area.classList.remove('panel-leads');
+  toast('Plan approved · added to Today');
+}
+function rateConf(btn) {
+  const seg = btn.parentElement;
+  $$('button', seg).forEach(b => b.classList.toggle('on', b === btn));
+  const segs = $$('.seg[data-conf]', detail);
+  const note = $('#conf-note', detail);
+  const done = segs.every(s => $('.on', s));
+  if (note && done) note.textContent = 'Thanks. The plan below now leans on what you rated Low.';
+  const ap = $('[data-act="approve-plan"]', detail);
+  if (ap) { ap.disabled = !done; ap.title = done ? 'Approve plan' : 'Rate your confidence first'; }
+}
+
+/* ================= Screen 4 · Notes ================= */
+const docHTML = $('#doc').innerHTML;
+let timer;
+function setSession(on) {
+  state.session = on; state.paused = false;
+  $('#sessionbar').hidden = !on;
+  $('#pausebtn').textContent = 'Pause';
+  clearInterval(timer);
+  if (on) {
+    openDetail('d-session');
+    timer = setInterval(() => {
+      if (state.paused) return;
+      state.seconds++;
+      $('#timer').textContent = `${Math.floor(state.seconds / 60)}:${String(state.seconds % 60).padStart(2, '0')}`;
+    }, 1000);
+  }
+}
+function togglePause() {
+  state.paused = !state.paused;
+  $('#pausebtn').textContent = state.paused ? 'Resume' : 'Pause';
+  $('#session-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-info');
+}
+function endSession() {
+  const m = Math.floor(state.seconds / 60);
+  history.replaceState(null, '', '#notes');
+  setSession(false); closeDetail();
+  toast(`Session saved · ${m} min · in Progress`);
+}
+function sendCheck() {
+  const f = $('#check-answer', detail);
+  if (!f || !f.value.trim()) return;
+  const a = document.createElement('div');
+  a.className = 'answer'; a.textContent = f.value.trim();
+  const reply = document.createElement('div');
+  reply.className = 't-meta';
+  reply.innerHTML = 'Close. You have the stretch part; add what happens to stroke volume. <span class="cite" data-detail="d-cite-co">Note · Cardiac output</span>';
+  f.replaceWith(a, reply);
+}
+function openNote(row) {
+  $$('#notelist .row').forEach(r => r.classList.toggle('sel', r === row));
+  if (row.dataset.note === 'co') $('#doc').innerHTML = docHTML;
+  else $('#doc').innerHTML = `<h1 class="t-title blk">${$('.t > div', row).textContent}</h1><p class="blk c-quiet">This note's blocks would load here.</p>`;
+}
+function newNote() {
+  go('notes');
+  const row = document.createElement('div');
+  row.className = 'row'; row.tabIndex = 0; row.dataset.note = 'new';
+  row.innerHTML = '<i class="dot d-violet"></i><div class="t"><div>Untitled</div><span class="sub">just now</span></div>';
+  $('#notelist').prepend(row);
+  openNote(row);
+  $('#doc').innerHTML = '<h1 class="t-title blk">Untitled</h1><p class="blk c-faint">Type, or press / for blocks</p>';
+  $('#doc').focus();
+}
+
+/* ================= ⌘K palette ================= */
+const pal = $('#palette'), palIn = $('#palette-in');
+let palIdx = 0;
+const palRows = () => $$('#palette-list .row').filter(r => !r.hidden);
+function openPalette() { pal.hidden = false; palIn.value = ''; filterPalette(); palIn.focus(); }
+function closePalette() { pal.hidden = true; }
+function filterPalette() {
+  const q = palIn.value.trim().toLowerCase();
+  $$('#palette-list .row').forEach(r => { if (r.id !== 'palette-ask') r.hidden = q && !r.textContent.toLowerCase().includes(q); });
+  $$('#palette-list .t-label').forEach(l => {
+    let n = l.nextElementSibling, any = false;
+    while (n && !n.classList.contains('t-label')) { if (!n.hidden && n.id !== 'palette-ask') any = true; n = n.nextElementSibling; }
+    l.hidden = !any;
+  });
+  $('#palette-ask').hidden = !q;
+  $('#palette-q').textContent = palIn.value.trim();
+  palIdx = 0; markPalette();
+}
+function markPalette() { palRows().forEach((r, i) => r.classList.toggle('sel', i === palIdx)); }
+function askEV(text) {
+  closePalette(); go('ask');
+  const f = $('#composer'); f.value = text || ''; f.focus();
+}
+function runCmd(cmd) {
+  closePalette();
+  if (cmd.startsWith('go:')) return go(cmd.slice(3));
+  ({
+    'start-review': startReview,
+    'new-note': newNote,
+    'make-set': () => askEV('Make a practice set on '),
+    'add-exam': () => { go('library', 'exams'); openDetail('d-add-exam'); },
+    'theme': toggleTheme,
+    'ask': () => askEV(palIn.value.trim()),
+  })[cmd]?.();
+}
+palIn.addEventListener('input', filterPalette);
+pal.addEventListener('click', e => {
+  if (e.target === pal) return closePalette();
+  const r = e.target.closest('[data-cmd]');
+  if (r) runCmd(r.dataset.cmd);
+});
+
+/* ================= Actions (data-act) ================= */
+const actions = {
+  palette: openPalette,
+  theme: toggleTheme,
+  'start-next': startReview,
+  'start-review': startReview,
+  'start-note': startNote,
+  'accept-suggest': acceptSuggest,
+  'edit-suggest': editSuggest,
+  'just-tell': b => { b.replaceWith(Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' })); },
+  hint: showHint,
+  commit,
+  'end-review': () => go('today'),
+  'approve-plan': approvePlan,
+  'plan-changes': () => askEV('Changes to the Exam 3 plan: '),
+  'put-away': () => { closeDetail(); toast('Put away · it stays in Activity'); },
+  'weekly-add': () => { $('[data-swap="weekly"]', detail).outerHTML = '<span class="t-meta">Added · Library · Weak spots</span>'; area.classList.remove('panel-leads'); toast('3 weak spots added'); },
+  'add-exam': () => { closeDetail(); toast('Exam added · E.V. will propose a plan'); },
+  pause: togglePause,
+  'end-session': endSession,
+  'new-note': newNote,
+  retry: () => toast('Retrying, shorter · see Running'),
+  toast: b => toast(b.dataset.msg),
+  undo: () => { state.undo?.(); $('#toast').hidden = true; },
+};
+
+/* ================= Clicks (one delegated handler) ================= */
+app.addEventListener('click', e => {
+  if (!e.target.closest('.row.hover')) $$('.row.hover').forEach(r => r.classList.remove('hover'));
+  if (e.target.closest('#palette')) return;
+  const seg = e.target.closest('.seg button');
+  if (seg) return rateConf(seg);
+  const act = e.target.closest('[data-act]');
+  if (act) { e.preventDefault(); return actions[act.dataset.act]?.(act); }
+  if (e.target.closest('[data-close]')) return closeDetail();
+  const check = e.target.closest('[data-check]');
+  if (check) return check.classList.toggle('done');
+  const opt = e.target.closest('.opt');
+  if (opt) return pickOpt(opt);
+  const tab = e.target.closest('#libtabs button');
+  if (tab) return setTab(tab.dataset.tab);
+  const note = e.target.closest('#notelist .row');
+  if (note) return openNote(note);
+  const nav = e.target.closest('[data-go]');
+  if (nav) {
+    e.preventDefault();
+    go(nav.dataset.go, nav.dataset.sub);
+    if (nav.dataset.detail) openDetail(nav.dataset.detail, null);
+    return;
+  }
+  const row = e.target.closest('.row, .cite, [data-detail]');
+  if (row && (row.dataset.detail || row.classList.contains('row')) && row.closest('.view, .detail')) openDetail(row.dataset.detail, row);
+});
+
+/* Right-click on a row shows its actions (kit .row.hover). */
+app.addEventListener('contextmenu', e => {
+  const row = e.target.closest('.view .row');
+  if (!row || !$('.act', row)) return;
+  e.preventDefault();
+  $$('.row.hover').forEach(r => r.classList.remove('hover'));
+  row.classList.add('hover');
+});
+
+/* ================= Keys ================= */
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  const typing = e.target.matches('input, textarea, [contenteditable="true"], [contenteditable="true"] *');
+  if (!pal.hidden) {
+    const rows = palRows();
+    if (e.key === 'Escape') return closePalette();
+    if (e.key === 'ArrowDown') { e.preventDefault(); palIdx = Math.min(palIdx + 1, rows.length - 1); return markPalette(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); palIdx = Math.max(palIdx - 1, 0); return markPalette(); }
+    if (e.key === 'Enter') { e.preventDefault(); return rows[palIdx] && runCmd(rows[palIdx].dataset.cmd); }
+    if (e.key === 'Tab') { e.preventDefault(); return askEV(palIn.value.trim()); }
+  }
+  if (mod && k === 'k') { e.preventDefault(); return pal.hidden ? openPalette() : closePalette(); }
+  if (mod && k === 'j') { e.preventDefault(); go('ask'); return $('#composer').focus(); }
+  if (e.key === 'Escape') { if (typing) e.target.blur(); if (!detail.hidden) closeDetail(); return; }
+  if (mod && e.key === 'Enter' && $('[data-act="approve-plan"]:not(:disabled)', detail)) { e.preventDefault(); return approvePlan(); }
+  if (e.altKey && e.key === 'Enter' && state.screen === 'ask') { e.preventDefault(); const b = $$('#chat [data-act="just-tell"]').pop(); return b && actions['just-tell'](b); }
+  if (e.target.id === 'composer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendChat(); }
+  if (e.target.id === 'check-answer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendCheck(); }
+  if (typing) return;
+  if (e.key === '\\') return toggleTheme();
+  if (k === 'n' && !mod) return newNote();
+  if (state.screen === 'today' && !mod && k === 's') return startReview();
+  if (state.screen === 'today' && !mod && k === 'a' && $('#today-suggest')?.isConnected) return acceptSuggest();
+  if (state.screen === 'today' && !mod && k === 'e' && $('#today-suggest')?.isConnected) { e.preventDefault(); return editSuggest(); }
+  if (e.key === 'Enter' && e.target.matches('.opt') && !$('#q-commit').disabled) { e.preventDefault(); return commit(); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.row, .opt, .cite, [role="button"]')) { e.preventDefault(); return e.target.click(); }
+  if (e.key === ' ' && state.session && state.screen === 'notes') { e.preventDefault(); return togglePause(); }
+  if (state.screen === 'library' && !$('#q').closest('[hidden]')) {
+    if (k === 'h') return showHint();
+    if (['1', '2', '3', '4'].includes(e.key)) { const o = $$('#q .opt')[+e.key - 1]; return o && pickOpt(o); }
+    if (e.key === 'Enter' && !$('#q-commit').disabled) return commit();
+  }
+});
+
+/* ================= Start ================= */
+function route() {
+  const [screen, sub] = (location.hash.slice(1) || 'today').split('/');
+  go($(`[data-screen="${screen}"]`) ? screen : 'today', sub);
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

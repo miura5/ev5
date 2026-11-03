@@ -1,0 +1,1536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>E.V. v5 · variant D · the runway</title>
+<!--
+  E.V. v5 mock-up · variant D, "the runway": exam-led, built for calibration. Synthetic content only.
+  Layout of this file:
+    1. <style>: kit.css verbatim, the "Added for the v5 mock-up" section, then "Added for variant D" (tokens only).
+    2. Shell: sidebar (Runway, Ask E.V., Library, Notes, Activity, then Courses).
+    3. Screens, one <section data-screen="…"> each: Runway (Days, Objectives), Plan, Ask E.V., Library, Notes, Activity.
+    4. Detail panel, filled from the <template id="d-…"> blocks.
+    5. Move menu, ⌘K palette and toast.
+    6. <script>: navigation, runway (expand, move, drag, proposals), calibration, plan flow, practice, notes, keys.
+  Deep links for review:
+    #runway  #runway/move  #runway/objectives  #plan  #plan/drafting  #plan/proposal
+    #practice  #practice/after  #library/weak  #library/sets  #notes/session  #ask  #activity  #palette
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* E.V. v5 · Proprietary revision · the one source for every board on this canvas.
+   Tokens first (dark and light), then type, then components. Boards use only these classes. */
+
+/* ---------- Tokens ---------- */
+.ev{
+  --side:#101012; --bg:#151517; --surface:#1b1b1e; --hover:#222226; --sel:#2a2a2f;
+  --line:#232327; --line2:#303036;
+  --text:#ececef; --quiet:#a3a3ab; --faint:#92929a;
+  --her:#e0743a; --her2:#cf5a45; --on-her:#1a0d05;
+  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62; --info:#6b9cf5; --violet:#a189f2; --teal:#45bdb6;
+  --scrim:rgba(0,0,0,.5); --shadow-pop:0 0 0 1px #303036,0 24px 60px rgba(0,0,0,.5);
+  --fs-meta:12px; --fs-body:14px; --fs-title:20px; --fw-title:600; --lh:1.5;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-14:56px;
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --row:40px; --col:720px; --side-w:220px;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+.ev[data-theme="light"]{
+  --side:#f3f3f4; --bg:#fbfbfb; --surface:#ffffff; --hover:#efeff0; --sel:#e9e9eb;
+  --line:#ececee; --line2:#dedee1;
+  --text:#1c1c1f; --quiet:#5f5f66; --faint:#66666c;
+  --her:#b6541d; --her2:#bc4741; --on-her:#ffffff;
+  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45; --info:#2f6fde; --violet:#7c5cdb; --teal:#1e8a84;
+  --scrim:rgba(0,0,0,.25); --shadow-pop:0 0 0 1px #dedee1,0 16px 40px rgba(0,0,0,.12);
+  color-scheme:light;
+}
+
+/* ---------- Base ---------- */
+.ev{background:var(--side);color:var(--text);font:var(--fs-body)/var(--lh) var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+.ev,.ev *{box-sizing:border-box}
+.ev a{color:inherit;text-decoration:none}
+.ev h1,.ev h2,.ev h3,.ev p{margin:0}
+
+/* ---------- Type (three sizes) ---------- */
+.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.01em;line-height:1.3}
+.t-body{font-size:var(--fs-body)}
+.t-meta{font-size:var(--fs-meta);color:var(--faint)}
+.t-label{font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
+.t-strong{font-weight:var(--fw-title)}
+.c-quiet{color:var(--quiet)} .c-faint{color:var(--faint)} .c-her{color:var(--her)}
+.mono{font-family:var(--mono);font-size:var(--fs-meta)}
+
+/* ---------- Layout helpers ---------- */
+.stack{display:flex;flex-direction:column}
+.line{display:flex;align-items:center}
+.wrap{flex-wrap:wrap}
+.g1{gap:var(--sp-1)} .g2{gap:var(--sp-2)} .g3{gap:var(--sp-3)} .g4{gap:var(--sp-4)} .g6{gap:var(--sp-6)} .g8{gap:var(--sp-8)} .g12{gap:var(--sp-12)}
+.grow{flex:1;min-width:0}
+.rule{border-top:1px solid var(--line)}
+
+/* ---------- Shell (Sidebar, Area, Detail) ---------- */
+.shell{display:flex;flex-wrap:wrap;min-height:100%}
+.sidebar{flex:0 0 var(--side-w);padding:14px 10px;display:flex;flex-direction:column;gap:1px}
+.ws{display:flex;align-items:center;gap:var(--sp-2);padding:4px 8px 14px;font-weight:600}
+.search{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;padding:6px 8px;border-radius:7px;color:var(--faint);font-size:13px;box-shadow:inset 0 0 0 1px var(--line)}
+.nav{display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:var(--r-sm);color:var(--quiet);font-size:13.5px}
+.nav.on{background:var(--hover);color:var(--text)}
+.nav svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6}
+.nav .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
+.navgrp{font-size:var(--fs-meta);color:var(--faint);padding:20px 8px 4px}
+.area{flex:999 1 560px;min-width:0;margin:8px 8px 8px 0;border-radius:10px;background:var(--bg);display:flex;flex-wrap:wrap;overflow:hidden}
+.col{flex:999 1 440px;min-width:0;padding:var(--sp-14) 40px 40px;display:flex;flex-direction:column;gap:var(--sp-12)}
+.col.center{max-width:var(--col);margin:0 auto}
+.detail{flex:1 1 340px;max-width:400px;border-left:1px solid var(--line);padding:24px 28px;display:flex;flex-direction:column;gap:var(--sp-6)}
+
+/* ---------- Components ---------- */
+.mark{width:16px;height:16px;border-radius:50%;border:2px dotted var(--her);flex:none;display:inline-block}
+.dot{width:6px;height:6px;border-radius:50%;flex:none;display:inline-block}
+.spin{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line2);border-top-color:var(--info);flex:none;display:inline-block}
+
+.btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:30px;padding:0 12px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--her);color:var(--on-her)}
+.btn.secondary{box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.text{color:var(--quiet);padding:0 8px}
+
+.kbd{display:inline-block;font:11px var(--sans);color:var(--faint);border:1px solid var(--line2);border-radius:4px;padding:0 4px;min-width:16px;text-align:center}
+.tag{display:inline-flex;align-items:center;font-size:11px;color:var(--quiet);border:1px solid var(--line2);border-radius:4px;padding:0 6px;white-space:nowrap}
+
+.meter{display:flex;gap:2px;height:4px;border-radius:2px;overflow:hidden;background:var(--line);width:100%}
+.meter i{display:block;height:100%}
+.m-ok{background:var(--ok)} .m-warn{background:var(--warn)} .m-bad{background:var(--bad)}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-info{background:var(--info)} .d-violet{background:var(--violet)} .d-teal{background:var(--teal)} .d-her{background:var(--her)} .d-faint{background:var(--faint)}
+
+.tabs{display:flex;gap:18px}
+.tabs button{all:unset;color:var(--quiet);font-size:13px;cursor:pointer;padding-bottom:4px}
+.tabs button.on{color:var(--text);box-shadow:inset 0 -1.5px 0 var(--text)}
+
+.row{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:0 -10px;border-radius:7px}
+.row.hover,.row.sel{background:var(--hover)}
+.row .t{flex:1;min-width:0}
+.row .t > div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{color:var(--faint);font-size:var(--fs-meta)}
+.row .act{visibility:hidden}.row.hover .act{visibility:visible}
+
+.ev-line{display:flex;align-items:flex-start;gap:10px;color:var(--quiet)}
+.ev-line b{color:var(--text);font-weight:500}
+.suggest{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:4px -10px 0;border-radius:7px;border:1px dashed var(--line2);color:var(--quiet)}
+
+.qcard{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2);padding:18px;display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:0 -10px;border-radius:7px}
+.opt.on{background:var(--hover)}
+.box{width:15px;height:15px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.opt.on .box{background:var(--text);box-shadow:none}
+
+.kv{display:flex;justify-content:space-between;gap:var(--sp-3);font-size:13px;color:var(--quiet);padding:3px 0}
+.kv b{color:var(--text);font-weight:400}
+
+.steps .st{display:flex;gap:var(--sp-3);align-items:flex-start;padding:7px 0;font-size:13px}
+.steps .st .dot{width:8px;height:8px;margin-top:6px}
+
+.pop{border-radius:14px;background:var(--surface);box-shadow:var(--shadow-pop);overflow:hidden}
+
+/* ---------- Informational boards ---------- */
+.board{background:var(--bg);color:var(--text);padding:var(--sp-14) 64px;display:flex;flex-direction:column;gap:36px;position:relative;overflow:hidden}
+.lead{color:var(--quiet);max-width:820px;margin-top:6px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 48px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 32px}
+.fact{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.fact span{font-size:13px;font-weight:400;color:var(--faint);margin-left:6px}
+.note{color:var(--faint);font-size:var(--fs-meta)}
+.item-r{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.item-r:first-child{border-top:none}
+.num{flex:0 0 22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line2);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--quiet)}
+.num.solid{background:var(--text);color:var(--bg);box-shadow:none;font-weight:600}
+.tree{font:13px/1.75 var(--mono);color:var(--quiet);white-space:pre}
+.tree b{color:var(--text);font-weight:500}
+.tree i{font-style:normal;color:var(--faint)}
+.code{font:12px/1.7 var(--mono);color:var(--quiet);white-space:pre;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);padding:16px 18px}
+.code b{color:var(--text);font-weight:400}
+.code i{color:var(--faint);font-style:normal}
+.spec{display:flex;flex-direction:column;gap:10px}
+.specname{display:flex;align-items:baseline;gap:8px;font-weight:600}
+.stage{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line);padding:16px;display:flex;flex-direction:column;gap:10px;justify-content:center;min-height:88px;background:var(--bg)}
+.swatch{height:40px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--line2)}
+.dg-box{position:absolute;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line2);padding:12px 14px;background:var(--surface)}
+.dg-box b{display:block;font-weight:600}
+.dg-box span{display:block;color:var(--faint);font-size:var(--fs-meta);margin-top:2px}
+.dg-box.key{box-shadow:inset 0 0 0 1.5px var(--her)}
+.dg-ln{position:absolute;background:var(--line2)}
+.dg-ar{position:absolute;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--line2)}
+.dg-lab{position:absolute;font-size:11.5px;color:var(--faint)}
+.wire{position:relative;border-radius:var(--r-lg);background:var(--side);box-shadow:inset 0 0 0 1px var(--line)}
+.wire .rg{position:absolute;border-radius:var(--r-md);padding:12px;font-size:var(--fs-meta);color:var(--faint);display:flex;flex-direction:column}
+.wire .rg b{color:var(--text);font-size:13px}
+
+/* ---------- Added for the v5 mock-up (candidates for kit/) ---------- */
+/* Every rule below uses only kit tokens. Sizes: --fs-meta, --fs-body, --fs-title only. */
+
+/* App frame: the shell fills the window; each screen scrolls on its own. */
+html,body{height:100%;margin:0}
+.ev [hidden]{display:none !important}
+.ev.app{height:100vh;flex-wrap:nowrap;overflow:hidden}
+.app .sidebar{overflow-y:auto}
+.app .area{flex-wrap:nowrap}
+.view{max-height:100%;overflow-y:auto}
+.app .detail{max-height:100%;overflow-y:auto;flex:0 0 400px}
+.app .split:not([hidden]) ~ .detail{flex-basis:340px}
+.ev button,.ev input,.ev textarea{font-family:inherit}
+.ev :focus-visible{outline:1.5px solid var(--quiet);outline-offset:1px}
+.sec{display:flex;flex-direction:column}
+.sec > h2{margin-bottom:var(--sp-2)}
+.head{display:flex;align-items:baseline;gap:var(--sp-3)}
+
+/* Interaction states for kit pieces (the kit draws the static .hover/.sel states). */
+.nav,.search,.row,.opt{cursor:pointer}
+.nav:hover{background:var(--hover);color:var(--text)}
+.search:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.row:hover,.opt:hover,.row:focus-visible{background:var(--hover);outline:none}
+.row:hover .act,.row:focus-within .act,.row:focus-visible .act{visibility:visible}
+.btn:hover{background:var(--hover)}
+.row .btn:hover,.row.sel .btn:hover{background:var(--sel)}
+.btn.primary:hover{background:var(--her);filter:brightness(1.08)}
+.btn.text:hover{color:var(--text)}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* Panel leads: when the Detail panel holds a primary action, it takes the orange and the
+   screen's own primary steps down to secondary. Keeps rule 3 (one orange per screen). */
+.area.panel-leads .view .btn.primary{background:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+
+/* Mark, quiet: E.V.'s mark where it is not the screen's orange element. */
+.mark.quiet{border-color:var(--faint)}
+/* Spinner motion. */
+.spin{animation:ev-spin 1s linear infinite}
+@keyframes ev-spin{to{transform:rotate(360deg)}}
+.steps .st .spin{margin-top:5px}
+.steps .st .dot{margin-left:2px;margin-right:2px}
+.row > .dot{margin:0 3px}  /* dots take the spinner's 12 px slot so row titles line up */
+
+/* Sidebar foot: the running-job line and the theme toggle. */
+.jobline{display:flex;align-items:center;gap:var(--sp-2);margin-top:auto;padding:var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer}
+.jobline:hover{background:var(--hover);color:var(--text)}
+.btn.text.themebtn{justify-content:flex-start;font-size:var(--fs-meta);color:var(--faint)}
+.btn.text.themebtn:hover{color:var(--text)}
+
+/* Plain row: a 40 px line that is not clickable (forms, ratings). */
+.lrow{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row)}
+.lrow > .grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta-r{text-align:right}
+.q-text{font-weight:500}
+
+/* Source chip and the "unverified" mark: every fact E.V. gives carries one of these. */
+.cite{display:inline-flex;align-items:center;gap:var(--sp-1);height:20px;padding:0 6px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
+.cite:hover{background:var(--hover);color:var(--text)}
+.cite svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6}
+.unverified{font-size:var(--fs-meta);color:var(--faint);border-bottom:1px dashed var(--line2);cursor:help;white-space:nowrap}
+
+/* Field: the one bordered input. */
+.field{display:block;width:100%;min-height:40px;padding:9px 12px;border:0;border-radius:var(--r-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-body);line-height:var(--lh);outline:none;resize:none}
+.field::placeholder{color:var(--faint)}
+.field:focus{box-shadow:inset 0 0 0 1px var(--quiet)}
+.field:focus-visible,.palette-in:focus-visible{outline:none}
+
+/* Segmented control: a short choice (confidence, course). */
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
+.seg button{all:unset;height:20px;line-height:20px;padding:0 var(--sp-2);border-radius:4px;font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--sel);color:var(--text)}
+
+/* Toast: one quiet confirmation, bottom centre. */
+.toast{position:fixed;left:50%;bottom:var(--sp-6);transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-3);height:40px;padding:0 var(--sp-2) 0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-pop);z-index:20}
+
+/* ⌘K palette (sits on .pop). */
+.scrim{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:120px;background:var(--scrim)}
+.palette{width:560px;display:flex;flex-direction:column}
+.palette-in{height:48px;padding:0 var(--sp-6);border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:var(--fs-body);outline:none}
+.palette-in::placeholder{color:var(--faint)}
+.palette-list{display:flex;flex-direction:column;padding:var(--sp-2) var(--sp-6);max-height:400px;overflow-y:auto}
+.palette-list .t-label{padding:var(--sp-2) 0 var(--sp-1)}
+.palette-foot{display:flex;gap:var(--sp-4);padding:var(--sp-2) var(--sp-6);border-top:1px solid var(--line);font-size:var(--fs-meta);color:var(--faint)}
+
+/* Ask E.V.: the conversation. Matt's turns sit right on a soft fill; E.V.'s are unboxed beside her mark. */
+.chat{display:flex;flex-direction:column;gap:var(--sp-6)}
+.msg{display:flex;gap:var(--sp-3);align-items:flex-start}
+.msg > .mark{margin-top:3px}
+.msg .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.msg.me{justify-content:flex-end}
+.msg.me .say{flex:0 1 auto;max-width:80%;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-lg);background:var(--hover)}
+.chat-time{align-self:center;font-size:var(--fs-meta);color:var(--faint)}
+.composer{position:sticky;bottom:0;margin-top:auto;padding:var(--sp-4) 0 0;background:var(--bg)}
+
+/* Practice feedback inside the question card (shown only after Commit or Hint). */
+.box.radio{border-radius:50%}
+.opt .mk{margin-left:auto}
+.qcard.locked .opt{cursor:default}
+.qcard.locked .opt:not(.on):hover{background:none}
+.reveal{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-2);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+
+/* Notes: list column, session bar, and the editor surface built from blocks. */
+.split{flex:999 1 440px;min-width:0;max-height:100%;display:flex;overflow:hidden}
+.notelist{flex:0 0 232px;display:flex;flex-direction:column;padding:var(--sp-14) var(--sp-4) var(--sp-4) var(--sp-6);border-right:1px solid var(--line);overflow-y:auto}
+.editor{flex:1;min-width:0;display:flex;flex-direction:column}
+.editor .view{flex:1}
+.sessionbar{flex:none;display:flex;align-items:center;gap:var(--sp-3);height:48px;padding:0 var(--sp-6);border-bottom:1px solid var(--line);color:var(--quiet)}
+.doc{display:flex;flex-direction:column;gap:var(--sp-3);outline:none}
+.doc ul{margin:0;padding-left:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
+.doc ul ul{margin-top:var(--sp-1)}
+.blk{position:relative}
+.blk::before{content:"⋮⋮";white-space:nowrap;position:absolute;left:-24px;top:0;width:16px;font-size:var(--fs-meta);letter-spacing:-2px;color:var(--faint);opacity:0}
+.blk:hover::before{opacity:1}
+.checks{display:flex;flex-direction:column}
+.check{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
+.check.done{color:var(--faint);text-decoration:line-through}
+.check.done .box{background:var(--quiet);box-shadow:none}
+.cols2{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.ph{display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-3);border-radius:var(--r-md);background:var(--hover);color:var(--faint);font-size:var(--fs-meta)}
+.ph svg{width:100%;height:auto;stroke:var(--quiet);fill:none;stroke-width:1.5}
+
+/* Session comments in the Detail panel. */
+.cmt{display:flex;gap:var(--sp-3);align-items:flex-start}
+.cmt > .mark{margin-top:3px}
+.cmt .say{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.answer{padding-left:var(--sp-3);border-left:2px solid var(--line2);color:var(--quiet)}
+
+/* Progress: a plain CSS bar series. */
+.bars{display:flex;gap:var(--sp-2);height:96px}
+.bars > span{flex:1;display:flex;justify-content:center;align-items:flex-end}
+.bars i{display:block;width:16px;min-height:2px;border-radius:2px 2px 0 0;background:var(--line2)}
+.bars i.now{background:var(--faint)}
+.bars-x{display:flex;gap:var(--sp-2)}
+.bars-x span{flex:1;text-align:center;font-size:var(--fs-meta);color:var(--faint)}
+
+/* ---------- Added for variant D · the runway (candidates for kit/) ---------- */
+/* Tokens only. Text sizes: --fs-meta, --fs-body, --fs-title. */
+
+/* Runway: the days from today to the next exam, on a hairline spine. Today open, other days one line. */
+.runway{position:relative;display:flex;flex-direction:column}
+.runway::before{content:"";position:absolute;left:4px;top:20px;bottom:20px;width:1px;background:var(--line)}
+.day{position:relative;display:flex;flex-direction:column;padding-left:28px}
+.day-head{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 10px;margin:0 -10px;border-radius:7px;cursor:pointer}
+.day-head:hover,.day.drop > .day-head{background:var(--hover)}
+.day-name{flex:0 0 88px;white-space:nowrap}
+.day-sum{flex:1;min-width:0;color:var(--quiet);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-body{display:flex;flex-direction:column;padding:0 0 var(--sp-4)}
+.day:not(.open) > .day-body{display:none}
+.day.open .day-sum{color:var(--faint);font-size:var(--fs-meta)}
+.pin{position:absolute;left:0;top:16px;width:9px;height:9px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--line2)}
+.day.today .pin{background:var(--text);box-shadow:none}
+.day.exam .pin{border-radius:2px;transform:rotate(45deg);box-shadow:inset 0 0 0 1.5px var(--quiet)}
+.day.quiet .day-name,.day.quiet .day-sum,.day.after .day-name,.day.after .day-sum{color:var(--faint)}
+.day.after .pin{box-shadow:inset 0 0 0 1.5px var(--line2)}
+.tm{flex:0 0 56px;text-align:right;font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+
+/* Move handle: on hover a block's dot becomes a grip; the block can be dragged to another day. */
+.grip{display:none;width:12px;flex:none;font-size:var(--fs-meta);letter-spacing:-2px;color:var(--faint);cursor:grab;text-align:center}
+.runway .row:hover > .dot,.runway .row.hover > .dot{display:none}
+.runway .row:hover > .grip,.runway .row.hover > .grip{display:inline-block}
+.row.dragging{opacity:.4}
+.lrow > .dot{margin:0 3px}
+
+/* Proposal count on a closed day: the dashed outline marks it as E.V.'s, not his. */
+.prop{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;border:1px dashed var(--line2);font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;flex:none}
+
+/* Menu: a small floating list (Move to…, exams). Sits on .pop. */
+.menu{position:fixed;z-index:15;width:248px;padding:var(--sp-1);display:flex;flex-direction:column;border-radius:var(--r-lg)}
+.menu .t-label{padding:6px 10px 4px;display:flex;align-items:center;gap:var(--sp-2)}
+.mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--sp-3);height:32px;padding:0 10px;border-radius:var(--r-sm);font-size:var(--fs-body);color:var(--text);cursor:pointer}
+.mi:hover,.mi:focus-visible,.mi.sel{background:var(--hover);outline:none}
+.mi .t-meta{margin-left:auto}
+.mi.here{color:var(--faint);cursor:default}
+.mi.here:hover{background:none}
+.menu-sep{height:1px;background:var(--line);margin:var(--sp-1) 0}
+
+/* Calibration: his confidence beside his tries. A one-word grey flag where they disagree. */
+.cal-r{display:grid;grid-template-columns:minmax(0,1fr) 132px 96px 48px 88px;align-items:center;gap:var(--sp-3);min-height:48px;padding:0 10px;margin:0 -10px;border-radius:7px}
+.cal-r.h{min-height:24px;font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
+.cal-r:not(.h){cursor:pointer}
+.cal-r:not(.h):hover,.cal-r.sel{background:var(--hover)}
+.cal-r .t > div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-r .sub{color:var(--faint);font-size:var(--fs-meta)}
+.n-of{font-size:var(--fs-meta);color:var(--quiet);text-align:right;white-space:nowrap}
+.flag{font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
+
+/* Tries meter: one segment per recent first try (up to 10). Right in the ok tone, missed in the hairline tone. */
+.tries{display:flex;gap:2px;height:4px;width:96px;flex:none}
+.tries i{flex:1;border-radius:1px;background:var(--line2)}
+.tries i.r{background:var(--ok)}
+.tries.none i{background:var(--line)}
+.tries i.new{animation:ev-rise .25s ease-out}
+@keyframes ev-rise{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+
+/* Stepper: the plan flow's three steps, as plain text. */
+.stepper{display:flex;gap:var(--sp-6);font-size:var(--fs-meta);color:var(--faint)}
+.stepper > span{display:inline-flex;align-items:center;gap:var(--sp-2)}
+.stepper > span.on{color:var(--text)}
+.stepper .num{flex-basis:20px;width:20px;height:20px}
+
+/* Read-along: the block being read gets the hover tone, nothing more. */
+.doc .reading{background:var(--hover);border-radius:var(--r-sm);box-shadow:0 0 0 6px var(--hover)}
+
+/* Dock: a decision bar that stays in view at the foot of a long proposal. */
+/* The column's 40 px bottom padding is pulled into the dock so it sits flush with the window's foot. */
+.dock{position:sticky;bottom:-40px;margin:auto -12px -40px;padding:var(--sp-4) 12px 40px;border-top:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;gap:var(--sp-2)}
+
+/* A primary that is not ready yet steps down to a hairline outline, so the ember only marks a live action. */
+.btn.primary:disabled{background:none;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+
+/* Fade for state changes (150–250 ms, never bouncy). */
+.fade{animation:ev-rise .2s ease-out}
+</style>
+</head>
+<body>
+<div class="ev shell app" id="app" data-theme="dark">
+
+<!-- ================= SHELL · Sidebar ================= -->
+<aside class="sidebar" aria-label="Primary">
+  <div class="ws"><span class="mark"></span>E.V.</div>
+  <div class="search" data-act="palette" role="button" tabindex="0" title="Search or ask (⌘K)"><span>Search or ask</span><span class="kbd">⌘K</span></div>
+  <a class="nav" href="#runway" data-go="runway"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2v12"/><circle cx="4" cy="4" r="1.2"/><circle cx="4" cy="12" r="1.2"/><path d="M7.5 4h5.5M7.5 8h5.5M7.5 12h3.5"/></svg>Runway<span class="n" id="runway-count">4</span></a>
+  <a class="nav" href="#ask" data-go="ask" title="Ask E.V. (⌘J)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>Ask E.V.</a>
+  <a class="nav" href="#library" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h3v11H3zM7.5 2.5h3v11h-3z"/><path d="m11.5 3 2.5.6-2 10-2.5-.6"/></svg>Library</a>
+  <a class="nav" href="#notes" data-go="notes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6 8h4.5M6 10.5h3"/></svg>Notes</a>
+  <a class="nav" href="#activity" data-go="activity"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>Activity<span class="n">2 need you</span></a>
+  <div class="navgrp">Courses</div>
+  <a class="nav" href="#plan" data-go="plan" data-sub="c"><i class="dot d-ok"></i>BIO 201<span class="n">lab Nov 9</span></a>
+  <a class="nav" href="#runway/objectives" data-go="runway" data-sub="objectives"><i class="dot d-violet"></i>NUR 112<span class="n">exam Thu</span></a>
+  <div class="jobline" data-go="activity" data-detail="d-job-mock" title="Open in Activity"><i class="spin"></i>Writing mock exam · ch 9</div>
+  <button class="btn text themebtn" data-act="theme" id="themebtn" title="Switch theme (\)">Light theme</button>
+</aside>
+
+<main class="area" id="area">
+
+<!-- ================= SCREEN 1 · Runway (Days, Objectives) ================= -->
+<section class="col center view" data-screen="runway" aria-label="Runway">
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Runway</h1><span class="t-meta">3 days to NUR 112 · Exam 3</span><span class="grow"></span>
+      <button class="btn text" data-act="exam-menu" title="Upcoming exams">All exams</button></div>
+    <div class="tabs" id="rtabs"><button data-rtab="days" class="on">Days</button><button data-rtab="objectives">Objectives · 8</button></div>
+  </div>
+
+  <!-- Runway · Days -->
+  <div class="stack g12" data-rpanel="days">
+    <div class="stack g6">
+      <div class="ev-line"><span class="mark quiet" style="margin-top:3px"></span><span><b>Preload comes back Wednesday, in the mock exam.</b> You rated it Sure and got 2 of 5, so I put a short block on Tuesday for you to look at. <span class="cite" data-go="runway" data-sub="objectives">from Objectives</span></span></div>
+
+      <div class="runway" id="days">
+        <div class="day today open" data-day="mon" data-label="Today · Mon">
+          <span class="pin"></span>
+          <div class="day-head"><span class="day-name">Today</span><span class="day-sum"></span><button class="btn primary" data-act="start-next" title="Start the next block (S)">Start</button><span class="kbd">S</span></div>
+          <div class="day-body">
+            <div class="row" tabindex="0" draggable="true" data-min="10" data-short="Review" data-detail="d-today-review"><i class="dot d-teal"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Review · 8 questions</div><span class="sub">morning set · cardiac output, fluid balance, med math</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><button class="btn text act" data-act="start-review">Start</button><span class="tm">10m</span></div>
+            <div class="row" tabindex="0" draggable="true" data-min="20" data-short="Oral liquid doses" data-detail="d-today-drill"><i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Oral liquid doses</div><span class="sub">10 problems · again Wednesday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><button class="btn text act" data-act="start-review">Start</button><span class="tm">20m</span></div>
+            <div class="row" tabindex="0" draggable="true" data-min="30" data-short="Ch 9 notes" data-detail="d-today-note"><i class="dot d-ok"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Write: Ch 9 lecture notes</div><span class="sub">note task · BIO 201 · read-along session</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><button class="btn text act" data-act="start-note">Start</button><span class="tm">30m</span></div>
+            <div class="row" tabindex="0" draggable="true" data-min="10" data-short="Frank–Starling" data-detail="d-today-fs"><i class="dot d-ok"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Frank–Starling, in your own words</div><span class="sub">3 prompts · again Thursday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><button class="btn text act" data-act="start-review">Start</button><span class="tm">10m</span></div>
+          </div>
+        </div>
+
+        <div class="day" data-day="tue" data-label="Tue, Nov 3">
+          <span class="pin"></span>
+          <div class="day-head"><span class="day-name">Tue, Nov 3</span><span class="day-sum"></span><span class="prop" title="E.V. proposes a block here">+1 proposed</span><span class="tm"></span></div>
+          <div class="day-body">
+            <div class="row" tabindex="0" draggable="true" data-min="25" data-short="Dosage by weight" data-kind="Plan block" data-source="Set · Dosage by weight"><i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Dosage by weight · mixed set</div><span class="sub">12 problems · again Thursday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">25m</span></div>
+            <div class="row" tabindex="0" draggable="true" data-min="20" data-short="Fluid balance" data-kind="Plan block" data-source="Note · Fluid balance · I&amp;O"><i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">8 questions · first since Friday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">20m</span></div>
+            <div class="suggest" data-min="15" data-short="Preload"><span class="c-faint">+</span><span class="grow" data-edit>Preload and afterload · 5 questions</span><span class="t-meta">15m</span><button class="btn text" data-act="accept-prop" title="Accept (A)">Accept</button><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Not now</button></div>
+          </div>
+        </div>
+
+        <div class="day" data-day="wed" data-label="Wed, Nov 4">
+          <span class="pin"></span>
+          <div class="day-head"><span class="day-name">Wed, Nov 4</span><span class="day-sum"></span><span class="tm"></span></div>
+          <div class="day-body">
+            <div class="row" tabindex="0" draggable="true" data-min="45" data-short="Mock exam" data-go="activity" data-detail="d-job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">E.V. is writing it · 9 of 15 questions · in Activity</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">45m</span></div>
+            <div class="row" tabindex="0" draggable="true" data-min="20" data-short="Oral liquid doses" data-kind="Plan block" data-source="Set · Dosage by weight"><i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Oral liquid doses · second pass</div><span class="sub">only the ones you miss Monday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">20m</span></div>
+          </div>
+        </div>
+
+        <div class="day exam" data-day="thu" data-label="Thu, Nov 5" data-note="exam day">
+          <span class="pin"></span>
+          <div class="day-head"><span class="day-name">Thu, Nov 5</span><span class="day-sum"></span><span class="tm"></span></div>
+          <div class="day-body">
+            <div class="row" tabindex="0" draggable="true" data-min="10" data-short="Misses only" data-kind="Plan block" data-source="Your misses, Mon–Wed"><i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div>Misses only, before the exam</div><span class="sub">from Monday to Wednesday</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">10m</span></div>
+            <div class="row" tabindex="0" data-exam data-short="Exam 3 at 9:00 am" data-go="runway" data-sub="objectives"><i class="dot d-faint"></i><div class="t"><div>NUR 112 · Exam 3 · 9:00 am</div><span class="sub">8 objectives · 58% right on first tries</span></div><div class="meter" style="width:96px" title="58% right"><i class="m-ok" style="width:34%"></i><i class="m-warn" style="width:24%"></i><i class="m-bad" style="width:42%"></i></div><span class="tm">58%</span></div>
+          </div>
+        </div>
+
+        <div class="day quiet" data-day="fri" data-label="Fri – Sun">
+          <span class="pin"></span>
+          <div class="day-head"><span class="day-name">Fri – Sun</span><span class="day-sum">nothing planned yet</span><span class="tm"></span></div>
+          <div class="day-body"></div>
+        </div>
+
+        <div class="day exam after" data-day="mon9" data-after>
+          <span class="pin"></span>
+          <div class="day-head" data-go="plan"><span class="day-name">Mon, Nov 9</span><span class="day-sum">then BIO 201 · Lab practical 2 · rate your confidence to plan it</span><span class="tm"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2 class="t-label">This week</h2>
+      <div class="row" tabindex="0" data-detail="d-weekly"><i class="dot d-faint"></i><div class="t"><div>Weekly review</div><span class="sub">5 h 10 m studied · 3 weak spots to confirm</span></div><span class="tm">Sun</span></div>
+      <div class="lrow"><i class="dot d-faint"></i><span class="grow c-quiet">Retrieval accuracy, last 14 days</span><span>72% ↑</span><div class="meter" style="width:96px" title="72% · up from 66%"><i class="m-ok" style="width:72%"></i></div><span class="tm">first try</span></div>
+      <span class="t-meta">Progress lives here and in Objectives. More after the switch.</span>
+    </div>
+  </div>
+
+  <!-- Runway · Objectives: confidence beside accuracy -->
+  <div class="stack g8" data-rpanel="objectives" hidden>
+    <div class="stack g3">
+      <div class="ev-line"><span class="mark" style="margin-top:3px"></span><span><b>You rated preload Sure, but got 2 of 5.</b> Worth a block before Thursday? <span class="cite" data-detail="d-cite-co">from Set · Cardiac output</span></span></div>
+      <div class="suggest" id="obj-suggest"><span class="c-faint">+</span><span class="grow">Preload and afterload · 5 questions · Tuesday</span><span class="t-meta">15m</span><button class="btn text" data-act="obj-accept" title="Add to the runway (A)">Add to runway</button><button class="btn text" data-act="obj-dismiss">Not now</button></div>
+    </div>
+
+    <div class="sec">
+      <div class="cal-r h"><span>Exam 3 · Thursday, Nov 5</span><span>Your confidence</span><span>Your tries</span><span></span><span></span></div>
+      <div id="cal">
+        <div class="cal-r" tabindex="0" data-seq="10010" data-detail="d-obj-preload"><div class="t"><div>Preload and afterload</div><span class="sub">Note · Cardiac output</span></div><span class="seg"><button>Low</button><button>Some</button><button class="on">Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="11011" data-kind="Objective" data-source="Note · Cardiac output"><div class="t"><div>Frank–Starling</div><span class="sub">Note · Cardiac output</span></div><span class="seg"><button>Low</button><button>Some</button><button class="on">Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="111101111" data-kind="Objective" data-source="Set · Cardiac output"><div class="t"><div>Cardiac output = HR × SV</div><span class="sub">Set · Cardiac output</span></div><span class="seg"><button>Low</button><button>Some</button><button class="on">Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="1011010110" data-kind="Objective" data-source="Set · Dosage by weight"><div class="t"><div>Dosage by weight</div><span class="sub">Set · Dosage by weight</span></div><span class="seg"><button>Low</button><button class="on">Some</button><button>Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="010010110" data-kind="Objective" data-source="Set · Dosage by weight"><div class="t"><div>Oral liquid doses</div><span class="sub">Set · Dosage by weight</span></div><span class="seg"><button class="on">Low</button><button>Some</button><button>Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="1101100101" data-kind="Objective" data-source="Note · Fluid balance · I&amp;O"><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">Note · Fluid balance · I&amp;O</span></div><span class="seg"><button>Low</button><button class="on">Some</button><button>Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="1111011111" data-kind="Objective" data-source="Note · Fluid balance · I&amp;O"><div class="t"><div>Charting intake and output</div><span class="sub">Note · Fluid balance · I&amp;O</span></div><span class="seg"><button class="on">Low</button><button>Some</button><button>Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+        <div class="cal-r" tabindex="0" data-seq="" data-kind="Objective" data-source="Exam 3 objectives"><div class="t"><div>Signs of fluid overload</div><span class="sub">no set yet · E.V. can make one</span></div><span class="seg"><button>Low</button><button class="on">Some</button><button>Sure</button></span><span class="tries"></span><span class="n-of"></span><span class="flag"></span></div>
+      </div>
+    </div>
+    <p class="t-meta">A word shows where your rating and your tries disagree: Sure but under 60% right, or Low but 80% or more. Tries are your last 10 first attempts.</p>
+  </div>
+</section>
+
+<!-- ================= SCREEN 1b · Plan (study-plan flow: confidence first, then the proposal) ================= -->
+<section class="col center view" data-screen="plan" aria-label="Study plan" hidden>
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Plan for Lab practical 2</h1><span class="t-meta">BIO 201 · Monday, Nov 9 · 7 objectives</span><span class="grow"></span><button class="btn text" data-go="runway" title="Back to the runway (Esc)">Back</button></div>
+    <div class="stepper" id="stepper"><span data-step="rate"><span class="num">1</span>Your confidence</span><span data-step="proposal"><span class="num">2</span>E.V.'s proposal</span><span data-step="decide"><span class="num">3</span>You decide</span></div>
+  </div>
+
+  <!-- Step 1: Matt rates first; scores stay hidden -->
+  <div class="stack g8" data-plan="rate">
+    <div class="ev-line"><span class="mark" id="rate-mark" style="margin-top:3px"></span><span><b>How sure are you on each?</b> Go with your gut. Your scores stay hidden until you've rated, so the rating is yours.</span></div>
+    <div class="sec">
+      <div class="line g3"><h2 class="t-label grow">Objectives</h2><span class="t-meta" id="rated-n">6 of 7 rated</span></div>
+      <div id="rate-list">
+        <div class="lrow"><span class="grow">Crossbridge cycle</span><span class="seg" data-rate><button>Low</button><button>Some</button><button class="on">Sure</button></span></div>
+        <div class="lrow"><span class="grow">Sliding filament model</span><span class="seg" data-rate><button>Low</button><button class="on">Some</button><button>Sure</button></span></div>
+        <div class="lrow"><span class="grow">Neuromuscular junction</span><span class="seg" data-rate><button class="on">Low</button><button>Some</button><button>Sure</button></span></div>
+        <div class="lrow"><span class="grow">Muscle tissue types</span><span class="seg" data-rate><button>Low</button><button>Some</button><button class="on">Sure</button></span></div>
+        <div class="lrow"><span class="grow">Length–tension relationship</span><span class="seg" data-rate><button class="on">Low</button><button>Some</button><button>Sure</button></span></div>
+        <div class="lrow"><span class="grow">Frank–Starling, in the lab</span><span class="seg" data-rate><button>Low</button><button>Some</button><button class="on">Sure</button></span></div>
+        <div class="lrow"><span class="grow">Cardiac output from a tracing</span><span class="seg" data-rate><button>Low</button><button>Some</button><button>Sure</button></span></div>
+      </div>
+    </div>
+    <div class="line g3"><button class="btn primary" id="draft-btn" data-act="draft-plan" disabled title="Draft the plan (⌘↵)">Draft the plan</button><span class="kbd">⌘↵</span><span class="t-meta">a job in Activity · about 20 s</span></div>
+  </div>
+
+  <!-- Drafting: the study plan job, visible -->
+  <div class="stack g4" data-plan="drafting" hidden>
+    <div class="row" tabindex="0" data-go="activity" data-detail="d-job-studyplan"><i class="spin"></i><div class="t"><div>Drafting the plan</div><span class="sub">job · study plan · step 2 of 3 · comparing your ratings with your tries</span></div><span class="t-meta">~15 s</span></div>
+  </div>
+
+  <!-- Step 2 and 3: dashed proposals inside the days they would change -->
+  <div class="stack g8" data-plan="proposal" hidden>
+    <div class="ev-line"><span class="mark quiet" style="margin-top:3px"></span><span><b>I leaned on two gaps:</b> crossbridge cycle (you said Sure, 3 of 8) and the neuromuscular junction (you said Low, no tries yet). Muscle tissue types is solid, as you said, so I left it out. <span class="cite" data-go="runway" data-sub="objectives">from Objectives</span></span></div>
+
+    <div class="runway" id="plan-days">
+      <div class="day open"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Tue, Nov 3</span><span class="day-sum">2 blocks already · Exam 3 comes first</span><span class="tm"></span></div>
+        <div class="day-body">
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Crossbridge cycle · 5 questions, an early first pass</span><span class="t-meta">10m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+        </div>
+      </div>
+      <div class="day exam quiet"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Thu, Nov 5</span><span class="day-sum">NUR 112 · Exam 3 · nothing added</span><span class="tm"></span></div>
+      </div>
+      <div class="day open"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Fri, Nov 6</span><span class="day-sum">free after clinicals</span><span class="tm"></span></div>
+        <div class="day-body">
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Neuromuscular junction · read, then 6 questions</span><span class="t-meta">25m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Crossbridge cycle · draw it and explain each step</span><span class="t-meta">20m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+        </div>
+      </div>
+      <div class="day open"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Sat, Nov 7</span><span class="day-sum"></span><span class="tm"></span></div>
+        <div class="day-body">
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Crossbridge cycle and length–tension · 8 mixed</span><span class="t-meta">15m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+        </div>
+      </div>
+      <div class="day open"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Sun, Nov 8</span><span class="day-sum">weekly review stays</span><span class="tm"></span></div>
+        <div class="day-body">
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Mock lab practical · 20 questions</span><span class="t-meta">40m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+        </div>
+      </div>
+      <div class="day exam open"><span class="pin"></span>
+        <div class="day-head"><span class="day-name">Mon, Nov 9</span><span class="day-sum">Lab practical 2</span><span class="tm"></span></div>
+        <div class="day-body">
+          <div class="suggest"><span class="c-faint">+</span><span class="grow" data-edit>Misses only, before the lab</span><span class="t-meta">10m</span><button class="btn text" data-act="edit-prop">Edit</button><button class="btn text" data-act="dismiss-prop">Remove</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="line g2" id="plan-actions"><button class="btn primary" data-act="approve-plan" title="Approve plan (⌘↵)">Approve plan</button><button class="btn secondary" data-act="plan-changes">Ask for changes</button><button class="btn text" data-act="put-away" title="Put away; it stays in Activity">Put away</button><span class="grow"></span><span class="t-meta">6 blocks · 2 h</span></div>
+      <span class="t-meta" data-go="activity" data-detail="d-job-studyplan">Drafted by the study plan job in 18 s, under 1¢ · in Activity. Edit or remove any block first.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 2 · Ask E.V. ================= -->
+<section class="col center view" data-screen="ask" aria-label="Ask E.V." hidden>
+  <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">ask anything; she'll want your try first</span></div>
+
+  <div class="chat" id="chat">
+    <div class="chat-time">9:12 am</div>
+    <div class="msg me"><div class="say">what's the difference between preload and afterload?</div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say">
+      <div>You rated this Sure, so try it first in one line: what stretches the ventricle?</div>
+      <div class="line g2"><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me (⌥↵) · logged">Just tell me</button></div>
+    </div></div>
+    <div class="msg me"><div class="say">preload is what it pushes against and afterload is the filling?</div></div>
+    <div class="msg"><span class="mark quiet"></span><div class="say">
+      <div>Swapped. Preload is the stretch at the end of filling, set mostly by venous return. Afterload is the pressure the ventricle has to beat to eject, mostly arterial pressure. I logged it as a miss on the objective.</div>
+      <div class="line g2 wrap"><span class="cite" data-detail="d-cite-co"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/></svg>from Note · Cardiac output</span><span class="cite" data-go="runway" data-sub="objectives">Objective · now 2 of 5</span></div>
+    </div></div>
+    <div class="chat-time">11:40 am</div>
+    <div class="msg me"><div class="say">is the mock exam ready?</div></div>
+    <div class="msg"><span class="mark"></span><div class="say">
+      <div>Not yet. The job is on step 3 of 4, writing question 9 of 15. It will sit in Wednesday on your runway when it's done.</div>
+      <div class="row" tabindex="0" data-go="activity" data-detail="d-job-mock" title="Open in Activity"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">writing questions · 9 of 15 · in Activity</span></div><span class="t-meta">~1 min</span></div>
+    </div></div>
+  </div>
+
+  <div class="composer">
+    <textarea class="field" id="composer" rows="1" placeholder="Ask E.V., or answer her" title="Focus with ⌘J · Enter to send · Shift+Enter for a new line"></textarea>
+  </div>
+</section>
+
+<!-- ================= SCREEN 3 · Library (practice, weak spots, sets) ================= -->
+<section class="col center view" data-screen="library" aria-label="Library" hidden>
+  <div class="stack g4">
+    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">practice, weak spots and sets · exams live in the Runway</span></div>
+  </div>
+
+  <div class="stack g6">
+    <div class="tabs" id="libtabs">
+      <button data-tab="practice" class="on">Practice</button><button data-tab="weak">Weak spots · 4</button><button data-tab="sets">Sets</button>
+    </div>
+
+    <!-- Library · Practice: attempt first, feedback after Commit, the objective's tries update -->
+    <div class="stack g4" data-tab-panel="practice">
+      <div class="line g3"><span class="c-quiet">Morning review · cardiac output, fluid balance, med math</span><span class="grow"></span><button class="btn text" data-act="end-review" title="End review">End</button></div>
+      <div id="q-wrap"></div>
+      <template id="q-tpl">
+      <div class="qcard" id="q">
+        <div class="line g3" style="align-items:flex-start"><span class="grow q-text">Venous return rises, so the ventricle fills more before it contracts. What has changed first?</span><span class="t-meta">3 of 8</span></div>
+        <div style="height:8px"></div>
+        <div class="opt" data-opt="a"><span class="box radio"></span>Afterload has risen</div>
+        <div class="opt" data-opt="b" data-right><span class="box radio"></span>Preload has risen</div>
+        <div class="opt" data-opt="c"><span class="box radio"></span>Contractility has fallen</div>
+        <div class="opt" data-opt="d"><span class="box radio"></span>Heart rate has fallen</div>
+        <div class="reveal" id="q-hint" hidden>
+          <span class="c-quiet">Hint: which one is about filling, and which is about pushing out?</span>
+        </div>
+        <div class="reveal" id="q-feedback" hidden>
+          <div class="line g2" id="q-verdict"></div>
+          <div class="c-quiet">More filling means more stretch at the end of diastole: that is preload. By Frank–Starling, stroke volume then rises. Afterload is the pressure the ventricle pushes against, set by arterial pressure, not by filling.</div>
+          <div class="line g2 wrap"><span class="cite" data-detail="d-cite-co">from Note · Cardiac output</span><span class="cite" data-kind="Set" data-source="Note · Cardiac output" data-detail="d-generic">Set · Cardiac output</span></div>
+        </div>
+        <div style="height:8px"></div>
+        <div class="line g2"><span class="t-meta">How sure?</span><span class="seg" id="q-sure" title="Optional · 1, 2, 3"><button>Low</button><button>Some</button><button>Sure</button></span><span class="grow"></span>
+          <button class="btn text" id="q-hint-btn" data-act="hint" title="Hint (H) · logged">Hint</button>
+          <button class="btn primary" id="q-commit" data-act="commit" disabled title="Commit answer (↵)">Commit answer</button></div>
+      </div>
+      </template>
+      <div class="row" id="q-obj" tabindex="0" data-go="runway" data-sub="objectives" title="Open Objectives"><i class="dot d-violet"></i><div class="t"><div>Preload and afterload</div><span class="sub" id="q-sub">this answer counts toward it · Exam 3 · you rated it Sure</span></div><span class="tries" id="q-tries"></span><span class="n-of" id="q-n" style="width:48px"></span><span class="flag" id="q-flag" style="width:88px"></span></div>
+    </div>
+
+    <!-- Library · Weak spots -->
+    <div class="stack" data-tab-panel="weak" hidden>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Set · Dosage by weight"><i class="dot d-violet"></i><div class="t"><div>Oral liquid doses</div><span class="sub">NUR 112 · 4 of 9 right lately · in the runway Mon and Wed</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:20%"></i><i class="m-warn" style="width:25%"></i><i class="m-bad" style="width:55%"></i></div><span class="tm">due today</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Muscle · crossbridge cycle"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">BIO 201 · 3 of 8 right lately · not planned yet</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:25%"></i><i class="m-warn" style="width:15%"></i><i class="m-bad" style="width:60%"></i></div><span class="tm">tomorrow</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Cardiac output"><i class="dot d-violet"></i><div class="t"><div>Preload and afterload</div><span class="sub">NUR 112 · 2 of 5 right lately · proposed for Tuesday</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:30%"></i><i class="m-warn" style="width:10%"></i><i class="m-bad" style="width:60%"></i></div><span class="tm">Tue</span></div>
+      <div class="row" tabindex="0" data-kind="Weak spot" data-source="Note · Fluid balance · I&amp;O"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">NUR 112 · 6 of 10 right lately · in the runway Tue</span></div><button class="btn text act" data-act="start-review">Drill</button><div class="meter" style="width:96px"><i class="m-ok" style="width:40%"></i><i class="m-warn" style="width:30%"></i><i class="m-bad" style="width:30%"></i></div><span class="tm">Tue</span></div>
+    </div>
+
+    <!-- Library · Sets -->
+    <div class="stack" data-tab-panel="sets" hidden>
+      <div class="row" tabindex="0" data-detail="d-set-dose"><i class="dot d-violet"></i><div class="t"><div>Dosage by weight</div><span class="sub">10 problems · made by E.V. yesterday</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="tm">yest.</span></div>
+      <div class="row" tabindex="0" data-kind="Set" data-source="Note · Cardiac output"><i class="dot d-ok"></i><div class="t"><div>Cardiac output</div><span class="sub">12 questions · from your Ch 9 notes</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="tm">Sat</span></div>
+      <div class="row" tabindex="0" data-kind="Set" data-source="Note · Muscle · crossbridge cycle"><i class="dot d-ok"></i><div class="t"><div>Crossbridge cycle</div><span class="sub">8 questions · from your Ch 6 notes</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="tm">Oct 28</span></div>
+      <div class="row" tabindex="0" data-kind="Set"><i class="dot d-violet"></i><div class="t"><div>Electrolytes, quick facts <span class="unverified" title="No source yet. Link a note or set to verify.">unverified</span></div><span class="sub">14 cards · typed in by you</span></div><button class="btn text act" data-act="start-review">Practice</button><span class="tm">Oct 26</span></div>
+      <div class="row" tabindex="0" data-go="activity" data-detail="d-job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">writing · 9 of 15 questions · lands on Wednesday</span></div><span class="tm">~1 min</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 4 · Notes, with a study session ================= -->
+<section class="split" data-screen="notes" aria-label="Notes" hidden>
+  <nav class="notelist" aria-label="Notes list">
+    <div class="line g2" style="margin-bottom:16px"><h1 class="t-title grow">Notes</h1><button class="btn text" data-act="new-note" title="New note (N)">New</button></div>
+    <div id="notelist">
+      <div class="row sel" tabindex="0" data-note="co"><i class="dot d-ok"></i><div class="t"><div>Ch 9 · Cardiac output</div><span class="sub">edited now</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Med math rules</div><span class="sub">yesterday</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Fluid balance · I&amp;O</div><span class="sub">Fri</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-ok"></i><div class="t"><div>Muscle · crossbridge cycle</div><span class="sub">Oct 28</span></div></div>
+      <div class="row" tabindex="0" data-note="other"><i class="dot d-violet"></i><div class="t"><div>Exam 3 objectives</div><span class="sub">Oct 27</span></div></div>
+    </div>
+  </nav>
+
+  <div class="editor">
+    <div class="sessionbar" id="sessionbar" hidden>
+      <i class="dot d-info" id="session-dot"></i><span>Session · <span id="timer">18:20</span></span><span class="t-meta">read-along on</span><span class="grow"></span>
+      <button class="btn text" data-act="pause" id="pausebtn" title="Pause (Space when not typing)">Pause</button>
+      <button class="btn secondary" data-act="end-session" title="End session">End</button>
+    </div>
+    <div class="col center view">
+      <div class="stack g4">
+        <div class="line g3 t-meta"><span class="line g2"><i class="dot d-ok"></i>BIO 201</span><span>edited now</span><span class="grow"></span><span title="Saved on this device; sending to the server">Saved · on this device, syncing</span></div>
+        <article class="doc" id="doc" contenteditable="true" spellcheck="false">
+          <h1 class="t-title blk">Ch 9 · Cardiac output</h1>
+          <p class="blk">Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume. A resting adult is about 5 L/min.</p>
+          <ul class="blk reading" id="read-blk">
+            <li>Heart rate: set by the SA node, nudged by autonomic tone</li>
+            <li>Stroke volume: depends on preload, afterload and contractility
+              <ul><li>More preload → more stretch → bigger stroke volume (Frank–Starling)</li></ul>
+            </li>
+            <li>Afterload rises with arterial pressure; the ventricle works harder</li>
+          </ul>
+          <div class="checks blk" contenteditable="false">
+            <div class="check done" data-check><span class="box"></span>Read pp. 212–219</div>
+            <div class="check" data-check><span class="box"></span>Draw the Frank–Starling curve</div>
+            <div class="check" data-check><span class="box"></span>Ask E.V. for 5 questions on afterload</div>
+          </div>
+          <div class="cols2 blk">
+            <figure class="ph" style="margin:0" contenteditable="false">
+              <svg viewBox="0 0 176 112" aria-hidden="true"><path d="M16 8v88h152"/><path d="M20 92C52 86 72 40 104 30s44-4 60 4"/></svg>
+              <span>Image · Frank–Starling curve</span>
+            </figure>
+            <p>As the ventricle fills more, it stretches and contracts harder, so stroke volume rises. Past a point the fibres overstretch and the curve flattens; in heart failure it sits lower.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 5 · Activity ================= -->
+<section class="col view" data-screen="activity" aria-label="Activity" hidden>
+  <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta">what E.V. and the schedule are doing</span></div>
+  <div class="sec">
+    <h2 class="t-label">Needs you</h2>
+    <div class="row" tabindex="0" data-detail="d-job-studyplan"><i class="dot d-her"></i><div class="t"><div>Study plan for Lab practical 2 is waiting on your ratings</div><span class="sub">step 1 of 3 · rate your confidence on 7 objectives, then E.V. drafts</span></div><button class="btn text act" data-go="plan">Rate</button><span class="t-meta">6:02 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-weekly"><i class="dot d-her"></i><div class="t"><div>Weekly review: 3 weak spots to confirm</div><span class="sub">crossbridge cycle · oral liquid doses · preload and afterload</span></div><button class="btn text act">Review</button><span class="t-meta">Sun</span></div>
+  </div>
+  <div class="sec">
+    <h2 class="t-label">Running</h2>
+    <div class="row" tabindex="0" data-detail="d-job-mock"><i class="spin"></i><div class="t"><div>Mock exam · Chapter 9</div><span class="sub">step 3 of 4 · writing questions, 9 of 15 · lands on Wednesday in the runway</span></div><span class="t-meta">~1 min</span></div>
+  </div>
+  <div class="sec">
+    <h2 class="t-label">Done today</h2>
+    <div class="row" tabindex="0" data-detail="d-job-plan"><i class="dot d-ok"></i><div class="t"><div>Runway for today</div><span class="sub">morning run · 4 blocks kept, 1 proposal on Tuesday</span></div><span class="t-meta">4:25 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-review"><i class="dot d-ok"></i><div class="t"><div>Morning review set</div><span class="sub">8 questions → Runway, today</span></div><span class="t-meta">4:26 am</span></div>
+    <div class="row" tabindex="0" data-detail="d-job-failed"><i class="dot d-bad"></i><div class="t"><div>Study guide · Fluid balance</div><span class="sub">failed: the answer ran out of room · nothing was saved</span></div><button class="btn text act" data-act="retry">Retry</button><span class="t-meta">7:10 am</span></div>
+  </div>
+</section>
+
+<!-- ================= DETAIL PANEL (shared) ================= -->
+<aside class="detail" id="detail" aria-label="Detail" hidden></aside>
+</main>
+
+<!-- ================= DETAIL TEMPLATES · Runway ================= -->
+<template id="d-today-review">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Block · morning review</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Review · 8 questions</h2>
+    <span class="t-meta">made at 4:26 am by the morning run · about 10 min</span>
+  </div>
+  <div><div class="kv"><span>Cardiac output</span><b>3 questions</b></div><div class="kv"><span>Fluid balance</span><b>3 questions</b></div><div class="kv"><span>Med math</span><b>2 questions</b></div><div class="kv"><span>From</span><b>Sets · Cardiac output, Dosage by weight</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start review</button></div>
+</template>
+
+<template id="d-today-drill">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Block · your plan for Exam 3</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Oral liquid doses</h2>
+    <span class="t-meta">NUR 112 · 10 problems · about 20 min</span>
+  </div>
+  <div><div class="kv"><span>Your confidence</span><b>Low</b></div><div class="kv"><span>Your tries</span><b>4 of 9</b></div><div class="kv"><span>Again</span><b>Wednesday, second pass</b></div><div class="kv"><span>Source</span><b>Set · Dosage by weight</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start</button><button class="btn text" data-act="move-from-detail">Move to…</button></div>
+</template>
+
+<template id="d-today-note">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Block · note task</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Write: Ch 9 lecture notes</h2>
+    <span class="t-meta">BIO 201 · about 30 min · a study session</span>
+  </div>
+  <div><div class="kv"><span>Note</span><b>Ch 9 · Cardiac output (draft)</b></div><div class="kv"><span>Read-along</span><b>on</b></div><div class="kv"><span>E.V.</span><b>asks a check after each section</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-note">Start session</button></div>
+</template>
+
+<template id="d-today-fs">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Block · your plan for Exam 3</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Frank–Starling, in your own words</h2>
+    <span class="t-meta">BIO 201 · 3 prompts · about 10 min</span>
+  </div>
+  <div><div class="kv"><span>Why</span><b>explaining beats re-reading</b></div><div class="kv"><span>Again</span><b>Thursday, before the exam</b></div><div class="kv"><span>Source</span><b>Note · Cardiac output</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Start</button></div>
+</template>
+
+<template id="d-weekly">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · weekly review</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Weekly review is ready</h2>
+    <span class="t-meta">Sunday 5:57 pm · scheduled · 21 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Gathered the week<div class="t-meta">28 sessions, 5 h 10 m, 164 answers</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Compared your ratings with your tries<div class="t-meta">1 overconfident, 1 underrated · in Objectives</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>3 new weak spots<div class="t-meta">crossbridge cycle · oral liquid doses · preload and afterload</div></div></div>
+  </div>
+  <div class="line g2" data-swap="weekly"><button class="btn primary" data-act="weekly-add">Add all 3</button><button class="btn secondary" data-act="toast" data-msg="Pick: tick the ones to add">Pick</button><button class="btn text" data-close>Dismiss</button></div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · weekly</b></div><div class="kv"><span>Output</span><b>Runway · This week</b></div></div>
+</template>
+
+<template id="d-obj-preload">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Objective · Exam 3</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Preload and afterload</h2>
+    <span class="t-meta">NUR 112 · rated Sure on Oct 31</span>
+  </div>
+  <div class="stack g2"><div class="line g3"><span class="tries" data-seq="10010"></span><span class="t-meta">2 of 5 · overconfident</span></div></div>
+  <div><div class="kv"><span>Last tries</span><b>right, missed, missed, right, missed</b></div><div class="kv"><span>Missed on</span><b>swapping the two terms</b></div><div class="kv"><span>In the runway</span><b>Wed, inside the mock exam</b></div><div class="kv"><span>Sources</span><b>Note · Cardiac output · Set · Cardiac output</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Practice 5 now</button><button class="btn text" data-act="obj-accept">Add a block Tuesday</button></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Library and sources ================= -->
+<template id="d-set-dose">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Set</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Dosage by weight</h2>
+    <span class="t-meta">NUR 112 · 10 problems · made by E.V. yesterday</span>
+  </div>
+  <div><div class="kv"><span>Last try</span><b>6 of 10 · yesterday</b></div><div class="kv"><span>Source</span><b>Note · Med math rules</b></div><div class="kv"><span>Made by</span><b>Job · practice set</b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Practice</button></div>
+</template>
+
+<template id="d-cite-co">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Source · note</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Cardiac output</h2>
+    <span class="t-meta">BIO 201 · Ch 9 lecture notes · edited now</span>
+  </div>
+  <p class="answer">More preload → more stretch → bigger stroke volume (Frank–Starling). Afterload rises with arterial pressure; the ventricle works harder.</p>
+  <div class="line g2"><button class="btn secondary" data-go="notes">Open note</button></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Notes (session checks) ================= -->
+<template id="d-session">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Study session · checks</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">E.V.'s checks</h2>
+    <span class="t-meta">Ch 9 · Cardiac output · one after each section</span>
+  </div>
+  <div class="cmt"><span class="mark quiet"></span><div class="say">
+    <div class="c-quiet">Check: what sets preload?</div>
+    <div class="answer">how full the ventricle gets right before it squeezes. mostly the blood coming back through the veins</div>
+    <div class="t-meta">Right, and in your own words. Counted toward Preload and afterload. <span class="cite" data-detail="d-cite-co">Note · Cardiac output</span></div>
+  </div></div>
+  <div class="cmt" id="cmt-active"><span class="mark"></span><div class="say">
+    <div>Check: explain Frank–Starling in your own words.</div>
+    <textarea class="field" id="check-answer" rows="3" placeholder="Your words" title="Enter to send · Shift+Enter for a new line"></textarea>
+  </div></div>
+  <span class="t-meta">2 more checks at the end of this section</span>
+  <div><div class="kv"><span>Read-along</span><b>on</b></div><div class="kv"><span>Block</span><b>Today · Ch 9 notes</b></div><div class="kv"><span>Writing time</span><b>18 min today</b></div><div class="kv"><span>Saved</span><b>on this device · syncing</b></div></div>
+</template>
+
+<!-- ================= DETAIL TEMPLATES · Activity (jobs) ================= -->
+<template id="d-job-mock">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · mock exam</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Mock exam · Chapter 9</h2>
+    <span class="t-meta">started 11:38 am · you asked in Ask E.V. · about 2¢ so far</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the chapter<div class="t-meta">3 notes, Exam 3 objectives</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Planned 15 questions<div class="t-meta">your overconfident objectives first</div></div></div>
+    <div class="st"><i class="spin"></i><div>Writing questions<div class="t-meta">9 of 15</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Checking each answer against its source<div class="t-meta">next</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn text" data-act="toast" data-msg="Stopped · nothing was saved">Stop</button></div>
+  <div><div class="kv"><span>Started by</span><b>You · Ask E.V.</b></div><div class="kv"><span>Cost</span><b>about 2¢ so far</b></div><div class="kv"><span>Output</span><b>Runway · Wednesday block</b></div></div>
+</template>
+
+<template id="d-job-studyplan">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · study plan</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Study plan for Lab practical 2</h2>
+    <span class="t-meta">started 6:02 am · scheduled · waiting on you</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-her"></i><div>Your confidence ratings<div class="t-meta">needs you · 7 objectives</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Compare ratings with your tries, then draft<div class="t-meta">next · about 20 s</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Your decision<div class="t-meta">approve, change or put away</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn secondary" data-go="plan">Rate now</button></div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · a week before the lab</b></div><div class="kv"><span>Output</span><b>Dashed blocks in the runway</b></div></div>
+</template>
+
+<template id="d-job-failed">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · study guide</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Study guide · Fluid balance</h2>
+    <span class="t-meta">today 7:10 am · scheduled · 48 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read the note<div class="t-meta">Note · Fluid balance · I&amp;O</div></div></div>
+    <div class="st"><i class="dot d-bad"></i><div>Wrote the guide<div class="t-meta">failed: the answer ran out of room</div></div></div>
+    <div class="st"><i class="dot d-faint"></i><div>Saved<div class="t-meta">nothing was saved</div></div></div>
+  </div>
+  <div class="line g2"><button class="btn secondary" data-act="retry">Retry, shorter</button><button class="btn text" data-close>Dismiss</button></div>
+</template>
+
+<template id="d-job-plan">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · daily runway</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Runway for today</h2>
+    <span class="t-meta">today 4:25 am · scheduled · 9 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Read your blocks, ratings and tries<div class="t-meta">Exam 3 runway, 8 objectives</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Kept your blocks; proposed one<div class="t-meta">preload and afterload, Tuesday</div></div></div>
+  </div>
+  <div><div class="kv"><span>Started by</span><b>Schedule · morning</b></div><div class="kv"><span>Output</span><b>Runway · a dashed block</b></div></div>
+</template>
+
+<template id="d-job-review">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta">Job · review set</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title">Morning review set</h2>
+    <span class="t-meta">today 4:26 am · scheduled · 14 s · under 1¢</span>
+  </div>
+  <div class="steps">
+    <div class="st"><i class="dot d-ok"></i><div>Picked what's due<div class="t-meta">8 questions from 3 sets</div></div></div>
+    <div class="st"><i class="dot d-ok"></i><div>Checked each against its source<div class="t-meta">8 of 8 cited</div></div></div>
+  </div>
+</template>
+
+<template id="d-generic">
+  <div class="stack g2">
+    <div class="line g2"><span class="t-meta" data-f="kind">Item</span><span class="grow"></span><button class="btn text" data-close title="Close (Esc)">×</button></div>
+    <h2 class="t-title" data-f="title"></h2>
+    <span class="t-meta" data-f="sub"></span>
+  </div>
+  <div><div class="kv"><span>Source</span><b data-f="source"></b></div></div>
+  <div class="line g2"><button class="btn secondary" data-act="start-review">Practice</button></div>
+</template>
+
+<!-- ================= MOVE MENU and EXAMS MENU (one floating list) ================= -->
+<div class="pop menu" id="menu" role="menu" hidden></div>
+
+<!-- ================= ⌘K PALETTE ================= -->
+<div class="scrim" id="palette" hidden>
+  <div class="pop palette" role="dialog" aria-label="Commands">
+    <input class="palette-in" id="palette-in" placeholder="Type a command, or a question for E.V." autocomplete="off">
+    <div class="palette-list" id="palette-list">
+      <div class="t-label">Commands</div>
+      <div class="row" data-cmd="start-next"><div class="t"><div>Start the next block</div></div><span class="t-meta">Review · 10m</span><span class="kbd">S</span></div>
+      <div class="row" data-cmd="move"><div class="t"><div>Move a block to another day…</div></div><span class="kbd">M</span></div>
+      <div class="row" data-cmd="practice" data-k="preload afterload"><div class="t"><div>Practice: preload and afterload</div></div><span class="t-meta">2 of 5 · rated Sure</span></div>
+      <div class="row" data-cmd="go:runway/objectives" data-k="calibration confidence"><div class="t"><div>Rate my confidence · Exam 3</div></div></div>
+      <div class="row" data-cmd="go:plan" data-k="study plan"><div class="t"><div>Plan Lab practical 2…</div></div><span class="t-meta">needs your ratings</span></div>
+      <div class="row" data-cmd="new-note"><div class="t"><div>New note</div></div><span class="kbd">N</span></div>
+      <div class="row" data-cmd="make-set"><div class="t"><div>Make practice set…</div></div></div>
+      <div class="row" data-cmd="add-exam"><div class="t"><div>Add exam…</div></div></div>
+      <div class="t-label">Go to</div>
+      <div class="row" data-cmd="go:runway"><div class="t"><div>Runway</div></div></div>
+      <div class="row" data-cmd="go:runway/objectives" data-k="preload afterload frank starling"><div class="t"><div>Objectives · Exam 3</div></div><span class="t-meta">1 overconfident</span></div>
+      <div class="row" data-cmd="go:ask"><div class="t"><div>Ask E.V.</div></div><span class="kbd">⌘J</span></div>
+      <div class="row" data-cmd="go:library"><div class="t"><div>Library</div></div></div>
+      <div class="row" data-cmd="go:notes" data-k="preload afterload cardiac"><div class="t"><div>Note · Ch 9 · Cardiac output</div></div></div>
+      <div class="row" data-cmd="go:activity"><div class="t"><div>Activity</div></div><span class="t-meta">2 need you</span></div>
+      <div class="row" data-cmd="theme"><div class="t"><div>Switch theme</div></div><span class="kbd">\</span></div>
+      <div class="row" data-cmd="ask" id="palette-ask" hidden><div class="t"><div>Ask E.V.: <span id="palette-q"></span></div></div><span class="kbd">Tab</span></div>
+    </div>
+    <div class="palette-foot"><span>Tab to ask E.V.</span><span class="grow"></span><span>↑↓ to move · ↵ to run · Esc to close</span></div>
+  </div>
+</div>
+
+<!-- ================= TOAST ================= -->
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo">Undo</button></div>
+
+</div>
+
+<script>
+/* ================= Helpers and state ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app'), area = $('#area'), detail = $('#detail'), menu = $('#menu');
+const state = { screen: 'runway', session: false, paused: false, seconds: 18 * 60 + 20, undo: null, drag: null };
+const NAV_FOR = { plan: 'runway' };
+
+/* ================= Navigation ================= */
+function go(screen, sub = '') {
+  closeMenu();
+  $$('[data-screen]').forEach(s => (s.hidden = s.dataset.screen !== screen));
+  const navOn = NAV_FOR[screen] || screen;
+  $$('.nav[data-go]').forEach(n => n.classList.toggle('on', n.dataset.go === navOn && !n.dataset.sub));
+  state.screen = screen;
+  closeDetail();
+  if (screen === 'runway') setRTab(sub === 'objectives' ? 'objectives' : 'days');
+  if (screen === 'plan') setPlan(['proposal', 'drafting'].includes(sub) ? sub : 'rate');
+  if (screen === 'library') { setTab(['weak', 'sets'].includes(sub) ? sub : 'practice'); resetQ(); }
+  if (screen === 'notes') setSession(sub === 'session');
+  const view = $(`[data-screen="${screen}"]`);
+  view.scrollTop = 0;
+  if (screen === 'ask') view.scrollTop = view.scrollHeight;
+  history.replaceState(null, '', '#' + screen + (sub && sub !== 'c' ? '/' + sub : ''));
+}
+
+/* ================= Detail panel ================= */
+function openDetail(id, row) {
+  const tpl = document.getElementById(id) || $('#d-generic');
+  detail.replaceChildren(tpl.content.cloneNode(true));
+  if (tpl.id === 'd-generic' && row) {
+    const f = k => $(`[data-f="${k}"]`, detail);
+    f('kind').textContent = row.dataset.kind || 'Item';
+    const t = $('.t > div', row);
+    f('title').textContent = t ? t.firstChild.textContent.trim() : row.textContent.trim();
+    f('sub').textContent = $('.sub', row)?.textContent || '';
+    if (row.dataset.source) f('source').textContent = row.dataset.source;
+    else f('source').innerHTML = '<span class="unverified" title="No source yet. Link a note or set to verify.">unverified</span>';
+  }
+  $$('.tries[data-seq]', detail).forEach(drawTries);
+  detail.hidden = false;
+  area.classList.toggle('panel-leads', !!$('.btn.primary', detail));
+  $$('.row.sel, .cal-r.sel').forEach(r => { if (!r.dataset.note) r.classList.remove('sel'); });
+  if (row && !row.dataset.note && row.closest('[data-screen]')) row.classList.add('sel');
+}
+function closeDetail() {
+  detail.hidden = true;
+  detail.replaceChildren();
+  area.classList.remove('panel-leads');
+  $$('.row.sel, .cal-r.sel').forEach(r => { if (!r.dataset.note) r.classList.remove('sel'); });
+}
+
+/* ================= Theme and toast ================= */
+function toggleTheme() {
+  const light = app.dataset.theme === 'dark';
+  app.dataset.theme = light ? 'light' : 'dark';
+  $('#themebtn').textContent = light ? 'Dark theme' : 'Light theme';
+}
+let toastTimer;
+function toast(msg, undo) {
+  $('#toast-msg').textContent = msg;
+  $('#toast-undo').hidden = !undo;
+  state.undo = undo || null;
+  $('#toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => ($('#toast').hidden = true), 4000);
+}
+
+/* ================= Runway · days ================= */
+const fmtMin = m => (m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`);
+function updateDay(day) {
+  const body = $('.day-body', day);
+  if (!body || day.closest('#plan-days')) return;
+  const rows = $$(':scope > .row', body);
+  const blocks = rows.filter(r => r.dataset.min);
+  const mins = blocks.reduce((s, r) => s + +r.dataset.min, 0);
+  const sum = $('.day-sum', day), tm = $(':scope > .day-head > .tm', day);
+  if (day.dataset.day === 'fri') { sum.textContent = blocks.length ? rows.map(r => r.dataset.short).join(' · ') : 'nothing planned yet'; if (tm) tm.textContent = mins ? fmtMin(mins) : ''; return; }
+  if (day.classList.contains('today')) {
+    sum.textContent = `Mon, Nov 2 · ${blocks.length} blocks · ${fmtMin(mins)}`;
+    $('#runway-count').textContent = blocks.length;
+  } else {
+    sum.textContent = rows.map(r => r.dataset.short).join(' · ') || 'nothing planned';
+    if (tm) tm.textContent = mins ? fmtMin(mins) : '';
+  }
+  const prop = $('.prop', day), n = $$('.suggest', body).length;
+  if (prop) { prop.hidden = !n; prop.textContent = `+${n} proposed`; }
+}
+const updateAll = () => $$('#days .day').forEach(updateDay);
+
+function toggleDay(day) { if (!day.dataset.after && $('.day-body', day)) day.classList.toggle('open'); }
+
+function moveRow(row, day) {
+  const from = row.closest('.day');
+  const body = $('.day-body', day);
+  const before = $(':scope > .suggest, :scope > [data-exam]', body);
+  const prev = row.previousElementSibling, prevParent = row.parentElement;
+  body.insertBefore(row, before);
+  day.classList.add('open');
+  row.classList.remove('hover');
+  updateDay(from); updateDay(day);
+  row.classList.add('fade');
+  toast(`Moved to ${day.dataset.label}`, () => { prevParent.insertBefore(row, prev ? prev.nextSibling : prevParent.firstChild); updateDay(from); updateDay(day); });
+}
+
+/* Move to… menu: lists the runway's days; the block's own day is shown, not offered. */
+function openMoveMenu(btn) {
+  const row = btn.closest('.row');
+  const here = row.closest('.day');
+  const title = $('.t > div', row).textContent;
+  const days = $$('#days .day[data-label]').filter(d => !d.dataset.after);
+  menu.innerHTML = `<div class="t-label"><span class="grow">Move “${title}” to</span><span class="kbd">M</span></div>` +
+    days.map(d => {
+      const n = $$('.day-body > .row[data-min]', d).length;
+      const meta = d === here ? 'here' : d.dataset.note || (n ? `${n} block${n > 1 ? 's' : ''}` : 'free');
+      return `<button class="mi${d === here ? ' here' : ''}" data-day-to="${d.dataset.day}"><span>${d.dataset.label}</span><span class="t-meta">${meta}</span></button>`;
+    }).join('') +
+    `<div class="menu-sep"></div><button class="mi" data-day-to="away"><span>Put away</span><span class="t-meta">keeps it in Library</span></button>`;
+  menu.hidden = false;
+  menu._row = row;
+  row.classList.add('hover');
+  const r = btn.getBoundingClientRect();
+  const top = Math.min(r.bottom + 4, innerHeight - menu.offsetHeight - 16);
+  menu.style.left = Math.min(r.left, innerWidth - menu.offsetWidth - 16) + 'px';
+  menu.style.top = top + 'px';
+  $('.mi:not(.here)', menu)?.focus();
+}
+function openExamMenu(btn) {
+  menu.innerHTML = `<div class="t-label">Upcoming exams</div>
+    <button class="mi" data-exam-to="exam3"><i class="dot d-violet"></i><span>NUR 112 · Exam 3</span><span class="t-meta">Thu</span></button>
+    <button class="mi" data-exam-to="lab2"><i class="dot d-ok"></i><span>BIO 201 · Lab practical 2</span><span class="t-meta">Nov 9</span></button>
+    <button class="mi" data-exam-to="math"><i class="dot d-violet"></i><span>NUR 112 · Med math check</span><span class="t-meta">Nov 16</span></button>
+    <div class="menu-sep"></div><button class="mi" data-exam-to="add"><span>Add exam…</span></button>`;
+  menu.hidden = false; menu._row = null;
+  const r = btn.getBoundingClientRect();
+  menu.style.left = (r.right - menu.offsetWidth) + 'px';
+  menu.style.top = (r.bottom + 4) + 'px';
+}
+function closeMenu() {
+  if (menu.hidden) return;
+  menu.hidden = true;
+  menu._row?.classList.remove('hover');
+}
+menu.addEventListener('click', e => {
+  const mi = e.target.closest('.mi');
+  if (!mi || mi.classList.contains('here')) return;
+  const row = menu._row, to = mi.dataset.dayTo, ex = mi.dataset.examTo;
+  closeMenu();
+  if (ex) return ex === 'exam3' ? go('runway') : ex === 'lab2' ? go('plan') : toast(ex === 'add' ? 'Add exam: name, date, course' : 'Med math check · no runway yet');
+  if (to === 'pick') return toast('A date picker opens here');
+  if (to === 'away') { const day = row.closest('.day'), prev = row.previousElementSibling; row.remove(); updateDay(day); return toast('Put away · in Library', () => { prev ? prev.after(row) : $('.day-body', day).prepend(row); updateDay(day); }); }
+  moveRow(row, $(`#days .day[data-day="${to}"]`));
+});
+
+/* Drag a block onto another day. */
+const runway = $('#days');
+runway.addEventListener('dragstart', e => { const r = e.target.closest('.row[draggable]'); if (!r) return; state.drag = r; r.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+runway.addEventListener('dragend', () => { state.drag?.classList.remove('dragging'); state.drag = null; $$('.day.drop').forEach(d => d.classList.remove('drop')); });
+runway.addEventListener('dragover', e => { const d = e.target.closest('.day'); if (!state.drag || !d || d.dataset.after) return; e.preventDefault(); $$('.day.drop').forEach(x => x !== d && x.classList.remove('drop')); d.classList.add('drop'); });
+runway.addEventListener('drop', e => { const d = e.target.closest('.day'); if (!state.drag || !d) return; e.preventDefault(); d.classList.remove('drop'); if (d !== state.drag.closest('.day')) moveRow(state.drag, d); });
+
+/* E.V.'s dashed proposals: accept, edit, or not now. */
+function acceptProp(s) {
+  const day = s.closest('.day');
+  const row = document.createElement('div');
+  row.className = 'row fade'; row.tabIndex = 0;
+  const text = $('[data-edit]', s).textContent;
+  const time = $('.t-meta', s).textContent;
+  if (s.dataset.min) { row.draggable = true; row.dataset.min = s.dataset.min; row.dataset.short = s.dataset.short; }
+  row.dataset.kind = 'Plan block'; row.dataset.source = 'Note · Cardiac output';
+  row.innerHTML = `<i class="dot d-violet"></i><span class="grip" aria-hidden="true">⋮⋮</span><div class="t"><div></div><span class="sub">you accepted E.V.'s proposal</span></div><button class="btn text act" data-act="move" title="Move to another day (M)">Move to…</button><span class="tm">${time}</span>`;
+  $('.t > div', row).textContent = text;
+  s.replaceWith(row);
+  if (day) updateDay(day);
+  return () => { row.replaceWith(s); if (day) updateDay(day); };
+}
+function editProp(s) {
+  const t = $('[data-edit]', s);
+  t.contentEditable = 'true'; t.focus();
+  getSelection().selectAllChildren(t);
+  t.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.contentEditable = 'false'; } };
+}
+function dismissProp(s) {
+  const day = s.closest('.day'), parent = s.parentElement, next = s.nextSibling;
+  s.remove(); if (day) updateDay(day);
+  toast(state.screen === 'plan' ? 'Removed from the proposal' : 'Not now · E.V. won\'t propose it again this week', () => { parent.insertBefore(s, next); if (day) updateDay(day); });
+}
+function startNext() { const r = $('#days .day.today .row'); r?.querySelector('[data-act^="start"]') ? actions[r.querySelector('[data-act^="start"]').dataset.act]() : go('library'); }
+
+/* ================= Runway · objectives (calibration) ================= */
+function drawTries(el) {
+  const seq = el.dataset.seq || '';
+  el.classList.toggle('none', !seq);
+  el.innerHTML = (seq || '00000').split('').map(c => `<i class="${seq && c === '1' ? 'r' : ''}"></i>`).join('');
+}
+function flagFor(conf, right, n) {
+  if (!n) return '';
+  const p = right / n;
+  if (conf === 'Sure' && p < 0.6) return 'overconfident';
+  if (conf === 'Low' && p >= 0.8) return 'underrated';
+  return '';
+}
+function calRow(r) {
+  const tries = $('.tries', r);
+  tries.dataset.seq = r.dataset.seq;
+  drawTries(tries);
+  const seq = r.dataset.seq, right = [...seq].filter(c => c === '1').length;
+  $('.n-of', r).textContent = seq ? `${right} of ${seq.length}` : 'no tries';
+  $('.flag', r).textContent = flagFor($('.seg .on', r)?.textContent, right, seq.length);
+}
+function setRTab(tab) {
+  $$('#rtabs button').forEach(b => b.classList.toggle('on', b.dataset.rtab === tab));
+  $$('[data-rpanel]').forEach(p => (p.hidden = p.dataset.rpanel !== tab));
+  history.replaceState(null, '', '#runway' + (tab === 'objectives' ? '/objectives' : ''));
+}
+function objAccept() {
+  const s = $('#days .day[data-day="tue"] .suggest');
+  const undo = s ? acceptProp(s) : null;
+  const os = $('#obj-suggest');
+  if (os && !os.hidden) { os.hidden = true; os.insertAdjacentHTML('afterend', '<span class="t-meta fade" id="obj-done">Added to Tuesday in the runway.</span>'); }
+  closeDetail();
+  toast('Added to Tuesday', () => { undo?.(); os.hidden = false; $('#obj-done')?.remove(); });
+}
+
+/* ================= Plan flow: confidence first, then the proposal ================= */
+function setPlan(step) {
+  $$('[data-plan]').forEach(p => (p.hidden = p.dataset.plan !== step));
+  const order = ['rate', 'proposal', 'decide'];
+  const cur = step === 'drafting' ? 'proposal' : step;
+  $$('#stepper [data-step]').forEach(s => {
+    const on = s.dataset.step === cur || (step === 'proposal' && s.dataset.step === 'decide');
+    s.classList.toggle('on', on);
+    $('.num', s).classList.toggle('solid', order.indexOf(s.dataset.step) <= order.indexOf(cur));
+  });
+  if (step === 'rate') countRated();
+}
+function countRated() {
+  const segs = $$('#rate-list .seg'), n = segs.filter(s => $('.on', s)).length;
+  $('#rated-n').textContent = `${n} of ${segs.length} rated`;
+  $('#draft-btn').disabled = n < segs.length;
+  // One ember per screen: her mark holds it until the primary is live.
+  $('#rate-mark').classList.toggle('quiet', n === segs.length);
+}
+function draftPlan() {
+  setPlan('drafting');
+  history.replaceState(null, '', '#plan');
+  setTimeout(() => { if (state.screen === 'plan') { setPlan('proposal'); history.replaceState(null, '', '#plan/proposal'); } }, 1400);
+}
+function approvePlan() {
+  const props = $$('#plan-days .suggest');
+  props.forEach(s => { s.className = 'row'; $$('button', s).forEach(b => b.remove()); });
+  $('#plan-actions').outerHTML = `<span class="t-meta fade">Approved · ${props.length} blocks added to the runway, Tue to Mon.</span>`;
+  toast('Plan approved · in the runway');
+}
+
+/* ================= Library · practice ================= */
+const OBJ_SEQ = '10010';
+function resetQ() {
+  $('#q-wrap').replaceChildren($('#q-tpl').content.cloneNode(true));
+  const t = $('#q-tries'); t.dataset.seq = OBJ_SEQ; drawTries(t);
+  $('#q-n').textContent = '2 of 5';
+  $('#q-sub').textContent = 'this answer counts toward it · Exam 3 · you rated it Sure';
+  $('#q-flag').textContent = 'overconfident';
+}
+function setTab(tab) {
+  $$('#libtabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $$('[data-tab-panel]').forEach(p => (p.hidden = p.dataset.tabPanel !== tab));
+  $('#q-obj').hidden = tab !== 'practice';
+  history.replaceState(null, '', '#library/' + tab);
+}
+function pickOpt(opt) {
+  const q = $('#q');
+  if (q.classList.contains('locked')) return;
+  $$('.opt', q).forEach(o => o.classList.toggle('on', o === opt));
+  $('#q-commit').disabled = false;
+}
+function commit() {
+  const q = $('#q');
+  if (q.classList.contains('locked')) { toast('Question 4 of 8 would load here'); return; }
+  const picked = $('.opt.on', q);
+  if (!picked) return;
+  q.classList.add('locked');
+  const right = picked.hasAttribute('data-right');
+  const sure = $('#q-sure .on')?.textContent;
+  const mk = cls => Object.assign(document.createElement('i'), { className: 'dot mk ' + cls });
+  $('[data-right]', q).append(mk('d-ok'));
+  if (!right) picked.append(mk('d-bad'));
+  const said = sure ? ` You said ${sure}.` : '';
+  $('#q-verdict').innerHTML = right
+    ? `<i class="dot d-ok"></i><span>Right: preload.${said}</span>`
+    : `<i class="dot d-bad"></i><span>Not quite. It's preload.${said}</span>`;
+  $('#q-hint').hidden = true;
+  $('#q-feedback').hidden = false;
+  $('#q-hint-btn').hidden = true;
+  $('#q-commit').textContent = 'Next question';
+  $('#q-commit').title = 'Next question (↵)';
+  $$('#q-sure button').forEach(b => (b.disabled = true));
+  // The objective's tries take the new first attempt.
+  const seq = OBJ_SEQ + (right ? '1' : '0'), n = [...seq].filter(c => c === '1').length;
+  const t = $('#q-tries'); t.dataset.seq = seq; drawTries(t); t.lastElementChild.classList.add('new');
+  $('#q-n').textContent = `${n} of ${seq.length}`;
+  $('#q-sub').textContent = `your tries just moved from 2 of 5 · Exam 3 · you rated it Sure`;
+  $('#q-flag').textContent = flagFor('Sure', n, seq.length) || 'matches';
+}
+function showHint() { $('#q-hint').hidden = false; $('#q-hint-btn').disabled = true; }
+
+/* ================= Ask E.V. ================= */
+function addMsg(html, me) {
+  const m = document.createElement('div');
+  m.className = 'msg' + (me ? ' me' : '');
+  m.innerHTML = me ? `<div class="say"></div>` : `<span class="mark"></span><div class="say">${html}</div>`;
+  if (me) m.firstChild.textContent = html;
+  $$('#chat .msg > .mark').forEach(k => k.classList.add('quiet'));
+  $('#chat').append(m);
+  const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight;
+}
+function sendChat() {
+  const f = $('#composer'), v = f.value.trim();
+  if (!v) return;
+  addMsg(v, true); f.value = '';
+  setTimeout(() => addMsg(`<div>Before I answer: what's your best guess, in one line?</div><div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me (⌥↵) · logged">Just tell me</button></div>`), 500);
+}
+function askEV(text) { closePalette(); go('ask'); const f = $('#composer'); f.value = text || ''; f.focus(); }
+
+/* ================= Notes · study session ================= */
+const docHTML = $('#doc').innerHTML;
+let timer;
+function setSession(on) {
+  state.session = on; state.paused = false;
+  $('#sessionbar').hidden = !on;
+  $('#pausebtn').textContent = 'Pause';
+  $('#read-blk')?.classList.toggle('reading', on);
+  clearInterval(timer);
+  if (on) {
+    openDetail('d-session');
+    timer = setInterval(() => {
+      if (state.paused) return;
+      state.seconds++;
+      $('#timer').textContent = `${Math.floor(state.seconds / 60)}:${String(state.seconds % 60).padStart(2, '0')}`;
+    }, 1000);
+  }
+}
+function togglePause() {
+  state.paused = !state.paused;
+  $('#pausebtn').textContent = state.paused ? 'Resume' : 'Pause';
+  $('#session-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-info');
+}
+function endSession() {
+  const m = Math.floor(state.seconds / 60);
+  setSession(false); closeDetail();
+  history.replaceState(null, '', '#notes');
+  toast(`Session saved · ${m} min · ticked off in the runway`);
+}
+function sendCheck() {
+  const f = $('#check-answer', detail);
+  if (!f || !f.value.trim()) return;
+  const a = document.createElement('div');
+  a.className = 'answer'; a.textContent = f.value.trim();
+  const reply = document.createElement('div');
+  reply.className = 't-meta';
+  reply.innerHTML = 'Close. You have the stretch part; add what happens to stroke volume. <span class="cite" data-detail="d-cite-co">Note · Cardiac output</span>';
+  f.replaceWith(a, reply);
+}
+function openNote(row) {
+  $$('#notelist .row').forEach(r => r.classList.toggle('sel', r === row));
+  if (row.dataset.note === 'co') $('#doc').innerHTML = docHTML;
+  else $('#doc').innerHTML = `<h1 class="t-title blk">${$('.t > div', row).textContent}</h1><p class="blk c-quiet">This note's blocks would load here.</p>`;
+}
+function newNote() {
+  go('notes');
+  const row = document.createElement('div');
+  row.className = 'row'; row.tabIndex = 0; row.dataset.note = 'new';
+  row.innerHTML = '<i class="dot d-violet"></i><div class="t"><div>Untitled</div><span class="sub">just now</span></div>';
+  $('#notelist').prepend(row);
+  openNote(row);
+  $('#doc').innerHTML = '<h1 class="t-title blk">Untitled</h1><p class="blk c-faint">Type, or press / for blocks</p>';
+  $('#doc').focus();
+}
+
+/* ================= ⌘K palette ================= */
+const pal = $('#palette'), palIn = $('#palette-in');
+let palIdx = 0;
+const palRows = () => $$('#palette-list .row').filter(r => !r.hidden);
+function openPalette(q = '') { closeMenu(); pal.hidden = false; palIn.value = q; filterPalette(); palIn.focus(); }
+function closePalette() { pal.hidden = true; }
+function filterPalette() {
+  const q = palIn.value.trim().toLowerCase();
+  $$('#palette-list .row').forEach(r => { if (r.id !== 'palette-ask') r.hidden = q && !(r.textContent + ' ' + (r.dataset.k || '')).toLowerCase().includes(q); });
+  $$('#palette-list .t-label').forEach(l => {
+    let n = l.nextElementSibling, any = false;
+    while (n && !n.classList.contains('t-label')) { if (!n.hidden && n.id !== 'palette-ask') any = true; n = n.nextElementSibling; }
+    l.hidden = !any;
+  });
+  $('#palette-ask').hidden = !q;
+  $('#palette-q').textContent = palIn.value.trim();
+  palIdx = 0; markPalette();
+}
+function markPalette() { palRows().forEach((r, i) => r.classList.toggle('sel', i === palIdx)); }
+function runCmd(cmd) {
+  closePalette();
+  if (cmd.startsWith('go:')) { const [s, sub] = cmd.slice(3).split('/'); return go(s, sub); }
+  ({
+    'start-next': startNext,
+    move: () => { go('runway'); const b = $('#days .day.today .row [data-act="move"]'); b && openMoveMenu(b); },
+    practice: () => go('library', 'practice'),
+    'new-note': newNote,
+    'make-set': () => askEV('Make a practice set on '),
+    'add-exam': () => toast('Add exam: name, date, course'),
+    theme: toggleTheme,
+    ask: () => askEV(palIn.value.trim()),
+  })[cmd]?.();
+}
+palIn.addEventListener('input', filterPalette);
+pal.addEventListener('click', e => {
+  if (e.target === pal) return closePalette();
+  const r = e.target.closest('[data-cmd]');
+  if (r) runCmd(r.dataset.cmd);
+});
+
+/* ================= Actions (data-act) ================= */
+const actions = {
+  palette: () => openPalette(),
+  theme: toggleTheme,
+  'start-next': startNext,
+  'start-review': () => go('library', 'practice'),
+  'start-note': () => go('notes', 'session'),
+  move: openMoveMenu,
+  'move-from-detail': () => { closeDetail(); const b = $('#days [data-detail="d-today-drill"] [data-act="move"]'); b && openMoveMenu(b); },
+  'exam-menu': openExamMenu,
+  'accept-prop': b => { const undo = acceptProp(b.closest('.suggest')); toast('Added to Tuesday', undo); },
+  'edit-prop': b => editProp(b.closest('.suggest')),
+  'dismiss-prop': b => dismissProp(b.closest('.suggest')),
+  'obj-accept': objAccept,
+  'obj-dismiss': () => { $('#obj-suggest').hidden = true; toast('Not now', () => ($('#obj-suggest').hidden = false)); },
+  'draft-plan': draftPlan,
+  'approve-plan': approvePlan,
+  'plan-changes': () => askEV('Changes to the Lab practical 2 plan: '),
+  'put-away': () => { go('runway'); toast('Put away · it stays in Activity'); },
+  'just-tell': b => { b.replaceWith(Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' })); },
+  hint: showHint,
+  commit,
+  'end-review': () => go('runway'),
+  'weekly-add': () => { $('[data-swap="weekly"]', detail).outerHTML = '<span class="t-meta">Added · Library · Weak spots</span>'; area.classList.remove('panel-leads'); toast('3 weak spots added'); },
+  pause: togglePause,
+  'end-session': endSession,
+  'new-note': newNote,
+  retry: () => toast('Retrying, shorter · see Running'),
+  toast: b => toast(b.dataset.msg),
+  undo: () => { state.undo?.(); $('#toast').hidden = true; },
+};
+
+/* Segmented controls: confidence (objectives, plan) and "How sure?" (practice). */
+function pickSeg(btn) {
+  if (btn.disabled) return;
+  const seg = btn.parentElement;
+  $$('button', seg).forEach(b => b.classList.toggle('on', b === btn));
+  const cal = btn.closest('.cal-r');
+  if (cal) calRow(cal);
+  if (seg.hasAttribute('data-rate')) countRated();
+}
+
+/* ================= Clicks (one delegated handler) ================= */
+app.addEventListener('click', e => {
+  if (!menu.hidden && !e.target.closest('#menu')) { closeMenu(); if (!e.target.closest('[data-act="move"],[data-act="exam-menu"]')) return; }
+  if (!e.target.closest('.row.hover')) $$('.row.hover').forEach(r => r.classList.remove('hover'));
+  if (e.target.closest('#palette, #menu')) return;
+  const seg = e.target.closest('.seg button');
+  if (seg) return pickSeg(seg);
+  const act = e.target.closest('[data-act]');
+  if (act) { e.preventDefault(); e.stopPropagation(); return actions[act.dataset.act]?.(act); }
+  if (e.target.closest('[data-close]')) return closeDetail();
+  const check = e.target.closest('[data-check]');
+  if (check) return check.classList.toggle('done');
+  const opt = e.target.closest('.opt');
+  if (opt) return pickOpt(opt);
+  const tab = e.target.closest('#libtabs button');
+  if (tab) return setTab(tab.dataset.tab);
+  const rtab = e.target.closest('#rtabs button');
+  if (rtab) return setRTab(rtab.dataset.rtab);
+  const note = e.target.closest('#notelist .row');
+  if (note) return note.dataset.note && openNote(note);
+  const nav = e.target.closest('[data-go]');
+  if (nav) {
+    e.preventDefault();
+    go(nav.dataset.go, nav.dataset.sub);
+    if (nav.dataset.detail) openDetail(nav.dataset.detail, null);
+    return;
+  }
+  const head = e.target.closest('#days .day-head');
+  if (head) return toggleDay(head.parentElement);
+  const row = e.target.closest('.row, .cal-r, .cite, [data-detail]');
+  if (row && (row.dataset.detail || row.matches('.row, .cal-r')) && row.closest('.view, .detail')) openDetail(row.dataset.detail, row);
+});
+
+app.addEventListener('contextmenu', e => {
+  const row = e.target.closest('.view .row');
+  if (!row || !$('.act', row)) return;
+  e.preventDefault();
+  $$('.row.hover').forEach(r => r.classList.remove('hover'));
+  row.classList.add('hover');
+});
+
+/* ================= Keys ================= */
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  const typing = e.target.matches('input, textarea, [contenteditable="true"], [contenteditable="true"] *');
+  if (!pal.hidden) {
+    const rows = palRows();
+    if (e.key === 'Escape') return closePalette();
+    if (e.key === 'ArrowDown') { e.preventDefault(); palIdx = Math.min(palIdx + 1, rows.length - 1); return markPalette(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); palIdx = Math.max(palIdx - 1, 0); return markPalette(); }
+    if (e.key === 'Enter') { e.preventDefault(); return rows[palIdx] && runCmd(rows[palIdx].dataset.cmd); }
+    if (e.key === 'Tab') { e.preventDefault(); return askEV(palIn.value.trim()); }
+  }
+  if (!menu.hidden) {
+    const items = $$('.mi:not(.here)', menu), i = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); return closeMenu(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); return items[Math.min(i + 1, items.length - 1)]?.focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); return items[Math.max(i - 1, 0)]?.focus(); }
+  }
+  if (mod && k === 'k') { e.preventDefault(); return pal.hidden ? openPalette() : closePalette(); }
+  if (mod && k === 'j') { e.preventDefault(); go('ask'); return $('#composer').focus(); }
+  if (e.key === 'Escape') { if (typing) e.target.blur(); if (!detail.hidden) closeDetail(); else if (state.screen === 'plan') go('runway'); return; }
+  if (mod && e.key === 'Enter' && state.screen === 'plan') { e.preventDefault(); if (!$('[data-plan="rate"]').hidden && !$('#draft-btn').disabled) return draftPlan(); if ($('#plan-actions')) return approvePlan(); return; }
+  if (e.altKey && e.key === 'Enter' && state.screen === 'ask') { e.preventDefault(); const b = $$('#chat [data-act="just-tell"]').pop(); return b && actions['just-tell'](b); }
+  if (e.target.id === 'composer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendChat(); }
+  if (e.target.id === 'check-answer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendCheck(); }
+  if (typing) return;
+  if (e.key === '\\') return toggleTheme();
+  if (k === 'n' && !mod) return newNote();
+  if (state.screen === 'runway' && !mod) {
+    if (k === 's') return startNext();
+    if (k === 'm') { const r = e.target.closest?.('#days .row') || $('#days .row:hover'); const b = r && $('[data-act="move"]', r); return b && openMoveMenu(b); }
+    if (k === 'a') { const s = $('#days .suggest'); if (s && s.closest('.day.open')) return actions['accept-prop']($('button', s)); }
+  }
+  if (e.key === 'Enter' && e.target.matches('.row, .cal-r')) return e.target.click();
+  if (e.key === ' ' && state.session && state.screen === 'notes') { e.preventDefault(); return togglePause(); }
+  if (state.screen === 'library' && $('#q') && !$('#q').closest('[hidden]')) {
+    if (k === 'h') return showHint();
+    if ('123'.includes(k)) { const b = $$('#q-sure button')[+k - 1]; return b && pickSeg(b); }
+    if (e.key === 'Enter' && !$('#q-commit').disabled) return commit();
+  }
+});
+
+/* ================= Start ================= */
+$$('#cal .cal-r').forEach(calRow);
+updateAll();
+function route() {
+  const [screen, sub] = (location.hash.slice(1) || 'runway').split('/');
+  if (screen === 'practice') {
+    go('library', 'practice');
+    pickOpt($('#q [data-opt="b"]')); pickSeg($$('#q-sure button')[1]);
+    if (sub === 'after') commit();
+    history.replaceState(null, '', '#practice' + (sub ? '/' + sub : ''));
+    return;
+  }
+  if (screen === 'palette') { go('runway'); return openPalette('preload'); }
+  go($(`[data-screen="${screen}"]`) ? screen : 'runway', sub);
+  if (screen === 'runway' && sub === 'move') {
+    const tue = $('#days .day[data-day="tue"]'); tue.classList.add('open');
+    openMoveMenu($('#days [data-detail="d-today-review"] [data-act="move"]'));
+    history.replaceState(null, '', '#runway/move');
+  }
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

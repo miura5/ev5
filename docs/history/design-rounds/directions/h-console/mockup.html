@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E.V. · Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   CONSOLE · the Proprietary of direction H
+   Every value below is a token. Components are built only from tokens.
+   Vertical rhythm is the line (--ln). Horizontal rhythm is the character (ch).
+   ========================================================================== */
+:root {
+  /* type */
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-read: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --fs-1: 20px;           /* display: focused titles, card faces */
+  --fs-2: 15px;           /* reading: prose, E.V.'s voice */
+  --fs-3: 13px;           /* structure: everything mono */
+  --fw-1: 400;
+  --fw-2: 500;            /* titles only */
+  --ln: 24px;             /* the line: all vertical space is a multiple of this */
+  --ln-half: 12px;
+  --ln-2: 48px;
+  --ln-3: 72px;
+
+  /* character grid (horizontal) */
+  --cx-1: 1ch;
+  --cx-2: 2ch;
+  --cx-4: 4ch;
+
+  /* layout */
+  --col: 720px;           /* the one column */
+  --top-h: 48px;
+  --cmd-h: 56px;
+  --hint-h: 24px;
+
+  /* shape */
+  --hair: 1px;
+  --r-0: 0;
+  --r-key: 3px;           /* keycaps and the palette only */
+  --tick: 10px;           /* frame corner tick */
+  --dot: 7px;             /* status glyph */
+  --meter-h: 3px;
+
+  /* motion */
+  --dur-1: 120ms;         /* a line appears */
+  --dur-2: 180ms;         /* a focused view takes the column; card turns */
+  --ease: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* dark · soft blue-black (default) */
+[data-theme="dark"] {
+  --bg: #13151a;
+  --bg-lift: #1a1d23;
+  --bg-sel: #23272e;
+  --rule: #262a31;
+  --rule-strong: #3a3f48;
+  --ink: #e8e4da;
+  --ink-2: #bdb9af;
+  --ink-3: #96928b;
+  --accent: #eba564;
+  --accent-soft: rgba(235, 165, 100, .13);
+  --on-accent: #1b1207;
+  --scrim: rgba(10, 11, 14, .62);
+  --shadow-float: 0 18px 48px rgba(0, 0, 0, .45), 0 2px 6px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}
+/* light · paper terminal */
+[data-theme="light"] {
+  --bg: #f3eee2;
+  --bg-lift: #ebe5d6;
+  --bg-sel: #e2dbca;
+  --rule: #dcd4c2;
+  --rule-strong: #c2b8a3;
+  --ink: #25221e;
+  --ink-2: #433e37;
+  --ink-3: #5f594f;
+  --accent: #9a4410;
+  --accent-soft: rgba(154, 68, 16, .1);
+  --on-accent: #fbf6ea;
+  --scrim: rgba(60, 50, 35, .22);
+  --shadow-float: 0 18px 48px rgba(70, 55, 30, .18), 0 2px 6px rgba(70, 55, 30, .1);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font: var(--fw-1) var(--fs-3)/var(--ln) var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--accent-soft); }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+:focus { outline: none; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: var(--hair) solid var(--ink-2); outline-offset: 2px; }
+
+/* ---------- frame of the app ---------- */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.top {
+  position: sticky; top: 0; z-index: 10; height: var(--top-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--cx-4); background: var(--bg); color: var(--ink-3);
+}
+.top .where { display: flex; align-items: center; gap: var(--cx-1); }
+.top .where b { color: var(--ink); font-weight: var(--fw-1); }
+.top .where .sep { color: var(--rule-strong); }
+.top .status { display: flex; align-items: center; gap: var(--cx-2); }
+.top .status a { color: var(--ink-3); text-decoration: none; display: inline-flex; align-items: center; gap: var(--cx-1); }
+.top .status a:hover { color: var(--ink); }
+
+main.view {
+  flex: 1; width: var(--col); margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: var(--ln) 0 var(--ln);
+  animation: fade var(--dur-2) var(--ease) both;
+}
+main.view.is-focused { justify-content: flex-start; padding-top: var(--ln-half); }
+
+.cmd { position: sticky; bottom: 0; z-index: 10; background: var(--bg); }
+.cmd-line {
+  position: relative; width: var(--col); margin: 0 auto; height: var(--cmd-h);
+  border-top: var(--hair) solid var(--rule);
+  display: flex; align-items: center; gap: var(--cx-1);
+}
+.cmd-line .pr { color: var(--ink-3); }
+.cmd-line:focus-within .pr { color: var(--ink); }
+#cmd:focus-visible, #att:focus-visible, #palq:focus-visible { outline: none; }
+.attempt:focus-within { box-shadow: 0 1px 0 var(--ink-3); }
+.def-quiet { color: var(--ink-3); display: inline-flex; gap: .8ch; align-items: center; white-space: nowrap; }
+.cmd-field { position: relative; flex: 1; height: var(--ln); }
+.cmd-field input, .cmd-field .ghost {
+  position: absolute; inset: 0; font: inherit; line-height: var(--ln); padding: 0; margin: 0; border: 0;
+  background: transparent; white-space: pre;
+}
+.cmd-field input { color: var(--ink); caret-color: var(--accent); z-index: 1; width: 100%; }
+.cmd-field .ghost { color: var(--ink-3); pointer-events: none; }
+.cmd-field .ghost .typed { visibility: hidden; }
+.cmd-field .ghost .caret { display: inline-block; width: .62ch; height: 15px; vertical-align: -3px; background: var(--accent); margin-right: var(--cx-1); }
+.cmd-field input:not(:placeholder-shown) ~ .ghost .caret { display: none; }
+.cmd-hints {
+  width: var(--col); margin: 0 auto; height: var(--hint-h); color: var(--ink-3);
+  display: flex; gap: var(--cx-2); align-items: flex-start; justify-content: space-between;
+}
+.cmd-hints span { white-space: nowrap; }
+.cmd-hints em { font-style: normal; color: var(--ink-2); }
+
+/* timestamps hang in the left gutter, outside the column */
+.echo { position: relative; color: var(--ink-2); margin-top: var(--ln); }
+.echo:first-child { margin-top: 0; }
+.echo time { position: absolute; right: calc(100% + var(--cx-2)); color: var(--ink-3); }
+.echo .pr { color: var(--ink-3); margin-right: var(--cx-1); }
+.fold { color: var(--ink-3); display: flex; gap: var(--cx-1); align-items: center; }
+.fold::before { content: "+"; color: var(--rule-strong); }
+
+/* ---------- glyphs ---------- */
+.mark { display: inline-block; width: .62ch; height: 15px; background: var(--accent); vertical-align: -3px; flex: none; }
+.st { display: inline-block; width: var(--dot); height: var(--dot); vertical-align: 0; flex: none; position: relative; border-radius: 50%; }
+.st.done { background: var(--ink-2); }
+.st.todo { border: var(--hair) solid var(--ink-3); }
+.st.run  { border: var(--hair) solid var(--ink-2); background: linear-gradient(90deg, var(--ink-2) 50%, transparent 50%); }
+.st.need { border-radius: 0; background: var(--ink); transform: rotate(45deg) scale(.86); }
+.st.fail { border-radius: 0; }
+.st.fail::before, .st.fail::after { content: ""; position: absolute; left: -1px; right: -1px; top: 50%; height: var(--hair); background: var(--ink); transform: rotate(45deg); }
+.st.fail::after { transform: rotate(-45deg); }
+.st.idle { width: 3px; height: 3px; background: var(--rule-strong); }
+.ret { display: inline-block; width: 1.1ch; height: 11px; background: currentColor; vertical-align: -1px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 11'%3E%3Cpath d='M10.5 1v5H2.5M5 3.2 2.3 6 5 8.8' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 11'%3E%3Cpath d='M10.5 1v5H2.5M5 3.2 2.3 6 5 8.8' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") center/contain no-repeat; }
+.key {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 2.4ch; height: 18px; padding: 0 .5ch;
+  border: var(--hair) solid var(--rule-strong); border-radius: var(--r-key); color: var(--ink-2); line-height: 1; vertical-align: 1px;
+}
+.meter {
+  display: inline-block; width: calc(var(--cells, 10) * 1ch); height: var(--meter-h); vertical-align: middle;
+  background: linear-gradient(90deg, var(--ink-2) calc(var(--v) * 100%), var(--rule-strong) 0);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(1ch - 2px), transparent calc(1ch - 2px) 1ch);
+          mask: repeating-linear-gradient(90deg, #000 0 calc(1ch - 2px), transparent calc(1ch - 2px) 1ch);
+}
+.src { color: var(--ink-3); font: var(--fs-3)/var(--ln) var(--font-mono); white-space: nowrap; }
+.src::before { content: "["; color: var(--rule-strong); }
+.src::after  { content: "]"; color: var(--rule-strong); }
+.unv { color: var(--ink-3); font: var(--fs-3)/var(--ln) var(--font-mono); white-space: nowrap; display: inline-flex; align-items: center; gap: .6ch; }
+.unv::before { content: ""; width: var(--dot); height: var(--dot); border: var(--hair) dashed var(--ink-3); border-radius: 50%; }
+.dim { color: var(--ink-3); }
+.ink2 { color: var(--ink-2); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- blocks: the unit of output ---------- */
+.blk {
+  margin: 0 calc(var(--cx-2) * -1); padding: var(--ln-half) var(--cx-2);
+  transition: background var(--dur-1) var(--ease);
+}
+.blk + .blk { margin-top: 0; }
+.echo + .blk { margin-top: var(--ln-half); }
+.blk:hover { background: var(--bg-lift); }
+.blk:focus-visible, .blk.is-focus { outline: none; background: var(--bg-lift); box-shadow: inset var(--hair) 0 0 var(--ink-2); }
+.blk-h { display: flex; align-items: center; gap: var(--cx-1); color: var(--ink-3); }
+.blk-h .t { color: var(--ink-2); }
+.blk-h .fill { flex: 1; height: var(--hair); background: var(--rule); margin: 0 var(--cx-1); }
+.blk-h .open { opacity: 0; transition: opacity var(--dur-1) var(--ease); display: inline-flex; align-items: center; gap: .6ch; }
+.blk:hover .blk-h .open, .blk:focus-visible .blk-h .open, .blk.is-focus .blk-h .open { opacity: 1; }
+
+.row {
+  display: grid; grid-template-columns: var(--cols); column-gap: var(--cx-2); align-items: baseline;
+  min-height: var(--ln);
+}
+.row > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .st { align-self: center; justify-self: center; }
+.row.head { color: var(--ink-3); }
+.row .r { text-align: right; justify-self: end; }
+.rowline { cursor: default; }
+.rowline:hover .t1 { color: var(--ink); }
+.t1 { color: var(--ink); }
+.t2 { color: var(--ink-3); }
+
+/* the default action: the only accent besides E.V.'s mark */
+.act-def {
+  display: inline-flex; align-items: center; gap: .8ch; color: var(--accent); background: var(--accent-soft);
+  padding: 0 var(--cx-1); line-height: var(--ln); white-space: nowrap;
+}
+.act-def:hover { background: var(--accent); color: var(--on-accent); }
+.act { color: var(--ink-2); white-space: nowrap; display: inline-flex; gap: .6ch; align-items: center; }
+.act:hover { color: var(--ink); }
+.act .k { color: var(--ink-3); }
+.brk { color: var(--ink-2); white-space: nowrap; }
+.brk::before { content: "["; color: var(--ink-3); }
+.brk::after { content: "]"; color: var(--ink-3); }
+.brk:hover { color: var(--ink); }
+.acts { display: flex; gap: var(--cx-2); align-items: center; flex-wrap: wrap; }
+
+/* ---------- E.V. speaks ---------- */
+.ev { display: grid; grid-template-columns: var(--cx-2) 1fr; align-items: start; }
+.ev .mark { margin-top: 5px; }
+.ev p { margin: 0; font: var(--fw-1) var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); }
+.ev p .src, .ev p .unv { margin-left: .6ch; }
+.ev .acts { margin-top: var(--ln-half); }
+.me { display: grid; grid-template-columns: var(--cx-2) 1fr; color: var(--ink-2); }
+.me .pr { color: var(--ink-3); }
+.me p { margin: 0; font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink-2); }
+.logged { color: var(--ink-3); font-style: italic; }
+
+/* proposals: dimmed, pending, dashed rule */
+.proposal { margin-top: var(--ln-half); padding: var(--ln-half) 0 var(--ln-half) var(--cx-2); border-left: var(--hair) dashed var(--rule-strong); }
+.proposal .lbl { color: var(--ink-3); }
+.proposal p { margin: 0; font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink-2); }
+.proposal .acts { margin-top: var(--ln-half); }
+.proposal.ok { border-left-style: solid; border-left-color: var(--ink-3); }
+.proposal.ok p { color: var(--ink); }
+.proposal.gone p { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--rule-strong); }
+.pend { color: var(--ink-2); }
+.pend .row { border-left: var(--hair) dashed var(--rule-strong); padding-left: var(--cx-2); }
+
+/* ---------- the frame: only the thing being answered ---------- */
+.frame { position: relative; border: var(--hair) solid var(--rule); padding: var(--ln) var(--cx-4); }
+.frame::before {
+  content: ""; position: absolute; inset: calc(var(--hair) * -1); pointer-events: none;
+  --c: var(--ink-2);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--tick) var(--hair) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--hair) var(--tick) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--tick) var(--hair) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--hair) var(--tick) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--tick) var(--hair) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--hair) var(--tick) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--tick) var(--hair) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--hair) var(--tick) no-repeat;
+}
+.frame.sm { padding: var(--ln-half) var(--cx-2); }
+
+/* ---------- focused view ---------- */
+.fv-h { display: flex; align-items: center; justify-content: space-between; color: var(--ink-3); padding-bottom: var(--ln-half); border-bottom: var(--hair) solid var(--rule); margin-bottom: var(--ln); }
+.fv-h .path { display: flex; gap: var(--cx-1); align-items: center; }
+.fv-h .path b { font-weight: var(--fw-1); color: var(--ink); }
+.fv-h a { color: var(--ink-3); text-decoration: none; }
+.fv-h a:hover { color: var(--ink); }
+.title { font: var(--fw-2) var(--fs-1)/32px var(--font-read); color: var(--ink); margin: 0; letter-spacing: -.005em; }
+.lede { font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink-2); margin: 0; }
+
+/* ---------- carousel ---------- */
+.deck-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--ln); }
+.ticks { display: flex; gap: 1ch; align-items: center; }
+.ticks i { display: block; width: var(--dot); height: var(--dot); border-radius: 50%; }
+.ticks i.g { background: var(--ink-2); }
+.ticks i.a { border: var(--hair) solid var(--ink-2); }
+.ticks i.now { width: 1ch; height: var(--hair); border-radius: 0; background: var(--ink); }
+.ticks i.up { width: 3px; height: 3px; background: var(--rule-strong); margin: 0 2px; }
+.pos { color: var(--ink-2); display: inline-flex; gap: var(--cx-2); }
+.pos button { color: var(--ink-3); }
+.pos button:hover { color: var(--ink); }
+.stage { position: relative; margin: 0 var(--cx-4); }
+.stage::before, .stage::after { /* neighbours, hinted as card edges */
+  content: ""; position: absolute; top: var(--ln); bottom: var(--ln); width: var(--hair); background: var(--rule-strong);
+}
+.stage::before { left: calc(var(--cx-2) * -1); }
+.stage::after { right: calc(var(--cx-2) * -1); }
+.card { min-height: 336px; display: flex; flex-direction: column; background: var(--bg); }
+.card .face { animation: fade var(--dur-2) var(--ease) both; display: flex; flex-direction: column; flex: 1; }
+.card .lbl { color: var(--ink-3); display: flex; justify-content: space-between; }
+.card .q { font: var(--fw-1) var(--fs-1)/32px var(--font-read); color: var(--ink); margin: var(--ln-half) 0 0; max-width: 30em; }
+.card .q.small { font-size: var(--fs-2); line-height: var(--ln); color: var(--ink-3); margin: 0; }
+.card .ans { font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); margin: var(--ln-half) 0 0; }
+.card .spacer { flex: 1; min-height: var(--ln); }
+.card hr { border: 0; border-top: var(--hair) solid var(--rule); margin: var(--ln-half) 0; }
+.attempt { display: grid; grid-template-columns: var(--cx-2) 1fr; align-items: baseline; }
+.attempt .pr { color: var(--ink-3); }
+.attempt input, .attempt .txt { font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); background: transparent; border: 0; padding: 0; width: 100%; caret-color: var(--accent); }
+.attempt input::placeholder { color: var(--ink-3); }
+.under { display: flex; justify-content: space-between; align-items: center; margin-top: var(--ln); padding: 0 var(--cx-4); color: var(--ink-3); }
+.under .acts { gap: var(--cx-2); }
+.rate { display: flex; gap: var(--cx-2); }
+.rate button { display: inline-flex; gap: var(--cx-1); align-items: center; color: var(--ink-2); padding: 0 var(--cx-1); border: var(--hair) solid var(--rule-strong); line-height: 30px; min-width: 14ch; justify-content: center; }
+.rate button:hover, .rate button:focus-visible { color: var(--ink); border-color: var(--ink-2); }
+
+/* ---------- practice ---------- */
+.opts { margin: var(--ln) 0 0; padding: 0; list-style: none; }
+.opt { display: grid; grid-template-columns: var(--cx-4) 1fr auto; align-items: center; min-height: 32px; padding: 0 var(--cx-1); color: var(--ink-2); cursor: pointer; border: var(--hair) solid transparent; }
+.opt .l { color: var(--ink-3); }
+.opt:hover { background: var(--bg-lift); color: var(--ink); }
+.opt.sel { border-color: var(--ink-2); color: var(--ink); background: var(--bg-lift); }
+.opt.right { color: var(--ink); }
+.opt.right .l, .opt.wrong .l { color: var(--ink); }
+.opt.wrong { color: var(--ink-3); }
+.opt.wrong > span:nth-child(2) { text-decoration: line-through; text-decoration-color: var(--ink-3); }
+.opt .tag { color: var(--ink-3); display: inline-flex; gap: var(--cx-1); align-items: center; text-decoration: none; }
+.qtext { font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); margin: var(--ln-half) 0 0; }
+.qtext.big { font-size: var(--fs-1); line-height: 32px; }
+.result { margin-top: var(--ln); }
+.wkline { margin-top: var(--ln-half); color: var(--ink-2); display: flex; gap: var(--cx-1); align-items: center; }
+
+/* ---------- confidence scale ---------- */
+.scale { display: inline-flex; gap: .4ch; }
+.scale span { width: 3ch; text-align: center; color: var(--ink-3); border: var(--hair) solid transparent; line-height: 22px; }
+.scale span.on { color: var(--ink); border-color: var(--ink-2); }
+
+/* ---------- notes editor ---------- */
+.session {
+  display: flex; white-space: nowrap; align-items: center; gap: var(--cx-2); color: var(--ink-3);
+  padding: var(--ln-half) 0; border-bottom: var(--hair) solid var(--rule); margin-bottom: var(--ln);
+}
+.session .grow { flex: 1; }
+.session b { font-weight: var(--fw-1); color: var(--ink); }
+.toggle { display: inline-flex; align-items: center; gap: .8ch; color: var(--ink-2); }
+.toggle i { width: 22px; height: 12px; border: var(--hair) solid var(--ink-3); position: relative; border-radius: 6px; }
+.toggle i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); transition: transform var(--dur-1) var(--ease); }
+.toggle.on i { border-color: var(--ink-2); }
+.toggle.on i::after { transform: translateX(10px); background: var(--ink); }
+.doc { font: var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); }
+.doc .h { position: relative; margin: var(--ln) 0 0; }
+.doc .h::before { position: absolute; right: calc(100% + var(--cx-2)); font: var(--fs-3)/inherit var(--font-mono); color: var(--rule-strong); }
+.doc h1.h { font: var(--fw-2) var(--fs-1)/32px var(--font-read); margin: 0; }
+.doc h1.h::before { content: "#"; }
+.doc h2.h { font: var(--fw-2) var(--fs-2)/var(--ln) var(--font-read); color: var(--ink); }
+.doc h2.h::before { content: "##"; }
+.doc p { margin: var(--ln-half) 0 0; }
+.doc ul { margin: var(--ln-half) 0 0; padding: 0; list-style: none; }
+.doc li { position: relative; padding-left: var(--cx-2); }
+.doc ul.bul li::before { content: "–"; position: absolute; left: 0; color: var(--ink-3); }
+.doc ul.chk li { padding-left: 3ch; }
+.doc ul.chk li::before { content: ""; position: absolute; left: 0; top: 7px; width: 10px; height: 10px; border: var(--hair) solid var(--ink-3); }
+.doc ul.chk li.x { color: var(--ink-3); }
+.doc ul.chk li.x::before { background: var(--ink-3); box-shadow: inset 0 0 0 2px var(--bg); }
+.doc .read { background: var(--bg-sel); box-shadow: 0 1px 0 var(--ink-3); }
+.doc .cursor { display: inline-block; width: 1px; height: 17px; background: var(--accent); vertical-align: -3px; margin-left: 1px; }
+.fig { float: right; width: 236px; margin: var(--ln-half) 0 var(--ln-half) var(--cx-4); }
+.fig svg { display: block; width: 100%; height: auto; border: var(--hair) solid var(--rule); }
+.fig svg .ax { stroke: var(--ink-3); stroke-width: 1; fill: none; }
+.fig svg .cv { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+.fig svg .cv2 { stroke: var(--ink-3); stroke-width: 1; fill: none; stroke-dasharray: 3 3; }
+.fig svg text { font: var(--fs-3) var(--font-mono); fill: var(--ink-3); }
+.fig figcaption { color: var(--ink-3); margin-top: var(--ln-half); line-height: 18px; }
+.check { margin-top: var(--ln); clear: both; }
+
+/* ---------- palette (floating, the only shadow) ---------- */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; animation: fade var(--dur-1) var(--ease) both; }
+.pal {
+  position: fixed; z-index: 21; top: 112px; left: 50%; transform: translateX(-50%); width: 600px;
+  background: var(--bg-lift); border: var(--hair) solid var(--rule-strong); border-radius: var(--r-key); box-shadow: var(--shadow-float);
+  animation: fade var(--dur-1) var(--ease) both;
+}
+.pal-in { display: flex; align-items: center; gap: var(--cx-1); height: var(--cmd-h); padding: 0 var(--cx-2); border-bottom: var(--hair) solid var(--rule); }
+.pal-in input { flex: 1; font: inherit; color: var(--ink); background: transparent; border: 0; caret-color: var(--accent); line-height: var(--ln); }
+.pal-in input::placeholder { color: var(--ink-3); }
+.pal-list { padding: var(--ln-half) 0; max-height: 440px; overflow: auto; }
+.pal-g { color: var(--ink-3); padding: var(--ln-half) var(--cx-2) 0; }
+.pal-r { display: grid; grid-template-columns: 1fr auto; gap: var(--cx-2); padding: 0 var(--cx-2); line-height: 30px; color: var(--ink-2); cursor: pointer; }
+.pal-r .d { color: var(--ink-3); }
+.pal-r b { font-weight: var(--fw-1); color: var(--ink); box-shadow: 0 1px 0 var(--ink-2); }
+.pal-r.on, .pal-r:hover { background: var(--bg-sel); color: var(--ink); }
+.pal-f { display: flex; gap: var(--cx-2); padding: 0 var(--cx-2); height: 36px; align-items: center; border-top: var(--hair) solid var(--rule); color: var(--ink-3); }
+
+/* completions: a small list above the line, teaching the commands */
+.comp {
+  position: absolute; left: 0; bottom: calc(100% + 4px); width: 520px; z-index: 12;
+  background: var(--bg-lift); border: var(--hair) solid var(--rule-strong); border-radius: var(--r-key); box-shadow: var(--shadow-float);
+  padding: var(--ln-half) 0;
+}
+.comp .pal-r { grid-template-columns: 22ch 1fr; line-height: 28px; }
+.pal-r > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- help ---------- */
+.help .row { --cols: 22ch 1fr; }
+.help .row .c { color: var(--ink); }
+.help .row .c span { color: var(--ink-3); }
+
+/* ---------- system page ---------- */
+.sys section { margin-top: var(--ln-2); }
+.sys section:first-of-type { margin-top: var(--ln); }
+.sys .blk-h { margin-bottom: var(--ln); }
+.sys .blk-h .n { color: var(--ink-3); }
+.sw { display: inline-block; width: 6ch; height: 14px; vertical-align: -2px; border: var(--hair) solid var(--rule); }
+.sys .tok { --cols: 14ch 1fr 1fr 24ch; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cx-2); margin-bottom: var(--ln); }
+.pair > div { background: var(--bg); color: var(--ink); border: var(--hair) solid var(--rule-strong); padding: var(--ln-half) var(--cx-2); }
+.pair .cap { color: var(--ink-3); display: flex; justify-content: space-between; margin-bottom: var(--ln-half); }
+.spec { display: grid; grid-template-columns: 16ch 1fr; column-gap: var(--cx-2); align-items: baseline; padding: var(--ln-half) 0; border-top: var(--hair) solid var(--rule); }
+.spec:first-child { border-top: 0; }
+.spec .m { color: var(--ink-3); }
+.glyphs { display: grid; grid-template-columns: repeat(4, 1fr); border-top: var(--hair) solid var(--rule); border-left: var(--hair) solid var(--rule); }
+.glyphs > div { border-right: var(--hair) solid var(--rule); border-bottom: var(--hair) solid var(--rule); padding: var(--ln-half) var(--cx-2) var(--ln-half); min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; }
+.glyphs .g { height: var(--ln-2); display: flex; align-items: center; color: var(--ink); font-size: var(--fs-1); }
+.glyphs .g .st { transform: scale(1.6); }
+.glyphs .g .st.need { transform: rotate(45deg) scale(1.4); }
+.glyphs .g .mark { transform: scale(1.4); }
+.glyphs .nm { color: var(--ink-2); }
+.glyphs .ds { color: var(--ink-3); line-height: 18px; }
+.comp-row { display: grid; grid-template-columns: 16ch 1fr; column-gap: var(--cx-2); padding: var(--ln) 0; border-top: var(--hair) solid var(--rule); align-items: start; }
+.comp-row > .m { color: var(--ink-3); }
+.comp-row .states { display: flex; flex-direction: column; gap: var(--ln-half); }
+.state { display: grid; grid-template-columns: 10ch 1fr; column-gap: var(--cx-2); align-items: center; }
+.state > .m { color: var(--ink-3); }
+.space-demo { display: flex; align-items: flex-end; gap: var(--cx-4); }
+.space-demo div { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--ink-3); }
+.space-demo i { display: block; background: var(--accent-soft); border: var(--hair) solid var(--rule-strong); }
+.mini-cmd { border-top: var(--hair) solid var(--rule); height: 44px; display: flex; align-items: center; gap: var(--cx-1); position: relative; }
+.mini-cmd .comp { position: static; width: 100%; box-shadow: none; margin-bottom: var(--ln-half); }
+.lines-bg { background-image: repeating-linear-gradient(180deg, transparent 0 calc(var(--ln) - 1px), var(--rule) calc(var(--ln) - 1px) var(--ln)); }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="where"><span class="mark" aria-hidden="true"></span><b>e.v.</b><span class="sep">/</span><span id="where">today</span></div>
+    <div class="status">
+      <a href="#jobs" title="Jobs that need you"><span class="st need"></span>1 needs you</a>
+      <a href="#jobs" title="Running jobs"><span class="st run"></span>2 running</a>
+      <span class="num">mon 2 nov · 9:12 am</span>
+    </div>
+  </header>
+
+  <main class="view" id="view" aria-live="polite"></main>
+
+  <footer class="cmd">
+    <div class="cmd-line">
+      <div class="comp" id="comp" hidden></div>
+      <span class="pr">›</span>
+      <div class="cmd-field">
+        <input id="cmd" autocomplete="off" spellcheck="false" placeholder=" " aria-label="Command">
+        <div class="ghost" id="ghost"></div>
+      </div>
+      <span id="def"></span>
+    </div>
+    <div class="cmd-hints" id="hints"></div>
+  </footer>
+</div>
+
+<div id="layer"></div>
+
+<script>
+/* ==========================================================================
+   Content (synthetic only) and the views
+   ========================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const RET = '<span class="ret" aria-hidden="true"></span>';
+const mark = '<span class="mark" aria-label="E.V."></span>';
+const src = t => `<span class="src">${t}</span>`;
+const unv = '<span class="unv">unverified</span>';
+const st = k => `<span class="st ${k}"></span>`;
+const meter = (v, cells = 10) => `<span class="meter" style="--v:${Math.round(v * cells) / cells};--cells:${cells}" role="meter" aria-valuenow="${Math.round(v * 100)}" aria-valuemin="0" aria-valuemax="100"></span>`;
+const key = k => `<span class="key">${k}</span>`;
+const echo = (time, cmd) => `<div class="echo"><time class="num">${time}</time><span class="pr">›</span>${cmd}</div>`;
+const ev = (html, extra = '') => `<div class="ev">${mark}<div><p>${html}</p>${extra}</div></div>`;
+const me = html => `<div class="me"><span class="pr">›</span><p>${html}</p></div>`;
+const fvh = (path, right) => `<div class="fv-h"><div class="path"><a href="#today" data-esc>esc</a><span>‹</span>${path}</div><div class="ink2">${right}</div></div>`;
+
+const S = { study: { i: 2, state: 'attempt', attempt: 'More stretch before the beat gives a stronger contraction.' }, practice: { sel: 'd', done: false }, plan: { cur: 3 } };
+
+const CARDS = [
+  { q: 'What is cardiac output, and how do you calculate it?', a: 'CO = heart rate × stroke volume.', x: 'About 5 L/min in a resting adult. Either factor can raise or lower it.', s: ['notes ch9 §1'] },
+  { q: 'Define preload.', a: 'The stretch on the ventricle at the end of filling.', x: 'It tracks end-diastolic volume: the more blood in the ventricle before it contracts, the higher the preload.', s: ['notes ch9 §2'] },
+  { q: 'What does the Frank–Starling law say about stroke volume?', a: 'More stretch, a stronger beat, up to a limit.', x: 'As end-diastolic volume rises, the fibres lengthen toward their best overlap and contract with more force, so stroke volume rises. Past that length the gain levels off.', s: ['notes ch9 §2', 'lecture 9 · slide 14'] },
+  { q: 'Define afterload.', a: 'The pressure the ventricle must push against to eject.', x: 'Mostly set by arterial pressure. Higher afterload means less blood leaves with each beat.', s: ['notes ch9 §3'] },
+];
+const TICKS = ['g', 'g', 'now', 'up', 'up', 'up', 'up', 'up', 'up', 'up', 'up', 'up'];
+
+const VIEWS = {};
+
+/* ---------------- Today ---------------- */
+VIEWS.today = () => ({
+  where: 'today', def: ['start review', '#study/front'],
+  html: `
+  <div class="fold">sunday · 3 sessions · 1 h 50 min · folded</div>
+  ${echo('9:12', 'today')}
+  <div class="blk" tabindex="0" data-open="#today">
+    <div class="blk-h"><span class="t">monday 2 november</span><span class="fill"></span><span>exam 3 in 4 days</span></div>
+    <div style="margin-top:var(--ln-half)">${ev(`Morning. Afterload is still your shakiest topic, so it's the first study block after review. ${src('5 of 9 missed this week')}`)}</div>
+  </div>
+
+  <div class="blk" tabindex="0" data-open="#study/front" style="--cols: 2ch 8ch auto 1fr auto">
+    <div class="blk-h"><span class="t">plan</span><span class="fill"></span><span>4 · from your week plan</span><span class="open">${RET} open</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('todo')}<span class="num t2">9:30a</span><span class="t1">morning review set</span><span class="t2">18 cards · cardiac, fluids</span><a class="act-def" href="#study/front">${RET} start review</a></div>
+    <div class="row rowline">${st('todo')}<span class="num t2">11:00a</span><span class="t1">study block · afterload, preload</span><span class="t2">25 min</span><span></span></div>
+    <div class="row rowline">${st('todo')}<span class="num t2">2:40p</span><span class="t1">study block · oral liquid doses</span><span class="t2">20 min · med math</span><span></span></div>
+    <div class="row rowline">${st('todo')}<span class="num t2">7:30p</span><span class="t1">note task · add the Starling curve</span><span class="t2">notes ch9</span><span></span></div>
+    <div class="proposal">
+      <div class="lbl">${mark}&nbsp; proposal · pending</div>
+      <p>Move the oral liquid doses block to 4:15p. Your clinical debrief ran past 3:00 the last two Mondays. ${src('calendar · 26 oct, 19 oct')}</p>
+      <div class="acts"><button class="brk" data-prop="ok">accept</button><button class="brk">edit</button><button class="brk" data-prop="gone">dismiss</button></div>
+    </div>
+  </div>
+
+  <div class="blk" tabindex="0" data-open="#plan" style="--cols: 22ch 14ch 9ch 1fr 5ch">
+    <div class="blk-h"><span class="t">exams</span><span class="fill"></span><span>readiness</span><span class="open">${RET} plan</span></div>
+    <div class="row" style="margin-top:var(--ln-half)"><span class="t1">nur112 · exam 3</span><span class="t2 num">fri 6 nov</span><span class="t2 num">4 days</span><span>${meter(.61, 20)}</span><span class="r num ink2">61%</span></div>
+    <div class="row"><span class="t1">bio201 · midterm</span><span class="t2 num">thu 12 nov</span><span class="t2 num">10 days</span><span>${meter(.44, 20)}</span><span class="r num ink2">44%</span></div>
+  </div>
+
+  <div class="blk" tabindex="0" data-open="#today">
+    <div class="blk-h"><span class="t">week 45 review</span><span class="fill"></span><span>sun 1 nov</span><span class="open">${RET} open</span></div>
+    <div class="num ink2" style="margin-top:var(--ln-half)">6 sessions · 3 h 40 min · 212 cards · 41 questions · accuracy 78% <span class="dim">(+4 on week 44)</span></div>
+    <div class="dim">steadier: cardiac output, I&amp;O totals &nbsp;·&nbsp; still slipping: afterload, dividing a daily dose</div>
+  </div>`
+});
+
+/* ---------------- Library ---------------- */
+VIEWS.library = () => ({
+  where: 'library', def: ['study cardiac output', '#study/front'],
+  html: `
+  ${echo('9:14', 'cards nur112')}
+  <div class="blk" tabindex="0" data-open="#study/front" style="--cols: 2ch 30ch 7ch 5ch 8ch 1fr 4ch">
+    <div class="blk-h"><span class="t">decks</span><span class="fill"></span><span>nur112 · 4</span><span class="open">${RET} study</span></div>
+    <div class="row head" style="margin-top:var(--ln-half)"><span></span><span>deck</span><span class="r">cards</span><span class="r">due</span><span>last</span><span>recall</span><span></span></div>
+    <div class="row rowline">${st('todo')}<span class="t1">cardiac output</span><span class="r num ink2">42</span><span class="r num t1">12</span><span class="t2">sat</span><span>${meter(.72, 14)}</span><span class="r num ink2">72</span></div>
+    <div class="row rowline">${st('todo')}<span class="t1">fluid balance &amp; I&amp;O</span><span class="r num ink2">36</span><span class="r num t1">6</span><span class="t2">fri</span><span>${meter(.55, 14)}</span><span class="r num ink2">55</span></div>
+    <div class="row rowline">${st('done')}<span class="t1">med math · oral liquids</span><span class="r num ink2">28</span><span class="r num t2">0</span><span class="t2">today</span><span>${meter(.81, 14)}</span><span class="r num ink2">81</span></div>
+    <div class="row rowline">${st('run')}<span class="t1">ch9 notes → cards</span><span class="r num ink2">24</span><span class="r num t2">–</span><span class="t2">new</span><span class="t2">being written</span><span></span></div>
+    <div style="margin-top:var(--ln-half)" class="acts"><a class="act-def" href="#study/front">${RET} study cardiac output · 12 due</a><span class="dim">or type study fluids</span></div>
+  </div>
+
+  <div class="blk" tabindex="0" data-open="#practice" style="--cols: 2ch 30ch 12ch 1fr">
+    <div class="blk-h"><span class="t">practice sets</span><span class="fill"></span><span>one question at a time</span><span class="open">${RET} practice</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('todo')}<span class="t1">med math · dosage by weight</span><span class="t2 num">10 q</span><span class="t2">last 6 of 10 · fri</span></div>
+    <div class="row rowline">${st('todo')}<span class="t1">fluids · intake and output</span><span class="t2 num">12 q</span><span class="t2">last 9 of 12 · thu</span></div>
+  </div>
+
+  ${echo('9:14', 'weak')}
+  <div class="blk" tabindex="0" data-open="#practice" style="--cols: 30ch 10ch 12ch 1fr">
+    <div class="blk-h"><span class="t">weak spots</span><span class="fill"></span><span>against exam 3 · fri</span></div>
+    <div class="row head" style="margin-top:var(--ln-half)"><span>topic</span><span>missed</span><span></span><span>from</span></div>
+    <div class="row rowline"><span class="t1">afterload vs preload</span><span class="num ink2">5 of 9</span><span>${meter(5/9, 10)}</span><span class="t2">cards 4, 11 · set fluids q3</span></div>
+    <div class="row rowline"><span class="t1">dividing a daily dose</span><span class="num ink2">3 of 8</span><span>${meter(3/8, 10)}</span><span class="t2">set med math q4, q7</span></div>
+    <div class="row rowline"><span class="t1">I&amp;O · what counts as intake</span><span class="num ink2">2 of 6</span><span>${meter(2/6, 10)}</span><span class="t2">set fluids q8</span></div>
+    <div class="row rowline"><span class="t1 ink2">crossbridge · role of ATP</span><span class="num t2">2 of 5</span><span>${meter(2/5, 10)}</span><span class="t2">bio201 · midterm</span></div>
+  </div>`
+});
+
+/* ---------------- Study (carousel) ---------------- */
+VIEWS.study = (state, re) => {
+  if (!re && state) {
+    S.study.state = state === 'flipped' ? 'flipped' : state === 'front' ? 'front' : 'attempt';
+    S.study.attempt = state === 'front' ? '' : 'More stretch before the beat gives a stronger contraction.';
+  }
+  const s = S.study, c = CARDS[s.i % CARDS.length] || CARDS[2];
+  const ticks = TICKS.map((t, i) => `<i class="${i === s.i ? 'now' : i < s.i ? t : 'up'}"></i>`).join('');
+  let face;
+  if (s.state !== 'flipped') {
+    const locked = s.state === 'attempt';
+    face = `<div class="face">
+      <div class="lbl"><span>front</span><span>card ${s.i + 1}</span></div>
+      <p class="q">${c.q}</p>
+      <div class="spacer"></div>
+      <div class="lbl" style="margin-bottom:var(--ln-half)"><span>your attempt</span><span>${locked ? 'kept · space to turn' : RET + ' keep it'}</span></div>
+      <div class="attempt"><span class="pr">›</span>${locked ? `<span class="txt">${s.attempt}</span>` : `<input id="att" placeholder="say it in your own words first" aria-label="Your attempt">`}</div>
+    </div>`;
+  } else {
+    face = `<div class="face">
+      <div class="lbl"><span>back</span><span>card ${s.i + 1}</span></div>
+      <p class="q small">${c.q}</p>
+      <p class="q" style="margin-top:var(--ln-half)">${c.a}</p>
+      <p class="ans">${c.x} ${c.s.map(src).join(' ')}</p>
+      <hr>
+      <div class="row" style="--cols: 12ch 1fr"><span class="dim">you said</span><span class="ink2" style="font:var(--fs-2)/var(--ln) var(--font-read);white-space:normal">${s.attempt || '<span class="logged">nothing · you chose just tell me (logged)</span>'}</span></div>
+      <div style="margin-top:var(--ln-half)">${ev(s.attempt ? 'Right idea. Add <em>up to a limit</em>: exam questions like to test the plateau.' : 'Here it is. Try saying it back before you rate it.')}</div>
+    </div>`;
+  }
+  const flipped = s.state === 'flipped';
+  return {
+    where: 'library / study', focused: true,
+    def: flipped ? null : s.state === 'attempt' ? ['turn the card', 'flip', 'space'] : ['keep my attempt', 'keep'],
+    hints: flipped ? ['a again', 'g good', '← → cards', 'esc stream'] : ['← → cards', 'space turn', '⇧↵ just tell me', 'esc stream'],
+    html: `
+    ${fvh('<b>study</b><span class="dim">· nur112 · cardiac output</span>', '12 due')}
+    <div class="deck-nav">
+      <div class="ticks" aria-label="progress">${ticks}</div>
+      <div class="pos num"><button data-nav="-1" aria-label="previous card">‹</button><span>${s.i + 1} / 12</span><button data-nav="1" aria-label="next card">›</button></div>
+    </div>
+    <div class="stage"><div class="card frame">${face}</div></div>
+    <div class="under">
+      ${flipped
+        ? `<div class="rate"><button data-rate="a">${key('a')} again</button><button data-rate="g">${key('g')} good</button></div><span>rate it to move on</span>`
+        : s.state === 'attempt'
+          ? `<span class="act-def" data-flip>${key('space')} turn the card</span><button class="act" data-just>just tell me <span class="k">⇧${RET}</span></button>`
+          : `<span class="dim">attempt first, then turn</span><button class="act" data-just>just tell me <span class="k">⇧${RET}</span></button>`}
+    </div>`
+  };
+};
+
+/* ---------------- Practice ---------------- */
+VIEWS.practice = (state, re) => {
+  if (!re) { S.practice.done = state === 'done'; S.practice.sel = 'd'; }
+  const p = S.practice;
+  const opts = [['a', '50 mg'], ['b', '100 mg'], ['c', '150 mg'], ['d', '300 mg']];
+  const li = opts.map(([l, t]) => {
+    let cls = '', tag = '';
+    if (p.done) {
+      if (l === 'b') { cls = 'right'; tag = `${st('done')} correct`; }
+      if (l === p.sel && l !== 'b') { cls = 'wrong'; tag = `${st('fail')} your answer`; }
+    } else if (l === p.sel) cls = 'sel';
+    return `<li class="opt ${cls}" data-opt="${l}"><span class="l">${l}</span><span>${t}</span><span class="tag">${tag}</span></li>`;
+  }).join('');
+  return {
+    where: 'library / practice', focused: true,
+    def: p.done ? ['next question', 'next'] : p.sel ? [`commit ${p.sel}`, 'commit'] : null,
+    hints: p.done ? ['↵ next', 'w weak spots', 'esc stream'] : ['a–d choose', '↵ commit', 'esc stream'],
+    html: `
+    ${fvh('<b>practice</b><span class="dim">· nur112 · med math · dosage by weight</span>', '<span class="num">4 / 10</span>')}
+    <div class="${p.done ? '' : 'frame'}" style="${p.done ? 'padding: var(--ln) 0 0' : ''}">
+      <div class="dim">question 4</div>
+      <p class="qtext big">Order: amoxicillin 20 mg/kg/day by mouth, divided every 8 hours. The child weighs 15 kg. How many mg per dose?</p>
+      <div class="attempt" style="margin-top:var(--ln)"><span class="pr">›</span><span class="txt ink2">my working: 20 × 15 = 300</span></div>
+      <ul class="opts">${li}</ul>
+      ${p.done ? '' : `<div class="acts" style="margin-top:var(--ln)"><span class="act-def" data-commit>${RET} commit ${p.sel}</span><span class="dim">once you commit, the answer is final</span></div>`}
+    </div>
+    ${p.done ? `<div class="result">
+      ${ev(`Your setup was right; you stopped one step early. 300 mg is the whole day. Every 8 hours means 3 doses, so 300 ÷ 3 = 100 mg per dose. ${src('notes ch4 · dosage by weight')} ${src('set med math · q4')}`)}
+      <div class="wkline" style="padding-left:var(--cx-2)"><span class="dim">→</span> weak spot · dividing a daily dose <span class="dim">· now 4 of 9</span></div>
+      <div class="acts" style="margin-top:var(--ln);padding-left:var(--cx-2)"><a class="act-def" href="#practice" data-next>${RET} next question</a><button class="act"><span class="k">?</span> ask why every 8 hours means 3 doses</button></div>
+    </div>` : ''}`
+  };
+};
+
+/* ---------------- Plan (exam study-plan proposal) ---------------- */
+const TOPICS = [['cardiac output · stroke volume', 4], ['Frank–Starling · preload', 3], ['afterload', 2], ['fluid balance · I&amp;O', 0], ['oral liquid doses · med math', 0]];
+VIEWS.plan = (state) => {
+  if (state === 'proposal') {
+    const rows = [
+      ['mon 2', '11:00a', '25', 'afterload, preload', 'cards 4, 11 + 5 questions', 'run'],
+      ['mon 2', '4:15p', '20', 'oral liquid doses', 'set med math · q1–10', ''],
+      ['tue 3', '8:30a', '20', 'fluid balance · I&amp;O', 'notes ch11 · deck fluids', ''],
+      ['tue 3', '7:00p', '30', 'mock exam 3 · part 1', 'being written · 14 of 40', ''],
+      ['wed 4', '12:15p', '25', 'afterload, second pass', 'only cards missed on mon', ''],
+      ['thu 5', '7:00p', '45', 'mock exam 3 · full', 'then review the misses', ''],
+      ['fri 6', '7:30a', '15', 'morning review', 'exam at 9:00a', ''],
+    ].map(r => `<div class="row" style="--cols: 7ch 6ch 6ch 24ch 1fr"><span class="num">${r[0]}</span><span class="num">${r[1]}</span><span class="num">${r[2]} min</span><span class="t1" style="color:var(--ink-2)">${r[3]}</span><span class="t2">${r[4]}</span></div>`).join('');
+    return {
+      where: 'plan / exam 3', focused: true, def: ['approve the plan', 'approve'],
+      hints: ['↵ approve', 'c ask for changes', 'p put away', 'esc stream'],
+      html: `
+      ${fvh('<b>plan</b><span class="dim">· nur112 · exam 3</span>', 'fri 6 nov · step 2 of 2')}
+      <div class="row" style="--cols: 2ch 12ch 1fr auto">${st('done')}<span class="dim">confidence</span><span class="ink2 num">cardiac 4 · Starling 3 · afterload 2 · I&amp;O 2 · med math 4</span><a class="brk" href="#plan">edit</a></div>
+      <div class="row" style="--cols: 2ch 12ch 1fr auto">${st('done')}<span class="dim">drafted</span><span class="ink2">job j-0415 · 9:14 · from your ratings, misses and notes</span><span></span></div>
+      <div style="margin-top:var(--ln)">${ev(`Here's a draft. Afterload and I&amp;O get the most time: you rated them lowest and missed them most. You rated med math 4, but your last set was 6 of 10, so it keeps one short block. ${src('practice log · fri 30 oct')}`)}</div>
+      <div class="pend" style="margin-top:var(--ln)">
+        <div class="blk-h" style="margin-bottom:var(--ln-half)"><span class="t">proposal · pending</span><span class="fill"></span><span>7 blocks · 3 h</span></div>
+        ${rows}
+      </div>
+      <div class="acts" style="margin-top:var(--ln)"><button class="act-def" data-approve>${RET} approve</button><button class="act"><span class="k">c</span> ask for changes</button><button class="act"><span class="k">p</span> put away</button><span class="dim" style="margin-left:auto">nothing moves until you approve</span></div>`
+    };
+  }
+  const cur = S.plan.cur;
+  const rows = TOPICS.map(([t, v], i) => {
+    const scale = [1, 2, 3, 4, 5].map(n => `<span class="${n === v ? 'on' : ''}">${n}</span>`).join('');
+    const inner = `<div class="row" style="--cols: 2ch 34ch 1fr"><span>${v ? st('done') : st(i === cur ? 'need' : 'todo')}</span><span class="${v || i === cur ? 't1' : 't2'}">${t}</span><span class="scale" data-topic="${i}">${scale}</span></div>`;
+    return i === cur ? `<div class="frame sm" style="margin: var(--ln-half) calc(var(--cx-2) * -1)">${inner}</div>` : `<div style="padding: var(--ln-half) 0">${inner}</div>`;
+  }).join('');
+  return {
+    where: 'plan / exam 3', focused: true, def: ['next topic', 'nexttopic'],
+    hints: ['1–5 rate', '↑↓ topic', '↵ next', 'esc stream'],
+    html: `
+    ${fvh('<b>plan</b><span class="dim">· nur112 · exam 3</span>', 'fri 6 nov · step 1 of 2')}
+    <h1 class="title">How sure are you, topic by topic?</h1>
+    <div style="margin-top:var(--ln)">${ev(`Before I draft anything, rate each topic. 1 means lost, 5 means you could teach it. I'll compare your ratings with your practice, then propose a plan you can change.`)}</div>
+    <div style="margin-top:var(--ln)">
+      <div class="row head" style="--cols: 2ch 34ch 1fr"><span></span><span>topic</span><span>1 lost · · · 5 could teach it</span></div>
+      ${rows}
+    </div>
+    <div class="acts" style="margin-top:var(--ln)"><span class="dim">${TOPICS.filter(t => t[1]).length} of 5 rated · the draft runs as a job and shows up in jobs when it's ready</span></div>`
+  };
+};
+
+/* ---------------- Notes in a study session ---------------- */
+VIEWS.notes = () => ({
+  where: 'notes / ch9', focused: true, def: ['end session', 'end'],
+  hints: ['r read-along', 'p pause', '⌘↵ end session', 'esc stream'],
+  html: `
+  ${fvh('<b>notes</b><span class="dim">· nur112 · ch9 cardiac output</span>', 'edited 9:11')}
+  <div class="session" style="margin-top:calc(var(--ln) * -1)">
+    ${st('run')}<b>session</b>
+    <span class="num ink2">18:42</span>${meter(18.7 / 25, 10)}<span class="num">25 min</span>
+    <span class="grow"></span>
+    <button class="toggle on" aria-pressed="true"><i></i>read-along</button>
+    <span style="display:inline-flex;gap:var(--cx-1);align-items:center">${st('done')}saved on this device</span>
+  </div>
+  <div class="doc">
+    <h1 class="h">Ch 9 · Cardiac output</h1>
+    <p>Cardiac output is how much blood the heart pumps in one minute: <span class="num" style="font-family:var(--font-mono);font-size:var(--fs-3)">CO = HR × SV</span>. A resting adult sits around 5 L/min. ${src('lecture 9')}</p>
+    <h2 class="h">Preload and afterload</h2>
+    <figure class="fig">
+      <svg viewBox="0 0 236 150" role="img" aria-label="Frank–Starling curve: stroke volume rises with end-diastolic volume, then levels off">
+        <path class="ax" d="M28 14 V122 H226"/>
+        <path class="cv" d="M30 116 C70 92 96 48 140 38 S210 30 224 30"/>
+        <path class="cv2" d="M30 120 C80 108 110 78 150 70 S210 62 224 62"/>
+        <text x="146" y="142">EDV →</text>
+        <text x="4" y="22">SV</text>
+        <text x="168" y="24">normal</text>
+        <text x="150" y="88">failing</text>
+      </svg>
+      <figcaption>fig 1 · Starling curve, redrawn from lecture 9, slide 14</figcaption>
+    </figure>
+    <ul class="bul">
+      <li><span class="read">Preload is the stretch on the ventricle at the end of filling.</span> It follows end-diastolic volume.</li>
+      <li>Afterload is the pressure the ventricle pushes against to eject.</li>
+      <li>Frank–Starling: more stretch gives a stronger beat, up to a limit.</li>
+    </ul>
+    <h2 class="h">Before exam 3</h2>
+    <ul class="chk">
+      <li class="x">Redo the CO = HR × SV examples</li>
+      <li class="x">Redraw the Starling curve</li>
+      <li>Ask E.V. why afterload lowers stroke volume<span class="cursor"></span></li>
+    </ul>
+  </div>
+  <div class="check">
+    <div class="blk-h" style="margin-bottom:var(--ln-half)"><span class="t">check</span><span class="fill"></span><span>from this page</span></div>
+    ${ev('In your own words: why does a higher afterload lower stroke volume?')}
+    ${me('The ventricle has to push against more pressure, so less blood gets out with each beat.')}
+    ${ev(`That's it, in your words. Keep the word <em>ejection</em>: less is ejected per beat. ${src('notes ch9 §3')}`)}
+  </div>`
+});
+
+/* ---------------- Ask E.V. ---------------- */
+VIEWS.ask = () => ({
+  where: 'ask', def: null, prefill: 'ask ', hints: ['↵ send', '⇧↵ just tell me', 'tab · ↑↓ blocks', 'esc stream'],
+  html: `
+  <div class="fold">9:05 · ask what afterload is · you chose just tell me (logged)</div>
+  ${echo('9:16', 'ask why does more preload raise stroke volume?')}
+  <div style="margin-top:var(--ln-half)">${ev('Your turn first. What happens to the muscle fibres when the ventricle fills with more blood?',
+    `<div class="acts"><span class="brk">answer</span><button class="brk" data-just>just tell me</button></div>`)}</div>
+  <div style="margin-top:var(--ln-half)">${me('They stretch more, so more crossbridges can form?')}</div>
+  <div style="margin-top:var(--ln-half)">${ev(`Yes. More stretch moves actin and myosin toward their best overlap, so each beat is stronger and stroke volume rises. That's Frank–Starling. ${src('notes ch9 §2')} ${src('bio201 deck · card 14')}`)}</div>
+  <div style="margin-top:var(--ln-half)">${ev(`One thing to add: it holds only up to a limit. ${src('notes ch9 §2')} For scale, a resting stroke volume is about 70 mL a beat. ${unv}`)}</div>
+  ${echo('9:19', 'ask is the mock exam ready?')}
+  <div style="margin-top:var(--ln-half)">${ev(`Not yet. It's still writing questions, 14 of 40 so far. I'll put a line here the moment it's ready. ${src('job j-0412')}`)}</div>
+  <div class="blk" tabindex="0" data-open="#jobs" style="margin-top:var(--ln-half);--cols: 2ch 28ch 1fr 10ch auto">
+    <div class="row">${st('run')}<span class="t1">mock exam 3 · nur112</span><span>${meter(14 / 40, 20)}</span><span class="num ink2">14 / 40</span><span class="t2">since 9:02</span></div>
+  </div>`
+});
+
+/* ---------------- Jobs (Activity) ---------------- */
+VIEWS.jobs = () => ({
+  where: 'jobs', def: ['review exam 3 plan', '#plan/proposal'],
+  html: `
+  ${echo('9:20', 'jobs')}
+  <div class="blk" tabindex="0" data-open="#plan/proposal" style="--cols: 2ch 30ch 1fr auto">
+    <div class="blk-h"><span class="t">needs you</span><span class="fill"></span><span>1</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('need')}<span class="t1">exam 3 study plan</span><span class="t2">drafted at 9:14 · waiting for your review</span><a class="act-def" href="#plan/proposal">${RET} review</a></div>
+  </div>
+  <div class="blk" tabindex="0" data-open="#ask" style="--cols: 2ch 30ch 1fr 8ch 10ch">
+    <div class="blk-h"><span class="t">running</span><span class="fill"></span><span>2</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('run')}<span class="t1">mock exam 3 · nur112</span><span>${meter(14 / 40, 16)}</span><span class="num ink2">14 / 40</span><span class="t2 r">since 9:02</span></div>
+    <div class="row rowline">${st('run')}<span class="t1">cards from ch9 notes</span><span>${meter(.5, 16)}</span><span class="num ink2">12 / 24</span><span class="t2 r">since 9:10</span></div>
+  </div>
+  <div class="blk" tabindex="0" style="--cols: 2ch 30ch 1fr 10ch">
+    <div class="blk-h"><span class="t">done</span><span class="fill"></span><span>today and yesterday</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('done')}<span class="t1">morning review set</span><span class="t2">18 cards · cardiac, fluids</span><span class="t2 r">7:10</span></div>
+    <div class="row rowline">${st('done')}<span class="t1">week 45 review</span><span class="t2">6 sessions · accuracy 78%</span><span class="t2 r">sun</span></div>
+    <div class="row rowline">${st('done')}<span class="t1">med math set · 10 questions</span><span class="t2">written from notes ch4</span><span class="t2 r">sun</span></div>
+  </div>
+  <div class="blk" tabindex="0" style="--cols: 2ch 30ch 1fr 10ch">
+    <div class="blk-h"><span class="t">failed</span><span class="fill"></span><span>1</span></div>
+    <div class="row rowline" style="margin-top:var(--ln-half)">${st('fail')}<span class="t1">import bio201 lab 6 slides</span><span class="t2">8:41</span><span></span></div>
+    <div style="padding-left:var(--cx-4);margin-top:2px">${ev(`I couldn't read it: the PDF is scanned pages with no text in them. Export it again with text, or photograph the pages one at a time.`,
+      `<div class="acts"><button class="brk">retry with a new file</button><button class="brk">dismiss</button></div>`)}</div>
+  </div>`
+});
+
+/* ---------------- Help ---------------- */
+VIEWS.help = () => ({
+  where: 'help', def: ['back to today', '#today'],
+  html: `
+  ${echo('9:21', 'help')}
+  <div class="blk help" tabindex="0">
+    <div class="blk-h"><span class="t">commands</span><span class="fill"></span><span>type a few letters; the rest completes</span></div>
+    <div style="margin-top:var(--ln-half)">
+      ${[['today', 'your plan for the day'], ['study <span>deck</span>', 'flashcards, one at a time · study fluids'], ['cards <span>course</span>', 'your decks · cards nur112'], ['practice <span>set</span>', 'questions, one at a time · practice med math'], ['weak', 'what you keep missing, against your next exam'], ['plan <span>exam</span>', 'draft a study plan · plan exam3'], ['notes <span>chapter</span>', 'open notes or start a session · notes ch9'], ['ask <span>…</span>', 'ask E.V. anything; she asks for your try first'], ['jobs', 'what E.V. is working on, and what needs you'], ['system', 'how this app is put together']].map(([c, d]) => `<div class="row"><span class="c">${c}</span><span class="ink2">${d}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="blk help" tabindex="0">
+    <div class="blk-h"><span class="t">keys</span><span class="fill"></span></div>
+    <div style="margin-top:var(--ln-half)">
+      ${[[`${RET}`, 'run the highlighted default'], ['tab · ↑ ↓', 'move between blocks'], ['esc', 'back to the stream'], ['⌘K', 'find anything: notes, cards, jobs'], ['\\', 'switch light and dark']].map(([c, d]) => `<div class="row"><span class="c">${c}</span><span class="ink2">${d}</span></div>`).join('')}
+    </div>
+  </div>
+  <div style="margin-top:var(--ln-half)">${ev('You can also just type a question. If it isn\'t a command, I\'ll treat it as one for me.')}</div>`
+});
+
+/* ---------------- System ---------------- */
+const TOK = [
+  ['--bg', 'the desk'], ['--bg-lift', 'hovered or focused block'], ['--bg-sel', 'selected row, read-along'],
+  ['--rule', 'hairlines'], ['--rule-strong', 'frames, meter track'],
+  ['--ink', 'text'], ['--ink-2', 'secondary, meter fill'], ['--ink-3', 'quiet text, meta'],
+  ['--accent', 'default action, E.V.\'s mark'], ['--accent-soft', 'default action ground'],
+];
+function readTheme(name) {
+  const el = document.createElement('div'); el.dataset.theme = name; el.style.display = 'none'; document.body.appendChild(el);
+  const cs = getComputedStyle(el); const out = {}; TOK.forEach(([t]) => out[t] = cs.getPropertyValue(t).trim()); el.remove(); return out;
+}
+function lum(hex) {
+  const m = hex.match(/^#([0-9a-f]{6})$/i); if (!m) return null;
+  const c = [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+  return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+}
+const ratio = (a, b) => { const x = lum(a), y = lum(b); if (x == null || y == null) return ''; return ((Math.max(x, y) + .05) / (Math.min(x, y) + .05)).toFixed(1) + ':1'; };
+
+VIEWS.system = () => {
+  const D = readTheme('dark'), L = readTheme('light');
+  const textTok = ['--ink', '--ink-2', '--ink-3', '--accent'];
+  const tokRows = TOK.map(([t, use]) => {
+    const cell = (T) => `<span><span class="sw" style="background:${T[t]}"></span> <span class="num ink2">${T[t].startsWith('#') ? T[t] : 'α ' + T[t].replace(/rgba\(|\)/g, '').split(',').pop().trim()}</span>${textTok.includes(t) ? ` <span class="dim num">${ratio(T[t], T['--bg'])}</span>` : ''}</span>`;
+    return `<div class="row tok"><span class="t1">${t}</span>${cell(D)}${cell(L)}<span class="t2">${use}</span></div>`;
+  }).join('');
+  const glyph = (g, nm, ds) => `<div><div class="g">${g}</div><div><div class="nm">${nm}</div><div class="ds">${ds}</div></div></div>`;
+  return {
+    where: 'system', focused: true, def: ['back to today', '#today'], hints: ['esc stream', '\\ see it in the other theme'],
+    html: `<div class="sys">
+    ${fvh('<b>system</b><span class="dim">· console, the Proprietary of direction H</span>', 'v5 · draft')}
+    <h1 class="title">A calm console for one student.</h1>
+    <p class="lede" style="margin-top:var(--ln-half);max-width:36em">One column of output, newest at the bottom, and one line to type on. Mono for structure, a proportional face for anything you read. Hierarchy comes from ink, not size. One ember accent: the default action and E.V.'s mark. Everything snaps to a 24 px line and a character grid.</p>
+
+    <section>
+      <div class="blk-h"><span class="n">01</span><span class="t">colour</span><span class="fill"></span><span>contrast against --bg</span></div>
+      <div class="pair">${['dark', 'light'].map(t => `<div data-theme="${t}">
+        <div class="cap"><span>${t === 'dark' ? 'dark · blue-black · default' : 'light · paper terminal'}</span><span>\\</span></div>
+        ${ev(`Afterload first today. ${src('ch9 §3')}`)}
+        <div class="row" style="--cols: 2ch 1fr auto;margin-top:var(--ln-half)">${st('todo')}<span class="t1">morning review set</span><span class="act-def">${RET} start review</span></div>
+        <div class="row" style="--cols: 2ch 1fr auto">${st('run')}<span class="t2">mock exam 3</span><span>${meter(.35, 10)}</span></div>
+      </div>`).join('')}</div>
+      <div class="row head tok"><span>token</span><span>dark · blue-black</span><span>light · paper terminal</span><span>use</span></div>
+      ${tokRows}
+    </section>
+
+    <section>
+      <div class="blk-h"><span class="n">02</span><span class="t">type</span><span class="fill"></span><span>three sizes · two weights · two families</span></div>
+      <div class="spec"><span class="m">20 · 32<br>Plex Sans 500</span><span class="title">More stretch, a stronger beat, up to a limit.</span></div>
+      <div class="spec"><span class="m">15 · 24<br>Plex Sans 400</span><span style="font:var(--fs-2)/var(--ln) var(--font-read)">Reading text: note bodies, card backs, and E.V.'s voice. As end-diastolic volume rises, the fibres lengthen toward their best overlap and contract with more force.</span></div>
+      <div class="spec"><span class="m">13 · 24<br>Plex Mono 400</span><span>Structure: commands, rows, labels, numbers. <span class="num ink2">CO = HR × SV · 20 mg/kg/day ÷ 3 = 100 mg · 1,250 mL in</span></span></div>
+      <div class="spec"><span class="m">13 · 24<br>Plex Mono italic</span><span class="logged">logged lines: things he chose to skip, kept honest and quiet</span></div>
+      <div class="spec"><span class="m">alphabet</span><span class="ink2">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLM 0123456789 ‹ › → – × ÷ ± ° µ</span></div>
+    </section>
+
+    <section>
+      <div class="blk-h"><span class="n">03</span><span class="t">glyphs</span><span class="fill"></span><span>status is shape, never colour</span></div>
+      <div class="glyphs">
+        ${glyph(mark, 'E.V.\'s mark', 'a still ember block; never blinks')}
+        ${glyph('<span class="dim">›</span>', 'prompt', 'his lines and the command line')}
+        ${glyph(`<span style="color:var(--accent)">${RET}</span>`, 'default', 'what ↵ does here')}
+        ${glyph(`<span class="src" style="font-size:var(--fs-3)">ch9 §2</span>`, 'source', 'every fact carries one')}
+        ${glyph(st('todo'), 'to do', 'hollow dot')}
+        ${glyph(st('run'), 'running', 'half dot')}
+        ${glyph(st('done'), 'done', 'full dot')}
+        ${glyph(st('need'), 'needs you', 'diamond, full ink')}
+        ${glyph(st('fail'), 'failed', 'a cross, with a plain reason')}
+        ${glyph(unv, 'unverified', 'dashed ring; not in his notes')}
+        ${glyph(meter(.6, 10), 'meter', '1 cell = 1 character = 10%')}
+        ${glyph(key('space'), 'key', 'the only rounded thing')}
+      </div>
+    </section>
+
+    <section>
+      <div class="blk-h"><span class="n">04</span><span class="t">grid, space, shape, depth</span><span class="fill"></span></div>
+      <div class="spec"><span class="m">vertical</span><span><span class="ink2">--ln 24 · --ln-half 12 · --ln-2 48 · --ln-3 72.</span> Every gap is a line or half a line.</span></div>
+      <div class="spec"><span class="m">horizontal</span><span><span class="ink2">--cx-1 1ch · --cx-2 2ch · --cx-4 4ch.</span> Columns are counted in characters, so rows align like a terminal.</span></div>
+      <div class="spec"><span class="m"></span><div class="space-demo">
+        <div><i style="width:1ch;height:12px"></i>1ch</div><div><i style="width:2ch;height:12px"></i>2ch</div><div><i style="width:4ch;height:12px"></i>4ch</div>
+        <div><i style="width:12px;height:12px"></i>half line</div><div><i style="width:12px;height:24px"></i>line</div><div><i style="width:12px;height:48px"></i>2 lines</div>
+      </div></div>
+      <div class="spec"><span class="m">column</span><span><span class="ink2">--col 720.</span> One column. Timestamps hang in the left gutter.</span></div>
+      <div class="spec"><span class="m">radius</span><span><span class="ink2">--r-0 0 everywhere · --r-key 3</span> on keycaps and floating layers.</span></div>
+      <div class="spec"><span class="m">depth</span><span><span class="ink2">flat.</span> One shadow, <span class="ink2">--shadow-float</span>, on the palette and completions only.</span></div>
+      <div class="spec"><span class="m">lines</span><span><span class="ink2">--hair 1px.</span> Rules are solid; pending things are dashed; frames get corner ticks (<span class="ink2">--tick 10</span>).</span></div>
+    </section>
+
+    <section>
+      <div class="blk-h"><span class="n">05</span><span class="t">motion</span><span class="fill"></span><span>fades only</span></div>
+      <div class="spec"><span class="m">--dur-1 120</span><span>a new line of output, hover ground, completions</span></div>
+      <div class="spec"><span class="m">--dur-2 180</span><span>a focused view taking the column; a card turning (a cross-fade, no 3D)</span></div>
+      <div class="spec"><span class="m">never</span><span>blinking, sliding, bouncing, typing-out effects</span></div>
+      <div class="spec"><span class="m">reduced</span><span><span class="ink2">prefers-reduced-motion</span> sets both to 0</span></div>
+    </section>
+
+    <section>
+      <div class="blk-h"><span class="n">06</span><span class="t">components</span><span class="fill"></span><span>with their states</span></div>
+
+      <div class="comp-row"><span class="m">command line</span><div class="states">
+        <div class="state"><span class="m">idle</span><div class="mini-cmd"><span class="dim">›</span><span class="mark"></span><span class="dim">start review</span><span style="margin-left:auto" class="act-def">${RET} start review</span></div></div>
+        <div class="state"><span class="m">typing</span><div><div class="mini-cmd" style="border:0;height:auto"><div class="comp" style="display:block">
+          <div class="pal-r on"><span><b>pl</b>an exam3</span><span class="d">draft a study plan for nur112 exam 3</span></div>
+          <div class="pal-r"><span><b>pl</b>an bio201</span><span class="d">draft a study plan for the bio201 midterm</span></div>
+        </div></div><div class="mini-cmd"><span class="dim">›</span><span>pl<span class="dim">an exam3</span></span><span style="margin-left:auto" class="dim">tab completes</span></div></div></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">block</span><div class="states">
+        <div class="state"><span class="m">rest</span><div class="blk" style="margin:0;--cols:2ch 1fr auto"><div class="row">${st('todo')}<span class="t1">study block · afterload</span><span class="t2">25 min</span></div></div></div>
+        <div class="state"><span class="m">hover</span><div class="blk" style="margin:0;background:var(--bg-lift);--cols:2ch 1fr auto"><div class="row">${st('todo')}<span class="t1">study block · afterload</span><span class="t2">25 min</span></div></div></div>
+        <div class="state"><span class="m">focus</span><div class="blk is-focus" style="margin:0;--cols:2ch 1fr auto"><div class="row">${st('todo')}<span class="t1">study block · afterload</span><span class="t2">${RET} open</span></div></div></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">E.V. line</span><div class="states">
+        <div class="state"><span class="m">sourced</span>${ev(`Preload follows end-diastolic volume. ${src('notes ch9 §2')}`)}</div>
+        <div class="state"><span class="m">unverified</span>${ev(`Most adults eject about 70 mL a beat. ${unv}`)}</div>
+        <div class="state"><span class="m">his line</span>${me('They stretch more, so more crossbridges form?')}</div>
+        <div class="state"><span class="m">logged</span><span class="logged">just tell me · logged 9:05</span></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">proposal</span><div class="states">
+        <div class="state"><span class="m">pending</span><div class="proposal" style="margin:0"><p>Move the med math block to 4:15.</p><div class="acts"><span class="brk">accept</span><span class="brk">edit</span><span class="brk">dismiss</span></div></div></div>
+        <div class="state"><span class="m">accepted</span><div class="proposal ok" style="margin:0"><p>Med math block moved to 4:15. <span class="dim" style="font:var(--fs-3)/var(--ln) var(--font-mono)">accepted 9:13 · undo</span></p></div></div>
+        <div class="state"><span class="m">dismissed</span><div class="proposal gone" style="margin:0"><p>Move the med math block to 4:15.</p></div></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">actions</span><div class="states">
+        <div class="state"><span class="m">default</span><div class="acts"><span class="act-def">${RET} start review</span><span class="act-def" style="background:var(--accent);color:var(--on-accent)">${RET} hover</span></div></div>
+        <div class="state"><span class="m">quiet</span><div class="acts"><span class="act"><span class="k">c</span> ask for changes</span><span class="brk">accept</span><span class="brk" style="color:var(--ink)">hover</span></div></div>
+        <div class="state"><span class="m">rating</span><div class="rate"><button>${key('a')} again</button><button style="color:var(--ink);border-color:var(--ink-2)">${key('g')} good</button></div></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">answer option</span><div class="states" style="--x:0">
+        <ul class="opts" style="margin:0">
+          <li class="opt"><span class="l">a</span><span>rest</span><span class="tag"></span></li>
+          <li class="opt sel"><span class="l">b</span><span>chosen, not committed</span><span class="tag"></span></li>
+          <li class="opt right"><span class="l">c</span><span>correct</span><span class="tag">${st('done')} correct</span></li>
+          <li class="opt wrong"><span class="l">d</span><span>his answer, wrong</span><span class="tag">${st('fail')} your answer</span></li>
+        </ul>
+      </div></div>
+
+      <div class="comp-row"><span class="m">frame</span><div class="states">
+        <div class="frame sm"><span class="ink2">only the thing being answered gets one: a card, a question, a rating.</span></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">rows &amp; meters</span><div class="states">
+        <div class="row" style="--cols: 2ch 22ch 1fr 5ch">${st('run')}<span class="t1">mock exam 3</span><span>${meter(.35, 20)}</span><span class="r num ink2">14/40</span></div>
+        <div class="row" style="--cols: 2ch 22ch 1fr 5ch">${st('need')}<span class="t1">exam 3 plan</span><span class="t2">waiting for you</span><span></span></div>
+        <div class="row" style="--cols: 2ch 22ch 1fr 5ch">${st('fail')}<span class="t1">import lab 6</span><span class="t2">scanned PDF, no text</span><span></span></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">session bar</span><div class="states">
+        <div class="session" style="margin:0;border-top:var(--hair) solid var(--rule)">${st('run')}<b>session</b><span class="num ink2">18:42</span>${meter(.75, 8)}<span class="grow"></span><button class="toggle on"><i></i>read-along</button><button class="toggle"><i></i>off</button></div>
+      </div></div>
+
+      <div class="comp-row"><span class="m">palette row</span><div class="states">
+        <div style="background:var(--bg-lift);border:var(--hair) solid var(--rule-strong);border-radius:var(--r-key);padding:var(--ln-half) 0">
+          <div class="pal-r on"><span><b>after</b>load · notes ch9 §3</span><span class="d">selected</span></div>
+          <div class="pal-r"><span><b>after</b>load · card 4</span><span class="d">rest</span></div>
+        </div>
+      </div></div>
+    </section>
+    <div style="height:var(--ln-2)"></div></div>`
+  };
+};
+
+/* ==========================================================================
+   Commands, completions, palette
+   ========================================================================== */
+const CMDS = [
+  ['today', 'your plan for the day', '#today'],
+  ['study cardiac', 'flashcards · nur112 cardiac output · 12 due', '#study/front'],
+  ['study fluids', 'flashcards · fluid balance & I&O · 6 due', '#study/front'],
+  ['cards nur112', 'your nur112 decks and sets', '#library'],
+  ['cards bio201', 'your bio201 decks', '#library'],
+  ['practice med math', 'dosage by weight · 10 questions', '#practice'],
+  ['plan exam3', 'draft a study plan for nur112 exam 3', '#plan'],
+  ['plan bio201', 'draft a study plan for the bio201 midterm', '#plan'],
+  ['notes ch9', 'cardiac output · start a session', '#notes'],
+  ['notes ch11', 'fluid balance', '#notes'],
+  ['weak', 'what you keep missing', '#library'],
+  ['ask ', 'ask E.V. anything', '#ask'],
+  ['jobs', 'what E.V. is working on', '#jobs'],
+  ['help', 'all commands, briefly', '#help'],
+  ['system', 'the design system', '#system'],
+];
+const cmd = $('#cmd'), ghost = $('#ghost'), comp = $('#comp');
+let current = null, compSel = 0, compItems = [];
+
+function matches(q) {
+  q = q.trim().toLowerCase(); if (!q) return [];
+  return CMDS.filter(([c]) => c.startsWith(q) || c.split(' ')[0].startsWith(q.split(' ')[0]) && c.includes(q.split(' ').slice(1).join(' '))).slice(0, 6);
+}
+function hl(c, q) { const n = Math.min(q.length, c.length); return c.startsWith(q) ? `<b>${c.slice(0, n)}</b>${c.slice(n)}` : c; }
+function renderComp() {
+  const q = cmd.value; compItems = matches(q);
+  if (!compItems.length) { comp.hidden = true; ghostFor(); return; }
+  compSel = Math.min(compSel, compItems.length - 1);
+  comp.innerHTML = compItems.map(([c, d], i) => `<div class="pal-r ${i === compSel ? 'on' : ''}" data-i="${i}"><span>${hl(c, q.toLowerCase())}</span><span class="d">${d}</span></div>`).join('');
+  comp.hidden = false; ghostFor();
+}
+function ghostFor() {
+  const q = cmd.value;
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  if (!q) { ghost.innerHTML = `<span class="caret"></span>${current && current.def ? esc(current.def[0]) : 'type a command, or help'}`; return; }
+  const m = compItems[compSel];
+  ghost.innerHTML = m && m[0].startsWith(q.toLowerCase()) ? `<span class="typed">${esc(q)}</span>${esc(m[0].slice(q.length))}` : '';
+}
+function runCmd(raw) {
+  const q = raw.trim().toLowerCase();
+  comp.hidden = true; cmd.value = '';
+  if (!q) { runDefault(); return; }
+  if (q === 'theme' || q === '\\') { toggleTheme(); return; }
+  const verb = q.split(' ')[0];
+  const map = { today: '#today', study: '#study/front', cards: '#library', library: '#library', decks: '#library', practice: '#practice', plan: '#plan', notes: '#notes', ask: '#ask', jobs: '#jobs', activity: '#jobs', help: '#help', '?': '#help', system: '#system', weak: '#library' };
+  if (map[verb]) { location.hash = map[verb]; if (location.hash === map[verb]) route(); return; }
+  location.hash = '#ask';
+}
+function runDefault() {
+  if (!current || !current.def) return;
+  const t = current.def[1];
+  if (t.startsWith('#')) { location.hash = t; return; }
+  viewAction(t);
+}
+
+cmd.addEventListener('input', () => { compSel = 0; renderComp(); });
+cmd.addEventListener('keydown', e => {
+  if (!comp.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); compSel = (compSel + (e.key === 'ArrowDown' ? 1 : -1) + compItems.length) % compItems.length; renderComp(); return; }
+  if (e.key === 'Tab' && !comp.hidden && compItems[compSel]) { e.preventDefault(); cmd.value = compItems[compSel][0]; renderComp(); return; }
+  if (e.key === 'Enter') { e.preventDefault(); const pick = !comp.hidden && compItems[compSel]; runCmd(pick && cmd.value.trim() !== 'ask' ? (cmd.value.startsWith('ask ') ? cmd.value : pick[0]) : cmd.value); return; }
+  if (e.key === 'ArrowUp' && !cmd.value) { e.preventDefault(); const b = $$('#view .blk[tabindex]'); if (b.length) b[b.length - 1].focus(); return; }
+  if (e.key === '\\' && !cmd.value) { e.preventDefault(); toggleTheme(); }
+});
+comp.addEventListener('mousedown', e => { const r = e.target.closest('.pal-r'); if (r) { e.preventDefault(); runCmd(compItems[+r.dataset.i][0]); } });
+
+/* palette */
+const PAL = [
+  ['notes', [['<b>after</b>load · notes ch9 §3', 'notes', '#notes'], ['<b>after</b>load vs preload · notes ch9 §2', 'notes', '#notes']]],
+  ['cards', [['define <b>after</b>load · cardiac output, card 4', 'card', '#study/front']]],
+  ['weak spots', [['<b>after</b>load vs preload · 5 of 9 missed', 'weak', '#library']]],
+  ['commands', [['study <b>after</b>load cards only', 'command', '#study/front'], ['plan exam3', 'command', '#plan']]],
+  ['ask', [['ask E.V. “<b>after</b>load …”', 'hand it to E.V.', '#ask']]],
+];
+function openPalette(q = 'after') {
+  const flat = []; let html = '';
+  PAL.forEach(([g, rows]) => { html += `<div class="pal-g">${g}</div>`; rows.forEach(r => { html += `<div class="pal-r ${flat.length === 0 ? 'on' : ''}" data-go="${r[2]}"><span>${r[0]}</span><span class="d">${r[1]}</span></div>`; flat.push(r); }); });
+  $('#layer').innerHTML = `<div class="scrim" data-close></div><div class="pal" role="dialog" aria-label="Find anything">
+    <div class="pal-in"><span class="dim">⌘K</span><input id="palq" value="${q}" placeholder="find a note, a card, a job, or ask E.V." aria-label="Find"></div>
+    <div class="pal-list">${html}</div>
+    <div class="pal-f"><span>↑↓ move</span><span>${RET} open</span><span>tab hand it to E.V.</span><span style="margin-left:auto">esc close</span></div></div>`;
+  const qi = $('#palq'); qi.focus(); qi.setSelectionRange(q.length, q.length);
+  let sel = 0; const rows = $$('.pal-r', $('#layer'));
+  qi.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); rows[sel].classList.remove('on'); sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length; rows[sel].classList.add('on'); }
+    if (e.key === 'Enter') { e.preventDefault(); closePalette(); location.hash = rows[sel].dataset.go; }
+  });
+  $('#layer').addEventListener('click', e => { if (e.target.dataset.close != null) closePalette(); const r = e.target.closest('[data-go]'); if (r) { closePalette(); location.hash = r.dataset.go; } });
+}
+function closePalette() { $('#layer').innerHTML = ''; if (location.hash === '#palette') history.replaceState(null, '', '#today'); cmd.focus(); }
+
+/* ==========================================================================
+   Router, view actions, keys
+   ========================================================================== */
+const view = $('#view');
+let lastStream = '#today';
+function route() {
+  const h = (location.hash || '#today').slice(1);
+  let [name, state] = h.split('/');
+  if (name === 'palette') { route.palette = true; name = 'today'; }
+  const fn = VIEWS[name] || VIEWS.today;
+  current = fn(state || '', false);
+  view.className = 'view' + (current.focused ? ' is-focused' : '');
+  view.innerHTML = current.html;
+  void view.offsetWidth; view.style.animation = 'none'; void view.offsetWidth; view.style.animation = '';
+  $('#where').textContent = current.where;
+  if (!current.focused) lastStream = '#' + name;
+  $$('[data-esc]', view).forEach(a => a.setAttribute('href', lastStream));
+  paint();
+  cmd.value = current.prefill || ''; comp.hidden = true; ghostFor();
+  wire();
+  if (!current.focused) { window.scrollTo(0, document.body.scrollHeight); }
+  else window.scrollTo(0, 0);
+  const att = $('#att');
+  if (att) att.focus(); else if (!current.focused || name === 'ask') cmd.focus(); else document.activeElement && document.activeElement.blur();
+  if (route.palette) { route.palette = false; openPalette(); }
+}
+function paint() {
+  // the default action: highlighted where it lives; on the line only when the view doesn't show it
+  const shown = $('.act-def', view);
+  $('#def').innerHTML = !current.def ? '' : shown ? `<span class="def-quiet">${RET} runs it</span>` : `<button class="act-def" id="defbtn">${RET} ${current.def[0]}</button>`;
+  if ($('#defbtn')) $('#defbtn').onclick = runDefault;
+  const hints = current.hints || ['tab · ↑↓ blocks', '↵ default', 'esc stream', '⌘K find', '\\ theme', '? help'];
+  $('#hints').innerHTML = `<span>${hints.map(h => `<em>${h.split(' ')[0]}</em> ${h.split(' ').slice(1).join(' ')}`).join(' &nbsp;·&nbsp; ')}</span>${current.focused ? '<span>/ to type a command</span>' : ''}`;
+}
+function wire() {
+  $$('[data-prop]', view).forEach(b => b.onclick = () => { const p = b.closest('.proposal'); p.classList.add(b.dataset.prop); p.querySelector('.lbl').innerHTML = `${mark}&nbsp; proposal · ${b.dataset.prop === 'ok' ? 'accepted · undo' : 'dismissed'}`; p.querySelector('.acts').remove(); });
+  $$('[data-nav]', view).forEach(b => b.onclick = () => navCard(+b.dataset.nav));
+  $$('[data-rate]', view).forEach(b => b.onclick = () => rate(b.dataset.rate));
+  $$('[data-flip]', view).forEach(b => b.onclick = () => viewAction('flip'));
+  $$('[data-just]', view).forEach(b => b.onclick = () => { if (location.hash.startsWith('#study')) { S.study.attempt = ''; S.study.state = 'flipped'; rerender(); } else { b.closest('.acts').outerHTML = '<div class="logged" style="margin-top:var(--ln-half)">just tell me · logged</div>'; } });
+  $$('.opt', view).forEach(o => o.onclick = () => { if (!S.practice.done) { S.practice.sel = o.dataset.opt; rerender(); } });
+  $$('[data-commit]', view).forEach(b => b.onclick = () => viewAction('commit'));
+  $$('[data-approve]', view).forEach(b => b.onclick = () => viewAction('approve'));
+  $$('.scale span', view).forEach((s, i) => s.onclick = () => { const t = +s.parentElement.dataset.topic; TOPICS[t][1] = (i % 5) + 1; S.plan.cur = Math.min(t + 1, 4); rerender(); });
+  const att = $('#att');
+  if (att) att.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); S.study.attempt = ''; S.study.state = 'flipped'; rerender(); return; }
+    if (e.key === 'Enter' && att.value.trim()) { e.preventDefault(); S.study.attempt = att.value.trim(); S.study.state = 'attempt'; rerender(); }
+    if (e.key === 'Escape') att.blur();
+    e.stopPropagation();
+  });
+  $$('.blk[data-open]', view).forEach(b => b.addEventListener('dblclick', () => location.hash = b.dataset.open));
+}
+function rerender() {
+  const keep = window.scrollY; const [name, state] = (location.hash || '#today').slice(1).split('/');
+  current = (VIEWS[name] || VIEWS.today)(state || '', true);
+  view.innerHTML = current.html; wire(); paint();
+  ghostFor(); window.scrollTo(0, keep);
+  const att = $('#att'); if (att) att.focus();
+}
+function navCard(d) { S.study.i = (S.study.i + d + 12) % 12; S.study.state = 'front'; S.study.attempt = ''; rerender(); }
+function rate(r) { TICKS[S.study.i] = r; navCard(1); }
+function viewAction(a) {
+  if (a === 'keep') { const att = $('#att'); if (att && att.value.trim()) { S.study.attempt = att.value.trim(); S.study.state = 'attempt'; rerender(); } else if (att) att.focus(); }
+  if (a === 'flip' && S.study.state === 'attempt') { S.study.state = 'flipped'; rerender(); }
+  if (a === 'commit') { S.practice.done = true; rerender(); }
+  if (a === 'next') { S.practice.done = false; S.practice.sel = null; rerender(); }
+  if (a === 'approve') { location.hash = '#today'; }
+  if (a === 'nexttopic') { S.plan.cur = Math.min(S.plan.cur + 1, 4); rerender(); }
+  if (a === 'end') { location.hash = '#today'; }
+}
+function toggleTheme() {
+  const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('ev-h-theme', r.dataset.theme); } catch (e) {}
+  if (location.hash === '#system') rerender();
+}
+
+document.addEventListener('keydown', e => {
+  const inText = e.target.matches('input, textarea');
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#layer').innerHTML ? closePalette() : openPalette(''); return; }
+  if (e.key === 'Escape') {
+    if ($('#layer').innerHTML) { closePalette(); return; }
+    if (!comp.hidden) { comp.hidden = true; return; }
+    if (current && current.focused) { location.hash = lastStream; return; }
+    cmd.focus(); return;
+  }
+  if (inText) return;
+  const name = (location.hash || '#today').slice(1).split('/')[0];
+  if (e.key === '\\') { e.preventDefault(); toggleTheme(); return; }
+  if (e.key === '/') { e.preventDefault(); cmd.focus(); return; }
+  const blk = e.target.closest && e.target.closest('.blk[tabindex]');
+  if (blk && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault(); const all = $$('#view .blk[tabindex]'); const i = all.indexOf(blk) + (e.key === 'ArrowDown' ? 1 : -1);
+    if (i >= all.length) cmd.focus(); else if (i >= 0) all[i].focus(); return;
+  }
+  if (blk && e.key === 'Enter' && blk.dataset.open) { e.preventDefault(); location.hash = blk.dataset.open; return; }
+  if (name === 'study') {
+    if (e.key === 'ArrowLeft') return navCard(-1);
+    if (e.key === 'ArrowRight') return navCard(1);
+    if (e.key === ' ') { e.preventDefault(); return viewAction('flip'); }
+    if (S.study.state === 'flipped' && (e.key === 'a' || e.key === 'g')) return rate(e.key);
+  }
+  if (name === 'practice') {
+    if (!S.practice.done && 'abcd'.includes(e.key) && e.key.length === 1) { S.practice.sel = e.key; return rerender(); }
+    if (e.key === 'Enter') { e.preventDefault(); return viewAction(S.practice.done ? 'next' : 'commit'); }
+  }
+  if (name === 'plan' && /^[1-5]$/.test(e.key)) { TOPICS[S.plan.cur][1] = +e.key; S.plan.cur = Math.min(S.plan.cur + 1, 4); return rerender(); }
+  if (name === 'plan' && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); S.plan.cur = Math.max(0, Math.min(4, S.plan.cur + (e.key === 'ArrowDown' ? 1 : -1))); return rerender(); }
+  if (e.key === 'Enter' && current && current.def) { e.preventDefault(); return runDefault(); }
+  if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !current.focused) { cmd.focus(); }
+});
+
+try { const t = localStorage.getItem('ev-h-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

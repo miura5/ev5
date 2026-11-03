@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E.V. · Darkroom</title>
+<!--
+  E.V. v5 · Direction E · "Darkroom"
+  A photographer's darkroom and contact sheet. One ground, one safelight, fine film-edge captions.
+  Every value below is a token. Components are built only from tokens.
+  Theme: dark ("Darkroom") by default; "\" switches to light ("Print").
+  Synthetic study content only.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   01 · TOKENS
+   ================================================================ */
+:root{
+  /* Type families */
+  --f-text:"Schibsted Grotesk", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale: three working steps, plus one magnified step for the loupe */
+  --s-cap:12px;   --lh-cap:16px;    /* film-edge captions, mono */
+  --s-body:14px;  --lh-body:22px;   /* content */
+  --s-title:20px; --lh-title:28px;  /* screen titles, card backs */
+  --s-loupe:28px; --lh-loupe:36px;  /* the one card under the loupe */
+  --w-text:400; --w-title:500;
+  --track-cap:.01em; --track-title:-.012em; --track-loupe:-.02em;
+
+  /* Space: a 4 px base, used in these steps only */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-16:64px;
+
+  /* Shape: square prints, hairlines */
+  --r-0:0; --r-1:2px; --r-dot:50%;
+  --hairline:1px; --mark:1.25px;
+  --row:40px; --ctl:32px;
+  --side-w:216px; --col:720px; --loupe-w:640px;
+
+  /* Motion: a shutter, not a bounce */
+  --t-shutter:120ms;   /* state changes: hover, press */
+  --t-advance:200ms;   /* frame to frame, panels */
+  --t-develop:360ms;   /* the back of a card appearing */
+  --ease:cubic-bezier(.2,0,0,1);
+  --rise:4px;
+}
+
+/* Darkroom (dark, default) */
+:root,[data-theme="dark"]{
+  --ground:#0a0a0a;        /* the room */
+  --ground-hi:#111111;     /* hover wash */
+  --float:#151515;         /* floating layers only */
+  --hair:#1f1f1f;          /* hairlines */
+  --hair-2:#2e2e2e;        /* control edges, the loupe frame */
+  --ink-1:#e6e5e1;         /* content */
+  --ink-2:#a3a19c;         /* quiet */
+  --ink-3:#8a8884;         /* captions (5.6:1) */
+  --ink-4:#3d3c3a;         /* ticks, tracks: never text */
+  --safe:#e8613c;          /* safelight */
+  --safe-hi:#f0704b;
+  --on-safe:#0a0a0a;
+  --focus:#e6e5e1;
+  --scrim:rgba(0,0,0,.6);
+  --shadow-float:0 0 0 1px #262626, 0 24px 64px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+/* Print (light) */
+[data-theme="light"]{
+  --ground:#f3f1ec;
+  --ground-hi:#ebe8e1;
+  --float:#fbfaf7;
+  --hair:#e1ddd4;
+  --hair-2:#cfcac0;
+  --ink-1:#1a1917;
+  --ink-2:#57554f;
+  --ink-3:#65635d;
+  --ink-4:#bdb8ad;
+  --safe:#b5401c;
+  --safe-hi:#a3391a;
+  --on-safe:#ffffff;
+  --focus:#1a1917;
+  --scrim:rgba(26,25,23,.18);
+  --shadow-float:0 0 0 1px #d6d1c7, 0 18px 48px rgba(26,25,23,.14);
+  color-scheme:light;
+}
+
+/* ================================================================
+   02 · BASE
+   ================================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ground)}
+body{background:var(--ground);color:var(--ink-1);font:var(--w-text) var(--s-body)/var(--lh-body) var(--f-text);
+  -webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+::selection{background:var(--ink-1);color:var(--ground)}
+:where(input,textarea)::placeholder{color:var(--ink-3)}
+
+/* Focus = crop marks: four corner marks inside the focused thing */
+:where(.btn,.row,.nav,.tab,.opt,.frame,.conf button,.chip,.pal-item,.icon-btn,.deck,.link):focus-visible,.pinned-focus{
+  outline:none;
+  background-image:
+    linear-gradient(var(--focus),var(--focus)),linear-gradient(var(--focus),var(--focus)),
+    linear-gradient(var(--focus),var(--focus)),linear-gradient(var(--focus),var(--focus)),
+    linear-gradient(var(--focus),var(--focus)),linear-gradient(var(--focus),var(--focus)),
+    linear-gradient(var(--focus),var(--focus)),linear-gradient(var(--focus),var(--focus));
+  background-size:8px 1.5px,1.5px 8px,8px 1.5px,1.5px 8px,8px 1.5px,1.5px 8px,8px 1.5px,1.5px 8px;
+  background-position:left top,left top,right top,right top,left bottom,left bottom,right bottom,right bottom;
+  background-repeat:no-repeat;
+}
+.btn.primary:focus-visible{outline:1px solid var(--focus);outline-offset:3px;--focus:var(--on-safe)}
+
+/* ================================================================
+   03 · TYPE
+   ================================================================ */
+.title{font-size:var(--s-title);line-height:var(--lh-title);font-weight:var(--w-title);letter-spacing:var(--track-title)}
+.loupe-type{font-size:var(--s-loupe);line-height:var(--lh-loupe);font-weight:var(--w-text);letter-spacing:var(--track-loupe)}
+.body{font-size:var(--s-body);line-height:var(--lh-body)}
+.cap{font:var(--w-text) var(--s-cap)/var(--lh-cap) var(--f-mono);letter-spacing:var(--track-cap);color:var(--ink-3)}
+.cap.i2{color:var(--ink-2)} .cap.i1{color:var(--ink-1)}
+.q2{color:var(--ink-2)} .q3{color:var(--ink-3)}
+.mono{font-family:var(--f-mono)}
+.strong{font-weight:var(--w-title)}
+
+/* ================================================================
+   04 · MARKS (iconography: 1.25 px strokes, 16 px box)
+   ================================================================ */
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:var(--mark);flex:none}
+.ev-mark{width:16px;height:16px;flex:none;color:var(--safe)}
+.ev-mark.off{color:var(--ink-2)}
+/* Status marks: density, not hue */
+.st{width:8px;height:8px;border-radius:var(--r-dot);flex:none;display:inline-block;box-shadow:inset 0 0 0 1px var(--ink-2)}
+.st.solid{background:var(--ink-1);box-shadow:none}
+.st.half{background:linear-gradient(90deg,var(--ink-2) 50%,transparent 50%)}
+.st.open{}
+.st.faint{background:var(--ink-3);box-shadow:none;width:6px;height:6px}
+.st.fail{background:linear-gradient(135deg,transparent 45%,var(--ink-1) 45%,var(--ink-1) 58%,transparent 58%);box-shadow:inset 0 0 0 1px var(--ink-1)}
+.st.run{box-shadow:inset 0 0 0 1px var(--ink-4);position:relative}
+.st.run::after{content:"";position:absolute;inset:0;border-radius:var(--r-dot);border:1px solid transparent;border-top-color:var(--ink-1);animation:turn 1.6s linear infinite}
+@keyframes turn{to{transform:rotate(1turn)}}
+
+/* ================================================================
+   05 · SHELL: one ground, a hairline, a column
+   ================================================================ */
+.app{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:var(--sp-6) var(--sp-4) var(--sp-4);
+  display:flex;flex-direction:column;gap:var(--sp-1);transition:opacity var(--t-advance) var(--ease)}
+body.loupe-on .side{opacity:.35}
+body.loupe-on .side:hover,body.loupe-on .side:focus-within{opacity:1}
+.brand{display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-2) var(--sp-1)}
+.brand-name{font-weight:var(--w-title);letter-spacing:.02em}
+.brand-sub{padding:0 var(--sp-2) var(--sp-6)}
+.search{display:flex;align-items:center;gap:var(--sp-2);height:var(--ctl);padding:0 var(--sp-2);margin-bottom:var(--sp-4);color:var(--ink-3);
+  border-bottom:var(--hairline) solid var(--hair);transition:color var(--t-shutter) var(--ease)}
+.search:hover{color:var(--ink-2)}
+.search .kbd{margin-left:auto}
+.nav{display:flex;align-items:center;gap:var(--sp-3);height:var(--ctl);padding:0 var(--sp-2);color:var(--ink-2);position:relative;
+  transition:color var(--t-shutter) var(--ease)}
+.nav .idx{font:var(--s-cap)/1 var(--f-mono);color:var(--ink-3);width:16px}
+.nav .n{margin-left:auto;font:var(--s-cap)/1 var(--f-mono);color:var(--ink-3)}
+.nav:hover{color:var(--ink-1)}
+.nav.on{color:var(--ink-1)}
+.nav.on .idx{color:var(--ink-1)}
+.nav.on::before{content:"";position:absolute;left:calc(-1 * var(--sp-4));top:50%;width:var(--sp-2);height:var(--hairline);background:var(--ink-1)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:var(--sp-3);padding:0 var(--sp-2)}
+.jobline{display:grid;grid-template-columns:8px 1fr;column-gap:var(--sp-2);align-items:center;color:var(--ink-2)}
+.jobline .cap{grid-column:2}
+.jobline .meter{grid-column:2;margin-top:var(--sp-1)}
+.theme-line{display:flex;align-items:center;justify-content:space-between;border-top:var(--hairline) solid var(--hair);padding-top:var(--sp-3)}
+
+.main{min-width:0;position:relative;border-left:var(--hairline) solid var(--hair)}
+.screen{display:none;padding:var(--sp-12) var(--sp-16) var(--sp-16)}
+.screen.on{display:block;animation:rise var(--t-advance) var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(var(--rise))}to{opacity:1;transform:none}}
+.column{max-width:var(--col);margin:0 auto}
+
+/* Sheet head: film-edge caption, then the title, then at most one action */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-6);margin-bottom:var(--sp-8)}
+.head .cap{margin-bottom:var(--sp-1)}
+/* Section label: a caption on a hairline */
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-4);padding-bottom:var(--sp-2);border-bottom:var(--hairline) solid var(--hair);margin-bottom:var(--sp-1)}
+.block + .block{margin-top:var(--sp-12)}
+
+/* ================================================================
+   06 · COMPONENTS
+   ================================================================ */
+/* Button */
+.btn{display:inline-flex;align-items:center;gap:var(--sp-2);height:var(--ctl);padding:0 var(--sp-3);border-radius:var(--r-1);white-space:nowrap;
+  border:var(--hairline) solid var(--hair-2);color:var(--ink-1);transition:border-color var(--t-shutter) var(--ease),background-color var(--t-shutter) var(--ease),color var(--t-shutter) var(--ease)}
+.btn:hover,.btn.is-hover{border-color:var(--ink-3)}
+.btn.primary{background-color:var(--safe);border-color:var(--safe);color:var(--on-safe);font-weight:var(--w-title)}
+.btn.primary:hover,.btn.primary.is-hover{background-color:var(--safe-hi);border-color:var(--safe-hi)}
+.btn.quiet{border-color:transparent;color:var(--ink-2);padding:0 var(--sp-2)}
+.btn.quiet:hover,.btn.quiet.is-hover{color:var(--ink-1)}
+.btn:disabled,.btn.is-disabled{color:var(--ink-3);border-color:var(--hair);background-color:transparent;cursor:default;font-weight:var(--w-text)}
+.btn:active{transform:translateY(1px)}
+/* Key hint */
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--sp-1);border:var(--hairline) solid var(--hair-2);border-radius:var(--r-1);
+  font:var(--s-cap)/1 var(--f-mono);color:var(--ink-3)}
+.btn.primary .kbd{border-color:color-mix(in srgb,var(--on-safe) 30%,transparent);color:var(--on-safe)}
+.btn:disabled .kbd,.btn.is-disabled .kbd{border-color:var(--hair);color:var(--ink-3)}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:var(--ctl);height:var(--ctl);color:var(--ink-3);border-radius:var(--r-1);transition:color var(--t-shutter) var(--ease)}
+.icon-btn:hover{color:var(--ink-1)}
+
+/* Row: lists without frames, actions on hover or focus */
+.row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:center;min-height:var(--row);
+  padding:var(--sp-2) var(--sp-3);margin:0 calc(-1 * var(--sp-3));transition:background-color var(--t-shutter) var(--ease)}
+.row + .row{border-top:var(--hairline) solid var(--hair)}
+.row:hover,.row.is-hover{background-color:var(--ground-hi)}
+.t{display:block}
+.t + .cap{display:block}
+.row .act{display:flex;gap:var(--sp-1);opacity:0;transition:opacity var(--t-shutter) var(--ease)}
+.row:hover .act,.row:focus-within .act,.row.is-hover .act,.row.is-focus .act{opacity:1}
+.row .end{display:flex;align-items:center;gap:var(--sp-3);justify-content:flex-end}
+.row.done .t{color:var(--ink-3)}
+.row.nogut{grid-template-columns:minmax(0,1fr) auto}
+.row.dotgut{grid-template-columns:16px minmax(0,1fr) auto}
+
+/* Proposal: E.V.'s suggestion, dashed, inside the list it would change */
+.proposal{display:grid;grid-template-columns:56px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:center;min-height:var(--row);
+  padding:var(--sp-2) var(--sp-3);margin:var(--sp-2) calc(-1 * var(--sp-3)) 0;border:var(--hairline) dashed var(--ink-4);border-radius:var(--r-1)}
+.proposal .act{display:flex;gap:var(--sp-1)}
+
+/* E.V. line: her one sentence per screen */
+.evline{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:var(--sp-3);align-items:start}
+.evline .ev-mark{margin-top:3px}
+.evline p + p{margin-top:var(--sp-1)}
+
+/* Source reference & unverified */
+.src{font:var(--s-cap)/var(--lh-cap) var(--f-mono);color:var(--ink-3);white-space:nowrap}
+.src::before{content:"↳ ";color:var(--ink-4)}
+.src a{border-bottom:var(--hairline) solid var(--hair-2);transition:color var(--t-shutter) var(--ease)}
+.src a:hover{color:var(--ink-1)}
+.unverified{font:var(--s-cap)/var(--lh-cap) var(--f-mono);color:var(--ink-3);border-bottom:var(--hairline) dotted var(--ink-3)}
+
+/* Meter: a 2 px line with a target notch */
+.meter{position:relative;height:2px;background:var(--hair-2);width:100%}
+.meter > i{position:absolute;left:0;top:0;bottom:0;background:var(--ink-2)}
+.meter.notch::after{content:"";position:absolute;left:var(--target,80%);top:-3px;width:var(--hairline);height:8px;background:var(--ink-3)}
+.meter.run > i{background:var(--ink-1)}
+
+/* Tabs */
+.tabs{display:flex;gap:var(--sp-6);border-bottom:var(--hairline) solid var(--hair);margin-bottom:var(--sp-8)}
+.tab{height:var(--row);color:var(--ink-3);position:relative;transition:color var(--t-shutter) var(--ease)}
+.tab:hover{color:var(--ink-1)}
+.tab.on{color:var(--ink-1)}
+.tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:var(--hairline);background:var(--ink-1)}
+.tab .cap{margin-left:var(--sp-1)}
+
+/* Field */
+.field{display:block;width:100%;min-height:var(--row);padding:var(--sp-2) 0;border-bottom:var(--hairline) solid var(--hair-2);color:var(--ink-1);
+  transition:border-color var(--t-shutter) var(--ease);resize:none;outline:none}
+.field:hover{border-bottom-color:var(--ink-3)}
+.field:focus,.field.is-focus{border-bottom-color:var(--ink-1)}
+
+/* Filmstrip (deck overview) and frames */
+.strip{display:flex;gap:var(--sp-1);align-items:flex-start}
+.frame{width:28px;height:20px;border:var(--hairline) solid var(--ink-4);position:relative;flex:none;transition:border-color var(--t-shutter) var(--ease)}
+.frame::after{content:"";position:absolute;left:50%;top:calc(100% + 4px);width:4px;height:4px;margin-left:-2px;border-radius:var(--r-dot)}
+.frame.good::after{background:var(--ink-2)}
+.frame.again::after{box-shadow:inset 0 0 0 1px var(--ink-2)}
+.frame.due{border-color:var(--ink-3)}
+.deck:not(.lit) .frame{width:20px;height:14px}
+.deck.lit .frame{width:44px;height:32px}
+.deck.lit .frame span{position:absolute;left:4px;top:3px;font:var(--s-cap)/1 var(--f-mono);color:var(--ink-3)}
+.deck.lit .frame.due span{color:var(--ink-1)}
+.deck.lit .strip{gap:var(--sp-2)}
+.frame:hover,.frame.is-hover{border-color:var(--ink-1)}
+
+/* Frame ticks (the strip, dimmed, under the loupe) */
+.ticks{display:flex;align-items:flex-end;justify-content:center;gap:var(--sp-3);height:28px}
+.tick{width:var(--hairline);height:8px;background:var(--ink-4);position:relative;transition:height var(--t-advance) var(--ease),background-color var(--t-advance) var(--ease)}
+.tick.cur{height:16px;background:var(--ink-1)}
+.tick::before{content:"";position:absolute;left:50%;bottom:calc(100% + 6px);width:5px;height:5px;margin-left:-2.5px;border-radius:var(--r-dot)}
+.tick.good::before{background:var(--ink-2)}
+.tick.again::before{box-shadow:inset 0 0 0 1px var(--ink-2)}
+
+/* The loupe: one card, centred, the only frame on screen */
+.loupe-stage{position:relative;display:flex;flex-direction:column;align-items:center}
+.loupe{position:relative;width:var(--loupe-w);min-height:368px;border:var(--hairline) solid var(--hair-2);padding:var(--sp-8) var(--sp-12) var(--sp-8);
+  display:flex;flex-direction:column;background:var(--ground)}
+.loupe-edge{display:flex;justify-content:space-between;align-items:baseline}
+.loupe-face{flex:1;display:flex;flex-direction:column;justify-content:center;padding:var(--sp-8) 0}
+.ghost{position:absolute;top:24px;bottom:24px;width:48px;border:var(--hairline) solid var(--hair);opacity:.9}
+.ghost.l{right:calc(50% + var(--loupe-w)/2 + var(--sp-6));border-left:0}
+.ghost.r{left:calc(50% + var(--loupe-w)/2 + var(--sp-6));border-right:0}
+.ghost .cap{position:absolute;bottom:calc(-1 * var(--sp-6));white-space:nowrap}
+.ghost.l .cap{right:0} .ghost.r .cap{left:0}
+.develop{animation:develop var(--t-develop) var(--ease)}
+@keyframes develop{from{opacity:0}to{opacity:1}}
+.loupe-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);margin-top:var(--sp-6);width:var(--loupe-w)}
+.attempt{display:flex;align-items:center;gap:var(--sp-3)}
+.attempt .field{flex:1}
+.quote{border-left:var(--hairline) solid var(--hair-2);padding-left:var(--sp-3);color:var(--ink-2)}
+
+/* Question options (practice) */
+.opt{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;column-gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-3);margin:0 calc(-1 * var(--sp-3));
+  text-align:left;width:calc(100% + 2 * var(--sp-3));color:var(--ink-2);transition:background-color var(--t-shutter) var(--ease),color var(--t-shutter) var(--ease)}
+.opt:hover,.opt.is-hover{background-color:var(--ground-hi);color:var(--ink-1)}
+.opt .k{font:var(--s-cap)/1 var(--f-mono);color:var(--ink-3)}
+.opt.sel{color:var(--ink-1)}
+.opt.sel .k{color:var(--ink-1)}
+.opt.sel .st{background:var(--ink-1);box-shadow:none}
+.opt .verdict{font:var(--s-cap)/1 var(--f-mono);color:var(--ink-2)}
+.opt.right{color:var(--ink-1)}
+.opt.wrong{color:var(--ink-2)}
+.opt.wrong .a{text-decoration:line-through;text-decoration-color:var(--ink-3)}
+.opt[disabled]{cursor:default}
+.opt[disabled]:hover{background-color:transparent}
+.feedback{border-top:var(--hairline) solid var(--hair);padding-top:var(--sp-4);margin-top:var(--sp-4)}
+
+/* Confidence scale */
+.conf{display:inline-flex;border:var(--hairline) solid var(--hair-2);border-radius:var(--r-1)}
+.conf button{height:28px;padding:0 var(--sp-3);color:var(--ink-3);font-size:var(--s-cap);font-family:var(--f-mono);transition:color var(--t-shutter) var(--ease),background-color var(--t-shutter) var(--ease)}
+.conf button + button{border-left:var(--hairline) solid var(--hair-2)}
+.conf button:hover{color:var(--ink-1)}
+.conf button.on{background-color:var(--ground-hi);color:var(--ink-1);box-shadow:inset 0 0 0 1px var(--ink-2)}
+
+/* Job line (Activity, Ask, sidebar) */
+.job{display:grid;grid-template-columns:56px 16px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:start;padding:var(--sp-3) var(--sp-3);margin:0 calc(-1 * var(--sp-3));
+  transition:background-color var(--t-shutter) var(--ease)}
+.job + .job{border-top:var(--hairline) solid var(--hair)}
+.job:hover{background-color:var(--ground-hi)}
+.job .st{margin-top:7px}
+.job .cap.time{padding-top:3px}
+.job .act{display:flex;gap:var(--sp-1);opacity:0;transition:opacity var(--t-shutter) var(--ease)}
+.job:hover .act,.job:focus-within .act,.job.need .act,.job.fail .act{opacity:1}
+.job .meter{margin-top:var(--sp-2);max-width:240px}
+.job.fail .reason{color:var(--ink-1)}
+
+/* Chip (palette scope, small toggles) */
+.chip{display:inline-flex;align-items:center;gap:var(--sp-1);height:24px;padding:0 var(--sp-2);border:var(--hairline) solid var(--hair-2);border-radius:var(--r-1);font:var(--s-cap)/1 var(--f-mono);color:var(--ink-2)}
+
+/* Toast: floating, so it may cast a shadow */
+.toast{display:inline-flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);background:var(--float);box-shadow:var(--shadow-float);border-radius:var(--r-1)}
+.toast-host{position:fixed;left:calc(var(--side-w) + (100vw - var(--side-w))/2);bottom:var(--sp-8);transform:translateX(-50%);z-index:30;pointer-events:none}
+.toast-host .toast{pointer-events:auto;animation:rise var(--t-advance) var(--ease)}
+
+/* ⌘K palette: floating */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40;display:none}
+.scrim.on{display:block;animation:develop var(--t-advance) var(--ease)}
+.palette{position:fixed;left:calc(var(--side-w) + (100vw - var(--side-w))/2);top:120px;transform:translateX(-50%);width:600px;z-index:41;background:var(--float);
+  box-shadow:var(--shadow-float);border-radius:var(--r-1);display:none}
+.palette.on{display:block;animation:rise var(--t-advance) var(--ease)}
+.pal-in{display:flex;align-items:center;gap:var(--sp-3);padding:0 var(--sp-4);height:52px;border-bottom:var(--hairline) solid var(--hair)}
+.pal-in input{flex:1;outline:none;height:100%}
+.pal-list{padding:var(--sp-2) 0 var(--sp-2)}
+.pal-grp{padding:var(--sp-3) var(--sp-4) var(--sp-1)}
+.pal-item{display:grid;grid-template-columns:16px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:center;height:var(--row);padding:0 var(--sp-4);width:100%;text-align:left;color:var(--ink-2)}
+.pal-item.sel{background-color:var(--ground-hi);color:var(--ink-1)}
+.pal-item .ic{color:var(--ink-3)}
+.pal-foot{display:flex;gap:var(--sp-4);padding:var(--sp-3) var(--sp-4);border-top:var(--hairline) solid var(--hair)}
+.pal-foot span{display:inline-flex;gap:var(--sp-2);align-items:center}
+
+/* Prints: images and diagrams, matted and captioned */
+.print{margin:0}
+.print .mat{border:var(--hairline) solid var(--hair);padding:var(--sp-4) var(--sp-6)}
+.print figcaption{display:flex;flex-direction:column;margin-top:var(--sp-3)}
+.plot .axis{stroke:var(--ink-3);stroke-width:1}
+.plot .grid{stroke:var(--hair);stroke-width:1}
+.plot .curve{stroke:var(--ink-1);stroke-width:1.5;fill:none}
+.plot .curve.alt{stroke:var(--ink-3);stroke-dasharray:4 4}
+.plot text{font:11px var(--f-mono);fill:var(--ink-3)}
+.plot .pt{fill:var(--ink-1)}
+
+/* Study session bar */
+.session{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:var(--sp-6);height:48px;margin:calc(-1 * var(--sp-12)) calc(-1 * var(--sp-16)) var(--sp-12);padding:0 var(--sp-16);
+  background:var(--ground);border-bottom:var(--hairline) solid var(--hair)}
+.session .timer{font:var(--w-title) var(--s-body)/1 var(--f-mono);letter-spacing:.02em}
+.session .grow{flex:1}
+.rec{width:6px;height:6px;border-radius:var(--r-dot);background:var(--ink-1);animation:breathe 2.4s var(--ease) infinite}
+@keyframes breathe{50%{opacity:.25}}
+.readalong{display:flex;align-items:center;gap:var(--sp-2)}
+
+/* Notes editor surface */
+.doc{max-width:640px;margin:0 auto}
+.doc h1{font-size:var(--s-title);line-height:var(--lh-title);font-weight:var(--w-title);letter-spacing:var(--track-title);margin-bottom:var(--sp-1)}
+.doc h2{font-size:var(--s-body);font-weight:var(--w-title);margin:var(--sp-8) 0 var(--sp-2)}
+.doc p{color:var(--ink-1)}
+.doc p + p{margin-top:var(--sp-3)}
+.doc ul{list-style:none;margin:var(--sp-2) 0}
+.doc ul li{position:relative;padding-left:var(--sp-6)}
+.doc ul li::before{content:"";position:absolute;left:var(--sp-2);top:11px;width:6px;height:var(--hairline);background:var(--ink-3)}
+.doc .check li::before{display:none}
+.doc .check li{padding-left:var(--sp-8)}
+.box{position:absolute;left:0;top:4px;width:14px;height:14px;border:var(--hairline) solid var(--ink-3);border-radius:var(--r-1)}
+.box.on{background:var(--ink-2);border-color:var(--ink-2)}
+.box.on::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid var(--ground);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.check li.on{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--ink-4)}
+.side-by-side{display:grid;grid-template-columns:minmax(0,1fr) 256px;gap:var(--sp-8);align-items:start}
+.reading{box-shadow:inset 0 -1px 0 var(--ink-1);background:var(--ground-hi)}
+.doc-gutter{position:absolute}
+.checkq{border:var(--hairline) solid var(--hair-2);padding:var(--sp-4) var(--sp-6);margin:var(--sp-6) 0 0}
+.saved{display:flex;align-items:center;gap:var(--sp-2)}
+
+/* Transcript (Ask E.V.) */
+.turn{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:var(--sp-3);padding:var(--sp-4) 0}
+.turn + .turn{border-top:var(--hairline) solid var(--hair)}
+.turn .who{padding-top:3px;display:flex;align-items:flex-start;gap:var(--sp-2)}
+.turn.me .body{color:var(--ink-2)}
+.inline-job{display:grid;grid-template-columns:16px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:center;margin-top:var(--sp-3);padding:var(--sp-3) 0;border-top:var(--hairline) solid var(--hair);border-bottom:var(--hairline) solid var(--hair)}
+.composer{margin-top:var(--sp-8);border-top:var(--hairline) solid var(--hair-2);padding-top:var(--sp-2)}
+.composer-foot{display:flex;justify-content:space-between;align-items:center;margin-top:var(--sp-2)}
+
+/* Today: plan + margin column */
+.today-grid{display:grid;grid-template-columns:minmax(0,1fr) 232px;gap:var(--sp-16)}
+.margin .exam{padding:var(--sp-3) 0}
+.margin .exam + .exam{border-top:var(--hairline) solid var(--hair)}
+.margin .exam .meter{margin-top:var(--sp-2)}
+.spread{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-3)}
+
+/* Deck list */
+.deck{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--sp-6);align-items:center;padding:var(--sp-4) var(--sp-3);margin:0 calc(-1 * var(--sp-3));transition:background-color var(--t-shutter) var(--ease)}
+.deck + .deck{border-top:var(--hairline) solid var(--hair)}
+.deck:hover{background-color:var(--ground-hi)}
+.deck .strip{margin-top:var(--sp-3);padding-bottom:var(--sp-2)}
+
+
+/* Plan proposal */
+.day{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:var(--sp-3);padding:var(--sp-3) 0}
+.day + .day{border-top:var(--hairline) solid var(--hair)}
+.day .slot{display:grid;grid-template-columns:48px minmax(0,1fr) auto;column-gap:var(--sp-3);align-items:baseline}
+.day .slot + .slot{margin-top:var(--sp-2)}
+.decide{display:flex;gap:var(--sp-2);align-items:center;margin-top:var(--sp-8);padding-top:var(--sp-6);border-top:var(--hairline) solid var(--hair)}
+.objective{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--sp-6);align-items:center;min-height:56px;padding:var(--sp-2) var(--sp-3);margin:0 calc(-1 * var(--sp-3))}
+.objective + .objective{border-top:var(--hairline) solid var(--hair)}
+.objective.cur{background-color:var(--ground-hi)}
+.rated{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-4);padding:var(--sp-3) 0}
+.link{color:var(--ink-3);transition:color var(--t-shutter) var(--ease)}
+.link:hover{color:var(--ink-1)}
+.waiting{padding:var(--sp-8) 0;border-top:var(--hairline) dashed var(--ink-4);margin-top:var(--sp-6)}
+
+/* Progress */
+.spark .line{fill:none;stroke:var(--ink-1);stroke-width:1.25}
+.spark .base{stroke:var(--hair-2)}
+.spark .tgt{stroke:var(--ink-3);stroke-dasharray:2 4}
+
+/* ================================================================
+   07 · SPEC SHEET (#system)
+   ================================================================ */
+.spec{max-width:960px;margin:0 auto}
+.spec-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--sp-8);align-items:end;padding-bottom:var(--sp-8);border-bottom:var(--hairline) solid var(--ink-4)}
+.datablock{display:flex;flex-direction:column;align-items:flex-end}
+.datablock dl{display:grid;grid-template-columns:auto auto;column-gap:var(--sp-4);row-gap:var(--sp-1);border-top:var(--hairline) solid var(--hair);padding-top:var(--sp-3)}
+.datablock dd{text-align:right}
+.shell-plate{position:relative;flex:none;width:384px;height:258px;border:var(--hairline) solid var(--ink-3)}
+.shell-plate .sb{position:absolute;left:0;top:0;bottom:0;width:65px;border-right:var(--hairline) solid var(--ink-4)}
+.shell-plate .colm{position:absolute;top:16px;bottom:16px;left:calc(65px + (319px - 216px)/2);width:216px;border-left:var(--hairline) dashed var(--ink-4);border-right:var(--hairline) dashed var(--ink-4)}
+.shell-plate .lp{position:absolute;top:64px;left:calc(65px + (319px - 192px)/2);width:192px;height:110px;border:var(--hairline) solid var(--ink-2)}
+.shell-plate .cap{position:absolute;white-space:nowrap}
+.spec-sec{display:grid;grid-template-columns:184px minmax(0,1fr);gap:var(--sp-8);padding:var(--sp-12) 0;border-bottom:var(--hairline) solid var(--hair)}
+.spec-sec > header .cap{display:block}
+.spec-sec > header .title{margin-top:var(--sp-1)}
+.spec-sec > header p{margin-top:var(--sp-2);color:var(--ink-2)}
+.wedges{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6)}
+.wedge{padding:var(--sp-6);border:var(--hairline) solid var(--hair);background:var(--ground);color:var(--ink-1)}
+.wedge-strip{display:grid;grid-template-columns:repeat(9,1fr);height:56px;border:var(--hairline) solid var(--hair);margin:var(--sp-4) 0}
+.wedge-strip > div{position:relative}
+.wedge-strip > div span{position:absolute;left:var(--sp-1);bottom:var(--sp-1);font:10px/1 var(--f-mono)}
+.swatch-list{display:grid;grid-template-columns:1fr;gap:0}
+.sw{display:grid;grid-template-columns:12px 96px 64px minmax(0,1fr);column-gap:var(--sp-3);align-items:center;min-height:32px}
+.sw + .sw{border-top:var(--hairline) solid var(--hair)}
+.sw i{width:12px;height:12px;border:var(--hairline) solid var(--hair-2);display:block}
+.specimen{display:grid;grid-template-columns:176px minmax(0,1fr);column-gap:var(--sp-6);align-items:baseline;padding:var(--sp-4) 0}
+.specimen + .specimen{border-top:var(--hairline) solid var(--hair)}
+.ruler{display:flex;align-items:flex-end;gap:var(--sp-6)}
+.ruler .u{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-2)}
+.ruler .u i{display:block;height:24px;border:var(--hairline) solid var(--ink-3);border-top:0;background:transparent}
+.shapes{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-6)}
+.shape{height:72px;border:var(--hairline) solid var(--ink-3)}
+.motion{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-6)}
+.motion svg .c{fill:none;stroke:var(--ink-1);stroke-width:1.25}
+.motion svg .a{stroke:var(--hair-2)}
+.track{position:relative;height:var(--hairline);background:var(--hair-2);margin-top:var(--sp-3)}
+.track i{position:absolute;top:-3px;left:0;width:7px;height:7px;border-radius:var(--r-dot);background:var(--ink-1)}
+.track.play i{animation:slide var(--d) var(--ease) forwards}
+@keyframes slide{to{left:calc(100% - 7px)}}
+.comp{display:grid;grid-template-columns:144px minmax(0,1fr);column-gap:var(--sp-6);padding:var(--sp-6) 0;align-items:start}
+.comp + .comp{border-top:var(--hairline) solid var(--hair)}
+.states{display:flex;flex-wrap:wrap;gap:var(--sp-6) var(--sp-8);align-items:flex-start}
+.state{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start}
+.marks{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--sp-4)}
+.markcell{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-4) 0;border-top:var(--hairline) solid var(--hair)}
+.mini-loupe{width:280px;border:var(--hairline) solid var(--hair-2);padding:var(--sp-4) var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-4)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="m-ev" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.25"/><path d="M8 0.5v15M0.5 8h15" stroke="currentColor" stroke-width="1.25"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2"/></symbol>
+  <symbol id="i-left" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5"/></symbol>
+  <symbol id="i-right" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 16 16"><path d="M5 3.5v9l7-4.5z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 16 16"><path d="M5.5 3.5v9M10.5 3.5v9"/></symbol>
+  <symbol id="i-go" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></symbol>
+  <symbol id="i-card" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="8.5"/><path d="M4.5 2h9.5v8"/></symbol>
+  <symbol id="i-note" viewBox="0 0 16 16"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M6 8h4M6 10.5h4"/></symbol>
+  <symbol id="i-q" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.6M8 11.4v.1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11"/><path d="M1.5 11l4-4 3.5 3.5 2-2 3.5 3.5"/></symbol>
+</svg>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="side" aria-label="E.V.">
+    <div class="brand"><svg class="ev-mark off" aria-hidden="true"><use href="#m-ev"/></svg><span class="brand-name">E.V.</span></div>
+    <div class="cap brand-sub">NUR 112 · BIO 201</div>
+    <button class="search" data-open-palette><svg class="ic"><use href="#i-search"/></svg><span>Search or ask</span><span class="kbd">⌘K</span></button>
+    <a class="nav" href="#today" data-nav="today"><span class="idx">01</span>Today<span class="n">4</span></a>
+    <a class="nav" href="#ask" data-nav="ask"><span class="idx">02</span>Ask E.V.</a>
+    <a class="nav" href="#library" data-nav="library"><span class="idx">03</span>Library<span class="n">4 due</span></a>
+    <a class="nav" href="#notes" data-nav="notes"><span class="idx">04</span>Notes</a>
+    <a class="nav" href="#progress" data-nav="progress"><span class="idx">05</span>Progress</a>
+    <a class="nav" href="#activity" data-nav="activity"><span class="idx">06</span>Activity<span class="n">1</span></a>
+    <div class="side-foot">
+      <a class="jobline" href="#activity">
+        <span class="st run"></span><span>Mock exam · Ch 9</span>
+        <span class="cap">Writing · 9 of 15</span>
+        <span class="meter run"><i style="width:60%"></i></span>
+      </a>
+      <a class="nav" href="#system" data-nav="system" style="padding:0;height:24px"><span class="cap" style="color:inherit">Spec sheet</span></a>
+      <div class="theme-line"><span class="cap" id="theme-name">Darkroom</span><button class="kbd" data-theme-toggle aria-label="Switch theme">\</button></div>
+    </div>
+  </nav>
+
+  <main class="main" id="main">
+
+  <!-- ============ 01 TODAY ============ -->
+  <section class="screen" data-screen="today">
+    <div style="max-width:920px;margin:0 auto">
+      <div style="max-width:624px">
+        <div class="head">
+          <div><p class="cap">Monday 2 November · 07:42 CT</p><h1 class="title">Today</h1></div>
+          <a class="btn primary" href="#library/study">Start morning review <span class="kbd">↵</span></a>
+        </div>
+        <div class="evline" style="margin-bottom:var(--sp-12)">
+          <svg class="ev-mark" aria-hidden="true"><use href="#m-ev"/></svg>
+          <div><p>Exam 3 is Thursday. Oral liquid doses is still your weakest spot, so it's first after the review.</p>
+          <p class="src"><a href="#library/weak">Weak spots · last 14 days</a></p></div>
+        </div>
+      </div>
+    <div class="today-grid">
+      <div>
+        <div class="block">
+          <div class="sec"><span class="cap">Plan · 4 blocks · 70 min</span><span class="cap">Approved Sunday</span></div>
+          <div class="row" tabindex="0">
+            <span class="cap i1">07:50</span>
+            <span><span class="t">Morning review set</span><span class="cap">8 cards · cardiac output, I&amp;O, med math</span></span>
+            <span class="end"><span class="act"><span class="kbd">↵</span></span><span class="cap">10 min</span></span>
+          </div>
+          <div class="row" tabindex="0">
+            <span class="cap">12:10</span>
+            <span><span class="t">Oral liquid doses</span><span class="cap">10 problems · from your Exam 3 plan</span></span>
+            <span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">20 min</span></span>
+          </div>
+          <div class="row" tabindex="0">
+            <span class="cap">15:30</span>
+            <span><span class="t">Write up Ch 9 lecture notes</span><span class="cap">Note task · BIO 201 · with read-along</span></span>
+            <span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">30 min</span></span>
+          </div>
+          <div class="row" tabindex="0">
+            <span class="cap">20:00</span>
+            <span><span class="t">Frank–Starling, in your own words</span><span class="cap">3 prompts · from your Exam 3 plan</span></span>
+            <span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">10 min</span></span>
+          </div>
+          <div class="proposal">
+            <span class="cap">21:00</span>
+            <span><span class="t q2">5 dosage-by-weight problems</span><span class="cap">Proposed · you missed 2 of 4 yesterday</span></span>
+            <span class="act"><button class="btn quiet">Accept <span class="kbd">A</span></button><button class="btn quiet">Put away</button></span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="margin">
+        <div class="sec"><span class="cap">Exams · readiness</span></div>
+        <a class="exam" href="#library/exam-3" style="display:block">
+          <div class="spread"><span>Exam 3</span><span class="cap i1">58%</span></div>
+          <div class="cap">NUR 112 · Thu · plan waiting</div>
+          <div class="meter notch"><i style="width:58%"></i></div>
+        </a>
+        <div class="exam">
+          <div class="spread"><span>Lab practical 2</span><span class="cap i1">71%</span></div>
+          <div class="cap">BIO 201 · Mon 9 Nov</div>
+          <div class="meter notch"><i style="width:71%"></i></div>
+        </div>
+        <div class="exam">
+          <div class="spread"><span>Med math check</span><span class="cap i1">40%</span></div>
+          <div class="cap">NUR 112 · Mon 16 Nov</div>
+          <div class="meter notch"><i style="width:40%"></i></div>
+        </div>
+        <p class="cap" style="margin-top:var(--sp-2)">Notch · 80% target</p>
+
+        <div class="sec" style="margin-top:var(--sp-12)"><span class="cap">Week 10 · review</span><span class="cap">Sun</span></div>
+        <a href="#progress" style="display:block;padding:var(--sp-3) 0">
+          <p>5 h 10 m studied</p>
+          <p class="cap">Accuracy 72%, up 6 · 3 weak spots to confirm</p>
+        </a>
+      </aside>
+    </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · DECKS (contact sheet) ============ -->
+  <section class="screen" data-screen="library">
+    <div class="column">
+      <div class="head">
+        <div><p class="cap">Library · 5 decks · 53 cards · 4 due</p><h1 class="title">Contact sheet</h1></div>
+        <a class="btn primary" href="#library/study">Study cardiac output <span class="kbd">↵</span></a>
+      </div>
+      <div class="tabs">
+        <a class="tab on" href="#library">Decks</a>
+        <a class="tab" href="#library/practice">Practice</a>
+        <a class="tab" href="#library/weak">Weak spots<span class="cap">4</span></a>
+        <a class="tab" href="#library/exams">Exams</a>
+      </div>
+      <div id="decks"></div>
+      <p class="cap" style="margin-top:var(--sp-6)">Under a frame: <span class="q2">●</span> good · <span class="q2">○</span> again · blank, new. Bright edge, due today. Hover to read.</p>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · STUDY (the loupe) ============ -->
+  <section class="screen" data-screen="library/study" style="padding-top:var(--sp-16)">
+    <div class="spread" style="max-width:var(--loupe-w);margin:0 auto var(--sp-8)">
+      <a class="cap" href="#library">← Contact sheet</a>
+      <span class="cap">← → frame · Space flip · Esc leave</span>
+    </div>
+    <div class="loupe-stage">
+      <div class="ghost l"><span class="cap" id="ghost-l">02</span></div>
+      <div class="ghost r"><span class="cap" id="ghost-r">04</span></div>
+      <article class="loupe" id="loupe" aria-live="polite"></article>
+      <div class="loupe-foot" id="loupe-foot"></div>
+      <div style="margin-top:var(--sp-8)">
+        <div class="ticks" id="ticks"></div>
+        <p class="cap" style="text-align:center;margin-top:var(--sp-2)" id="tick-cap">Cardiac output · FR 03 / 12</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · PRACTICE ============ -->
+  <section class="screen" data-screen="library/practice">
+    <div class="column">
+      <div class="head">
+        <div><p class="cap">Practice · Dosage by weight · NUR 112</p><h1 class="title">Practice</h1></div>
+      </div>
+      <div class="tabs">
+        <a class="tab" href="#library">Decks</a>
+        <a class="tab on" href="#library/practice">Practice</a>
+        <a class="tab" href="#library/weak">Weak spots<span class="cap">4</span></a>
+        <a class="tab" href="#library/exams">Exams</a>
+      </div>
+    </div>
+    <div class="loupe-stage">
+      <article class="loupe" style="min-height:0">
+        <div class="loupe-edge"><span class="cap">Q 04 / 10</span><span class="cap">Med math · from Dosage by weight</span></div>
+        <div style="padding:var(--sp-6) 0 var(--sp-4)">
+          <p class="title" style="font-weight:var(--w-text)">A child weighs 15 kg. The order is amoxicillin 20 mg/kg/day, divided every 8 hours. Supply: 250 mg per 5 mL. How many mL per dose?</p>
+        </div>
+        <div id="opts" role="radiogroup" aria-label="Answers"></div>
+        <div id="q-feedback"></div>
+      </article>
+      <div class="loupe-foot" id="q-foot"></div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · WEAK SPOTS ============ -->
+  <section class="screen" data-screen="library/weak">
+    <div class="column">
+      <div class="head">
+        <div><p class="cap">Library · 4 weak spots · last 14 days</p><h1 class="title">Weak spots</h1></div>
+        <a class="btn primary" href="#library/practice">Drill the weakest <span class="kbd">↵</span></a>
+      </div>
+      <div class="tabs">
+        <a class="tab" href="#library">Decks</a>
+        <a class="tab" href="#library/practice">Practice</a>
+        <a class="tab on" href="#library/weak">Weak spots<span class="cap">4</span></a>
+        <a class="tab" href="#library/exams">Exams</a>
+      </div>
+      <div class="sec"><span class="cap">Weakest first</span><span class="cap">Right / tried</span></div>
+      <div class="row" tabindex="0"><span class="cap i1">38%</span><span><span class="t">Oral liquid doses</span><span class="cap">NUR 112 · Exam 3 · mL per dose from mg/kg</span></span><span class="end"><span class="act"><button class="btn quiet">Drill</button></span><span class="cap">3 / 8</span><span class="st open"></span></span></div>
+      <div class="row" tabindex="0"><span class="cap i1">50%</span><span><span class="t">Afterload vs preload</span><span class="cap">BIO 201 · which one a change acts on</span></span><span class="end"><span class="act"><button class="btn quiet">Drill</button></span><span class="cap">4 / 8</span><span class="st half"></span></span></div>
+      <div class="row" tabindex="0"><span class="cap i1">56%</span><span><span class="t">Intake and output totals</span><span class="cap">NUR 112 · ice chips count at half volume</span></span><span class="end"><span class="act"><button class="btn quiet">Drill</button></span><span class="cap">5 / 9</span><span class="st half"></span></span></div>
+      <div class="row" tabindex="0"><span class="cap i1">60%</span><span><span class="t">Crossbridge cycle order</span><span class="cap">BIO 201 · where ATP binds and is split</span></span><span class="end"><span class="act"><button class="btn quiet">Drill</button></span><span class="cap">6 / 10</span><span class="st half"></span></span></div>
+      <div class="sec" style="margin-top:var(--sp-12)"><span class="cap">Parked · confirm in the weekly review</span></div>
+      <div class="row done" tabindex="0"><span class="cap">88%</span><span><span class="t">Cardiac output formula</span><span class="cap">BIO 201 · 7 / 8 right · parked Saturday</span></span><span class="end"><span class="act"><button class="btn quiet">Unpark</button></span><span class="st solid"></span></span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · EXAMS ============ -->
+  <section class="screen" data-screen="library/exams">
+    <div class="column">
+      <div class="head"><div><p class="cap">Library · 3 exams</p><h1 class="title">Exams</h1></div></div>
+      <div class="tabs">
+        <a class="tab" href="#library">Decks</a>
+        <a class="tab" href="#library/practice">Practice</a>
+        <a class="tab" href="#library/weak">Weak spots<span class="cap">4</span></a>
+        <a class="tab on" href="#library/exams">Exams</a>
+      </div>
+      <a class="row" href="#library/exam-3"><span class="cap i1">Thu 5</span><span><span class="t">NUR 112 · Exam 3</span><span class="cap">58% ready · study plan waiting for your ratings</span></span><span class="end" style="width:160px"><span class="meter notch"><i style="width:58%"></i></span></span></a>
+      <div class="row"><span class="cap">Mon 9</span><span><span class="t">BIO 201 · Lab practical 2</span><span class="cap">71% ready · plan after Exam 3</span></span><span class="end" style="width:160px"><span class="meter notch"><i style="width:71%"></i></span></span></div>
+      <div class="row"><span class="cap">Mon 16</span><span><span class="t">NUR 112 · Med math check</span><span class="cap">40% ready · no plan yet</span></span><span class="end" style="width:160px"><span class="meter notch"><i style="width:40%"></i></span></span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LIBRARY · EXAM 3 STUDY-PLAN PROPOSAL ============ -->
+  <section class="screen" data-screen="library/exam-3">
+    <div class="column">
+      <div class="head">
+        <div><p class="cap">Exam 3 · NUR 112 · Thursday 5 November, 09:00 · 3 days</p><h1 class="title">Study plan</h1></div>
+        <span class="cap" id="plan-state">Step 1 of 2 · your confidence</span>
+      </div>
+
+      <div class="block" id="objectives"></div>
+
+      <div class="block" id="plan-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ 04 NOTES · STUDY SESSION ============ -->
+  <section class="screen" data-screen="notes">
+    <div class="session">
+      <span class="rec" aria-hidden="true"></span>
+      <span class="cap i2">Session · Ch 9 notes</span>
+      <span class="timer" id="timer">18:42</span>
+      <span class="readalong"><button class="icon-btn" aria-label="Pause read-along" style="color:var(--ink-1)"><svg class="ic"><use href="#i-pause"/></svg></button><span class="cap i2">Read-along · ¶ 3 of 7 · 1.0×</span></span>
+      <span class="grow"></span>
+      <span class="saved cap"><span class="st faint"></span>Saved on this device · 07:52</span>
+      <button class="btn">End session</button>
+    </div>
+    <article class="doc">
+      <p class="cap">BIO 201 · Lecture 9 · Notes</p>
+      <h1>Cardiac output</h1>
+      <p class="cap">Edited 2 min ago · 412 words · 1 print</p>
+
+      <h2>Preload and the Frank–Starling law</h2>
+      <div class="side-by-side">
+        <div>
+          <p>Preload is the stretch on the ventricle's muscle fibres just before it contracts. <span class="reading">More filling stretches the fibres, and a stretched fibre contracts with more force.</span> So, within limits, the heart pumps out what comes back to it.</p>
+          <p>Past the top of the curve, extra stretch stops helping. A failing heart sits on a flatter curve.</p>
+        </div>
+        <figure class="print">
+          <div class="mat">
+            <svg class="plot" viewBox="0 0 224 160" width="100%" role="img" aria-label="Frank–Starling curve: stroke volume rises with end-diastolic volume, then levels off">
+              <line class="grid" x1="28" y1="40" x2="216" y2="40"/><line class="grid" x1="28" y1="80" x2="216" y2="80"/>
+              <line class="axis" x1="28" y1="8" x2="28" y2="128"/><line class="axis" x1="28" y1="128" x2="216" y2="128"/>
+              <path class="curve" d="M28 120 C 70 108, 92 46, 132 34 S 200 26, 216 26"/>
+              <path class="curve alt" d="M28 124 C 80 116, 110 86, 150 76 S 200 70, 216 70"/>
+              <circle class="pt" cx="104" cy="56" r="2.5"/>
+              <text x="0" y="12">SV</text><text x="150" y="148">EDV →</text>
+              <text x="160" y="20">normal</text><text x="150" y="64">failing</text>
+            </svg>
+          </div>
+          <figcaption><span class="cap i2">Fig. 1 · Frank–Starling curve</span><span class="cap">Redrawn from lecture 9, slide 14</span></figcaption>
+        </figure>
+      </div>
+
+      <section class="checkq" aria-label="E.V.'s check question">
+        <div class="evline">
+          <svg class="ev-mark" aria-hidden="true"><use href="#m-ev"/></svg>
+          <div>
+            <p class="cap" style="margin-bottom:var(--sp-1)">Check · in your own words</p>
+            <p>Why does a fuller ventricle contract harder?</p>
+            <textarea class="field" rows="2" style="margin-top:var(--sp-2)" aria-label="Your answer">More blood stretches the fibres, so actin and myosin overlap better and it squeezes harder.</textarea>
+            <p style="margin-top:var(--sp-2)" class="q2">Yes, that's the length–tension idea in one line. <span class="src"><a href="#notes">This note · ¶ 3 · Fig. 1</a></span></p>
+          </div>
+        </div>
+      </section>
+
+      <h2>Before Thursday</h2>
+      <ul class="check">
+        <li class="on"><span class="box on"></span>Redraw the curve from slide 14</li>
+        <li><span class="box"></span>Add one clinical example: heart failure and preload</li>
+        <li><span class="box"></span>Make 4 cards from this section</li>
+      </ul>
+
+      <h2>What sets it</h2>
+      <p>Cardiac output is the volume each ventricle pumps per minute. At rest it is about 5 L/min.</p>
+      <ul>
+        <li>CO = heart rate × stroke volume</li>
+        <li>Stroke volume = end-diastolic volume − end-systolic volume</li>
+        <li>Three levers on stroke volume: preload, contractility, afterload</li>
+      </ul>
+
+      <h2>Afterload</h2>
+      <ul>
+        <li>The pressure the ventricle must overcome to open the aortic valve</li>
+        <li>Higher afterload, less blood ejected per beat, if nothing else changes</li>
+      </ul>
+
+    </article>
+  </section>
+
+  <!-- ============ 02 ASK E.V. ============ -->
+  <section class="screen" data-screen="ask">
+    <div class="column" style="max-width:680px">
+      <div class="head"><div><p class="cap">Ask E.V. · today · 3 exchanges</p><h1 class="title">Ask E.V.</h1></div></div>
+
+      <div class="turn me"><span class="who cap">You · 07:31</span><p class="body">Why does afterload lower stroke volume?</p></div>
+      <div class="turn"><span class="who"><svg class="ev-mark" aria-hidden="true"><use href="#m-ev"/></svg><span class="cap">E.V.</span></span>
+        <div><p>What's your guess first? One line is enough.</p>
+        <p class="cap" style="margin-top:var(--sp-1)">Just tell me · ⌥↵</p></div></div>
+      <div class="turn me"><span class="who cap">You · 07:32</span><p class="body">The heart has to push against more pressure, so less blood gets out?</p></div>
+      <div class="turn"><span class="who"><span style="width:16px"></span><span class="cap">E.V.</span></span>
+        <div><p>Yes. Higher afterload means more of each beat's force goes into opening the aortic valve, so less is ejected.</p>
+        <p class="src"><a href="#notes">Ch 9 notes · Afterload</a></p></div></div>
+      <div class="turn me"><span class="who cap">You · 07:40</span><p class="body">Is the mock exam ready?</p></div>
+      <div class="turn"><span class="who"><span style="width:16px"></span><span class="cap">E.V.</span></span>
+        <div><p>Not yet. It's 9 of 15 questions in, about a minute left. I'll put it on Today when it's done.</p>
+          <a class="inline-job" href="#activity">
+            <span class="st run"></span>
+            <span><span class="t">Mock exam · Ch 9</span><span class="cap" style="display:block">Writing · 9 of 15 questions · started 07:36</span><span class="meter run" style="margin-top:var(--sp-2);max-width:240px;display:block"><i style="width:60%"></i></span></span>
+            <span class="cap">Job 0412 →</span>
+          </a>
+          <p class="src" style="margin-top:var(--sp-2)">From job status · 07:40</p></div></div>
+
+      <div class="composer">
+        <textarea class="field" rows="2" placeholder="Ask about your notes, a set or the plan" style="border-bottom:0" aria-label="Message E.V."></textarea>
+        <div class="composer-foot">
+          <span class="cap">She asks for your try first · ⌥↵ just tell me · hold V to speak</span>
+          <button class="btn primary">Send <span class="kbd">↵</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 PROGRESS ============ -->
+  <section class="screen" data-screen="progress">
+    <div class="column">
+      <div class="head"><div><p class="cap">Progress · last 14 days</p><h1 class="title">Retrieval accuracy</h1></div></div>
+      <div class="spread" style="margin-bottom:var(--sp-4)"><span class="loupe-type">72%</span><span class="cap">Up 6 from the 14 days before · 212 answers</span></div>
+      <svg class="spark" viewBox="0 0 720 120" width="100%" role="img" aria-label="Accuracy over 14 days, rising from 61% to 72%">
+        <line class="base" x1="0" y1="119.5" x2="720" y2="119.5"/>
+        <line class="tgt" x1="0" y1="24" x2="720" y2="24"/>
+        <polyline class="line" points="0,70 55,74 110,66 166,68 221,60 277,62 332,54 388,58 443,50 498,48 554,52 609,44 665,42 720,40"/>
+      </svg>
+      <div class="spread" style="margin-top:var(--sp-2)"><span class="cap">Mon 19 Oct</span><span class="cap">Dashed · 80% target</span><span class="cap">Today</span></div>
+      <div class="block" style="margin-top:var(--sp-12)">
+        <div class="sec"><span class="cap">By course</span></div>
+        <div class="row nogut"><span><span class="t">BIO 201</span><span class="cap">Anatomy & physiology · 118 answers</span></span><span class="end"><span class="meter" style="width:160px"><i style="width:76%"></i></span><span class="cap i1">76%</span></span></div>
+        <div class="row nogut"><span><span class="t">NUR 112</span><span class="cap">Fundamentals · 94 answers</span></span><span class="end"><span class="meter" style="width:160px"><i style="width:67%"></i></span><span class="cap i1">67%</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 ACTIVITY ============ -->
+  <section class="screen" data-screen="activity">
+    <div class="column">
+      <div class="head"><div><p class="cap">Activity · jobs E.V. runs for you</p><h1 class="title">Activity</h1></div></div>
+
+      <div class="block">
+        <div class="sec"><span class="cap">Needs you · 1</span></div>
+        <div class="job need">
+          <span class="cap time i1">06:58</span><span class="st solid"></span>
+          <span><span class="t">Study plan · Exam 3</span><span class="cap" style="display:block">Drafted. Waiting for your confidence ratings before E.V. shows it.</span></span>
+          <span class="act"><a class="btn primary" href="#library/exam-3">Rate and review <span class="kbd">↵</span></a></span>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><span class="cap">Running · 1</span></div>
+        <div class="job">
+          <span class="cap time">07:36</span><span class="st run"></span>
+          <span><span class="t">Mock exam · Ch 9</span><span class="cap" style="display:block">Writing · 9 of 15 questions · about 1 min left</span><span class="meter run" style="display:block"><i style="width:60%"></i></span></span>
+          <span class="act"><button class="btn quiet">Stop</button></span>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><span class="cap">Done · last 2 days</span></div>
+        <div class="job"><span class="cap time">07:00</span><span class="st faint"></span><span><span class="t">Morning review set</span><span class="cap" style="display:block">8 cards · on Today</span></span><span class="act"><button class="btn quiet">Open</button></span></div>
+        <div class="job"><span class="cap time">Sun 21:00</span><span class="st faint"></span><span><span class="t">Weekly review · week 10</span><span class="cap" style="display:block">3 weak spots to confirm</span></span><span class="act"><button class="btn quiet">Open</button></span></div>
+        <div class="job"><span class="cap time">Sun 19:12</span><span class="st faint"></span><span><span class="t">Practice set · Dosage by weight</span><span class="cap" style="display:block">10 problems · each cites Med math notes</span></span><span class="act"><button class="btn quiet">Open</button></span></div>
+        <div class="job fail"><span class="cap time">Sun 18:40</span><span class="st fail"></span>
+          <span><span class="t">Cards from a slide photo · Ch 8</span><span class="cap reason" style="display:block">Failed: the photo is too blurry to read the labels. Retake it, or type the labels in.</span></span>
+          <span class="act"><button class="btn quiet"><svg class="ic"><use href="#i-retry"/></svg>Retry</button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 08 SPEC SHEET ============ -->
+  <section class="screen" data-screen="system">
+    <div class="spec" id="spec"></div>
+  </section>
+
+  </main>
+</div>
+
+<!-- ============ 07 ⌘K PALETTE ============ -->
+<div class="scrim" id="scrim"></div>
+<div class="palette" id="palette" role="dialog" aria-label="Command palette">
+  <div class="pal-in"><svg class="ic q3"><use href="#i-search"/></svg><input id="pal-q" placeholder="Go, study or ask E.V." autocomplete="off"><span class="chip">Today</span></div>
+  <div class="pal-list" id="pal-list"></div>
+  <div class="pal-foot cap"><span><span class="kbd">↑↓</span>move</span><span><span class="kbd">↵</span>open</span><span><span class="kbd">Tab</span>ask E.V.</span><span style="margin-left:auto"><span class="kbd">Esc</span>close</span></div>
+</div>
+<div class="toast-host" id="toasts"></div>
+
+<script>
+/* ---------------- data (synthetic) ---------------- */
+const CARDS = [
+  {f:"Cardiac output equals…", b:"Heart rate × stroke volume. About 5 L/min at rest.", s:"Ch 9 notes · ¶ 1"},
+  {f:"Define preload.", b:"The stretch on ventricular fibres at the end of diastole, tracked by end-diastolic volume.", s:"Ch 9 notes · ¶ 3"},
+  {f:"What does the Frank–Starling law relate?", b:"Stroke volume to end-diastolic volume: more stretch gives a stronger contraction, within limits.", s:"Ch 9 notes · ¶ 3 · Fig. 1"},
+  {f:"Define afterload.", b:"The pressure the ventricle must overcome to eject blood, mostly aortic pressure.", s:"Ch 9 notes · Afterload"},
+  {f:"Raise afterload alone. What happens to stroke volume?", b:"It falls: more force goes into opening the valve, less blood is ejected.", s:"Ch 9 notes · Afterload"},
+  {f:"Stroke volume equals…", b:"End-diastolic volume minus end-systolic volume.", s:"Ch 9 notes · ¶ 1"},
+  {f:"Ejection fraction is…", b:"Stroke volume ÷ end-diastolic volume. Typically about 55–70%.", s:"Ch 9 notes · ¶ 2"},
+  {f:"Which input raises heart rate?", b:"Sympathetic: noradrenaline acting on the SA node.", s:"Ch 9 notes · ¶ 5"},
+  {f:"A positive inotrope does what?", b:"Raises contractility: more force at the same preload.", s:"Ch 9 notes · ¶ 4"},
+  {f:"More venous return does what to preload?", b:"Raises it: more filling, more stretch.", s:"Ch 9 notes · ¶ 3"},
+  {f:"When are all four valves closed?", b:"Isovolumetric contraction and isovolumetric relaxation.", s:"Ch 8 notes · Cardiac cycle"},
+  {f:"Typical resting stroke volume?", b:"About 70 mL per beat.", s:"Ch 9 notes · ¶ 1"}
+];
+const DECKS = [
+  {n:"Cardiac output", m:"BIO 201 · 12 cards · from Ch 9 notes", due:[2,3,4,9], st:["good","again","","","good","good","again","good","","","good",""], when:"4 due", cards:CARDS},
+  {n:"Dosage by weight", m:"NUR 112 · 10 cards · made by E.V. Sunday", due:[], st:["good","good","again","good","good","","","","",""], when:"Wed"},
+  {n:"Fluid balance and I&O", m:"NUR 112 · 14 cards · from your class notes", due:[], st:["good","good","good","again","good","good","good","again","good","good","good","good","",""], when:"Thu"},
+  {n:"Crossbridge cycle", m:"BIO 201 · 8 cards · from Ch 6 notes", due:[], st:["good","again","again","good","good","good","good","good"], when:"Fri"},
+  {n:"Electrolytes, quick facts", m:"NUR 112 · 9 cards · typed in by you", unv:true, due:[], st:["","","","","","","","",""], when:"New"}
+];
+
+/* ---------------- helpers ---------------- */
+const $ = (s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const pad = n => String(n).padStart(2,"0");
+function toast(text){
+  const h=$("#toasts"); h.innerHTML=`<div class="toast"><span>${text}</span><button class="btn quiet">Undo</button></div>`;
+  clearTimeout(toast.t); toast.t=setTimeout(()=>h.innerHTML="",2600);
+}
+
+/* ---------------- router ---------------- */
+function route(){
+  let h = location.hash.slice(1) || "today";
+  let pal = false;
+  if(h==="palette"){h="today";pal=true}
+  if(!$(`[data-screen="${h}"]`)) h="today";
+  $$(".screen").forEach(s=>s.classList.toggle("on",s.dataset.screen===h));
+  const top=h.split("/")[0];
+  $$("[data-nav]").forEach(n=>n.classList.toggle("on",n.dataset.nav===top));
+  document.body.classList.toggle("loupe-on",h==="library/study");
+  window.scrollTo(0,0);
+  if(h==="library/study") renderStudy();
+  if(pal) openPalette(); else closePalette();
+}
+addEventListener("hashchange",route);
+
+/* ---------------- theme ---------------- */
+function toggleTheme(){
+  const r=document.documentElement, d=r.dataset.theme==="dark";
+  r.dataset.theme=d?"light":"dark";
+  $("#theme-name").textContent=d?"Print":"Darkroom";
+}
+$("[data-theme-toggle]").addEventListener("click",toggleTheme);
+
+/* ---------------- decks (contact sheet) ---------------- */
+function renderDecks(){
+  $("#decks").innerHTML = DECKS.map((d,i)=>`
+    <div class="deck ${i===0?'lit':''}" tabindex="0" data-deck="${i}">
+      <div>
+        <div class="spread" style="justify-content:flex-start;gap:var(--sp-3)"><span>${d.n}</span>${d.unv?'<span class="unverified">unverified</span>':''}</div>
+        <div class="cap" data-peek>${d.m}</div>
+        <div class="strip">${d.st.map((s,j)=>`<span class="frame ${s} ${d.due.includes(j)?'due':''}" data-f="${j}">${i===0?`<span>${pad(j+1)}</span>`:''}</span>`).join("")}</div>
+      </div>
+      <div style="text-align:right"><div class="cap ${i===0?'i1':''}">${d.when}</div><div class="cap">${d.st.filter(Boolean).length} / ${d.st.length} seen</div></div>
+    </div>`).join("");
+  $$("#decks .deck").forEach(el=>{
+    const d=DECKS[el.dataset.deck], peek=$("[data-peek]",el);
+    $$(".frame",el).forEach(f=>f.addEventListener("mouseenter",()=>{
+      const j=+f.dataset.f; const c=d.cards?d.cards[j].f:`Card ${j+1}`;
+      peek.textContent=`FR ${pad(j+1)} · ${c}`; peek.classList.add("i1");
+    }));
+    $(".strip",el).addEventListener("mouseleave",()=>{peek.textContent=d.m; peek.classList.remove("i1")});
+    el.addEventListener("click",e=>{ if(el.dataset.deck==="0"){const fr=e.target.closest(".frame"); S.i=fr?+fr.dataset.f:2; S.side="front"; S.attempt=""; location.hash="library/study"} });
+  });
+}
+
+/* ---------------- study (the loupe) ---------------- */
+const S = {i:2, side:"front", attempt:"", marks:["good","again"]};
+function renderStudy(){
+  const c=CARDS[S.i], n=CARDS.length, L=$("#loupe");
+  const edge = `<div class="loupe-edge"><span class="cap">Cardiac output · FR ${pad(S.i+1)} / ${n}</span><span class="cap">${S.side==="front"?"Front":"Back"}</span></div>`;
+  if(S.side==="front"){
+    L.innerHTML = edge + `
+      <div class="loupe-face"><p class="loupe-type">${c.f}</p></div>
+      <div class="attempt"><input class="field" id="att" placeholder="Your attempt first. Type it, or hold V to say it." value="${S.attempt.replace(/"/g,'&quot;')}" aria-label="Your attempt"><button class="icon-btn" aria-label="Say it"><svg class="ic"><use href="#i-mic"/></svg></button></div>`;
+    $("#loupe-foot").innerHTML = `<button class="btn quiet" data-tell>Just tell me</button>
+      <button class="btn primary" data-flip>Flip <span class="kbd">Space</span></button>`;
+  } else {
+    L.innerHTML = edge + `
+      <div class="loupe-face develop">
+        <p class="cap" style="margin-bottom:var(--sp-3)">${c.f}</p>
+        <p class="title" style="font-weight:var(--w-text)">${c.b}</p>
+        <p class="src" style="margin-top:var(--sp-3)"><a href="#notes">${c.s}</a></p>
+      </div>
+      <div class="develop">${S.attempt?`<p class="cap" style="margin-bottom:var(--sp-1)">Your attempt</p><p class="quote">${S.attempt}</p>`:`<p class="cap">No attempt · “just tell me” logged</p>`}</div>`;
+    $("#loupe-foot").innerHTML = `<span class="evline" style="grid-template-columns:16px auto;align-items:center"><svg class="ev-mark" aria-hidden="true"><use href="#m-ev"/></svg><span class="q2">You have it. Add “within limits” next time.</span></span>
+      <span style="display:flex;gap:var(--sp-2)"><button class="btn" data-rate="again">Again <span class="kbd">1</span></button><button class="btn" data-rate="good">Good <span class="kbd">2</span></button></span>`;
+  }
+  $("#ticks").innerHTML = CARDS.map((_,j)=>`<span class="tick ${j===S.i?'cur':''} ${S.marks[j]||''}"></span>`).join("");
+  $("#tick-cap").textContent = `${S.marks.filter(Boolean).length} of ${n} marked · ${n - S.marks.filter(Boolean).length} to go`;
+  $("#ghost-l").textContent = S.i>0?`FR ${pad(S.i)}`:"";
+  $("#ghost-r").textContent = S.i<n-1?`FR ${pad(S.i+2)}`:"";
+  $(".ghost.l").style.visibility = S.i>0?"visible":"hidden";
+  $(".ghost.r").style.visibility = S.i<n-1?"visible":"hidden";
+  const att=$("#att"); if(att){att.addEventListener("input",e=>S.attempt=e.target.value)}
+}
+function flip(){ const a=$("#att"); if(a) S.attempt=a.value.trim(); S.side="back"; renderStudy(); }
+function move(d){ const n=CARDS.length; S.i=Math.max(0,Math.min(n-1,S.i+d)); S.side="front"; S.attempt=""; renderStudy(); }
+function rate(r){ S.marks[S.i]=r; if(S.i<CARDS.length-1) move(1); else renderStudy(); }
+$("#loupe-foot").addEventListener("click",e=>{
+  if(e.target.closest("[data-flip]")) flip();
+  if(e.target.closest("[data-tell]")) { S.attempt=""; S.side="back"; renderStudy(); }
+  const r=e.target.closest("[data-rate]"); if(r) rate(r.dataset.rate);
+});
+$("#loupe").addEventListener("keydown",e=>{ if(e.target.id==="att" && e.key==="Enter"){e.preventDefault(); flip();} });
+
+/* ---------------- practice ---------------- */
+const Q = {opts:["2 mL","4 mL","6 mL","12 mL"], right:0, pick:null, done:false};
+function renderQ(){
+  $("#opts").innerHTML = Q.opts.map((o,i)=>{
+    let cls="", v="";
+    if(Q.done){ if(i===Q.right){cls="right";v="Correct"} else if(i===Q.pick){cls="wrong";v="Your answer"} }
+    else if(Q.pick===i) cls="sel";
+    return `<button class="opt ${cls}" role="radio" aria-checked="${Q.pick===i}" data-o="${i}" ${Q.done?"disabled":""}><span class="k">${i+1}</span><span class="a">${o}</span><span>${v?`<span class="verdict">${v}</span>`:(Q.done?"":`<span class="st ${Q.pick===i?'solid':''}"></span>`)}</span></button>`;
+  }).join("");
+  $("#q-feedback").innerHTML = Q.done ? `<div class="feedback develop">
+      <p>${Q.pick===Q.right?"Right.":"Not quite."} 20 mg × 15 kg is 300 mg a day. Every 8 hours means 3 doses, so 100 mg each. At 250 mg per 5 mL, that's 50 mg/mL, so 2 mL.</p>
+      <p class="src" style="margin-top:var(--sp-2)"><a href="#notes">Med math notes · Dosage by weight · step 2</a></p>
+    </div>` : "";
+  $("#q-foot").innerHTML = Q.done
+    ? `<span class="cap">Added to weak spots · oral liquid doses</span><button class="btn primary" data-next>Next question <span class="kbd">↵</span></button>`
+    : `<span class="cap">1–4 choose · ↵ commit</span><span style="display:flex;gap:var(--sp-2)"><button class="btn quiet">Skip</button><button class="btn primary" data-commit ${Q.pick===null?"disabled":""}>Commit <span class="kbd">↵</span></button></span>`;
+}
+$("#opts").addEventListener("click",e=>{const b=e.target.closest("[data-o]"); if(b&&!Q.done){Q.pick=+b.dataset.o; renderQ();}});
+$("#q-foot").addEventListener("click",e=>{
+  if(e.target.closest("[data-commit]")&&Q.pick!==null){Q.done=true;renderQ();}
+  if(e.target.closest("[data-next]")){Q.done=false;Q.pick=null;renderQ();}
+});
+
+/* ---------------- study-plan proposal ---------------- */
+const OBJ = [
+  {n:"Oral liquid doses", m:"mL per dose from mg/kg orders", acc:"38% right · 3 of 8", r:null},
+  {n:"Dosage by weight", m:"mg/kg/day split into doses", acc:"62% right · 5 of 8", r:null},
+  {n:"Fluid balance, intake and output", m:"Totalling I&O on a shift", acc:"56% right · 5 of 9", r:null},
+  {n:"Cardiac output basics", m:"Preload, afterload, contractility", acc:"81% right · 13 of 16", r:null}
+];
+const CONF=["Lost","Shaky","Okay","Solid"];
+let objCur=0;
+let editing=false;
+function renderPlan(){
+  const done=allRated();
+  if(done&&!editing){
+    $("#objectives").innerHTML = `<div class="sec"><span class="cap">01 · Your confidence · rated</span><button class="cap link" data-edit>Change ratings</button></div>
+      <div class="rated">${OBJ.map(o=>`<div><span class="cap" style="display:block">${o.n}</span><span>${o.r+1} ${CONF[o.r]}</span></div>`).join("")}</div>`;
+  } else {
+  $("#objectives").innerHTML = `<div class="sec"><span class="cap">01 · How sure are you? Rate before you see E.V.'s plan</span><span class="cap">↑ ↓ move · 1–4 rate</span></div>` + OBJ.map((o,i)=>`
+    <div class="objective ${i===objCur&&!allRated()?'cur':''}" data-ob="${i}">
+      <div><span>${o.n}</span><span class="cap" style="display:block">${o.m}</span></div>
+      <div class="conf" role="radiogroup" aria-label="Confidence in ${o.n}">${CONF.map((c,k)=>`<button role="radio" aria-checked="${o.r===k}" class="${o.r===k?'on':''}" data-r="${k}">${k+1} ${c}</button>`).join("")}</div>
+    </div>`).join("") + (editing?`<div style="margin-top:var(--sp-4)"><button class="btn" data-done-edit>Done</button></div>`:"");
+  }
+  $("#plan-state").textContent = done?"Step 2 of 2 · E.V.'s proposal":"Step 1 of 2 · your confidence";
+  if(!done){
+    $("#plan-body").innerHTML = `<div class="sec"><span class="cap">02 · E.V.'s proposal</span><span class="cap">${OBJ.filter(o=>o.r!==null).length} of 4 rated</span></div>
+      <div class="waiting cap" style="border-top:0">Drafted at 06:58 and kept covered until you've rated all four. Your ratings go into it.</div>`;
+    return;
+  }
+  $("#plan-body").innerHTML = `<div class="sec develop"><span class="cap">02 · E.V.'s proposal · 6 blocks · 1 h 50 min</span><span class="cap">Uses your ratings and your last 14 days</span></div>
+    <div class="develop">
+      <div class="evline" style="margin:var(--sp-4) 0 var(--sp-4)"><svg class="ev-mark" aria-hidden="true"><use href="#m-ev"/></svg>
+        <div><p>You rated oral liquid doses shaky, and your answers agree, so it goes first. You rated I&amp;O okay, but you get 56% right, so it gets two short blocks.</p>
+        <p class="src"><a href="#library/weak">Weak spots · last 14 days</a></p></div></div>
+      <div class="day"><span class="cap i1">Mon 2</span><div>
+        <div class="slot"><span class="cap">20:00</span><span>Oral liquid doses · 10 problems</span><span class="cap">20 min</span></div></div></div>
+      <div class="day"><span class="cap i1">Tue 3</span><div>
+        <div class="slot"><span class="cap">12:10</span><span>Dosage by weight · 8 problems</span><span class="cap">15 min</span></div>
+        <div class="slot"><span class="cap">19:30</span><span>Intake and output · 6 cards, 2 charts</span><span class="cap">15 min</span></div></div></div>
+      <div class="day"><span class="cap i1">Wed 4</span><div>
+        <div class="slot"><span class="cap">07:50</span><span>Mixed mock · 20 questions</span><span class="cap">30 min</span></div>
+        <div class="slot"><span class="cap">12:10</span><span>Intake and output · second pass</span><span class="cap">10 min</span></div>
+        <div class="slot"><span class="cap">21:00</span><span>Light review · your 10 weakest cards</span><span class="cap">20 min</span></div></div></div>
+      <div class="day"><span class="cap i1">Thu 5</span><div><div class="slot"><span class="cap">09:00</span><span class="q2">Exam 3</span><span class="cap"></span></div></div></div>
+      <div class="decide">
+        <button class="btn primary" data-approve>Approve plan <span class="kbd">⌘↵</span></button>
+        <button class="btn">Ask for changes <span class="kbd">C</span></button>
+        <button class="btn quiet">Put away</button>
+        <span class="cap" style="margin-left:auto">Approved blocks go on Today</span>
+      </div>
+    </div>`;
+}
+function allRated(){return OBJ.every(o=>o.r!==null)}
+$("#objectives").addEventListener("click",e=>{
+  if(e.target.closest("[data-edit]")){editing=true;renderPlan();return}
+  if(e.target.closest("[data-done-edit]")){editing=false;renderPlan();return}
+  const b=e.target.closest("[data-r]"); if(!b) return;
+  const i=+b.closest("[data-ob]").dataset.ob; OBJ[i].r=+b.dataset.r;
+  objCur=OBJ.findIndex(o=>o.r===null); if(objCur<0) objCur=0; renderPlan();
+});
+$("#plan-body").addEventListener("click",e=>{ if(e.target.closest("[data-approve]")) toast("Plan approved · 6 blocks added to Today"); });
+
+/* ---------------- palette ---------------- */
+const PAL = [
+  {g:"Study", i:"i-card", t:"Study · Cardiac output", k:"4 due", h:"library/study"},
+  {g:"Study", i:"i-q", t:"Practice · Dosage by weight", k:"10 problems", h:"library/practice"},
+  {g:"Study", i:"i-q", t:"Drill · Oral liquid doses", k:"weakest", h:"library/weak"},
+  {g:"Go to", i:"i-go", t:"Today", k:"", h:"today"},
+  {g:"Go to", i:"i-note", t:"Notes · Ch 9 · Cardiac output", k:"", h:"notes"},
+  {g:"Go to", i:"i-go", t:"Activity", k:"1 needs you", h:"activity"},
+  {g:"Go to", i:"i-go", t:"Study plan · Exam 3", k:"", h:"library/exam-3"},
+  {g:"Go to", i:"i-go", t:"Spec sheet", k:"", h:"system"}
+];
+let palSel=0, palItems=[];
+function renderPal(){
+  const q=$("#pal-q").value.trim().toLowerCase();
+  palItems = PAL.filter(p=>!q||p.t.toLowerCase().includes(q));
+  palSel=Math.min(palSel,Math.max(0,palItems.length-1));
+  let html="", g="";
+  palItems.forEach((p,i)=>{ if(p.g!==g){g=p.g; html+=`<div class="pal-grp cap">${g}</div>`}
+    html+=`<button class="pal-item ${i===palSel?'sel':''}" data-pi="${i}"><svg class="ic"><use href="#${p.i}"/></svg><span>${p.t}</span><span class="cap">${p.k}</span></button>`;});
+  html+=`<div class="pal-grp cap">Ask E.V.</div><button class="pal-item" data-ask><svg class="ev-mark off" style="color:var(--ink-3)"><use href="#m-ev"/></svg><span>${q?`“${$("#pal-q").value}”`:"Ask anything about your notes and sets"}</span><span class="kbd">Tab</span></button>`;
+  $("#pal-list").innerHTML=html;
+}
+function openPalette(){ $("#scrim").classList.add("on"); $("#palette").classList.add("on"); renderPal(); setTimeout(()=>$("#pal-q").focus(),0); }
+function closePalette(){ $("#scrim").classList.remove("on"); $("#palette").classList.remove("on"); }
+$("#pal-q").addEventListener("input",()=>{palSel=0;renderPal()});
+$("#pal-list").addEventListener("click",e=>{const b=e.target.closest("[data-pi]"); if(b){location.hash=palItems[+b.dataset.pi].h; closePalette();} if(e.target.closest("[data-ask]")){location.hash="ask";closePalette();}});
+$("#scrim").addEventListener("click",closePalette);
+$$("[data-open-palette]").forEach(b=>b.addEventListener("click",openPalette));
+
+/* ---------------- keyboard ---------------- */
+addEventListener("keydown",e=>{
+  const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+  const scr = $(".screen.on")?.dataset.screen;
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault(); $("#palette").classList.contains("on")?closePalette():openPalette(); return;}
+  if($("#palette").classList.contains("on")){
+    if(e.key==="Escape") closePalette();
+    if(e.key==="ArrowDown"){e.preventDefault();palSel=Math.min(palItems.length-1,palSel+1);renderPal()}
+    if(e.key==="ArrowUp"){e.preventDefault();palSel=Math.max(0,palSel-1);renderPal()}
+    if(e.key==="Enter"&&palItems[palSel]){location.hash=palItems[palSel].h;closePalette()}
+    if(e.key==="Tab"){e.preventDefault();location.hash="ask";closePalette()}
+    return;
+  }
+  if(e.key==="\\"&&!typing){toggleTheme();return}
+  if(scr==="library/study"){
+    if(e.key==="Escape"){location.hash="library";return}
+    if(typing){ if(e.key==="Escape") document.activeElement.blur(); return; }
+    if(e.key===" "&&S.side==="front"){e.preventDefault();flip();return}
+    if(e.key==="ArrowRight"){move(1);return} if(e.key==="ArrowLeft"){move(-1);return}
+    if(S.side==="back"&&e.key==="1") rate("again");
+    if(S.side==="back"&&e.key==="2") rate("good");
+    return;
+  }
+  if(typing) return;
+  if(scr==="library/practice"){
+    if(/^[1-4]$/.test(e.key)&&!Q.done){Q.pick=+e.key-1;renderQ()}
+    if(e.key==="Enter"){ if(!Q.done&&Q.pick!==null){Q.done=true;renderQ()} else if(Q.done){Q.done=false;Q.pick=null;renderQ()} }
+  }
+  if(scr==="library/exam-3"){
+    if(/^[1-4]$/.test(e.key)&&!allRated()){OBJ[objCur].r=+e.key-1; const nx=OBJ.findIndex(o=>o.r===null); objCur=nx<0?0:nx; renderPlan()}
+    if(e.key==="ArrowDown"){objCur=Math.min(3,objCur+1);renderPlan()} if(e.key==="ArrowUp"){objCur=Math.max(0,objCur-1);renderPlan()}
+    if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)&&allRated()) toast("Plan approved · 6 blocks added to Today");
+  }
+  if(scr==="today"&&e.key==="Enter"&&!document.activeElement.closest(".row,.btn,a")) location.hash="library/study";
+  if(scr==="library"&&e.key==="Enter"&&!document.activeElement.closest(".deck,.btn,a")) location.hash="library/study";
+});
+
+/* ---------------- session timer ---------------- */
+let secs=18*60+42;
+setInterval(()=>{secs++; $("#timer").textContent=`${pad(Math.floor(secs/60))}:${pad(secs%60)}`},1000);
+
+/* ---------------- spec sheet ---------------- */
+function renderSpec(){
+  const toks=[["--ground","Ground"],["--ground-hi","Hover"],["--float","Floats"],["--hair","Hairline"],["--hair-2","Edges, loupe"],["--ink-4","Ticks"],["--ink-3","Captions"],["--ink-2","Quiet text"],["--ink-1","Content"],["--safe","Safelight"]];
+  const wedge = theme => `<div class="wedge" data-theme="${theme}">
+      <div class="spread"><span class="cap">${theme==="dark"?"Darkroom · default":"Print · press \\"}</span><span class="cap">${theme==="dark"?"Dark":"Light"}</span></div>
+      <div class="wedge-strip">${toks.slice(0,9).map(([t],i)=>`<div style="background:var(${t})"><span style="color:${i<5?'var(--ink-2)':'var(--ground)'}">${i+1}</span></div>`).join("")}</div>
+      <div class="swatch-list">${toks.map(([t,n])=>`<div class="sw"><i style="background:var(${t})"></i><span class="cap i1">${t}</span><span class="cap" data-val="${t}"></span><span class="cap">${n}</span></div>`).join("")}
+        <div class="sw"><i style="background:var(--safe)"></i><span class="cap i1">--on-safe</span><span class="cap" data-val="--on-safe"></span><span class="cap">On safelight</span></div></div>
+    </div>`;
+  const sec=(n,t,p,body)=>`<section class="spec-sec"><header><span class="cap">${n}</span><h2 class="title">${t}</h2><p class="cap" style="color:var(--ink-2)">${p}</p></header><div>${body}</div></section>`;
+  $("#spec").innerHTML = `
+  <div class="spec-hero">
+    <div><p class="cap">E.V. 5 · Direction E · Spec sheet · rev 1 · 2 Nov</p>
+      <h1 class="title" style="margin-top:var(--sp-1)">Darkroom</h1>
+      <p class="q2" style="max-width:520px;margin-top:var(--sp-3)">One ground, one safelight, captions like film edge. The metaphor lives in layout, captions and the loupe, never in texture. Every value on this sheet is a CSS custom property.</p></div>
+    <div class="datablock">
+      <svg class="ev-mark" style="width:40px;height:40px;margin-bottom:var(--sp-4)" aria-hidden="true"><use href="#m-ev"/></svg>
+      <dl>
+        <dt class="cap">Ground</dt><dd class="cap i1">#0A0A0A · neutral black</dd>
+        <dt class="cap">Safelight</dt><dd class="cap i1">#E8613C · one per screen</dd>
+        <dt class="cap">Content</dt><dd class="cap i1">Schibsted Grotesk</dd>
+        <dt class="cap">Captions</dt><dd class="cap i1">IBM Plex Mono</dd>
+        <dt class="cap">Grid</dt><dd class="cap i1">4 px · radius 2 · hairline 1</dd>
+      </dl>
+    </div>
+  </div>
+  ${sec("01","Tone","Neutral black to ink, and one warm light. Status is density, never hue.",`
+    <div class="wedges">${wedge("dark")}${wedge("light")}</div>
+    <div class="states" style="margin-top:var(--sp-6)">
+      <div class="state"><span style="display:flex;gap:var(--sp-2);align-items:center"><span class="st open"></span><span class="st half"></span><span class="st solid"></span></span><span class="cap">Weak · shaky · solid</span></div>
+      <div class="state"><span style="display:flex;gap:var(--sp-2);align-items:center"><span class="st solid"></span><span class="st run"></span><span class="st faint"></span><span class="st fail"></span></span><span class="cap">Needs you · running · done · failed</span></div>
+      <div class="state"><span class="cap i1">Contrast</span><span class="cap">Dark: ink-1 15.6, ink-2 7.7, ink-3 5.6, safelight 5.9 · Print: ink-1 15.6, ink-2 6.6, ink-3 5.3, safelight 5.0 · ratios on ground, all ≥ 4.5:1 text</span></div>
+    </div>`)}
+  ${sec("02","Type","Schibsted Grotesk for content, IBM Plex Mono for captions. Three working sizes and one magnified.",`
+    <div class="specimen"><span class="cap">Loupe · 28/36 · 400</span><span class="loupe-type">What does the Frank–Starling law relate?</span></div>
+    <div class="specimen"><span class="cap">Title · 20/28 · 500</span><span class="title">Study plan for Exam 3</span></div>
+    <div class="specimen"><span class="cap">Body · 14/22 · 400</span><span>Preload is the stretch on the ventricle's fibres just before it contracts.</span></div>
+    <div class="specimen"><span class="cap">Caption · 12/16 · mono</span><span class="cap i2">FR 03 / 12 · Ch 9 notes · ¶ 3 · 07:42 CT</span></div>
+    <div class="specimen"><span class="cap">Rules</span><span class="q2">Weight 500 only for titles and the primary label. Captions in sentence case; numbers tabular. No italics, no all-caps.</span></div>`)}
+  ${sec("03","Space","A 4 px base. Rows are 40, controls 32, sections 48 apart.",`
+    <div class="ruler">${[4,8,12,16,24,32,48,64].map((v,i)=>`<div class="u"><i style="width:${v}px"></i><span class="cap">${v}</span><span class="cap">sp-${[1,2,3,4,6,8,12,16][i]}</span></div>`).join("")}</div>
+    <div style="display:flex;gap:var(--sp-8);align-items:flex-end;margin-top:var(--sp-8)">
+      <div class="shell-plate" aria-label="Layout at 1280 by 860">
+        <div class="sb"></div><div class="colm"></div><div class="lp"></div>
+        <span class="cap" style="left:8px;top:8px">216</span>
+        <span class="cap" style="left:calc(65px + (319px - 216px)/2 + 6px);top:20px">Column 720</span>
+        <span class="cap" style="left:calc(65px + (319px - 192px)/2 + 8px);top:70px">Loupe 640</span>
+        <span class="cap" style="right:6px;bottom:4px">1280 × 860</span>
+      </div>
+      <p class="cap">Two surfaces: sidebar and ground, split by one hairline.<br>Row 40 · control 32 · section gap 48.<br>Only the loupe, a question or a check gets a frame.</p>
+    </div>`)}
+  ${sec("04","Shape","Square prints and hairlines. Depth is flat; only floating layers cast a shadow.",`
+    <div class="shapes">
+      <div><div class="shape" style="border-radius:var(--r-0)"></div><p class="cap" style="margin-top:var(--sp-2)">r-0 · frames, loupe</p></div>
+      <div><div class="shape" style="border-radius:var(--r-1)"></div><p class="cap" style="margin-top:var(--sp-2)">r-1 · 2 px · controls</p></div>
+      <div><div class="shape" style="border-style:dashed;border-color:var(--ink-4)"></div><p class="cap" style="margin-top:var(--sp-2)">Dashed · E.V.'s proposals</p></div>
+      <div><div class="shape" style="border:0;background:var(--float);box-shadow:var(--shadow-float)"></div><p class="cap" style="margin-top:var(--sp-2)">Float · palette, toast only</p></div>
+    </div>`)}
+  ${sec("05","Motion","A shutter, not a bounce. One curve, cubic-bezier(.2, 0, 0, 1), and three durations. Reduced motion turns it all off.",`
+    <div class="motion">${[["Shutter","--t-shutter","120 ms · hover, press"],["Advance","--t-advance","200 ms · frame to frame"],["Develop","--t-develop","360 ms · the back appearing"]].map(([n,t,d])=>`
+      <div><svg viewBox="0 0 120 64" width="100%" height="64"><line class="a" x1="0" y1="63.5" x2="120" y2="63.5"/><line class="a" x1="0.5" y1="0" x2="0.5" y2="64"/><path class="c" d="M0 64 C 24 64, 0 0, 120 0"/></svg>
+      <p style="margin-top:var(--sp-3)">${n}</p><p class="cap">${d}</p><p class="cap">${t}</p>
+      <div class="track" style="--d:var(${t})"><i></i></div></div>`).join("")}
+    </div><button class="btn quiet" style="margin-top:var(--sp-4);margin-left:calc(-1 * var(--sp-2))" data-play><svg class="ic"><use href="#i-play"/></svg>Play</button>`)}
+  ${sec("06","Marks","1.25 px strokes on a 16 px box. E.V.'s mark is a registration mark: where she is, things line up.",`
+    <div class="marks">
+      <div class="markcell"><svg class="ev-mark" style="width:24px;height:24px"><use href="#m-ev"/></svg><span class="cap">E.V. · safelight</span></div>
+      <div class="markcell"><svg class="ev-mark off" style="width:24px;height:24px"><use href="#m-ev"/></svg><span class="cap">E.V. · at rest</span></div>
+      ${["i-search","i-mic","i-left","i-right","i-play","i-pause","i-check","i-x","i-retry","i-image"].map(i=>`<div class="markcell"><svg class="ic" style="color:var(--ink-1)"><use href="#${i}"/></svg><span class="cap">${i.slice(2)}</span></div>`).join("")}
+    </div>`)}
+  ${sec("07","Components","Every component, every state. Hover and focus are shown pinned.",`
+    <div class="comp"><span class="cap">Button</span><div class="states">
+      <div class="state"><button class="btn primary">Flip <span class="kbd">Space</span></button><span class="cap">Primary · one per screen</span></div>
+      <div class="state"><button class="btn primary is-hover">Flip <span class="kbd">Space</span></button><span class="cap">Hover</span></div>
+      <div class="state"><button class="btn primary" disabled>Commit <span class="kbd">↵</span></button><span class="cap">Waiting for an answer</span></div>
+      <div class="state"><button class="btn">Again <span class="kbd">1</span></button><span class="cap">Secondary</span></div>
+      <div class="state"><button class="btn is-hover">Again <span class="kbd">1</span></button><span class="cap">Hover</span></div>
+      <div class="state"><button class="btn" data-pin-focus>Again <span class="kbd">1</span></button><span class="cap">Focus · crop marks</span></div>
+      <div class="state"><button class="btn quiet">Put away</button><span class="cap">Quiet</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Field</span><div class="states" style="display:grid;grid-template-columns:1fr 1fr 1fr;width:100%">
+      <div class="state" style="align-items:stretch"><input class="field" placeholder="Your attempt first"><span class="cap">Empty</span></div>
+      <div class="state" style="align-items:stretch"><input class="field is-focus" value="More stretch"><span class="cap">Focus · ink underline</span></div>
+      <div class="state" style="align-items:stretch"><span class="attempt"><input class="field" placeholder="Hold V to say it"><span class="icon-btn"><svg class="ic"><use href="#i-mic"/></svg></span></span><span class="cap">With voice</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Row</span><div style="width:100%">
+      <div class="row"><span class="cap">12:10</span><span><span class="t">Oral liquid doses</span><span class="cap">Rest</span></span><span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">20 min</span></span></div>
+      <div class="row is-hover"><span class="cap">15:30</span><span><span class="t">Write up Ch 9 notes</span><span class="cap">Hover · actions appear</span></span><span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">30 min</span></span></div>
+      <div class="row is-focus" data-pin-focus><span class="cap">20:00</span><span><span class="t">Frank–Starling, in your own words</span><span class="cap">Focus</span></span><span class="end"><span class="act"><button class="btn quiet">Move</button></span><span class="cap">10 min</span></span></div>
+      <div class="row done"><span class="cap">07:50</span><span><span class="t">Morning review set</span><span class="cap">Done</span></span><span class="end"><span class="st faint"></span></span></div>
+      <div class="proposal"><span class="cap">21:00</span><span><span class="t q2">5 dosage-by-weight problems</span><span class="cap">Proposal · dashed</span></span><span class="act"><button class="btn quiet">Accept <span class="kbd">A</span></button><button class="btn quiet">Put away</button></span></div>
+    </div></div>
+    <div class="comp"><span class="cap">E.V. line · source</span><div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+      <div class="evline"><svg class="ev-mark"><use href="#m-ev"/></svg><div><p>Exam 3 is Thursday. Oral liquid doses is your weakest spot.</p><p class="src"><a href="#library/weak">Weak spots · last 14 days</a></p></div></div>
+      <div class="states"><span class="src"><a href="#notes">Ch 9 notes · ¶ 3</a></span><span class="unverified">unverified</span><span class="cap">Every fact carries one or the other</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Meter · status</span><div class="states" style="display:grid;grid-template-columns:1fr 1fr 1fr;width:100%">
+      <div class="state" style="align-items:stretch"><div class="spread"><span>Exam 3</span><span class="cap i1">58%</span></div><div class="meter notch"><i style="width:58%"></i></div><span class="cap">Readiness · notch at target</span></div>
+      <div class="state" style="align-items:stretch"><div class="spread"><span>Writing</span><span class="cap">9 / 15</span></div><div class="meter run"><i style="width:60%"></i></div><span class="cap">Job progress</span></div>
+      <div class="state"><div style="display:flex;gap:var(--sp-3);align-items:center;height:22px"><span class="st open"></span><span class="st half"></span><span class="st solid"></span></div><span class="cap">Dots · density only</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Filmstrip · ticks</span><div style="display:flex;flex-direction:column;gap:var(--sp-6)">
+      <div class="state"><div class="strip"><span class="frame good"></span><span class="frame again"></span><span class="frame due"></span><span class="frame due is-hover"></span><span class="frame good"></span><span class="frame"></span><span class="frame"></span><span class="frame"></span></div><span class="cap" style="margin-top:var(--sp-2)">Frames · good · again · due · hover · new</span></div>
+      <div class="state"><div class="ticks" style="justify-content:flex-start"><span class="tick good"></span><span class="tick again"></span><span class="tick cur"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span></div><span class="cap">Under the loupe the strip dims to ticks · current is tall</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Loupe card</span><div class="states">
+      <div class="state"><div class="mini-loupe"><div class="spread"><span class="cap">FR 03 / 12</span><span class="cap">Front</span></div><p class="title" style="font-weight:var(--w-text)">What does the Frank–Starling law relate?</p><input class="field" placeholder="Your attempt first"></div><span class="cap">Front · attempt</span></div>
+      <div class="state"><div class="mini-loupe"><div class="spread"><span class="cap">FR 03 / 12</span><span class="cap">Back</span></div><p>Stroke volume to end-diastolic volume, within limits.</p><p class="src"><a>Ch 9 notes · ¶ 3</a></p><p class="quote">more stretch, stronger squeeze</p></div><span class="cap">Back · source · your attempt</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Question</span><div style="width:100%;max-width:420px">
+      <button class="opt"><span class="k">1</span><span>2 mL</span><span class="st"></span></button>
+      <button class="opt is-hover"><span class="k">2</span><span>4 mL · hover</span><span class="st"></span></button>
+      <button class="opt sel"><span class="k">3</span><span>6 mL · chosen</span><span class="st"></span></button>
+      <button class="opt right" disabled><span class="k">1</span><span>2 mL</span><span class="verdict">Correct</span></button>
+      <button class="opt wrong" disabled><span class="k">2</span><span class="a">4 mL</span><span class="verdict">Your answer</span></button>
+    </div></div>
+    <div class="comp"><span class="cap">Confidence</span><div class="states">
+      <div class="state"><div class="conf">${CONF.map((c,k)=>`<button>${k+1} ${c}</button>`).join("")}</div><span class="cap">Unrated</span></div>
+      <div class="state"><div class="conf">${CONF.map((c,k)=>`<button class="${k===1?'on':''}">${k+1} ${c}</button>`).join("")}</div><span class="cap">Rated · shaky</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Job</span><div style="width:100%">
+      <div class="job need"><span class="cap time i1">06:58</span><span class="st solid"></span><span><span class="t">Study plan · Exam 3</span><span class="cap" style="display:block">Needs you</span></span><span class="act"><button class="btn">Rate <span class="kbd">↵</span></button></span></div>
+      <div class="job"><span class="cap time">07:36</span><span class="st run"></span><span><span class="t">Mock exam · Ch 9</span><span class="cap" style="display:block">Running · 9 of 15</span><span class="meter run" style="display:block"><i style="width:60%"></i></span></span><span></span></div>
+      <div class="job"><span class="cap time">07:00</span><span class="st faint"></span><span><span class="t">Morning review set</span><span class="cap" style="display:block">Done</span></span><span></span></div>
+      <div class="job fail"><span class="cap time">Sun</span><span class="st fail"></span><span><span class="t">Cards from a slide photo</span><span class="cap reason" style="display:block">Failed · plain reason, one way forward</span></span><span class="act"><button class="btn quiet"><svg class="ic"><use href="#i-retry"/></svg>Retry</button></span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Tabs · keys · chip</span><div class="states">
+      <div class="state"><div class="tabs" style="margin:0"><span class="tab on">Decks</span><span class="tab">Practice</span><span class="tab">Weak spots<span class="cap">4</span></span></div><span class="cap">Tabs</span></div>
+      <div class="state"><span style="display:flex;gap:var(--sp-1)"><span class="kbd">⌘K</span><span class="kbd">↵</span><span class="kbd">Space</span><span class="kbd">\\</span></span><span class="cap">Key hints</span></div>
+      <div class="state"><span class="chip">Today</span><span class="cap">Scope chip</span></div>
+    </div></div>
+    <div class="comp"><span class="cap">Print · toast</span><div class="states" style="align-items:flex-start">
+      <figure class="print" style="width:272px"><div class="mat">
+        <svg class="plot" viewBox="0 0 248 132" width="100%" role="img" aria-label="Crossbridge cycle in four steps">
+          <circle cx="108" cy="66" r="36" fill="none" class="axis"/>
+          <circle class="pt" cx="108" cy="30" r="3"/><circle class="pt" cx="144" cy="66" r="3"/><circle class="pt" cx="108" cy="102" r="3"/><circle class="pt" cx="72" cy="66" r="3"/>
+          <text x="80" y="18">1 attach</text><text x="152" y="70">2 power stroke</text><text x="46" y="124">3 ATP binds, detach</text><text x="2" y="70">4 re-cock</text>
+        </svg></div>
+        <figcaption><span class="cap i2">Fig. 2 · Crossbridge cycle</span><span class="cap">Ch 6 notes · your sketch</span></figcaption></figure>
+      <div class="state"><div class="toast"><span>Plan approved · 6 blocks added to Today</span><button class="btn quiet">Undo</button></div><span class="cap">Toast · floats, so it casts a shadow</span></div>
+    </div></div>`)}
+  <p class="cap" style="padding-top:var(--sp-6)">End of sheet · E.V. 5 · Darkroom</p>`;
+  // read actual token values from each theme
+  $$("#spec .wedge").forEach(w=>{ const cs=getComputedStyle(w); $$("[data-val]",w).forEach(s=>s.textContent=cs.getPropertyValue(s.dataset.val).trim()); });
+  $$("#spec [data-pin-focus]").forEach(b=>b.classList.add("pinned-focus"));
+  $("#spec [data-play]").addEventListener("click",()=>{ $$("#spec .track").forEach(t=>{t.classList.remove("play"); void t.offsetWidth; t.classList.add("play")}); });
+}
+
+/* ---------------- boot ---------------- */
+renderDecks(); renderQ(); renderPlan(); renderSpec(); route();
+</script>
+</body>
+</html>

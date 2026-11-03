@@ -1,0 +1,2016 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E.V. v5 · L · Study hall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   L · Study hall — tokens. Every value below is a custom property;
+   components further down are built only from these.
+   ============================================================ */
+:root, [data-theme="light"] {
+  /* type */
+  --font: "Figtree", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fs-meta: 13px;     /* properties, captions, chips */
+  --fs-body: 15px;     /* everything you read */
+  --fs-title: 20px;    /* section leads, card backs, questions */
+  --fs-display: 28px;  /* page titles, the card in study mode */
+  --lh-tight: 1.25;
+  --lh: 1.5;
+  --lh-read: 1.65;
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semi: 600;
+
+  /* space: 8 px rhythm */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+
+  /* shape */
+  --r-xs: 6px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-pill: 999px;
+
+  /* layout */
+  --side-w: 248px; --col: 720px; --sheet-w: 440px; --notes-pane: 264px;
+  --row: 44px; --control: 36px; --control-lg: 48px; --topbar: 56px;
+
+  /* motion */
+  --dur-1: 120ms; --dur-2: 200ms; --ease: cubic-bezier(.2, 0, 0, 1);
+
+  /* neutrals: warm paper */
+  --bg: #FBF9F6;
+  --surface: #FFFFFF;
+  --sunken: #F3F0EA;
+  --hover: #F0ECE6;
+  --selected: #E9E4DC;
+  --line: #E6E0D7;
+  --line-strong: #D3CBBF;
+  --text: #23201C;
+  --text-2: #57524B;
+  --text-3: #6F6A62;
+
+  /* the one accent: E.V.'s ember, for the primary action or her mark */
+  --accent: #BF4E1C;
+  --accent-hover: #A9441A;
+  --on-accent: #FFFFFF;
+  --accent-tint: #FBEDE5;
+  --accent-text: #A9441A;
+  --her: #BF4E1C;
+
+  /* feedback and status */
+  --ok: #2E7A55; --ok-text: #276B4A; --ok-tint: #E8F3EC;
+  --bad: #A63F35; --bad-tint: #F8EAE7;
+  --warn: #B07014; --warn-text: #8F5A0E; --warn-tint: #F8EFDD;
+
+  /* set types: a muted, harmonious family (icon / tint / ink on tint) */
+  --flash: #2D7C83;    --flash-tint: #E5F1F1;    --flash-ink: #1F5E64;
+  --practice: #5E58AE; --practice-tint: #ECEBF7; --practice-ink: #443F8C;
+  --mock: #A24B6A;     --mock-tint: #F6E9EE;     --mock-ink: #7F3651;
+  --proc: #657A2A;     --proc-tint: #EEF2E2;     --proc-ink: #4A5B1C;
+  --note: #6F6A62;     --note-tint: #F2EFEA;
+
+  /* courses: a second muted family, shown only as a square */
+  --c-nur: #4F72A3; --c-nur-tint: #E9EEF6;
+  --c-bio: #9A7A2C; --c-bio-tint: #F5EFDF; --on-cc: #FFFFFF;
+
+  /* elevation: one soft shadow, the active study card only */
+  --shadow-study: 0 1px 2px rgba(35, 28, 20, .06), 0 12px 32px rgba(35, 28, 20, .08);
+  --scrim: rgba(35, 28, 20, .24);
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--text-2);
+}
+[data-theme="dark"] {
+  --bg: #1B1A18;
+  --surface: #24221F;
+  --sunken: #151413;
+  --hover: #2B2926;
+  --selected: #34312D;
+  --line: #34312C;
+  --line-strong: #47433D;
+  --text: #EEEAE4;
+  --text-2: #BDB7AE;
+  --text-3: #959087;
+
+  --accent: #E0763F;
+  --accent-hover: #EA8752;
+  --on-accent: #1A120D;
+  --accent-tint: #3A261C;
+  --accent-text: #F0955F;
+  --her: #E0763F;
+
+  --ok: #6FBF91; --ok-text: #8FD1AA; --ok-tint: #1E2E25;
+  --bad: #E58A7E; --bad-tint: #3A2320;
+  --warn: #E0A84E; --warn-text: #EBBE72; --warn-tint: #352A17;
+
+  --flash: #6DB5BC;    --flash-tint: #1D2C2D;    --flash-ink: #9DD0D5;
+  --practice: #9D98E0; --practice-tint: #26253A; --practice-ink: #C2BFF0;
+  --mock: #D78AA6;     --mock-tint: #35222A;     --mock-ink: #EDB6C9;
+  --proc: #A9BC6A;     --proc-tint: #272C1C;     --proc-ink: #CAD99A;
+  --note: #959087;     --note-tint: #2A2825;
+
+  --c-nur: #86A6D6; --c-nur-tint: #222A36;
+  --c-bio: #CDAA5A; --c-bio-tint: #322B1C; --on-cc: #151413;
+
+  --shadow-study: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px rgba(0, 0, 0, .35);
+  --scrim: rgba(0, 0, 0, .5);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font); font-size: var(--fs-body); line-height: var(--lh);
+  color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 0;
+}
+h1, h2, h3, h4, p { margin: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-xs); }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--text-2); }
+.quiet { color: var(--text-3); }
+.meta { font-size: var(--fs-meta); color: var(--text-3); }
+.semi { font-weight: var(--w-semi); }
+.ic { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ic.sm { width: 14px; height: 14px; }
+.ic.lg { width: 20px; height: 20px; }
+.ic.xl { width: 24px; height: 24px; }
+.hide { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ============================================================
+   Shell: sidebar + area (+ sheet). Study modes hide the shell.
+   ============================================================ */
+.app { display: grid; grid-template-columns: var(--side-w) 1fr; height: 100vh; }
+.side {
+  background: var(--sunken); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; padding: var(--s-4) var(--s-3); gap: var(--s-1); overflow: auto;
+}
+.brand { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-2) var(--s-3); font-weight: var(--w-semi); }
+.search-btn {
+  display: flex; align-items: center; gap: var(--s-2); height: var(--control); padding: 0 var(--s-3);
+  border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--text-3);
+  font-size: var(--fs-meta); margin-bottom: var(--s-3); width: 100%;
+}
+.search-btn .k { margin-left: auto; }
+.nav { display: flex; align-items: center; gap: var(--s-3); height: 36px; padding: 0 var(--s-2) 0 var(--s-3); border-radius: var(--r-sm); color: var(--text-2); font-weight: var(--w-medium); }
+.nav:hover { background: var(--hover); }
+.nav.on { background: var(--selected); color: var(--text); }
+.nav .count { margin-left: auto; font-size: var(--fs-meta); color: var(--text-3); }
+.nav .count.needs { color: var(--warn-text); display: inline-flex; align-items: center; gap: 6px; }
+.nav .count.needs::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+.side-h { display: flex; align-items: center; justify-content: space-between; padding: var(--s-5) var(--s-2) var(--s-2) var(--s-3); font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); }
+.side-h button { width: 24px; height: 24px; border-radius: var(--r-xs); display: grid; place-items: center; color: var(--text-3); }
+.side-h button:hover { background: var(--hover); color: var(--text); }
+.nav.course .sq { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; color: var(--on-cc); font-size: 11px; font-weight: var(--w-semi); }
+.nav.course .sub { margin-left: auto; font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-regular); }
+.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: var(--s-1); padding-top: var(--s-4); }
+.side-job { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-meta); color: var(--text-2); }
+.side-job:hover { background: var(--hover); }
+.theme-btn { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-3); font-size: var(--fs-meta); color: var(--text-3); border-radius: var(--r-sm); }
+.theme-btn:hover { background: var(--hover); }
+.theme-btn .k { margin-left: auto; }
+
+.main { overflow: auto; position: relative; }
+.col { max-width: var(--col); margin: 0 auto; padding: var(--s-7) 0 var(--s-8); }
+.screen { display: none; }
+.screen.on { display: block; }
+
+/* Focus mode: study surfaces take the whole window; the shell steps back. */
+body.focus .app { grid-template-columns: 0 1fr; }
+body.focus .side { visibility: hidden; border: 0; padding: 0; }
+
+/* ============================================================
+   Primitives
+   ============================================================ */
+.k {
+  display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
+  border: 1px solid var(--line); border-radius: 5px; font-size: 12px; color: var(--text-3); background: var(--surface);
+  font-family: var(--font); line-height: 1;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  height: var(--control); padding: 0 var(--s-4); border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--text);
+  font-size: var(--fs-body); font-weight: var(--w-medium); white-space: nowrap;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.btn:hover { background: var(--hover); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: var(--w-semi); }
+.btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn.primary .k { background: transparent; border-color: color-mix(in srgb, var(--on-accent) 45%, transparent); color: var(--on-accent); }
+.btn.primary:disabled { background: var(--sunken); border-color: var(--line); color: var(--text-3); cursor: default; }
+.btn.primary:disabled .k { border-color: var(--line); color: var(--text-3); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--text-2); }
+.btn.ghost:hover { background: var(--hover); color: var(--text); }
+.btn.lg { height: var(--control-lg); padding: 0 var(--s-5); border-radius: var(--r-md); font-size: var(--fs-body); }
+.btn.block { width: 100%; }
+.btn.on { background: var(--selected); border-color: var(--line-strong); }
+.btn.sm { height: 28px; padding: 0 var(--s-3); font-size: var(--fs-meta); }
+.btn .k { margin-left: var(--s-1); }
+
+/* source chip: where a fact comes from (a note or a set), or "unverified" */
+.src {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 var(--s-2);
+  border: 1px solid var(--line); border-radius: var(--r-xs); background: var(--surface);
+  font-size: var(--fs-meta); color: var(--text-2); white-space: nowrap; vertical-align: middle;
+}
+.src:hover { border-color: var(--line-strong); color: var(--text); }
+.src .ic { width: 13px; height: 13px; }
+.src.note .ic { color: var(--note); }
+.src.flash .ic { color: var(--flash); }
+.src.practice .ic { color: var(--practice); }
+.src.unverified { border-style: dashed; color: var(--text-3); }
+
+/* course tag: always a coloured square plus the code */
+.ctag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-meta); color: var(--text-2); white-space: nowrap; }
+.ctag::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--cc, var(--text-3)); flex: none; }
+.ctag.nur { --cc: var(--c-nur); }
+.ctag.bio { --cc: var(--c-bio); }
+
+/* type icon: the set types' tinted square */
+.ti { width: 32px; height: 32px; border-radius: var(--r-sm); display: grid; place-items: center; flex: none; background: var(--tt); color: var(--tc); }
+.ti.sm { width: 24px; height: 24px; border-radius: var(--r-xs); }
+.ti.sm .ic { width: 14px; height: 14px; }
+.ti.lg { width: 48px; height: 48px; border-radius: var(--r-md); }
+.ti.lg .ic { width: 24px; height: 24px; }
+.t-flash { --tt: var(--flash-tint); --tc: var(--flash); --ti-ink: var(--flash-ink); }
+.t-practice { --tt: var(--practice-tint); --tc: var(--practice); --ti-ink: var(--practice-ink); }
+.t-mock { --tt: var(--mock-tint); --tc: var(--mock); --ti-ink: var(--mock-ink); }
+.t-proc { --tt: var(--proc-tint); --tc: var(--proc); --ti-ink: var(--proc-ink); }
+.t-note { --tt: var(--note-tint); --tc: var(--note); }
+.typeword { font-size: var(--fs-meta); color: var(--ti-ink, var(--text-2)); font-weight: var(--w-medium); }
+
+/* E.V.'s mark: a dotted ring in her colour */
+.mark { width: 16px; height: 16px; border-radius: 50%; border: 2px dotted var(--her); flex: none; display: inline-block; }
+.mark.lg { width: 22px; height: 22px; }
+.ev-line { display: flex; align-items: flex-start; gap: var(--s-3); color: var(--text); }
+.ev-line .mark { margin-top: 3px; }
+.ev-line p { flex: 1; }
+.ev-line .src { margin-left: var(--s-1); }
+
+/* status circle: the plan item's glyph (Linear-like) */
+.st { width: 16px; height: 16px; border-radius: 50%; border: 1.75px solid var(--text-3); flex: none; display: grid; place-items: center; }
+.st.doing { border-color: var(--warn); background: conic-gradient(var(--warn) 0 50%, transparent 50% 100%); background-clip: content-box; padding: 2px; }
+.st.done { border-color: var(--ok); background: var(--ok); }
+.st.done::after { content: ""; width: 6px; height: 3px; border-left: 1.75px solid var(--surface); border-bottom: 1.75px solid var(--surface); transform: rotate(-45deg) translate(1px, -1px); }
+.st.blocked { border-style: dashed; }
+
+/* property pill (plan items) */
+.prop { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 var(--s-2); border-radius: var(--r-xs); font-size: var(--fs-meta); color: var(--text-2); white-space: nowrap; }
+.prop.box { border: 1px solid var(--line); }
+.prop .ic { width: 13px; height: 13px; color: var(--text-3); }
+.prop.type .ic { color: var(--tc); }
+
+/* meters */
+.bar { height: 6px; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; display: flex; }
+[data-theme="dark"] .bar { background: var(--selected); }
+.bar > i { display: block; height: 100%; background: var(--tc, var(--accent)); }
+.bar > i.soft { opacity: .45; }
+.bar.slim { height: 4px; }
+.cells { display: inline-flex; gap: 3px; }
+.cells i { width: 8px; height: 8px; border-radius: 2px; background: var(--line-strong); }
+.cells i.on { background: var(--text-2); }
+.cells.low i.on { background: var(--bad); }
+
+/* section header */
+.sec { margin-top: var(--s-7); }
+.sec-h { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: var(--s-4); }
+.sec-h h2 { font-size: var(--fs-body); font-weight: var(--w-semi); }
+.sec-h .count { font-size: var(--fs-meta); color: var(--text-3); }
+.sec-h .right { margin-left: auto; font-size: var(--fs-meta); color: var(--text-2); display: inline-flex; gap: var(--s-1); align-items: center; }
+.sec-h .right:hover { color: var(--text); }
+
+.page-h { display: flex; align-items: flex-end; gap: var(--s-4); }
+.page-h h1 { font-size: var(--fs-display); font-weight: var(--w-semi); line-height: var(--lh-tight); letter-spacing: -.01em; }
+.page-h .sub { color: var(--text-3); font-size: var(--fs-body); margin-top: var(--s-1); }
+.page-h .act { margin-left: auto; display: flex; gap: var(--s-2); }
+.crumbs { display: flex; align-items: center; gap: 6px; font-size: var(--fs-meta); color: var(--text-3); margin-bottom: var(--s-4); }
+.crumbs a:hover { color: var(--text); }
+
+/* segmented filter */
+.seg { display: inline-flex; gap: var(--s-1); flex-wrap: wrap; }
+.seg button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--s-3); border-radius: var(--r-pill); border: 1px solid var(--line); color: var(--text-2); font-size: var(--fs-meta); font-weight: var(--w-medium); background: var(--surface); }
+.seg button:hover { border-color: var(--line-strong); color: var(--text); }
+.seg button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+.seg button .dot { width: 8px; height: 8px; border-radius: 2px; background: var(--tc); }
+.seg button .n { color: inherit; opacity: .7; }
+
+/* field */
+.field { width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); padding: var(--s-3) var(--s-4); font-size: var(--fs-body); line-height: var(--lh); resize: none; }
+.field::placeholder { color: var(--text-3); }
+.field:focus { outline: none; border-color: var(--text-2); }
+
+/* ============================================================
+   Object language. Each type has its own form, from one set of tokens.
+   ============================================================ */
+
+/* ---- Plan item: Linear-like row. Status circle, title, properties on the right. */
+.plan-list { border-top: 1px solid var(--line); }
+.pi { display: flex; align-items: center; gap: var(--s-3); min-height: var(--row); padding: var(--s-2) var(--s-2); border-bottom: 1px solid var(--line); border-radius: 0; cursor: pointer; }
+.pi:hover { background: var(--hover); }
+.pi .time { width: 64px; font-size: var(--fs-meta); color: var(--text-3); flex: none; }
+.pi .title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pi .props { display: flex; align-items: center; gap: var(--s-1); flex: none; }
+.pi.proposal { border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); margin-top: var(--s-3); padding: var(--s-2) var(--s-3); cursor: default; }
+.pi.proposal:hover { background: transparent; }
+.pi.proposal .title { color: var(--text-2); }
+.pi.proposal .st { border-style: dashed; }
+
+/* ---- "Next up" block: the one plan item lifted into a card */
+.next {
+  border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface);
+  padding: var(--s-5); display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-4) var(--s-5); align-items: center;
+}
+.next .eyebrow { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); display: flex; gap: var(--s-2); align-items: center; }
+.next h3 { font-size: var(--fs-title); font-weight: var(--w-semi); line-height: var(--lh-tight); margin: 2px 0 var(--s-2); }
+.next .props { display: flex; gap: var(--s-1); flex-wrap: wrap; margin-left: calc(-1 * var(--s-2)); }
+
+/* ---- Exam: a tear-off calendar leaf */
+.exams { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+.exam { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.exam:hover { border-color: var(--line-strong); }
+.leaf { width: 44px; flex: none; border-radius: var(--r-sm); border: 1px solid var(--line-strong); overflow: hidden; text-align: center; background: var(--surface); }
+.leaf .m { display: block; font-size: 11px; font-weight: var(--w-semi); letter-spacing: .04em; text-transform: uppercase; color: var(--on-cc); background: var(--cc); padding: 1px 0; }
+.leaf .d { display: block; font-size: var(--fs-title); font-weight: var(--w-semi); line-height: 28px; }
+.leaf.nur { --cc: var(--c-nur); }
+.leaf.bio { --cc: var(--c-bio); }
+.exam .what { min-width: 0; }
+.exam .what b { display: block; font-weight: var(--w-semi); font-size: var(--fs-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exam .ready { display: flex; align-items: center; gap: var(--s-2); margin-top: 2px; }
+.exam .ready .bar { width: 56px; }
+
+/* ---- Weak spot: segmented cells (right of the last n) */
+.weak { display: flex; align-items: center; gap: var(--s-3); min-height: var(--row); padding: var(--s-2); border-bottom: 1px solid var(--line); }
+.weak:hover { background: var(--hover); }
+.weak .wi { width: 24px; height: 24px; display: grid; place-items: center; color: var(--bad); flex: none; }
+.weak .title { flex: 1; }
+.weak .score { font-size: var(--fs-meta); color: var(--text-2); width: 56px; text-align: right; }
+
+/* ---- Note: paper. A page glyph, a neutral title, a snippet line. Never tinted. */
+.note-row { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3) var(--s-2); border-bottom: 1px solid var(--line); }
+.note-row:hover { background: var(--hover); }
+.page { width: 26px; height: 32px; flex: none; position: relative; border: 1px solid var(--line-strong); border-radius: 3px 8px 3px 3px; background: var(--surface); }
+.page::before { content: ""; position: absolute; left: 5px; right: 5px; top: 9px; height: 1.5px; background: var(--line-strong); box-shadow: 0 5px 0 var(--line-strong), 0 10px 0 var(--line-strong), 0 15px 0 var(--line-strong); }
+.page.sm { width: 18px; height: 22px; border-radius: 2px 6px 2px 2px; }
+.page.sm::before { left: 4px; right: 4px; top: 6px; height: 1.25px; box-shadow: 0 4px 0 var(--line-strong), 0 8px 0 var(--line-strong); }
+.page.xs { width: 11px; height: 14px; border-radius: 1.5px 4px 1.5px 1.5px; }
+.page.xs::before { left: 2.5px; right: 2.5px; top: 4px; height: 1px; box-shadow: 0 3px 0 var(--line-strong), 0 6px 0 var(--line-strong); }
+.note-row .t { font-weight: var(--w-medium); }
+.note-row .snip { font-size: var(--fs-meta); color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 560px; }
+.note-row .when { margin-left: auto; font-size: var(--fs-meta); color: var(--text-3); white-space: nowrap; }
+
+/* ---- Job: E.V.'s ring (dotted) around a progress arc, with its steps, cost and destination */
+.ring { display: inline-block; flex: none; }
+.ring svg { display: block; }
+.job { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); padding: var(--s-4) var(--s-5); display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-2) var(--s-4); align-items: start; }
+.job + .job { margin-top: var(--s-3); }
+.job .jt { font-weight: var(--w-semi); }
+.job .jstate { font-size: var(--fs-meta); display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
+.job .jstate::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--sd, var(--text-3)); }
+.job.needs { --sd: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.job.running { --sd: var(--her); }
+.job.done { --sd: var(--ok); }
+.job.failed { --sd: var(--bad); }
+.steps { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin-top: var(--s-2); font-size: var(--fs-meta); color: var(--text-3); }
+.steps span { display: inline-flex; align-items: center; gap: 6px; }
+.steps span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+.steps .ok { color: var(--text-2); }
+.steps .ok::before { background: var(--text-3); border-color: var(--text-3); }
+.steps .now { color: var(--text); font-weight: var(--w-medium); }
+.steps .now::before { border-color: var(--sd, var(--her)); background: var(--sd, var(--her)); }
+.steps .x { color: var(--bad); }
+.steps .x::before { border-color: var(--bad); }
+.job .jmeta { display: flex; gap: var(--s-4); margin-top: var(--s-3); font-size: var(--fs-meta); color: var(--text-3); flex-wrap: wrap; }
+.job .jmeta b { font-weight: var(--w-medium); color: var(--text-2); }
+.job .reason { margin-top: var(--s-2); color: var(--text); }
+.job .jact { display: flex; gap: var(--s-2); align-items: center; }
+/* job link form (inline) */
+.joblink { display: inline-flex; align-items: center; gap: var(--s-2); height: 28px; padding: 0 var(--s-3) 0 var(--s-2); border: 1px dashed var(--line-strong); border-radius: var(--r-pill); font-size: var(--fs-meta); color: var(--text-2); background: var(--surface); }
+
+/* ---- Course: a coloured square with its code; the "channel" */
+.course-card { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); }
+.course-card:hover { border-color: var(--line-strong); }
+.cbadge { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--cc); color: var(--on-cc); display: grid; place-items: center; font-size: var(--fs-meta); font-weight: var(--w-semi); flex: none; }
+.cbadge.nur { --cc: var(--c-nur); }
+.cbadge.bio { --cc: var(--c-bio); }
+.cbadge.lg { width: 48px; height: 48px; border-radius: var(--r-md); font-size: var(--fs-body); }
+.course-card .top { display: flex; gap: var(--s-3); align-items: center; }
+.course-card .counts { display: flex; gap: var(--s-4); font-size: var(--fs-meta); color: var(--text-2); }
+.course-card .counts span { display: inline-flex; align-items: center; gap: 6px; }
+.course-card .counts i { width: 8px; height: 8px; border-radius: 2px; background: var(--tc); }
+
+/* ============================================================
+   Library: set tiles. Shared frame, distinct art per type.
+   ============================================================ */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4); }
+.tile { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: border-color var(--dur-1) var(--ease); }
+.tile:hover { border-color: var(--line-strong); }
+.tile .art { height: 104px; background: var(--tt); position: relative; display: grid; place-items: center; overflow: hidden; }
+.tile .body { padding: var(--s-3) var(--s-4) var(--s-4); display: flex; flex-direction: column; gap: 2px; }
+.tile .tt { font-weight: var(--w-semi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .tm { font-size: var(--fs-meta); color: var(--text-3); }
+.tile .tf { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s-3); gap: var(--s-2); }
+.tile .badge { position: absolute; top: var(--s-2); left: var(--s-2); display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 var(--s-2); border-radius: var(--r-pill); background: color-mix(in srgb, var(--surface) 80%, transparent); font-size: 12px; font-weight: var(--w-medium); color: var(--ti-ink); }
+.tile .badge .ic { width: 12px; height: 12px; color: var(--tc); }
+
+/* flashcards: a card on a stack */
+.stack { position: relative; width: 62%; height: 64px; }
+.stack::before, .stack::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-sm); background: var(--surface); border: 1px solid color-mix(in srgb, var(--tc) 30%, var(--line)); }
+.stack::before { transform: translate(8px, -8px); opacity: .55; }
+.stack::after { transform: translate(4px, -4px); opacity: .8; }
+.stack span { position: absolute; inset: 0; z-index: 1; border-radius: var(--r-sm); background: var(--surface); border: 1px solid color-mix(in srgb, var(--tc) 35%, var(--line)); display: grid; place-items: center; font-size: var(--fs-meta); font-weight: var(--w-semi); color: var(--text); padding: 0 var(--s-2); text-align: center; }
+
+/* practice: the problems as a grid of cells (last attempt) */
+.pgrid { display: grid; grid-template-columns: repeat(5, 16px); gap: 6px; margin-top: 18px; }
+.pgrid i { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid color-mix(in srgb, var(--tc) 45%, transparent); }
+.pgrid i.hit { background: var(--tc); border-color: var(--tc); }
+.pgrid i.miss { background: transparent; border-color: var(--tc); position: relative; }
+.pgrid i.miss::after { content: ""; position: absolute; left: 3px; right: 3px; top: 6px; height: 1.5px; background: var(--tc); }
+
+/* mock exam: a timed paper */
+.paper { width: 70px; height: 78px; margin-top: 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--tc) 30%, var(--line)); border-radius: 6px 6px 0 0; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.paper i { height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--tc) 30%, var(--line)); }
+.paper i:first-child { height: 6px; width: 60%; background: var(--tc); }
+.paper i:nth-child(3) { width: 80%; }
+.paper i:nth-child(5) { width: 70%; }
+.timer-badge { position: absolute; right: var(--s-3); top: var(--s-2); display: inline-flex; gap: 4px; align-items: center; font-size: 12px; font-weight: var(--w-medium); color: var(--ti-ink); }
+.timer-badge .ic { width: 12px; height: 12px; color: var(--tc); }
+.art .writing { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--tt) 55%, transparent); }
+.art .writing > span { display: inline-flex; align-items: center; gap: var(--s-2); padding: 4px var(--s-3) 4px 6px; border-radius: var(--r-pill); background: var(--surface); border: 1px dashed var(--line-strong); font-size: 12px; color: var(--text-2); }
+
+/* procedure: a numbered stepper */
+.stepper { display: flex; flex-direction: column; gap: 7px; width: 64%; margin-top: 12px; }
+.stepper div { display: flex; align-items: center; gap: 8px; position: relative; }
+.stepper b { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: var(--w-semi); background: var(--surface); color: var(--ti-ink); border: 1.5px solid var(--tc); flex: none; z-index: 1; }
+.stepper div.d b { background: var(--tc); color: var(--surface); }
+.stepper i { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--tc) 30%, var(--line)); flex: 1; }
+.stepper div:not(:last-child)::after { content: ""; position: absolute; left: 8.25px; top: 18px; height: 7px; width: 1.5px; background: var(--tc); opacity: .5; }
+
+/* tile foot bits */
+.mini-mastery { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
+.mini-mastery .bar { width: 48px; height: 4px; }
+
+/* ---- Continue studying: the one prominent card */
+.continue { display: grid; grid-template-columns: 112px 1fr auto; gap: var(--s-5); align-items: center; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); padding: var(--s-4) var(--s-5) var(--s-4) var(--s-4); }
+.continue .art { height: 96px; border-radius: var(--r-md); background: var(--tt); display: grid; place-items: center; }
+.continue .art .stack { width: 72%; height: 52px; }
+.continue .eyebrow { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); }
+.continue h3 { font-size: var(--fs-title); font-weight: var(--w-semi); margin: 2px 0 var(--s-1); line-height: var(--lh-tight); }
+.continue .line { display: flex; align-items: center; gap: var(--s-3); font-size: var(--fs-meta); color: var(--text-2); }
+.continue .prog { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-3); font-size: var(--fs-meta); color: var(--text-2); }
+.continue .prog .bar { width: 220px; }
+
+/* ---- Due today: compact cards across sets */
+.due { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+.due a { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); min-width: 0; }
+.due a:hover { border-color: var(--line-strong); }
+.due b { display: block; font-weight: var(--w-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.due .meta { white-space: nowrap; }
+.due .why-weak { color: var(--bad); }
+
+.type-group + .type-group { margin-top: var(--s-6); }
+.type-h { display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-3); }
+.type-h h3 { font-size: var(--fs-body); font-weight: var(--w-semi); }
+.type-h .n { font-size: var(--fs-meta); color: var(--text-3); }
+.type-h .right { margin-left: auto; font-size: var(--fs-meta); color: var(--text-2); }
+.courses2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
+
+/* ============================================================
+   Set page
+   ============================================================ */
+.set-h { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-4); align-items: center; }
+.set-h h1 { font-size: var(--fs-display); font-weight: var(--w-semi); line-height: var(--lh-tight); letter-spacing: -.01em; }
+.set-h .by { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; font-size: var(--fs-meta); color: var(--text-2); margin-top: var(--s-1); }
+.mastery { margin-top: var(--s-5); }
+.mastery .bar { height: 8px; }
+.mastery .legend { display: flex; gap: var(--s-5); margin-top: var(--s-2); font-size: var(--fs-meta); color: var(--text-2); }
+.mastery .legend span { display: inline-flex; align-items: center; gap: 6px; }
+.mastery .legend i { width: 8px; height: 8px; border-radius: 2px; background: var(--tc); }
+.mastery .legend i.soft { opacity: .45; }
+.mastery .legend i.none { background: var(--line-strong); }
+.modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-top: var(--s-5); }
+.mode { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3) var(--s-4) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); text-align: left; }
+.mode:hover { border-color: var(--line-strong); }
+.mode .ic { color: var(--tc); width: 20px; height: 20px; }
+.mode b { font-weight: var(--w-semi); }
+.mode span { font-size: var(--fs-meta); color: var(--text-3); line-height: 1.35; }
+.hero { margin-top: var(--s-6); }
+.hero-card { height: 280px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); display: grid; place-items: center; text-align: center; padding: var(--s-6) var(--s-7); cursor: pointer; position: relative; }
+.hero-card .side-lab { position: absolute; top: var(--s-4); left: var(--s-5); font-size: var(--fs-meta); color: var(--text-3); }
+.hero-card .flip-hint { position: absolute; bottom: var(--s-4); right: var(--s-5); font-size: var(--fs-meta); color: var(--text-3); display: inline-flex; gap: 6px; align-items: center; }
+.hero-card .face { font-size: var(--fs-display); font-weight: var(--w-semi); line-height: var(--lh-tight); }
+.hero-card .face.back { font-size: var(--fs-title); font-weight: var(--w-regular); line-height: var(--lh); }
+.hero-nav { display: flex; align-items: center; justify-content: center; gap: var(--s-4); margin-top: var(--s-3); }
+.round { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; color: var(--text-2); background: var(--surface); }
+.round:hover { background: var(--hover); color: var(--text); }
+.terms { border-top: 1px solid var(--line); }
+.term { display: grid; grid-template-columns: 200px 1fr 72px; gap: var(--s-5); padding: var(--s-3) var(--s-2); border-bottom: 1px solid var(--line); align-items: center; }
+.term b { font-weight: var(--w-semi); }
+.term p { color: var(--text-2); }
+.know { display: inline-flex; gap: 3px; justify-self: end; align-items: center; }
+.know i { width: 14px; height: 6px; border-radius: 2px; background: var(--line-strong); }
+.know i.on { background: var(--tc); }
+
+/* ============================================================
+   Study modes (full focus)
+   ============================================================ */
+.focus-top { position: sticky; top: 0; z-index: 2; background: var(--bg); }
+.focus-top .tb { height: var(--topbar); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 var(--s-5); }
+.focus-top .tb .l { display: flex; align-items: center; gap: var(--s-3); }
+.focus-top .tb .c { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-meta); color: var(--text-2); }
+.focus-top .tb .r { justify-self: end; font-size: var(--fs-meta); color: var(--text-3); display: flex; gap: var(--s-3); align-items: center; }
+.icon-btn { width: 36px; height: 36px; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--text-2); }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.focus-top .bar { border-radius: 0; height: 3px; background: var(--line); }
+.study { max-width: 640px; margin: 0 auto; padding: var(--s-7) 0 var(--s-8); }
+.study.wide { max-width: var(--col); }
+.card-active { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-study); }
+.flash-card { min-height: 300px; padding: var(--s-6) var(--s-7); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--s-3); position: relative; }
+.flash-card .lab { position: absolute; top: var(--s-4); left: var(--s-5); font-size: var(--fs-meta); color: var(--text-3); }
+.flash-card .big { font-size: var(--fs-display); font-weight: var(--w-semi); line-height: var(--lh-tight); }
+.flash-card .ask { color: var(--text-2); }
+.flash-card.back { align-items: stretch; text-align: left; justify-content: flex-start; padding: var(--s-5) var(--s-6) var(--s-6); }
+.flash-card.back .lab { position: static; margin-bottom: var(--s-1); }
+.flash-card.back .term-small { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); }
+.flash-card.back .answer { font-size: var(--fs-title); line-height: var(--lh); }
+.yours { margin-top: var(--s-2); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--sunken); font-size: var(--fs-body); color: var(--text-2); }
+[data-theme="dark"] .yours { background: var(--bg); }
+.yours .who { display: block; font-size: var(--fs-meta); color: var(--text-3); margin-bottom: 2px; }
+.attempt { margin-top: var(--s-5); }
+.attempt label { display: block; font-size: var(--fs-meta); color: var(--text-2); margin-bottom: var(--s-2); font-weight: var(--w-medium); }
+.study-actions { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-5); }
+.study-actions .spacer { flex: 1; }
+.rate { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-top: var(--s-5); }
+.rate-q { text-align: center; color: var(--text-2); margin-top: var(--s-6); }
+
+/* practice */
+.navi { display: flex; gap: 6px; }
+.navi i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+.navi i.ok { background: var(--ok); border-color: var(--ok); }
+.navi i.no { background: var(--bad); border-color: var(--bad); }
+.navi i.cur { border-color: var(--text); border-width: 2px; }
+.q-card { padding: var(--s-6); }
+.q-card .lab { font-size: var(--fs-meta); color: var(--text-3); margin-bottom: var(--s-3); display: flex; gap: var(--s-3); align-items: center; }
+.q-card .q { font-size: var(--fs-title); line-height: var(--lh); }
+.q-card .order { margin-top: var(--s-4); display: grid; grid-template-columns: 96px 1fr; gap: var(--s-1) var(--s-4); font-size: var(--fs-body); }
+.q-card .order dt { color: var(--text-3); }
+.q-card .order dd { margin: 0; }
+.unit-field { display: flex; align-items: center; border: 1.5px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); height: 56px; padding: 0 var(--s-4); margin-top: var(--s-5); max-width: 280px; }
+.unit-field input { border: 0; outline: 0; background: transparent; font-size: var(--fs-title); width: 100%; font-variant-numeric: tabular-nums; }
+.unit-field span { color: var(--text-3); font-size: var(--fs-body); }
+.unit-field.locked { border-color: var(--bad); background: var(--bad-tint); }
+.feedback { margin-top: var(--s-4); border-radius: var(--r-lg); padding: var(--s-5) var(--s-6); background: var(--fb-tint); }
+.feedback.bad { --fb-tint: var(--bad-tint); --fb: var(--bad); }
+.feedback.ok { --fb-tint: var(--ok-tint); --fb: var(--ok-text); }
+.feedback h3 { color: var(--fb); font-size: var(--fs-title); font-weight: var(--w-semi); display: flex; gap: var(--s-2); align-items: center; }
+.feedback p { margin-top: var(--s-2); }
+.feedback .work { margin-top: var(--s-3); font-variant-numeric: tabular-nums; color: var(--text); }
+.feedback .foot { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-4); }
+
+/* procedure */
+.proc-intro { color: var(--text-2); margin-bottom: var(--s-5); }
+.psteps { display: flex; flex-direction: column; }
+.pstep { display: grid; grid-template-columns: 32px 1fr auto; gap: var(--s-4); align-items: start; padding: var(--s-3) 0; position: relative; }
+.pstep .n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: var(--w-semi); font-size: var(--fs-meta); border: 1.5px solid var(--proc); color: var(--proc-ink); background: var(--surface); z-index: 1; }
+.pstep.done .n { background: var(--proc); color: var(--surface); border-color: var(--proc); }
+.pstep.future .n { border-color: var(--line-strong); color: var(--text-3); border-style: dashed; }
+.pstep:not(:last-child)::before { content: ""; position: absolute; left: 15.25px; top: 44px; bottom: -12px; width: 1.5px; background: var(--line-strong); }
+.pstep .txt { padding-top: 5px; }
+.pstep .verdict { padding-top: 6px; font-size: var(--fs-meta); color: var(--text-3); display: inline-flex; gap: 6px; align-items: center; }
+.pstep .verdict.close { color: var(--warn-text); }
+.pstep.future .txt i { display: block; height: 8px; margin-top: 8px; border-radius: 4px; background: var(--line); width: 60%; }
+.pstep.current { padding: var(--s-3) 0 var(--s-4); }
+.pstep.current .n { width: 32px; height: 32px; background: var(--proc); color: var(--surface); }
+.pstep.current .box { padding: var(--s-5); grid-column: 2 / 4; }
+.pstep.current .box h3 { font-size: var(--fs-title); font-weight: var(--w-semi); margin-bottom: var(--s-1); }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-top: var(--s-2); }
+.compare > div { padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--sunken); }
+[data-theme="dark"] .compare > div { background: var(--bg); }
+.compare > div.ref { background: var(--proc-tint); }
+.compare .who { display: block; font-size: var(--fs-meta); color: var(--text-3); margin-bottom: 2px; }
+.compare .ref .who { color: var(--proc-ink); }
+.compare mark { background: color-mix(in srgb, var(--warn) 22%, transparent); color: inherit; border-radius: 3px; padding: 0 2px; }
+.verdict-line { margin-top: var(--s-4); display: flex; gap: var(--s-2); align-items: flex-start; }
+.verdict-line b { color: var(--warn-text); font-weight: var(--w-semi); }
+
+/* ============================================================
+   Notes (Quip-like): a quiet folder pane and a clean doc
+   ============================================================ */
+.notes-wrap { display: grid; grid-template-columns: var(--notes-pane) 1fr; height: 100vh; }
+.notes-pane { border-right: 1px solid var(--line); padding: var(--s-5) var(--s-3); overflow: auto; }
+.notes-pane .ph { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s-2) var(--s-4); }
+.notes-pane .ph h2 { font-size: var(--fs-title); font-weight: var(--w-semi); }
+.folder { display: flex; align-items: center; gap: var(--s-2); height: 32px; padding: 0 var(--s-2); font-size: var(--fs-meta); color: var(--text-2); font-weight: var(--w-medium); border-radius: var(--r-xs); margin-top: var(--s-3); }
+.folder .ic { color: var(--text-3); }
+.folder .n { margin-left: auto; color: var(--text-3); font-weight: var(--w-regular); }
+.doc-link { display: flex; align-items: center; gap: var(--s-2); height: 34px; padding: 0 var(--s-2) 0 var(--s-5); border-radius: var(--r-xs); color: var(--text-2); }
+.doc-link:hover { background: var(--hover); }
+.doc-link.on { background: var(--selected); color: var(--text); }
+.doc-link span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-pane { overflow: auto; position: relative; }
+.session-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: var(--s-3); height: var(--topbar); padding: 0 var(--s-5); background: var(--bg); border-bottom: 1px solid var(--line); }
+.session-bar .live { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-meta); color: var(--text-2); font-weight: var(--w-medium); }
+.session-bar .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.session-bar .clock { font-variant-numeric: tabular-nums; color: var(--text); font-weight: var(--w-semi); }
+.session-bar .saved { margin-left: auto; font-size: var(--fs-meta); color: var(--text-3); display: inline-flex; gap: 6px; align-items: center; }
+.doc { max-width: 680px; margin: 0 auto; padding: var(--s-7) 0 var(--s-8); font-size: var(--fs-body); line-height: var(--lh-read); }
+.doc h1 { font-size: var(--fs-display); font-weight: var(--w-semi); line-height: var(--lh-tight); letter-spacing: -.01em; }
+.doc .docmeta { display: flex; gap: var(--s-3); align-items: center; font-size: var(--fs-meta); color: var(--text-3); margin: var(--s-2) 0 var(--s-6); }
+.doc h2 { font-size: var(--fs-title); font-weight: var(--w-semi); margin: var(--s-6) 0 var(--s-2); line-height: var(--lh-tight); }
+.doc p { margin: 0 0 var(--s-3); }
+.doc ul { margin: 0 0 var(--s-3); padding-left: 22px; }
+.doc li { margin: 2px 0; }
+.doc .check { list-style: none; padding-left: 0; }
+.doc .check li { display: flex; gap: var(--s-3); align-items: flex-start; position: relative; }
+.doc .check li::before { content: ""; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--line-strong); margin-top: 4px; flex: none; }
+.doc .check li.x { color: var(--text-3); text-decoration: line-through; }
+.doc .check li.x::before { background: var(--text-2); border-color: var(--text-2); }
+.doc .check li.x::after { position: absolute; left: 4.5px; top: 9.5px; }
+.doc .two { display: grid; grid-template-columns: 240px 1fr; gap: var(--s-5); align-items: start; margin: var(--s-4) 0; }
+.doc figure { margin: 0; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); padding: var(--s-3); }
+.doc figcaption { font-size: var(--fs-meta); color: var(--text-3); margin-top: var(--s-2); line-height: var(--lh); }
+.doc .read-on { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 4px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent); }
+.checkq { margin: var(--s-6) 0 0; border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-5); background: var(--surface); }
+.checkq .qh { display: flex; gap: var(--s-3); align-items: flex-start; }
+.checkq .qh p { margin: 0; font-weight: var(--w-medium); }
+.checkq .qlab { display: block; font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-regular); }
+.checkq .ans { margin: var(--s-3) 0 0 28px; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--sunken); }
+[data-theme="dark"] .checkq .ans { background: var(--bg); }
+.checkq .ans .who { display: block; font-size: var(--fs-meta); color: var(--text-3); }
+.checkq .reply { margin: var(--s-3) 0 0 28px; display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; }
+
+/* ============================================================
+   Ask E.V.
+   ============================================================ */
+.chat { display: flex; flex-direction: column; gap: var(--s-5); }
+.msg-me { align-self: flex-end; max-width: 72%; background: var(--sunken); border-radius: var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg); padding: var(--s-3) var(--s-4); }
+[data-theme="dark"] .msg-me { background: var(--selected); }
+.msg-ev { display: grid; grid-template-columns: 22px 1fr; gap: var(--s-3); max-width: 92%; }
+.msg-ev .mark { margin-top: 3px; }
+.msg-ev .chips { display: flex; gap: var(--s-2); flex-wrap: wrap; margin-top: var(--s-2); }
+.msg-ev .try { display: flex; gap: var(--s-3); align-items: center; margin-top: var(--s-2); font-size: var(--fs-meta); color: var(--text-3); }
+.chat-break { text-align: center; font-size: var(--fs-meta); color: var(--text-3); }
+.composer { position: sticky; bottom: 0; background: var(--bg); padding: var(--s-4) 0 var(--s-5); }
+.composer .box { display: flex; align-items: center; gap: var(--s-3); border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4); }
+.composer input { flex: 1; border: 0; outline: 0; background: transparent; font-size: var(--fs-body); }
+.composer input::placeholder { color: var(--text-3); }
+
+/* ============================================================
+   Plan proposal
+   ============================================================ */
+.stepsbar { display: flex; gap: var(--s-5); margin-top: var(--s-5); font-size: var(--fs-meta); color: var(--text-3); }
+.stepsbar span { display: inline-flex; gap: var(--s-2); align-items: center; }
+.stepsbar b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--line-strong); font-size: 11px; }
+.stepsbar .ok b { background: var(--text-2); border-color: var(--text-2); color: var(--bg); }
+.stepsbar .now { color: var(--text); font-weight: var(--w-medium); }
+.stepsbar .now b { border-color: var(--text); }
+.conf { border-top: 1px solid var(--line); }
+.conf-row { display: flex; align-items: center; gap: var(--s-4); min-height: 52px; border-bottom: 1px solid var(--line); padding: 0 var(--s-2); }
+.conf-row .title { flex: 1; }
+.conf-row .acc { font-size: var(--fs-meta); color: var(--text-3); width: 120px; text-align: right; }
+.pick { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 2px; background: var(--surface); }
+.pick button { height: 28px; padding: 0 var(--s-3); border-radius: var(--r-pill); font-size: var(--fs-meta); color: var(--text-2); }
+.pick button:hover { color: var(--text); }
+.pick button.on { background: var(--selected); color: var(--text); font-weight: var(--w-medium); }
+.prop-list .pi { cursor: default; }
+.prop-list .pi.proposal { margin-top: var(--s-2); }
+.prop-list .day { font-size: var(--fs-meta); color: var(--text-3); margin: var(--s-4) 0 0 var(--s-1); font-weight: var(--w-medium); }
+.decide { display: flex; gap: var(--s-3); align-items: center; margin-top: var(--s-6); }
+
+/* ============================================================
+   Detail sheet (plan item) and the ⌘K palette
+   ============================================================ */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 10; display: none; }
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; width: var(--sheet-w); background: var(--surface); border-left: 1px solid var(--line); z-index: 11; display: none; flex-direction: column; }
+body.sheet-open .scrim, body.sheet-open .sheet { display: flex; }
+body.sheet-open .scrim { display: block; }
+.sheet .sh-top { display: flex; align-items: center; gap: var(--s-2); height: var(--topbar); padding: 0 var(--s-3) 0 var(--s-5); border-bottom: 1px solid var(--line); font-size: var(--fs-meta); color: var(--text-3); }
+.sheet .sh-top .x { margin-left: auto; }
+.sheet .sh-body { padding: var(--s-5); overflow: auto; flex: 1; }
+.sheet h2 { font-size: var(--fs-title); font-weight: var(--w-semi); line-height: var(--lh-tight); display: flex; gap: var(--s-3); align-items: flex-start; }
+.sheet h2 .st { margin-top: 4px; }
+.kv { display: grid; grid-template-columns: 112px 1fr; gap: 2px var(--s-3); margin-top: var(--s-5); align-items: center; }
+.kv dt { font-size: var(--fs-meta); color: var(--text-3); height: 32px; display: flex; align-items: center; }
+.kv dd { margin: 0; }
+.kv dd .prop { cursor: pointer; }
+.kv dd .prop:hover { background: var(--hover); }
+.add-prop { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-meta); color: var(--text-3); margin-top: var(--s-2); height: 28px; padding: 0 var(--s-2); border-radius: var(--r-xs); }
+.add-prop:hover { background: var(--hover); color: var(--text); }
+.sh-sec { margin-top: var(--s-5); padding-top: var(--s-4); border-top: 1px solid var(--line); }
+.sh-sec h4 { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); margin-bottom: var(--s-2); }
+.linked { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); }
+.linked:hover { border-color: var(--line-strong); }
+.sub { display: flex; gap: var(--s-3); align-items: center; height: 34px; }
+.sub .cb { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--line-strong); flex: none; }
+.sub.x .cb { background: var(--text-2); border-color: var(--text-2); display: grid; place-items: center; }
+.sub.x .cb::after, .doc .check li.x::after { content: ""; width: 7px; height: 4px; border-left: 1.75px solid var(--surface); border-bottom: 1.75px solid var(--surface); transform: rotate(-45deg) translate(1px, -1px); }
+.sub.x span { color: var(--text-3); text-decoration: line-through; }
+.sheet .sh-foot { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--line); display: flex; gap: var(--s-2); align-items: center; }
+
+.palette { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-lg); z-index: 21; display: none; overflow: hidden; }
+.pal-scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; display: none; }
+body.pal-open .palette, body.pal-open .pal-scrim { display: block; }
+.palette .pin { display: flex; align-items: center; gap: var(--s-3); height: 56px; padding: 0 var(--s-5); border-bottom: 1px solid var(--line); }
+.palette .pin input { flex: 1; border: 0; outline: 0; background: transparent; font-size: var(--fs-title); }
+.palette .pgrp { padding: var(--s-2) var(--s-2) 0; }
+.palette .pgrp h5 { font-size: 12px; color: var(--text-3); font-weight: var(--w-medium); margin: var(--s-2) var(--s-3) var(--s-1); }
+.pres { display: flex; align-items: center; gap: var(--s-3); height: 44px; padding: 0 var(--s-3); border-radius: var(--r-sm); }
+.pres.on { background: var(--hover); }
+.pres .what { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pres .meta { white-space: nowrap; }
+.palette .pfoot { display: flex; gap: var(--s-4); padding: var(--s-3) var(--s-5); border-top: 1px solid var(--line); font-size: var(--fs-meta); color: var(--text-3); margin-top: var(--s-2); }
+.palette .pfoot span { display: inline-flex; gap: 6px; align-items: center; }
+
+/* ============================================================
+   #system
+   ============================================================ */
+.sys { max-width: 1040px; margin: 0 auto; padding: var(--s-7) var(--s-6) var(--s-8); }
+.sys h2 { font-size: var(--fs-title); font-weight: var(--w-semi); margin: var(--s-7) 0 var(--s-2); }
+.sys .lead { color: var(--text-2); margin-bottom: var(--s-4); max-width: 720px; }
+.themes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+.theme-panel { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); }
+.theme-panel h4 { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); margin: var(--s-3) 0 var(--s-2); }
+.theme-panel h4:first-child { margin-top: 0; }
+.swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
+.sw { font-size: 11px; color: var(--text-3); line-height: 1.3; }
+.sw i { display: block; height: 32px; border-radius: var(--r-sm); border: 1px solid var(--line); margin-bottom: 4px; }
+.scale-row { display: flex; align-items: baseline; gap: var(--s-5); padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
+.scale-row .lab { width: 160px; font-size: var(--fs-meta); color: var(--text-3); flex: none; }
+.spaces { display: flex; align-items: flex-end; gap: var(--s-4); }
+.spaces div { font-size: 12px; color: var(--text-3); text-align: center; }
+.spaces i { display: block; background: var(--accent-tint); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); margin: 0 auto 4px; }
+.radii { display: flex; gap: var(--s-4); }
+.radii div { font-size: 12px; color: var(--text-3); text-align: center; }
+.radii i { display: block; width: 64px; height: 48px; border: 1.5px solid var(--line-strong); background: var(--surface); margin-bottom: 4px; }
+.lang { width: 100%; border-collapse: collapse; }
+.lang th { text-align: left; font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); padding: var(--s-2); border-bottom: 1px solid var(--line); }
+.lang td { padding: var(--s-3) var(--s-2); border-bottom: 1px solid var(--line); vertical-align: middle; }
+.lang td:first-child { width: 150px; }
+.lang .why { font-size: var(--fs-meta); color: var(--text-3); margin-top: 2px; }
+.lang .tile { width: 210px; }
+.lang .mini-row { display: flex; align-items: center; gap: var(--s-3); }
+.comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-4); }
+.comp { border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); background: var(--surface); }
+.comp h4 { font-size: var(--fs-meta); color: var(--text-3); font-weight: var(--w-medium); margin-bottom: var(--s-3); }
+.comp .row { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; }
+.comp .row + .row { margin-top: var(--s-3); }
+.btn.is-hover { background: var(--hover); }
+.btn.primary.is-hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn.is-focus { box-shadow: var(--focus); }
+
+/* ============================================================
+   Phone frame (390 × 844). The Library, translated.
+   ============================================================ */
+.phones { display: flex; gap: var(--s-6); justify-content: center; padding: var(--s-6) var(--s-5) var(--s-8); flex-wrap: wrap; }
+.phone-cap { text-align: center; font-size: var(--fs-meta); color: var(--text-3); margin-top: var(--s-3); }
+.phone { width: 390px; height: 844px; border-radius: 48px; border: 1px solid var(--line-strong); background: var(--bg); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.ph-status { height: 47px; flex: none; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 30px 8px 36px; font-size: var(--fs-meta); font-weight: var(--w-semi); }
+.ph-status .r { display: flex; gap: 6px; align-items: center; }
+.ph-status .bat { width: 22px; height: 11px; border: 1.5px solid var(--text); border-radius: 3px; position: relative; }
+.ph-status .bat::after { content: ""; position: absolute; inset: 1.5px 5px 1.5px 1.5px; background: var(--text); border-radius: 1px; }
+.ph-body { flex: 1; overflow: hidden; padding: var(--s-2) var(--s-5) 0; display: flex; flex-direction: column; }
+.ph-tabs { height: 84px; flex: none; border-top: 1px solid var(--line); background: var(--surface); display: grid; grid-template-columns: repeat(4, 1fr); padding: var(--s-2) var(--s-2) 0; }
+.ph-tabs a { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--text-3); padding-top: 4px; }
+.ph-tabs a.on { color: var(--text); font-weight: var(--w-medium); }
+.ph-tabs .ic { width: 22px; height: 22px; }
+.ph-h { display: flex; align-items: center; justify-content: space-between; margin: var(--s-2) 0 var(--s-4); }
+.ph-h h1 { font-size: var(--fs-display); font-weight: var(--w-semi); letter-spacing: -.01em; }
+.ph-h .acts { display: flex; gap: var(--s-1); }
+.phone .continue { grid-template-columns: 72px 1fr; padding: var(--s-4); gap: var(--s-4); }
+.phone .continue .art { height: 72px; }
+.phone .continue .art .stack { width: 70%; height: 36px; }
+.phone .continue .art .stack span { font-size: 11px; }
+.phone .continue h3 { font-size: 17px; }
+.phone .continue .prog .bar { width: auto; flex: 1; }
+.phone .continue .btn { grid-column: 1 / -1; }
+.phone .sec { margin-top: var(--s-5); }
+.phone .sec-h { margin-bottom: var(--s-3); }
+.ph-scroll-x { display: flex; gap: var(--s-2); overflow: hidden; margin-right: calc(-1 * var(--s-5)); }
+.ph-scroll-x a { flex: none; width: 236px; }
+.phone .due a { padding: var(--s-3); }
+.phone .tiles { grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+.phone .tile .art { height: 76px; }
+.phone .tile .body { padding: var(--s-2) var(--s-3) var(--s-3); }
+.phone .tile .tt { font-size: 14px; }
+.phone .tile .tm { font-size: 12px; }
+.phone .stack { height: 44px; }
+.phone .stack span { font-size: 11px; }
+.phone .pgrid { grid-template-columns: repeat(5, 12px); gap: 5px; margin-top: 12px; }
+.phone .pgrid i { width: 12px; height: 12px; border-radius: 3px; }
+.phone .pgrid i.miss::after { top: 4.5px; left: 2px; right: 2px; }
+.phone .stepper { margin-top: 10px; gap: 5px; }
+.phone .stepper b { width: 15px; height: 15px; font-size: 10px; }
+.phone .stepper div:not(:last-child)::after { left: 6.75px; top: 15px; height: 5px; }
+.phone .paper { width: 52px; height: 58px; margin-top: 18px; padding: 6px; gap: 5px; }
+.phone .seg { flex-wrap: nowrap; overflow: hidden; margin-right: calc(-1 * var(--s-5)); margin-bottom: var(--s-3); }
+.phone .seg button { flex: none; }
+/* phone study */
+.ph-focus { padding: 0 var(--s-4); flex: 1; display: flex; flex-direction: column; }
+.ph-focus .tb { display: flex; align-items: center; gap: var(--s-3); height: 48px; }
+.ph-focus .tb .bar { flex: 1; height: 6px; }
+.ph-focus .tb .n { font-size: var(--fs-meta); color: var(--text-3); }
+.ph-focus .setname { font-size: var(--fs-meta); color: var(--text-2); display: flex; gap: var(--s-2); align-items: center; margin: var(--s-2) 0 var(--s-4); }
+.ph-focus .flash-card { min-height: 0; flex: 1; padding: var(--s-6) var(--s-5); max-height: 330px; }
+.ph-focus .flash-card .lab { left: var(--s-4); }
+.ph-focus .attempt { margin-top: var(--s-4); }
+.ph-focus .bottom { margin-top: auto; padding: var(--s-4) 0 var(--s-6); display: flex; flex-direction: column; gap: var(--s-2); align-items: stretch; }
+.ph-focus .q-card { padding: var(--s-5); }
+.ph-focus .q-card .q { font-size: 17px; }
+.ph-focus .unit-field { max-width: none; margin-top: var(--s-4); }
+.ph-focus .feedback { padding: var(--s-4) var(--s-5); }
+.ph-focus .feedback h3 { font-size: 17px; }
+.ph-home { width: 134px; height: 5px; border-radius: 3px; background: var(--text); position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); opacity: .8; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-today" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24"><path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/></symbol>
+  <symbol id="i-library" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m16.5 5.2 3.6-.9 3.1 15-3.6.9z" transform="translate(-2.5 .2)"/></symbol>
+  <symbol id="i-notes" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 5 12L17 12h4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="i-mock" viewBox="0 0 24 24"><path d="M9 4h6v3H9z"/><path d="M15 5h3v15H6V5h3"/><circle cx="12" cy="13.5" r="3"/><path d="M12 12v1.6l1 .9"/></symbol>
+  <symbol id="i-proc" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><path d="M6 8v8M11 6h9M11 12h7M11 18h9"/><circle cx="6" cy="12" r="0.6" fill="currentColor"/></symbol>
+  <symbol id="i-exam" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-weak" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><path d="M9 4 7 20M17 4l-2 16M4 9h16M3.5 15h16"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 11V9a3 3 0 0 1 3-3h12l-3-3M20 13v2a3 3 0 0 1-3 3H5l3 3"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="18" cy="12" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M6 20v-5M12 20V9M18 20V4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-match" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/><path d="M10 7.5h3a2 2 0 0 1 2 2V13"/></symbol>
+  <symbol id="i-learn" viewBox="0 0 24 24"><path d="M4 18h16M6 14l3-8 3 8M7.2 11h3.6M15 9h5M15 13h3"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m8.5 8.5 1.5 1.5 3-3M8.5 15h7"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M5 19v-3M10 19v-7M15 19V9M20 19V5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16z"/></symbol>
+  <symbol id="i-priority" viewBox="0 0 24 24"><path d="M5 19v-4M10 19v-8M15 19V7" /><path d="M20 19V4" opacity=".35"/></symbol>
+  <symbol id="i-status" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5M4 4v4.5h4.5"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side" aria-label="Sidebar">
+    <div class="brand"><span class="mark"></span>E.V.</div>
+    <button class="search-btn" data-palette><svg class="ic sm"><use href="#i-search"/></svg>Search or jump<span class="k">⌘K</span></button>
+    <a class="nav" href="#today" data-nav="today"><svg class="ic"><use href="#i-today"/></svg>Today<span class="count">4</span></a>
+    <a class="nav" href="#library" data-nav="library"><svg class="ic"><use href="#i-library"/></svg>Library<span class="count">3 due</span></a>
+    <a class="nav" href="#notes" data-nav="notes"><svg class="ic"><use href="#i-notes"/></svg>Notes</a>
+    <a class="nav" href="#ask" data-nav="ask"><svg class="ic"><use href="#i-ask"/></svg>Ask E.V.</a>
+    <a class="nav" href="#activity" data-nav="activity"><svg class="ic"><use href="#i-activity"/></svg>Activity<span class="count needs">1</span></a>
+
+    <div class="side-h">Courses<button title="Add a course" aria-label="Add a course"><svg class="ic sm"><use href="#i-plus"/></svg></button></div>
+    <a class="nav course" href="#course" data-nav="course"><span class="sq" style="background:var(--c-nur)">N</span>NUR 112<span class="sub">exam Thu</span></a>
+    <a class="nav course" href="#course" data-nav="course-bio"><span class="sq" style="background:var(--c-bio)">B</span>BIO 201<span class="sub">lab Nov 9</span></a>
+    <button class="nav" style="color:var(--text-3);font-weight:var(--w-regular)"><svg class="ic sm"><use href="#i-plus"/></svg>Add course</button>
+
+    <div class="side-foot">
+      <a class="side-job" href="#activity"><span class="ring" data-p=".6" data-s="16"></span>Writing Exam 3 mock · 3 of 5</a>
+      <button class="theme-btn" data-theme-toggle><svg class="ic sm"><use href="#i-moon"/></svg><span data-theme-label>Dark theme</span><span class="k">\</span></button>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+
+<!-- ======================= TODAY ======================= -->
+<section class="screen" data-screen="today">
+  <div class="col">
+    <div class="page-h">
+      <div>
+        <h1>Today</h1>
+        <p class="sub">Monday, November 2 · 5 blocks, about 2 h 15 m</p>
+      </div>
+      <div class="act"><button class="btn ghost" data-palette><svg class="ic sm"><use href="#i-plus"/></svg>Add to plan</button></div>
+    </div>
+
+    <div class="ev-line" style="margin-top:var(--s-5)">
+      <span class="mark"></span>
+      <p>Exam 3 is Thursday. Oral liquid doses is your weakest spot, so it's first. <a class="src" href="#course"><svg class="ic"><use href="#i-weak"/></svg>Weak spots · NUR 112</a></p>
+    </div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="next t-practice">
+        <span class="ti lg"><svg class="ic"><use href="#i-practice"/></svg></span>
+        <div>
+          <div class="eyebrow">Next · 9:30 am</div>
+          <h3>Oral liquid doses · 10 problems</h3>
+          <div class="props">
+            <span class="prop type"><svg class="ic"><use href="#i-practice"/></svg>Practice set</span>
+            <span class="prop"><span class="ctag nur">NUR 112</span></span>
+            <span class="prop"><svg class="ic"><use href="#i-clock"/></svg>20 min</span>
+            <span class="prop"><svg class="ic"><use href="#i-flag"/></svg>For Exam 3</span>
+          </div>
+        </div>
+        <a class="btn primary lg" href="#practice">Start<span class="k">S</span></a>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="sec-h"><h2>Later today</h2><span class="count">4</span><a class="right" href="#plan">Exam 3 plan<svg class="ic sm"><use href="#i-right"/></svg></a></div>
+      <div class="plan-list">
+        <div class="pi" data-open-sheet>
+          <span class="time">11:00 am</span><span class="st"></span>
+          <span class="title">Review 10 due cards</span>
+          <span class="props"><span class="prop box t-flash type"><svg class="ic"><use href="#i-cards"/></svg>Cardiac output terms</span><span class="prop"><span class="ctag bio">BIO 201</span></span><span class="prop">10 min</span></span>
+        </div>
+        <div class="pi" data-open-sheet>
+          <span class="time">2:00 pm</span><span class="st"></span>
+          <span class="title">Recall the steps, in order</span>
+          <span class="props"><span class="prop box t-proc type"><svg class="ic"><use href="#i-proc"/></svg>Sterile gloving</span><span class="prop"><span class="ctag nur">NUR 112</span></span><span class="prop">15 min</span></span>
+        </div>
+        <div class="pi" data-open-sheet>
+          <span class="time">4:00 pm</span><span class="st doing"></span>
+          <span class="title">Write up Ch 9 lecture</span>
+          <span class="props"><span class="prop box"><span class="page xs"></span>Ch 9 · cardiac output</span><span class="prop"><span class="ctag bio">BIO 201</span></span><span class="prop">30 min</span></span>
+        </div>
+        <div class="pi" data-open-sheet>
+          <span class="time">7:00 pm</span><span class="st blocked"></span>
+          <span class="title">Take it under time</span>
+          <span class="props"><span class="prop box t-mock type"><svg class="ic"><use href="#i-mock"/></svg>Exam 3 mock</span><span class="joblink" style="height:26px"><span class="ring" data-p=".6" data-s="14"></span>writing · 3 of 5</span><span class="prop">60 min</span></span>
+        </div>
+      </div>
+      <div class="pi proposal">
+        <span class="time">8:15 pm</span><span class="st"></span>
+        <span class="title">E.V. suggests: 5 dosage-by-weight problems</span>
+        <span class="props"><span class="prop">10 min</span><button class="btn sm">Accept<span class="k">A</span></button><button class="btn sm ghost">Edit</button></span>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Coming up</h2></div>
+      <div class="exams">
+        <a class="exam" href="#course"><span class="leaf nur"><span class="m">Thu</span><span class="d">5</span></span>
+          <span class="what"><b>Exam 3</b><span class="ready"><span class="bar t-practice" style="--tc:var(--c-nur)"><i style="width:58%"></i></span><span class="meta">58% ready</span></span></span></a>
+        <a class="exam" href="#course"><span class="leaf bio"><span class="m">Mon</span><span class="d">9</span></span>
+          <span class="what"><b>Lab practical 2</b><span class="ready"><span class="bar" style="--tc:var(--c-bio)"><i style="width:71%"></i></span><span class="meta">71% ready</span></span></span></a>
+        <a class="exam" href="#course"><span class="leaf nur"><span class="m">Mon</span><span class="d">16</span></span>
+          <span class="what"><b>Med math check</b><span class="ready"><span class="bar" style="--tc:var(--c-nur)"><i style="width:40%"></i></span><span class="meta">40% ready</span></span></span></a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>This week</h2></div>
+      <div class="plan-list">
+        <div class="pi">
+          <span class="time">Sun</span><svg class="ic" style="color:var(--text-3)"><use href="#i-bars"/></svg>
+          <span class="title">Weekly review</span>
+          <span class="props"><span class="prop">5 h 10 m studied</span><span class="prop">accuracy 72% ↑</span><span class="prop">3 weak spots to confirm</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= LIBRARY HOME ======================= -->
+<section class="screen" data-screen="library">
+  <div class="col">
+    <div class="page-h">
+      <div>
+        <h1>Library</h1>
+        <p class="sub">13 sets across 2 courses</p>
+      </div>
+      <div class="act"><button class="btn"><svg class="ic sm"><use href="#i-plus"/></svg>New set</button></div>
+    </div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="continue t-flash">
+        <div class="art"><div class="stack"><span>Stroke volume</span></div></div>
+        <div>
+          <div class="eyebrow">Continue studying</div>
+          <h3>Cardiac output terms</h3>
+          <div class="line"><span class="typeword">Flashcards</span><span class="ctag bio">BIO 201</span><span>last studied yesterday</span></div>
+          <div class="prog"><span class="bar"><i style="width:58%"></i></span><span class="num">14 of 24 cards</span></div>
+        </div>
+        <a class="btn primary lg" href="#study">Resume<span class="k">↵</span></a>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="sec-h"><h2>Due today</h2><span class="count">3</span></div>
+      <div class="due">
+        <a href="#practice" class="t-practice"><span class="ti"><svg class="ic"><use href="#i-practice"/></svg></span><span style="min-width:0"><b>Oral liquid doses</b><span class="meta"><span class="why-weak">Weak spot</span> · 4 of 9 right</span></span></a>
+        <a href="#study" class="t-flash"><span class="ti"><svg class="ic"><use href="#i-cards"/></svg></span><span style="min-width:0"><b>Fluid & electrolytes</b><span class="meta">8 cards to review</span></span></a>
+        <a href="#procedure" class="t-proc"><span class="ti"><svg class="ic"><use href="#i-proc"/></svg></span><span style="min-width:0"><b>Sterile gloving</b><span class="meta">Recall 9 steps</span></span></a>
+      </div>
+    </div>
+
+    <div class="sec" id="lib-sets">
+      <div class="sec-h"><h2>Your sets</h2></div>
+      <div class="seg" data-filter-group style="margin-bottom:var(--s-5)">
+        <button class="on" data-filter="all">All <span class="n">13</span></button>
+        <button data-filter="flash" class="t-flash"><span class="dot"></span>Flashcards <span class="n">4</span></button>
+        <button data-filter="practice" class="t-practice"><span class="dot"></span>Practice <span class="n">3</span></button>
+        <button data-filter="mock" class="t-mock"><span class="dot"></span>Mock exams <span class="n">2</span></button>
+        <button data-filter="proc" class="t-proc"><span class="dot"></span>Procedures <span class="n">4</span></button>
+      </div>
+
+      <div class="type-group t-flash" data-type="flash">
+        <div class="type-h"><span class="ti sm"><svg class="ic"><use href="#i-cards"/></svg></span><h3>Flashcards</h3><span class="n">4</span><a class="right" href="#library">See all</a></div>
+        <div class="tiles">
+          <a class="tile t-flash" href="#set"><div class="art"><div class="stack"><span>Stroke volume</span></div></div>
+            <div class="body"><span class="tt">Cardiac output terms</span><span class="tm">24 cards · made by E.V.</span>
+            <div class="tf"><span class="ctag bio">BIO 201</span><span class="mini-mastery"><span class="bar"><i style="width:58%"></i></span>14/24</span></div></div></a>
+          <a class="tile t-flash" href="#set"><div class="art"><div class="stack"><span>Hypokalemia</span></div></div>
+            <div class="body"><span class="tt">Fluid & electrolytes</span><span class="tm">32 cards · you</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="mini-mastery"><span class="bar"><i style="width:40%"></i></span>13/32</span></div></div></a>
+          <a class="tile t-flash" href="#set"><div class="art"><div class="stack"><span>PRN</span></div></div>
+            <div class="body"><span class="tt">Medical abbreviations</span><span class="tm">40 cards · you</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="mini-mastery"><span class="bar"><i style="width:82%"></i></span>33/40</span></div></div></a>
+        </div>
+      </div>
+
+      <div class="type-group t-practice" data-type="practice">
+        <div class="type-h"><span class="ti sm"><svg class="ic"><use href="#i-practice"/></svg></span><h3>Practice</h3><span class="n">3</span><a class="right" href="#library">See all</a></div>
+        <div class="tiles">
+          <a class="tile t-practice" href="#practice"><div class="art"><span class="badge">Last time 4/10</span><div class="pgrid"><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i></div></div>
+            <div class="body"><span class="tt">Oral liquid doses</span><span class="tm">10 problems · made by E.V.</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta" style="color:var(--bad)">weak spot</span></div></div></a>
+          <a class="tile t-practice" href="#practice"><div class="art"><span class="badge">Last time 7/10</span><div class="pgrid"><i class="hit"></i><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="hit"></i><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="hit"></i><i class="miss"></i></div></div>
+            <div class="body"><span class="tt">Dosage by weight</span><span class="tm">10 problems · made by E.V.</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">Fri</span></div></div></a>
+          <a class="tile t-practice" href="#practice"><div class="art"><span class="badge">Not tried yet</span><div class="pgrid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="body"><span class="tt">Intake & output</span><span class="tm">8 problems · you</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">new</span></div></div></a>
+        </div>
+      </div>
+
+      <div class="type-group t-mock" data-type="mock">
+        <div class="type-h"><span class="ti sm"><svg class="ic"><use href="#i-mock"/></svg></span><h3>Mock exams</h3><span class="n">2</span></div>
+        <div class="tiles">
+          <a class="tile t-mock" href="#activity"><div class="art"><span class="timer-badge"><svg class="ic"><use href="#i-clock"/></svg>60 min</span><div class="paper"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="writing"><span><span class="ring" data-p=".6" data-s="16"></span>E.V. is writing · 24 of 40</span></div></div>
+            <div class="body"><span class="tt">Exam 3 mock</span><span class="tm">40 questions · 60 min</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">ready ~7:10 pm</span></div></div></a>
+          <a class="tile t-mock" href="#practice"><div class="art"><span class="timer-badge"><svg class="ic"><use href="#i-clock"/></svg>30 min</span><div class="paper"><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="body"><span class="tt">Lab practical 2 mock</span><span class="tm">25 questions · 30 min</span>
+            <div class="tf"><span class="ctag bio">BIO 201</span><span class="meta">not taken</span></div></div></a>
+        </div>
+      </div>
+
+      <div class="type-group t-proc" data-type="proc">
+        <div class="type-h"><span class="ti sm"><svg class="ic"><use href="#i-proc"/></svg></span><h3>Procedures</h3><span class="n">4</span><a class="right" href="#library">See all</a></div>
+        <div class="tiles">
+          <a class="tile t-proc" href="#procedure"><div class="art"><div class="stepper"><div class="d"><b>1</b><i></i></div><div class="d"><b>2</b><i style="flex:.7"></i></div><div><b>3</b><i style="flex:.85"></i></div></div></div>
+            <div class="body"><span class="tt">Sterile gloving</span><span class="tm">9 steps · from skills lab</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">7 of 9 in order</span></div></div></a>
+          <a class="tile t-proc" href="#procedure"><div class="art"><div class="stepper"><div class="d"><b>1</b><i style="flex:.6"></i></div><div class="d"><b>2</b><i></i></div><div class="d"><b>3</b><i style="flex:.75"></i></div></div></div>
+            <div class="body"><span class="tt">Six rights of medication</span><span class="tm">6 steps · you</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">6 of 6</span></div></div></a>
+          <a class="tile t-proc" href="#procedure"><div class="art"><div class="stepper"><div><b>1</b><i style="flex:.8"></i></div><div><b>2</b><i></i></div><div><b>3</b><i style="flex:.6"></i></div></div></div>
+            <div class="body"><span class="tt">Head-to-toe assessment</span><span class="tm">14 steps · made by E.V.</span>
+            <div class="tf"><span class="ctag nur">NUR 112</span><span class="meta">new</span></div></div></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>By course</h2></div>
+      <div class="courses2">
+        <a class="course-card" href="#course"><div class="top"><span class="cbadge nur">N</span><div><b>NUR 112</b><div class="meta">Fundamentals of Nursing</div></div></div>
+          <div class="counts"><span class="t-flash"><i></i>2</span><span class="t-practice"><i></i>3</span><span class="t-mock"><i></i>1</span><span class="t-proc"><i></i>4</span><span style="margin-left:auto">Exam 3 · Thu</span></div></a>
+        <a class="course-card" href="#course"><div class="top"><span class="cbadge bio">B</span><div><b>BIO 201</b><div class="meta">Anatomy & Physiology</div></div></div>
+          <div class="counts"><span class="t-flash"><i></i>2</span><span class="t-practice"><i></i>0</span><span class="t-mock"><i></i>1</span><span class="t-proc"><i></i>0</span><span style="margin-left:auto">Lab practical · Nov 9</span></div></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SET PAGE ======================= -->
+<section class="screen" data-screen="set">
+  <div class="col t-flash">
+    <div class="crumbs"><a href="#library">Library</a><svg class="ic sm"><use href="#i-right"/></svg><span>Flashcards</span></div>
+    <div class="set-h">
+      <span class="ti lg"><svg class="ic"><use href="#i-cards"/></svg></span>
+      <div>
+        <h1>Cardiac output terms</h1>
+        <div class="by"><span class="typeword">Flashcards</span>·<span>24 cards</span>·<span class="ctag bio">BIO 201</span></div>
+        <div class="by"><span>Made by E.V. from</span><a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>Ch 9 lecture · cardiac output</a></div>
+      </div>
+      <a class="btn primary lg" href="#study">Study 10 due<span class="k">↵</span></a>
+    </div>
+
+    <div class="mastery">
+      <div class="bar"><i style="width:58%"></i><i class="soft" style="width:25%"></i></div>
+      <div class="legend"><span><i></i>Know 14</span><span><i class="soft"></i>Still learning 6</span><span><i class="none"></i>New 4</span></div>
+    </div>
+
+    <div class="modes">
+      <a class="mode" href="#study"><svg class="ic"><use href="#i-cards"/></svg><b>Flashcards</b><span>Say it first, flip, then rate yourself</span></a>
+      <a class="mode" href="#study"><svg class="ic"><use href="#i-learn"/></svg><b>Learn</b><span>Type the answer; misses come back sooner</span></a>
+      <a class="mode" href="#practice"><svg class="ic"><use href="#i-test"/></svg><b>Test</b><span>12 mixed questions, scored at the end</span></a>
+      <a class="mode" href="#set"><svg class="ic"><use href="#i-match"/></svg><b>Match</b><span>Pair terms with meanings</span></a>
+    </div>
+
+    <div class="hero">
+      <div class="hero-card" id="hero" tabindex="0" role="button" aria-label="Flip card">
+        <span class="side-lab" id="hero-side">Term</span>
+        <div class="face" id="hero-face">Stroke volume</div>
+        <span class="flip-hint"><svg class="ic sm"><use href="#i-flip"/></svg>Click or press Space to flip</span>
+      </div>
+      <div class="hero-nav">
+        <button class="round" id="hero-prev" aria-label="Previous"><svg class="ic"><use href="#i-left"/></svg></button>
+        <span class="num muted" id="hero-n">1 / 24</span>
+        <button class="round" id="hero-next" aria-label="Next"><svg class="ic"><use href="#i-right"/></svg></button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Terms</h2><span class="count">24</span>
+        <div class="seg" style="margin-left:auto"><button class="on">All</button><button>Still learning 6</button><button>New 4</button></div>
+      </div>
+      <div class="terms">
+        <div class="term"><b>Stroke volume</b><p>The amount of blood the left ventricle pushes out with each beat; about 70 mL at rest.</p><span class="know"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+        <div class="term"><b>Cardiac output</b><p>Stroke volume × heart rate: the blood pumped per minute, about 5 L at rest.</p><span class="know"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+        <div class="term"><b>Preload</b><p>How much the ventricle is stretched by the blood filling it at the end of diastole.</p><span class="know"><i class="on"></i><i class="on"></i><i></i></span></div>
+        <div class="term"><b>Afterload</b><p>The pressure the ventricle has to push against to open the aortic valve.</p><span class="know"><i class="on"></i><i></i><i></i></span></div>
+        <div class="term"><b>Frank–Starling law</b><p>The more the heart muscle is stretched by filling, the harder it contracts, up to a limit.</p><span class="know"><i class="on"></i><i></i><i></i></span></div>
+        <div class="term"><b>Ejection fraction</b><p>The share of blood in the ventricle that leaves with each beat; normally 55–70%.</p><span class="know"><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FLASHCARD STUDY (focus) ======================= -->
+<section class="screen" data-screen="study" data-focus>
+  <div class="focus-top t-flash">
+    <div class="tb">
+      <div class="l"><a class="icon-btn" href="#library" aria-label="Close"><svg class="ic lg"><use href="#i-close"/></svg></a></div>
+      <div class="c"><span class="ti sm"><svg class="ic"><use href="#i-cards"/></svg></span>Cardiac output terms · Flashcards</div>
+      <div class="r"><span class="num" id="study-n">15 of 24</span></div>
+    </div>
+    <div class="bar"><i id="study-bar" style="width:62.5%"></i></div>
+  </div>
+
+  <div class="study t-flash">
+    <!-- front: attempt first -->
+    <div data-sub-only="">
+      <div class="card-active flash-card">
+        <span class="lab">Term</span>
+        <div class="big">Frank–Starling law</div>
+        <p class="ask">What does it say, and why does it matter for stroke volume?</p>
+      </div>
+      <div class="attempt">
+        <label for="att">Your answer first, in your own words</label>
+        <textarea id="att" class="field" rows="2" placeholder="Type it, or say it out loud and flip"></textarea>
+      </div>
+      <div class="study-actions">
+        <button class="btn ghost">Just tell me<span class="k">⌥↵</span></button>
+        <span class="spacer"></span>
+        <a class="btn primary lg" href="#study/back" style="min-width:200px">Flip<span class="k">Space</span></a>
+      </div>
+    </div>
+
+    <!-- back: cited answer, then rate -->
+    <div data-sub-only="back">
+      <div class="card-active flash-card back">
+        <span class="term-small">Frank–Starling law</span>
+        <p class="answer">The more the ventricle is stretched by the blood filling it (preload), the harder it contracts, so stroke volume rises, up to a limit.</p>
+        <div class="yours"><span class="who">You said</span>More blood in means the muscle stretches and squeezes harder, so more goes out.</div>
+        <div><a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>Ch 9 lecture · cardiac output</a></div>
+      </div>
+      <p class="rate-q">How did that go?</p>
+      <div class="rate">
+        <a class="btn lg" href="#study">Again<span class="k">1</span></a>
+        <a class="btn primary lg" href="#study" data-next-card>Got it<span class="k">2</span></a>
+      </div>
+      <div class="rate meta" style="margin-top:var(--s-2);text-align:center"><span>Comes back in a few cards</span><span>Comes back in 3 days</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PRACTICE (focus) ======================= -->
+<section class="screen" data-screen="practice" data-focus>
+  <div class="focus-top t-practice">
+    <div class="tb">
+      <div class="l"><a class="icon-btn" href="#library" aria-label="Close"><svg class="ic lg"><use href="#i-close"/></svg></a></div>
+      <div class="c"><span class="ti sm"><svg class="ic"><use href="#i-practice"/></svg></span>Oral liquid doses · Practice</div>
+      <div class="r"><span class="navi" aria-label="Problems"><i class="ok"></i><i class="ok"></i><i class="no"></i><i class="cur" data-cur></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="num">4 of 10</span></div>
+    </div>
+    <div class="bar"><i style="width:30%"></i></div>
+  </div>
+
+  <div class="study t-practice">
+    <div class="card-active q-card">
+      <div class="lab"><span>Problem 4</span><span class="ctag nur">NUR 112</span></div>
+      <p class="q">How many mL do you give?</p>
+      <dl class="order">
+        <dt>Ordered</dt><dd>Amoxicillin 250 mg by mouth</dd>
+        <dt>On hand</dt><dd>Amoxicillin suspension, 125 mg per 5 mL</dd>
+      </dl>
+      <div class="unit-field" id="pr-field"><input id="pr-input" value="" placeholder="0" inputmode="decimal" aria-label="Your answer in mL"><span>mL</span></div>
+    </div>
+
+    <div data-sub-only="">
+      <div class="study-actions">
+        <button class="btn ghost">Show a hint<span class="k">H</span></button>
+        <span class="spacer"></span>
+        <a class="btn primary lg" href="#practice/feedback" style="min-width:200px">Check answer<span class="k">↵</span></a>
+      </div>
+    </div>
+
+    <div data-sub-only="feedback">
+      <div class="feedback bad">
+        <h3><svg class="ic lg"><use href="#i-close"/></svg>Not quite. It's 10 mL.</h3>
+        <p>You gave 5 mL, which holds 125 mg: half the dose. The order is for twice what's in 5 mL.</p>
+        <p class="work">250 mg ÷ 125 mg × 5 mL = <b>10 mL</b></p>
+        <div class="foot">
+          <a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>Med math rules · desired over have</a>
+          <span style="flex:1"></span>
+          <a class="btn ghost" href="#ask">Ask E.V. why</a>
+          <a class="btn primary lg" href="#practice" style="min-width:160px">Next<span class="k">↵</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PROCEDURE (focus) ======================= -->
+<section class="screen" data-screen="procedure" data-focus>
+  <div class="focus-top t-proc">
+    <div class="tb">
+      <div class="l"><a class="icon-btn" href="#library" aria-label="Close"><svg class="ic lg"><use href="#i-close"/></svg></a></div>
+      <div class="c"><span class="ti sm"><svg class="ic"><use href="#i-proc"/></svg></span>Sterile gloving · Procedure</div>
+      <div class="r"><span class="num">Step 6 of 9</span></div>
+    </div>
+    <div class="bar"><i style="width:55%"></i></div>
+  </div>
+
+  <div class="study wide t-proc" style="padding-top:var(--s-6)">
+    <p class="proc-intro">Recall each step in order. Write it in your own words, then compare.</p>
+    <div class="psteps">
+      <div class="pstep done"><span class="n">1</span><span class="txt">Perform hand hygiene.</span><span class="verdict"><svg class="ic sm"><use href="#i-check"/></svg>matched</span></div>
+      <div class="pstep done"><span class="n">2</span><span class="txt">Place the package on a clean, dry surface at waist height.</span><span class="verdict"><svg class="ic sm"><use href="#i-check"/></svg>matched</span></div>
+      <div class="pstep done"><span class="n">3</span><span class="txt">Open the outer wrapper; take out the inner package.</span><span class="verdict"><svg class="ic sm"><use href="#i-check"/></svg>matched</span></div>
+      <div class="pstep done"><span class="n">4</span><span class="txt">Open the inner wrapper, touching only its outer edges.</span><span class="verdict close">close, not exact</span></div>
+      <div class="pstep done"><span class="n">5</span><span class="txt">With the non-dominant hand, lift the dominant glove by its folded cuff.</span><span class="verdict"><svg class="ic sm"><use href="#i-check"/></svg>matched</span></div>
+
+      <div class="pstep current">
+        <span class="n">6</span>
+        <div class="card-active box">
+          <div data-sub-only="">
+            <h3>What comes next?</h3>
+            <p class="muted">The first glove is in your non-dominant hand.</p>
+            <textarea class="field" rows="2" style="margin-top:var(--s-4)">Slide the dominant hand into the glove and pull it on by the cuff</textarea>
+            <div class="study-actions" style="margin-top:var(--s-4)">
+              <button class="btn ghost">Just tell me<span class="k">⌥↵</span></button>
+              <span class="spacer"></span>
+              <a class="btn primary lg" href="#procedure/check">Compare<span class="k">↵</span></a>
+            </div>
+          </div>
+          <div data-sub-only="check">
+            <h3>Compare</h3>
+            <div class="compare">
+              <div><span class="who">You wrote</span>Slide the dominant hand into the glove and pull it on by the cuff</div>
+              <div class="ref"><span class="who">Step 6</span>Slide the dominant hand in, palm up, <mark>keeping both hands above the waist</mark>; touch only the inside of the cuff.</div>
+            </div>
+            <div class="verdict-line"><span class="mark" style="margin-top:3px"></span><p><b>Close.</b> You've got the order. Add the safety detail: hands stay above your waist the whole time. <a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>Skills lab · sterile technique</a></p></div>
+            <div class="study-actions" style="margin-top:var(--s-4)">
+              <a class="btn ghost" href="#procedure">Try again</a>
+              <span class="spacer"></span>
+              <a class="btn primary lg" href="#procedure">Next step<span class="k">↵</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pstep future"><span class="n">7</span><span class="txt"><i></i></span><span></span></div>
+      <div class="pstep future"><span class="n">8</span><span class="txt"><i style="width:48%"></i></span><span></span></div>
+      <div class="pstep future"><span class="n">9</span><span class="txt"><i style="width:55%"></i></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= NOTES ======================= -->
+<section class="screen" data-screen="notes">
+  <div class="notes-wrap">
+    <nav class="notes-pane" aria-label="Notes folders">
+      <div class="ph"><h2>Notes</h2><button class="icon-btn" aria-label="New note"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+      <div class="folder"><svg class="ic sm"><use href="#i-folder"/></svg>BIO 201<span class="n">3</span></div>
+      <a class="doc-link on" href="#notes"><span class="page sm"></span><span>Ch 9 lecture · cardiac output</span></a>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Ch 8 · the heart</span></a>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Lab 6 · blood vessels</span></a>
+      <div class="folder"><svg class="ic sm"><use href="#i-folder"/></svg>NUR 112<span class="n">4</span></div>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Med math rules</span></a>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Skills lab · sterile technique</span></a>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Fluid balance · I&O</span></a>
+      <a class="doc-link" href="#notes"><span class="page sm"></span><span>Six rights</span></a>
+      <div class="folder"><svg class="ic sm"><use href="#i-folder"/></svg>Loose notes<span class="n">2</span></div>
+    </nav>
+
+    <div class="doc-pane">
+      <div class="session-bar">
+        <span class="live">Study session</span><span class="clock" id="timer">18:42</span>
+        <button class="btn sm on" aria-pressed="true" data-readalong><svg class="ic sm"><use href="#i-speaker"/></svg>Read along</button>
+        <button class="btn sm ghost"><svg class="ic sm"><use href="#i-pause"/></svg>Pause</button>
+        <button class="btn sm ghost">End session</button>
+        <span class="saved"><svg class="ic sm"><use href="#i-device"/></svg>Saved on this device</span>
+      </div>
+
+      <article class="doc">
+        <h1>Ch 9 lecture · cardiac output</h1>
+        <div class="docmeta"><span class="ctag bio">BIO 201</span><span>Oct 29</span><span>Used by 2 sets</span></div>
+
+        <p>Cardiac output is how much blood the heart pumps in a minute. At rest it's about 5 L.</p>
+        <ul>
+          <li><b>Cardiac output</b> = stroke volume × heart rate</li>
+          <li>Stroke volume depends on <b>preload</b>, <b>afterload</b> and <b>contractility</b></li>
+        </ul>
+
+        <h2>Preload and Frank–Starling</h2>
+        <div class="two">
+          <figure>
+            <svg viewBox="0 0 216 132" width="100%" role="img" aria-label="Stroke volume rises with preload, then levels off">
+              <path d="M28 8v104h180" fill="none" stroke="var(--line-strong)" stroke-width="1.5"/>
+              <path d="M30 108 C70 100 90 40 130 30 S190 22 206 22" fill="none" stroke="var(--text-2)" stroke-width="2"/>
+              <text x="118" y="127" font-size="11" fill="var(--text-3)" font-family="var(--font)">preload →</text>
+              <text x="4" y="70" font-size="11" fill="var(--text-3)" font-family="var(--font)" transform="rotate(-90 12 66)">stroke vol.</text>
+            </svg>
+            <figcaption>Sketched in lecture: stroke volume rises with stretch, then flattens.</figcaption>
+          </figure>
+          <div>
+            <p><span class="read-on">More filling stretches the ventricle wall. Stretched fibres overlap better, so they contract with more force.</span> That's why stroke volume climbs as preload climbs.</p>
+            <p>Past a point the curve flattens: an over-stretched heart can't keep up, which is what happens in heart failure.</p>
+          </div>
+        </div>
+
+        <h2>To do before Thursday</h2>
+        <ul class="check">
+          <li class="x">Redraw the curve from memory</li>
+          <li>Make cards for afterload and contractility</li>
+          <li>Ask about the ejection fraction range</li>
+        </ul>
+
+        <div class="checkq">
+          <div class="qh"><span class="mark"></span><p><span class="qlab">E.V.'s check</span>In your own words: why does more preload mean a bigger stroke volume?</p></div>
+          <div class="ans"><span class="who">You · 2 min ago</span>More blood stretches the walls, and stretched muscle squeezes harder, so more blood goes out each beat.</div>
+          <div class="reply"><span>That's it: you named the stretch-to-force link.</span><a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>this note · Preload and Frank–Starling</a></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= COURSE ======================= -->
+<section class="screen" data-screen="course">
+  <div class="col">
+    <div class="page-h" style="align-items:center">
+      <span class="cbadge nur lg">N</span>
+      <div>
+        <h1>NUR 112</h1>
+        <p class="sub" style="margin-top:0">Fundamentals of Nursing · Fall</p>
+      </div>
+      <div class="act"><button class="btn ghost"><svg class="ic sm"><use href="#i-more"/></svg></button></div>
+    </div>
+
+    <div class="ev-line" style="margin-top:var(--s-5)"><span class="mark"></span><p>Exam 3 is in 3 days. Oral liquid doses pulls its readiness down most. <a class="src" href="#course"><svg class="ic"><use href="#i-weak"/></svg>Weak spots</a></p></div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="sec-h"><h2>Exams</h2><span class="count">3</span><button class="right"><svg class="ic sm"><use href="#i-plus"/></svg>Add exam</button></div>
+      <div class="exams">
+        <a class="exam" href="#plan"><span class="leaf nur"><span class="m">Thu</span><span class="d">5</span></span>
+          <span class="what"><b>Exam 3</b><span class="ready"><span class="bar" style="--tc:var(--c-nur)"><i style="width:58%"></i></span><span class="meta">plan waiting</span></span></span></a>
+        <a class="exam" href="#course"><span class="leaf nur"><span class="m">Mon</span><span class="d">16</span></span>
+          <span class="what"><b>Med math check</b><span class="ready"><span class="bar" style="--tc:var(--c-nur)"><i style="width:40%"></i></span><span class="meta">40% ready</span></span></span></a>
+        <a class="exam" href="#course"><span class="leaf nur"><span class="m">Dec</span><span class="d">10</span></span>
+          <span class="what"><b>Final</b><span class="ready"><span class="meta">no plan yet</span></span></span></a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Materials</h2><span class="count">10 sets</span><a class="right" href="#library">Open in Library<svg class="ic sm"><use href="#i-right"/></svg></a></div>
+      <div class="seg" style="margin-bottom:var(--s-4)">
+        <button class="on">All</button><button class="t-flash"><span class="dot"></span>Flashcards 2</button><button class="t-practice"><span class="dot"></span>Practice 3</button><button class="t-mock"><span class="dot"></span>Mock exams 1</button><button class="t-proc"><span class="dot"></span>Procedures 4</button>
+      </div>
+      <div class="tiles">
+        <a class="tile t-practice" href="#practice"><div class="art"><span class="badge">Last time 4/10</span><div class="pgrid"><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i></div></div>
+          <div class="body"><span class="tt">Oral liquid doses</span><span class="tm">10 problems</span></div></a>
+        <a class="tile t-proc" href="#procedure"><div class="art"><div class="stepper"><div class="d"><b>1</b><i></i></div><div class="d"><b>2</b><i style="flex:.7"></i></div><div><b>3</b><i style="flex:.85"></i></div></div></div>
+          <div class="body"><span class="tt">Sterile gloving</span><span class="tm">9 steps</span></div></a>
+        <a class="tile t-flash" href="#set"><div class="art"><div class="stack"><span>Hypokalemia</span></div></div>
+          <div class="body"><span class="tt">Fluid & electrolytes</span><span class="tm">32 cards</span></div></a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Weak spots</h2><span class="count">3</span></div>
+      <div style="border-top:1px solid var(--line)">
+        <div class="weak"><span class="wi"><svg class="ic"><use href="#i-weak"/></svg></span><span class="title">Oral liquid doses</span><span class="cells low"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="score num">4 of 9</span></div>
+        <div class="weak"><span class="wi"><svg class="ic"><use href="#i-weak"/></svg></span><span class="title">Fluid balance · I&O</span><span class="cells low"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span><span class="score num">6 of 10</span></div>
+        <div class="weak"><span class="wi"><svg class="ic"><use href="#i-weak"/></svg></span><span class="title">Dosage by weight</span><span class="cells low"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><span class="score num">7 of 10</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Notes</h2><span class="count">4</span><a class="right" href="#notes">Open folder<svg class="ic sm"><use href="#i-right"/></svg></a></div>
+      <div style="border-top:1px solid var(--line)">
+        <a class="note-row" href="#notes"><span class="page"></span><span style="min-width:0"><span class="t">Med math rules</span><span class="snip" style="display:block">Desired over have, times the volume. Always label units. Round liquids to tenths…</span></span><span class="when">Oct 30</span></a>
+        <a class="note-row" href="#notes"><span class="page"></span><span style="min-width:0"><span class="t">Skills lab · sterile technique</span><span class="snip" style="display:block">Sterile field stays above the waist. Only the inside of the cuff is touched…</span></span><span class="when">Oct 27</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ASK E.V. ======================= -->
+<section class="screen" data-screen="ask">
+  <div class="col" style="padding-bottom:0;min-height:100vh;display:flex;flex-direction:column">
+    <div class="page-h"><div><h1>Ask E.V.</h1><p class="sub">She asks for your try before she answers.</p></div></div>
+    <div class="chat" style="margin-top:var(--s-6);flex:1">
+      <div class="chat-break">Today, 8:52 am</div>
+      <div class="msg-me">Why does more preload raise stroke volume?</div>
+      <div class="msg-ev"><span class="mark"></span><div>
+        <p>You've seen this in Ch 9. Try first: what happens to the heart muscle when the ventricle fills with more blood?</p>
+        <div class="try"><button class="btn sm ghost">Just tell me<span class="k">⌥↵</span></button></div>
+      </div></div>
+      <div class="msg-me">It stretches more, so it squeezes harder?</div>
+      <div class="msg-ev"><span class="mark"></span><div>
+        <p>Yes. Stretched fibres overlap better and contract with more force, so more blood leaves each beat. That's the Frank–Starling law, and it levels off past a point.</p>
+        <div class="chips"><a class="src note" href="#notes"><svg class="ic"><use href="#i-notes"/></svg>Ch 9 lecture · cardiac output</a><a class="src flash" href="#set"><svg class="ic"><use href="#i-cards"/></svg>Cardiac output terms · card 5</a></div>
+      </div></div>
+      <div class="msg-me">Is the Exam 3 mock ready?</div>
+      <div class="msg-ev"><span class="mark"></span><div>
+        <p>Not yet. It's on step 3 of 5, writing questions: 24 of 40 so far. It should land in your Library around 7:10 pm, before tonight's block.</p>
+        <div class="chips"><a class="joblink" href="#activity"><span class="ring" data-p=".6" data-s="16"></span>Exam 3 mock · writing questions · 3 of 5</a></div>
+      </div></div>
+    </div>
+    <div class="composer"><div class="box"><input placeholder="Ask about your notes, a set, or your plan"><button class="btn primary" aria-label="Send"><svg class="ic"><use href="#i-send"/></svg></button></div></div>
+  </div>
+</section>
+
+<!-- ======================= ACTIVITY ======================= -->
+<section class="screen" data-screen="activity">
+  <div class="col">
+    <div class="page-h"><div><h1>Activity</h1><p class="sub">What E.V. is working on for you</p></div></div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="sec-h"><h2>Needs you</h2><span class="count">1</span></div>
+      <div class="job needs">
+        <span class="ring" data-p="1" data-s="40"></span>
+        <div>
+          <div class="jt">Study plan for Exam 3</div>
+          <span class="jstate">Waiting for your confidence ratings</span>
+          <div class="steps"><span class="ok">Read weak spots</span><span class="ok">Read the exam outline</span><span class="now">Your confidence</span><span>Propose blocks</span></div>
+          <div class="jmeta"><span>Lands in <b>Today</b> as plan items</span><span>Cost <b>$0.03</b></span></div>
+        </div>
+        <div class="jact"><a class="btn primary" href="#plan">Rate and review</a></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Running</h2><span class="count">1</span></div>
+      <div class="job running">
+        <span class="ring" data-p=".6" data-s="40"></span>
+        <div>
+          <div class="jt">Writing Exam 3 mock</div>
+          <span class="jstate">Writing questions · 24 of 40</span>
+          <div class="steps"><span class="ok">Read Ch 7–9 notes</span><span class="ok">Outline by objective</span><span class="now">Write questions</span><span>Check sources</span><span>Place in Library</span></div>
+          <div class="jmeta"><span>Started 6:41 pm</span><span>Lands in <b>Library › Mock exams</b></span><span>Cost so far <b>$0.06</b> of $0.15 cap</span></div>
+        </div>
+        <div class="jact"><button class="btn ghost sm">Stop</button></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Done today</h2><span class="count">2</span></div>
+      <div class="job done">
+        <span class="ring" data-p="1" data-s="40"></span>
+        <div>
+          <div class="jt">Cards from Ch 9 lecture</div>
+          <span class="jstate">Done at 7:58 am</span>
+          <div class="jmeta"><span>Made <b>24 cards</b>, each cited</span><span>Landed in <a class="src flash" href="#set" style="margin-left:4px"><svg class="ic"><use href="#i-cards"/></svg>Cardiac output terms</a></span><span>Cost <b>$0.04</b></span></div>
+        </div>
+        <div></div>
+      </div>
+      <div class="job done">
+        <span class="ring" data-p="1" data-s="40"></span>
+        <div>
+          <div class="jt">Morning review set</div>
+          <span class="jstate">Done at 6:00 am</span>
+          <div class="jmeta"><span><b>8 questions</b> from 3 weak spots</span><span>Landed in <b>Today</b></span><span>Cost <b>$0.01</b></span></div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Didn't finish</h2><span class="count">1</span></div>
+      <div class="job failed">
+        <span class="ring" data-p=".2" data-s="40" data-fail></span>
+        <div>
+          <div class="jt">Writing Lab practical 2 mock</div>
+          <span class="jstate">Stopped at step 1 · nothing was charged after that</span>
+          <p class="reason">Your "Lab 7 · lymphatics" note is empty, so there was nothing to write questions from.</p>
+          <div class="steps"><span class="x">Read Lab 6–7 notes</span><span>Outline</span><span>Write questions</span><span>Check sources</span><span>Place in Library</span></div>
+          <div class="jmeta"><span>Cost <b>$0.00</b></span></div>
+        </div>
+        <div class="jact"><button class="btn sm"><svg class="ic sm"><use href="#i-retry"/></svg>Retry without it</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= STUDY PLAN PROPOSAL ======================= -->
+<section class="screen" data-screen="plan">
+  <div class="col">
+    <div class="crumbs"><a href="#activity">Activity</a><svg class="ic sm"><use href="#i-right"/></svg><span>Study plan</span></div>
+    <div class="page-h" style="align-items:center">
+      <span class="leaf nur"><span class="m">Thu</span><span class="d">5</span></span>
+      <div><h1>A plan for Exam 3</h1><p class="sub" style="margin-top:0">NUR 112 · 3 days left · E.V. drafted it, you decide</p></div>
+    </div>
+    <div class="stepsbar"><span class="ok"><b>✓</b>Your confidence</span><span class="now"><b>2</b>Proposed blocks</span><span><b>3</b>Approve</span></div>
+
+    <div class="sec" style="margin-top:var(--s-6)">
+      <div class="sec-h"><h2>First: how sure do you feel?</h2><span class="count">rated 5 of 5</span></div>
+      <div class="conf" data-conf-group>
+        <div class="conf-row"><span class="title">Oral liquid doses</span><span class="acc">4 of 9 lately</span><span class="pick"><button class="on">Shaky</button><button>Getting there</button><button>Solid</button></span></div>
+        <div class="conf-row"><span class="title">Fluid balance · I&O</span><span class="acc">6 of 10 lately</span><span class="pick"><button>Shaky</button><button>Getting there</button><button class="on">Solid</button></span></div>
+        <div class="conf-row"><span class="title">Sterile gloving</span><span class="acc">7 of 9 in order</span><span class="pick"><button>Shaky</button><button class="on">Getting there</button><button>Solid</button></span></div>
+        <div class="conf-row"><span class="title">Six rights of medication</span><span class="acc">6 of 6</span><span class="pick"><button>Shaky</button><button>Getting there</button><button class="on">Solid</button></span></div>
+        <div class="conf-row"><span class="title">Dosage by weight</span><span class="acc">7 of 10 lately</span><span class="pick"><button>Shaky</button><button class="on">Getting there</button><button>Solid</button></span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Then: the blocks E.V. proposes</h2><span class="count">5 · 2 h 10 m</span></div>
+      <div class="ev-line" style="margin-bottom:var(--s-3)"><span class="mark"></span><p>You rated fluid balance solid, but you're at 6 of 10 lately, so I kept one short block for it. <a class="src" href="#course"><svg class="ic"><use href="#i-weak"/></svg>Weak spots</a></p></div>
+      <div class="prop-list">
+        <div class="day">Tue, Nov 3</div>
+        <div class="pi proposal"><span class="st"></span><span class="title">Oral liquid doses, again</span><span class="props"><span class="prop box t-practice type"><svg class="ic"><use href="#i-practice"/></svg>Oral liquid doses</span><span class="prop">20 min</span></span></div>
+        <div class="pi proposal"><span class="st"></span><span class="title">Fluid balance check</span><span class="props"><span class="prop box t-flash type"><svg class="ic"><use href="#i-cards"/></svg>Fluid & electrolytes</span><span class="prop">15 min</span></span></div>
+        <div class="day">Wed, Nov 4</div>
+        <div class="pi proposal"><span class="st"></span><span class="title">Sterile gloving, full run</span><span class="props"><span class="prop box t-proc type"><svg class="ic"><use href="#i-proc"/></svg>Sterile gloving</span><span class="prop">15 min</span></span></div>
+        <div class="pi proposal"><span class="st"></span><span class="title">Take the mock under time</span><span class="props"><span class="prop box t-mock type"><svg class="ic"><use href="#i-mock"/></svg>Exam 3 mock</span><span class="prop">60 min</span></span></div>
+        <div class="day">Thu, Nov 5 · morning</div>
+        <div class="pi proposal"><span class="st"></span><span class="title">Review what the mock missed</span><span class="props"><span class="prop box t-practice type"><svg class="ic"><use href="#i-practice"/></svg>Mock misses</span><span class="prop">20 min</span></span></div>
+      </div>
+    </div>
+
+    <div class="decide">
+      <button class="btn primary lg" id="approve">Approve plan<span class="k">⌘↵</span></button>
+      <button class="btn lg">Ask for changes</button>
+      <button class="btn ghost lg">Put away</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= #system ======================= -->
+<section class="screen" data-screen="system" data-focus>
+  <div class="sys">
+    <div class="crumbs"><a href="#today">Back to the app</a></div>
+    <div class="page-h"><div><h1>Study hall · design system</h1><p class="sub">One set of tokens; a distinct form for every kind of thing.</p></div></div>
+
+    <h2>Tokens, both themes</h2>
+    <p class="lead">Warm paper neutrals, one ember accent for the primary action and E.V.'s mark, and two muted families: set types (tile tint and icon) and courses (a square).</p>
+    <div class="themes">
+      <div class="theme-panel" data-theme="light" data-swatches><h4>Light</h4></div>
+      <div class="theme-panel" data-theme="dark" data-swatches><h4>Dark</h4></div>
+    </div>
+
+    <h2>Type</h2>
+    <p class="lead">Figtree, one family (Inter as fallback). Four sizes, three weights; 600 only for titles. Reading text sits at 15 px with 1.65 line height.</p>
+    <div class="scale-row"><span class="lab">Display · 28 / 600</span><span style="font-size:var(--fs-display);font-weight:600">Frank–Starling law</span></div>
+    <div class="scale-row"><span class="lab">Title · 20 / 600 or 400</span><span style="font-size:var(--fs-title);font-weight:600">Cardiac output terms</span><span style="font-size:var(--fs-title)">How many mL do you give?</span></div>
+    <div class="scale-row"><span class="lab">Body · 15 / 400–500</span><span>Stretched fibres overlap better and contract with more force.</span></div>
+    <div class="scale-row"><span class="lab">Meta · 13 / 400–500</span><span class="meta">24 cards · made by E.V. · BIO 201</span></div>
+
+    <h2>Space, radii, elevation, motion</h2>
+    <p class="lead">8 px rhythm, 48 px between sections, a 720 px column. Tiles 16 px radius, controls 8. Everything is flat; the only shadow is the active study card. Motion is 120–200 ms fades and colour changes, never bounce.</p>
+    <div style="display:flex;gap:var(--s-7);align-items:flex-end;flex-wrap:wrap">
+      <div class="spaces">
+        <div><i style="width:4px;height:4px"></i>4</div><div><i style="width:8px;height:8px"></i>8</div><div><i style="width:12px;height:12px"></i>12</div><div><i style="width:16px;height:16px"></i>16</div><div><i style="width:24px;height:24px"></i>24</div><div><i style="width:32px;height:32px"></i>32</div><div><i style="width:48px;height:48px"></i>48</div><div><i style="width:64px;height:64px"></i>64</div>
+      </div>
+      <div class="radii">
+        <div><i style="border-radius:var(--r-xs)"></i>6 chips</div><div><i style="border-radius:var(--r-sm)"></i>8 controls</div><div><i style="border-radius:var(--r-md)"></i>12 cards</div><div><i style="border-radius:var(--r-lg)"></i>16 tiles</div>
+      </div>
+      <div style="display:flex;gap:var(--s-4)">
+        <div style="text-align:center"><div style="width:120px;height:72px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)"></div><span class="meta">Flat (everything)</span></div>
+        <div style="text-align:center"><div class="card-active" style="width:120px;height:72px"></div><span class="meta">Active study card</span></div>
+      </div>
+    </div>
+
+    <h2>The object language</h2>
+    <p class="lead">Each kind of thing has one form, shown here in a list, as a tile and as a link. Sets are tinted by type; notes stay paper; plan items carry a status circle and properties; jobs carry E.V.'s ring.</p>
+    <table class="lang">
+      <thead><tr><th>Type</th><th>List</th><th>Tile / card</th><th>Link</th></tr></thead>
+      <tbody>
+        <tr><td><b>Flashcard set</b><div class="why">teal · card on a stack</div></td>
+          <td><div class="mini-row t-flash"><span class="ti"><svg class="ic"><use href="#i-cards"/></svg></span><span><b>Cardiac output terms</b><br><span class="meta">24 cards</span></span></div></td>
+          <td><div class="tile t-flash"><div class="art"><div class="stack"><span>Stroke volume</span></div></div><div class="body"><span class="tt">Cardiac output terms</span><span class="tm">24 cards</span></div></div></td>
+          <td><span class="src flash"><svg class="ic"><use href="#i-cards"/></svg>Cardiac output terms</span></td></tr>
+        <tr><td><b>Practice set</b><div class="why">violet · grid of problems</div></td>
+          <td><div class="mini-row t-practice"><span class="ti"><svg class="ic"><use href="#i-practice"/></svg></span><span><b>Dosage by weight</b><br><span class="meta">10 problems</span></span></div></td>
+          <td><div class="tile t-practice"><div class="art"><span class="badge">Last time 7/10</span><div class="pgrid"><i class="hit"></i><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="hit"></i><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="hit"></i><i class="miss"></i></div></div><div class="body"><span class="tt">Dosage by weight</span><span class="tm">10 problems</span></div></div></td>
+          <td><span class="src practice"><svg class="ic"><use href="#i-practice"/></svg>Dosage by weight</span></td></tr>
+        <tr><td><b>Mock exam</b><div class="why">berry · a timed paper</div></td>
+          <td><div class="mini-row t-mock"><span class="ti"><svg class="ic"><use href="#i-mock"/></svg></span><span><b>Exam 3 mock</b><br><span class="meta">40 questions · 60 min</span></span></div></td>
+          <td><div class="tile t-mock"><div class="art"><span class="timer-badge"><svg class="ic"><use href="#i-clock"/></svg>60 min</span><div class="paper"><i></i><i></i><i></i><i></i><i></i></div></div><div class="body"><span class="tt">Exam 3 mock</span><span class="tm">40 questions</span></div></div></td>
+          <td><span class="src" style="--x:0"><svg class="ic" style="color:var(--mock)"><use href="#i-mock"/></svg>Exam 3 mock</span></td></tr>
+        <tr><td><b>Procedure set</b><div class="why">olive · numbered stepper</div></td>
+          <td><div class="mini-row t-proc"><span class="ti"><svg class="ic"><use href="#i-proc"/></svg></span><span><b>Sterile gloving</b><br><span class="meta">9 steps</span></span></div></td>
+          <td><div class="tile t-proc"><div class="art"><div class="stepper"><div class="d"><b>1</b><i></i></div><div class="d"><b>2</b><i style="flex:.7"></i></div><div><b>3</b><i style="flex:.85"></i></div></div></div><div class="body"><span class="tt">Sterile gloving</span><span class="tm">9 steps</span></div></div></td>
+          <td><span class="src"><svg class="ic" style="color:var(--proc)"><use href="#i-proc"/></svg>Sterile gloving</span></td></tr>
+        <tr><td><b>Note</b><div class="why">paper · never tinted</div></td>
+          <td><div class="note-row" style="border:0;padding:0"><span class="page"></span><span><span class="t">Ch 9 lecture · cardiac output</span><br><span class="meta">BIO 201 · Oct 29</span></span></div></td>
+          <td><div style="width:210px;border:1px solid var(--line);border-radius:var(--r-xs) var(--r-lg) var(--r-xs) var(--r-xs);background:var(--surface);padding:var(--s-4)"><b>Ch 9 lecture</b><p class="meta" style="margin-top:4px">Cardiac output is how much blood the heart pumps in a minute…</p></div></td>
+          <td><span class="src note"><svg class="ic"><use href="#i-notes"/></svg>Ch 9 lecture · cardiac output</span></td></tr>
+        <tr><td><b>Plan item</b><div class="why">status circle + properties</div></td>
+          <td><div class="pi" style="border:0;padding:0;min-height:0"><span class="st"></span><span class="title">Recall the steps</span><span class="prop">15 min</span></div></td>
+          <td><div class="next t-proc" style="grid-template-columns:auto 1fr;padding:var(--s-4);gap:var(--s-3);width:260px"><span class="ti"><svg class="ic"><use href="#i-proc"/></svg></span><div><div class="eyebrow">Next · 2:00 pm</div><b>Recall the steps</b></div></div></td>
+          <td><span class="prop box"><span class="st" style="width:12px;height:12px"></span>Recall the steps</span></td></tr>
+        <tr><td><b>Study plan</b><div class="why">dashed until approved</div></td>
+          <td><div class="pi proposal" style="margin:0;min-height:0"><span class="st"></span><span class="title">Oral liquid doses, again</span></div></td>
+          <td><span class="meta">Opens as its own page: confidence, then blocks, then Approve</span></td>
+          <td><span class="prop box"><svg class="ic"><use href="#i-flag"/></svg>Exam 3 plan</span></td></tr>
+        <tr><td><b>Job</b><div class="why">E.V.'s ring · steps · cost · lands in</div></td>
+          <td><div class="side-job" style="padding:0"><span class="ring" data-p=".6" data-s="16"></span>Writing Exam 3 mock · 3 of 5</div></td>
+          <td><div class="job running" style="padding:var(--s-3) var(--s-4);grid-template-columns:auto 1fr;width:280px"><span class="ring" data-p=".6" data-s="32"></span><div><div class="jt">Writing Exam 3 mock</div><span class="jstate">24 of 40</span></div></div></td>
+          <td><span class="joblink"><span class="ring" data-p=".6" data-s="14"></span>writing · 3 of 5</span></td></tr>
+        <tr><td><b>Course</b><div class="why">a coloured square, Slack-like</div></td>
+          <td><div class="nav course" style="padding:0;height:auto"><span class="sq" style="background:var(--c-nur)">N</span>NUR 112<span class="sub" style="margin-left:var(--s-3)">exam Thu</span></div></td>
+          <td><div class="course-card" style="width:220px"><div class="top"><span class="cbadge nur">N</span><div><b>NUR 112</b><div class="meta">Fundamentals</div></div></div></div></td>
+          <td><span class="ctag nur">NUR 112</span></td></tr>
+        <tr><td><b>Exam</b><div class="why">a calendar leaf</div></td>
+          <td><div class="mini-row"><span class="leaf nur"><span class="m">Thu</span><span class="d">5</span></span><span><b>Exam 3</b><br><span class="meta">58% ready</span></span></div></td>
+          <td><span class="meta">The leaf grows into the exam card on Today and the course page</span></td>
+          <td><span class="prop box"><svg class="ic"><use href="#i-cal"/></svg>Exam 3 · Thu</span></td></tr>
+        <tr><td><b>Weak spot</b><div class="why">target · right of last n</div></td>
+          <td><div class="weak" style="border:0;padding:0;min-height:0"><span class="wi"><svg class="ic"><use href="#i-weak"/></svg></span><span class="title">Oral liquid doses</span><span class="cells low"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span></div></td>
+          <td><span class="meta">Shown inside sets and courses, never as its own tile</span></td>
+          <td><span class="src"><svg class="ic" style="color:var(--bad)"><use href="#i-weak"/></svg>Weak spots</span></td></tr>
+        <tr><td><b>E.V.'s voice</b><div class="why">dotted mark · one line · sources</div></td>
+          <td colspan="2"><div class="ev-line"><span class="mark"></span><p>Exam 3 is Thursday. Oral liquid doses is your weakest spot. <span class="src"><svg class="ic"><use href="#i-weak"/></svg>Weak spots</span></p></div></td>
+          <td><span class="src unverified">unverified</span></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Components and states</h2>
+    <div class="comp-grid">
+      <div class="comp"><h4>Buttons · default, hover, focus, disabled</h4>
+        <div class="row"><button class="btn primary">Start<span class="k">S</span></button><button class="btn primary is-hover">Start</button><button class="btn primary is-focus">Start</button><button class="btn primary" disabled>Approve</button></div>
+        <div class="row"><button class="btn">Accept</button><button class="btn is-hover">Accept</button><button class="btn ghost">Just tell me</button><button class="btn primary lg">Resume</button></div>
+      </div>
+      <div class="comp"><h4>Chips · sources, courses, properties</h4>
+        <div class="row"><span class="src note"><svg class="ic"><use href="#i-notes"/></svg>Med math rules</span><span class="src flash"><svg class="ic"><use href="#i-cards"/></svg>Card 5</span><span class="src unverified">unverified</span></div>
+        <div class="row"><span class="ctag nur">NUR 112</span><span class="ctag bio">BIO 201</span><span class="prop box"><svg class="ic"><use href="#i-clock"/></svg>20 min</span><span class="prop box"><svg class="ic"><use href="#i-repeat"/></svg>Every 2 days</span></div>
+      </div>
+      <div class="comp"><h4>Status and meters</h4>
+        <div class="row"><span class="st"></span><span class="meta">To do</span><span class="st doing"></span><span class="meta">Started</span><span class="st done"></span><span class="meta">Done</span><span class="st blocked"></span><span class="meta">Waiting on a job</span></div>
+        <div class="row t-flash"><span class="bar" style="width:160px"><i style="width:58%"></i><i class="soft" style="width:25%"></i></span><span class="cells low"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="navi"><i class="ok"></i><i class="no"></i><i class="cur"></i><i></i></span></div>
+      </div>
+      <div class="comp"><h4>Filters and choices</h4>
+        <div class="row"><span class="seg"><button class="on">All</button><button class="t-flash"><span class="dot"></span>Flashcards</button><button class="t-proc"><span class="dot"></span>Procedures</button></span></div>
+        <div class="row"><span class="pick"><button>Shaky</button><button class="on">Getting there</button><button>Solid</button></span></div>
+      </div>
+      <div class="comp"><h4>Answer feedback</h4>
+        <div class="feedback ok" style="margin:0;padding:var(--s-3) var(--s-4)"><h3 style="font-size:var(--fs-body)"><svg class="ic"><use href="#i-check"/></svg>Yes, 7.5 mL.</h3></div>
+        <div class="feedback bad" style="margin-top:var(--s-2);padding:var(--s-3) var(--s-4)"><h3 style="font-size:var(--fs-body)"><svg class="ic"><use href="#i-close"/></svg>Not quite. It's 10 mL.</h3></div>
+      </div>
+      <div class="comp"><h4>Fields</h4>
+        <div class="row"><input class="field" placeholder="Your answer first, in your own words" style="max-width:100%"></div>
+        <div class="row"><div class="unit-field" style="margin:0;height:44px"><input value="7.5" aria-label="Answer"><span>mL</span></div><div class="unit-field locked" style="margin:0;height:44px"><input value="5" aria-label="Answer"><span>mL</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= #phone ======================= -->
+<section class="screen" data-screen="phone" data-focus>
+  <div class="crumbs" style="padding:var(--s-5) var(--s-6) 0;margin:0"><a href="#library">Back to the app</a><span>· The Library on a phone, 390 × 844</span></div>
+  <div class="phones">
+
+    <!-- 1 · Library home -->
+    <div><div class="phone" id="phone-1">
+      <div class="ph-status"><span>9:41</span><span class="r"><svg class="ic sm"><use href="#i-signal"/></svg><span class="bat"></span></span></div>
+      <div class="ph-body">
+        <div class="ph-h"><h1>Library</h1><div class="acts"><button class="icon-btn" aria-label="Search"><svg class="ic lg"><use href="#i-search"/></svg></button><button class="icon-btn" aria-label="New set"><svg class="ic lg"><use href="#i-plus"/></svg></button></div></div>
+        <div class="continue t-flash">
+          <div class="art"><div class="stack"><span>Preload</span></div></div>
+          <div style="min-width:0">
+            <div class="eyebrow">Continue studying</div>
+            <h3>Cardiac output terms</h3>
+            <div class="line"><span class="typeword">Flashcards</span><span class="ctag bio">BIO 201</span></div>
+          </div>
+          <div class="prog" style="grid-column:1/-1;margin-top:0"><span class="bar"><i style="width:58%"></i></span><span class="num">14 of 24</span></div>
+          <a class="btn primary lg block" href="#study">Resume</a>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><h2>Due today</h2><span class="count">3</span></div>
+          <div class="ph-scroll-x due">
+            <a class="t-practice"><span class="ti"><svg class="ic"><use href="#i-practice"/></svg></span><span style="min-width:0"><b>Oral liquid doses</b><span class="meta"><span class="why-weak">Weak spot</span> · 4 of 9</span></span></a>
+            <a class="t-flash"><span class="ti"><svg class="ic"><use href="#i-cards"/></svg></span><span style="min-width:0"><b>Fluid & electrolytes</b><span class="meta">8 cards</span></span></a>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><h2>Your sets</h2></div>
+          <div class="seg">
+            <button class="on">All</button><button class="t-flash"><span class="dot"></span>Flashcards</button><button class="t-practice"><span class="dot"></span>Practice</button><button class="t-mock"><span class="dot"></span>Mock exams</button>
+          </div>
+          <div class="tiles">
+            <a class="tile t-flash"><div class="art"><div class="stack"><span>Hypokalemia</span></div></div><div class="body"><span class="tt">Fluid & electrolytes</span><span class="tm">32 cards</span></div></a>
+            <a class="tile t-practice"><div class="art"><div class="pgrid"><i class="hit"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i><i class="miss"></i><i class="hit"></i><i class="miss"></i></div></div><div class="body"><span class="tt">Oral liquid doses</span><span class="tm">10 problems</span></div></a>
+            <a class="tile t-proc"><div class="art"><div class="stepper"><div class="d"><b>1</b><i></i></div><div class="d"><b>2</b><i style="flex:.7"></i></div><div><b>3</b><i style="flex:.85"></i></div></div></div><div class="body"><span class="tt">Sterile gloving</span><span class="tm">9 steps</span></div></a>
+            <a class="tile t-mock"><div class="art"><div class="paper"><i></i><i></i><i></i><i></i><i></i></div></div><div class="body"><span class="tt">Lab practical 2 mock</span><span class="tm">25 q · 30 min</span></div></a>
+          </div>
+        </div>
+      </div>
+      <nav class="ph-tabs"><a class="on"><svg class="ic"><use href="#i-library"/></svg>Library</a><a><svg class="ic"><use href="#i-today"/></svg>Today</a><a><svg class="ic"><use href="#i-ask"/></svg>Ask E.V.</a><a><svg class="ic"><use href="#i-activity"/></svg>Activity</a></nav>
+      <span class="ph-home"></span>
+    </div><p class="phone-cap">Library home</p></div>
+
+    <!-- 2 · Flashcard study -->
+    <div><div class="phone" id="phone-2">
+      <div class="ph-status"><span>9:41</span><span class="r"><svg class="ic sm"><use href="#i-signal"/></svg><span class="bat"></span></span></div>
+      <div class="ph-focus t-flash">
+        <div class="tb"><button class="icon-btn" aria-label="Close"><svg class="ic lg"><use href="#i-close"/></svg></button><span class="bar"><i style="width:62.5%"></i></span><span class="n num">15/24</span></div>
+        <div class="setname"><span class="ti sm"><svg class="ic"><use href="#i-cards"/></svg></span>Cardiac output terms</div>
+        <div class="card-active flash-card">
+          <span class="lab">Term</span>
+          <div class="big">Frank–Starling law</div>
+          <p class="ask">What does it say, and why does it matter for stroke volume?</p>
+        </div>
+        <div class="attempt">
+          <label>Your answer first</label>
+          <textarea class="field" rows="2" placeholder="Type it, or say it out loud and flip"></textarea>
+        </div>
+        <div class="bottom">
+          <a class="btn primary lg block" href="#study/back">Flip</a>
+          <button class="btn ghost block">Just tell me</button>
+        </div>
+      </div>
+      <span class="ph-home"></span>
+    </div><p class="phone-cap">Flashcard study · attempt first</p></div>
+
+    <!-- 3 · Practice feedback -->
+    <div><div class="phone" id="phone-3">
+      <div class="ph-status"><span>9:41</span><span class="r"><svg class="ic sm"><use href="#i-signal"/></svg><span class="bat"></span></span></div>
+      <div class="ph-focus t-practice">
+        <div class="tb"><button class="icon-btn" aria-label="Close"><svg class="ic lg"><use href="#i-close"/></svg></button><span class="bar"><i style="width:50%"></i></span><span class="n num">5/10</span></div>
+        <div class="setname"><span class="ti sm"><svg class="ic"><use href="#i-practice"/></svg></span>Oral liquid doses</div>
+        <div class="card-active q-card">
+          <div class="lab"><span>Problem 5</span></div>
+          <p class="q">How many mL do you give?</p>
+          <dl class="order" style="grid-template-columns:72px 1fr">
+            <dt>Ordered</dt><dd>Acetaminophen 240 mg by mouth</dd>
+            <dt>On hand</dt><dd>160 mg per 5 mL</dd>
+          </dl>
+          <div class="unit-field" style="border-color:var(--ok);background:var(--ok-tint)"><input value="7.5" aria-label="Your answer"><span>mL</span></div>
+        </div>
+        <div class="feedback ok">
+          <h3><svg class="ic lg"><use href="#i-check"/></svg>Yes, 7.5 mL.</h3>
+          <p class="work">240 ÷ 160 × 5 = 7.5 mL</p>
+          <div class="foot"><a class="src note"><svg class="ic"><use href="#i-notes"/></svg>Med math rules</a></div>
+        </div>
+        <div class="bottom"><a class="btn primary lg block" href="#practice">Next</a></div>
+      </div>
+      <span class="ph-home"></span>
+    </div><p class="phone-cap">Practice · cited feedback</p></div>
+  </div>
+</section>
+
+  </main>
+</div>
+
+<!-- ======================= Plan item sheet ======================= -->
+<div class="scrim" data-close-sheet></div>
+<aside class="sheet" aria-label="Plan item">
+  <div class="sh-top"><span class="prop" style="padding:0"><svg class="ic"><use href="#i-today"/></svg>Today</span><svg class="ic sm"><use href="#i-right"/></svg><span>Plan item</span>
+    <button class="icon-btn x" data-close-sheet aria-label="Close"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="sh-body t-practice">
+    <h2><span class="st"></span>Oral liquid doses · 10 problems</h2>
+    <dl class="kv">
+      <dt>Status</dt><dd><span class="prop"><span class="st" style="width:12px;height:12px"></span>To do</span></dd>
+      <dt>Course</dt><dd><span class="prop"><span class="ctag nur">NUR 112</span></span></dd>
+      <dt>Type</dt><dd><span class="prop type"><svg class="ic"><use href="#i-practice"/></svg>Practice</span></dd>
+      <dt>Scheduled</dt><dd><span class="prop"><svg class="ic"><use href="#i-cal"/></svg>Today · 9:30 am</span></dd>
+      <dt>Estimate</dt><dd><span class="prop"><svg class="ic"><use href="#i-clock"/></svg>20 min</span></dd>
+      <dt>Due</dt><dd><span class="prop"><svg class="ic"><use href="#i-flag"/></svg>Wed, Nov 4 · before Exam 3</span></dd>
+      <dt>Repeats</dt><dd><span class="prop"><svg class="ic"><use href="#i-repeat"/></svg>Every 2 days until Exam 3</span></dd>
+      <dt>Priority</dt><dd><span class="prop"><svg class="ic"><use href="#i-priority"/></svg>High</span></dd>
+      <dt>Study mode</dt><dd><span class="prop"><svg class="ic"><use href="#i-learn"/></svg>Type the answers</span></dd>
+    </dl>
+    <button class="add-prop"><svg class="ic sm"><use href="#i-plus"/></svg>Add a property</button>
+
+    <div class="sh-sec">
+      <h4>Linked set</h4>
+      <a class="linked t-practice" href="#practice"><span class="ti"><svg class="ic"><use href="#i-practice"/></svg></span><span style="flex:1"><b>Oral liquid doses</b><span class="meta" style="display:block">10 problems · last time 4/10</span></span><svg class="ic" style="color:var(--text-3)"><use href="#i-right"/></svg></a>
+    </div>
+
+    <div class="sh-sec">
+      <h4>Subtasks · 1 of 3</h4>
+      <div class="sub x"><span class="cb"></span><span>Re-read “desired over have” in Med math rules</span></div>
+      <div class="sub"><span class="cb"></span><span>Do the 10 problems, typing each answer</span></div>
+      <div class="sub"><span class="cb"></span><span>Redo the misses with E.V.</span></div>
+    </div>
+
+    <div class="sh-sec">
+      <h4>Notes</h4>
+      <p class="muted">Watch mg against mL. Write the formula down before each one.</p>
+    </div>
+
+    <p class="meta" style="margin-top:var(--s-5)">From the Exam 3 plan · you approved it Sunday, 8:10 pm</p>
+  </div>
+  <div class="sh-foot"><button class="btn ghost">Move to tomorrow</button><span style="flex:1"></span><a class="btn primary" href="#practice">Start practice<span class="k">S</span></a></div>
+</aside>
+
+<!-- ======================= ⌘K palette ======================= -->
+<div class="pal-scrim" data-close-pal></div>
+<div class="palette" role="dialog" aria-label="Search or jump">
+  <div class="pin"><svg class="ic lg" style="color:var(--text-3)"><use href="#i-search"/></svg><input id="pal-input" value="cardiac" aria-label="Search"><span class="k">esc</span></div>
+  <div class="pgrp"><h5>Sets</h5>
+    <div class="pres on t-flash"><span class="ti sm"><svg class="ic"><use href="#i-cards"/></svg></span><span class="what"><b>Cardiac</b> output terms</span><span class="meta">Flashcards · 24 cards</span></div>
+    <div class="pres t-practice"><span class="ti sm"><svg class="ic"><use href="#i-practice"/></svg></span><span class="what"><b>Cardiac</b> output problems</span><span class="meta">Practice · 6 problems</span></div>
+  </div>
+  <div class="pgrp"><h5>Notes</h5>
+    <div class="pres"><span class="page sm"></span><span class="what">Ch 9 lecture · <b>cardiac</b> output</span><span class="meta">BIO 201</span></div>
+  </div>
+  <div class="pgrp"><h5>Plan</h5>
+    <div class="pres"><span class="st"></span><span class="what">Review 10 due cards · <b>Cardiac</b> output terms</span><span class="meta">Today 11:00 am</span></div>
+  </div>
+  <div class="pgrp"><h5>Activity</h5>
+    <div class="pres"><span class="ring" data-p="1" data-s="20" data-done></span><span class="what">Cards from Ch 9 lecture (<b>cardiac</b> output)</span><span class="meta">Done 7:58 am</span></div>
+  </div>
+  <div class="pgrp"><h5>Exams and courses</h5>
+    <div class="pres"><span class="leaf bio" style="width:24px;border-radius:5px"><span class="m" style="font-size:8px;padding:0">Nov</span><span class="d" style="font-size:11px;line-height:14px">9</span></span><span class="what">Lab practical 2 · covers <b>cardiac</b> cycle</span><span class="ctag bio">BIO 201</span></div>
+  </div>
+  <div class="pfoot"><span><span class="k">↵</span>open</span><span><span class="k">↑↓</span>move</span><span><span class="k">Tab</span>ask E.V. instead</span></div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const body = document.body;
+
+  /* ---------- E.V.'s ring: dotted outer ring (her mark) around a progress arc ---------- */
+  function ring(el) {
+    const p = parseFloat(el.dataset.p || 0), s = parseInt(el.dataset.s || 16, 10);
+    const job = el.closest('.job');
+    const state = el.hasAttribute('data-fail') || (job && job.classList.contains('failed')) ? 'bad'
+      : el.hasAttribute('data-done') || (job && job.classList.contains('done')) ? 'ok'
+      : job && job.classList.contains('needs') ? 'warn' : 'her';
+    const col = `var(--${state})`;
+    const c = s / 2, ro = c - 1, ri = s >= 30 ? c - 6 : c - 4;
+    const sw = s >= 30 ? 3 : 2, circ = 2 * Math.PI * ri;
+    const dots = s >= 30 ? '0.01 4' : '0.01 3';
+    let inner = `<circle cx="${c}" cy="${c}" r="${ri}" fill="none" stroke="var(--line)" stroke-width="${sw}"/>
+      <circle cx="${c}" cy="${c}" r="${ri}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"
+        stroke-dasharray="${circ * p} ${circ}" transform="rotate(-90 ${c} ${c})"/>`;
+    if (s >= 30 && state === 'ok') inner += `<path d="M${c - 5} ${c} l3.5 3.5 6.5 -7" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (s >= 30 && state === 'bad') inner += `<path d="M${c - 4} ${c - 4} l8 8 M${c + 4} ${c - 4} l-8 8" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`;
+    if (s >= 30 && state === 'warn') inner += `<circle cx="${c}" cy="${c}" r="3" fill="${col}"/>`;
+    el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true">
+      <circle cx="${c}" cy="${c}" r="${ro}" fill="none" stroke="var(--her)" stroke-width="${s >= 30 ? 1.75 : 1.5}" stroke-linecap="round" stroke-dasharray="${dots}"/>${inner}</svg>`;
+  }
+  $$('.ring').forEach(ring);
+
+  /* ---------- swatches on #system, read from each theme panel's own tokens ---------- */
+  const groups = [
+    ['Neutrals', ['bg', 'surface', 'sunken', 'line', 'text-3', 'text-2', 'text']],
+    ['Accent and feedback', ['accent', 'accent-tint', 'ok', 'ok-tint', 'bad', 'bad-tint', 'warn', 'warn-tint']],
+    ['Set types', ['flash', 'flash-tint', 'practice', 'practice-tint', 'mock', 'mock-tint', 'proc', 'proc-tint', 'note', 'note-tint']],
+    ['Courses', ['c-nur', 'c-nur-tint', 'c-bio', 'c-bio-tint']],
+  ];
+  $$('[data-swatches]').forEach(panel => {
+    const cs = getComputedStyle(panel);
+    groups.forEach(([name, keys]) => {
+      const h = document.createElement('h4'); h.textContent = name; panel.appendChild(h);
+      const g = document.createElement('div'); g.className = 'swatches';
+      keys.forEach(k => {
+        const v = cs.getPropertyValue('--' + k).trim();
+        g.insertAdjacentHTML('beforeend', `<div class="sw"><i style="background:var(--${k})"></i>--${k}<br>${v}</div>`);
+      });
+      panel.appendChild(g);
+    });
+  });
+
+  /* ---------- router ---------- */
+  function route() {
+    const h = (location.hash || '#today').slice(1);
+    let [screen, sub = ''] = h.split('/');
+    if (screen === 'palette') { screen = 'today'; body.classList.add('pal-open'); } else body.classList.remove('pal-open');
+    const el = $(`[data-screen="${screen}"]`) || $('[data-screen="today"]');
+    $$('.screen').forEach(s => s.classList.toggle('on', s === el));
+    body.classList.toggle('focus', el.hasAttribute('data-focus'));
+    body.classList.toggle('sheet-open', screen === 'today' && sub === 'item');
+    $$('[data-sub-only]', el).forEach(n => n.classList.toggle('hide', n.dataset.subOnly !== sub));
+    $$('.nav').forEach(n => n.classList.toggle('on', n.dataset.nav === screen ||
+      (screen === 'set' && n.dataset.nav === 'library') || (screen === 'plan' && n.dataset.nav === 'activity')));
+    if (screen === 'practice') {
+      const f = $('#pr-field'), i = $('#pr-input');
+      i.value = '5'; f.classList.toggle('locked', sub === 'feedback'); i.readOnly = sub === 'feedback';
+    }
+    $('#main').scrollTop = 0;
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  /* ---------- theme ---------- */
+  const root = document.documentElement;
+  function setTheme(t) {
+    root.dataset.theme = t;
+    $('[data-theme-label]').textContent = t === 'light' ? 'Dark theme' : 'Light theme';
+  }
+  $('[data-theme-toggle]').addEventListener('click', () => setTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
+
+  /* ---------- sheet and palette ---------- */
+  $$('[data-open-sheet]').forEach(n => n.addEventListener('click', () => { location.hash = '#today/item'; }));
+  $$('[data-close-sheet]').forEach(n => n.addEventListener('click', () => { location.hash = '#today'; }));
+  const openPal = () => { body.classList.add('pal-open'); setTimeout(() => $('#pal-input').focus(), 0); };
+  const closePal = () => { body.classList.remove('pal-open'); if (location.hash === '#palette') location.hash = '#today'; };
+  $$('[data-palette]').forEach(n => n.addEventListener('click', openPal));
+  $$('[data-close-pal]').forEach(n => n.addEventListener('click', closePal));
+
+  /* ---------- set page hero card ---------- */
+  const cards = [
+    ['Stroke volume', 'The amount of blood the left ventricle pushes out with each beat; about 70 mL at rest.'],
+    ['Cardiac output', 'Stroke volume × heart rate: the blood pumped per minute, about 5 L at rest.'],
+    ['Preload', 'How much the ventricle is stretched by the blood filling it at the end of diastole.'],
+    ['Afterload', 'The pressure the ventricle has to push against to open the aortic valve.'],
+    ['Frank–Starling law', 'The more the heart muscle is stretched by filling, the harder it contracts, up to a limit.'],
+  ];
+  let ci = 0, back = false;
+  function drawHero() {
+    $('#hero-face').textContent = cards[ci][back ? 1 : 0];
+    $('#hero-face').classList.toggle('back', back);
+    $('#hero-side').textContent = back ? 'Definition' : 'Term';
+    $('#hero-n').textContent = `${ci + 1} / 24`;
+  }
+  $('#hero').addEventListener('click', () => { back = !back; drawHero(); });
+  $('#hero-prev').addEventListener('click', () => { ci = (ci + cards.length - 1) % cards.length; back = false; drawHero(); });
+  $('#hero-next').addEventListener('click', () => { ci = (ci + 1) % cards.length; back = false; drawHero(); });
+
+  /* ---------- library filter ---------- */
+  $$('[data-filter-group] button').forEach(b => b.addEventListener('click', () => {
+    $$('[data-filter-group] button').forEach(x => x.classList.toggle('on', x === b));
+    const f = b.dataset.filter;
+    $$('[data-type]').forEach(g => g.classList.toggle('hide', f !== 'all' && g.dataset.type !== f));
+  }));
+
+  /* ---------- confidence picks ---------- */
+  $$('.pick').forEach(p => $$('button', p).forEach(b => b.addEventListener('click', () => {
+    $$('button', p).forEach(x => x.classList.toggle('on', x === b));
+  })));
+
+  /* ---------- flashcard progress ---------- */
+  let n = 15;
+  $$('[data-next-card]').forEach(b => b.addEventListener('click', () => {
+    n = Math.min(24, n + 1);
+    $('#study-n').textContent = `${n} of 24`; $('#study-bar').style.width = (n / 24 * 100) + '%';
+  }));
+
+  /* ---------- session timer ---------- */
+  let secs = 18 * 60 + 42;
+  setInterval(() => { secs++; $('#timer').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`; }, 1000);
+
+  /* ---------- keys ---------- */
+  document.addEventListener('keydown', e => {
+    const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPal(); return; }
+    if (e.key === 'Escape') {
+      if (body.classList.contains('pal-open')) return closePal();
+      if (body.classList.contains('sheet-open')) { location.hash = '#today'; return; }
+      if (body.classList.contains('focus')) { location.hash = '#library'; return; }
+    }
+    if (typing) return;
+    const scr = $('.screen.on').dataset.screen;
+    if (e.key === '\\') setTheme(root.dataset.theme === 'light' ? 'dark' : 'light');
+    if (scr === 'set' && e.key === ' ') { e.preventDefault(); back = !back; drawHero(); }
+    if (scr === 'set' && e.key === 'ArrowRight') $('#hero-next').click();
+    if (scr === 'set' && e.key === 'ArrowLeft') $('#hero-prev').click();
+    if (scr === 'study' && e.key === ' ') { e.preventDefault(); location.hash = '#study/back'; }
+    if (scr === 'today' && e.key.toLowerCase() === 's') location.hash = '#practice';
+    if (scr === 'library' && e.key === 'Enter') location.hash = '#study';
+  });
+})();
+</script>
+</body>
+</html>
