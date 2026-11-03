@@ -124,6 +124,8 @@
   --dur-1: 150ms;
   --dur-2: 200ms;
   --dur-3: 250ms;
+  --dur-spin: 6s;
+  --spin-timing: linear;
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --rise: 4px;
 
