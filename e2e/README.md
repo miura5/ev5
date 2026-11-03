@@ -2,4 +2,7 @@
 
 Playwright journeys, one file per journey.
 
-<!-- interface and must-not lines are generated (S-13) -->
+<!-- generated:start -->
+Interface: (none yet)
+Imports: other folders through their index.ts (§drift.imports)
+<!-- generated:end -->
