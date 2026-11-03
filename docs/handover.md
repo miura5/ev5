@@ -1,8 +1,13 @@
 ## Phase      1 · gate items 8 / 9 done except rehearsal 1 (Gate 0 passed, D-455); S-10…S-16 done; S-17 runbook done, rehearsal 1 waits on Matt
 ## Running    nothing
-## Waiting on Matt   Rehearsal 1 (S-17): needs repo secret EV4_CHECKOUT_TOKEN (read access to ev4's repo), an ev4 ref to deploy and the name of ev4's bearer-token secret. Posted on "For Matt" (miura5/ev5#1). Also, before the first live deploy (cutover only): secret CLOUDFLARE_API_TOKEN_LIVE and reviewers on the "live" environment.
-## Next       Code that doesn't wait on Matt: S-20 tokens.css (Phase 2); S-41… entities (Phase 3, domain/time is in #38). Once the secret exists: dispatch rehearsal.yml on main and fix its guessed ev4 paths, then Gate 1.
+## Waiting on Matt   nothing. (Before the first live deploy only: the `live` environment and CLOUDFLARE_API_TOKEN_LIVE, already set up.)
+## Next       Rehearsal 1 (S-17): ev4 is a public repo and is now checked out read-only at ../ev4, so no token is needed. Fix rehearsal.yml to clone it over https, correct its guessed paths and secret name from ../ev4, dispatch it, then Gate 1. In parallel: S-20 tokens.css (Phase 2) and the Phase 3 entities (S-42…), porting ev4's tests from ../ev4.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
+
+### Build manager (Matt's chat), 2026-11-03 08:50Z
+- Runs were ending after one small task (~3 minutes each), and the chain broke because handover PRs were opened before the task PR merged, went BEHIND and never merged (#41, #43, closed). START-BUILD item 4a: keep claiming batches for about 50 minutes; item 7: open the handover only after this run's PRs merge, cut from latest main. AGENTS §3 step 10 matches.
+- Rehearsal question withdrawn: ev4 is public, and the routine now checks out miura5/ev4 read-only.
+- B-714 (#40) and B-715 (#42, domain/exam) recorded done. B-715 validates by hand (zod has no Chart decision yet) and didn't port ev4's tests: the next entity run can add them from ../ev4.
 
 ### Eighth run (2026-11-03)
 - B-714 (S-40, #38, auto-merge on): domain/time uses Intl only (no @date-fns/tz: a new dependency needs a Chart decision). Done: Central date/time, centralToInstant, isDue, isOverdue/daysUntil, repeat rules, DST tests for 2026-11-01 and 2027-03-14. Matt still hasn't answered the rehearsal question. Superseded: handover PR #37 can be closed.

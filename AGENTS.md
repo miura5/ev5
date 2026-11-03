@@ -37,7 +37,7 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 7. **Ship staging:** merging to main deploys the v5 staging Worker automatically. When a batch changes model behaviour, a job or an outside call, do **one real end-to-end run** on staging.
 8. **Gates:** when a phase's gate conditions are all true, record the proof (links to CI runs, drill output) as a Chart decision and move the handover to the next phase.
 9. **Card:** when something is on staging that Matt can try, update the release card (§8). Otherwise send no message.
-10. **Handover:** rewrite it (§7), commit, end the run.
+10. **Repeat or hand over:** while there is time left in the run (about 50 minutes) and work that doesn't wait on Matt, go back to step 4. Then wait for this run's PRs to merge, rewrite the handover from the latest main (§7), and open it last.
 
 **Stop early when:**
 - the next step needs Matt (§6): write the question and keep doing everything else it doesn't block;
