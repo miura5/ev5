@@ -13493,12 +13493,12 @@
   "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
   "dod": "Tokens match the mock-up",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "64eae09",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -13787,12 +13787,12 @@
   "title": "S-50: The migration baseline and the deletions table",
   "dod": "Baseline is a no-op on a copy of ev4's schema",
   "milestone": "v5 P3",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-709"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "4ae5edb",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-729",
   "claimedAt": "2026-11-03T09:09:41.680Z"

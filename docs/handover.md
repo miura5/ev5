@@ -4,6 +4,13 @@
 ## Next       Rehearsal 1 (S-17): ev4 is a public repo and is now checked out read-only at ../ev4, so no token is needed. Fix rehearsal.yml to clone it over https, correct its guessed paths and secret name from ../ev4, dispatch it, then Gate 1. In parallel: S-20 tokens.css (Phase 2) and the Phase 3 entities (S-42…), porting ev4's tests from ../ev4.
 ## Staging    ev5-staging Worker; staging.yml now deploys on every push to main (first automatic run is this PR's merge: check it) · main fb4db26+   ## Live  ev4 build (unchanged)
 
+### Ninth run (2026-11-03, 09:08Z to 10:00Z)
+- Overlapping runs duplicated work: a second run merged B-725/B-726/B-727 (#63-#65), B-712 (#70) and B-728 (#72) while this run's builders built B-725 (#66), B-728 (#67) and B-711 (#68). #66 and #67 were closed unmerged, and #62 (B-724 pin) and #68 (B-711 Button, Field, Toast) were closed unmerged at 09:49-09:51 though green. Their branches claude/B-724-pin and claude/B-711-kit-first still exist and are rebased on main at 09:50: reopen or re-PR them first (B-724 is a clean 124-line slice).
+- Merged this run: B-729 (#61, migration baseline and deletions table, data/migrations). Chart: B-710 (tokens.css, #45) and B-729 recorded done here.
+- Lessons: a new interface file needs an `Interface: <folder>` trailer in the commit message (checks trailer); new kit components need `node ops/generate/cli.ts` (README block); stylelint rejects `var(--ease)` in transition (fix stylelint.config.js, then use --ease in kit); tokens lack 2px and 18px sizes (focus ring and kbd chip in B-711 use 4px and 16px).
+- Remaining kit first set (PLAN §7): Glyph, Row, Tile, E.V. line, Suggestion, Source, Study card, Text options, Detail, Menu, palette, Doc. Remaining data: typed per-entity repositories over data/docs, S-51 export (B-730), S-53 scratch check (B-732).
+- Before claiming, run `git ls-remote origin 'refs/heads/claude/B-*'` and check open PRs: two runs overlapped this hour.
+
 ### Build manager (Matt's chat), 2026-11-03 08:50Z
 - Runs were ending after one small task (~3 minutes each), and the chain broke because handover PRs were opened before the task PR merged, went BEHIND and never merged (#41, #43, closed). START-BUILD item 4a: keep claiming batches for about 50 minutes; item 7: open the handover only after this run's PRs merge, cut from latest main. AGENTS §3 step 10 matches.
 - Rehearsal question withdrawn: ev4 is public, and the routine now checks out miura5/ev4 read-only.
