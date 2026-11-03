@@ -13507,12 +13507,12 @@
   "title": "S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts",
   "dod": "All 15 components have stories and tests",
   "milestone": "v5 P2",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-709"
   ],
-  "notes": "Part 2: Source, Row, Tile (S-21), each with CSS on tokens, a /kit story and a test. Next from PLAN §7: Glyph, E.V. line, Suggestion, Study card, Text options, Detail, Menu, palette, Doc.",
-  "commit": null,
+  "notes": "All 15 first-set components built; palette in #93",
+  "commit": "7448ec1",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-B-711",
   "claimedAt": "2026-11-03T09:49:45.374Z"
@@ -13527,7 +13527,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "",
+  "notes": "Gallery route done; baselines generated in the Playwright image (e2e/baselines). New dev dependency @playwright/test 1.64.1 still needs a Chart decision. Gate 2 = B-710/711/712 done, then B-713.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -13781,7 +13781,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "S-49 first slice: docs repository (repo, registry, fake D1) landed. Remaining: Zod parsing wired per collection, batch/409 protocol against real D1, remaining tables.",
+  "notes": "Parsers wired for exams, notes, objectives, sessions, sets, weakspots (#92); course, collection, pin wait for a barrel export",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -13843,7 +13843,7 @@
   "depends": [
    "B-709"
   ],
-  "notes": "Matt's OK given ahead (D-453): run it when Phase 3 reaches it, counts only",
+  "notes": "Check code merged (#88). Not yet run on a real scratch copy: needs a live export (Matt, counts only, D-453).",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
