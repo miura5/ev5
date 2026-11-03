@@ -7,6 +7,7 @@ import practiceSetPrompt from "../jobs/practice-set/prompt.md?raw";
 import studyPlanPrompt from "../jobs/study-plan/prompt.md?raw";
 import type { Env } from "./index.ts";
 import { runWorkflow } from "./job-run.ts";
+import { planHome } from "./plan-home.ts";
 
 type CfStep = {
   do<T>(
@@ -35,18 +36,7 @@ export class JobWorkflow extends WorkflowEntrypoint<Env, InstanceParams> {
           practice_set: practiceSetPrompt,
           study_plan: studyPlanPrompt,
         },
-        planHome: {
-          load: async () => {
-            throw new Error(
-              "The study plan cannot read exams yet (not wired).",
-            );
-          },
-          apply: async () => {
-            throw new Error(
-              "The study plan cannot put tasks on Today yet (not wired).",
-            );
-          },
-        },
+        planHome: planHome(this.env.DB, () => Date.now()),
       },
       runner,
       event.payload,

@@ -31,7 +31,7 @@ export type JobRunEnv = {
   call: ModelCall;
   /** Each kind's system prompt (prompt.md), loaded by the Worker with Vite `?raw`. */
   prompts: { practice_set: string; study_plan: string };
-  /** Where the study plan reads its exam and approves its tasks (ev4 docs); not built yet. */
+  /** Where the study plan reads its exam and approves its tasks (ev4 docs; server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
     apply: (jobId: string, plan: Plan) => Promise<string>;
@@ -40,7 +40,18 @@ export type JobRunEnv = {
   newId?: () => string;
 };
 
-/** Ceiling amounts live in D1 settings (micro-dollars). An unset one is 0, which stops every call until Matt sets it. */
+/**
+ * Ceiling amounts live in D1 settings (micro-dollars, 1,000,000 = $1). An unset key uses DEFAULT_CEILINGS, so jobs
+ * run before Matt has set anything; a stored value (even 0, which stops every call) always wins.
+ * The defaults are a builder's guesses (D-460), chosen to be low: one study plan (60 cents) or practice
+ * set (50 cents) fits the per-job cap, a few fit the day.
+ */
+export const DEFAULT_CEILINGS: CeilingConfig = {
+  hourly: 2_000_000,
+  daily: 5_000_000,
+  monthly: 40_000_000,
+  perJob: 1_000_000,
+};
 const CEILING_KEYS = {
   hourly: "ceiling_hourly",
   daily: "ceiling_daily",
@@ -52,12 +63,13 @@ export async function loadCeilingConfig(db: D1Like): Promise<CeilingConfig> {
     .prepare("SELECT key, value FROM claude_settings")
     .all<{ key: string; value: number }>();
   const by = new Map(results.map((r) => [r.key, r.value]));
-  const n = (k: string) => by.get(k) ?? 0;
+  const n = (k: keyof CeilingConfig) =>
+    by.get(CEILING_KEYS[k]) ?? DEFAULT_CEILINGS[k];
   return {
-    hourly: n(CEILING_KEYS.hourly),
-    daily: n(CEILING_KEYS.daily),
-    monthly: n(CEILING_KEYS.monthly),
-    perJob: n(CEILING_KEYS.perJob),
+    hourly: n("hourly"),
+    daily: n("daily"),
+    monthly: n("monthly"),
+    perJob: n("perJob"),
   };
 }
 
