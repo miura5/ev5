@@ -13711,13 +13711,15 @@
   "title": "S-48b: New entity: pin (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-724",
+  "claimedAt": "2026-11-03T09:49:26.899Z"
  },
  {
   "id": "B-725",
