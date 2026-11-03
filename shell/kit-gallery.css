@@ -1,0 +1,120 @@
+.gallery {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh);
+  min-height: 100vh;
+  padding: var(--sp-8) var(--sp-6);
+}
+.gallery-col {
+  margin: 0 auto;
+  max-width: var(--col);
+}
+.gallery-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--sp-12);
+}
+.gallery h1 {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  letter-spacing: var(--track-title);
+  line-height: var(--lh-title);
+  margin: 0;
+}
+.gallery h2 {
+  color: var(--quiet);
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  margin: 0 0 var(--sp-3);
+}
+.gallery section {
+  margin-bottom: var(--sp-12);
+}
+.gallery-toggle {
+  background: var(--surface);
+  border: var(--hairline) solid var(--line2);
+  border-radius: var(--r-md);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  height: var(--row);
+  padding: 0 var(--sp-4);
+  transition-property: background;
+  transition-duration: var(--dur-1);
+}
+.gallery-toggle:hover {
+  background: var(--hover);
+}
+.gallery-grid {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fill, minmax(var(--side-w), 1fr));
+}
+.gallery-swatch {
+  align-items: center;
+  display: flex;
+  gap: var(--sp-3);
+  min-height: var(--row);
+}
+.gallery-chip {
+  border: var(--hairline) solid var(--line2);
+  border-radius: var(--r-sm);
+  flex: none;
+  height: var(--row);
+  width: var(--row);
+}
+.gallery-name {
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+}
+.gallery-row {
+  align-items: baseline;
+  display: flex;
+  gap: var(--sp-4);
+  min-height: var(--row);
+}
+.gallery-space {
+  background: var(--her);
+  height: var(--sp-2);
+}
+.gallery-radius {
+  background: var(--sel);
+  border: var(--hairline) solid var(--line2);
+  height: var(--row);
+  width: var(--row2);
+}
+.gallery-motion {
+  background: var(--line);
+  border-radius: var(--r-pill);
+  height: var(--sp-2);
+  max-width: 100%;
+  width: var(--col);
+}
+.gallery-motion > span {
+  background: var(--her);
+  border-radius: var(--r-pill);
+  display: block;
+  height: 100%;
+  transform: scaleX(0.1);
+  transform-origin: left;
+  width: 100%;
+}
+.gallery-motion:hover > span {
+  transform: scaleX(1);
+}
+.gallery-motion > .dur-1 {
+  transition-property: transform;
+  transition-duration: var(--dur-1);
+}
+.gallery-motion > .dur-2 {
+  transition-property: transform;
+  transition-duration: var(--dur-2);
+}
+.gallery-motion > .dur-3 {
+  transition-property: transform;
+  transition-duration: var(--dur-3);
+}

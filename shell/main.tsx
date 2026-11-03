@@ -1,4 +1,6 @@
 import { createRoot } from "react-dom/client";
-import { HelloView } from "../areas/hello/Hello.view.tsx";
+import { App } from "./App.tsx";
 
-createRoot(document.getElementById("root")!).render(<HelloView />);
+createRoot(document.getElementById("root")!).render(
+  <App path={window.location.pathname} />,
+);
