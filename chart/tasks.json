@@ -14350,5 +14350,43 @@
   "source": "handover Next",
   "claimedBy": "build-run-7",
   "claimedAt": "2026-11-03T05:13:06.289Z"
+ },
+ {
+  "id": "B-765",
+  "kind": "task",
+  "title": "Wiring: SDK ModelCall adapter (maxRetries 0, output_config.format from schema, ids from models.ts, prompt.md via ?raw)",
+  "dod": "jobs/runtime ModelCall implemented over @anthropic-ai/sdk with a fake-fetch test",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [
+   "B-738"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "handover Next (a)"
+ },
+ {
+  "id": "B-766",
+  "kind": "task",
+  "title": "Wiring: D1 JobStore, CeilingStore (atomic check-and-add), PlanStore and the draft/set save step",
+  "dod": "D1 stores pass the same tests as the in-memory ones on fake-d1; save step adds id/state/at/v",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "handover Next (b)"
+ },
+ {
+  "id": "B-767",
+  "kind": "task",
+  "title": "Wiring: Worker WorkflowEntrypoint + wrangler binding running runJob with practice-set and study-plan handlers",
+  "dod": "wrangler.jsonc binds the workflow; handlers registered; test with fake adapter",
+  "milestone": "Phase 4",
+  "status": "open",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "handover Next (c)"
  }
 ]
