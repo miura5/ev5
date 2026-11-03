@@ -3,6 +3,6 @@
 IO only: D1 repositories, migrations, export and restore.
 
 <!-- generated:start -->
-Interface: docsRepo, DocsD1, MAX_BODY, NO_DELETE
+Interface: docsRepo, DocsD1, MAX_BODY, NO_DELETE, workerNoteProblem, noteShapeErrors
 Imports: domain (§drift.imports)
 <!-- generated:end -->

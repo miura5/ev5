@@ -14606,13 +14606,15 @@
   "title": "Add data/docs/ to the npm test glob (its tests are not run by CI) and make them pass",
   "dod": "CI runs data/docs tests green",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-779"
   ],
   "notes": "",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:51:22.563Z"
  },
  {
   "id": "B-781",
