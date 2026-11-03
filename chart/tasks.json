@@ -13408,13 +13408,15 @@
   "title": "S-14: Guard-failure fixtures: one PR per guard that must go red, recorded",
   "dod": "Every PLAN §13 Phase 1 guard shown red",
   "milestone": "v5 P1",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-700"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run5",
+  "claimedAt": "2026-11-03T04:21:43.695Z"
  },
  {
   "id": "B-706",
