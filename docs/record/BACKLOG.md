@@ -98,7 +98,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-734 | S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list) Done when: Tools, ⌘K and schedule generated from it | B-713 | v5 P4 | open |  |
 | B-735 | S-61: The job record, defineJob, executors and job_status Done when: Job lifecycle tests pass | B-713 | v5 P4 | in progress |  |
 | B-736 | S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation Done when: Continuation is idempotent | B-713 | v5 P4 | in progress |  |
-| B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713 | v5 P4 | open |  |
+| B-737 | S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert Done when: A forced ceiling hit fails cleanly | B-713 | v5 P4 | in progress |  |
 | B-738 | S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date Done when: A forced invalid output and max_tokens fail cleanly | B-713 | v5 P4 | open |  |
 | B-739 | S-65: The practice set job (mock exam variant; drafts output for Write with E.V.) Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |
 | B-740 | S-66: The study plan job Done when: Runs on v5 staging | B-713 | v5 P4 | open |  |

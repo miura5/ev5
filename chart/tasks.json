@@ -13932,13 +13932,15 @@
   "title": "S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert",
   "dod": "A forced ceiling hit fails cleanly",
   "milestone": "v5 P4",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-713"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "builder-B-737",
+  "claimedAt": "2026-11-03T13:23:20.722Z"
  },
  {
   "id": "B-738",
