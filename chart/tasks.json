@@ -13567,13 +13567,15 @@
   "title": "S-41: Entity: exam",
   "dod": "ev4's tests ported and passing",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-709"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run-20261103T0809Z",
+  "claimedAt": "2026-11-03T08:09:57.576Z"
  },
  {
   "id": "B-716",
