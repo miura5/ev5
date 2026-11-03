@@ -6,7 +6,8 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "node --test ops/record/ data/compat/ && vitest run",
+    "test": "node --test ops/record/ ops/checks/ data/compat/ && vitest run",
+    "checks": "node ops/checks/cli.ts",
     "test:compat": "node --test data/compat/",
     "typecheck": "tsc -p .",
     "build": "vite build",
