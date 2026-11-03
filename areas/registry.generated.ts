@@ -2,7 +2,10 @@
 
 import { activityArea } from "./activity/area.ts";
 import { askArea } from "./ask/area.ts";
+import { collectionArea } from "./collection/area.ts";
+import { deletedArea } from "./deleted/area.ts";
 import { helloArea } from "./hello/area.ts";
 import { sessionsArea } from "./sessions/area.ts";
+import { todayArea } from "./today/area.ts";
 
-export const areas = [activityArea, askArea, helloArea, sessionsArea] as const;
+export const areas = [activityArea, askArea, collectionArea, deletedArea, helloArea, sessionsArea, todayArea] as const;

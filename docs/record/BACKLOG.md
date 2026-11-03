@@ -96,12 +96,12 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-733 | G-3: Gate 3: domain and data Done when: PLAN §13 Phase 3 gate items all true | B-714, B-715, B-716, B-717, B-718, B-719, B-720, B-721, B-722, B-723, B-724, B-725, B-726, B-727, B-728, B-729, B-730, B-731 | v5 P3 | open | Per D-457 the scratch-copy check (B-732) moved to the cutover checklist; Phase 4 does not wait for it. |
 | B-743 | S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-744 | S-71: Activity Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-745 | S-72: Today Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-746 | S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-747 | S-74: Ask E.V. Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
 | B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
-| B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | open |  |
+| B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-751 | S-77: The offline outbox, and the ev4-outbox import Done when: Offline note journey passes | B-742 | v5 P5 | open |  |
 | B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
 | B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |

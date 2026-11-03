@@ -62,3 +62,4 @@ export { Button } from "./components/Button/Button";
 export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
 export { EvLine } from "./components/EvLine/EvLine";
+export { Suggestion } from "./components/Suggestion/Suggestion";

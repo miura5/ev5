@@ -1,0 +1,124 @@
+.ev-today {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  max-width: var(--col);
+  margin: 0 auto;
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.ev-today-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.ev-today-head,
+.ev-today-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.ev-today-head {
+  align-items: center;
+}
+
+.ev-today-grow {
+  flex: 1;
+}
+
+.ev-today-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ev-today-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--track-title);
+}
+
+.ev-today-label {
+  margin: 0;
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--quiet);
+}
+
+.ev-today-meta,
+.ev-today-cite {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.ev-today-cite {
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 var(--hairline) var(--line2);
+}
+
+/* A row's status dot is its course tone. */
+.ev-today-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ev-today-line > .kit-row {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-today-line[data-tone="ok"] .kit-glyph {
+  color: var(--ok);
+}
+
+.ev-today-line[data-tone="info"] .kit-glyph {
+  color: var(--info);
+}
+
+.ev-today-line[data-tone="warn"] .kit-glyph {
+  color: var(--warn);
+}
+
+.ev-today-line[data-tone="bad"] .kit-glyph {
+  color: var(--bad);
+}
+
+.ev-today-date {
+  position: relative;
+}
+
+/* Sits left of the row's date value. */
+.ev-today-bar {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--sp-12) + var(--sp-6));
+  display: flex;
+  gap: var(--sp-1);
+  width: calc(var(--sp-12) * 2);
+  transform: translateY(-50%);
+}
+
+.ev-today-band {
+  flex-basis: 0;
+  height: var(--sp-1);
+  border-radius: var(--r-pill);
+}
+
+.ev-today-band-ok {
+  background: var(--ok);
+}
+
+.ev-today-band-warn {
+  background: var(--warn);
+}
+
+.ev-today-band-bad {
+  background: var(--bad);
+}
