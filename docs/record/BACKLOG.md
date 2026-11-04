@@ -116,6 +116,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-782 | S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell Done when: On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost | B-778 | v5 P5 | in progress |  |
 | B-783 | S-77d: practice answers through queueAnswer, wired in the Library study screen Done when: A practice answer given offline is queued and replayed; 409 counts as recorded | B-778 | v5 P5 | open |  |
 | B-784 | S-77e: notes collections, new note, and the real editor on the outbox Done when: Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes | B-778 | v5 P5 | open |  |
+| B-785 | S-76b: server read route for collections, memberships and deletions Done when: GET /api/v1/collections, /memberships and /deletions read their tables (empty when a table is absent); no write or delete | B-750 | v5 P5 | open |  |
 
 ## Your turn
 
