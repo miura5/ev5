@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-469",
+  "date": "Nov 3",
+  "title": "Sessions written by v5 keep source 'E.V. Home'; validateWrite waives the v5-source rule for sessions only",
+  "why": "ev4's frozen sessions schema allows source 'Study Watch' or 'E.V. Home' only, so no value satisfies both it and the v5-prefix rule. ev4's schema stays frozen for compat; every other collection keeps the v5-prefix rule.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ops/record"
+ },
+ {
   "id": "D-468",
   "date": "Nov 3",
   "title": "CLAUDE.md imports AGENTS.md with an @AGENTS.md line, so the agents' playbook loads at session start, not only when a session opens it",
