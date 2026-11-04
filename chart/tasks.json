@@ -14105,7 +14105,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "",
+  "notes": "Merged #171: reads /api/v1/jobs only; no chat route exists on the server (CONTRACT §job.no-chat-ask), so sending shows a not-connected reply.",
   "commit": "b8b3578",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-747-ask",
@@ -14528,12 +14528,12 @@
   "title": "Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons)",
   "dod": "Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-711"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged #172. Shell takes optional counts/runningJob props; nothing supplies them yet.",
+  "commit": "1541a11",
   "source": "B-743"
  },
  {
