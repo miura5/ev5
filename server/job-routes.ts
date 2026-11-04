@@ -7,6 +7,7 @@ import {
   d1JobStore,
   continueJob,
   jobStatus,
+  parsePublicInput,
   practiceSet,
   startJob,
   studyPlanJob,
@@ -46,8 +47,7 @@ function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   };
 }
 
-type ScopedInput = { objectives: string[] };
-async function withGathered(db: D1Like, input: ScopedInput) {
+async function withGathered(db: D1Like, input: { objectives: string[] }) {
   return { ...input, excerpts: await gatherExcerpts(db, input.objectives) };
 }
 
@@ -75,16 +75,15 @@ jobRoutes.post("/jobs/:slug", async (c) => {
   if (!def.startedBy.includes(by))
     return c.json({ error: `${def.title} cannot be started by ${by}` }, 403);
   const { input: asked } = await body(c.req.raw);
+  // The caller names a scope (objectives); the server finds the passages itself and drops any it was sent.
+  let input = asked;
   try {
-    def.input(asked);
+    if (def === (practiceSet as JobDef))
+      input = await withGathered(c.env.DB, parsePublicInput(asked));
+    else def.input(asked);
   } catch (e) {
     return c.json({ error: (e as Error).message }, 400);
   }
-  // The caller names a scope (objectives); the server finds the passages itself and drops any it was sent.
-  const input =
-    def === (practiceSet as JobDef)
-      ? await withGathered(c.env.DB, def.input(asked) as ScopedInput)
-      : asked;
   const rec = await startJob(startEnv(c.env, def), def, input, by);
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
