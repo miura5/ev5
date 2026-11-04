@@ -16182,5 +16182,21 @@
   "notes": "needs the pins read route task",
   "commit": null,
   "source": "run 56 handover"
+ },
+ {
+  "id": "B-897",
+  "kind": "task",
+  "title": "Kit exports Menu from kit/index.ts, with Row trailing slot if needed",
+  "dod": "kit/index.ts exports Menu and MenuItem; story and test exist; areas can import it",
+  "milestone": "v5 P5",
+  "status": "in progress",
+  "depends": [
+   "B-750"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "run 56 builder report",
+  "claimedBy": "run56",
+  "claimedAt": "2026-11-04T22:34:18.275Z"
  }
 ]
