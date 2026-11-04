@@ -8,6 +8,10 @@
   "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
   "vars": { "ENV_NAME": "staging" },
   "d1_databases": [{ "binding": "DB", "database_name": "ev5-staging", "database_id": "00000000-0000-0000-0000-000000000000" }],
+  // ev4's PlanJob Durable Object: same binding name and migration tag as ev4's config, and no deleted_classes
+  // (CONTRACT §deliver.window). ops/checks fails if any of it goes missing.
+  "durable_objects": { "bindings": [{ "name": "PLAN_JOBS", "class_name": "PlanJob" }] },
+  "migrations": [{ "tag": "v1-plan-jobs", "new_sqlite_classes": ["PlanJob"] }],
   "workflows": [{ "name": "ev5-staging-jobs", "binding": "JOBS", "class_name": "JobWorkflow" }],
   "assets": {
     "directory": "./dist",
