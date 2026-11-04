@@ -15128,13 +15128,15 @@
   "title": "Installable app: vite-plugin-pwa, cached shell and a local read copy",
   "dod": "vite-plugin-pwa (pinned, with a Chart decision naming the problem) builds a manifest and service worker; the shell opens offline; the page reads from its IndexedDB copy in ev5-app when offline (PLAN §5.9, CONTRACT §data.offline, §ui.targets); the offline note journey passes in a browser",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-751"
   ],
   "notes": "Audit (PLAN §12, §5.9): vite.config.ts has react() only, index.html has no manifest, and no service worker exists; the outbox store holds queued writes only.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T07:47:02.677Z"
  },
  {
   "id": "B-818",
