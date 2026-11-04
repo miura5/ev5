@@ -14721,10 +14721,10 @@
   "title": "Kit Menu onto Radix: DropdownMenu for ⋯ and '.', ContextMenu for right-click, radio items for pickers; Detail's ⋯ opens the kit Menu",
   "dod": "kit/components/Menu renders through @radix-ui/react-dropdown-menu and @radix-ui/react-context-menu (unstyled, kit CSS only); Detail's ⋯ is the Menu trigger (items passed in, not drawn by the caller); no useState/useRef focus or key code left in Menu; same look: Playwright visual baselines for Menu and Detail unchanged; keyboard and focus tests: arrows move, Enter picks, Esc closes and returns focus to the trigger, typeahead, radio item checked state",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Slice write: kit/components/Menu, kit/components/Detail, kit/index.ts, package.json, package-lock.json. Read: areas, shell (no caller uses Menu or onMore yet). Wiring Row right-click into areas is area work, not this task. The visual job is not required in CI (handover): run the visual diff and record it in the PR.",
-  "commit": null,
+  "commit": "c573ad9",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:42.308Z"
@@ -14735,12 +14735,12 @@
   "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
   "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-787"
   ],
   "notes": "Slice write: kit/components/Palette, kit/index.ts, package.json, package-lock.json. Read: shell (Shell.tsx opens it on ⌘K). After the Menu task, so the package files do not conflict.",
-  "commit": null,
+  "commit": "c773410",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:37:06.216Z"
@@ -14807,13 +14807,13 @@
   "title": "S-75a: Notes editor on ProseMirror direct (D-464): replace the textarea-per-block editor in areas/notes/parts/NoteEditor.tsx with a ProseMirror view on the S-08 flat schema; saves go through the outbox as now Done when: A note typed, edited and reloaded round-trips ev4's blocks losslessly (S-08 fixtures); undo/redo, headings, lists, checks work; matches the mock-up",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-748",
    "B-784"
   ],
-  "notes": "Slice write: areas/notes, package.json, package-lock.json. Read: kit, commands, docs/spikes/S-08-notes-editor.md. CONTRACT §ui.mockup: unstyled primitives for behaviour only; the kit owns every pixel.",
-  "commit": null,
+  "notes": "Merged #187. Left: B-795, B-796, look vs mock-up.",
+  "commit": "619c331",
   "source": "ops/record",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:45.801Z"
@@ -14838,11 +14838,13 @@
   "title": "CI runs the jobs tests",
   "dod": "npm test runs every jobs/**/*.test.ts (ceilings, workflow, output, model-call, d1-stores, practice-set, study-plan); the CI log lists them and they pass; failures found are fixed in the same PR",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Audit: package.json test script and vite.config.ts include list leave out jobs/, so 15 jobs tests never run in CI and the proofs behind B-735..B-738 were never run there. Slice write: package.json, vite.config.ts, jobs (fixes only).",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T01:54:35.415Z"
  },
  {
   "id": "B-796",
@@ -14850,13 +14852,15 @@
   "title": "Migrations and repositories for collections, memberships, pins, item properties, own sets and own attempts",
   "dod": "data/migrations has an additive, idempotent migration for collections, memberships, pins, item_props, own_sets and own_attempts (CONTRACT §data.new-tables, §data.migrations); migrations.test applies them on ev4-schema.fixture.sql; data/ has a repository per table with the docs protocol (at, v); staging's schema has them; GET /api/v1/collections and /memberships read real rows",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-729"
   ],
   "notes": "Audit (review F3, PLAN §5.10): B-723..B-726 are done with 'Migration, repository and compat fixture', but migrations 0000-0002 create only drafts and own_set_items. collection-routes.ts reads tables no database has. views stays out (saved views come after cutover, C13).",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T01:54:35.579Z"
  },
  {
   "id": "B-797",
@@ -15253,5 +15257,33 @@
   "notes": "Audit (review F34, Q3): DECISIONS.md says only 'in the v2 doc's decision log'.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-827",
+  "kind": "task",
+  "title": "domain/index.ts exports noteBlocks and Run so the notes editor drops its local copy of ev4's key order and 20,000-character run cap Done when: areas/notes/parts/editorDoc.ts uses the domain export; round-trip tests still pass",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: domain (interface change), areas/notes.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-828",
+  "kind": "task",
+  "title": "Notes editor leftovers: 4,000-line and 400-run refusals (noteFits), unwrap a row once a column is empty, ev4's HTML paste sanitiser Done when: Each has a test from the S-08 behaviours",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: areas/notes.",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
