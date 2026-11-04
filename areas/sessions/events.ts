@@ -10,10 +10,14 @@ export function eventKey(now: Date, rand: string): string {
 
 type Raw = Record<string, unknown>;
 
+/** The envelope every session write carries (§data.protocol): who wrote, when. ev4 freezes the sessions source enum. */
+const stamp = (now: Date) => ({ writer: "page", at: now.toISOString(), source: "E.V. Home" });
+
 function withEvent(raw: Raw, type: string, now: Date, rand: string): Raw {
   const events = (raw.events ?? {}) as Raw;
   return {
     ...raw,
+    ...stamp(now),
     events: {
       ...events,
       [eventKey(now, rand)]: { type, at: now.toISOString() },
@@ -45,5 +49,5 @@ export function withEnd(
 export function withTellMe(raw: Raw, now: Date, rand: string): Raw {
   const events = (raw.events ?? {}) as Raw;
   const e = { type: "answer", at: now.toISOString(), why: "tell-me" };
-  return { ...raw, events: { ...events, [eventKey(now, rand)]: e } };
+  return { ...raw, ...stamp(now), events: { ...events, [eventKey(now, rand)]: e } };
 }
