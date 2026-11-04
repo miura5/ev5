@@ -47,7 +47,8 @@ test("every handler belongs to a registry command Matt calls directly", () => {
         ["ask.just_tell_me", "job.retry_shorter"].includes(name),
       name,
     );
-    assert.equal(cmd.callers.matt, "direct");
+    // job_sweep is the schedule's own command (the 15-minute cron), not Matt's
+    assert.equal(cmd.callers[name === "job_sweep" ? "schedule" : "matt"], "direct");
   }
 });
 

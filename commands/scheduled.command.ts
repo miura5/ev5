@@ -9,6 +9,8 @@ export const scheduledCommands = [
   defineCommand({ name: 'export', title: 'Export a backup', input: none, callers: { schedule: 'direct' }, effect: 'job', every: 'daily' }),
   defineCommand({ name: 'restore_drill', title: 'Restore drill', input: none, callers: { schedule: 'direct' }, effect: 'job', every: 'weekly:sun' }),
   defineCommand({ name: 'push_summary', title: 'Push summary', input: none, callers: { schedule: 'direct' }, effect: 'job', every: 'daily' }),
+  // Fails jobs whose runner was lost (§job.record); runs on the 15-minute cron (wrangler triggers.crons).
+  defineCommand({ name: 'job_sweep', title: 'Sweep stale jobs', input: none, callers: { schedule: 'direct' }, effect: 'instant', every: 'every:15m' }),
   defineCommand({
     name: 'canvas_sync',
     title: 'Canvas sync',
