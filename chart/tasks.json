@@ -14776,10 +14776,10 @@
   "title": "Decide and record the time-zone library: domain/time keeps Intl, or takes @date-fns/tz as PLAN §4 and §12 name",
   "dod": "One Chart decision picks Intl or @date-fns/tz for domain/time (plan review F28 item 3: @date-fns/tz or Temporal, pick in Phase 0); if Intl, the decision amends PLAN §4 and §12 and the dependency-cruiser allowlist for domain drops @date-fns/tz; if @date-fns/tz, it is added pinned and domain/time uses it with the DST tests for 2026-11-01 and 2027-03-14 still green",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Found by the supervisor: B-714 built domain/time with Intl only (handover, eighth run) and no decision records the pick, while PLAN §4 line 115 and §12 line 391 still name @date-fns/tz. Build-manager call, not Matt's (AGENTS.md §6).",
-  "commit": null,
+  "notes": "Decided by D-465: Intl only.",
+  "commit": "753fde2",
   "source": "supervisor (ev-build), 2026-11-04"
  },
  {
@@ -14788,10 +14788,10 @@
   "title": "Decide and record the notes editor dependency: ProseMirror direct with the S-08 flat schema, or Tiptap",
   "dod": "One Chart decision names the editor packages and pinned versions (S-08 recommends prosemirror-model, -state, -view, -transform, -commands, -history, -keymap, -inputrules, all MIT), as CONTRACT §drift.tools needs for a new runtime dependency; B-784's real editor builds on it",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "PLAN §12 line 392 leaves ProseMirror/Tiptap open; S-08 (docs/spikes/S-08-notes-editor.md, B-698) recommends ProseMirror direct, but no decision records it. The handover says B-784 needs this dependency decision. Build-manager call, not Matt's.",
-  "commit": null,
+  "notes": "Decided by D-464: ProseMirror direct.",
+  "commit": "753fde2",
   "source": "supervisor (ev-build), 2026-11-04"
  }
 ]
