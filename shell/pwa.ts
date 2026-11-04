@@ -1,6 +1,6 @@
 // Registers the service worker that caches the app shell so it opens offline (CONTRACT §data.offline, §ui.targets).
 // A new build must reach the open app: the browser re-checks /sw.js on every focus, and when the new worker takes
-// over (autoUpdate = skipWaiting + clientsClaim) the page reloads once so it runs the new build (B-875).
+// over (autoUpdate = skipWaiting + clientsClaim) the page reloads once so it runs the new build.
 type SwNav = Pick<Navigator, "serviceWorker">;
 type Doc = Pick<Document, "addEventListener" | "visibilityState">;
 type Reloader = () => void;
