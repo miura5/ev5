@@ -8,6 +8,11 @@ import { api, jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 const readToken = (): string => {
   try {
     return localStorage.getItem(KEY) ?? "";
@@ -41,8 +46,14 @@ const list = async (collection: string, token: string): Promise<WireDoc[]> => {
   return ((await r.json()) as { docs: WireDoc[] }).docs;
 };
 
+/** The day's edit document, or null when there is none yet (a 404 or any non-ok answer). */
+const dayEdit = async (day: string, token: string): Promise<WireDoc | null> => {
+  const r = await get(`collection=dayedits&id=${day}`, token);
+  return r.ok ? ((await r.json()) as WireDoc) : null;
+};
+
 /** Reads exams, weak spots and today's plan edits with the app token Matt keeps in this browser (the shell holds none). */
-export function useToday(): TodayState {
+export function useToday(copy?: ReadCopyLike): TodayState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<TodayData>();
   const [error, setError] = useState<string>();
@@ -61,24 +72,28 @@ export function useToday(): TodayState {
     const now = Date.now();
     void (async () => {
       try {
-        const day = await get(
-          `collection=dayedits&id=${centralDate(now)}`,
-          token,
+        // Offline, each read gives back its saved copy (§data.offline); the shell says so.
+        const saved = <T,>(key: string, get: () => Promise<T>) =>
+          copy ? copy.read(key, get) : get();
+        const today = centralDate(now);
+        const day = await saved(`today:dayedits:${today}`, () =>
+          dayEdit(today, token),
         );
         const [exams, weakspots] = await Promise.all([
-          list("exams", token),
-          list("weakspots", token),
+          saved("today:exams", () => list("exams", token)),
+          saved("today:weakspots", () => list("weakspots", token)),
         ]);
         try {
-          const jr = await jobApi.list(token);
-          const jobs = jr.ok
-            ? ((await jr.json()) as { jobs: WireJobLine[] }).jobs
-            : [];
+          const jobs = await saved("jobs", async () => {
+            const jr = await jobApi.list(token);
+            if (!jr.ok) throw new Error(`jobs ${jr.status}`);
+            return ((await jr.json()) as { jobs: WireJobLine[] }).jobs;
+          });
           if (live) setAlert(spendAlertLine(jobs));
         } catch {
           // the alert is extra: Today still loads without it
         }
-        const dayedit = day.ok ? ((await day.json()) as WireDoc) : undefined;
+        const dayedit = day ?? undefined;
         if (live) {
           setData(mapToday({ exams, weakspots, dayedit }, now));
           setError(undefined);
@@ -95,7 +110,7 @@ export function useToday(): TodayState {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, copy]);
   const tick = useCallback(
     async (id: string, done: boolean): Promise<boolean> => {
       // online only (CONTRACT §data.offline): read the day as it is now, write it back whole, pinned to that version

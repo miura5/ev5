@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TodayView } from "./Today.view.tsx";
-import { useToday } from "./useToday.ts";
+import { useToday, type ReadCopyLike } from "./useToday.ts";
 
 const none = () => undefined;
 const dateLabel = () =>
@@ -21,8 +21,14 @@ const EMPTY = {
 };
 
 /** The mounted view: exams, weak spots and today's plan from /api/v1/docs; no data shows the empty day. */
-export function TodayScreen() {
-  const { data, token, error, alert, tick, setToken } = useToday();
+export function TodayScreen({
+  services,
+}: {
+  services?: { readCopy?: ReadCopyLike };
+}) {
+  const { data, token, error, alert, tick, setToken } = useToday(
+    services?.readCopy,
+  );
   const [notSaved, setNotSaved] = useState(false);
   const [draft, setDraft] = useState("");
   if (!token)

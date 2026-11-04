@@ -14,6 +14,15 @@ export interface WireMembership {
   at: number;
 }
 
+/** A docs row (GET /docs?collection=c): the item a membership points at. */
+export interface WireDoc {
+  id: string;
+  at?: number;
+  data?: unknown;
+}
+/** Docs by collection name, as read for the members' collections. */
+export type DocsByCollection = Record<string, readonly WireDoc[]>;
+
 export interface CollectionData {
   title: string;
   parent?: string;
@@ -32,11 +41,29 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
   goals: "date",
 };
 
+const field = (d: unknown, k: string): string | undefined => {
+  const v = d && typeof d === "object" ? (d as Record<string, unknown>)[k] : undefined;
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
+};
+
+/** The item's own name: title, else name, else text; the id only when the item is gone or unnamed. */
+export const docTitle = (d: WireDoc | undefined, fallback: string): string =>
+  field(d?.data, "title") ?? field(d?.data, "name") ?? field(d?.data, "text") ?? fallback;
+
+/** "Nov 3", Central time (§time), from epoch ms. */
+export const shortDate = (ms: number): string =>
+  new Date(ms).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "America/Chicago",
+  });
+
 /** Shows the collection `id`, else the first top-level one (by pos), with its sub-collections and members; none gives undefined (empty state). */
 export function mapCollection(
   collections: readonly WireCollection[],
   memberships: readonly WireMembership[],
   id?: string,
+  docs: DocsByCollection = {},
 ): CollectionData | undefined {
   const byPos = [...collections].sort(
     (a, b) => a.pos - b.pos || a.id.localeCompare(b.id),
@@ -59,11 +86,14 @@ export function mapCollection(
     items: memberships
       .filter((m) => m.collectionId === pick.id)
       .sort((a, b) => b.at - a.at)
-      .map((m) => ({
-        id: m.id,
-        type: TYPES[m.collection] ?? "note",
-        title: m.id,
-        meta: m.collection,
-      })),
+      .map((m) => {
+        const doc = docs[m.collection]?.find((d) => d.id === m.id);
+        return {
+          id: m.id,
+          type: TYPES[m.collection] ?? "note",
+          title: docTitle(doc, m.id),
+          meta: `${m.collection} · ${shortDate(doc?.at ?? m.at)}`,
+        };
+      }),
   };
 }

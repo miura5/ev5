@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { ActivityView } from "./Activity.view.tsx";
-import { useJobs } from "./useJobs.ts";
+import { useJobs, type ReadCopyLike } from "./useJobs.ts";
 
 /** The mounted view: unfinished jobs from /api/v1/jobs. Without a token it asks for one, once per browser. */
-export function ActivityScreen() {
-  const { jobs, token, error, setToken, dismiss } = useJobs();
+export function ActivityScreen({
+  services,
+}: {
+  services?: { readCopy?: ReadCopyLike };
+}) {
+  const { jobs, token, error, setToken, dismiss } = useJobs(
+    services?.readCopy,
+  );
   const [draft, setDraft] = useState("");
   if (!token)
     return (
