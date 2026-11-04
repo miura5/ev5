@@ -15736,7 +15736,7 @@
    "B-858",
    "B-859"
   ],
-  "notes": "Run 44 (#323): Notes failure/401, readToken fallback, Toast in Ask and note editor done. Left: e2e token journey on staging (no/wrong/right token); call() reason carries raw server text.",
+  "notes": "Run 44 (#323): Notes failure/401, readToken fallback, Toast in Ask and note editor done. e2e token journey (no/wrong/right token, Use a different token) added by the supervisor's thread 2026-11-04; passed on staging in gate5-e2e run 41847088493 (13 passed, 3 NOT BUILT). Left: call() reason carries raw server text.",
   "commit": null,
   "source": "Matt 2026-11-04 (ev-build): first try of staging; pasted a token, Ask showed 'unauthorized', Today and Library looked empty ('is this expected?')"
  },
