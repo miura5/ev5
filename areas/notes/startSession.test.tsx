@@ -50,11 +50,13 @@ test("Start session calls session.start, then opens Sessions", async () => {
   const onNavigate = vi.fn();
   fireEvent.click(await openNote(onNavigate));
   await waitFor(() => expect(onNavigate).toHaveBeenCalledWith("/sessions"));
-  expect(
-    fetchMock.mock.calls.some((c) =>
-      String((c as unknown[])[0]).includes("commands/session.start"),
-    ),
-  ).toBe(true);
+  const start = fetchMock.mock.calls.find((c) =>
+    String((c as unknown[])[0]).includes("commands/session.start"),
+  ) as unknown as [string, RequestInit] | undefined;
+  expect(start).toBeDefined();
+  expect(JSON.parse(String(start?.[1].body))).toMatchObject({
+    input: { noteId: "n1" },
+  });
 });
 
 test("a refused start stays on the note and says why", async () => {

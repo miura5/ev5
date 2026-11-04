@@ -57,7 +57,7 @@ export function NotesScreen({
     );
   // Starts a study session (the command ends any running one), then opens the Sessions area.
   const startSession = async () => {
-    const r = await call("session.start", {}, readToken());
+    const r = await call("session.start", { noteId: cur.id }, readToken());
     if (!r.ok || r.mode !== "direct") {
       setStartError(r.ok ? failureSentence(500) : r.reason);
       return;
