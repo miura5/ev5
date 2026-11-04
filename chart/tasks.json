@@ -15502,12 +15502,12 @@
   "title": "Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts",
   "dod": "One gatherer used by both; tests pass",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-810"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "4c030cc",
   "source": "ops/record"
  },
  {

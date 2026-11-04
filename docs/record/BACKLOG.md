@@ -129,7 +129,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-825 | File the after-cutover backlog Done when: Each 'after cutover' item in PLAN §8 and CONTRACT (predictions and calibration, Matt-first planning, Progress beyond one line, FSRS cards, card and step sets, saved views) is a Chart task with an after-cutover milestone | — | v5 P7 | open | Audit (review F32): these were deferred on purpose (PLAN §8, D-435) but no Chart item will bring them back. |
 | B-826 | Record where decisions D-001..D-043 live, or that they are not carried Done when: docs/record/DECISIONS.md names the location of the v2 decision log, or a Chart decision says it is not carried | — | v5 P7 | open | Audit (review F34, Q3): DECISIONS.md says only 'in the v2 doc's decision log'. |
 | B-840 | Schedule consumer: scheduleEntries() drives the schedule route or is deleted Done when: Done when scheduleEntries() has a non-test caller or is removed, with a test | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
-| B-845 | Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts Done when: One gatherer used by both; tests pass | B-810 | Phase 5 | open |  |
 
 ## Your turn
 
