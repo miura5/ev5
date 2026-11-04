@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels that PR's older run. Pushes to main are never cancelled.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   checks:
     name: checks
@@ -19,6 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 26
+          cache: npm
       - run: npm ci
       # Phase 0 checks; the full PLAN §11 set replaces this list in Phase 1 (S-11 to S-15).
       - run: npm test
@@ -47,6 +53,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 26
+          cache: npm
       - if: steps.baselines.outputs.present == 'true'
         run: npm ci
       - if: steps.baselines.outputs.present == 'true'
