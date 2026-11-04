@@ -83,3 +83,24 @@ test("the spend alert can be acknowledged from its row, and only it", () => {
   fireEvent.click(screen.getByRole("button", { name: "Got it" }));
   expect(onDismiss).toHaveBeenCalledWith("spend-alert:2026-11");
 });
+
+test("a server that sends lead and reason apart is used as is, with no sentence trimming", () => {
+  const j = toActivityJob({
+    id: "q",
+    kind: "study_plan",
+    state: "needs-you",
+    summary: "Study plan needs you. Rate it. It is waiting in Activity.",
+    lead: "Study plan needs you.",
+    reason: "Rate it. Then approve.",
+  });
+  expect(j).toMatchObject({ summary: "Study plan needs you.", reason: "Rate it. Then approve." });
+  const f = toActivityJob({
+    id: "r",
+    kind: "study-plan",
+    state: "failed",
+    summary: "x",
+    lead: "The plan did not finish.",
+    reason: "No exam date.",
+  });
+  expect(f.reason).toBe("No exam date.");
+});

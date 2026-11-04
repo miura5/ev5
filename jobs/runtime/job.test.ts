@@ -205,3 +205,23 @@ test('job_status: plain words, links, no chat question', async () => {
   assert.equal(f?.finished, true);
   assert.equal(f?.summary, 'The set did not finish. Over the cost cap.');
 });
+
+test('job_status: the reason is its own field, summary keeps it for E.V.', async () => {
+  forgetKinds();
+  const def = defineJob(spec());
+  const defs = new Map([[def.kind, def]]);
+  const { e } = env();
+  const j = await startJob(e, def, {}, 'matt');
+  const [q] = await jobStatus(e.store, defs, j.id);
+  assert.equal(q?.reason, undefined);
+  await reportJob(e, { jobId: j.id, state: 'running' });
+  await reportJob(e, { jobId: j.id, state: 'needs-you', step: 'approve', reason: 'Keep or drop 3 items.' });
+  const [w] = await jobStatus(e.store, defs, j.id);
+  assert.equal(w?.reason, 'Keep or drop 3 items.');
+  assert.ok(!w!.lead.includes('Keep or drop'));
+  assert.ok(!w!.lead.includes('Activity'));
+  await reportJob(e, { jobId: j.id, state: 'failed', reason: 'Over the cost cap.' });
+  const [f] = await jobStatus(e.store, defs, j.id);
+  assert.equal(f?.reason, 'Over the cost cap.');
+  assert.equal(f?.lead, 'The set did not finish.');
+});

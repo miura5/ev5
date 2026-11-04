@@ -21,22 +21,31 @@ export function oneSentence(summary: string, state: string): string {
   return state === "failed" ? own.slice(1).join(" ") : own[0]!;
 }
 
+/** The one sentence a row shows: the server's own fields when present, else the trimmed summary (old servers). */
+export const rowSentence = (j: { summary: string; state: string; lead?: string; reason?: string }): string =>
+  j.state === "failed" && j.reason ? j.reason : (j.lead ?? oneSentence(j.summary, j.state));
+
 /** One entry of GET /api/v1/jobs (server/job-routes.ts, jobs/runtime/status.ts); areas never import them, so restated. */
 interface WireJob {
   id: string;
   kind: string;
   state: ActivityJob["state"];
   summary: string;
+  /** Newer servers send the generic line and the reason apart (jobs/runtime/status.ts); older ones only `summary`. */
+  lead?: string;
+  reason?: string;
 }
 
 export const toActivityJob = (j: WireJob): ActivityJob => ({
   id: j.id,
   title: titleOf(j.kind),
   state: j.state,
-  summary: oneSentence(j.summary, j.state),
-  // The server's summary already carries the reason a job needs Matt or failed.
+  summary: j.lead ?? oneSentence(j.summary, j.state),
+  // The reason a job needs Matt or failed is its own field; old servers only fold it into the summary.
   reason:
-    j.state === "needs-you" || j.state === "failed" ? oneSentence(j.summary, j.state) : undefined,
+    j.state === "needs-you" || j.state === "failed"
+      ? (j.reason ?? oneSentence(j.summary, j.state))
+      : undefined,
   ...(j.kind === "spend-alert" && j.state === "needs-you"
     ? { dismissable: true }
     : {}),
