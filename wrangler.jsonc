@@ -12,6 +12,7 @@
   // (CONTRACT §deliver.window). ops/checks fails if any of it goes missing.
   "durable_objects": { "bindings": [{ "name": "PLAN_JOBS", "class_name": "PlanJob" }] },
   "migrations": [{ "tag": "v1-plan-jobs", "new_sqlite_classes": ["PlanJob"] }],
+  "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "ev5-staging-images" }],
   "workflows": [{ "name": "ev5-staging-jobs", "binding": "JOBS", "class_name": "JobWorkflow" }],
   "assets": {
     "directory": "./dist",

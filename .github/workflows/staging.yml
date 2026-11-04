@@ -32,6 +32,8 @@ jobs:
           npx --yes $WRANGLER d1 create "$NAME" || true
           npx --yes $WRANGLER d1 info "$NAME" --json | tee d1.json
           echo "DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")" >> "$GITHUB_ENV"
+      - name: Create the pictures bucket if missing
+        run: npx --yes $WRANGLER r2 bucket create "$NAME-images" || npx --yes $WRANGLER r2 bucket info "$NAME-images"
       - name: Schema and synthetic seed
         run: |
           node -e "const f='wrangler.jsonc',s=require('fs').readFileSync(f,'utf8');require('fs').writeFileSync(f,s.replace('00000000-0000-0000-0000-000000000000',process.env.DBID))"
