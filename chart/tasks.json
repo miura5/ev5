@@ -15118,7 +15118,7 @@
   "depends": [
    "B-752"
   ],
-  "notes": "Merged #245, #252: ask-ready journey built except the real reply (needs ANTHROPIC_API_KEY on the Worker) and a running job. 7 journeys still NOT BUILT. Dispatch gate5-e2e.yml on staging to confirm selectors.",
+  "notes": "Run 40: Today tick journey through the browser + / redirects to /today (#294). Still NOT BUILT: notes-offline, practice-set, study-plan.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "run40",
@@ -15174,10 +15174,10 @@
   "title": "Keep ev4's PlanJob class in v5's live build",
   "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing; rehearsal 2 deploys the real entry, not a rehearsal-only one (CONTRACT §deliver.window)",
   "milestone": "v5 P6",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F2, F26): only rehearsal.yml's own entry has a PlanJob stub; server/worker.ts exports default and JobWorkflow, wrangler.jsonc has no durable_objects. ops/ROLLBACK.md already says the real build must keep one. Must land before B-758.",
-  "commit": null,
+  "commit": "a344484",
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.349Z"
@@ -15448,10 +15448,10 @@
   "title": "Schedule consumer: scheduleEntries() drives the schedule route or is deleted",
   "dod": "Done when scheduleEntries() has a non-test caller or is removed, with a test",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "From the run-35 audit of B-734/B-737/B-747",
-  "commit": null,
+  "commit": "bac536b",
   "source": "ops/record",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.559Z"
@@ -15630,7 +15630,7 @@
   "depends": [
    "B-851"
   ],
-  "notes": "Merged #285 (shell jobs poll; own IndexedDB fake in appDb.test.ts, no fake-indexeddb needed), #288 (activity, ask, today, notes collections), #289 (library). Left: commands/client jobApi/api GETs read direct; areas/sessions and areas/collection not covered; check shell hands readCopy to LibraryScreen.",
+  "notes": "Run 40: sessions, collection, deleted fall back to saved copy (#296). Rest is B-856.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "run40",
@@ -15642,14 +15642,42 @@
   "title": "server/image-routes.ts imports IMG_KEY from domain instead of its own KEY regex",
   "dod": "One key pattern; server may import domain (check depcruise)",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-852"
   ],
   "notes": "From B-852 report. Slice: server/.",
-  "commit": null,
+  "commit": "aeb3fe4",
   "source": "ops/record",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.055Z"
+ },
+ {
+  "id": "B-855",
+  "kind": "task",
+  "title": "PlanJob follow-ups: ops/ROLLBACK.md line 41 says v5 has no PlanJob; rehearsal.yml should deploy the real worker entry",
+  "dod": "ROLLBACK.md matches the PlanJob stub; rehearsal 2 deploys server/worker.ts, not its own stub",
+  "milestone": "6",
+  "status": "open",
+  "depends": [
+   "B-820"
+  ],
+  "notes": "Left by the B-820 builder (outside its slice)",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-856",
+  "kind": "task",
+  "title": "commands/client.ts jobApi reads direct: fall back to the saved copy (generated from ops/generate/lib.ts); useSessions note read also direct",
+  "dod": "jobApi and the session note read use the saved copy offline; 401/5xx still throw",
+  "milestone": "5",
+  "status": "open",
+  "depends": [
+   "B-853"
+  ],
+  "notes": "B-853 rest after #296",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
