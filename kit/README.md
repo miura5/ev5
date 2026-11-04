@@ -1,6 +1,6 @@
 # kit/
 
-Proprietary, E.V.'s design system. `tokens/` is the only place colours, type and space are defined. Never imports the app.
+Proprietary, E.V.'s design system. Looks start here (§ui.kit-leads). Never imports the app.
 
 <!-- generated:start -->
 Interface: THEMES, Theme, STORIES, Row, Glyph, type GlyphType, Detail, type DetailProps, Palette, type PaletteGroup, Button, Source, Doc, EvLine, Suggestion, Tile, TextOptions, Field, AreaIcon, NavItem, NavGroup, JobLine, SidebarSearch

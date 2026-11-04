@@ -1,6 +1,6 @@
 # kit/tokens/
 
-`tokens.css`: the only place colours, type and space are defined.
+`tokens.css`: colour, type and space values (§ui.kit-leads).
 
 <!-- generated:start -->
 Interface: (none yet)
