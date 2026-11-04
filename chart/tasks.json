@@ -15114,13 +15114,15 @@
   "title": "Gate 5 journeys as @playwright/test browser specs",
   "dod": "Each PLAN Phase 5 journey is its own @playwright/test file under e2e/ that drives the UI on staging in the Playwright Docker image; the gate run fails on any todo or skipped journey; the journeys run on every batch (CONTRACT §drift.tools, §drift.checks); e2e/journeys.ts's own runner is removed",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-752"
   ],
   "notes": "Merged #245, #252: ask-ready journey built except the real reply (needs ANTHROPIC_API_KEY on the Worker) and a running job. 7 journeys still NOT BUILT. Dispatch gate5-e2e.yml on staging to confirm selectors.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.952Z"
  },
  {
   "id": "B-817",
@@ -15172,11 +15174,13 @@
   "title": "Keep ev4's PlanJob class in v5's live build",
   "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing; rehearsal 2 deploys the real entry, not a rehearsal-only one (CONTRACT §deliver.window)",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Audit (review F2, F26): only rehearsal.yml's own entry has a PlanJob stub; server/worker.ts exports default and JobWorkflow, wrangler.jsonc has no durable_objects. ops/ROLLBACK.md already says the real build must keep one. Must land before B-758.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.349Z"
  },
  {
   "id": "B-821",
@@ -15444,11 +15448,13 @@
   "title": "Schedule consumer: scheduleEntries() drives the schedule route or is deleted",
   "dod": "Done when scheduleEntries() has a non-test caller or is removed, with a test",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "From the run-35 audit of B-734/B-737/B-747",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.559Z"
  },
  {
   "id": "B-841",
@@ -15620,13 +15626,15 @@
   "title": "Read copy for jobs, collections and the notes reads; test the IndexedDB store",
   "dod": "useShellStatus, jobApi, api GETs and readCollections fall back to the saved copy; the v1 to v2 upgrade and indexedDbCopyStore are run in a test (fake-indexeddb needs a Chart decision first) or by an e2e check",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-851"
   ],
   "notes": "Merged #285 (shell jobs poll; own IndexedDB fake in appDb.test.ts, no fake-indexeddb needed), #288 (activity, ask, today, notes collections), #289 (library). Left: commands/client jobApi/api GETs read direct; areas/sessions and areas/collection not covered; check shell hands readCopy to LibraryScreen.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.731Z"
  },
  {
   "id": "B-854",
@@ -15634,12 +15642,14 @@
   "title": "server/image-routes.ts imports IMG_KEY from domain instead of its own KEY regex",
   "dod": "One key pattern; server may import domain (check depcruise)",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-852"
   ],
   "notes": "From B-852 report. Slice: server/.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.055Z"
  }
 ]

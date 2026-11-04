@@ -21,8 +21,13 @@ export interface DeletedState {
   setToken: (t: string) => void;
 }
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 /** Reads soft-deleted items with the app token Matt keeps in this browser. */
-export function useDeleted(): DeletedState {
+export function useDeleted(copy?: ReadCopyLike): DeletedState {
   const [token, setTokenState] = useState(readToken);
   const [items, setItems] = useState<DeletedItem[]>([]);
   const [error, setError] = useState<string>();
@@ -39,11 +44,16 @@ export function useDeleted(): DeletedState {
     let live = true;
     void (async () => {
       try {
-        const r = await api("deletions", token);
-        if (r.status === 401) throw new Error("That token was not accepted.");
-        if (!r.ok) throw new Error("Recently deleted could not load.");
-        const rows = ((await r.json()) as { deletions: WireDeletion[] })
-          .deletions;
+        // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
+        const fetcher = async (): Promise<WireDeletion[]> => {
+          const r = await api("deletions", token);
+          if (r.status === 401) throw new Error("That token was not accepted.");
+          if (!r.ok) throw new Error("Recently deleted could not load.");
+          return ((await r.json()) as { deletions: WireDeletion[] }).deletions;
+        };
+        const rows = copy
+          ? await copy.read("deleted:list", fetcher)
+          : await fetcher();
         if (live) {
           setItems(mapDeletions(rows, Date.now()));
           setError(undefined);
@@ -58,6 +68,6 @@ export function useDeleted(): DeletedState {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, copy]);
   return { items, token, error, setToken };
 }

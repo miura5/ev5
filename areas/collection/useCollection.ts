@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapCollection } from "./map.ts";
-import type { CollectionData, DocsByCollection, WireCollection, WireDoc, WireMembership } from "./map.ts";
+import type {
+  CollectionData,
+  DocsByCollection,
+  WireCollection,
+  WireDoc,
+  WireMembership,
+} from "./map.ts";
 import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
@@ -21,15 +27,27 @@ export interface CollectionState {
   setToken: (t: string) => void;
 }
 
-async function get<T>(path: string, token: string): Promise<T> {
-  const r = await api(path, token);
-  if (r.status === 401) throw new Error("That token was not accepted.");
-  if (!r.ok) throw new Error("The collection could not load.");
-  return (await r.json()) as T;
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
+/** Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline). */
+function get<T>(path: string, token: string, copy?: ReadCopyLike): Promise<T> {
+  const fetcher = async (): Promise<T> => {
+    const r = await api(path, token);
+    if (r.status === 401) throw new Error("That token was not accepted.");
+    if (!r.ok) throw new Error("The collection could not load.");
+    return (await r.json()) as T;
+  };
+  return copy ? copy.read(`collection:${path}`, fetcher) : fetcher();
 }
 
 /** Reads collections and memberships with the app token Matt keeps in this browser. */
-export function useCollection(id?: string): CollectionState {
+export function useCollection(
+  id?: string,
+  copy?: ReadCopyLike,
+): CollectionState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<CollectionData>();
   const [loaded, setLoaded] = useState(false);
@@ -48,15 +66,29 @@ export function useCollection(id?: string): CollectionState {
     void (async () => {
       try {
         const [c, m] = await Promise.all([
-          get<{ collections: WireCollection[] }>("/api/v1/collections", token),
-          get<{ memberships: WireMembership[] }>("/api/v1/memberships", token),
+          get<{ collections: WireCollection[] }>(
+            "/api/v1/collections",
+            token,
+            copy,
+          ),
+          get<{ memberships: WireMembership[] }>(
+            "/api/v1/memberships",
+            token,
+            copy,
+          ),
         ]);
         const kinds = [...new Set(m.memberships.map((x) => x.collection))];
         const docs: DocsByCollection = {};
         await Promise.all(
           kinds.map(async (k) => {
             try {
-              docs[k] = (await get<{ docs: WireDoc[] }>(`/api/v1/docs?collection=${k}`, token)).docs;
+              docs[k] = (
+                await get<{ docs: WireDoc[] }>(
+                  `/api/v1/docs?collection=${k}`,
+                  token,
+                  copy,
+                )
+              ).docs;
             } catch {
               // titles fall back to ids for a kind that will not load
             }
@@ -77,6 +109,6 @@ export function useCollection(id?: string): CollectionState {
     return () => {
       live = false;
     };
-  }, [token, id]);
+  }, [token, id, copy]);
   return { data, loaded, token, error, setToken };
 }
