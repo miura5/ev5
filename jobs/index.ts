@@ -22,7 +22,7 @@ export type { JobDef } from "./runtime/define.ts";
 export type { ModelCall } from "./runtime/output.ts";
 export { sdkModelCall } from "./runtime/model-call.ts";
 export type { CeilingConfig, CeilingStore } from "./runtime/ceilings.ts";
-export { practiceSet } from "./practice-set/job.ts";
+export { practiceSet, parsePublicInput } from "./practice-set/job.ts";
 export { practiceSetHandlers } from "./practice-set/handlers.ts";
 export type { PracticeStore } from "./practice-set/handlers.ts";
 export { studyPlanJob, studyPlanHandlers } from "./study-plan/job.ts";
