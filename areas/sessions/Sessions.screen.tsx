@@ -3,15 +3,20 @@ import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
 import { SessionView } from "./Sessions.view.tsx";
-import { useSessions } from "./useSessions.ts";
+import { useSessions, type ReadCopyLike } from "./useSessions.ts";
 
 const none = () => undefined;
 const rand = () => Math.random().toString(36).slice(2, 6).padEnd(4, "0");
 
 /** The mounted view: the running (else latest) session from /api/v1/docs; pause and End act on this screen only. */
-export function SessionsScreen() {
-  const { data, token, error, setToken, note, toggleTodo, save } =
-    useSessions();
+export function SessionsScreen({
+  services,
+}: {
+  services?: { readCopy?: ReadCopyLike };
+}) {
+  const { data, token, error, setToken, note, toggleTodo, save } = useSessions(
+    services?.readCopy,
+  );
   const [draft, setDraft] = useState("");
   const [extra, setExtra] = useState(0);
   const [closed, setClosed] = useState(false);
