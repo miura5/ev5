@@ -7,6 +7,7 @@ import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler } from "./handlers-core.ts";
 import { dateHandlers } from "./handlers-dates.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
+import { jobHandlers } from "./handlers-jobs.ts";
 import { noteHandlers, newHereHandler } from "./handlers-notes.ts";
 import { planHandlers } from "./handlers-plan.ts";
 import { proposalHandlers } from "./handlers-proposal.ts";
@@ -39,6 +40,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
   ...dateHandlers,
   ...draftHandlers,
   ...proposalHandlers(() => commandHandlers),
+  ...jobHandlers,
   ...noteHandlers,
   ...newHereHandler(() => commandHandlers),
   ...sessionHandlers,

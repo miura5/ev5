@@ -19,6 +19,8 @@ export interface HandlerCtx {
   clock: () => number;
   newId: () => string;
   /** Asks E.V. one question on the same path as POST /ask; the route supplies it from the Worker's bindings. */
+  /** The Workflows binding, for commands that start a job. */
+  jobs?: { create(o: { id: string; params: unknown }): Promise<unknown> };
   ask?: (text: string) => Promise<unknown>;
 }
 export type CommandHandler = (
