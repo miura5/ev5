@@ -16198,5 +16198,113 @@
   "source": "run 56 builder report",
   "claimedBy": "run56",
   "claimedAt": "2026-11-04T22:34:18.275Z"
+ },
+ {
+  "id": "B-898",
+  "kind": "task",
+  "title": "Study-plan approval UI in the Library exam Detail",
+  "dod": "Library exam Detail shows Plan with E.V., Approve, Ask for changes and Put away; handlers still 501 show a plain not-ready sentence",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #391; ids used by run 58 without a Chart entry",
+  "commit": "34f7a24",
+  "source": "run 58 (filed later from its branch names and handover, 2026-11-04)"
+ },
+ {
+  "id": "B-899",
+  "kind": "task",
+  "title": "Practice-set journey in the browser",
+  "dod": "e2e journey: Library, Study, answer, reveal, leave, attempt read back",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #390 (uses a set written through the API; unrun on staging); ids used by run 58 without a Chart entry",
+  "commit": "69ee5d9",
+  "source": "run 58 (filed later from its branch names and handover, 2026-11-04)"
+ },
+ {
+  "id": "B-900",
+  "kind": "task",
+  "title": "Ask E.V. stops calling itself a nursing-school study partner on every course",
+  "dod": "server/ask-chat.ts:33 ASK_SYSTEM says \"Matt's study partner for nursing school\" on every chat. Frame it through domain/course (examFrame/chatCourse in domain/course/frame.ts), like the other prompts: a course flagged nursing keeps the nursing wording, another course gets its own exams, no known course gets neutral wording. A server test pins all three. Slice: write server; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-901",
+  "kind": "task",
+  "title": "Study plan prompts stop saying \"one nursing student\" for every course",
+  "dod": "jobs/study-plan/prompt.md:1 (\"one nursing student's exam\") and jobs/study-plan/changes-prompt.md:1 (\"one nursing student\") are framed by the plan's course through domain/course/frame.ts (both loaded in server/job-workflow.ts:7-8): nursing wording only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/study-plan, server; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-902",
+  "kind": "task",
+  "title": "Practice set prompt stops naming NUR 112 and BIO 201 and asking for NCLEX-style questions on every course",
+  "dod": "jobs/practice-set/prompt.md:1 names two courses (\"first-semester ADN nursing student (NUR 112 and BIO 201)\"), against §data.course-facts (no course is named in code), and :7 asks for NCLEX-style questions on every set. The prompt names no course and is framed by the set's course through domain/course/frame.ts (frameText already reframes NCLEX-style): NCLEX only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/practice-set, server; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-903",
+  "kind": "task",
+  "title": "Short-answer grading stops calling every student a nursing student",
+  "dod": "domain/item/open.ts:65 gradePrompt says \"a nursing student\" for every short answer. The grader names no subject, or takes it from the item's course through domain/course framing. A test pins that a non-nursing item's grade prompt has no nursing wording. Slice: write domain/item; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-904",
+  "kind": "task",
+  "title": "Questions outside a nursing course stop warning about a missing clinical-judgment step",
+  "dod": "domain/item/validate.ts:81-82 warns (an error in strict mode) on every question with no cjStep, and domain/item/reply.ts:119-120 keeps cjSteps on any course. Only an item in a course flagged nursing needs or keeps a clinical-judgment step; other courses get no warning and no step. A test pins both. Related ev4 bug: B-679 (BIO 201 mock exam shows clinical-judgment steps, v4); this is the v5 side. Slice: write domain/item; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-905",
+  "kind": "task",
+  "title": "Decide whether the clinical-prep and skills-prep plan item kinds show only on nursing courses",
+  "dod": "domain/item-props/types.ts:60-61 lists skills-prep and clinical-prep as built-in plan item kinds (areas/today/map.ts:71 labels clinical prep). Recommendation: keep both kinds in the type, because ev4's dayedits schema 1 holds them; offer them only for a course flagged nursing wherever a kind picker lists kinds, and keep showing any stored item of those kinds. Record the decision in the Chart; if a picker offers them today, gate it with a test. Slice: write areas, domain/item-props; read domain/course.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
+ },
+ {
+  "id": "B-906",
+  "kind": "task",
+  "title": "A course not synced from Canvas needs no Canvas course id",
+  "dod": "domain/course/types.ts:6 requires canvasId: number and domain/course/table.ts:19 refuses a course without an integer canvasId. canvasId becomes optional for a course not synced from Canvas; table.ts still refuses a canvasId that is present but not an integer; canvas-sync and every reader of canvasId (domain/exam, server/handlers-dates.ts, data/compat) skip a course without one. Tests pin a course with no canvasId, and the ev4 compat fixture still passes. Slice: write domain/course; read domain/exam, data/compat.",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "commit": null,
+  "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  }
 ]
