@@ -14735,13 +14735,15 @@
   "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
   "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-787"
   ],
   "notes": "Slice write: kit/components/Palette, kit/index.ts, package.json, package-lock.json. Read: shell (Shell.tsx opens it on ⌘K). After the Menu task, so the package files do not conflict.",
   "commit": null,
-  "source": "supervisor (ev-build), 2026-11-04"
+  "source": "supervisor (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T01:37:06.216Z"
  },
  {
   "id": "B-789",
@@ -14749,13 +14751,15 @@
   "title": "Kit Segmented and TextOptions: roving arrow-key focus through Radix ToggleGroup",
   "dod": "Segmented (kit/components/Field) and TextOptions render through @radix-ui/react-toggle-group type single (unstyled); one Tab stop per group, arrows move focus; same look: visual baselines unchanged; keyboard and focus tests per component; area tests that select these by role still pass or are updated to role and name",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-788"
   ],
   "notes": "Slice write: kit/components/Field, kit/components/TextOptions, kit/index.ts, package.json, package-lock.json. Read: areas (tests that use these). After the Palette task, so the package files do not conflict.",
   "commit": null,
-  "source": "supervisor (ev-build), 2026-11-04"
+  "source": "supervisor (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T01:43:23.193Z"
  },
  {
   "id": "B-790",
@@ -14820,11 +14824,13 @@
   "title": "Fix the kit gallery visual baselines (height 4989 vs 5529) so the visual job is green on main Done when: visual CI job passes on main",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Regenerate via dispatching visual-baselines.yml on a branch (needs Docker); then push one real commit.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T01:37:06.391Z"
  },
  {
   "id": "B-795",

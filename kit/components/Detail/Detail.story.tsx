@@ -8,7 +8,13 @@ export function Story() {
       <Detail
         title="Cardiac output terms"
         primary={{ label: "Study", hint: "S", onRun: () => undefined }}
-        onMore={() => undefined}
+        more={{
+          items: [
+            { key: "rename", label: "Rename" },
+            { key: "delete", label: "Delete", danger: true },
+          ],
+          onPick: () => undefined,
+        }}
         properties={[
           { label: "Collection", value: coll, onChange: setColl },
           { label: "Cards", value: "8" },
