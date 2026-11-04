@@ -127,30 +127,26 @@ jobs:
           CFG_PATH: ${{ inputs.ev4_config }}
           TOKEN_SECRET: ${{ inputs.ev4_token_secret }}
 
-      - name: 2. Deploy empty v5 over it (keeping a PlanJob stub)
+      - name: 2. Deploy v5's real Worker entry over it (keeping the PlanJob class)
         if: inputs.action == 'run'
         run: |
           set -eu -o pipefail
           npm run build
-          # The rehearsal entry keeps the PlanJob class as the live v5 build must (CONTRACT §deliver.window).
-          cat > rehearsal-entry.ts <<'TS'
-          import app from './server/index.ts';
-          export default app;
-          export class PlanJob {
-            fetch(): Response { return new Response('PlanJob stub', { status: 410 }); }
-          }
-          TS
+          # server/worker.ts is the real entry (the Hono app, JobWorkflow and the PlanJob class, CONTRACT §deliver.window).
+          # Only the names change: the throwaway Worker and D1 pair, and a Workflow of its own. Bindings and the
+          # migration tag mirror wrangler.jsonc (ops/checks planjob keeps those honest).
           cat > rehearsal-v5.jsonc <<CFG
-          { "name": "$NAME", "main": "rehearsal-entry.ts", "compatibility_date": "2026-10-01",
+          { "name": "$NAME", "main": "server/worker.ts", "compatibility_date": "2026-10-01",
+            "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
             "workers_dev": true, "vars": { "ENV_NAME": "rehearsal" },
             "d1_databases": [{ "binding": "DB", "database_name": "$NAME", "database_id": "$DBID" }],
-            "durable_objects": { "bindings": [{ "name": "$DO_BINDING", "class_name": "PlanJob" }] },
+            "durable_objects": { "bindings": [{ "name": "PLAN_JOBS", "class_name": "PlanJob" }] },
+            "migrations": [{ "tag": "v1-plan-jobs", "new_sqlite_classes": ["PlanJob"] }],
+            "workflows": [{ "name": "$NAME-jobs", "binding": "JOBS", "class_name": "JobWorkflow" }],
             "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] } }
           CFG
           npx --yes $WRANGLER deploy -c rehearsal-v5.jsonc --var COMMIT:${{ github.sha }} 2>&1 | tee deploy-v5.log
           sleep 10
-        env:
-          DO_BINDING: PLAN_JOB
 
       - name: 3. ev4's routes answer 410
         id: gone
