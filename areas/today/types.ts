@@ -45,6 +45,8 @@ export interface TodayProps {
   /** E.V.'s one line: the lead words come up to text. */
   say: { lead: string; rest: string; source?: string };
   plan: PlanItem[];
+  /** The one line shown when spend passes 80% of the monthly limit. */
+  alert?: string;
   proposal?: Proposal;
   upcoming: UpcomingDate[];
   thisWeek: ThisWeekItem[];

@@ -6,6 +6,7 @@ import {
   d1JobStore,
   d1PlanStore,
   jobCeilings,
+  spendAlertWriter,
   practiceSet,
   practiceSetHandlers,
   runJob,
@@ -31,7 +32,11 @@ export type JobRunEnv = {
   db: D1Like;
   call: ModelCall;
   /** Each kind's system prompt (prompt.md), loaded by the Worker as a wrangler Text module. */
-  prompts: { practice_set: string; study_plan: string; study_plan_changes: string };
+  prompts: {
+    practice_set: string;
+    study_plan: string;
+    study_plan_changes: string;
+  };
   /** Where the study plan reads its exam and approves its tasks (ev4 docs; server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
@@ -166,15 +171,17 @@ export async function runWorkflow(
   const now = env.now ?? (() => new Date());
   const kind = jobKinds(env)[p.kind];
   if (!kind) throw new Error(`This Worker does not run ${p.kind} jobs.`);
+  const jobStore = d1JobStore(env.db, () => now().getTime());
   const ceilings = jobCeilings(
     ceilingStore ?? d1CeilingStore(env.db),
     () => loadCeilingConfig(env.db),
     now,
     env.newId ?? (() => crypto.randomUUID()),
+    spendAlertWriter(jobStore),
   );
   await runJob(
     {
-      store: d1JobStore(env.db, () => now().getTime()),
+      store: jobStore,
       ceilings,
       now: () => now().toISOString(),
     },

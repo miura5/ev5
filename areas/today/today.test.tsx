@@ -95,3 +95,16 @@ test("empty states, no suggestion, Start next disabled when all done", () => {
       .disabled,
   ).toBe(true);
 });
+
+test("Today shows one spend line when the alert is set, none otherwise", () => {
+  const { rerender } = render(<TodayView {...props()} />);
+  expect(screen.queryByText(/monthly limit/)).toBeNull();
+  rerender(
+    <TodayView
+      {...props({
+        alert: "E.V. has used $0.85 of the $1.00 monthly limit (80%).",
+      })}
+    />,
+  );
+  expect(screen.getAllByText(/monthly limit/)).toHaveLength(1);
+});

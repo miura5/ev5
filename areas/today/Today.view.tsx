@@ -52,6 +52,11 @@ export function TodayView(p: TodayProps) {
           ) : null}
         </EvLine>
       </header>
+      {p.alert ? (
+        <EvLine>
+          <b>Spend:</b> {p.alert}
+        </EvLine>
+      ) : null}
       <Section title="Plan" count={open}>
         {p.plan.length === 0 ? (
           <span className="ev-today-meta">Nothing planned for today.</span>
