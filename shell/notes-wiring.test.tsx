@@ -114,3 +114,21 @@ test("a refused token shows the reason and no notes", async () => {
   render(<NotesScreen services={{ docs: http, outbox }} />);
   expect(await screen.findByText("That token was not accepted.")).toBeTruthy();
 });
+
+test("a block edit saves through the outbox, and New note queues a create", async () => {
+  const { s, services } = fakeServer();
+  render(<NotesScreen services={services} />);
+  fireEvent.click((await screen.findAllByText("Fluids"))[0]!);
+  const box = await screen.findByLabelText("Block 2");
+  fireEvent.change(box, { target: { value: "Sodium 135-145" } });
+  fireEvent.blur(box);
+  await waitFor(() => expect(s.v).toBe(2));
+  const saved = s.data as { blocks: { runs: { text: string }[] }[] };
+  expect(saved.blocks[1]!.runs[0]!.text).toBe("Sodium 135-145");
+  fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
+  fireEvent.click(screen.getByRole("button", { name: /New note/ }));
+  await waitFor(() => expect(s.puts.length).toBe(2));
+  expect(s.puts[1]).toMatch(
+    /^\?collection=notes&id=n-\d{8}-\d{6}-[A-Za-z0-9]+$/,
+  );
+});

@@ -174,3 +174,36 @@
   color: var(--faint);
   font-size: var(--fs-meta);
 }
+
+.ev-notes-editline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}
+
+.ev-notes-editline textarea {
+  flex: 1;
+  field-sizing: content;
+  min-height: 1.5em;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: var(--sp-1) 0;
+}
+
+.ev-notes-editline[data-block="h1"] textarea,
+.ev-notes-editline[data-block="h2"] textarea,
+.ev-notes-editline[data-block="h3"] textarea {
+  font-weight: var(--fw-medium);
+}
+
+.ev-notes-addblock {
+  border: 0;
+  background: transparent;
+  color: var(--ink-3, inherit);
+  font: inherit;
+  cursor: pointer;
+  padding: var(--sp-2) 0;
+}

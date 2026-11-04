@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { parseNote, type Note } from "../../domain/index.ts";
+import {
+  newNoteId,
+  noteDoc,
+  parseNote,
+  type Block,
+  type Note,
+} from "../../domain/index.ts";
+import { readCollections, type CollectionsRead } from "./collections.ts";
+import type { NoteCollection } from "./types.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface NotesServices {
@@ -30,6 +38,13 @@ export interface NotesState {
   notes: LoadedNote[];
   error?: string;
   saveState: SaveState;
+  collections: NoteCollection[];
+  /** Note id to its collection id. */
+  members: ReadonlyMap<string, string>;
+  /** Makes an empty note, queues it, and returns its id. */
+  createNote: () => Promise<string | undefined>;
+  /** Saves edited blocks through the outbox (offline-safe); the title follows the first heading. */
+  saveBlocks: (id: string, blocks: Block[]) => Promise<void>;
   /** Saves a new first-heading text through the outbox: it works offline and replays when the connection returns. */
   saveTitle: (id: string, title: string) => Promise<void>;
 }
@@ -51,6 +66,10 @@ export function useNotes(services?: NotesServices): NotesState {
   const [notes, setNotes] = useState<LoadedNote[]>([]);
   const [error, setError] = useState<string>();
   const [saveState, setSaveState] = useState<SaveState>("saved");
+  const [cols, setCols] = useState<CollectionsRead>({
+    collections: [],
+    members: new Map(),
+  });
 
   const load = useCallback(async () => {
     if (!services) return;
@@ -67,6 +86,7 @@ export function useNotes(services?: NotesServices): NotesState {
         }),
       );
       setError(undefined);
+      setCols(await readCollections());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Notes could not load.");
     }
@@ -76,24 +96,74 @@ export function useNotes(services?: NotesServices): NotesState {
     void load();
   }, [load]);
 
-  const saveTitle = useCallback(
-    async (id: string, title: string) => {
-      const cur = notes.find((n) => n.id === id);
-      if (!services || !cur || !title.trim()) return;
-      const doc = withTitle(cur.note, title, new Date().toISOString());
+  /** Shows the document now, queues it, and tries to send; the state says whether it got there. */
+  const persist = useCallback(
+    async (id: string, doc: Note, base: number | null) => {
+      if (!services) return;
       setSaveState("saving");
       setNotes((all) =>
-        all.map((n) => (n.id === id ? { ...n, note: doc } : n)),
+        all.some((n) => n.id === id)
+          ? all.map((n) => (n.id === id ? { ...n, note: doc } : n))
+          : [{ id, v: 0, note: doc }, ...all],
       );
-      await services.outbox.queueNote(id, doc, cur.v);
+      await services.outbox.queueNote(id, doc, base);
       const res = await services.outbox.replay();
       if (res.stopped || res.refused.length)
         return void setSaveState("not saved");
       setSaveState("saved");
       await load();
     },
-    [services, notes, load],
+    [services, load],
   );
 
-  return { notes, error, saveState, saveTitle };
+  const saveBlocks = useCallback(
+    async (id: string, blocks: Block[]) => {
+      const cur = notes.find((n) => n.id === id);
+      if (!cur) return;
+      const at = new Date().toISOString();
+      const doc = noteDoc(cur.note, { blocks, at, source: "E.V. 5" });
+      await persist(id, doc, cur.v || null);
+    },
+    [notes, persist],
+  );
+
+  const saveTitle = useCallback(
+    async (id: string, title: string) => {
+      const cur = notes.find((n) => n.id === id);
+      if (!cur || !title.trim()) return;
+      await persist(
+        id,
+        withTitle(cur.note, title, new Date().toISOString()),
+        cur.v || null,
+      );
+    },
+    [notes, persist],
+  );
+
+  const createNote = useCallback(async () => {
+    if (!services) return undefined;
+    const at = new Date().toISOString();
+    const id = newNoteId(at, crypto.randomUUID());
+    const doc = noteDoc(null, {
+      blocks: [
+        { type: "h1", runs: [{ text: "Untitled" }] },
+        { type: "p", runs: [] },
+      ],
+      at,
+      source: "E.V. 5",
+    });
+    await persist(id, doc, null);
+    return id;
+  }, [services, persist]);
+
+  return {
+    notes,
+    error,
+    saveState,
+    collections: cols.collections,
+    members: cols.members,
+    createNote,
+    saveBlocks,
+    saveTitle,
+  };
 }
