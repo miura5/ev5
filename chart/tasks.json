@@ -14721,10 +14721,10 @@
   "title": "Kit Menu onto Radix: DropdownMenu for ⋯ and '.', ContextMenu for right-click, radio items for pickers; Detail's ⋯ opens the kit Menu",
   "dod": "kit/components/Menu renders through @radix-ui/react-dropdown-menu and @radix-ui/react-context-menu (unstyled, kit CSS only); Detail's ⋯ is the Menu trigger (items passed in, not drawn by the caller); no useState/useRef focus or key code left in Menu; same look: Playwright visual baselines for Menu and Detail unchanged; keyboard and focus tests: arrows move, Enter picks, Esc closes and returns focus to the trigger, typeahead, radio item checked state",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Slice write: kit/components/Menu, kit/components/Detail, kit/index.ts, package.json, package-lock.json. Read: areas, shell (no caller uses Menu or onMore yet). Wiring Row right-click into areas is area work, not this task. The visual job is not required in CI (handover): run the visual diff and record it in the PR.",
-  "commit": null,
+  "commit": "c573ad9",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:42.308Z"
@@ -14735,12 +14735,12 @@
   "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
   "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-787"
   ],
   "notes": "Slice write: kit/components/Palette, kit/index.ts, package.json, package-lock.json. Read: shell (Shell.tsx opens it on ⌘K). After the Menu task, so the package files do not conflict.",
-  "commit": null,
+  "commit": "c773410",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:37:06.216Z"
@@ -14751,12 +14751,12 @@
   "title": "Kit Segmented and TextOptions: roving arrow-key focus through Radix ToggleGroup",
   "dod": "Segmented (kit/components/Field) and TextOptions render through @radix-ui/react-toggle-group type single (unstyled); one Tab stop per group, arrows move focus; same look: visual baselines unchanged; keyboard and focus tests per component; area tests that select these by role still pass or are updated to role and name",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-788"
   ],
   "notes": "Slice write: kit/components/Field, kit/components/TextOptions, kit/index.ts, package.json, package-lock.json. Read: areas (tests that use these). After the Palette task, so the package files do not conflict.",
-  "commit": null,
+  "commit": "f9b8b90",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:43:23.193Z"
@@ -14767,7 +14767,7 @@
   "title": "Guard: a kit component that draws a menu, listbox, combobox or modal dialog must import Radix or cmdk",
   "dod": "A check in ops/checks fails when a kit/components/*.tsx (not a story or test) contains role=\"menu\", \"listbox\", \"combobox\", \"dialog\" or aria-modal, or handles ArrowDown/Escape keys itself, and imports nothing from @radix-ui/ or cmdk; a guard-failure fixture goes red (ops/guards, docs/guards.md); main is green with it on",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-787",
    "B-788",
@@ -14775,7 +14775,9 @@
   ],
   "notes": "Slice write: ops/checks, ops/guards, docs/guards.md. Read: kit. Cheap text check, no parser needed.",
   "commit": null,
-  "source": "supervisor (ev-build), 2026-11-04"
+  "source": "supervisor (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T02:05:23.372Z"
  },
  {
   "id": "B-791",
@@ -14807,13 +14809,13 @@
   "title": "S-75a: Notes editor on ProseMirror direct (D-464): replace the textarea-per-block editor in areas/notes/parts/NoteEditor.tsx with a ProseMirror view on the S-08 flat schema; saves go through the outbox as now Done when: A note typed, edited and reloaded round-trips ev4's blocks losslessly (S-08 fixtures); undo/redo, headings, lists, checks work; matches the mock-up",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-748",
    "B-784"
   ],
   "notes": "Slice write: areas/notes, package.json, package-lock.json. Read: kit, commands, docs/spikes/S-08-notes-editor.md. CONTRACT §ui.mockup: unstyled primitives for behaviour only; the kit owns every pixel.",
-  "commit": null,
+  "commit": "619c331",
   "source": "ops/record",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:45.801Z"
@@ -14824,10 +14826,10 @@
   "title": "Fix the kit gallery visual baselines (height 4989 vs 5529) so the visual job is green on main Done when: visual CI job passes on main",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Regenerate via dispatching visual-baselines.yml on a branch (needs Docker); then push one real commit.",
-  "commit": null,
+  "commit": "109dfe9",
   "source": "ops/record",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:37:06.391Z"
@@ -15253,5 +15255,33 @@
   "notes": "Audit (review F34, Q3): DECISIONS.md says only 'in the v2 doc's decision log'.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-827",
+  "kind": "task",
+  "title": "domain/index.ts exports noteBlocks and Run so the notes editor drops its local copy of ev4's key order and 20,000-character run cap Done when: areas/notes/parts/editorDoc.ts uses the domain export; round-trip tests still pass",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: domain (interface change), areas/notes.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-828",
+  "kind": "task",
+  "title": "Notes editor leftovers: 4,000-line and 400-run refusals (noteFits), unwrap a row once a column is empty, ev4's HTML paste sanitiser Done when: Each has a test from the S-08 behaviours",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: areas/notes. Stale empty branches claude/B-795-domain-noteblocks and claude/B-796-editor-leftovers (created by mistake in run 30) can be deleted.",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
