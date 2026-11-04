@@ -56,3 +56,14 @@ test("without a token nothing is fetched", () => {
   render(<AskScreen />);
   expect(fetchMock).not.toHaveBeenCalled();
 });
+
+test("?text= prefills the input and sends nothing", () => {
+  const fetchMock = vi.fn(async (_u: string) => ({ ok: true, json: async () => ({ jobs: [] }) }));
+  vi.stubGlobal("fetch", fetchMock);
+  window.history.pushState({}, "", "/ask?text=what%20is%20a%20ratio");
+  render(<AskScreen />);
+  const box = screen.getByLabelText("Message to E.V.") as HTMLTextAreaElement;
+  expect(box.value).toBe("what is a ratio");
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/ask"))).toBe(false);
+  window.history.pushState({}, "", "/");
+});
