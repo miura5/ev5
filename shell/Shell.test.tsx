@@ -124,3 +124,8 @@ test("Tab hands the typed text to Ask E.V., and ⌘J toggles Ask E.V.", () => {
   fireEvent.keyDown(window, { key: "j", ctrlKey: true });
   expect(onNavigate).toHaveBeenCalledWith("/");
 });
+
+test("areaFor opens a parent route for a sub-path", async () => {
+  const { areaFor } = await import("./areas.ts");
+  expect(areaFor("/collection/abc")?.id).toBe("collection");
+});
