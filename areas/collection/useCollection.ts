@@ -29,7 +29,7 @@ async function get<T>(path: string, token: string): Promise<T> {
 }
 
 /** Reads collections and memberships with the app token Matt keeps in this browser. */
-export function useCollection(): CollectionState {
+export function useCollection(id?: string): CollectionState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<CollectionData>();
   const [loaded, setLoaded] = useState(false);
@@ -52,7 +52,7 @@ export function useCollection(): CollectionState {
           get<{ memberships: WireMembership[] }>("/api/v1/memberships", token),
         ]);
         if (live) {
-          setData(mapCollection(c.collections, m.memberships));
+          setData(mapCollection(c.collections, m.memberships, id));
           setLoaded(true);
           setError(undefined);
         }
@@ -66,6 +66,6 @@ export function useCollection(): CollectionState {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, id]);
   return { data, loaded, token, error, setToken };
 }
