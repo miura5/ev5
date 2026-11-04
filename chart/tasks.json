@@ -14840,10 +14840,10 @@
   "title": "CI runs the jobs tests",
   "dod": "npm test runs every jobs/**/*.test.ts (ceilings, workflow, output, model-call, d1-stores, practice-set, study-plan); the CI log lists them and they pass; failures found are fixed in the same PR",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit: package.json test script and vite.config.ts include list leave out jobs/, so 15 jobs tests never run in CI and the proofs behind B-735..B-738 were never run there. Slice write: package.json, vite.config.ts, jobs (fixes only).",
-  "commit": null,
+  "commit": "c2113f1",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -14866,12 +14866,12 @@
   "title": "Export covers every migrated table, checked by a test",
   "dod": "data/export ALL_TABLES includes job_records, ceiling_use, ceiling_holds and job_plans with counts and SHA-256; a test applies data/migrations/*.sql, reads sqlite_master and fails on any non-virtual table missing from the export; the restore check passes for them (CONTRACT §data.export)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-730"
   ],
   "notes": "Audit (review F3): migration 0002 creates four job tables that data/export/tables.ts leaves out.",
-  "commit": null,
+  "commit": "c2c0d1d",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15027,10 +15027,10 @@
   "title": "Run the models.ts 'checked on' warning",
   "dod": "ops/checks prints a warning (not a failure) when models.ts was checked more than its age limit ago; a guard fixture with an old date shows the warning (CONTRACT §model.registry)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F35): modelsStaleWarning is called only from a test.",
-  "commit": null,
+  "commit": "d5513f5",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15090,10 +15090,10 @@
   "title": "dependency-cruiser matches the plan: drop @date-fns/tz, add server and data rules",
   "dod": "The domain externals allowlist drops @date-fns/tz (the time-zone decision is Intl); domain/README.md stops naming it; server gets an only() rule (commands, jobs, data, domain) and data an externals rule (zod); depcruise is green (CONTRACT §drift.imports)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F28): B-791 is done and its done-when says the allowlist drops @date-fns/tz, but .dependency-cruiser.cjs:44 still lists it.",
-  "commit": null,
+  "commit": "3afaf5c",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15102,10 +15102,10 @@
   "title": "Presence check covers jobs/<kind>/job.ts",
   "dod": "ops/checks/presence.ts requires a test beside every jobs/<kind>/job.ts; a guard fixture without job.test.ts goes red",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (PLAN §11): presence.ts:16 matches only *.job.ts, so jobs/<kind>/job.ts is never checked.",
-  "commit": null,
+  "commit": "0ea4ea6",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15262,12 +15262,12 @@
   "title": "domain/index.ts exports noteBlocks and Run so the notes editor drops its local copy of ev4's key order and 20,000-character run cap Done when: areas/notes/parts/editorDoc.ts uses the domain export; round-trip tests still pass",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-793"
   ],
   "notes": "Slice write: domain (interface change), areas/notes.",
-  "commit": null,
+  "commit": "c6d2779",
   "source": "ops/record"
  },
  {
@@ -15276,12 +15276,12 @@
   "title": "Notes editor leftovers: 4,000-line and 400-run refusals (noteFits), unwrap a row once a column is empty, ev4's HTML paste sanitiser Done when: Each has a test from the S-08 behaviours",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-793"
   ],
   "notes": "Slice write: areas/notes. Stale empty branches claude/B-795-domain-noteblocks and claude/B-796-editor-leftovers (created by mistake in run 30) can be deleted.",
-  "commit": null,
+  "commit": "18dff1a",
   "source": "ops/record"
  }
 ]
