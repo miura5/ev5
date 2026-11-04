@@ -17,6 +17,7 @@ export interface WireMembership {
 export interface CollectionData {
   title: string;
   parent?: string;
+  parentId?: string;
   nested: CollectionEntry[];
   items: CollectionEntry[];
 }
@@ -31,15 +32,19 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
   goals: "date",
 };
 
-/** Shows the first top-level collection (by pos), its sub-collections and members; none gives undefined (empty state). */
+/** Shows the collection `id`, else the first top-level one (by pos), with its sub-collections and members; none gives undefined (empty state). */
 export function mapCollection(
   collections: readonly WireCollection[],
   memberships: readonly WireMembership[],
+  id?: string,
 ): CollectionData | undefined {
   const byPos = [...collections].sort(
     (a, b) => a.pos - b.pos || a.id.localeCompare(b.id),
   );
-  const pick = byPos.find((c) => c.parentId === null) ?? byPos[0];
+  const pick =
+    (id ? byPos.find((c) => c.id === id) : undefined) ??
+    byPos.find((c) => c.parentId === null) ??
+    byPos[0];
   if (!pick) return undefined;
   const parent = pick.parentId
     ? byPos.find((c) => c.id === pick.parentId)?.title
@@ -47,6 +52,7 @@ export function mapCollection(
   return {
     title: pick.title,
     parent,
+    parentId: pick.parentId ?? undefined,
     nested: byPos
       .filter((c) => c.parentId === pick.id)
       .map((c) => ({ id: c.id, type: "collection", title: c.title })),
