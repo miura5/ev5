@@ -3,7 +3,7 @@ import { api } from "../../commands/client.ts";
 import { logTellMe } from "./tellLog.ts";
 import { AskView } from "./Ask.view.tsx";
 import type { AskMessage } from "./types.ts";
-import { useAskJobs } from "./useAskJobs.ts";
+import { useAskJobs, type ReadCopyLike } from "./useAskJobs.ts";
 
 const readToken = (): string => {
   try {
@@ -63,11 +63,11 @@ async function askServer(token: string, text: string): Promise<Omit<Extract<AskM
 }
 
 /** The mounted view. Unfinished jobs from /api/v1/jobs show as turns that link to Activity; typed messages stay local. */
-export function AskScreen() {
+export function AskScreen({ services }: { services?: { readCopy?: ReadCopyLike } }) {
   const [sent, setSent] = useState<AskMessage[]>([]);
   const [told, setTold] = useState<readonly string[]>([]);
   const [failed, setFailed] = useState(false);
-  const jobs = useAskJobs();
+  const jobs = useAskJobs(services?.readCopy);
   const [draft] = useState(readDraft);
   // The tap is logged first (one append-only talk message); only then does the answer show (§ui.attempt-first).
   const onJustTell = (id: string) => {

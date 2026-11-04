@@ -62,3 +62,50 @@ test("a refused write is reported as not saved", async () => {
   });
   expect(ok).toBe(false);
 });
+
+/** Stands in for the shell's ReadCopy (areas never import the shell): a good read is kept; a rejected fetch gets it back. */
+function fakeCopy(kept: Record<string, unknown> = {}) {
+  return {
+    kept,
+    async read<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+      try {
+        const v = await fetcher();
+        kept[key] = v;
+        return v;
+      } catch (e) {
+        if (!(e instanceof TypeError) || !(key in kept)) throw e;
+        return kept[key] as T;
+      }
+    },
+  };
+}
+
+const exam = { id: "e1", v: 1, at: 1, data: { title: "NUR 112 exam", date: "2099-01-01" } };
+
+test("offline, Today shows the saved exams and weak spots", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
+  const copy = fakeCopy({
+    "today:exams": [exam],
+    "today:weakspots": [],
+    "today:dayedits:x": null,
+  });
+  // the day key moves with the date, so seed whatever date the hook asks for
+  const read = copy.read;
+  copy.read = (async (key: string, f: () => Promise<unknown>) =>
+    key.startsWith("today:dayedits:") ? null : read(key, f)) as typeof copy.read;
+  const { result } = renderHook(() => useToday(copy));
+  await waitFor(() => expect(result.current.data).toBeTruthy());
+  expect(result.current.error).toBeUndefined();
+});
+
+test("a 5xx shows the error, not the saved copy, and keeps the copy", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal("fetch", vi.fn(async () => json({}, 503)));
+  const saved = [exam];
+  const copy = fakeCopy({ "today:exams": saved, "today:weakspots": [] });
+  const { result } = renderHook(() => useToday(copy));
+  await waitFor(() => expect(result.current.error).toBe("Today could not load."));
+  expect(result.current.data).toBeUndefined();
+  expect(copy.kept["today:exams"]).toBe(saved);
+});
