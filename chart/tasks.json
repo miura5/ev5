@@ -15144,13 +15144,15 @@
   "title": "Note pictures in R2 under note-images/",
   "dod": "The Worker stores note pictures in the environment's R2 bucket under note-images/ and serves them to the app token only; a picture added in a note round-trips after reload (CONTRACT §data.note-images)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-793"
   ],
   "notes": "Audit: domain/note/blocks.ts knows the note-images key format, but wrangler.jsonc has no R2 binding and no route serves images.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T07:47:22.692Z"
  },
  {
   "id": "B-819",
