@@ -56,7 +56,9 @@ test("a server error shows the error and keeps the saved copy", async () => {
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useCollection(undefined, copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("Something went wrong on E.V.'s side. Try again in a moment."),
+    expect(result.current.error).toBe(
+      "Something went wrong on E.V.'s side. Try again in a moment.",
+    ),
   );
   expect(copy.kept).toEqual(saved);
 });
@@ -66,21 +68,20 @@ test("a 401 is not answered from the copy", async () => {
   status(401);
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useCollection(undefined, copy));
-  await waitFor(() =>
-    expect(result.current.refused).toBe(true),
-  );
+  await waitFor(() => expect(result.current.refused).toBe(true));
   expect(ready(result.current)).toBe(false);
   expect(copy.kept).toEqual(saved);
 });
 
 test("a good read refreshes the copy", async () => {
   use();
-  ok({ collections: [], memberships: [] });
+  ok({ collections: [], memberships: [], pins: [] });
   const copy = fakeCopy();
   const { result } = renderHook(() => useCollection(undefined, copy));
   await waitFor(() => expect(ready(result.current)).toBe(true));
   expect(Object.keys(copy.kept).sort()).toEqual([
     "collection:/api/v1/collections",
     "collection:/api/v1/memberships",
+    "collection:/api/v1/pins",
   ]);
 });

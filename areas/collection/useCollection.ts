@@ -1,16 +1,25 @@
 import { useEffect, useState } from "react";
-import { mapCollection } from "./map.ts";
+import { mapCollection, mapPins } from "./map.ts";
 import type {
   CollectionData,
   DocsByCollection,
   WireCollection,
   WireDoc,
   WireMembership,
+  WirePin,
 } from "./map.ts";
-import { failureKind, failureSentence, readJson, readToken } from "../../commands/client.ts";
+import type { CollectionEntry } from "./Collection.view.tsx";
+import {
+  failureKind,
+  failureSentence,
+  readJson,
+  readToken,
+} from "../../commands/client.ts";
 
 export interface CollectionState {
   data?: CollectionData;
+  /** Pinned items from /api/v1/pins; empty when none or the read fails. */
+  pins: CollectionEntry[];
   loaded: boolean;
   token: string;
   /** The server refused the token (401): no data and no empty state; the shell's token screen takes over. */
@@ -29,13 +38,14 @@ function get<T>(path: string, token: string, copy?: ReadCopyLike): Promise<T> {
   return readJson<T>(path, token, `collection:/api/v1/${path}`, copy);
 }
 
-/** Reads collections and memberships with the app token Matt keeps in this browser. */
+/** Reads collections, memberships and pins with the app token Matt keeps in this browser. */
 export function useCollection(
   id?: string,
   copy?: ReadCopyLike,
 ): CollectionState {
   const token = readToken();
   const [data, setData] = useState<CollectionData>();
+  const [pins, setPins] = useState<CollectionEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
@@ -45,18 +55,19 @@ export function useCollection(
     void (async () => {
       try {
         const [c, m] = await Promise.all([
-          get<{ collections: WireCollection[] }>(
-            "collections",
-            token,
-            copy,
-          ),
-          get<{ memberships: WireMembership[] }>(
-            "memberships",
-            token,
-            copy,
-          ),
+          get<{ collections: WireCollection[] }>("collections", token, copy),
+          get<{ memberships: WireMembership[] }>("memberships", token, copy),
         ]);
-        const kinds = [...new Set(m.memberships.map((x) => x.collection))];
+        // A pins read that fails leaves the list empty; the collection itself still shows.
+        const p = await get<{ pins: WirePin[] }>("pins", token, copy).catch(
+          () => ({ pins: [] as WirePin[] }),
+        );
+        const kinds = [
+          ...new Set([
+            ...m.memberships.map((x) => x.collection),
+            ...p.pins.map((x) => x.collection),
+          ]),
+        ];
         const docs: DocsByCollection = {};
         await Promise.all(
           kinds.map(async (k) => {
@@ -75,6 +86,7 @@ export function useCollection(
         );
         if (live) {
           setData(mapCollection(c.collections, m.memberships, id, docs));
+          setPins(mapPins(p.pins, docs));
           setLoaded(true);
           setError(undefined);
           setRefused(false);
@@ -82,6 +94,7 @@ export function useCollection(
       } catch (e) {
         if (!live) return;
         setData(undefined);
+        setPins([]);
         setRefused(failureKind(e) === "refused");
         setError(failureSentence(e));
       }
@@ -90,5 +103,5 @@ export function useCollection(
       live = false;
     };
   }, [token, id, copy]);
-  return { data, loaded, token, refused, error };
+  return { data, pins, loaded, token, refused, error };
 }
