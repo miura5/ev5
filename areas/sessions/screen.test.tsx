@@ -137,3 +137,84 @@ test("a todo block in the note is a real check that saves the note", async () =>
     ).toBe(true),
   );
 });
+
+function stateful(startedAt: string) {
+  let stored: Record<string, unknown> = { ...session.data, startedAt };
+  let v = 3;
+  const puts: Record<string, unknown>[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        stored = JSON.parse(String(init.body)) as Record<string, unknown>;
+        puts.push(stored);
+        v += 1;
+        return { ok: true, status: 200, json: async () => ({}) };
+      }
+      const json = url.includes("collection=notes")
+        ? note
+        : { docs: [{ ...session, v, data: stored }] };
+      return { ok: true, status: 200, json: async () => json };
+    }),
+  );
+  localStorage.setItem("ev5.token", "t");
+  return puts;
+}
+
+test("End on a paused session ends it, and the pause survives a reload", async () => {
+  const puts = stateful(new Date(Date.now() - 600_000).toISOString());
+  render(<SessionsScreen />);
+  await screen.findByText("Cardiac output");
+  fireEvent.click(screen.getByText("Pause"));
+  await screen.findByText("Resume");
+  // a reload: a new screen reads the stored document and still shows it paused
+  cleanup();
+  render(<SessionsScreen />);
+  await screen.findByText("Resume");
+  const held = document.querySelector('[data-ui="timer"]')?.textContent;
+  await new Promise((r) => setTimeout(r, 1100));
+  expect(document.querySelector('[data-ui="timer"]')?.textContent).toBe(held);
+  fireEvent.click(screen.getByText("End"));
+  await waitFor(() => expect(puts).toHaveLength(2));
+  const last = puts[1] as { status: string; endedAt: string; minutes: number };
+  expect(last.status).toBe("ended");
+  expect(typeof last.endedAt).toBe("string");
+  expect(last.minutes).toBeGreaterThanOrEqual(0);
+  await screen.findByText("Saved to Progress.");
+});
+
+test("with no active session there is no session bar, Pause or End", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ docs: [] }),
+    })),
+  );
+  render(<SessionsScreen />);
+  await screen.findByText("no session yet");
+  expect(screen.queryByText("Pause")).toBeNull();
+  expect(screen.queryByText("End")).toBeNull();
+  expect(document.querySelector('[data-ui="session-bar"]')).toBeNull();
+});
+
+test("End pressed right after Pause (before the re-read) still ends the session", async () => {
+  const puts = stateful(new Date(Date.now() - 600_000).toISOString());
+  render(<SessionsScreen />);
+  await screen.findByText("Cardiac output");
+  fireEvent.keyDown(document.body, { key: " " });
+  fireEvent.click(screen.getByText("End"));
+  await waitFor(() => expect(puts.length).toBeGreaterThanOrEqual(2));
+  const last = puts[puts.length - 1] as {
+    status: string;
+    events: Record<string, { type: string }>;
+  };
+  expect(last.status).toBe("ended");
+  expect(
+    Object.values(last.events)
+      .map((e) => e.type)
+      .sort(),
+  ).toEqual(["break", "end"]);
+});

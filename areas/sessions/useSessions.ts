@@ -1,8 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { parseNote, type Note } from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
 import type { SessionData, WireDoc } from "./map.ts";
-import { api, failureKind, failureSentence, readJson, readToken } from "../../commands/client.ts";
+import {
+  api,
+  failureKind,
+  failureSentence,
+  readJson,
+  readToken,
+} from "../../commands/client.ts";
 
 export interface SessionsState {
   data?: SessionData;
@@ -16,8 +22,13 @@ export interface SessionsState {
   /** Flips one todo block of the note (by its index) and writes the note back, pinned to the version read. */
   toggleTodo: (index: number) => Promise<void>;
   /** Writes the whole session document back (pinned to the version read), then reads again. False if it failed. */
-  save: (doc: Record<string, unknown>) => Promise<boolean>;
+  save: (doc: SessionWrite) => Promise<boolean>;
 }
+
+/** A document to write, or a builder given the latest stored one (so a write queued behind another sees its result). */
+export type SessionWrite =
+  | Record<string, unknown>
+  | ((raw: Record<string, unknown>) => Record<string, unknown>);
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
 export interface ReadCopyLike {
@@ -95,29 +106,51 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
       live = false;
     };
   }, [token, noteId, copy]);
+  // Writes go one at a time, each on what the one before stored: a quick Pause then End must not lose the pause.
+  const latest = useRef<
+    { raw: Record<string, unknown>; v?: number } | undefined
+  >(undefined);
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
+  useEffect(() => {
+    if (data) latest.current = { raw: data.raw, v: data.v };
+  }, [data]);
   const save = useCallback(
-    async (doc: Record<string, unknown>) => {
-      if (!data) return false;
-      try {
-        const q = new URLSearchParams({ collection: "sessions", id: data.id });
-        if (data.v !== undefined) q.set("if_version", String(data.v));
-        const r = await api(`docs?${q}`, token, { method: "PUT", body: doc });
-        if (!r.ok) {
-          setRefused(r.status === 401);
-          setError(
-            r.status === 409
-              ? "The session changed elsewhere; reloaded."
-              : failureSentence(r.status),
-          );
+    (write: SessionWrite): Promise<boolean> => {
+      const run = async (): Promise<boolean> => {
+        const cur = latest.current;
+        if (!data || !cur) return false;
+        const doc = typeof write === "function" ? write(cur.raw) : write;
+        try {
+          const q = new URLSearchParams({
+            collection: "sessions",
+            id: data.id,
+          });
+          if (cur.v !== undefined) q.set("if_version", String(cur.v));
+          const r = await api(`docs?${q}`, token, { method: "PUT", body: doc });
+          if (!r.ok) {
+            setRefused(r.status === 401);
+            setError(
+              r.status === 409
+                ? "The session changed elsewhere; reloaded."
+                : failureSentence(r.status),
+            );
+            setTick((n) => n + 1);
+            return false;
+          }
+          latest.current = {
+            raw: doc,
+            v: cur.v === undefined ? undefined : cur.v + 1,
+          };
           setTick((n) => n + 1);
+          return true;
+        } catch {
+          setError("That could not be saved; you may be offline.");
           return false;
         }
-        setTick((n) => n + 1);
-        return true;
-      } catch {
-        setError("That could not be saved; you may be offline.");
-        return false;
-      }
+      };
+      const next = queue.current.then(run, run);
+      queue.current = next;
+      return next;
     },
     [data, token],
   );
