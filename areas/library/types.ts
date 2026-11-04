@@ -40,6 +40,8 @@ export interface LibraryExam {
   planState?: PlanState;
   /** The plan document the state is about (absent when there is none yet). */
   planId?: string;
+  /** The plan is still the job waiting for his answer; planId is then the job's id. */
+  waiting?: boolean;
 }
 
 export type PlanState = "none" | "draft" | "approved" | "away";

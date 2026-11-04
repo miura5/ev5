@@ -30,6 +30,26 @@ export interface LibraryDocs {
   answers?: WireDoc[];
   /** Which study plan is in force or put away per exam; absent reads as none. */
   planedits?: WireDoc[];
+  /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
+  jobs?: WireJob[];
+}
+
+/** One entry of GET /api/v1/jobs as Library reads it, restated: areas never import the server. */
+export interface WireJob {
+  id: string;
+  kind: string;
+  state: string;
+  examId?: string;
+}
+
+/** The job id of the study plan waiting for this exam, if any. */
+function waitingPlan(jobs: WireJob[] | undefined, exam: string) {
+  return jobs?.find(
+    (j) =>
+      j.kind.replace(/-/g, "_") === "study_plan" &&
+      j.state === "needs-you" &&
+      j.examId === exam,
+  )?.id;
 }
 
 interface PlanEdit {
@@ -117,7 +137,8 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         a.v.title.localeCompare(b.v.title),
     )
     .map(({ id, v }) => {
-      const planId = planIdOf(docs.exams, id);
+      const waiting = waitingPlan(docs.jobs, id);
+      const planId = waiting ?? planIdOf(docs.exams, id);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
       );
@@ -141,8 +162,10 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         readiness: mine.length
           ? `${Math.round(share(ready, mine.length) * 100)}%`
           : "",
-        planState: planStateOf(planId, edits.get(id)),
+        // A plan still waiting for his answer has no document yet: it is a draft, and its job id stands for it.
+        planState: waiting ? "draft" : planStateOf(planId, edits.get(id)),
         ...(planId ? { planId } : {}),
+        ...(waiting ? { waiting: true } : {}),
       };
     });
   const dues = dueCounts(docs.answers ?? []);
