@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { DeletedView } from "./Deleted.view.tsx";
-import { useDeleted } from "./useDeleted.ts";
+import { useDeleted, type ReadCopyLike } from "./useDeleted.ts";
 
 /** The mounted view: soft-deleted items from /api/v1/deletions; Restore is not wired yet (read only). */
-export function DeletedScreen() {
-  const { items, token, error, setToken } = useDeleted();
+export function DeletedScreen({
+  services,
+}: {
+  services?: { readCopy?: ReadCopyLike };
+}) {
+  const { items, token, error, setToken } = useDeleted(services?.readCopy);
   const [draft, setDraft] = useState("");
   if (!token)
     return (

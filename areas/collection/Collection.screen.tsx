@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CollectionView } from "./Collection.view.tsx";
-import { useCollection } from "./useCollection.ts";
+import { useCollection, type ReadCopyLike } from "./useCollection.ts";
 
 /** The mounted view: the collection named by /collection/:id, else the first one, from /api/v1/collections and /memberships; empty until the tables exist. */
 const idOf = (path?: string) => {
@@ -11,11 +11,16 @@ const idOf = (path?: string) => {
 export function CollectionScreen({
   path,
   onNavigate,
+  services,
 }: {
+  services?: { readCopy?: ReadCopyLike };
   path?: string;
   onNavigate?: (path: string) => void;
 }) {
-  const { data, token, error, setToken } = useCollection(idOf(path));
+  const { data, token, error, setToken } = useCollection(
+    idOf(path),
+    services?.readCopy,
+  );
   const [draft, setDraft] = useState("");
   if (!token)
     return (
@@ -48,7 +53,10 @@ export function CollectionScreen({
         items={data?.items ?? []}
         onBack={
           data?.parentId
-            ? () => onNavigate?.(`/collection/${encodeURIComponent(data.parentId!)}`)
+            ? () =>
+                onNavigate?.(
+                  `/collection/${encodeURIComponent(data.parentId!)}`,
+                )
             : undefined
         }
         onOpen={(eid) => {
