@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc } from "./map.ts";
+import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -22,9 +23,7 @@ export interface LibraryState {
 class Unauthorized extends Error {}
 
 async function list(collection: string, token: string): Promise<WireDoc[]> {
-  const r = await fetch(`/api/v1/docs?collection=${collection}`, {
-    headers: { authorization: `Bearer ${token}` },
-  });
+  const r = await api(`docs?collection=${collection}`, token);
   if (r.status === 401) throw new Unauthorized();
   if (!r.ok) throw new Error(collection);
   return ((await r.json()) as { docs: WireDoc[] }).docs;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapCollection } from "./map.ts";
 import type { CollectionData, WireCollection, WireMembership } from "./map.ts";
+import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -21,9 +22,7 @@ export interface CollectionState {
 }
 
 async function get<T>(path: string, token: string): Promise<T> {
-  const r = await fetch(path, {
-    headers: { authorization: `Bearer ${token}` },
-  });
+  const r = await api(path, token);
   if (r.status === 401) throw new Error("That token was not accepted.");
   if (!r.ok) throw new Error("The collection could not load.");
   return (await r.json()) as T;

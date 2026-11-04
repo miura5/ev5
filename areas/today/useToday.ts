@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
 import { mapToday } from "./map.ts";
 import type { TodayData, WireDoc } from "./map.ts";
+import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -23,9 +24,7 @@ export interface TodayState {
 class Unauthorized extends Error {}
 
 async function get(path: string, token: string): Promise<Response> {
-  const r = await fetch(`/api/v1/docs?${path}`, {
-    headers: { authorization: `Bearer ${token}` },
-  });
+  const r = await api(`docs?${path}`, token);
   if (r.status === 401) throw new Unauthorized();
   return r;
 }
