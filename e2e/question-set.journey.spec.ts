@@ -1,5 +1,5 @@
 import { expect, test } from "./gate5.ts";
-import { cmd } from "./helpers.ts";
+import { cmd, tolerate } from "./helpers.ts";
 
 // Hand-made set editing through the commands. Keep/drop of E.V.'s drafts needs a job-written set: NOT covered here.
 test("Question set by hand, then keep and drop E.V.'s drafts", async ({
@@ -27,6 +27,12 @@ test("Question set by hand, then keep and drop E.V.'s drafts", async ({
     input: { set, text: "No options at all" },
   });
   expect(bad.status).toBe(400);
-  await cmd(api, "set.item_delete", { set, item });
-  await cmd(api, "set.done", { id: set });
+  try {
+    await cmd(api, "set.item_delete", { set, item });
+    await cmd(api, "set.done", { id: set });
+  } finally {
+    // Restore clears the Recently deleted row this run wrote (no repeated "Which is a vital sign?" rows); a set has no
+    // delete command (§delete.who), so the set itself stays.
+    await tolerate(() => cmd(api, "item.restore", { id: `${set}/${item}` }));
+  }
 });
