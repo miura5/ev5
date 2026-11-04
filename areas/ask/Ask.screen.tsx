@@ -36,6 +36,15 @@ interface WireReply {
 
 let turns = 0;
 
+/** The palette's Tab sends /ask?text=<query>; it prefills the input and never sends. */
+const readDraft = (): string => {
+  try {
+    return new URLSearchParams(window.location.search).get("text") ?? "";
+  } catch {
+    return "";
+  }
+};
+
 async function askServer(token: string, text: string): Promise<Omit<Extract<AskMessage, { from: "ev" }>, "id">> {
   try {
     const r = await api("ask", token, { body: { text } });
@@ -59,6 +68,7 @@ export function AskScreen() {
   const [told, setTold] = useState<readonly string[]>([]);
   const [failed, setFailed] = useState(false);
   const jobs = useAskJobs();
+  const [draft] = useState(readDraft);
   // The tap is logged first (one append-only talk message); only then does the answer show (§ui.attempt-first).
   const onJustTell = (id: string) => {
     void logTellMe(readToken(), id).then(
@@ -81,6 +91,7 @@ export function AskScreen() {
     <AskView
       messages={[...jobTurns, ...sent].map(reveal)}
       onJustTell={onJustTell}
+      initialDraft={draft}
       notice={
         failed
           ? "That tap could not be logged, so the answer stays hidden. Try again."
