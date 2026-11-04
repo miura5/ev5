@@ -80,3 +80,13 @@
 .ev-session-todo {
   display: block;
 }
+
+.ev-session-pic {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--r-md);
+}
+
+.ev-session:focus {
+  outline: none;
+}
