@@ -45,3 +45,38 @@
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
 }
+
+.shell-token {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+}
+
+.shell-token-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  width: 100%;
+  max-width: var(--col);
+  padding: var(--sp-6);
+}
+
+.shell-token-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+}
+
+.shell-token-line {
+  margin: 0;
+}
+
+.shell-token-note {
+  color: var(--faint);
+}

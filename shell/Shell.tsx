@@ -44,6 +44,8 @@ export interface ShellProps {
   detail?: DetailProps | null;
   /** Reads and the outbox, handed to every area view. */
   services?: Services;
+  /** Forget the saved token and show the token screen; the control is hidden when absent. */
+  onUseDifferentToken?: () => void;
 }
 
 export const DELETED_ROUTE = '/deleted';
@@ -68,6 +70,7 @@ export function Shell({
   onOpenJob,
   detail,
   services,
+  onUseDifferentToken,
 }: ShellProps) {
   const [palette, setPalette] = useState(false);
   const bare = path.split('?')[0] ?? path;
@@ -154,6 +157,7 @@ export function Shell({
         ))}
         <div className="shell-grow" />
         {runningJob ? <JobLine text={runningJob.text} onOpen={() => onOpenJob?.(runningJob.id)} /> : null}
+        {onUseDifferentToken ? <NavItem label="Use a different token" onOpen={onUseDifferentToken} /> : null}
         <NavItem
           label="Recently deleted"
           icon={<AreaIcon name="deleted" />}

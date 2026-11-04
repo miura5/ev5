@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
+import { failureSentence } from "../../commands/client.ts";
 import { useLibrary } from "./useLibrary.ts";
 
 /** Stands in for the shell's ReadCopy (areas never import the shell): a good read is kept; a rejected fetch gets it back. */
@@ -52,7 +53,7 @@ test("a server error shows the error and keeps the saved copy", async () => {
   const copy = fakeCopy({ ...saved });
   const { result } = renderHook(() => useLibrary(copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("Library could not load."),
+    expect(result.current.error).toBe(failureSentence("server")),
   );
   expect(result.current.data).toBeUndefined();
   expect(copy.kept["library:sets"]).toBe(saved["library:sets"]);
@@ -60,15 +61,19 @@ test("a server error shows the error and keeps the saved copy", async () => {
 
 test("a 401 is not answered from the copy", async () => {
   localStorage.setItem("ev5.token", "t");
+  const seen = vi.fn();
+  window.addEventListener("ev5:unauthorized", seen);
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => new Response("{}", { status: 401 })),
   );
   const copy = fakeCopy({ ...saved });
   const { result } = renderHook(() => useLibrary(copy));
-  await waitFor(() =>
-    expect(result.current.error).toBe("That token was not accepted."),
-  );
+  await waitFor(() => expect(seen).toHaveBeenCalled());
+  window.removeEventListener("ev5:unauthorized", seen);
+  // the shell's token screen speaks for a refusal: no data, no sentence here
+  expect(result.current.error).toBeUndefined();
+  expect(result.current.data).toBeUndefined();
 });
 
 test("a good read refreshes the copy", async () => {
