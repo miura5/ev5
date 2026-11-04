@@ -14950,7 +14950,7 @@
    "B-802",
    "B-799"
   ],
-  "notes": "Model-path task: read current Anthropic docs, never ids or prices from memory.",
+  "notes": "Merged #248 (chat route) and #249 (Ask screen). Open: one staging check that a question gets a cited or unverified reply and 'is it ready?' uses job_status; Ask screen should read ?text= from the palette Tab; gate5 ask-ready journey still NOT BUILT.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15402,12 +15402,12 @@
   "title": "Shell palette Commands group, Tab to Ask with text, and ⌘J",
   "dod": "Done when: Shell palette has a Commands group from client.ts paletteEntries filtered by area; a test runs one command from ⌘K via call(); Tab navigates to Ask E.V. with the typed text; ⌘J toggles Ask E.V. (CONTRACT §ui.palette)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-836"
   ],
-  "notes": "Rest of B-800. Claimed by claude/B-837-shell-palette.",
-  "commit": null,
+  "notes": "Tab navigates to /ask?text=; Ask screen reading ?text= is open (B-803 leftover).",
+  "commit": "3607eeb",
   "source": "ops/record"
  }
 ]
