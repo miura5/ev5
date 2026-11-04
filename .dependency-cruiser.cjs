@@ -40,8 +40,10 @@ module.exports = {
     only("jobs", ["^domain/", "^data/"]),
     only("domain", []),
     only("data", ["^domain/"]),
+    only("server", ["^commands/", "^jobs/", "^data/", "^domain/"]),
     only("kit", []),
-    externals("domain", ["zod", "@date-fns/tz", "ts-fsrs"]),
+    externals("domain", ["zod", "ts-fsrs"]),
+    externals("data", ["zod", "ajv"]),
     externals("kit", ["react", "react-dom", "@radix-ui", "cmdk"]),
   ],
   options: {

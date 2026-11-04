@@ -18,6 +18,13 @@ export default [
     // Inline `eslint-disable` and friends are ignored and reported (run with --max-warnings 0).
     linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: "error" },
     rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ExportAllDeclaration",
+          message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
+        },
+      ],
       "max-lines": ["error", { max: 300 }],
       "no-warning-comments": [
         "error",
