@@ -7,6 +7,7 @@ import {
   parsePublicInput,
   practiceSet,
   startJob,
+  sweepStale,
   transition,
   update,
 } from "../jobs/index.ts";
@@ -27,6 +28,8 @@ async function need(x: HandlerCtx, id: string) {
 }
 
 export const jobHandlers: Record<string, CommandHandler> = {
+  // The 15-minute cron: fails queued or running jobs whose runner was lost; a second run finds nothing to change.
+  job_sweep: async (_i, _c, x) => ({ failed: await sweepStale(storeOf(x), iso(x)) }),
   // A job that is still going ends as failed with the reason "Stopped"; a finished one cannot be stopped.
   "job.stop": async (i: Ref, _c, x) => {
     const rec = await need(x, i.id);
