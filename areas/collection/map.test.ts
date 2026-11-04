@@ -20,6 +20,7 @@ test("picks the first top-level collection with its nested and members, newest f
     ["k1", "cards"],
     ["n1", "note"],
   ]);
+  expect(d.items[0]!.title).toBe("k1");
 });
 
 test("no collections is the empty state", () => {
@@ -37,4 +38,15 @@ test("an id opens that collection, with its parent id for Back", () => {
   expect(d.parentId).toBe("a");
   expect(d.items).toHaveLength(1);
   expect(mapCollection(cs, ms, "zzz")!.title).toBe("NUR 112");
+});
+
+test("members show the item's title and date, falling back to the id", () => {
+  const nov3 = Date.UTC(2026, 10, 3, 18);
+  const d = mapCollection(cs, ms, "a", {
+    notes: [{ id: "n1", at: nov3, data: { title: "  Heart sounds " } }],
+  })!;
+  const byId = Object.fromEntries(d.items.map((e) => [e.id, e]));
+  expect(byId.n1).toMatchObject({ title: "Heart sounds", meta: "notes · Nov 3" });
+  expect(byId.k1!.title).toBe("k1");
+  expect(byId.k1!.meta).toMatch(/^cards · /);
 });
