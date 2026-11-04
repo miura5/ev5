@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { call, failureSentence, readToken } from "../../commands/client.ts";
 import { centralDate } from "../../domain/index.ts";
 import { Toast } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
@@ -8,7 +9,13 @@ import { toPage, toSummary } from "./map.ts";
 import { useNotes, type NotesServices } from "./useNotes.ts";
 
 /** The mounted view: notes from the document routes; the title is the note's first heading, edited in place in the editor, and saves through the outbox, so it works offline. */
-export function NotesScreen({ services }: { services?: NotesServices }) {
+export function NotesScreen({
+  services,
+  onNavigate,
+}: {
+  services?: NotesServices;
+  onNavigate?: (path: string) => void;
+}) {
   const {
     notes,
     error,
@@ -19,6 +26,7 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
     members,
   } = useNotes(services);
   const [open, setOpen] = useState<string>();
+  const [startError, setStartError] = useState<string>();
   const today = centralDate(Date.now());
   const cur = notes.find((n) => n.id === open);
   if (!cur)
@@ -47,8 +55,19 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
         />
       </>
     );
+  // Starts a study session (the command ends any running one), then opens the Sessions area.
+  const startSession = async () => {
+    const r = await call("session.start", {}, readToken());
+    if (!r.ok || r.mode !== "direct") {
+      setStartError(r.ok ? failureSentence(500) : r.reason);
+      return;
+    }
+    setStartError(undefined);
+    onNavigate?.("/sessions");
+  };
   return (
     <>
+      {startError ? <Toast message={startError} /> : null}
       <NotePageView
         note={{
           ...toPage(cur.id, cur.note, saveState, today),
@@ -64,6 +83,7 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
           />
         }
         onBack={() => setOpen(undefined)}
+        onStartSession={() => void startSession()}
       />
     </>
   );
