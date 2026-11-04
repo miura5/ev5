@@ -1,7 +1,7 @@
 .ev-activity {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
+  gap: var(--sp-12); /* mock-up .col rhythm */
   font-family: var(--sans);
   color: var(--text);
 }
@@ -9,8 +9,12 @@
 .ev-activity-head,
 .ev-activity-sec-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--sp-3);
+}
+
+.ev-activity-head {
+  min-height: 32px;
 }
 
 .ev-activity-sec {
