@@ -20,7 +20,7 @@ test("/kit renders the tokens gallery and the theme toggle flips data-theme", ()
   expect(root?.getAttribute("data-theme")).toBe("light");
 });
 
-test("other paths keep the hello area", () => {
+test("other paths open the shell on Today", () => {
   render(<App path="/" />);
-  expect(screen.getByText("Hello, E.V.")).toBeTruthy();
+  expect(screen.getByRole("navigation", { name: "Primary" })).toBeTruthy();
 });

@@ -5,4 +5,5 @@ export const sessionsArea = {
   route: "/sessions",
   nav: "Sessions",
   view: SessionsScreen,
+  sidebar: false,
 } as const;

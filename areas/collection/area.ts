@@ -5,4 +5,5 @@ export const collectionArea = {
   route: "/collection",
   nav: "Collection",
   view: CollectionScreen,
+  sidebar: false,
 } as const;
