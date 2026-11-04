@@ -1,8 +1,10 @@
 import type { Node as PMNode } from 'prosemirror-model';
 import { Plugin } from 'prosemirror-state';
 import { docToBlocks } from './editorDoc.ts';
-import { fits, maxRuns } from './editorFits.ts';
+import { fits } from '../../../domain/index.ts';
 import { N } from './editorSchema.ts';
+
+const maxRuns = (bs: readonly { runs: readonly unknown[] }[]) => bs.reduce((m, b) => Math.max(m, b.runs.length), 0);
 
 /**
  * The 4,000-line and 400-run limits (S-08, noteFits): a change that would take a note past either is refused whole and
