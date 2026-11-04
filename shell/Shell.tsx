@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Detail,
   Glyph,
@@ -12,7 +12,9 @@ import {
   type GlyphType,
   type PaletteGroup,
 } from '../kit/index.ts';
+import { call, paletteEntries, type PaletteEntry } from '../commands/client.ts';
 import { Ev4Offer } from './Ev4Offer.tsx';
+import { storedToken } from './outbox/index.ts';
 import type { Services } from './services.ts';
 import { AREAS, areaFor, sidebarAreas, type AreaEntry } from './areas.ts';
 import './shell.css';
@@ -45,6 +47,13 @@ export interface ShellProps {
 
 export const DELETED_ROUTE = '/deleted';
 
+/** Commands the palette leaves to Places and the Tab hand-off, which already do them. */
+const PLACE_COMMANDS = new Set(['nav.go', 'ask.send']);
+
+/** The registry's palette entries for the area Matt is in (§ui.palette); absent `places` means everywhere. */
+export const commandsFor = (areaId: string | undefined, entries: readonly PaletteEntry[] = paletteEntries) =>
+  entries.filter((e) => !PLACE_COMMANDS.has(e.name) && (!e.places || (areaId && e.places.includes(areaId))));
+
 /** The frame: sidebar (areas, Pinned, Recently deleted), one centred column, Detail on demand, and ⌘K. */
 export function Shell({
   path,
@@ -60,23 +69,43 @@ export function Shell({
   services,
 }: ShellProps) {
   const [palette, setPalette] = useState(false);
+  const bare = path.split('?')[0] ?? path;
+  const current = areaFor(bare, areas);
+  // ⌘J flips between Ask E.V. and wherever Matt was; the latest values are read through a ref.
+  const live = useRef({ path, current, areas, onNavigate });
+  live.current = { path, current, areas, onNavigate };
+  const back = useRef('/');
+  useEffect(() => {
+    if (current?.id !== 'ask') back.current = path;
+  }, [current, path]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      const k = e.key.toLowerCase();
+      if (k === 'k') {
         e.preventDefault();
         setPalette((open) => !open);
+      } else if (k === 'j') {
+        e.preventDefault();
+        const l = live.current;
+        const ask = l.areas.find((x) => x.id === 'ask');
+        if (l.current?.id === 'ask') l.onNavigate(back.current);
+        else if (ask) l.onNavigate(ask.route);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
-  const current = areaFor(path, areas);
-  const View = path === DELETED_ROUTE ? undefined : current?.view;
+  const View = bare === DELETED_ROUTE ? undefined : current?.view;
   const groups = useMemo<PaletteGroup[]>(
     () => [
       {
         name: 'Places',
         items: areas.map((a) => ({ key: `area:${a.id}`, label: a.nav })),
+      },
+      {
+        name: 'Commands',
+        items: commandsFor(current?.id).map((e) => ({ key: `cmd:${e.name}`, label: e.title })),
       },
       {
         name: 'Pinned',
@@ -87,7 +116,7 @@ export function Shell({
         })),
       },
     ],
-    [areas, pins],
+    [areas, pins, current?.id],
   );
   const run = (key: string) => {
     setPalette(false);
@@ -96,11 +125,13 @@ export function Shell({
       const a = areas.find((x) => x.id === id);
       if (a) onNavigate(a.route);
     } else if (kind === 'pin') onOpenPin?.(id);
+    else if (kind === 'cmd') void call(id as Parameters<typeof call>[0], {}, storedToken());
   };
-  const ask = () => {
+  // Tab: the typed request goes to Ask E.V. as ?text= for it to pick up.
+  const ask = (text: string) => {
     setPalette(false);
     const a = areas.find((x) => x.id === 'ask');
-    if (a) onNavigate(a.route);
+    if (a) onNavigate(text ? `${a.route}?text=${encodeURIComponent(text)}` : a.route);
   };
   return (
     <div className="shell" data-ui="shell">
@@ -112,7 +143,7 @@ export function Shell({
             label={a.nav}
             icon={<AreaIcon name={a.id} />}
             count={counts[a.id]}
-            selected={path !== DELETED_ROUTE && a === current}
+            selected={bare !== DELETED_ROUTE && a === current}
             onOpen={() => onNavigate(a.route)}
           />
         ))}
@@ -126,7 +157,7 @@ export function Shell({
           label="Recently deleted"
           icon={<AreaIcon name="deleted" />}
           count={deletedCount}
-          selected={path === DELETED_ROUTE}
+          selected={bare === DELETED_ROUTE}
           onOpen={() => onNavigate(DELETED_ROUTE)}
         />
       </nav>
