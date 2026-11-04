@@ -23,6 +23,8 @@ export interface TodayState {
   data?: TodayData;
   token: string;
   error?: string;
+  /** The server refused the token: the shell asks for a new one. */
+  refused?: boolean;
   /** The monthly spend alert line, when one is waiting. */
   alert?: string;
   /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
@@ -56,6 +58,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   const [token] = useState(readToken);
   const [data, setData] = useState<TodayData>();
   const [error, setError] = useState<string>();
+  const [refused, setRefused] = useState(false);
   const [alert, setAlert] = useState<string>();
   const [again, setAgain] = useState(0);
   useEffect(() => {
@@ -65,7 +68,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     void (async () => {
       try {
         // Offline, each read gives back its saved copy (§data.offline); the shell says so.
-        const saved = <T,>(key: string, get: () => Promise<T>) =>
+        const saved = <T>(key: string, get: () => Promise<T>) =>
           copy ? copy.read(key, get) : get();
         const today = centralDate(now);
         const day = await saved(`today:dayedits:${today}`, () =>
@@ -88,6 +91,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         }
       } catch (e) {
         // A refused token shows nothing here: the shell's token screen takes over.
+        if (live && failureKind(e) === "refused") setRefused(true);
         if (live)
           setError(
             failureKind(e) === "refused" ? undefined : failureSentence(e),
@@ -153,5 +157,5 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     },
     [token],
   );
-  return { data, token, error, alert, tick, addPlan, addDate };
+  return { data, token, refused, error, alert, tick, addPlan, addDate };
 }

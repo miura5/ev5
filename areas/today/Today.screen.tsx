@@ -27,12 +27,24 @@ export function TodayScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { data, error, alert, tick, addPlan, addDate } = useToday(
-    services?.readCopy,
-  );
+  const { data, token, refused, error, alert, tick, addPlan, addDate } =
+    useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
-  // No data and no failure yet (loading, or the shell's token screen is up): show nothing, never an empty day.
-  if (!data && !error) return null;
+  // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty day.
+  if (!token || refused) return null;
+  // First data still on its way: the heading and a loading line, never an empty pane.
+  if (!data && !error)
+    return (
+      <div className="ev-today" data-area="today">
+        <header className="ev-today-top">
+          <div className="ev-today-head">
+            <h1 className="ev-today-title">Today</h1>
+            <span className="ev-today-meta">{dateLabel()}</span>
+          </div>
+          <span className="ev-today-meta">Loading…</span>
+        </header>
+      </div>
+    );
   return (
     <>
       {error ? <Toast message={error} /> : null}
