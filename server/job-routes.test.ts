@@ -116,6 +116,34 @@ test("a study plan waits for Matt, and his answer continues it once", async () =
   await wf.idle().catch(() => undefined);
 });
 
+test("a waiting study plan in the job list names its exam", async () => {
+  const { req, db } = setup();
+  const { d1JobStore } = await import("../jobs/index.ts");
+  await d1JobStore(db, () => T.getTime()).put({
+    id: "sp2",
+    kind: "study_plan",
+    title: "Study plan",
+    state: "needs-you",
+    step: "approve",
+    reason: "Approve it.",
+    costCents: 0,
+    createdAt: T.toISOString(),
+    updatedAt: T.toISOString(),
+    v: 1,
+  });
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('sp2', 'context', ?, 0)",
+    )
+    .bind(JSON.stringify({ exam: { id: "x1", title: "Exam" } }))
+    .run();
+  const res = await req("GET", "/api/v1/jobs", "fake-app");
+  const { jobs } = (await res.json()) as {
+    jobs: { id: string; examId?: string }[];
+  };
+  assert.equal(jobs.find((j) => j.id === "sp2")?.examId, "x1");
+});
+
 test("the schedule token reads jobs but cannot start them or touch ceilings; the executor token reaches neither", async () => {
   const { req } = setup();
   const start = await req(

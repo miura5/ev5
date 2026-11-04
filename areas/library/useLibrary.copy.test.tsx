@@ -89,6 +89,7 @@ test("a good read refreshes the copy", async () => {
   const { result } = renderHook(() => useLibrary(copy));
   await waitFor(() => expect(result.current.data).toBeDefined());
   expect(Object.keys(copy.kept).sort()).toEqual([
+    "jobs",
     "library:answers",
     "library:exams",
     "library:planedits",

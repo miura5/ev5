@@ -151,11 +151,42 @@ jobRoutes.get("/jobs/:id", async (c) => {
   }
 });
 
+/** A waiting study plan names its exam (saved with its context at the gather step), so Library can match it. */
+async function withExams<T extends { id: string; kind: string; state: string }>(
+  db: D1Like,
+  jobs: T[],
+): Promise<(T & { examId?: string })[]> {
+  const waiting = jobs.filter(
+    (j) => j.kind === studyPlanJob.kind && j.state === "needs-you",
+  );
+  if (!waiting.length) return jobs;
+  const { results } = await db
+    .prepare(
+      `SELECT job_id, body FROM job_plans WHERE kind = 'context' AND job_id IN (${waiting.map(() => "?").join(",")})`,
+    )
+    .bind(...waiting.map((j) => j.id))
+    .all<{ job_id: string; body: string }>();
+  const exam = new Map<string, string>();
+  for (const r of results)
+    try {
+      const id = (JSON.parse(r.body) as { exam?: { id?: unknown } }).exam?.id;
+      if (typeof id === "string") exam.set(r.job_id, id);
+    } catch {
+      // a context that does not read is left without an exam
+    }
+  return jobs.map((j) =>
+    exam.has(j.id) ? { ...j, examId: exam.get(j.id) } : j,
+  );
+}
+
 jobRoutes.get("/jobs", async (c) =>
   c.json({
-    jobs: await jobStatus(
-      d1JobStore(c.env.DB, () => Date.now()),
-      DEFS,
+    jobs: await withExams(
+      c.env.DB,
+      await jobStatus(
+        d1JobStore(c.env.DB, () => Date.now()),
+        DEFS,
+      ),
     ),
   }),
 );
