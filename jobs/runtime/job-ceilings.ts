@@ -2,9 +2,37 @@
 import { reserve, settle, release } from "./ceilings.ts";
 import type { CeilingConfig, CeilingStore } from "./ceilings.ts";
 import type { Ceilings } from "./workflow.ts";
+import { newJob } from "./record.ts";
+import type { JobStore } from "./record.ts";
 
 const MICRO_PER_CENT = 10_000;
 const micro = (cents: number) => Math.ceil(cents * MICRO_PER_CENT);
+
+export const SPEND_ALERT_KIND = "spend-alert";
+
+/**
+ * The 80% alert as one Activity needs-you record per month (CONTRACT §model.alert). The id carries the month and
+ * the store refuses a second create, so the alert never repeats within a month. Ceiling windows are UTC.
+ */
+export function spendAlertWriter(store: JobStore) {
+  return async (line: string, at: Date): Promise<void> => {
+    const iso = at.toISOString();
+    const rec = newJob({
+      id: `${SPEND_ALERT_KIND}:${iso.slice(0, 7)}`,
+      kind: SPEND_ALERT_KIND,
+      title: "Monthly spend",
+      at: iso,
+    });
+    if (await store.get(rec.id)) return;
+    await store.put({
+      ...rec,
+      state: "needs-you",
+      reason: line,
+      step: "acknowledge",
+      needsYouAt: iso,
+    });
+  };
+}
 
 /**
  * A step reserves its maximum, then records what it spent. A retried attempt first releases its unsettled hold, so a
@@ -15,6 +43,7 @@ export function jobCeilings(
   config: () => Promise<CeilingConfig>,
   now: () => Date,
   newId: () => string,
+  onAlert?: (line: string, at: Date) => Promise<void>,
 ): Ceilings {
   const open = new Map<string, string>();
   const settled = new Set<string>();
@@ -33,6 +62,13 @@ export function jobCeilings(
         now: now(),
       });
       if (!r.ok) throw new Error(r.reason);
+      if (r.alert && onAlert) {
+        try {
+          await onAlert(r.alert.line, now());
+        } catch {
+          // the alert is a notice: a failed write never stops the job that crossed the line
+        }
+      }
       open.set(jobId, id);
     },
     async record(key, jobId, cents) {

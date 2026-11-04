@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { mapToday } from "./map.ts";
+import { mapToday, spendAlertLine } from "./map.ts";
 
 const now = Date.parse("2026-11-03T18:00:00Z"); // Tuesday 12:00 Central
 const exam = (date: string, extra: object = {}) => ({
@@ -77,4 +77,14 @@ test("exams, weak spots and today's plan map to the view's props", () => {
       tone: "ok",
     },
   ]);
+});
+
+test("spendAlertLine finds the needs-you spend alert only", () => {
+  const j = (kind: string, state: string, summary: string) => ({
+    kind,
+    state,
+    summary,
+  });
+  expect(spendAlertLine([j("study-plan", "needs-you", "x")])).toBeUndefined();
+  expect(spendAlertLine([j("spend-alert", "needs-you", "over")])).toBe("over");
 });
