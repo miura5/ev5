@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { api, failureSentence, forgetToken, readToken, saveToken, UNAUTHORIZED_EVENT } from "./client.ts";
+import { api, call, failureSentence, forgetToken, readToken, saveToken, UNAUTHORIZED_EVENT } from "./client.ts";
 
 let seen = 0;
 const on = () => seen++;
@@ -58,4 +58,20 @@ test("plain sentences by kind, never the server's text", () => {
   expect(failureSentence(401)).toBe(refused);
   expect(failureSentence("offline")).toBe(offline);
   for (const s of [refused, offline, server]) expect(s).not.toMatch(/unauthorized/i);
+});
+
+test("call(): no token, a wrong token and a server error give plain sentences, never server text", async () => {
+  const cases: [number, string][] = [[401, "unauthorized"], [401, "missing bearer token"], [500, "D1_ERROR: no such table: docs"], [503, "D1_ERROR: x"]];
+  for (const [status, error] of cases) {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ error }), { status })));
+    const r = await call("item.pin", {}, status === 401 && error === "missing bearer token" ? "" : "bad");
+    expect(r).toEqual({ ok: false, status, reason: failureSentence(status) });
+    if (!r.ok) expect(r.reason).not.toMatch(/unauthorized|bearer|D1_|\d{3}/i);
+  }
+  expect(seen).toBe(2);
+});
+
+test("call(): a lost connection is a plain sentence with status 0", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("Failed to fetch"); }));
+  expect(await call("item.pin", {}, "t")).toEqual({ ok: false, status: 0, reason: failureSentence(new TypeError("x")) });
 });
