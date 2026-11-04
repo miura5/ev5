@@ -16051,10 +16051,10 @@
   "title": "A session started from a note shows Study session and the date above the note's own title, and the note's picture as the word Image",
   "dod": "A session over a note shows the note's title once (no extra Study session heading and date), the note's pictures as pictures (as on the note page), as design/mockup.html #note/n-co/session; Space pauses right after Start session without a click on the page first; screen tests; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "areas/sessions NoteBlocks read-only view shows an Image placeholder (known since run 38, never filed). After Start session the focus stays on the old Start session button, so the first Space does nothing. Screenshot 01.",
-  "commit": null,
+  "commit": "9ac9bb1",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16087,10 +16087,10 @@
   "title": "On Today, a Coming up exam row lights on click but opens nothing",
   "dod": "Clicking an exam row on Today opens the Detail panel for that exam (and its study plan when one waits), as design/screens/today-detail.png; Esc closes it; a screen test opens and closes it.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Library's exam Detail is B-777; this is Today's. The row meta also lacks the mock-up's study plan waiting for you line while a plan waits in Activity.",
-  "commit": null,
+  "commit": "03bf2f2",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16101,7 +16101,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Screenshot 03. Places and Commands groups work.",
+  "notes": "Screenshot 03. Places and Commands groups work. Run 52 (#373): shell/findings.ts lists notes, exams, sets and weak spots by title (domain/search ranks) above Ask E.V.; Enter navigates to /notes?open=<id> or /library?open=<id>. LEFT: areas/notes and areas/library must read ?open=<id> and open that item (outside shell slice); the kit Palette lacks an onQuery prop (shell reads the input through a delegated listener); not seen on staging.",
   "commit": null,
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
