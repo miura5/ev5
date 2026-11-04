@@ -26,6 +26,9 @@ export interface UpcomingDate {
   when: string;
   tone: CourseTone;
   readiness: Readiness;
+  /** "Thursday, Nov 5", for the Detail panel. */
+  whenFull?: string;
+  course?: string;
 }
 
 export interface ThisWeekItem {

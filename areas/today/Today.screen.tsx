@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toast } from "../../kit/index.ts";
+import { ExamDetail } from "./ExamDetail.tsx";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
 
@@ -24,12 +25,33 @@ const EMPTY = {
 /** The mounted view: exams, weak spots and today's plan from /api/v1/docs; no data shows the empty day. */
 export function TodayScreen({
   services,
+  onNavigate,
 }: {
   services?: { readCopy?: ReadCopyLike };
+  onNavigate?: (path: string) => void;
 }) {
-  const { data, token, refused, error, alert, tick, addPlan, addDate } =
-    useToday(services?.readCopy);
+  const {
+    data,
+    token,
+    refused,
+    error,
+    alert,
+    planWaiting,
+    tick,
+    addPlan,
+    addDate,
+  } = useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
+  const [openId, setOpenId] = useState<string>();
+  // Esc closes the Detail panel.
+  useEffect(() => {
+    if (!openId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenId(undefined);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openId]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty day.
   if (!token || refused) return null;
   // First data still on its way: the heading and a loading line, never an empty pane.
@@ -45,16 +67,30 @@ export function TodayScreen({
         </header>
       </div>
     );
+  const view = data ?? EMPTY;
+  // The study plan job names no exam: the soonest one is the one it waits for.
+  const upcoming = view.upcoming.map((d, i) =>
+    planWaiting && i === 0
+      ? { ...d, meta: `${d.meta} · study plan waiting for you` }
+      : d,
+  );
+  const opened = upcoming.find((d) => d.id === openId);
   return (
     <>
       {error ? <Toast message={error} /> : null}
       {notSaved ? <Toast message="Not saved. Try again." /> : null}
       <TodayView
         dateLabel={dateLabel()}
-        {...(data ?? EMPTY)}
+        {...view}
+        upcoming={upcoming}
+        selectedId={opened?.id}
         alert={alert}
         onStartNext={none}
-        onOpen={none}
+        onOpen={(id) =>
+          setOpenId((cur) =>
+            upcoming.some((d) => d.id === id) && cur !== id ? id : undefined,
+          )
+        }
         onTick={(id, done) =>
           void tick(id, done).then((ok) => setNotSaved(!ok))
         }
@@ -74,6 +110,14 @@ export function TodayScreen({
         onEdit={none}
         onDismiss={none}
       />
+      {opened ? (
+        <ExamDetail
+          exam={opened}
+          planWaiting={!!planWaiting && opened.id === upcoming[0]?.id}
+          onReviewPlan={onNavigate ? () => onNavigate("/activity") : undefined}
+          onClose={() => setOpenId(undefined)}
+        />
+      ) : null}
     </>
   );
 }

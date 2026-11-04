@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Button, Choice, Doc, EvLine, TextArea } from "../../kit/index.ts";
 import "./sessions.css";
 
@@ -19,6 +19,8 @@ export interface SessionViewProps {
   /** What "Just tell me" reveals, once it is logged. */
   answer?: string;
   checks: readonly SessionCheck[];
+  /** The session's root, so the screen can focus it. */
+  rootRef?: Ref<HTMLElement>;
   /** The note's blocks. */
   children?: ReactNode;
   onTogglePause: () => void;
@@ -36,7 +38,12 @@ export function formatTimer(seconds: number): string {
 /** A study session over a note: the bar (timer, read-along, Pause, End), the page, a check, and the note's checks. */
 export function SessionView(p: SessionViewProps) {
   return (
-    <section className="ev-session" aria-label="Study session">
+    <section
+      className="ev-session"
+      aria-label="Study session"
+      ref={p.rootRef}
+      tabIndex={-1}
+    >
       <div className="ev-session-bar" data-ui="session-bar">
         <i
           className={

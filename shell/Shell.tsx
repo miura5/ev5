@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Detail,
   Glyph,
@@ -13,15 +13,16 @@ import {
   type DetailProps,
   type GlyphType,
   type PaletteGroup,
-} from '../kit/index.ts';
-import { call, paletteEntries, type PaletteEntry } from '../commands/client.ts';
-import { Ev4Offer } from './Ev4Offer.tsx';
-import { SavedCopyNotice } from './SavedCopyNotice.tsx';
-import { storedToken } from './outbox/index.ts';
-import type { Services } from './services.ts';
-import { AREAS, areaFor, sidebarAreas, type AreaEntry } from './areas.ts';
-import { useTheme } from './theme.ts';
-import './shell.css';
+} from "../kit/index.ts";
+import { call, paletteEntries, type PaletteEntry } from "../commands/client.ts";
+import { FOUND, findInRecord, type Record_ } from "./findings.ts";
+import { Ev4Offer } from "./Ev4Offer.tsx";
+import { SavedCopyNotice } from "./SavedCopyNotice.tsx";
+import { storedToken } from "./outbox/index.ts";
+import type { Services } from "./services.ts";
+import { AREAS, areaFor, sidebarAreas, type AreaEntry } from "./areas.ts";
+import { useTheme } from "./theme.ts";
+import "./shell.css";
 
 export interface Pin {
   id: string;
@@ -51,14 +52,21 @@ export interface ShellProps {
   onUseDifferentToken?: () => void;
 }
 
-export const DELETED_ROUTE = '/deleted';
+export const DELETED_ROUTE = "/deleted";
 
 /** Commands the palette leaves to Places and the Tab hand-off, which already do them. */
-const PLACE_COMMANDS = new Set(['nav.go', 'ask.send']);
+const PLACE_COMMANDS = new Set(["nav.go", "ask.send"]);
 
 /** The registry's palette entries for the area Matt is in (§ui.palette); absent `places` means everywhere. */
-export const commandsFor = (areaId: string | undefined, entries: readonly PaletteEntry[] = paletteEntries) =>
-  entries.filter((e) => !PLACE_COMMANDS.has(e.name) && (!e.places || (areaId && e.places.includes(areaId))));
+export const commandsFor = (
+  areaId: string | undefined,
+  entries: readonly PaletteEntry[] = paletteEntries,
+) =>
+  entries.filter(
+    (e) =>
+      !PLACE_COMMANDS.has(e.name) &&
+      (!e.places || (areaId && e.places.includes(areaId))),
+  );
 
 /** The frame: sidebar (areas, Pinned, Recently deleted), one centred column, Detail on demand, and ⌘K. */
 export function Shell({
@@ -77,77 +85,145 @@ export function Shell({
 }: ShellProps) {
   const [palette, setPalette] = useState(false);
   const [theme, toggleTheme] = useTheme();
-  const bare = path.split('?')[0] ?? path;
+  const bare = path.split("?")[0] ?? path;
   const current = areaFor(bare, areas);
   // ⌘J flips between Ask E.V. and wherever Matt was; the latest values are read through a ref.
   const live = useRef({ path, current, areas, onNavigate, toggleTheme });
   live.current = { path, current, areas, onNavigate, toggleTheme };
-  const back = useRef('/');
+  const back = useRef("/");
   useEffect(() => {
-    if (current?.id !== 'ask') back.current = path;
+    if (current?.id !== "ask") back.current = path;
   }, [current, path]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
-      const typing = !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
-      if (e.key === '\\' && !e.metaKey && !e.ctrlKey && !e.altKey && !typing) {
+      const typing =
+        !!t &&
+        (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+      if (e.key === "\\" && !e.metaKey && !e.ctrlKey && !e.altKey && !typing) {
         e.preventDefault();
         live.current.toggleTheme();
         return;
       }
       if (!(e.metaKey || e.ctrlKey)) return;
       const k = e.key.toLowerCase();
-      if (k === 'k') {
+      if (k === "k") {
         e.preventDefault();
         setPalette((open) => !open);
-      } else if (k === 'j') {
+      } else if (k === "j") {
         e.preventDefault();
         const l = live.current;
-        const ask = l.areas.find((x) => x.id === 'ask');
-        if (l.current?.id === 'ask') l.onNavigate(back.current);
+        const ask = l.areas.find((x) => x.id === "ask");
+        if (l.current?.id === "ask") l.onNavigate(back.current);
         else if (ask) l.onNavigate(ask.route);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
   const View = current?.view;
+  // What Matt types in ⌘K is read off the palette's own input; the record is read once each time the palette opens.
+  const [typed, setTyped] = useState("");
+  const [record, setRecord] = useState<Record_>({});
+  useEffect(() => {
+    if (!palette) {
+      setTyped("");
+      return;
+    }
+    const onInput = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.hasAttribute("cmdk-input"))
+        setTyped((t as HTMLInputElement).value);
+    };
+    window.addEventListener("input", onInput, true);
+    let live = true;
+    const docs = services?.docs;
+    if (docs)
+      void Promise.all(
+        FOUND.map(
+          async (f) =>
+            [
+              f.collection,
+              await docs.list(f.collection).catch(() => []),
+            ] as const,
+        ),
+      ).then((all) => {
+        if (live) setRecord(Object.fromEntries(all));
+      });
+    return () => {
+      live = false;
+      window.removeEventListener("input", onInput, true);
+    };
+  }, [palette, services]);
+  const found = useMemo<PaletteGroup[]>(() => {
+    const hits = findInRecord(record, typed);
+    return FOUND.map((f) => ({
+      name: f.group,
+      items: hits
+        .filter((h) => h.collection === f.collection)
+        .map((h) => ({ key: `found:${h.collection}:${h.id}`, label: h.title })),
+    }));
+  }, [record, typed]);
   const groups = useMemo<PaletteGroup[]>(
-    () => [
-      {
-        name: 'Places',
-        items: sidebarAreas(areas).map((a) => ({ key: `area:${a.id}`, label: a.nav })),
-      },
-      {
-        name: 'Commands',
-        items: commandsFor(current?.id).map((e) => ({ key: `cmd:${e.name}`, label: e.title })),
-      },
-      {
-        name: 'Pinned',
-        items: pins.map((p) => ({
-          key: `pin:${p.id}`,
-          label: p.title,
-          glyph: <Glyph type={p.type} />,
-        })),
-      },
-    ].filter((g) => g.items.length > 0),
-    [areas, pins, current?.id],
+    () =>
+      [
+        ...found,
+        {
+          name: "Places",
+          items: sidebarAreas(areas).map((a) => ({
+            key: `area:${a.id}`,
+            label: a.nav,
+          })),
+        },
+        {
+          name: "Commands",
+          items: commandsFor(current?.id).map((e) => ({
+            key: `cmd:${e.name}`,
+            label: e.title,
+          })),
+        },
+        {
+          name: "Pinned",
+          items: pins.map((p) => ({
+            key: `pin:${p.id}`,
+            label: p.title,
+            glyph: <Glyph type={p.type} />,
+          })),
+        },
+      ].filter((g) => g.items.length > 0),
+    [found, areas, pins, current?.id],
   );
   const run = (key: string) => {
     setPalette(false);
-    const [kind, id = ''] = [key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)];
-    if (kind === 'area') {
+    const [kind, id = ""] = [
+      key.slice(0, key.indexOf(":")),
+      key.slice(key.indexOf(":") + 1),
+    ];
+    if (kind === "area") {
       const a = areas.find((x) => x.id === id);
       if (a) onNavigate(a.route);
-    } else if (kind === 'pin') onOpenPin?.(id);
-    else if (kind === 'cmd' && id === 'theme.toggle') toggleTheme();
-    else if (kind === 'cmd') void call(id as Parameters<typeof call>[0], {}, storedToken());
+    } else if (kind === "found") {
+      // The area that holds the item opens it by id (?open=), so the address names the item.
+      const [collection = "", docId = ""] = [
+        id.slice(0, id.indexOf(":")),
+        id.slice(id.indexOf(":") + 1),
+      ];
+      const area = FOUND.find((f) => f.collection === collection)?.area;
+      const a = areas.find((x) => x.id === area);
+      if (a) onNavigate(`${a.route}?open=${encodeURIComponent(docId)}`);
+    } else if (kind === "pin") onOpenPin?.(id);
+    else if (kind === "cmd" && id === "theme.toggle") toggleTheme();
+    else if (kind === "cmd")
+      void call(id as Parameters<typeof call>[0], {}, storedToken());
   };
   // Tab: the typed request goes to Ask E.V. as ?text= for it to pick up.
   const ask = (text: string) => {
     setPalette(false);
-    const a = areas.find((x) => x.id === 'ask');
-    if (a) onNavigate(text ? `${a.route}?text=${encodeURIComponent(text)}` : a.route);
+    const a = areas.find((x) => x.id === "ask");
+    if (a)
+      onNavigate(
+        text ? `${a.route}?text=${encodeURIComponent(text)}` : a.route,
+      );
   };
   return (
     <div className="shell" data-ui="shell" data-theme={theme}>
@@ -166,11 +242,23 @@ export function Shell({
         ))}
         {pins.length > 0 ? <NavGroup label="Pinned" /> : null}
         {pins.map((p) => (
-          <NavItem key={p.id} label={p.title} icon={<Glyph type={p.type} />} onOpen={() => onOpenPin?.(p.id)} />
+          <NavItem
+            key={p.id}
+            label={p.title}
+            icon={<Glyph type={p.type} />}
+            onOpen={() => onOpenPin?.(p.id)}
+          />
         ))}
         <div className="shell-grow" />
-        {runningJob ? <JobLine text={runningJob.text} onOpen={() => onOpenJob?.(runningJob.id)} /> : null}
-        {onUseDifferentToken ? <NavItem label="Use a different token" onOpen={onUseDifferentToken} /> : null}
+        {runningJob ? (
+          <JobLine
+            text={runningJob.text}
+            onOpen={() => onOpenJob?.(runningJob.id)}
+          />
+        ) : null}
+        {onUseDifferentToken ? (
+          <NavItem label="Use a different token" onOpen={onUseDifferentToken} />
+        ) : null}
         <ThemeButton theme={theme} onToggle={toggleTheme} />
         <NavItem
           label="Recently deleted"
@@ -184,11 +272,20 @@ export function Shell({
         <div className="shell-col">
           <Ev4Offer ev4={services?.ev4} />
           <SavedCopyNotice copy={services?.readCopy} />
-          {View ? <View services={services} onNavigate={onNavigate} path={bare} /> : null}
+          {View ? (
+            <View services={services} onNavigate={onNavigate} path={bare} />
+          ) : null}
         </div>
       </main>
       {detail ? <Detail {...detail} /> : null}
-      {palette ? <Palette groups={groups} onRun={run} onAsk={ask} onClose={() => setPalette(false)} /> : null}
+      {palette ? (
+        <Palette
+          groups={groups}
+          onRun={run}
+          onAsk={ask}
+          onClose={() => setPalette(false)}
+        />
+      ) : null}
     </div>
   );
 }
