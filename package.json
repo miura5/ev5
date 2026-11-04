@@ -47,6 +47,8 @@
     "zod": "4.6.7"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "1.4.0"
+    "@anthropic-ai/sdk": "1.4.0",
+    "@radix-ui/react-context-menu": "2.4.1",
+    "@radix-ui/react-dropdown-menu": "2.2.1"
   }
 }
