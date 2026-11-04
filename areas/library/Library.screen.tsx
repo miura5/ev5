@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
@@ -40,11 +41,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
     );
   return (
     <>
-      {error ? (
-        <p className="ev-library-meta" role="status">
-          {error}
-        </p>
-      ) : null}
+      {error ? <Toast message={error} /> : null}
       <LibraryView
         practice={null}
         weakSpots={data?.weakSpots ?? []}

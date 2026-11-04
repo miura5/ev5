@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
 
@@ -32,12 +33,8 @@ export function TodayScreen({
   if (!data && !error) return null;
   return (
     <>
-      {error ? (
-        <p className="ev-today-meta" role="status">
-          {error}
-        </p>
-      ) : null}
-      {notSaved ? <p className="ev-today-meta">Not saved. Try again.</p> : null}
+      {error ? <Toast message={error} /> : null}
+      {notSaved ? <Toast message="Not saved. Try again." /> : null}
       <TodayView
         dateLabel={dateLabel()}
         {...(data ?? EMPTY)}
