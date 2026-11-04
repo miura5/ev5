@@ -1,0 +1,32 @@
+.ev-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.ev-progress-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.ev-progress-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--track-title);
+}
+
+.ev-progress-meta {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.ev-progress-line {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--quiet);
+}
