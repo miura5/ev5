@@ -15806,10 +15806,10 @@
   "title": "Today lacks the mock-up's Add on Plan and Add date on Coming up",
   "dod": "Today's Plan section has the mock-up's Add control (key C) through plan.create, and the dates section is titled Coming up with Add date through date.*, as design/mockup.html's Today shows; screen tests cover both.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "B-745 (S-72 Today) is marked done without these controls.",
-  "commit": null,
+  "notes": "Merged #335; seen working on staging in playtest 2 (Add C on Plan, Add date on Coming up).",
+  "commit": "6060bab",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15818,10 +15818,10 @@
   "title": "Activity and Ask show the raw job name study_plan and repeat the job's sentence",
   "dod": "Job rows in Activity and Ask's open-jobs lines show the plain job title (Study plan), never the kind key; a row's text is one sentence, not the generic line followed by the specific one; Activity's sections (Needs you, Running, Done today) have the mock-up's spacing; two needs-you records for the same plan show once or each says what differs.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 44 (#326): job kind keys normalised (study_plan to study-plan), sentences trimmed, duplicate needs-you rows shown once. Left: Activity spacing vs mock-up; server describe() in jobs/runtime/status.ts should return the reason as its own field.",
-  "commit": null,
+  "notes": "Merged #326 and #329; playtest 2 on staging shows Study plan, not study_plan, and one sentence per row.",
+  "commit": "46bbbf5",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15842,10 +15842,10 @@
   "title": "Dates and times left read three different ways across screens",
   "dod": "One plain date style everywhere (Today, Library exams, Notes list and note page, Sessions): a day reads like Dec 1, with the year when it is not this year, and time left reads in 392 days, never in 392d; no screen shows a raw 2026-11-04; the Library tab label reads Exams 1 with its spacing, not Exams· 1.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged #337; playtest 2 on staging: Dec 1, 2027 · in 392 days, Nov 4, Exams 1.",
+  "commit": "91f1302",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15854,10 +15854,10 @@
   "title": "A note picture sits in a frame wider than the picture",
   "dod": "A picture block in the notes editor sizes its frame to the picture (up to the column width), as the kit's Doc shows; no empty grey band beside a narrow picture.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low. Picture upload itself works on staging (PUT and GET 200, kept after reload).",
-  "commit": null,
+  "notes": "Merged #334; playtest 2 on staging: the frame fits the picture.",
+  "commit": "b78ae1c",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15868,7 +15868,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Likely the same cause as the jobs poll loop (the parent re-renders resetting the count); check after that fix.",
+  "notes": "Playtest 2 (staging 6060bab, bundle index-Di1whQ8m.js): still 0:00 after 11 s with the tab visible. Likely cause: with no active session, areas/sessions/map.ts mapSessions picks the newest ended session (pool falls back to all), so stopped is true and the clock never ticks, yet the screen still shows Pause, End and read-along on. PR #333's test uses a running session, so it passes. Fix: with no active session show no-session-yet (or the ended one as ended, with no Pause or End), and add a test with only ended sessions.",
   "commit": null,
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
@@ -15898,5 +15898,115 @@
   "notes": "Run 44 (#321): map.ts falls back from startedAt to the first event, then the doc time; an ended session shows its saved minutes.",
   "commit": "836a055",
   "source": "B-861 builder, run 43"
+ },
+ {
+  "id": "B-874",
+  "kind": "task",
+  "title": "Switch light and dark does nothing in the app",
+  "dod": "The palette's Switch light and dark, the sidebar foot's theme button and the \\ key (as design/mockup.html's sidebar shows) set data-theme on the app root and keep the choice on this device; the first load follows the system; a screen test flips it; screenshots of Today in both themes at 1280.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "High: it blocks the light-theme half of every design check. theme.toggle only POSTs to the server (command-handlers acks) and nothing in shell/ sets data-theme; the tokens' light theme works in /kit.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-875",
+  "kind": "task",
+  "title": "After a deploy the app opens the old build until a hard reload",
+  "dod": "When a new build is deployed, the next normal load (or a focus of the open app) runs the new build: the service worker updates and the page reloads once or says a new version is ready; an e2e or unit test covers the update path.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [
+   "B-817"
+  ],
+  "notes": "Playtest 2: the first normal load served the previous build with the old jobs loop (B-861's cause) until a hard reload. B-817 (vite-plugin-pwa, D-472) owns the service worker.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-876",
+  "kind": "task",
+  "title": "The sidebar's Activity count says 2 while Activity lists 1",
+  "dod": "The sidebar's Activity count, Activity's Needs you count and Ask's job cards all come from the same jobs list and agree; a test plants two needs-you jobs for one exam and checks all three.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Playtest 2: sidebar 2, Activity Needs you 1, Ask shows two Study plan cards. Probably two study_plan jobs where Activity shows one.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-877",
+  "kind": "task",
+  "title": "Recently deleted rows show raw ids and a table name instead of titles",
+  "dod": "Each Recently deleted row shows the item's title (or Untitled) and its kind in plain words, never an id or a table name like own_set_items; the count sits on its own line; a screen test covers a set item and a note.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Playtest 2 screenshot 07. Related: B-750 leftovers (Restore).",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-878",
+  "kind": "task",
+  "title": "Focus rings are 4 px wide; the mock-up's are 2 px",
+  "dod": "Every kit :focus-visible outline is 2 px solid var(--text), offset -2 px, as design/mockup.html; no component uses a space token (--sp-1) for an outline width; the kit gallery shows a focused Button, NavItem and Row.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "kit NavItem, SidebarSearch, Button, Row, Field and others use outline: var(--sp-1).",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-879",
+  "kind": "task",
+  "title": "Activity shows None. in every group while it loads",
+  "dod": "While the jobs list loads, Activity shows a loading state (no None. lines); None. shows only once the list has arrived empty; a screen test holds the fetch open and checks.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Low. Seen on first open of Activity in playtest 2.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-880",
+  "kind": "task",
+  "title": "The Progress heading uses the browser's default size",
+  "dod": "Progress's title uses the kit's title style (--fs-title, 600) with its meta line, like Library's; the placeholder line uses --fs-body; no text off the three sizes (CONTRACT ui.three-sizes).",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Low. Measured 28 px / 700 on staging. The charts in the mock-up are not built yet; this is only the heading.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-881",
+  "kind": "task",
+  "title": "In the kit gallery the Toast sample floats over the other samples",
+  "dod": "The /kit gallery shows the Toast sample inside its own section (not fixed to the window), and its headings use the kit's sizes, not the browser's h3 (16.38 px).",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Low. Gallery only; visual baselines (S-39) need a refresh after.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-882",
+  "kind": "task",
+  "title": "The sidebar lacks the mock-up's E.V. mark at the top",
+  "dod": "The sidebar starts with the mock-up's workspace line (the mark and E.V.), as design/mockup.html's .ws; screenshot at 1280 in both themes.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Low. Courses are planned as pins (C12, B-750); the running-job line exists and shows only while a job runs; the theme button is part of the theme task.",
+  "commit": null,
+  "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  }
 ]
