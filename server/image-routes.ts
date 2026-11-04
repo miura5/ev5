@@ -19,7 +19,8 @@ export interface R2Like {
 }
 
 export interface ImageRoutesEnv {
-  IMAGES: R2Like;
+  /** Unbound until the staging API token can use R2 (Matt's step); the routes answer 503 meanwhile. */
+  IMAGES?: R2Like;
 }
 
 const KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
@@ -43,6 +44,7 @@ const typeOf = (key: string) =>
 imageRoutes.put("/note-images/:name", async (c) => {
   const key = `note-images/${c.req.param("name")}`;
   if (!KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
+  if (!c.env.IMAGES) return c.json({ error: "picture storage is not set up" }, 503);
   const declared = Number(c.req.header("content-length") ?? 0);
   if (declared > MAX_IMAGE)
     return c.json({ error: "picture is over 5 MB" }, 413);
@@ -59,6 +61,7 @@ imageRoutes.put("/note-images/:name", async (c) => {
 imageRoutes.get("/note-images/:name", async (c) => {
   const key = `note-images/${c.req.param("name")}`;
   if (!KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
+  if (!c.env.IMAGES) return c.json({ error: "picture storage is not set up" }, 503);
   const obj = await c.env.IMAGES.get(key);
   if (!obj) return c.json({ error: "not found" }, 404);
   return new Response(obj.body, {
