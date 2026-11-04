@@ -11,6 +11,14 @@ async function setup(withTables: boolean) {
   ).run();
   await DB.prepare("INSERT INTO deletions VALUES ('notes','a',10)").run();
   await DB.prepare("INSERT INTO deletions VALUES ('sets','b',30)").run();
+  await DB.prepare("INSERT INTO deletions VALUES ('own_set_items','s1/i1',20)").run();
+  await DB.prepare(
+    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  await DB.prepare(`INSERT INTO docs VALUES ('notes','a','{"title":"Cardiac drugs"}',1,1)`).run();
+  await DB.prepare(
+    `INSERT INTO own_set_items VALUES ('s1','i1',1,'{"stem":"Which lab is highest priority?"}',1,1)`,
+  ).run();
   if (withTables) {
     await DB.prepare(
       "CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT NOT NULL, parent_id TEXT, pos INTEGER NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL)",
@@ -82,7 +90,7 @@ test("deletions read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     all.deletions.map((d) => d.id),
-    ["b", "a"],
+    ["b", "s1/i1", "a"],
   );
   const one = (await (
     await call("GET", "/deletions?collection=notes")
@@ -93,6 +101,17 @@ test("deletions read newest first and filter by collection", async () => {
     one.deletions.map((d) => d.id),
     ["a"],
   );
+});
+
+test("deletions carry the kept item's title, for a note and for a set item", async () => {
+  const call = await setup(true);
+  const all = (await (await call("GET", "/deletions")).json()) as {
+    deletions: { collection: string; title: string | null }[];
+  };
+  const t = Object.fromEntries(all.deletions.map((d) => [d.collection, d.title]));
+  assert.equal(t.notes, "Cardiac drugs");
+  assert.equal(t.own_set_items, "Which lab is highest priority?");
+  assert.equal(t.sets, null);
 });
 
 test("tables not yet migrated read as empty", async () => {
@@ -109,7 +128,7 @@ test("tables not yet migrated read as empty", async () => {
         deletions: unknown[];
       }
     ).deletions.length,
-    2,
+    3,
   );
 });
 

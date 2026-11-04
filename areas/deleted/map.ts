@@ -6,6 +6,8 @@ export interface WireDeletion {
   collection: string;
   id: string;
   at: number;
+  /** The kept item's title; null when the server could not find it. */
+  title?: string | null;
 }
 
 const DAY = 86_400_000;
@@ -18,9 +20,24 @@ const TYPES: Record<string, DeletedItem["type"]> = {
   plans: "plan",
   jobs: "job",
   goals: "date",
+  own_set_items: "questions",
+};
+/** Plain words for what was deleted; never a table name. */
+const KINDS: Record<string, string> = {
+  notes: "Note",
+  cards: "Flashcard",
+  questions: "Question",
+  steps: "Step",
+  plans: "Study plan",
+  jobs: "Job",
+  goals: "Date",
+  own_set_items: "Set question",
+  sets: "Set",
+  own_sets: "Set",
+  collections: "Collection",
 };
 
-/** Newest first; days left out of the 30 kept, never below zero. The row carries no title, so the id stands in. */
+/** Newest first; days left out of the 30 kept, never below zero. A row without a title reads Untitled, never its id. */
 export function mapDeletions(
   rows: readonly WireDeletion[],
   now: number,
@@ -31,9 +48,9 @@ export function mapDeletions(
       return {
         id: `${r.collection}/${r.id}`,
         type: TYPES[r.collection] ?? "note",
-        title: r.id,
+        title: r.title?.trim() || "Untitled",
+        kind: KINDS[r.collection] ?? "Item",
         deletedOn: plainDay(centralDate(r.at), centralDate(now)),
-        from: r.collection,
         daysLeft: Math.max(0, KEPT_DAYS - Math.floor((now - r.at) / DAY)),
       };
     });
