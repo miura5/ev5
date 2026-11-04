@@ -2,4 +2,4 @@
 export { docsRepo } from "./docs/repo.ts";
 export type { D1Like as DocsD1 } from "./docs/d1.ts";
 export { MAX_BODY, NO_DELETE } from "./compat/protocol.ts";
-export { workerNoteProblem, noteShapeErrors } from "./docs/worker-check.ts";
+export { workerNoteProblem } from "./docs/worker-check.ts";
