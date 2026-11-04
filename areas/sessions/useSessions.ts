@@ -27,8 +27,12 @@ export interface SessionsState {
   save: (doc: Record<string, unknown>) => Promise<boolean>;
 }
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
 /** Reads study sessions with the app token Matt keeps in this browser (the shell holds none). */
-export function useSessions(): SessionsState {
+export function useSessions(copy?: ReadCopyLike): SessionsState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<SessionData>();
   const [error, setError] = useState<string>();
@@ -51,10 +55,16 @@ export function useSessions(): SessionsState {
     let live = true;
     void (async () => {
       try {
-        const r = await api("docs?collection=sessions", token);
-        if (r.status === 401) throw new Error("That token was not accepted.");
-        if (!r.ok) throw new Error("Sessions could not load.");
-        const docs = ((await r.json()) as { docs: WireDoc[] }).docs;
+        // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
+        const fetcher = async (): Promise<WireDoc[]> => {
+          const r = await api("docs?collection=sessions", token);
+          if (r.status === 401) throw new Error("That token was not accepted.");
+          if (!r.ok) throw new Error("Sessions could not load.");
+          return ((await r.json()) as { docs: WireDoc[] }).docs;
+        };
+        const docs = copy
+          ? await copy.read("sessions:list", fetcher)
+          : await fetcher();
         if (live) {
           setData(mapSessions(docs, Date.now()));
           setError(undefined);
@@ -67,7 +77,7 @@ export function useSessions(): SessionsState {
     return () => {
       live = false;
     };
-  }, [token, tick]);
+  }, [token, tick, copy]);
   const noteId = data?.noteId;
   useEffect(() => {
     setNote(undefined);
