@@ -61,6 +61,7 @@ const GUARDS: Guard[] = [
   { name: 'a raw colour (stylelint)', command: stylelint, files: { 'kit/raw.css': 'a { color: #ff0000; }\n' }, expect: /color-no-hex|declaration-property-value-allowed-list/ },
   { name: 'an unused export (knip)', command: knip, files: { 'domain/dead.ts': 'export const used = 1;\nexport const unused = 2;\n', 'domain/dead.test.ts': "import { used } from './dead.ts';\nexport const t = used;\n" }, expect: /unused/i },
   { name: 'a component without a story (ops/checks presence)', command: checks, files: { 'kit/components/Btn/Btn.tsx': 'export const Btn = 1;\n', 'kit/components/Btn/Btn.test.tsx': '' }, expect: /presence: kit\/components\/Btn: missing kit\/components\/Btn\/Btn\.story\.tsx/ },
+  { name: 'a kit menu without Radix (ops/checks radix)', command: checks, files: { 'kit/components/Pop/Pop.tsx': 'export const Pop = () => <ul role="menu" />;\n' }, expect: /radix: kit\/components\/Pop\/Pop\.tsx: draws or handles role="menu itself; import @radix-ui\/\* or cmdk/ },
   { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },
 ];
 

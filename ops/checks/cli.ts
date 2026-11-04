@@ -3,6 +3,7 @@
 import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
 import { checkPresence } from './presence.ts';
+import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
 import { checkSecrets } from './secrets.ts';
@@ -18,6 +19,7 @@ const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
   ...checkPresence(root, files),
+  ...checkRadix(root, files),
   ...checkRegistry(root, files),
   ...checkRules(root, files),
   ...checkSecrets(root, files),
