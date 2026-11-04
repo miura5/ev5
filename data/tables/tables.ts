@@ -21,8 +21,6 @@ type Membership = ReturnType<typeof parseMembership>;
 type ItemProps = ReturnType<typeof parseItemProps>;
 type Pin = ReturnType<typeof parsePin>;
 
-export type { Saved, TablesOptions } from "./core.ts";
-
 export function tablesRepo(db: D1Like, opts: TablesOptions) {
   const { all, first, putVersioned } = core(db, opts);
   const toCollection = (r: Raw): Collection =>
@@ -206,4 +204,5 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...ownRepo(db, opts),
   };
 }
+/** @public Used by the first consumer, a later task. */
 export type TablesRepo = ReturnType<typeof tablesRepo>;

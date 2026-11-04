@@ -78,4 +78,3 @@ export function core(db: D1Like, opts: TablesOptions) {
 
   return { db, opts, all, first, putVersioned };
 }
-export type Core = ReturnType<typeof core>;
