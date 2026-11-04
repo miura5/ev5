@@ -17,7 +17,7 @@ export function CollectionScreen({
   path?: string;
   onNavigate?: (path: string) => void;
 }) {
-  const { data, token, refused, error } = useCollection(
+  const { data, pins, token, refused, error } = useCollection(
     idOf(path),
     services?.readCopy,
   );
@@ -30,6 +30,7 @@ export function CollectionScreen({
         title={data?.title ?? ""}
         parent={data?.parent}
         dates={[]}
+        pinnedItems={pins}
         nested={data?.nested ?? []}
         items={data?.items ?? []}
         onBack={

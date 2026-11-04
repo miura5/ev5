@@ -14,6 +14,13 @@ export interface WireMembership {
   at: number;
 }
 
+export interface WirePin {
+  collection: string;
+  id: string;
+  pos: number;
+  at: number;
+}
+
 /** A docs row (GET /docs?collection=c): the item a membership points at. */
 export interface WireDoc {
   id: string;
@@ -31,6 +38,22 @@ export interface CollectionData {
   items: CollectionEntry[];
 }
 
+/** The pinned items (GET /pins, already by pos then newest first), named from their docs. */
+export function mapPins(
+  pins: readonly WirePin[],
+  docs: DocsByCollection = {},
+): CollectionEntry[] {
+  return pins.map((p) => ({
+    id: p.id,
+    type: TYPES[p.collection] ?? "note",
+    title: docTitle(
+      docs[p.collection]?.find((d) => d.id === p.id),
+      p.id,
+    ),
+    meta: p.collection,
+  }));
+}
+
 const TYPES: Record<string, CollectionEntry["type"]> = {
   notes: "note",
   cards: "cards",
@@ -42,13 +65,17 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
 };
 
 const field = (d: unknown, k: string): string | undefined => {
-  const v = d && typeof d === "object" ? (d as Record<string, unknown>)[k] : undefined;
+  const v =
+    d && typeof d === "object" ? (d as Record<string, unknown>)[k] : undefined;
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
 };
 
 /** The item's own name: title, else name, else text; the id only when the item is gone or unnamed. */
 export const docTitle = (d: WireDoc | undefined, fallback: string): string =>
-  field(d?.data, "title") ?? field(d?.data, "name") ?? field(d?.data, "text") ?? fallback;
+  field(d?.data, "title") ??
+  field(d?.data, "name") ??
+  field(d?.data, "text") ??
+  fallback;
 
 /** "Nov 3", Central time (§time), from epoch ms. */
 export const shortDate = (ms: number): string =>

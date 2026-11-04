@@ -15,6 +15,8 @@ export interface CollectionViewProps {
   /** The parent collection's name, when this one is nested. */
   parent?: string;
   pinned?: boolean;
+  /** Pinned items (from /pins), shown under "Pinned" before the rest. */
+  pinnedItems?: readonly CollectionEntry[];
   /** Dated goals, shown first under "Coming up". */
   dates: readonly CollectionEntry[];
   /** Nested collections (one level) then items, newest first. */
@@ -83,6 +85,14 @@ export function CollectionView(p: CollectionViewProps) {
           New
         </Button>
       </div>
+      {p.pinnedItems && p.pinnedItems.length > 0 ? (
+        <div className="ev-coll-sec" data-section="Pinned">
+          <h2 className="ev-coll-label">Pinned</h2>
+          {p.pinnedItems.map((e) => (
+            <EntryRow key={e.id} e={e} onOpen={p.onOpen} />
+          ))}
+        </div>
+      ) : null}
       {p.dates.length > 0 ? (
         <div className="ev-coll-sec" data-section="Coming up">
           <h2 className="ev-coll-label">Coming up</h2>

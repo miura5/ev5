@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { mapCollection } from "./map.ts";
+import { mapCollection, mapPins } from "./map.ts";
 
 const cs = [
   { id: "b", title: "BIO 201", parentId: null, pos: 2 },
@@ -46,7 +46,24 @@ test("members show the item's title and date, falling back to the id", () => {
     notes: [{ id: "n1", at: nov3, data: { title: "  Heart sounds " } }],
   })!;
   const byId = Object.fromEntries(d.items.map((e) => [e.id, e]));
-  expect(byId.n1).toMatchObject({ title: "Heart sounds", meta: "notes · Nov 3" });
+  expect(byId.n1).toMatchObject({
+    title: "Heart sounds",
+    meta: "notes · Nov 3",
+  });
   expect(byId.k1!.title).toBe("k1");
   expect(byId.k1!.meta).toMatch(/^cards · /);
+});
+
+test("pins keep the server order and are named from docs, else by id", () => {
+  const e = mapPins(
+    [
+      { collection: "notes", id: "n1", pos: 0, at: 2 },
+      { collection: "cards", id: "k1", pos: 1, at: 1 },
+    ],
+    { notes: [{ id: "n1", data: { title: "Heart" } }] },
+  );
+  expect(e.map((x) => [x.title, x.type])).toEqual([
+    ["Heart", "note"],
+    ["k1", "cards"],
+  ]);
 });

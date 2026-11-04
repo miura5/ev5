@@ -5,16 +5,29 @@ import { CollectionView, type CollectionEntry } from "./Collection.view.tsx";
 
 afterEach(cleanup);
 
-const exam: CollectionEntry = { id: "d1", type: "date", title: "Exam 2", meta: "Nov 12" };
-const note: CollectionEntry = { id: "n1", type: "note", title: "Cardiac drugs" };
+const exam: CollectionEntry = {
+  id: "d1",
+  type: "date",
+  title: "Exam 2",
+  meta: "Nov 12",
+};
+const note: CollectionEntry = {
+  id: "n1",
+  type: "note",
+  title: "Cardiac drugs",
+};
 const sub: CollectionEntry = { id: "c2", type: "collection", title: "Labs" };
 const base = { title: "NUR 112", dates: [exam], nested: [sub], items: [note] };
 
 test("dates come first, then nested collections and items", () => {
   const onOpen = vi.fn();
   render(<CollectionView {...base} pinned onOpen={onOpen} />);
-  expect(document.querySelector('[data-section="Coming up"]')!.textContent).toContain("Exam 2");
-  const all = document.querySelector('[data-section="Everything"]')!.textContent!;
+  expect(
+    document.querySelector('[data-section="Coming up"]')!.textContent,
+  ).toContain("Exam 2");
+  const all = document.querySelector(
+    '[data-section="Everything"]',
+  )!.textContent!;
   expect(all.indexOf("Labs")).toBeLessThan(all.indexOf("Cardiac drugs"));
   expect(screen.getByText("Collection · 3 items · pinned")).toBeTruthy();
   fireEvent.click(screen.getByText("Cardiac drugs"));
@@ -49,20 +62,28 @@ test("pin, new and back report; empty collection explains itself", () => {
 
 test("/collection/:id opens that collection and Back goes to its parent", async () => {
   const body = (path: string) =>
-    path.includes("memberships")
-      ? { memberships: [{ collection: "notes", id: "n1", collectionId: "b", at: 1 }] }
-      : {
-          collections: [
-            { id: "a", title: "NUR 112", parentId: null, pos: 0 },
-            { id: "b", title: "Labs", parentId: "a", pos: 1 },
-          ],
-        };
+    path.includes("pins")
+      ? { pins: [] }
+      : path.includes("memberships")
+        ? {
+            memberships: [
+              { collection: "notes", id: "n1", collectionId: "b", at: 1 },
+            ],
+          }
+        : {
+            collections: [
+              { id: "a", title: "NUR 112", parentId: null, pos: 0 },
+              { id: "b", title: "Labs", parentId: "a", pos: 1 },
+            ],
+          };
   vi.stubGlobal(
     "fetch",
     vi.fn((url: string) => {
       expect(url.startsWith("/api/v1/")).toBe(true);
       expect(url).not.toContain("/api/v1//api/v1");
-      return Promise.resolve(new Response(JSON.stringify(body(url)), { status: 200 }));
+      return Promise.resolve(
+        new Response(JSON.stringify(body(url)), { status: 200 }),
+      );
     }),
   );
   localStorage.setItem("ev5.token", "t");
@@ -73,6 +94,41 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
   expect(await screen.findByText("Labs")).toBeTruthy();
   fireEvent.click(screen.getByText("← NUR 112"));
   expect(onNavigate).toHaveBeenCalledWith("/collection/a");
+  localStorage.clear();
+  vi.unstubAllGlobals();
+});
+
+test("pinned items are listed under Pinned, named from their docs", async () => {
+  const body = (path: string) =>
+    path.includes("pins")
+      ? { pins: [{ collection: "notes", id: "n9", pos: 0, at: 3 }] }
+      : path.startsWith("docs")
+        ? { docs: [{ id: "n9", data: { title: "Insulin types" } }] }
+        : path.includes("memberships")
+          ? { memberships: [] }
+          : {
+              collections: [
+                { id: "a", title: "NUR 112", parentId: null, pos: 0 },
+              ],
+            };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((url: string) =>
+      Promise.resolve(
+        new Response(JSON.stringify(body(url.replace("/api/v1/", ""))), {
+          status: 200,
+        }),
+      ),
+    ),
+  );
+  localStorage.setItem("ev5.token", "t");
+  vi.resetModules();
+  const { CollectionScreen } = await import("./Collection.screen.tsx");
+  render(<CollectionScreen path="/collection" />);
+  expect(await screen.findByText("Insulin types")).toBeTruthy();
+  expect(
+    document.querySelector('[data-section="Pinned"]')!.textContent,
+  ).toContain("Insulin types");
   localStorage.clear();
   vi.unstubAllGlobals();
 });
