@@ -42,6 +42,14 @@ export interface WireJobLine {
   summary: string;
 }
 
+/** A needs-you study-plan job means a plan waits for Matt. */
+export function studyPlanWaiting(jobs: readonly WireJobLine[]): boolean {
+  return jobs.some(
+    (j) =>
+      j.kind.replace(/_/g, "-") === "study-plan" && j.state === "needs-you",
+  );
+}
+
 /** The monthly spend alert is a needs-you job of kind "spend-alert"; Today shows its one line. */
 export function spendAlertLine(
   jobs: readonly WireJobLine[],
@@ -155,6 +163,13 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       meta: inDays(left),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
+      whenFull: new Date(`${exam.date}T00:00:00Z`).toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      }),
+      course: exam.course,
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });

@@ -142,3 +142,12 @@
   flex: 1;
   min-width: 0;
 }
+
+.ev-today-detail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background: var(--bg);
+}

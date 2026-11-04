@@ -18,6 +18,7 @@ export function SessionsScreen({
   const { data, token, refused, error, note, toggleTodo, save } = useSessions(
     services?.readCopy,
   );
+  const root = useRef<HTMLElement | null>(null);
   const [extra, setExtra] = useState(0);
   const [closed, setClosed] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -62,6 +63,11 @@ export function SessionsScreen({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+  // After Start session the old button is gone: focus the page so Space pauses without a click first.
+  const shown = !!data && !closed;
+  useEffect(() => {
+    if (shown) root.current?.focus({ preventScroll: true });
+  }, [shown]);
   useEffect(() => {
     setExtra(0);
     if (stopped || !data) return;
@@ -83,9 +89,11 @@ export function SessionsScreen({
         <Doc title="Study session" meta="no session yet" />
       ) : (
         <SessionView
-          title={data.title}
-          meta={data.meta}
+          // A session over a note is that note's page: its own title once, no session heading or date above it.
+          title={note?.title || data.title}
+          meta={note ? undefined : data.meta}
           seconds={data.seconds + extra}
+          rootRef={root}
           paused={paused}
           checks={[]}
           onTogglePause={togglePause}
