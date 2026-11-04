@@ -86,3 +86,4 @@ export { NavItem } from "./components/NavItem/NavItem";
 export { NavGroup } from "./components/NavGroup/NavGroup";
 export { JobLine } from "./components/JobLine/JobLine";
 export { SidebarSearch } from "./components/SidebarSearch/SidebarSearch";
+export { Toast } from "./components/Toast/Toast";

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { mapCollection } from "./map.ts";
 import type {
   CollectionData,
@@ -7,24 +7,16 @@ import type {
   WireDoc,
   WireMembership,
 } from "./map.ts";
-import { api } from "../../commands/client.ts";
-
-const KEY = "ev5.token";
-
-const readToken = (): string => {
-  try {
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
+import { failureKind, failureSentence, readJson, readToken } from "../../commands/client.ts";
 
 export interface CollectionState {
   data?: CollectionData;
   loaded: boolean;
   token: string;
+  /** The server refused the token (401): no data and no empty state; the shell's token screen takes over. */
+  refused: boolean;
+  /** A plain sentence for any other failure. */
   error?: string;
-  setToken: (t: string) => void;
 }
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
@@ -34,13 +26,7 @@ export interface ReadCopyLike {
 
 /** Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline). */
 function get<T>(path: string, token: string, copy?: ReadCopyLike): Promise<T> {
-  const fetcher = async (): Promise<T> => {
-    const r = await api(path, token);
-    if (r.status === 401) throw new Error("That token was not accepted.");
-    if (!r.ok) throw new Error("The collection could not load.");
-    return (await r.json()) as T;
-  };
-  return copy ? copy.read(`collection:${path}`, fetcher) : fetcher();
+  return readJson<T>(path, token, `collection:/api/v1/${path}`, copy);
 }
 
 /** Reads collections and memberships with the app token Matt keeps in this browser. */
@@ -48,18 +34,11 @@ export function useCollection(
   id?: string,
   copy?: ReadCopyLike,
 ): CollectionState {
-  const [token, setTokenState] = useState(readToken);
+  const token = readToken();
   const [data, setData] = useState<CollectionData>();
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string>();
-  const setToken = useCallback((t: string) => {
-    try {
-      localStorage.setItem(KEY, t);
-    } catch {
-      // storage blocked: the token lasts this visit only
-    }
-    setTokenState(t);
-  }, []);
+  const [refused, setRefused] = useState(false);
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -67,12 +46,12 @@ export function useCollection(
       try {
         const [c, m] = await Promise.all([
           get<{ collections: WireCollection[] }>(
-            "/api/v1/collections",
+            "collections",
             token,
             copy,
           ),
           get<{ memberships: WireMembership[] }>(
-            "/api/v1/memberships",
+            "memberships",
             token,
             copy,
           ),
@@ -84,7 +63,7 @@ export function useCollection(
             try {
               docs[k] = (
                 await get<{ docs: WireDoc[] }>(
-                  `/api/v1/docs?collection=${k}`,
+                  `docs?collection=${k}`,
                   token,
                   copy,
                 )
@@ -98,17 +77,18 @@ export function useCollection(
           setData(mapCollection(c.collections, m.memberships, id, docs));
           setLoaded(true);
           setError(undefined);
+          setRefused(false);
         }
       } catch (e) {
-        if (live)
-          setError(
-            e instanceof Error ? e.message : "The collection could not load.",
-          );
+        if (!live) return;
+        setData(undefined);
+        setRefused(failureKind(e) === "refused");
+        setError(failureSentence(e));
       }
     })();
     return () => {
       live = false;
     };
   }, [token, id, copy]);
-  return { data, loaded, token, error, setToken };
+  return { data, loaded, token, refused, error };
 }

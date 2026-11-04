@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
-import { api, jobApi } from "../../commands/client.ts";
+import { api, failureKind, failureSentence, jobApi, readToken } from "../../commands/client.ts";
 
-const KEY = "ev5.token";
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
   "study-plan": "Study plan",
@@ -35,43 +34,33 @@ export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
 
-const readToken = (): string => {
-  try {
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
-
 export interface JobsState {
   jobs: ActivityJob[];
   token: string;
+  /** The server refused the token (401): no data and no empty state; the shell's token screen takes over. */
+  refused: boolean;
+  /** A plain sentence for any other failure. */
   error?: string;
-  setToken: (t: string) => void;
   /** Acknowledges an alert; the list then reloads without it. */
   dismiss: (id: string) => Promise<void>;
 }
 
 /** Reads the unfinished jobs with the app token Matt keeps in this browser (the public shell holds none, PLAN §10). */
 export function useJobs(copy?: ReadCopyLike): JobsState {
-  const [token, setTokenState] = useState(readToken);
+  const token = readToken();
   const [jobs, setJobs] = useState<ActivityJob[]>([]);
   const [error, setError] = useState<string>();
-  const setToken = useCallback((t: string) => {
-    try {
-      localStorage.setItem(KEY, t);
-    } catch {
-      // storage blocked: the token lasts this visit only
-    }
-    setTokenState(t);
-  }, []);
+  const [refused, setRefused] = useState(false);
   const [tick, setTick] = useState(0);
   const dismiss = useCallback(
     async (id: string) => {
       const r = await api(`jobs/${encodeURIComponent(id)}/dismiss`, token, {
         method: "POST",
       });
-      if (!r.ok) setError("That could not be closed.");
+      if (!r.ok) {
+        setRefused(failureKind(r.status) === "refused");
+        setError(failureSentence(r.status));
+      }
       else setTick((n) => n + 1);
     },
     [token],
@@ -86,17 +75,16 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
           if (live) {
             setJobs(list.map(toActivityJob));
             setError(undefined);
+            setRefused(false);
           }
         })
-        .catch(
-          (e: Error) =>
-            live &&
-            setError(
-              (e as { status?: number }).status === 401
-                ? "That token was not accepted."
-                : "Activity could not load.",
-            ),
-        );
+        .catch((e: unknown) => {
+          if (!live) return;
+          const refusedNow = failureKind(e) === "refused";
+          if (refusedNow) setJobs([]);
+          setRefused(refusedNow);
+          setError(failureSentence(e));
+        });
     void load();
     const t = setInterval(() => void load(), 15000);
     return () => {
@@ -104,5 +92,5 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
       clearInterval(t);
     };
   }, [token, tick, copy]);
-  return { jobs, token, error, setToken, dismiss };
+  return { jobs, token, refused, error, dismiss };
 }

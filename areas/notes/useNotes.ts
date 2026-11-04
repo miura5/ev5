@@ -12,6 +12,7 @@ import {
   type ReadCopyLike,
 } from "./collections.ts";
 import type { NoteCollection } from "./types.ts";
+import { failureSentence } from "../../commands/client.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface NotesServices {
@@ -96,7 +97,7 @@ export function useNotes(services?: NotesServices): NotesState {
       setError(undefined);
       setCols(await readCollections(services.readCopy));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Notes could not load.");
+      setError(failureSentence(e)); // never the server's own words
     }
   }, [services]);
 

@@ -1,5 +1,5 @@
 import type { NoteCollection } from "./types.ts";
-import { api } from "../../commands/client.ts";
+import { ApiError, api, readToken } from "../../commands/client.ts";
 
 export interface CollectionsRead {
   collections: NoteCollection[];
@@ -12,21 +12,13 @@ export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
 
-const token = (): string => {
-  try {
-    return localStorage.getItem("ev5.token") ?? "";
-  } catch {
-    return "";
-  }
-};
-
 async function get(
   path: string,
   copy?: ReadCopyLike,
 ): Promise<Record<string, unknown>> {
   const fetcher = async (): Promise<Record<string, unknown>> => {
-    const r = await api(path, token());
-    if (!r.ok) throw new Error(`${path} ${r.status}`); // never kept as the saved copy
+    const r = await api(path, readToken());
+    if (!r.ok) throw new ApiError(r.status); // never kept as the saved copy
     return (await r.json()) as Record<string, unknown>;
   };
   return copy ? copy.read(`notes:${path}`, fetcher) : fetcher();

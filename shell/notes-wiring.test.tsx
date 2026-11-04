@@ -102,7 +102,7 @@ test("offline, the edit shows not saved and waits in the outbox; it sends when t
   expect((s.data as { title: string }).title).toBe("Fluids, offline");
 });
 
-test("a refused token shows the reason and no notes", async () => {
+test("a refused token shows a plain sentence and no notes", async () => {
   const http = docsHttp(
     () => "",
     async () => new Response("{}", { status: 401 }),
@@ -112,7 +112,7 @@ test("a refused token shows the reason and no notes", async () => {
     transport: http.transport,
   });
   render(<NotesScreen services={{ docs: http, outbox }} />);
-  expect(await screen.findByText("That token was not accepted.")).toBeTruthy();
+  expect(await screen.findByText(/Something went wrong on E\.V\.'s side/)).toBeTruthy();
 });
 
 test("a block edit saves through the outbox, and New note queues a create", async () => {

@@ -68,7 +68,7 @@ test("a server error shows the error and keeps the saved copy", async () => {
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("Sessions could not load."),
+    expect(result.current.error).toBe("Something went wrong on E.V.'s side. Try again in a moment."),
   );
   expect(copy.kept).toEqual(saved);
 });
@@ -79,7 +79,7 @@ test("a 401 is not answered from the copy", async () => {
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("That token was not accepted."),
+    expect(result.current.refused).toBe(true),
   );
   expect(ready(result.current)).toBe(false);
   expect(copy.kept).toEqual(saved);

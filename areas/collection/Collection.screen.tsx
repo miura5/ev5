@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { CollectionView } from "./Collection.view.tsx";
 import { useCollection, type ReadCopyLike } from "./useCollection.ts";
 
@@ -17,34 +17,15 @@ export function CollectionScreen({
   path?: string;
   onNavigate?: (path: string) => void;
 }) {
-  const { data, token, error, setToken } = useCollection(
+  const { data, token, refused, error } = useCollection(
     idOf(path),
     services?.readCopy,
   );
-  const [draft, setDraft] = useState("");
-  if (!token)
-    return (
-      <form
-        className="ev-coll"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (draft.trim()) setToken(draft.trim());
-        }}
-      >
-        <label className="ev-coll-meta" htmlFor="ev-token">
-          Paste your app token to see your Collection
-        </label>
-        <input
-          id="ev-token"
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    );
+  // No token, or one the server refused: no data and no "nothing here"; the shell's token screen asks for it.
+  if (!token || refused) return null;
   return (
     <>
-      {error ? <p className="ev-coll-meta">{error}</p> : null}
+      {error ? <Toast message={error} /> : null}
       <CollectionView
         title={data?.title ?? ""}
         parent={data?.parent}

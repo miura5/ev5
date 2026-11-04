@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NoteEditor } from "./parts/NoteEditor.tsx";
 import { NotesView } from "./Notes.view.tsx";
@@ -23,7 +24,7 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
   if (!cur)
     return (
       <>
-        {error ? <p className="ev-notes-meta">{error}</p> : null}
+        {error ? <Toast message={error} /> : null}
         <NotesView
           notes={notes
             .map((n) => ({

@@ -1,4 +1,4 @@
-import { api } from "../../../commands/client.ts";
+import { api, readToken } from "../../../commands/client.ts";
 import { IMG_KEY } from "../../../domain/index.ts";
 
 // Note pictures (CONTRACT §data.note-images): the Worker keeps them in R2 under note-images/ for the owner only. The
@@ -14,14 +14,6 @@ const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export const NO_STORAGE = "Picture storage isn't set up yet";
 export const UPLOAD_FAILED = "The picture didn't upload";
-
-const token = (): string => {
-  try {
-    return localStorage.getItem("ev5.token") ?? "";
-  } catch {
-    return "";
-  }
-};
 
 /** A picture file the editor can keep (png, jpeg, webp, gif), or false. */
 export const isPicture = (f: File) => f.type in EXT;
@@ -45,7 +37,7 @@ export async function uploadPicture(file: File): Promise<Upload> {
     };
   const key = newKey(file.type);
   try {
-    const r = await api(key, token(), {
+    const r = await api(key, readToken(), {
       method: "PUT",
       raw: { data: file, contentType: file.type },
     });
@@ -66,7 +58,7 @@ export function pictureUrl(key: string): Promise<string | null> {
   if (!IMG_KEY.test(key)) return Promise.resolve(null);
   let p = shown.get(key);
   if (!p) {
-    p = api(key, token())
+    p = api(key, readToken())
       .then(async (r) => (r.ok ? URL.createObjectURL(await r.blob()) : null))
       .catch(() => null);
     shown.set(key, p);

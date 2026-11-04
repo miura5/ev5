@@ -57,10 +57,14 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
             { id: "b", title: "Labs", parentId: "a", pos: 1 },
           ],
         };
-  vi.doMock("../../commands/client.ts", () => ({
-    api: (path: string) =>
-      Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body(path)) }),
-  }));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((url: string) => {
+      expect(url.startsWith("/api/v1/")).toBe(true);
+      expect(url).not.toContain("/api/v1//api/v1");
+      return Promise.resolve(new Response(JSON.stringify(body(url)), { status: 200 }));
+    }),
+  );
   localStorage.setItem("ev5.token", "t");
   vi.resetModules();
   const { CollectionScreen } = await import("./Collection.screen.tsx");
@@ -70,5 +74,5 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
   fireEvent.click(screen.getByText("← NUR 112"));
   expect(onNavigate).toHaveBeenCalledWith("/collection/a");
   localStorage.clear();
-  vi.doUnmock("../../commands/client.ts");
+  vi.unstubAllGlobals();
 });
