@@ -16152,5 +16152,35 @@
   "notes": "Merged #378: journeys park plan items at 2031-12-31, soft-delete their note, reuse two fixed collections, restore the question-set item. Not met: leftover e2e rows already on staging (plan items, e2e 17... collections, sets, three Which is a vital sign? rows) need Matt's hand in the UI or a server-side path; app token has no delete for plan items, collections, sets.",
   "commit": "6b45a09",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04; filed on the supervisor's word"
+ },
+ {
+  "id": "B-895",
+  "kind": "task",
+  "title": "Server read route for pins (GET), so the collection page can show pins",
+  "dod": "A GET route returns the pins for a collection from docs; a route test; no area change (slice server)",
+  "milestone": "v5 P5",
+  "status": "in progress",
+  "depends": [
+   "B-750"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "run 56 handover",
+  "claimedBy": "run56",
+  "claimedAt": "2026-11-04T22:11:49.812Z"
+ },
+ {
+  "id": "B-896",
+  "kind": "task",
+  "title": "Collection page shows pins from the server read route",
+  "dod": "areas/collection lists pinned items on the collection page; a test; story updated",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-895"
+  ],
+  "notes": "needs the pins read route task",
+  "commit": null,
+  "source": "run 56 handover"
  }
 ]
