@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { D1Like, D1Statement } from "../docs/d1.ts";
 import { exportAll, restoreInto, checkExport, ALL_TABLES } from "./index.ts";
@@ -46,14 +46,13 @@ CREATE TABLE pins (target_c TEXT, target_id TEXT, pos INTEGER, at INTEGER, PRIMA
 CREATE TABLE views (id TEXT PRIMARY KEY, title TEXT, query TEXT, at INTEGER, v INTEGER);
 CREATE TABLE item_props (c TEXT, id TEXT, time TEXT, repeat TEXT, linked_c TEXT, linked_id TEXT, overrides TEXT, at INTEGER, v INTEGER, PRIMARY KEY (c, id));
 CREATE TABLE own_sets (id TEXT PRIMARY KEY, title TEXT, type TEXT, source_c TEXT, source_id TEXT, at INTEGER, v INTEGER);
-CREATE TABLE own_set_items (set_id TEXT, item_id TEXT, pos INTEGER, body TEXT, at INTEGER, v INTEGER, PRIMARY KEY (set_id, item_id));
-CREATE TABLE own_attempts (set_id TEXT, item_id TEXT, key TEXT, at INTEGER, body TEXT, PRIMARY KEY (set_id, item_id, key, at));
-CREATE TABLE drafts (id TEXT PRIMARY KEY, job_id TEXT, kind TEXT, target_c TEXT, target_id TEXT, body TEXT, state TEXT, at INTEGER, v INTEGER);`;
+CREATE TABLE own_attempts (set_id TEXT, item_id TEXT, key TEXT, at INTEGER, body TEXT, PRIMARY KEY (set_id, item_id, key, at));`;
 
 function migrated(withNew: boolean): DatabaseSync {
   const db = new DatabaseSync(":memory:");
   db.exec(sql("0000_baseline.sql"));
   db.exec(sql("0001_deletions.sql"));
+  db.exec(sql("0002_jobs_ceilings.sql")); // job tables, drafts and own_set_items
   if (withNew) db.exec(NEW_DDL);
   return db;
 }
@@ -75,7 +74,11 @@ INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes'
 INSERT INTO own_sets VALUES ('s1','Mine','question',NULL,NULL,46,1);
 INSERT INTO own_set_items VALUES ('s1','i1',0,'{"q":"?"}',47,1),('s1','i2',1,'{"q":"!"}',47,1);
 INSERT INTO own_attempts VALUES ('s1','i1','a',48,'{"ok":true}'),('s1','i1','a',49,'{"ok":false}');
-INSERT INTO drafts VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1);`;
+INSERT INTO drafts VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1);
+INSERT INTO job_records VALUES ('j1','{"state":"done"}',60,1);
+INSERT INTO ceiling_use VALUES ('2026-11-03','tokens',500),('2026-11-03','calls',3);
+INSERT INTO ceiling_holds VALUES ('h1',100,'{"day":1}',1);
+INSERT INTO job_plans VALUES ('j1','plan','{"steps":[]}',61);`;
 
 test("export then restore into scratch: every table count and hash equal", async () => {
   const src = migrated(true);
@@ -87,6 +90,10 @@ test("export then restore into scratch: every table count and hash equal", async
   assert.deepEqual(Object.keys(x.collections), ["exams", "notes", "system"]);
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);
   assert.equal(x.tables.own_attempts!.count, 2);
+  for (const n of ["job_records", "ceiling_holds", "job_plans"])
+    assert.equal(x.tables[n]!.count, 1, n);
+  assert.equal(x.tables.ceiling_use!.count, 2);
+  assert.match(x.tables.job_plans!.sha256, /^[0-9a-f]{64}$/);
 
   const scratch = migrated(true);
   const report = await restoreInto(
@@ -146,5 +153,29 @@ test("a tampered export is refused before anything is written", async () => {
     (scratch.prepare("SELECT count(*) AS n FROM docs").get() as { n: number })
       .n,
     0,
+  );
+});
+
+test("the export covers every non-virtual table the migrations create", () => {
+  const db = new DatabaseSync(":memory:");
+  const files = readdirSync(new URL("../migrations/", import.meta.url))
+    .filter((f) => /^\d+_.*\.sql$/.test(f))
+    .sort();
+  assert.ok(files.length >= 3);
+  for (const f of files) db.exec(sql(f));
+  const rows = db
+    .prepare(
+      "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '\\_cf\\_%' ESCAPE '\\'",
+    )
+    .all() as { name: string; sql: string }[];
+  const real = rows
+    .filter((r) => !/^\s*CREATE\s+VIRTUAL\s+TABLE/i.test(r.sql))
+    .map((r) => r.name);
+  assert.ok(real.includes("job_plans"));
+  const covered = new Set(ALL_TABLES.map((t) => t.name));
+  assert.deepEqual(
+    real.filter((n) => !covered.has(n)),
+    [],
+    "tables missing from data/export/tables.ts",
   );
 });
