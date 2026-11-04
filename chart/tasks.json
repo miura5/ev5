@@ -14137,7 +14137,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #165, #173, #287 (note todo blocks are real checks, Space/Esc, pause tests). Left: Start session button on the note page (areas/notes), save to Progress if still open.",
+  "notes": "Merged #165, #173, #287, #359 (Start session button on the note page), #361 (session.start takes noteId and stores it). Left: save to Progress if still open; AI check question needs a check-event job.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-749-sessions",
@@ -15628,12 +15628,12 @@
   "title": "Read copy for jobs, collections and the notes reads; test the IndexedDB store",
   "dod": "useShellStatus, jobApi, api GETs and readCollections fall back to the saved copy; the v1 to v2 upgrade and indexedDbCopyStore are run in a test (fake-indexeddb needs a Chart decision first) or by an e2e check",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-851"
   ],
-  "notes": "Run 40: sessions, collection, deleted fall back to saved copy (#296). Rest is B-856.",
-  "commit": null,
+  "notes": "Saved copy reaches jobs, collections, Library; #360 adds a Library test through the shell's real copy (IndexedDB upgrade test already existed).",
+  "commit": "539b708",
   "source": "ops/record",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.731Z"
@@ -15878,13 +15878,13 @@
   "title": "Screens use raw browser controls instead of kit components, and nothing stops it",
   "dod": "A guard (ESLint no-restricted-syntax on JSX, or an ops/checks rule like radix.ts) fails when a file under areas/ or shell/ renders a raw <input>, <button>, <select> or <textarea>; only kit/ draws them (CONTRACT §ui.kit-leads). Every current view passes it with no allowlist: views use Button, Field, TextOptions and the other kit components, and each look the kit lacks (a checkbox for todo and check rows, a multi-line field for Ask's composer and the session answer, a choice list for practice options, tabs, a back crumb) is added to kit/ first with its story, test and /kit gallery entry. docs/guards.md gets a row with the observed red output, and ops/guards/guards.test.ts proves it goes red.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-860",
    "B-863"
   ],
-  "notes": "Split along the layers if over about 400 lines: kit gaps first, then the views, then the guard last so main stays green. Raw controls on 2026-11-04 (main cca08f8): the six token paste forms in the activity, collection, deleted, library, sessions and today screens (B-860 removes them); Notes.screen.tsx Title box and Save (B-863); checkboxes in notes/parts/NoteBlocks.tsx, sessions/NoteBlocks.tsx, Sessions.view.tsx; textareas in ask/parts/Composer.tsx and Sessions.view.tsx; radios in library/parts/PracticePanel.tsx; buttons in Library.view.tsx (accuracy line, tabs), Today.view.tsx (tick), Collection.view.tsx and NotePage.view.tsx (crumb, collection pick), notes/parts/CollectionTree.tsx (fold), shell/KitGallery.tsx (theme toggle).",
-  "commit": null,
+  "notes": "Delivered by #330 (ops/checks/controls.ts guard, docs/guards.md row, red fixture). Run 49 checked: no raw controls left in views.",
+  "commit": "f74ee91",
   "source": "Matt asked 2026-11-04 whether playtests can check staging against the design system; the supervisor filed this guard so unstyled controls fail the build"
  },
  {
