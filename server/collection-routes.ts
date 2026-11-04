@@ -1,7 +1,8 @@
-// /api/v1 read routes for the tables that are not docs (PLAN §data): Collections, their memberships and Recently
+// /api/v1 read routes for the tables that are not docs (PLAN §data): Collections, their memberships, pins and Recently
 // deleted. Auth is applied by index.ts. Read only: there is no write or delete here (§delete.soft).
 //   GET /collections                          every collection, by pos then id
 //   GET /memberships[?collection_id=x]        item-to-collection rows, newest first
+//   GET /pins                                 pinned items, by pos then newest first
 //   GET /deletions[?collection=c]             soft-delete rows, newest first (the docs stay where they are)
 // `collections` and `memberships` arrive with the cutover migration (C13); until a database has them they read as empty.
 import { Hono } from "hono";
@@ -53,6 +54,12 @@ interface MembershipRow {
   at: number;
   v: number;
 }
+interface PinRow {
+  target_c: string;
+  target_id: string;
+  pos: number;
+  at: number;
+}
 interface DeletionRow {
   c: string;
   id: string;
@@ -91,6 +98,22 @@ collectionRoutes.get("/memberships", async (c) => {
       collectionId: r.collection_id,
       at: r.at,
       v: r.v,
+    })),
+  });
+});
+
+collectionRoutes.get("/pins", async (c) => {
+  const out = await rows<PinRow>(
+    c.env.DB,
+    `SELECT target_c, target_id, pos, at FROM pins ORDER BY pos, at DESC, target_c, target_id LIMIT ${LIMIT}`,
+    [],
+  );
+  return c.json({
+    pins: out.map((r) => ({
+      collection: r.target_c,
+      id: r.target_id,
+      pos: r.pos,
+      at: r.at,
     })),
   });
 });
