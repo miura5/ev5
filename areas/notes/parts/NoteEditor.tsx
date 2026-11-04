@@ -9,6 +9,7 @@ import { limitPlugin, unwrapPlugin } from "./editorLimits.ts";
 import { blocksFromHtml, pasteBlocks } from "./editorPaste.ts";
 import { N, schema } from "./editorSchema.ts";
 import { isPicture, pictureUrl, uploadPicture } from "./notePictures.ts";
+import { Toast } from "../../../kit/index.ts";
 
 export interface NoteEditorProps {
   blocks: readonly Block[];
@@ -195,9 +196,7 @@ export function NoteEditor({ blocks, onChange }: NoteEditorProps) {
         ref={host}
       />
       {notice && (
-        <p className="ev-notes-notice" role="status">
-          {notice}
-        </p>
+<Toast message={notice} />
       )}
     </>
   );

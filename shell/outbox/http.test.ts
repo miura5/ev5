@@ -75,5 +75,10 @@ test("list returns the documents; 401 says the token was refused", async () => {
     () => "",
     async () => reply(401, {}),
   );
-  await expect(no.list("notes")).rejects.toThrow("not accepted");
+  await expect(no.list("notes")).rejects.toMatchObject({ status: 401 });
+  const bad = docsHttp(
+    () => "t",
+    async () => reply(503, {}),
+  );
+  await expect(bad.list("notes")).rejects.toMatchObject({ status: 503 });
 });
