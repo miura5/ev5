@@ -1,5 +1,5 @@
 name: gate5-e2e
-# Gate 5's journeys on v5 staging (never live): reads and writes /api/v1 with the app token; todo journeys are listed, not run.
+# Gate 5's journeys on v5 staging (never live): reads and writes /api/v1 with the app token; each journey is a @playwright/test file in the Playwright Docker image; an unbuilt journey fails. Staging-dependent, so dispatch-only (CONTRACT §drift.checks: every batch runs the e2e journeys, i.e. dispatch per batch).
 on:
   workflow_dispatch:
 
@@ -19,8 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 26
-      - name: Offline journey tests
-        run: node --test e2e/journeys.test.ts
+      - run: npm ci --ignore-scripts
       - name: Find the staging Worker
         run: |
           SUB=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).result.subdomain")
@@ -30,4 +29,4 @@ jobs:
           E2E_TOKEN: ${{ secrets.TOKEN_APP_STAGING }}
         run: |
           curl -fsS "$E2E_URL/api/health"; echo
-          node e2e/gate5.spec.ts
+          e2e/gate5-docker.sh
