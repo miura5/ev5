@@ -8,6 +8,7 @@ import {
   NavItem,
   Palette,
   SidebarSearch,
+  ThemeButton,
   type DetailProps,
   type GlyphType,
   type PaletteGroup,
@@ -18,6 +19,7 @@ import { SavedCopyNotice } from './SavedCopyNotice.tsx';
 import { storedToken } from './outbox/index.ts';
 import type { Services } from './services.ts';
 import { AREAS, areaFor, sidebarAreas, type AreaEntry } from './areas.ts';
+import { useTheme } from './theme.ts';
 import './shell.css';
 
 export interface Pin {
@@ -73,17 +75,25 @@ export function Shell({
   onUseDifferentToken,
 }: ShellProps) {
   const [palette, setPalette] = useState(false);
+  const [theme, toggleTheme] = useTheme();
   const bare = path.split('?')[0] ?? path;
   const current = areaFor(bare, areas);
   // ⌘J flips between Ask E.V. and wherever Matt was; the latest values are read through a ref.
-  const live = useRef({ path, current, areas, onNavigate });
-  live.current = { path, current, areas, onNavigate };
+  const live = useRef({ path, current, areas, onNavigate, toggleTheme });
+  live.current = { path, current, areas, onNavigate, toggleTheme };
   const back = useRef('/');
   useEffect(() => {
     if (current?.id !== 'ask') back.current = path;
   }, [current, path]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      const typing = !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+      if (e.key === '\\' && !e.metaKey && !e.ctrlKey && !e.altKey && !typing) {
+        e.preventDefault();
+        live.current.toggleTheme();
+        return;
+      }
       if (!(e.metaKey || e.ctrlKey)) return;
       const k = e.key.toLowerCase();
       if (k === 'k') {
@@ -129,6 +139,7 @@ export function Shell({
       const a = areas.find((x) => x.id === id);
       if (a) onNavigate(a.route);
     } else if (kind === 'pin') onOpenPin?.(id);
+    else if (kind === 'cmd' && id === 'theme.toggle') toggleTheme();
     else if (kind === 'cmd') void call(id as Parameters<typeof call>[0], {}, storedToken());
   };
   // Tab: the typed request goes to Ask E.V. as ?text= for it to pick up.
@@ -138,7 +149,7 @@ export function Shell({
     if (a) onNavigate(text ? `${a.route}?text=${encodeURIComponent(text)}` : a.route);
   };
   return (
-    <div className="shell" data-ui="shell">
+    <div className="shell" data-ui="shell" data-theme={theme}>
       <nav className="shell-side" aria-label="Primary">
         <SidebarSearch onOpen={() => setPalette(true)} />
         {sidebarAreas(areas).map((a) => (
@@ -158,6 +169,7 @@ export function Shell({
         <div className="shell-grow" />
         {runningJob ? <JobLine text={runningJob.text} onOpen={() => onOpenJob?.(runningJob.id)} /> : null}
         {onUseDifferentToken ? <NavItem label="Use a different token" onOpen={onUseDifferentToken} /> : null}
+        <ThemeButton theme={theme} onToggle={toggleTheme} />
         <NavItem
           label="Recently deleted"
           icon={<AreaIcon name="deleted" />}
