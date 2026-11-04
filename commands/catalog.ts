@@ -1,5 +1,5 @@
-// Everything generated from the registry (CONTRACT §cmd.generated): E.V.'s tools and descriptions, ⌘K entries and the
-// schedule. Nothing here is hand-listed; add a command in a *.command.ts file and these follow.
+// Everything generated from the registry (CONTRACT §cmd.generated): E.V.'s tools and descriptions, ⌘K entries. (The schedule
+// is read straight from `commands` by the scheduled handler, S-80.) Nothing here is hand-listed; add a command in a *.command.ts file and these follow.
 import { z } from 'zod';
 import type { Command } from './define.ts';
 import { all } from './all.generated.ts';
@@ -33,13 +33,4 @@ export interface PaletteEntry {
 
 export function paletteEntries(): PaletteEntry[] {
   return commands.filter(c => c.callers.matt && c.palette).map(c => ({ name: c.name, title: c.title, ...(c.places ? { places: c.places } : {}) }));
-}
-
-export interface ScheduleEntry {
-  name: string;
-  every: string;
-}
-
-export function scheduleEntries(): ScheduleEntry[] {
-  return commands.filter(c => c.callers.schedule).map(c => ({ name: c.name, every: c.every! }));
 }

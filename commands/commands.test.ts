@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { byName, commands, paletteEntries, scheduleEntries, tools } from './catalog.ts';
+import { byName, commands, paletteEntries, tools } from './catalog.ts';
 import { commandNames, paletteEntries as clientPalette } from './client.ts';
 import { defineCommand, none, ref, resolveCall, suggest } from './define.ts';
 
@@ -49,7 +49,8 @@ test('the generated client carries the palette entries as plain data', () => {
   expect(clientPalette.find(e => e.name === 'plan.create')?.places).toEqual(['today']);
 });
 
-test('palette and schedule entries come from the registry', () => {
+test('palette entries and schedule cadences come from the registry', () => {
   expect(paletteEntries().map(e => e.name)).toContain('theme.toggle');
-  expect(scheduleEntries().map(e => e.name)).toEqual(['morning', 'evening', 'weekly_review', 'export', 'restore_drill', 'push_summary']);
+  expect(commands.filter(c => c.callers.schedule).map(c => c.name)).toEqual(['morning', 'evening', 'weekly_review', 'export', 'restore_drill', 'push_summary']);
+  expect(commands.filter(c => c.callers.schedule).every(c => c.every)).toBe(true);
 });
