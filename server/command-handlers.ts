@@ -7,8 +7,13 @@ import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler } from "./handlers-core.ts";
 import { dateHandlers } from "./handlers-dates.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
+import { noteHandlers, newHereHandler } from "./handlers-notes.ts";
 import { planHandlers } from "./handlers-plan.ts";
 import { proposalHandlers } from "./handlers-proposal.ts";
+import { sessionHandlers } from "./handlers-session.ts";
+import { setHandlers } from "./handlers-sets.ts";
+import { studyHandlers } from "./handlers-study.ts";
+import { weakHandlers } from "./handlers-weak.ts";
 
 export { CommandError };
 export type { CommandHandler } from "./handlers-core.ts";
@@ -34,6 +39,12 @@ export const commandHandlers: Record<string, CommandHandler> = {
   ...dateHandlers,
   ...draftHandlers,
   ...proposalHandlers(() => commandHandlers),
+  ...noteHandlers,
+  ...newHereHandler(() => commandHandlers),
+  ...sessionHandlers,
+  ...weakHandlers,
+  ...setHandlers,
+  ...studyHandlers,
   // A chat turn (effect 'chat'): the same code path as POST /api/v1/ask, so spend, ceilings and citations are shared.
   "ask.send": async (i: { text: string }, _caller, ctx) => {
     if (!ctx.ask) throw new CommandError(503, "asking is not available here");
