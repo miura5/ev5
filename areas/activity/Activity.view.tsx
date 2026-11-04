@@ -15,6 +15,8 @@ export interface ActivityJob {
 
 export interface ActivityViewProps {
   jobs: readonly ActivityJob[];
+  /** The list has not arrived yet: the groups say so instead of "None.". */
+  loading?: boolean;
   onOpen?: (id: string) => void;
   onDismiss?: (id: string) => void;
 }
@@ -34,7 +36,7 @@ const VALUE: Record<ActivityJob["state"], string> = {
 };
 
 /** Activity: what E.V. and the schedule are doing, and what waits on Matt. A failed job carries its reason. */
-export function ActivityView({ jobs, onOpen, onDismiss }: ActivityViewProps) {
+export function ActivityView({ jobs, loading, onOpen, onDismiss }: ActivityViewProps) {
   return (
     <section className="ev-activity" aria-label="Activity">
       <div className="ev-activity-head">
@@ -54,7 +56,9 @@ export function ActivityView({ jobs, onOpen, onDismiss }: ActivityViewProps) {
               <span className="ev-activity-meta">{rows.length || ""}</span>
             </div>
             {rows.length === 0 ? (
-              <span className="ev-activity-meta">None.</span>
+              <span className="ev-activity-meta">
+                {loading ? "Loading…" : "None."}
+              </span>
             ) : null}
             {rows.map((j) => {
               const row = (
