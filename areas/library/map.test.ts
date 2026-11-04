@@ -39,6 +39,7 @@ test("no data gives empty lists", () => {
     weakSpots: [],
     exams: [],
     sets: [],
+    accuracy: null,
     pages: {},
   });
 });

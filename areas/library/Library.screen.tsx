@@ -93,6 +93,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         weakSpots={data?.weakSpots ?? []}
         exams={data?.exams ?? []}
         sets={data?.sets ?? []}
+        accuracy={data?.accuracy ?? null}
         onOpenSet={setOpen}
         onOpenExam={setOpen}
         onDrill={setOpen}

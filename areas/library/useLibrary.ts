@@ -47,13 +47,14 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     let live = true;
     void (async () => {
       try {
-        const [exams, weakspots, sets] = await Promise.all([
+        const [exams, weakspots, sets, answers] = await Promise.all([
           list("exams", token, copy),
           list("weakspots", token, copy),
           list("sets", token, copy),
+          list("answers", token, copy),
         ]);
         if (live) {
-          setData(mapLibrary({ exams, weakspots, sets }, Date.now()));
+          setData(mapLibrary({ exams, weakspots, sets, answers }, Date.now()));
           setError(undefined);
         }
       } catch (e) {
