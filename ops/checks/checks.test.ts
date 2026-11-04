@@ -9,6 +9,7 @@ import { checkPresence } from './presence.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
+import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
 import { checkTrailers } from './trailer.ts';
 
@@ -87,4 +88,13 @@ test('account: a non-live config or workflow naming ev-live fails; the live work
     '.github/workflows/live.yml': 'NAME: ev-live', '.github/workflows/ci.yml': 'name: ev5-staging', 'docs/notes.md': 'ev-live is the live Worker' });
   assert.deepEqual(checkAccount(r.root, r.files).map(f => `${f.file}:${f.detail.split(' ')[1]}`).sort(),
     ['.github/workflows/staging.yml:2', 'wrangler.jsonc:1', 'wrangler.staging.toml:1']);
+});
+
+test('ids: D-nnn and B-nnn fail in code, CSS and READMEs; the record, history and rule files may carry them', () => {
+  const d = (n: number): string => `D-${n}`;
+  const b = (n: number): string => `B-${n}`;
+  const r = repo({ 'a.ts': `// see ${d(12)}`, 'b.css': `/* ${b(7)} */`, 'jobs/README.md': `${b(1234)} says`,
+    'chart/tasks.json': `"${b(1)}"`, 'docs/history/x.md': d(1), 'CONTRACT.md': d(2), 'data/compat/x.json': d(3),
+    'ok.ts': '// ABCD-12 and CD-1 and the D-day are not ids' });
+  assert.deepEqual(checkIds(r.root, r.files).map(f => f.file).sort(), ['a.ts', 'b.css', 'jobs/README.md']);
 });

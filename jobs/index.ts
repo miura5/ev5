@@ -1,4 +1,4 @@
-// jobs: what the Worker needs to run job kinds in a Workflow (B-767). More names are exported when a consumer needs them.
+// jobs: what the Worker needs to run job kinds in a Workflow. More names are exported when a consumer needs them.
 export {
   d1JobStore,
   d1CeilingStore,

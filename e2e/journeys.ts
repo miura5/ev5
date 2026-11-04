@@ -159,7 +159,7 @@ export const JOURNEYS: Journey[] = [
   },
   {
     name: "Collection: make, move a note in, pin, delete, restore",
-    todo: "writes to collections and pins are not built (B-750 leftovers; no write routes)",
+    todo: "writes to collections and pins are not built (no write routes yet)",
   },
   {
     name: "Study plan: make and approve",
@@ -167,7 +167,7 @@ export const JOURNEYS: Journey[] = [
   },
   {
     name: "Notes: write offline, then sync",
-    todo: "needs a browser with a service worker and the outbox; notes collections/new note not built (B-784)",
+    todo: "needs a browser with a service worker and the outbox; notes collections/new note not built",
   },
   {
     name: "Study session: run one",

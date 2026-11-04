@@ -1,5 +1,5 @@
 // node data/scratch-check/cli.ts <scratch-export.json>: read-only, counts-only parse of a restricted scratch copy of
-// a live-record export (S-53, run only with Matt's OK, D-453). Prints counts and error kinds, never content.
+// a live-record export (run only with Matt's OK). Prints counts and error kinds, never content.
 // Refuses a file inside this repository or readable by group or others, so a copy can't land where it is committed.
 import { readFileSync, statSync, realpathSync } from 'node:fs';
 import { relative, isAbsolute } from 'node:path';

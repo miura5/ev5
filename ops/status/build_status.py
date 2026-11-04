@@ -45,7 +45,7 @@ def iso(t):
 
 
 def short_title(t):
-    """Drop a leading task id ("B-790: ") so the page shows words, not ids."""
+    """Drop a leading task id ("<id>: ") so the page shows words, not ids."""
     t2 = re.sub(r"^(B-\d+(, B-\d+)*|Chart|Docs|AGENTS|Handover)\s*:\s*", "", t)
     t2 = re.sub(r"\s*\((?:[BDS]-\d+(?:,\s*)?)+\)", "", t2)
     return t2.strip() or t

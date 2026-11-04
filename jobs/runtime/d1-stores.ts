@@ -1,4 +1,4 @@
-// D1-backed stores for the job runtime (B-766): JobStore, CeilingStore, PlanStore and the save step.
+// D1-backed stores for the job runtime: JobStore, CeilingStore, PlanStore and the save step.
 // Tables are in data/migrations/0002_jobs_ceilings.sql (jobs and ceilings are not ev4 `docs` collections: ceilings
 // need arithmetic in one statement, and ev4 already owns the `jobs` and `jobresults` collections).
 // All writes follow the docs protocol: `at` from the injected Worker clock, `v` bumped, canonical JSON, batches atomic.

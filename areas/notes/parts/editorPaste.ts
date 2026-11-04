@@ -2,7 +2,7 @@ import type { Command } from 'prosemirror-state';
 import { Fragment, Slice } from 'prosemirror-model';
 import { noteBlocks, type Block, type Run } from '../../../domain/index.ts';
 import { blocksToDoc } from './editorDoc.ts';
-import { splitWide } from './editorFits.ts';
+import { splitWide } from '../../../domain/index.ts';
 import { BLOCK, HTML_MAX, parseHtml, type HNode } from './editorHtml.ts';
 
 // ev4's paste sanitiser (core/notes.mjs noteFromTree with paste: true, notePaste): clipboard HTML is read for text, block

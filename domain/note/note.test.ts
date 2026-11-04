@@ -172,7 +172,7 @@ describe('size budget', () => {
     expect(tooBig(over)).toMatch(/too long to save: \d+\.\d KB against a limit of 255\.7 KB/);
   });
 
-  test('an edit past a limit is refused unless it shrinks the note (D-332)', () => {
+  test('an edit past a limit is refused unless it shrinks the note', () => {
     const now = doc(lines(4100));
     expect(editAllowed(doc(lines(4100)), now)).toBe(true);
     expect(editAllowed(doc(lines(4001)), now)).toBe(true);
@@ -182,7 +182,7 @@ describe('size budget', () => {
   });
 });
 
-describe('stale save (D-326)', () => {
+describe('stale save', () => {
   const current = noteDoc(null, {
     blocks: [{ type: 'h1', runs: [r('Renal')] }],
     at: '2026-10-26T14:00:00.000Z',
