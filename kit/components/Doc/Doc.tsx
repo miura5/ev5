@@ -51,10 +51,12 @@ export function Doc({ title, meta, children, session }: DocProps) {
               >
                 <label>
                   <input
+                    className="kit-doc-check-in"
                     type="checkbox"
                     checked={c.done}
                     onChange={() => session.onToggle(c.id)}
                   />
+                  <span className="kit-doc-check-box" aria-hidden="true" />
                   {c.text}
                 </label>
               </li>
