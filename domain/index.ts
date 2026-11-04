@@ -16,6 +16,8 @@ export {
   newNoteId,
   noteDoc,
   noteBlocks,
+  fits,
+  splitWide,
   type Block,
   type Run,
   type Note,
