@@ -12,6 +12,7 @@ import {
 import type { Caller as CommandCaller } from "../commands/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { CommandError, commandHandlers } from "./command-handlers.ts";
+import { saveSuggestion } from "./handlers-proposal.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { askFromEnv } from "./ask-chat.ts";
 import type { AskEnv } from "./ask-chat.ts";
@@ -26,7 +27,9 @@ const BY_TOKEN = {
 } as const;
 
 export const commandRoutes = new Hono<{
-  Bindings: { DB: DocsD1 } & Partial<Pick<AskEnv, "ANTHROPIC_API_KEY" | "ASK_CALL">>;
+  Bindings: { DB: DocsD1 } & Partial<
+    Pick<AskEnv, "ANTHROPIC_API_KEY" | "ASK_CALL">
+  >;
   Variables: AuthVars;
 }>();
 
@@ -59,24 +62,27 @@ commandRoutes.post("/commands/:name", async (c) => {
       { error: call.reason },
       call.reason.endsWith(`may not call ${cmd.name}`) ? 403 : 400,
     );
+  const ctx = {
+    db: c.env.DB,
+    clock: () => Date.now(),
+    newId: () => crypto.randomUUID(),
+    ask: async (text: string) => {
+      const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text);
+      if (!r.ok) throw new CommandError(r.status, r.reason);
+      return { reply: r.reply, costCents: r.costCents };
+    },
+  };
   if (call.mode === "propose")
     return c.json(
-      { mode: "propose", suggestion: suggest(cmd, call.input) },
+      {
+        mode: "propose",
+        suggestion: await saveSuggestion(ctx, suggest(cmd, call.input)),
+      },
       202,
     );
   const handler = commandHandlers[cmd.name];
   if (!handler) return c.json({ error: `${cmd.name} has no handler yet` }, 501);
   try {
-    const ctx = {
-      db: c.env.DB,
-      clock: () => Date.now(),
-      newId: () => crypto.randomUUID(),
-      ask: async (text: string) => {
-        const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text);
-        if (!r.ok) throw new CommandError(r.status, r.reason);
-        return { reply: r.reply, costCents: r.costCents };
-      },
-    };
     return c.json({
       mode: "direct",
       result: await handler(call.input as never, caller, ctx),
