@@ -1,4 +1,5 @@
 import { api } from "../../../commands/client.ts";
+import { IMG_KEY } from "../../../domain/index.ts";
 
 // Note pictures (CONTRACT §data.note-images): the Worker keeps them in R2 under note-images/ for the owner only. The
 // editor sends a pasted or dropped picture to PUT /api/v1/note-images/<name> and shows a stored one from
@@ -10,7 +11,6 @@ const EXT: Record<string, string> = {
   "image/gif": "gif",
 };
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
 
 export const NO_STORAGE = "Picture storage isn't set up yet";
 export const UPLOAD_FAILED = "The picture didn't upload";
@@ -37,10 +37,7 @@ export function newKey(type: string): string {
 export type Upload = { ok: true; key: string } | { ok: false; message: string };
 
 /** Send one picture; any failure comes back as a plain message and never throws. */
-export async function uploadPicture(
-  file: File,
-  doFetch: typeof fetch = (u, i) => fetch(u, i),
-): Promise<Upload> {
+export async function uploadPicture(file: File): Promise<Upload> {
   if (!isPicture(file))
     return {
       ok: false,
@@ -48,10 +45,9 @@ export async function uploadPicture(
     };
   const key = newKey(file.type);
   try {
-    const r = await doFetch(`/api/v1/${key}`, {
+    const r = await api(key, token(), {
       method: "PUT",
-      headers: { authorization: `Bearer ${token()}` },
-      body: file,
+      raw: { data: file, contentType: file.type },
     });
     if (r.ok) return { ok: true, key };
     return {
@@ -67,7 +63,7 @@ const shown = new Map<string, Promise<string | null>>();
 
 /** A stored picture as a blob URL, or null when it can't be read (kept for the session, so a picture loads once). */
 export function pictureUrl(key: string): Promise<string | null> {
-  if (!KEY.test(key)) return Promise.resolve(null);
+  if (!IMG_KEY.test(key)) return Promise.resolve(null);
   let p = shown.get(key);
   if (!p) {
     p = api(key, token())

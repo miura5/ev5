@@ -18,6 +18,7 @@ export {
   noteBlocks,
   fits,
   splitWide,
+  IMG_KEY,
   type Block,
   type Run,
   type Note,
