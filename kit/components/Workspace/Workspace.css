@@ -1,0 +1,21 @@
+.kit-workspace {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--sp-8);
+  padding: 0 var(--sp-2);
+  margin-bottom: var(--sp-2);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-title);
+  color: var(--text);
+}
+
+.kit-workspace-mark {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--sp-4);
+  height: var(--sp-4);
+  border-radius: var(--r-round);
+  border: 2px dotted var(--faint);
+}

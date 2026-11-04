@@ -8,6 +8,7 @@ import {
   NavItem,
   Palette,
   SidebarSearch,
+  Workspace,
   type DetailProps,
   type GlyphType,
   type PaletteGroup,
@@ -140,6 +141,7 @@ export function Shell({
   return (
     <div className="shell" data-ui="shell">
       <nav className="shell-side" aria-label="Primary">
+        <Workspace />
         <SidebarSearch onOpen={() => setPalette(true)} />
         {sidebarAreas(areas).map((a) => (
           <NavItem

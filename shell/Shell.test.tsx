@@ -151,3 +151,10 @@ test("the palette's Places match the sidebar and an empty group shows no header"
   const dialog = screen.getByRole("dialog");
   expect(dialog.textContent?.includes("Commands") ?? false).toBe(options.length > places);
 });
+
+test("the sidebar starts with the E.V. workspace line", () => {
+  render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
+  const nav = screen.getByRole("navigation", { name: "Primary" });
+  expect(nav.firstElementChild?.getAttribute("data-ui")).toBe("workspace");
+  expect(nav.firstElementChild?.textContent).toBe("E.V.");
+});
