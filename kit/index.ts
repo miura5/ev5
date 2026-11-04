@@ -16,6 +16,16 @@ import "./components/StudyCard/StudyCard.css";
 import "./components/Detail/Detail.css";
 import "./components/Doc/Doc.css";
 import "./components/Palette/Palette.css";
+import "./components/AreaIcon/AreaIcon.css";
+import "./components/NavItem/NavItem.css";
+import "./components/NavGroup/NavGroup.css";
+import "./components/JobLine/JobLine.css";
+import "./components/SidebarSearch/SidebarSearch.css";
+import { Story as AreaIconStory } from "./components/AreaIcon/AreaIcon.story";
+import { Story as NavItemStory } from "./components/NavItem/NavItem.story";
+import { Story as NavGroupStory } from "./components/NavGroup/NavGroup.story";
+import { Story as JobLineStory } from "./components/JobLine/JobLine.story";
+import { Story as SidebarSearchStory } from "./components/SidebarSearch/SidebarSearch.story";
 import { Story as ButtonStory } from "./components/Button/Button.story";
 import { Story as FieldStory } from "./components/Field/Field.story";
 import { Story as ToastStory } from "./components/Toast/Toast.story";
@@ -52,6 +62,11 @@ export const STORIES = [
   { name: "Detail", Story: DetailStory },
   { name: "Doc", Story: DocStory },
   { name: "Palette", Story: PaletteStory },
+  { name: "Area icon", Story: AreaIconStory },
+  { name: "Nav item", Story: NavItemStory },
+  { name: "Nav group", Story: NavGroupStory },
+  { name: "Job line", Story: JobLineStory },
+  { name: "Sidebar search", Story: SidebarSearchStory },
 ] as const;
 
 export { Row } from "./components/Row/Row";
@@ -66,3 +81,8 @@ export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Tile } from "./components/Tile/Tile";
 export { TextOptions } from "./components/TextOptions/TextOptions";
 export { Field } from "./components/Field/Field";
+export { AreaIcon } from "./components/AreaIcon/AreaIcon";
+export { NavItem } from "./components/NavItem/NavItem";
+export { NavGroup } from "./components/NavGroup/NavGroup";
+export { JobLine } from "./components/JobLine/JobLine";
+export { SidebarSearch } from "./components/SidebarSearch/SidebarSearch";
