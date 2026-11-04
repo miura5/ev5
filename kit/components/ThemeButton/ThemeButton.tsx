@@ -1,8 +1,6 @@
-import type { Theme } from '../../index';
-
 export interface ThemeButtonProps {
-  /** The theme showing now; the button offers the other one. */
-  theme: Theme;
+  /** The theme showing now (a kit theme name); the button offers the other one. */
+  theme: 'dark' | 'light';
   onToggle?: () => void;
   /** The shortcut shown beside the label. */
   hint?: string;
