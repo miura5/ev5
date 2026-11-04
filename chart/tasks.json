@@ -14721,10 +14721,10 @@
   "title": "Kit Menu onto Radix: DropdownMenu for ⋯ and '.', ContextMenu for right-click, radio items for pickers; Detail's ⋯ opens the kit Menu",
   "dod": "kit/components/Menu renders through @radix-ui/react-dropdown-menu and @radix-ui/react-context-menu (unstyled, kit CSS only); Detail's ⋯ is the Menu trigger (items passed in, not drawn by the caller); no useState/useRef focus or key code left in Menu; same look: Playwright visual baselines for Menu and Detail unchanged; keyboard and focus tests: arrows move, Enter picks, Esc closes and returns focus to the trigger, typeahead, radio item checked state",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Slice write: kit/components/Menu, kit/components/Detail, kit/index.ts, package.json, package-lock.json. Read: areas, shell (no caller uses Menu or onMore yet). Wiring Row right-click into areas is area work, not this task. The visual job is not required in CI (handover): run the visual diff and record it in the PR.",
-  "commit": null,
+  "commit": "c573ad9",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:42.308Z"
@@ -14735,12 +14735,12 @@
   "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
   "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-787"
   ],
   "notes": "Slice write: kit/components/Palette, kit/index.ts, package.json, package-lock.json. Read: shell (Shell.tsx opens it on ⌘K). After the Menu task, so the package files do not conflict.",
-  "commit": null,
+  "commit": "c773410",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:37:06.216Z"
@@ -14807,13 +14807,13 @@
   "title": "S-75a: Notes editor on ProseMirror direct (D-464): replace the textarea-per-block editor in areas/notes/parts/NoteEditor.tsx with a ProseMirror view on the S-08 flat schema; saves go through the outbox as now Done when: A note typed, edited and reloaded round-trips ev4's blocks losslessly (S-08 fixtures); undo/redo, headings, lists, checks work; matches the mock-up",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-748",
    "B-784"
   ],
-  "notes": "Slice write: areas/notes, package.json, package-lock.json. Read: kit, commands, docs/spikes/S-08-notes-editor.md. CONTRACT §ui.mockup: unstyled primitives for behaviour only; the kit owns every pixel.",
-  "commit": null,
+  "notes": "Merged #187. Left: B-827, B-828, look vs mock-up.",
+  "commit": "619c331",
   "source": "ops/record",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:31:45.801Z"
