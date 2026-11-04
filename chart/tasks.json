@@ -14906,13 +14906,13 @@
   "title": "⌘K lists the registry's commands by place; ⌘J toggles Ask E.V.",
   "dod": "Shell's palette has a Commands group built from paletteEntries() filtered by place, beside Places, found items and Pinned; a test runs one command from ⌘K; Tab hands the typed text to Ask E.V.; ⌘J toggles Ask E.V. (CONTRACT §ui.palette, §cmd.generated)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-788",
    "B-799"
   ],
-  "notes": "Split: B-836 (done) and B-837 (shell).",
-  "commit": null,
+  "notes": "Done as B-836 (#243) and B-837 (palette Commands group, Tab to Ask, ⌘J).",
+  "commit": "3607eeb",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15005,10 +15005,10 @@
   "title": "Domain parsers are Zod schemas",
   "dod": "Each domain/<entity> parser is a Zod schema with its type derived (z.infer), replacing the hand validators; data/docs parsers use them; tests stay green (CONTRACT §drift.modules)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Part 1 merged in #223 (pin, draft, collection, weak-spot). Rest in B-831.",
-  "commit": null,
+  "notes": "Part 1 #223, part 2 B-831 #230; all domain parsers are Zod.",
+  "commit": "29a93a5",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15260,10 +15260,10 @@
   "title": "Record where decisions D-001..D-043 live, or that they are not carried",
   "dod": "docs/record/DECISIONS.md names the location of the v2 decision log, or a Chart decision says it is not carried",
   "milestone": "v5 P7",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit (review F34, Q3): DECISIONS.md says only 'in the v2 doc's decision log'.",
-  "commit": null,
+  "notes": "Recorded as D-473: D-001..D-043 are not carried.",
+  "commit": "99c6522",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
