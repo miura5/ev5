@@ -5,6 +5,8 @@ import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler } from "./handlers-core.ts";
+import { dateHandlers } from "./handlers-dates.ts";
+import { draftHandlers } from "./handlers-drafts.ts";
 import { planHandlers } from "./handlers-plan.ts";
 import { proposalHandlers } from "./handlers-proposal.ts";
 
@@ -29,6 +31,8 @@ const ack = async () => ({ client: true });
 
 export const commandHandlers: Record<string, CommandHandler> = {
   ...planHandlers,
+  ...dateHandlers,
+  ...draftHandlers,
   ...proposalHandlers(() => commandHandlers),
   // A chat turn (effect 'chat'): the same code path as POST /api/v1/ask, so spend, ceilings and citations are shared.
   "ask.send": async (i: { text: string }, _caller, ctx) => {
