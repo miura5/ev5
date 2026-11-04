@@ -8,6 +8,7 @@ import {
   NavItem,
   Palette,
   SidebarSearch,
+  WorkspaceLine,
   ThemeButton,
   type DetailProps,
   type GlyphType,
@@ -151,6 +152,7 @@ export function Shell({
   return (
     <div className="shell" data-ui="shell" data-theme={theme}>
       <nav className="shell-side" aria-label="Primary">
+        <WorkspaceLine />
         <SidebarSearch onOpen={() => setPalette(true)} />
         {sidebarAreas(areas).map((a) => (
           <NavItem
