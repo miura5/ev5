@@ -68,8 +68,10 @@ test("new here makes a note, a set, a date and a collection", async () => {
 
 test("a session starts, pauses, answers a check, and ends; each write passes ev4's check", async () => {
   const { call, doc, DB } = await setup();
-  const a = (await call("session.start", {})).body.result.id as string;
+  const a = (await call("session.start", { noteId: "n-1" })).body.result
+    .id as string;
   const s1 = await doc("sessions", a);
+  assert.equal(s1?.noteId, "n-1");
   ok("sessions", s1);
   const p = await call("session.pause", { id: a });
   assert.equal(p.body.result.paused, true);

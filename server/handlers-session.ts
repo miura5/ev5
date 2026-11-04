@@ -45,7 +45,7 @@ async function endRunning(x: HandlerCtx, keep: string) {
 }
 
 export const sessionHandlers: Record<string, CommandHandler> = {
-  "session.start": async (i: { plan?: string }, _c, x) => {
+  "session.start": async (i: { plan?: string; noteId?: string }, _c, x) => {
     const now = x.clock();
     const at = iso(now);
     const id = `ss-${x.newId()}`;
@@ -66,7 +66,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
         startedAt: at,
         planned: 25,
         topic: "Study session",
-        noteId: "",
+        noteId: i.noteId ?? "",
         folder: "",
         events: { [eventKey(now, rand(x))]: { type: "start" } },
       },
