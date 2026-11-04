@@ -25,6 +25,10 @@
   color: var(--faint);
 }
 
+.ev-library-count {
+  margin-left: var(--sp-2);
+}
+
 .ev-library-tabs {
   display: flex;
   gap: var(--sp-6);
