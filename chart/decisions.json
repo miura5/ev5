@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-470",
+  "date": "Nov 3",
+  "title": "Ask E.V. replies on a chat route, not a job: ask.send is a Worker request that streams one reply, and is not a third job kind",
+  "why": "Route: ask.send becomes a command whose effect is not 'job' (a read-only chat turn on the Worker), so §job.kinds keeps its two kinds and needs no new Chart decision; a job started from Ask still runs as a job and the reply links to its home (§job.no-chat-ask). Model and ceilings: the server picks the model and max tokens per §model.choice (Haiku for an ordinary ask); ids and prices come only from jobs/runtime/models.ts, checked against current docs when B-803 is built (§model.from-docs). A chat turn reserves its maximum cost first and counts against the same hourly, daily and monthly ceilings with a per-ask cap (§model.ceilings, §model.alert); a ceiling hit says so in the thread and nothing lands. Tools: exactly the registry tools() list, including job_status for 'is it ready?'; commands that write go through propose mode, never straight from a reply. Citations: each stated fact carries ids of Matt's notes or sets that were in the excerpts given and the server checks them; anything uncited is shown as 'unverified' (§ev.cites, §model.output, with one repair ask then show it unverified). Attempt-first: on a study question the system prompt makes E.V. ask for his attempt before explaining, insist once with a reason, then answer; ask.just_tell_me skips it and is logged (§ui.attempt-first, §ev.voice). Not a contract change: CONTRACT.md and the hard limits are untouched. Follow-up for B-803: change ask.send's effect, add the Worker chat route with ceilings, and replace the 'not connected' reply in Ask.screen.tsx.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-802"
+ },
+ {
   "id": "D-469",
   "date": "Nov 3",
   "title": "Sessions written by v5 keep source 'E.V. Home'; validateWrite waives the v5-source rule for sessions only",
