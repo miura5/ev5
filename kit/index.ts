@@ -22,6 +22,8 @@ import "./components/NavGroup/NavGroup.css";
 import "./components/JobLine/JobLine.css";
 import "./components/SidebarSearch/SidebarSearch.css";
 import "./components/ThemeButton/ThemeButton.css";
+import "./components/WorkspaceLine/WorkspaceLine.css";
+import { Story as WorkspaceLineStory } from "./components/WorkspaceLine/WorkspaceLine.story";
 import { Story as ThemeButtonStory } from "./components/ThemeButton/ThemeButton.story";
 import { Story as AreaIconStory } from "./components/AreaIcon/AreaIcon.story";
 import { Story as NavItemStory } from "./components/NavItem/NavItem.story";
@@ -68,6 +70,7 @@ export const STORIES = [
   { name: "Nav item", Story: NavItemStory },
   { name: "Nav group", Story: NavGroupStory },
   { name: "Job line", Story: JobLineStory },
+  { name: "Workspace line", Story: WorkspaceLineStory },
   { name: "Sidebar search", Story: SidebarSearchStory },
   { name: "Theme button", Story: ThemeButtonStory },
 ] as const;
@@ -89,5 +92,6 @@ export { NavItem } from "./components/NavItem/NavItem";
 export { NavGroup } from "./components/NavGroup/NavGroup";
 export { JobLine } from "./components/JobLine/JobLine";
 export { SidebarSearch } from "./components/SidebarSearch/SidebarSearch";
+export { WorkspaceLine } from "./components/WorkspaceLine/WorkspaceLine";
 export { ThemeButton } from "./components/ThemeButton/ThemeButton";
 export { Toast } from "./components/Toast/Toast";
