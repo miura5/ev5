@@ -15537,5 +15537,17 @@
   "notes": "Still no handler: job.stop, job.retry_shorter, job.dismiss, weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes.",
   "commit": "17f2174",
   "source": "ops/record"
+ },
+ {
+  "id": "B-848",
+  "kind": "task",
+  "title": "Job commands get handlers: job.stop, job.dismiss, job.retry_shorter (export a transition helper from jobs/index.ts; server slice calls it)",
+  "dod": "the three commands no longer answer 501; tests cover each state change; weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes stay 501 until their jobs exist",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From B-847 follow-up. Needs a one-line export in jobs/index.ts (Interface: jobs).",
+  "commit": null,
+  "source": "handover run 36"
  }
 ]

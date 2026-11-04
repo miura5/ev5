@@ -132,6 +132,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-840 | Schedule consumer: scheduleEntries() drives the schedule route or is deleted Done when: Done when scheduleEntries() has a non-test caller or is removed, with a test | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
 | B-843 | Ceiling windows are UTC while v5 is Central: record a decision or a CONTRACT note Done when: Done when one decision or CONTRACT line settles it | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
 | B-845 | Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts Done when: One gatherer used by both; tests pass | B-810 | Phase 5 | open |  |
+| B-848 | Job commands get handlers: job.stop, job.dismiss, job.retry_shorter (export a transition helper from jobs/index.ts; server slice calls it) Done when: the three commands no longer answer 501; tests cover each state change; weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes stay 501 until their jobs exist | — | Phase 5 | open | From B-847 follow-up. Needs a one-line export in jobs/index.ts (Interface: jobs). |
 
 ## Your turn
 
