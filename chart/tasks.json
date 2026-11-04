@@ -14117,12 +14117,12 @@
   "title": "S-75: The notes editor: home list and note page",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Notes home, note page, editor, pictures and offline write are merged; notes and notes-offline journeys pass on staging (run 57).",
+  "commit": "a72f111",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:10:17.099Z"
@@ -14185,7 +14185,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #178: journeys over /api/v1 plus dispatch-only gate5-e2e.yml, not yet run on staging. 8 of 14 journeys are todo (plan-item writes, practice set, hand-made set, collection writes, study plan, notes offline, session, Ask). Add e2e/*.test.ts to npm test.",
+  "notes": "Run 57: gate5-e2e on staging 14 of 16 specs pass, including notes-offline. Left NOT BUILT: practice-set (needs a model-written set in the browser) and study-plan (approval UI and change rounds).",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "run29",
@@ -14549,12 +14549,12 @@
   "title": "Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today)",
   "dod": "Each screen shows staging data and the Detail panel opens from a row",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-743"
   ],
-  "notes": "Part 2: Today reads exams, weakspots and today's dayedits through GET /api/v1/docs with the stored app token (ev5.token), maps them in areas/today/map.ts (tested), shows the empty day with no data and an error line on 401. Plan items come from today's dayedits.added; weak-spot status is derived without answers (none read yet).",
-  "commit": null,
+  "notes": "Areas read staging data through commands/client and the saved copy (runs 26 to 56).",
+  "commit": "a72f111",
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:19:53.225Z"
