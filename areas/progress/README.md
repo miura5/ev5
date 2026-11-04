@@ -1,6 +1,6 @@
 # areas/progress/
 
-Progress: the read-only accuracy chart.
+Progress: the accuracy chart, no writes.
 
 <!-- generated:start -->
 Interface: (none yet)
