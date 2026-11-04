@@ -10,7 +10,7 @@ How the agents turn `PLAN.md` into tasks and build v5 with almost no time from M
 | **Supervisor** | Claude in Matt's "ev-build" channel (since 2026-11-03; before that his main chat) | Checks the handover, CI, staging and the run lock a few times a day; fixes stalls and overlaps; tells Matt when something is ready to try or needs him | Builds tasks while a run holds the lock, deploys live, decides a §6 question for Matt |
 | **Builder** | A subagent started by the build manager, one per task | Builds one task in its slice, proves it, opens a PR | Touches folders outside its slice, ships, writes the Chart, holds Cloudflare credentials |
 | **Spike** | A subagent | Answers one question in a throwaway branch, then reports causes, counts and a recommendation | Commits to main |
-| **Reviewer** | A fresh subagent, once per release | Reads the release diff for lost or wrong data, cost, security, crashes and unreachable controls | Edits code |
+| **Reviewer** | A fresh subagent, once per release | Reads the release diff for lost or wrong data, cost, security, crashes and unreachable controls. Checks each merged task against every §id its source cites (the libraries and structure those rules name) | Edits code |
 | **Design agent** | Started by Matt (mock-up phase) or by the build manager (a big UI ask) | Iterates `design/mockup.html` within `design/DESIGN-BRIEF.md` | Changes rules in PLAN or CONTRACT |
 
 Each run uses 2 to 4 subagents at a time.
@@ -157,7 +157,8 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 The task id, its slice (write and read folders), the done-when bar, and the mock-up screen if it's UI. Also:
 - the related running tasks;
-- for model-path tasks, "read current Anthropic docs, never ids or prices from memory".
+- for model-path tasks, "read current Anthropic docs, never ids or prices from memory";
+- every library and structural rule from the PLAN or CONTRACT sections the task cites, quoted with its §id, not only the section number (for example: §ui.mockup, "unstyled Radix primitives and cmdk for behaviour").
 
 Builders **refuse and report** when a task needs a folder outside its slice. The build manager then splits the task or marks an interface change.
 

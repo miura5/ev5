@@ -14208,7 +14208,11 @@
    "B-749",
    "B-750",
    "B-751",
-   "B-752"
+   "B-752",
+   "B-787",
+   "B-788",
+   "B-789",
+   "B-790"
   ],
   "notes": "",
   "commit": null,
@@ -14709,5 +14713,85 @@
   "source": "ops/record",
   "claimedBy": "run29",
   "claimedAt": "2026-11-04T00:54:06.574Z"
+ },
+ {
+  "id": "B-787",
+  "kind": "task",
+  "title": "Kit Menu onto Radix: DropdownMenu for ⋯ and '.', ContextMenu for right-click, radio items for pickers; Detail's ⋯ opens the kit Menu",
+  "dod": "kit/components/Menu renders through @radix-ui/react-dropdown-menu and @radix-ui/react-context-menu (unstyled, kit CSS only); Detail's ⋯ is the Menu trigger (items passed in, not drawn by the caller); no useState/useRef focus or key code left in Menu; same look: Playwright visual baselines for Menu and Detail unchanged; keyboard and focus tests: arrows move, Enter picks, Esc closes and returns focus to the trigger, typeahead, radio item checked state",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice write: kit/components/Menu, kit/components/Detail, kit/index.ts, package.json, package-lock.json. Read: areas, shell (no caller uses Menu or onMore yet). Wiring Row right-click into areas is area work, not this task. The visual job is not required in CI (handover): run the visual diff and record it in the PR.",
+  "commit": null,
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-788",
+  "kind": "task",
+  "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
+  "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-787"
+  ],
+  "notes": "Slice write: kit/components/Palette, kit/index.ts, package.json, package-lock.json. Read: shell (Shell.tsx opens it on ⌘K). After the Menu task, so the package files do not conflict.",
+  "commit": null,
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-789",
+  "kind": "task",
+  "title": "Kit Segmented and TextOptions: roving arrow-key focus through Radix ToggleGroup",
+  "dod": "Segmented (kit/components/Field) and TextOptions render through @radix-ui/react-toggle-group type single (unstyled); one Tab stop per group, arrows move focus; same look: visual baselines unchanged; keyboard and focus tests per component; area tests that select these by role still pass or are updated to role and name",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-788"
+  ],
+  "notes": "Slice write: kit/components/Field, kit/components/TextOptions, kit/index.ts, package.json, package-lock.json. Read: areas (tests that use these). After the Palette task, so the package files do not conflict.",
+  "commit": null,
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-790",
+  "kind": "task",
+  "title": "Guard: a kit component that draws a menu, listbox, combobox or modal dialog must import Radix or cmdk",
+  "dod": "A check in ops/checks fails when a kit/components/*.tsx (not a story or test) contains role=\"menu\", \"listbox\", \"combobox\", \"dialog\" or aria-modal, or handles ArrowDown/Escape keys itself, and imports nothing from @radix-ui/ or cmdk; a guard-failure fixture goes red (ops/guards, docs/guards.md); main is green with it on",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-787",
+   "B-788",
+   "B-789"
+  ],
+  "notes": "Slice write: ops/checks, ops/guards, docs/guards.md. Read: kit. Cheap text check, no parser needed.",
+  "commit": null,
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-791",
+  "kind": "task",
+  "title": "Decide and record the time-zone library: domain/time keeps Intl, or takes @date-fns/tz as PLAN §4 and §12 name",
+  "dod": "One Chart decision picks Intl or @date-fns/tz for domain/time (plan review F28 item 3: @date-fns/tz or Temporal, pick in Phase 0); if Intl, the decision amends PLAN §4 and §12 and the dependency-cruiser allowlist for domain drops @date-fns/tz; if @date-fns/tz, it is added pinned and domain/time uses it with the DST tests for 2026-11-01 and 2027-03-14 still green",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [],
+  "notes": "Decided by D-465: Intl only.",
+  "commit": "753fde2",
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-792",
+  "kind": "task",
+  "title": "Decide and record the notes editor dependency: ProseMirror direct with the S-08 flat schema, or Tiptap",
+  "dod": "One Chart decision names the editor packages and pinned versions (S-08 recommends prosemirror-model, -state, -view, -transform, -commands, -history, -keymap, -inputrules, all MIT), as CONTRACT §drift.tools needs for a new runtime dependency; B-784's real editor builds on it",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [],
+  "notes": "Decided by D-464: ProseMirror direct.",
+  "commit": "753fde2",
+  "source": "supervisor (ev-build), 2026-11-04"
  }
 ]
