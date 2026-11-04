@@ -41,7 +41,7 @@ test("every handler belongs to a registry command Matt calls directly", () => {
   for (const name of Object.keys(commandHandlers)) {
     const cmd = byName(name);
     assert.ok(cmd, name);
-    assert.equal(cmd.effect, "instant");
+    assert.ok(["instant", "chat"].includes(cmd.effect), name); // a chat turn answers once on the Worker (ask.send)
     assert.equal(cmd.callers.matt, "direct");
   }
 });

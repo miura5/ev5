@@ -7,8 +7,8 @@ import type { Caller } from "../commands/index.ts";
 
 /** A refusal with its HTTP status, raised by a handler and turned into JSON by the route. */
 export class CommandError extends Error {
-  readonly status: 400 | 404 | 409;
-  constructor(status: 400 | 404 | 409, message: string) {
+  readonly status: 400 | 404 | 409 | 429 | 502 | 503;
+  constructor(status: 400 | 404 | 409 | 429 | 502 | 503, message: string) {
     super(message);
     this.status = status;
   }
@@ -18,6 +18,8 @@ export interface HandlerCtx {
   db: DocsD1;
   clock: () => number;
   newId: () => string;
+  /** Asks E.V. one question on the same path as POST /ask; the route supplies it from the Worker's bindings. */
+  ask?: (text: string) => Promise<unknown>;
 }
 export type CommandHandler = (
   input: never,
@@ -42,6 +44,11 @@ async function collectionOf(db: DocsD1, id: string): Promise<string> {
 const ack = async () => ({ client: true });
 
 export const commandHandlers: Record<string, CommandHandler> = {
+  // A chat turn (effect 'chat'): the same code path as POST /api/v1/ask, so spend, ceilings and citations are shared.
+  'ask.send': async (i: { text: string }, _caller, ctx) => {
+    if (!ctx.ask) throw new CommandError(503, 'asking is not available here');
+    return ctx.ask(i.text);
+  },
   // Carried out by the screen; the server only agrees.
   "item.open": ack,
   "palette.open": ack,
