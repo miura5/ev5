@@ -8,6 +8,19 @@ const TITLES: Record<string, string> = {
   "spend-alert": "Monthly spend",
 };
 
+/** Job kinds arrive as keys (study_plan); the row shows plain words. */
+const titleOf = (kind: string): string =>
+  TITLES[kind.replace(/_/g, "-")] ?? kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
+
+/** The server's status text can carry a generic line, the specific reason, and a pointer to Activity.
+ * A row shows one sentence: the pointer goes; a failure keeps its reason, anything else its first line. */
+export function oneSentence(summary: string, state: string): string {
+  const parts = (summary.match(/[^.!?]+[.!?]+/g) ?? [summary]).map((s) => s.trim()).filter(Boolean);
+  const own = parts.filter((s) => s !== "It is waiting in Activity.");
+  if (own.length < 2) return own[0] ?? summary;
+  return state === "failed" ? own.slice(1).join(" ") : own[0]!;
+}
+
 /** One entry of GET /api/v1/jobs (server/job-routes.ts, jobs/runtime/status.ts); areas never import them, so restated. */
 interface WireJob {
   id: string;
@@ -18,16 +31,27 @@ interface WireJob {
 
 export const toActivityJob = (j: WireJob): ActivityJob => ({
   id: j.id,
-  title: TITLES[j.kind] ?? j.kind,
+  title: titleOf(j.kind),
   state: j.state,
-  summary: j.summary,
+  summary: oneSentence(j.summary, j.state),
   // The server's summary already carries the reason a job needs Matt or failed.
   reason:
-    j.state === "needs-you" || j.state === "failed" ? j.summary : undefined,
+    j.state === "needs-you" || j.state === "failed" ? oneSentence(j.summary, j.state) : undefined,
   ...(j.kind === "spend-alert" && j.state === "needs-you"
     ? { dismissable: true }
     : {}),
 });
+
+/** Two records that read the same show once (the first stands for both). */
+export const uniqueRows = (rows: ActivityJob[]): ActivityJob[] => {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const k = `${r.title}|${r.state}|${r.summary}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+};
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
 export interface ReadCopyLike {
@@ -73,7 +97,7 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
       (jobApi.list(token, copy) as Promise<WireJob[]>)
         .then((list) => {
           if (live) {
-            setJobs(list.map(toActivityJob));
+            setJobs(uniqueRows(list.map(toActivityJob)));
             setError(undefined);
             setRefused(false);
           }
