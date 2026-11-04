@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { parseNote, type Note } from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
 import type { SessionData, WireDoc } from "./map.ts";
-import { api } from "../../commands/client.ts";
+import { api, readJson } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -86,12 +86,13 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     let live = true;
     void (async () => {
       try {
-        const r = await api(
+        // Offline the saved note answers; a 401 or 5xx throws and leaves the page empty (§data.offline).
+        const d = await readJson<{ data: unknown; v?: number }>(
           `docs?collection=notes&id=${encodeURIComponent(noteId)}`,
           token,
+          `sessions:note:${noteId}`,
+          copy,
         );
-        if (!r.ok) return; // no note page: the session still runs
-        const d = (await r.json()) as { data: unknown; v?: number };
         if (live) {
           setNote(parseNote(d.data));
           setNoteRaw({ raw: d.data as Record<string, unknown>, v: d.v });
@@ -103,7 +104,7 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     return () => {
       live = false;
     };
-  }, [token, noteId]);
+  }, [token, noteId, copy]);
   const save = useCallback(
     async (doc: Record<string, unknown>) => {
       if (!data) return false;
