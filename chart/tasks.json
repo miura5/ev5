@@ -14137,7 +14137,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Sessions wired (#165). Left: use sessionState (now exported from domain) for break/pause, real note blocks and checks, save to Progress, Space/Esc keys, Start session on the note page.",
+  "notes": "Merged #165, #173, #287 (note todo blocks are real checks, Space/Esc, pause tests). Left: Start session button on the note page (areas/notes), save to Progress if still open.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-749-sessions",
@@ -14153,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #275: /collection/:id route, Back to parent. Left: item titles (rows show membership id), dates, pins/new/rename handlers (no write commands), saved-view page, Restore.",
+  "notes": "Merged #275 and #286: /collection/:id, rows show item titles and dates. Left: pins/new/rename handlers (no write commands), saved-view page, Restore.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
@@ -15606,12 +15606,12 @@
   "title": "api() takes a raw body (binary PUT) and domain exports the picture key pattern",
   "dod": "commands/client api() can send bytes; areas/notes/notePictures.ts uses it instead of its own fetch and imports the key pattern from domain (IMG_KEY export, Interface change); test stays green",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-849"
   ],
-  "notes": "Slices: ops/generate/lib.ts (generates commands/client), domain/note + domain/index.ts.",
-  "commit": null,
+  "notes": "Merged #284: api() raw option, IMG_KEY exported from domain, notePictures.ts uses api(). Left: server/image-routes.ts still has its own KEY regex (see B-854).",
+  "commit": "fb694f1",
   "source": "ops/record"
  },
  {
@@ -15624,7 +15624,21 @@
   "depends": [
    "B-851"
   ],
-  "notes": "B-851 covered docs.list only (#280).",
+  "notes": "Merged #285 (shell jobs poll; own IndexedDB fake in appDb.test.ts, no fake-indexeddb needed), #288 (activity, ask, today, notes collections), #289 (library). Left: commands/client jobApi/api GETs read direct; areas/sessions and areas/collection not covered; check shell hands readCopy to LibraryScreen.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-854",
+  "kind": "task",
+  "title": "server/image-routes.ts imports IMG_KEY from domain instead of its own KEY regex",
+  "dod": "One key pattern; server may import domain (check depcruise)",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-852"
+  ],
+  "notes": "From B-852 report. Slice: server/.",
   "commit": null,
   "source": "ops/record"
  }
