@@ -32,8 +32,8 @@
 }
 
 .kit-opt:focus-visible {
-  outline: var(--hairline) solid var(--text);
-  outline-offset: var(--sp-1);
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }
 
 .kit-opt-n {

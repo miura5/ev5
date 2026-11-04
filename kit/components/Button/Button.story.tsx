@@ -10,6 +10,9 @@ export function Story() {
         Turn over
       </Button>
       <Button kind="secondary">End</Button>
+      <span data-focus-shown style={{ display: "contents" }}>
+        <Button kind="secondary">Focused</Button>
+      </span>
       <Button kind="text" hint="E">
         Edit
       </Button>

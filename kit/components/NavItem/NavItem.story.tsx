@@ -8,6 +8,9 @@ export function Story() {
       <NavItem label="Ask E.V." icon={<AreaIcon name="ask" />} onOpen={() => undefined} />
       <NavItem label="Activity" icon={<AreaIcon name="activity" />} count={2} onOpen={() => undefined} />
       <NavItem label="NUR 112" count="Thu" onOpen={() => undefined} />
+      <div data-focus-shown style={{ display: 'contents' }}>
+        <NavItem label="Focused" onOpen={() => undefined} />
+      </div>
     </div>
   );
 }

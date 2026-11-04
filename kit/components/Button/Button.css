@@ -17,9 +17,10 @@
   transition-duration: var(--dur-1);
 }
 
-.kit-btn:focus-visible {
-  outline: var(--sp-1) solid var(--text);
-  outline-offset: calc(-1 * var(--sp-1));
+.kit-btn:focus-visible,
+[data-focus-shown] > .kit-btn {
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }
 
 .kit-btn:hover {

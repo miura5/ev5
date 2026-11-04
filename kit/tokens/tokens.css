@@ -119,6 +119,7 @@
   --side-w: 224px;
   --icon: 16px;
   --hairline: 1px;
+  --focus-ring: 2px;
 
   /* Motion */
   --dur-1: 150ms;

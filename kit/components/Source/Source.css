@@ -23,8 +23,8 @@ button.kit-source:hover {
 }
 
 button.kit-source:focus-visible {
-  outline: var(--sp-1) solid var(--text);
-  outline-offset: calc(-1 * var(--sp-1));
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }
 
 .kit-source-unverified {
