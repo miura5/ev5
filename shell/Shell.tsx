@@ -14,7 +14,7 @@ import {
 } from '../kit/index.ts';
 import { Ev4Offer } from './Ev4Offer.tsx';
 import type { Services } from './services.ts';
-import { AREAS, areaFor, type AreaEntry } from './areas.ts';
+import { AREAS, areaFor, sidebarAreas, type AreaEntry } from './areas.ts';
 import './shell.css';
 
 export interface Pin {
@@ -106,7 +106,7 @@ export function Shell({
     <div className="shell" data-ui="shell">
       <nav className="shell-side" aria-label="Primary">
         <SidebarSearch onOpen={() => setPalette(true)} />
-        {areas.map((a) => (
+        {sidebarAreas(areas).map((a) => (
           <NavItem
             key={a.id}
             label={a.nav}
