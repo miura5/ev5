@@ -17,6 +17,7 @@ Run: `node --experimental-strip-types --test ops/guards/guards.test.ts` (Node 22
 | A `jobs/<kind>/job.ts` without `job.test.ts` | `node ops/checks/cli.ts --root <repo>` | `presence: jobs/solo/job.ts: missing jobs/solo/job.test.ts` |
 | A kit component with its own menu, listbox, combobox, dialog or ArrowDown/Escape handling and no Radix or cmdk import | `node ops/checks/cli.ts --root <repo>` | `radix: kit/components/Pop/Pop.tsx: draws or handles role="menu itself; import @radix-ui/* or cmdk for behaviour (§ui.mockup)` |
 | A tool defined outside the registry | `node ops/checks/cli.ts --root <repo>` | `registry: server/tool.ts: a Claude tool definition outside commands/` |
+| A `jobs/runtime/models.ts` checked more than its age limit ago (a warning, exit 0) | `node ops/checks/cli.ts --root <repo>` | `warning: models: jobs/runtime/models.ts: model ids and prices were last checked on 2020-01-01, ... days ago (limit 90). Check them against the Anthropic docs.` |
 | A write fixture ev4's schema rejects | `node --test data/compat/validate.test.ts` | the fixture, listed as valid, fails: `not ok - notes: accepts ev4 rejects this` with `/html: unknown field` |
 
 ## Notes

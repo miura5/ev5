@@ -2,6 +2,7 @@
 // The trailer check needs a base (defaults to origin/$GITHUB_BASE_REF in a pull request, otherwise it is skipped).
 import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
+import { checkModelsAge } from './models.ts';
 import { checkPresence } from './presence.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
@@ -25,6 +26,7 @@ const findings = [
   ...checkSecrets(root, files),
   ...checkTrailers(branchCommits(root, base)),
 ];
+for (const w of checkModelsAge(root)) console.log(`warning: ${w}`);
 for (const f of findings) console.log(`${f.check}: ${f.file}: ${f.detail}`);
 console.log(findings.length ? `${findings.length} finding(s)` : `checks ok${base ? '' : ' (trailer skipped: no base)'}`);
 process.exit(findings.length ? 1 : 0);
