@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // Note document (ev4 notes schema 1, frozen in data/compat/schemas/notes.schema.json): a title, a course and a body of
 // blocks of plain-text runs with inline marks. No HTML is ever stored.
 export const BLOCK_TYPES = ['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'todo'] as const;
@@ -19,39 +21,51 @@ export const MAX = {
   documentBytes: 262144,
 } as const;
 
-export type Run = {
-  text: string;
-  b?: true;
-  i?: true;
-  u?: true;
-  s?: true;
-  href?: string;
-};
+export const IMG_KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
+export const HREF = /^https?:\/\/[^\s<>"]+$/;
+export const ROW = /^[A-Za-z0-9]{1,16}$/;
+const EARLIER_OF = /^n-[A-Za-z0-9-]{1,120}$/;
+const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
-export type Block = {
-  type: (typeof BLOCK_TYPES)[number] | 'img';
-  runs: Run[];
-  checked?: boolean;
-  indent?: number;
-  key?: string;
-  width?: number;
-  alt?: string;
-  row?: string;
-  col?: 0 | 1;
-};
+const time = z.string().refine((v) => TIME.test(v) && !Number.isNaN(Date.parse(v)), 'not a time');
+const mark = z.literal(true).optional();
 
-export type Note = {
-  schema: 1;
-  writer: 'page';
-  at: string;
-  source: string;
-  createdAt: string;
-  title: string;
-  course?: string | null;
-  label?: string;
-  blocks: Block[];
-  editedAt?: string;
-  earlierOf?: string;
-  archivedAt?: string | null;
-  discardedAt?: string | null;
-};
+const runSchema = z.strictObject({
+  text: z.string().max(MAX.text),
+  b: mark,
+  i: mark,
+  u: mark,
+  s: mark,
+  href: z.string().max(MAX.href).regex(HREF).optional(),
+});
+export type Run = z.infer<typeof runSchema>;
+
+const blockSchema = z.strictObject({
+  type: z.enum([...BLOCK_TYPES, 'img']),
+  runs: z.array(runSchema).max(MAX.runs),
+  checked: z.boolean().optional(),
+  indent: z.number().int().min(0).max(MAX.indent).optional(),
+  key: z.string().regex(IMG_KEY).optional(),
+  width: z.number().int().min(MAX.imgMin).max(MAX.imgMax).optional(),
+  alt: z.string().max(MAX.alt).optional(),
+  row: z.string().regex(ROW).optional(),
+  col: z.union([z.literal(0), z.literal(1)]).optional(),
+});
+export type Block = z.infer<typeof blockSchema>;
+
+export const noteSchema = z.strictObject({
+  schema: z.literal(1),
+  writer: z.literal('page'),
+  at: time,
+  source: z.string().min(1),
+  createdAt: time,
+  title: z.string().max(MAX.title),
+  course: z.string().min(1).nullable().optional(),
+  label: z.string().max(MAX.label).optional(),
+  blocks: z.array(blockSchema).max(MAX.blocks),
+  editedAt: time.optional(),
+  earlierOf: z.string().regex(EARLIER_OF).optional(),
+  archivedAt: time.nullable().optional(),
+  discardedAt: time.nullable().optional(),
+});
+export type Note = z.infer<typeof noteSchema>;
