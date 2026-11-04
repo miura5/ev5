@@ -26,7 +26,7 @@ const JOB_DEFS: readonly JobDef[] = [
   practiceSet as JobDef,
   studyPlanJob as JobDef,
 ];
-const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
+export const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
 const KINDS: Record<string, JobDef> = Object.fromEntries(
   JOB_DEFS.map((d) => [d.kind.replace(/_/g, "-"), d]),
 );

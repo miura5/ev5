@@ -19,7 +19,7 @@ export const notesCommands = [
   defineCommand({ name: 'job.dismiss', title: 'Dismiss a finished job', input: ref, callers: M, effect: 'instant' }),
   // E.V. reads a job's state directly; it changes nothing.
   defineCommand({ name: 'job_status', title: 'Check a job', input: ref, callers: { ev: 'direct' }, effect: 'instant' }),
-  defineCommand({ name: 'ask.send', title: 'Ask E.V.', input: z.object({ text: z.string().min(1) }), callers: M, effect: 'job', palette: true }),
+  defineCommand({ name: 'ask.send', title: 'Ask E.V.', input: z.object({ text: z.string().min(1) }), callers: M, effect: 'chat', palette: true }),
   defineCommand({ name: 'ask.just_tell_me', title: 'Just tell me', input: ref, callers: M, effect: 'job' }),
 ] as const;
 

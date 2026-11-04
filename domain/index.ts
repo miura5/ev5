@@ -35,3 +35,9 @@ export {
   parseOwnSetItem,
   parseOwnAttempt,
 } from "./own-set/index.ts";
+export {
+  chunkMaterials,
+  buildIndex,
+  search,
+  likePatterns,
+} from "./search/index.ts";
