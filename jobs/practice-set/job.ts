@@ -1,32 +1,67 @@
 // The practice set job (CONTRACT §job.kinds): a set of questions grounded in course excerpts, with the mock exam as a
 // variant. Items with no source are drafts, and "Write with E.V." makes every item a draft (PLAN §6.4).
 // The model call is injected, so tests need no network; the model id and price come from jobs/runtime/models.ts.
+import { z } from 'zod';
 import { checkCitations, defineJob, runStructured, type ModelCall } from '../runtime/index.ts';
+import { parseWith } from '../runtime/define.ts';
+import { outputSchema } from '../runtime/model-call.ts';
 
 export const VARIANTS = ['practice', 'mock_exam'] as const;
 export const MAX_ITEMS = { practice: 30, mock_exam: 75 } as const;
 
-export type Excerpt = { id: string; text: string };
-export type PracticeInput = {
-  variant: (typeof VARIANTS)[number];
-  /** Where the items land: a set id. */
-  targetId: string;
-  count: number;
-  objectives: string[];
-  excerpts: Excerpt[];
-  /** "Write with E.V.": every item is a draft to keep or drop. */
-  drafts: boolean;
-};
-export type PracticeItem = {
-  stem: string;
-  type: 'single' | 'sata';
-  options: string[];
-  correct: number[];
-  rationales: string[];
-  objective?: string;
-  sourceRef: string | null;
-};
-export type PracticeOutput = { items: PracticeItem[] };
+const nonBlank = (what: string) => z.string().refine((t) => t.trim().length > 0, `${what} must not be empty.`);
+const textList = (what: string) => z.array(nonBlank(what), { error: `${what} must be a list of text.` });
+
+const ExcerptSchema = z.object(
+  { id: z.string().min(1), text: z.string() },
+  { error: 'An excerpt needs an id and text.' },
+);
+export const InputSchema = z
+  .object(
+    {
+      variant: z.enum(VARIANTS, {
+        error: 'variant must be practice or mock_exam.',
+      }),
+      /** Where the items land: a set id. */
+      targetId: z.string({ error: 'targetId is required.' }).min(1, 'targetId is required.'),
+      count: z.number({ error: 'count must be a whole number.' }).int('count must be a whole number.'),
+      objectives: textList('objectives').default([]),
+      excerpts: z.array(ExcerptSchema).default([]),
+      /** "Write with E.V.": every item is a draft to keep or drop. */
+      drafts: z.boolean().default(false),
+    },
+    { error: 'The request must be an object.' },
+  )
+  .superRefine((v, ctx) => {
+    const max = MAX_ITEMS[v.variant];
+    if (v.count < 1 || v.count > max)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['count'],
+        message: `count must be 1 to ${max} for ${v.variant}.`,
+      });
+  });
+// The JSON Schema sent to the model comes from this one schema; semantic rules (counts, citations) are checkItems.
+export const ItemSchema = z.object({
+  stem: nonBlank('stem'),
+  type: z.enum(['single', 'sata'], { error: 'type must be single or sata.' }),
+  options: textList('options'),
+  correct: z.array(z.number().int(), {
+    error: 'correct must be a list of option numbers.',
+  }),
+  rationales: textList('rationales'),
+  objective: z.string().optional(),
+  sourceRef: z.string().nullable(),
+});
+export const OutputSchema = z.object(
+  { items: z.array(ItemSchema).refine((a) => a.length > 0, '"items" must be a non-empty list.') },
+  { error: 'The answer must be an object.' },
+);
+
+export type Excerpt = z.infer<typeof ExcerptSchema>;
+export type PracticeInput = z.infer<typeof InputSchema>;
+export type PracticeItem = z.infer<typeof ItemSchema>;
+export type PracticeOutput = z.infer<typeof OutputSchema>;
 export type DraftRow = {
   jobId: string;
   kind: 'set-item';
@@ -45,66 +80,8 @@ export type PracticeResult =
     }
   | { ok: false; reason: string; costCents: number };
 
-const obj = (v: unknown, what: string): Record<string, unknown> => {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) throw new Error(`${what} must be an object.`);
-  return v as Record<string, unknown>;
-};
-const strs = (v: unknown, what: string): string[] => {
-  if (!Array.isArray(v) || v.some((x) => typeof x !== 'string' || !x.trim()))
-    throw new Error(`${what} must be a list of text.`);
-  return v as string[];
-};
-
-export function parseInput(raw: unknown): PracticeInput {
-  const o = obj(raw, 'The request');
-  const variant = (VARIANTS as readonly unknown[]).includes(o.variant) ? (o.variant as PracticeInput['variant']) : null;
-  if (!variant) throw new Error('variant must be practice or mock_exam.');
-  if (typeof o.targetId !== 'string' || !o.targetId) throw new Error('targetId is required.');
-  if (!Number.isInteger(o.count) || (o.count as number) < 1 || (o.count as number) > MAX_ITEMS[variant])
-    throw new Error(`count must be 1 to ${MAX_ITEMS[variant]} for ${variant}.`);
-  const excerpts = (Array.isArray(o.excerpts) ? o.excerpts : []).map((e) => {
-    const x = obj(e, 'An excerpt');
-    if (typeof x.id !== 'string' || !x.id || typeof x.text !== 'string')
-      throw new Error('An excerpt needs an id and text.');
-    return { id: x.id, text: x.text };
-  });
-  return {
-    variant,
-    targetId: o.targetId,
-    count: o.count as number,
-    objectives: strs(o.objectives ?? [], 'objectives'),
-    excerpts,
-    drafts: o.drafts === true,
-  };
-}
-
-export function parseOutput(raw: unknown): PracticeOutput {
-  const items = obj(raw, 'The answer').items;
-  if (!Array.isArray(items) || items.length === 0) throw new Error('"items" must be a non-empty list.');
-  return {
-    items: items.map((it, n) => {
-      const q = obj(it, `Item ${n + 1}`);
-      const at = `Item ${n + 1}`;
-      if (typeof q.stem !== 'string' || !q.stem.trim()) throw new Error(`${at} needs a stem.`);
-      if (q.type !== 'single' && q.type !== 'sata') throw new Error(`${at} type must be single or sata.`);
-      const options = strs(q.options, `${at} options`);
-      const rationales = strs(q.rationales, `${at} rationales`);
-      if (!Array.isArray(q.correct) || q.correct.some((i) => !Number.isInteger(i)))
-        throw new Error(`${at} correct must be a list of option numbers.`);
-      const sourceRef = q.sourceRef ?? null;
-      if (sourceRef !== null && typeof sourceRef !== 'string') throw new Error(`${at} sourceRef must be text or null.`);
-      return {
-        stem: q.stem,
-        type: q.type,
-        options,
-        correct: q.correct as number[],
-        rationales,
-        ...(typeof q.objective === 'string' ? { objective: q.objective } : {}),
-        sourceRef,
-      };
-    }),
-  };
-}
+export const parseInput = parseWith(InputSchema);
+export const parseOutput = parseWith(OutputSchema);
 
 /** Plain-words problems with the items themselves; the citation check is added by the caller. */
 export function checkItems(out: PracticeOutput, count: number): string[] {
@@ -123,11 +100,11 @@ export function checkItems(out: PracticeOutput, count: number): string[] {
   return bad;
 }
 
-export const practiceSet = defineJob<PracticeInput, PracticeOutput>({
+export const practiceSet = defineJob({
   kind: 'practice_set',
   title: 'Practice set',
-  input: parseInput,
-  output: parseOutput,
+  input: InputSchema,
+  output: OutputSchema,
   model: 'haiku',
   maxTokens: 32_000,
   costCapCents: 50,
@@ -141,27 +118,6 @@ export const practiceSet = defineJob<PracticeInput, PracticeOutput>({
   startedBy: ['matt'],
   executor: 'workflow',
 });
-
-const ITEM_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['stem', 'type', 'options', 'correct', 'rationales', 'sourceRef'],
-  properties: {
-    stem: { type: 'string' },
-    type: { enum: ['single', 'sata'] },
-    options: { type: 'array', items: { type: 'string' } },
-    correct: { type: 'array', items: { type: 'integer' } },
-    rationales: { type: 'array', items: { type: 'string' } },
-    objective: { type: 'string' },
-    sourceRef: { type: ['string', 'null'] },
-  },
-} as const;
-export const OUTPUT_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['items'],
-  properties: { items: { type: 'array', items: ITEM_SCHEMA } },
-} as const;
 
 /** The user message: what to write and the only excerpts that may be cited. */
 export function buildPrompt(input: PracticeInput): string {
@@ -189,7 +145,7 @@ export async function writePracticeSet(
     system: deps.system,
     prompt: buildPrompt(input),
     maxTokens: practiceSet.maxTokens,
-    schema: OUTPUT_SCHEMA,
+    schema: outputSchema(OutputSchema),
     parse: practiceSet.output,
     check: (v) => [
       ...checkItems(v, input.count),

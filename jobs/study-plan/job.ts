@@ -1,7 +1,9 @@
 // The study plan job (CONTRACT §job.study-plan, §job.kinds): starts only from Matt's tap, never from chat words.
 // Steps: gather (code only), draft (one Sonnet call), approve (needs you), save. Dates and the weak-spot order are code
 // in domain (§cmd.code-first); the model only arranges them into tasks. The model call and the store are injected.
-import { defineJob } from '../runtime/define.ts';
+import { z } from 'zod';
+import { defineJob, parseWith } from '../runtime/define.ts';
+import { outputSchema } from '../runtime/model-call.ts';
 import { checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
 import { addDays, examDaysLeft, type Exam } from '../../domain/index.ts';
@@ -13,18 +15,47 @@ const MAX_DAYS = 28;
 const MAX_DAY_MINUTES = 180;
 const MAX_TASKS = 80;
 
-export type StudyPlanInput = { examId: string };
+// One schema each for what the model writes and what the app sends. Ranges and formats are refinements, so the JSON
+// Schema sent to the model stays within what structured output supports; checkPlan holds the semantic rules.
+const text = (what: string, max = 200) =>
+  z
+    .string({ error: `${what}: needs 1 to ${max} characters` })
+    .refine((t) => t.trim().length > 0 && t.length <= max, `${what}: needs 1 to ${max} characters`);
+
+export const InputSchema = z.object({ examId: text('examId', 128) }, { error: 'study plan input: not an object' });
+const TaskSchema = z.object({
+  date: z.string().refine((d) => /^\d{4}-\d{2}-\d{2}$/.test(d), 'bad date'),
+  title: text('title'),
+  minutes: z
+    .number()
+    .int()
+    .refine((m) => m >= 10 && m <= 120, 'minutes must be a whole number from 10 to 120'),
+  weakSpotId: text('weakSpotId', 128).optional(),
+});
+export const PlanSchema = z.object(
+  {
+    summary: text('summary', 400),
+    tasks: z.array(TaskSchema, { error: 'tasks must be a list' }),
+  },
+  { error: 'plan: not an object' },
+);
+const DecisionSchema = z.object({
+  decision: z.enum(['approve', 'put_away'], {
+    error: 'decision must be approve or put_away',
+  }),
+});
+const ChangeSchema = z.object({
+  decision: z.literal('change'),
+  note: text('note', 2000),
+});
+
+export type StudyPlanInput = z.infer<typeof InputSchema>;
 export type Decision = {
   decision: 'approve' | 'put_away' | 'change';
   note?: string;
 };
-export type Task = {
-  date: string;
-  title: string;
-  minutes: number;
-  weakSpotId?: string;
-};
-export type Plan = { summary: string; tasks: Task[] };
+export type Task = z.infer<typeof TaskSchema>;
+export type Plan = z.infer<typeof PlanSchema>;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
   exam: { id: string; title: string; kind: Exam['kind']; date: string };
@@ -53,49 +84,14 @@ const rec = (v: unknown, what: string): Record<string, unknown> => {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) throw new Error(`${what}: not an object`);
   return v as Record<string, unknown>;
 };
-const text = (v: unknown, what: string, max = 200): string => {
-  if (typeof v !== 'string' || !v.trim() || v.length > max) throw new Error(`${what}: needs 1 to ${max} characters`);
-  return v;
-};
 
-export function parseInput(raw: unknown): StudyPlanInput {
-  return { examId: text(rec(raw, 'study plan input').examId, 'examId', 128) };
-}
-
-export function parseDecision(raw: unknown): Decision {
-  const d = rec(raw, 'answer').decision;
-  if (d !== 'approve' && d !== 'put_away') throw new Error('answer: decision must be approve or put_away');
-  return { decision: d };
-}
+export const parseInput = parseWith(InputSchema);
+export const parsePlan = parseWith(PlanSchema);
+export const parseDecision = parseWith(DecisionSchema) as (raw: unknown) => Decision;
 
 /** The continuation from `approve`: a change request (decision 'change' plus Matt's note) or an approve/put away. */
 export function parseAnswer(raw: unknown): Decision {
-  const o = rec(raw, 'answer');
-  if (o.decision !== 'change') return parseDecision(raw);
-  return { decision: 'change', note: text(o.note, 'note', 2000) };
-}
-
-export function parsePlan(raw: unknown): Plan {
-  const o = rec(raw, 'plan');
-  if (!Array.isArray(o.tasks)) throw new Error('plan: tasks must be a list');
-  const tasks = o.tasks.map((t, i): Task => {
-    const x = rec(t, `task ${i + 1}`);
-    if (typeof x.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(x.date)) throw new Error(`task ${i + 1}: bad date`);
-    if (!Number.isInteger(x.minutes) || (x.minutes as number) < 10 || (x.minutes as number) > 120)
-      throw new Error(`task ${i + 1}: minutes must be a whole number from 10 to 120`);
-    const base = {
-      date: x.date,
-      title: text(x.title, `task ${i + 1} title`),
-      minutes: x.minutes as number,
-    };
-    return x.weakSpotId == null
-      ? base
-      : {
-          ...base,
-          weakSpotId: text(x.weakSpotId, `task ${i + 1} weakSpotId`, 128),
-        };
-  });
-  return { summary: text(o.summary, 'summary', 400), tasks };
+  return rec(raw, 'answer').decision === 'change' ? parseWith(ChangeSchema)(raw) : parseDecision(raw);
 }
 
 /** The deterministic part: study days from today to the day before the exam (at most 28), weak spots worst first. */
@@ -136,29 +132,6 @@ export function checkPlan(plan: Plan, ctx: PlanContext): string[] {
   ];
 }
 
-export const PLAN_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['summary', 'tasks'],
-  properties: {
-    summary: { type: 'string' },
-    tasks: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['date', 'title', 'minutes'],
-        properties: {
-          date: { type: 'string' },
-          title: { type: 'string' },
-          minutes: { type: 'integer' },
-          weakSpotId: { type: 'string' },
-        },
-      },
-    },
-  },
-};
-
 /** Change rounds on one draft. Each round is its own step so its continuation id (`jobId:step`) is new (§job.needs-you). */
 export const MAX_CHANGE_ROUNDS = 5;
 export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
@@ -168,8 +141,8 @@ export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
 export const studyPlanJob = defineJob({
   kind: 'study_plan',
   title: 'Study plan',
-  input: parseInput,
-  output: parsePlan,
+  input: InputSchema,
+  output: PlanSchema,
   model: MODEL,
   maxTokens: MAX_TOKENS,
   costCapCents: COST_CAP_CENTS,
@@ -237,8 +210,8 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
         system,
         prompt: JSON.stringify(ctx),
         maxTokens: MAX_TOKENS,
-        schema: PLAN_SCHEMA,
-        parse: parsePlan,
+        schema: outputSchema(PlanSchema),
+        parse: studyPlanJob.output,
         check: (p) => checkPlan(p, ctx),
       });
       await c.spend(r.costCents);

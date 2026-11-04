@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { z } from 'zod';
 import assert from 'node:assert/strict';
 import {
   addCost,
@@ -15,7 +16,7 @@ import type { Env, Executor, JobRecord, JobStore } from './index.ts';
 import { forgetKinds } from './define.ts';
 
 const T = '2026-11-03T12:00:00Z';
-const parse = (x: unknown) => x;
+const parse = z.unknown();
 const spec = (kind = 'practice_set') => ({
   kind,
   title: 'Practice set',

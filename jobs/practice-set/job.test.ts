@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import type { ModelCall, ModelReply } from '../runtime/index.ts';
 import { MODELS } from '../runtime/models.ts';
+import { outputSchema } from '../runtime/model-call.ts';
 import { buildPrompt, parseInput, practiceSet, writePracticeSet } from './job.ts';
 
 const system = readFileSync(new URL('./prompt.md', import.meta.url), 'utf8');
@@ -113,4 +114,11 @@ test('max_tokens fails cleanly with the reason, no repair', async () => {
   assert.ok(!r.ok);
   assert.match(r.reason, /ran out of room/);
   assert.equal(reqs.length, 1);
+});
+
+test('the schema sent to the model comes from the output schema and carries no ranges or patterns', () => {
+  const s = JSON.stringify(outputSchema(practiceSet.outputSchema));
+  assert.match(s, /"additionalProperties":false/);
+  assert.match(s, /"sourceRef":\{"type":\["string","null"\]/);
+  assert.doesNotMatch(s, /minimum|maximum|pattern|minLength|minItems/);
 });
