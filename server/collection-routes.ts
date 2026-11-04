@@ -102,7 +102,28 @@ collectionRoutes.get("/deletions", async (c) => {
     `SELECT c, id, at FROM deletions${coll === undefined ? "" : " WHERE c = ?"} ORDER BY at DESC, c, id LIMIT ${LIMIT}`,
     coll === undefined ? [] : [coll],
   );
+  // Titles come from the kept document (the delete is soft, §delete.soft); each lookup is its own read so a database
+  // without that table still lists its deletions.
+  const titles = new Map<string, string>();
+  const named = await rows<{ k: string; t: string | null }>(
+    c.env.DB,
+    "SELECT d.c || '/' || d.id AS k, COALESCE(json_extract(x.data, '$.title'), json_extract(x.data, '$.name')) AS t FROM deletions d JOIN docs x ON x.c = d.c AND x.id = d.id",
+    [],
+  );
+  const items = await rows<{ k: string; t: string | null }>(
+    c.env.DB,
+    "SELECT d.c || '/' || d.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN own_set_items i ON d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.item_id",
+    [],
+  );
+  for (const r of [...named, ...items]) {
+    if (typeof r.t === "string" && r.t.trim()) titles.set(r.k, r.t.trim());
+  }
   return c.json({
-    deletions: out.map((r) => ({ collection: r.c, id: r.id, at: r.at })),
+    deletions: out.map((r) => ({
+      collection: r.c,
+      id: r.id,
+      at: r.at,
+      title: titles.get(`${r.c}/${r.id}`) ?? null,
+    })),
   });
 });
