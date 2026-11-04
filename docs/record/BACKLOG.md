@@ -98,7 +98,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-748 | S-75: The notes editor: home list and note page Done when: Matches the mock-up | B-742 | v5 P5 | in progress |  |
 | B-749 | S-76: Study sessions and read-along Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Sessions wired (#165). Left: use sessionState (now exported from domain) for break/pause, real note blocks and checks, save to Progress, Space/Esc keys, Start session on the note page. |
 | B-750 | S-76a: Collection page, Recently deleted, pins Done when: Matches the mock-up | B-742 | v5 P5 | in progress | Collection and Recently deleted wired to the read routes (#169); collections/memberships tables don't exist yet so they show empty. Left: /collection/:id route, nav hiding, saved-view page, item menu, pins. |
-| B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | open |  |
+| B-752 | S-78: The e2e journeys from Gate 5 Done when: All journeys pass | B-742 | v5 P5 | in progress |  |
 | B-753 | G-5: Gate 5: shell and areas Done when: e2e journeys pass | B-743, B-744, B-745, B-746, B-747, B-748, B-749, B-750, B-751, B-752 | v5 P5 | open |  |
 | B-754 | S-80: Scheduled commands: morning, evening, weekly Done when: Tested across DST | B-753 | v5 P6 | open |  |
 | B-755 | S-81: The Mac executor for Canvas (needs Matt present) Done when: Canvas sync reports through report_job | B-753 | v5 P6 | open |  |
@@ -112,7 +112,8 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-763 | S-92: The release card; Matt tests Done when: Matt says ship | B-760 | v5 P7 | open |  |
 | B-776 | Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today) Done when: Each screen shows staging data and the Detail panel opens from a row | B-743 | v5 P5 | in progress | Part 2: Today reads exams, weakspots and today's dayedits through GET /api/v1/docs with the stored app token (ev5.token), maps them in areas/today/map.ts (tested), shows the empty day with no data and an error line on 401. Plan items come from today's dayedits.added; weak-spot status is derived without answers (none read yet). |
 | B-777 | Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6) Done when: Matches the mock-up | B-746 | v5 P5 | in progress | Library wired to staging docs (sets, exams, weakspots) via areas/library/useLibrary.ts + map.ts; set page mounts on open; token form as Today. Left: accuracy line, practice session, Edit/Study hookups, set due counts. |
-| B-784 | S-77e: notes collections, new note, and the real editor on the outbox Done when: Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes | B-778 | v5 P5 | open |  |
+| B-784 | S-77e: notes collections, new note, and the real editor on the outbox Done when: Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes | B-778 | v5 P5 | in progress |  |
+| B-786 | Shell wiring: App passes counts and runningJob to Shell, and a navigate callback for areas Done when: Sidebar counts and the running-job line show staging data; areas can navigate | B-775 | v5 P5 | in progress |  |
 
 ## Your turn
 

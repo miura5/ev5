@@ -14181,13 +14181,15 @@
   "title": "S-78: The e2e journeys from Gate 5",
   "dod": "All journeys pass",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-742"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "claimedBy": "run29",
+  "claimedAt": "2026-11-04T00:54:03.207Z"
  },
  {
   "id": "B-753",
@@ -14668,13 +14670,15 @@
   "title": "S-77e: notes collections, new note, and the real editor on the outbox",
   "dod": "Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-778"
   ],
   "notes": "",
   "commit": null,
-  "source": "B-778"
+  "source": "B-778",
+  "claimedBy": "run29",
+  "claimedAt": "2026-11-04T00:54:03.368Z"
  },
  {
   "id": "B-785",
@@ -14689,5 +14693,21 @@
   "notes": "",
   "commit": "b997a74",
   "source": "B-750"
+ },
+ {
+  "id": "B-786",
+  "kind": "task",
+  "title": "Shell wiring: App passes counts and runningJob to Shell, and a navigate callback for areas",
+  "dod": "Sidebar counts and the running-job line show staging data; areas can navigate",
+  "milestone": "v5 P5",
+  "status": "in progress",
+  "depends": [
+   "B-775"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run29",
+  "claimedAt": "2026-11-04T00:54:06.574Z"
  }
 ]
