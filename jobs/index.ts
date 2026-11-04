@@ -11,6 +11,7 @@ export {
   spendAlertWriter,
   acknowledgeSpendAlert,
 } from "./runtime/job-ceilings.ts";
+export { sweepStale } from "./runtime/sweep.ts";
 export { transition, update, isTerminal } from "./runtime/record.ts";
 export { runJob } from "./runtime/workflow.ts";
 export type {
