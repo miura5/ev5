@@ -19,7 +19,7 @@ export const practiceCommands = [
     input: z.object({ title: z.string().min(1), type: z.string().optional(), collection: z.string().optional() }),
     callers: M,
     effect: 'instant',
-    palette: true,
+    palette: true, places: ['library'],
   }),
   defineCommand({
     name: 'set.update',
