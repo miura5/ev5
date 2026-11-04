@@ -93,10 +93,35 @@ export async function call(name: CommandName, input: unknown, token: string): Pr
   return { ok: true, mode: b.mode as "direct" | "propose", suggestion: b.suggestion as never, result: b.result };
 }
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: the shell hands it to the areas (§data.offline). */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
+/** A read the server refused (wrong token, server error): never "offline", so it is never kept as the saved copy. */
+export class ApiError extends Error {
+  constructor(readonly status: number) {
+    super(\`request failed: \${status}\`);
+  }
+}
+
+/** GET a JSON read. With a saved copy, a rejected fetch (offline) gives back the last good answer; 401 and 5xx throw. */
+export function readJson<T>(path: string, token: string, key: string, copy?: ReadCopyLike, pick: (body: unknown) => T = b => b as T): Promise<T> {
+  const get = async (): Promise<T> => {
+    const r = await api(path, token);
+    if (!r.ok) throw new ApiError(r.status);
+    return pick(await r.json());
+  };
+  return copy ? copy.read(key, get) : get();
+}
+
 /** Job helpers: the activity list, one job, and answering a job that needs you. */
 export const jobApi = {
-  list: (token: string) => api("jobs", token),
-  get: (id: string, token: string) => api(\`jobs/\${encodeURIComponent(id)}\`, token),
+  /** The unfinished jobs (the \`jobs\` array of GET /jobs), kept under "jobs". */
+  list: (token: string, copy?: ReadCopyLike) =>
+    readJson<unknown[]>("jobs", token, "jobs", copy, b => (b as { jobs: unknown[] }).jobs),
+  get: (id: string, token: string, copy?: ReadCopyLike) =>
+    readJson<unknown>(\`jobs/\${encodeURIComponent(id)}\`, token, \`job:\${id}\`, copy),
   answer: (id: string, answer: unknown, token: string) => api(\`jobs/\${encodeURIComponent(id)}/continue\`, token, { body: { answer } }),
 };
 `;

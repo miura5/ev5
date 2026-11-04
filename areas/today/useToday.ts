@@ -84,11 +84,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
           saved("today:weakspots", () => list("weakspots", token)),
         ]);
         try {
-          const jobs = await saved("jobs", async () => {
-            const jr = await jobApi.list(token);
-            if (!jr.ok) throw new Error(`jobs ${jr.status}`);
-            return ((await jr.json()) as { jobs: WireJobLine[] }).jobs;
-          });
+          const jobs = (await jobApi.list(token, copy)) as WireJobLine[];
           if (live) setAlert(spendAlertLine(jobs));
         } catch {
           // the alert is extra: Today still loads without it
