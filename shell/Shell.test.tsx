@@ -151,3 +151,22 @@ test("the palette's Places match the sidebar and an empty group shows no header"
   const dialog = screen.getByRole("dialog");
   expect(dialog.textContent?.includes("Commands") ?? false).toBe(options.length > places);
 });
+
+test("the theme button, the \\ key and the palette command flip data-theme and keep the choice", () => {
+  localStorage.clear();
+  render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
+  const root = () => document.querySelector("[data-ui='shell']")?.getAttribute("data-theme");
+  expect(root()).toBe("dark");
+  fireEvent.click(screen.getByRole("button", { name: /Light theme/ }));
+  expect(root()).toBe("light");
+  expect(localStorage.getItem("ev5.theme")).toBe("light");
+  fireEvent.keyDown(window, { key: "\\" });
+  expect(root()).toBe("dark");
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  fireEvent.click(screen.getByRole("option", { name: "Switch light and dark" }));
+  expect(root()).toBe("light");
+  cleanup();
+  render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
+  expect(root()).toBe("light");
+  localStorage.clear();
+});

@@ -15866,10 +15866,10 @@
   "title": "The Sessions timer stays at 0:00 while a session runs",
   "dod": "Sessions' timer counts up each second while a session is running and stops when paused; a screen test advances fake timers and reads 0:01, 0:02; on staging the timer moves.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Playtest 2 (staging 6060bab, bundle index-Di1whQ8m.js): still 0:00 after 11 s with the tab visible. Likely cause: with no active session, areas/sessions/map.ts mapSessions picks the newest ended session (pool falls back to all), so stopped is true and the clock never ticks, yet the screen still shows Pause, End and read-along on. PR #333's test uses a running session, so it passes. Fix: with no active session show no-session-yet (or the ended one as ended, with no Pause or End), and add a test with only ended sessions.",
-  "commit": null,
+  "notes": "Merged #343: no running session shows no session yet, with no Pause or End.",
+  "commit": "bf7f84e",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15905,10 +15905,10 @@
   "title": "Switch light and dark does nothing in the app",
   "dod": "The palette's Switch light and dark, the sidebar foot's theme button and the \\ key (as design/mockup.html's sidebar shows) set data-theme on the app root and keep the choice on this device; the first load follows the system; a screen test flips it; screenshots of Today in both themes at 1280.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "High: it blocks the light-theme half of every design check. theme.toggle only POSTs to the server (command-handlers acks) and nothing in shell/ sets data-theme; the tokens' light theme works in /kit.",
-  "commit": null,
+  "notes": "Merged #348: theme button in the sidebar foot, key backslash and the palette set data-theme; choice kept on this device. Not yet seen on staging; no 1280 screenshots taken.",
+  "commit": "7dbf15d",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15917,12 +15917,12 @@
   "title": "After a deploy the app opens the old build until a hard reload",
   "dod": "When a new build is deployed, the next normal load (or a focus of the open app) runs the new build: the service worker updates and the page reloads once or says a new version is ready; an e2e or unit test covers the update path.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-817"
   ],
-  "notes": "Playtest 2: the first normal load served the previous build with the old jobs loop (B-861's cause) until a hard reload. B-817 (vite-plugin-pwa, D-472) owns the service worker.",
-  "commit": null,
+  "notes": "Merged #341: reload once when a new worker takes over, re-check sw.js on focus, public/_headers no-cache. _headers support on Workers static assets is unverified: check on staging that a deploy shows without a hard reload.",
+  "commit": "49d3983",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15931,10 +15931,10 @@
   "title": "The sidebar's Activity count says 2 while Activity lists 1",
   "dod": "The sidebar's Activity count, Activity's Needs you count and Ask's job cards all come from the same jobs list and agree; a test plants two needs-you jobs for one exam and checks all three.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Playtest 2: sidebar 2, Activity Needs you 1, Ask shows two Study plan cards. Probably two study_plan jobs where Activity shows one.",
-  "commit": null,
+  "notes": "Merged #346: sidebar count and Ask cards merge same-reading jobs like Activity. The rule is restated in shell and Ask (no shared import allowed).",
+  "commit": "a6e961a",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15943,10 +15943,10 @@
   "title": "Recently deleted rows show raw ids and a table name instead of titles",
   "dod": "Each Recently deleted row shows the item's title (or Untitled) and its kind in plain words, never an id or a table name like own_set_items; the count sits on its own line; a screen test covers a set item and a note.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Playtest 2 screenshot 07. Related: B-750 leftovers (Restore).",
-  "commit": null,
+  "notes": "Merged #347: deleted rows show the item title and a plain kind.",
+  "commit": "8356f38",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15967,10 +15967,10 @@
   "title": "Activity shows None. in every group while it loads",
   "dod": "While the jobs list loads, Activity shows a loading state (no None. lines); None. shows only once the list has arrived empty; a screen test holds the fetch open and checks.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low. Seen on first open of Activity in playtest 2.",
-  "commit": null,
+  "notes": "Merged #344: Loading until the first answer, None only after an empty list.",
+  "commit": "69f8a0f",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -16005,8 +16005,20 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Low. Courses are planned as pins (C12, B-750); the running-job line exists and shows only while a job runs; the theme button is part of the theme task.",
+  "notes": "First try #345 was closed: its commit changed kit/index.ts without an Interface: kit trailer and the /kit baselines went stale. Redo from main after B-874 (merged): one commit with trailer Interface: kit, then dispatch visual-baselines.yml on the branch to refresh e2e/baselines, then PR.",
   "commit": null,
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
+ },
+ {
+  "id": "B-883",
+  "kind": "task",
+  "title": "Flaky test errors: window is not defined in areas/deleted/useDeleted.copy.test.tsx teardown, and kit/components/Menu/Menu.test.ts:97",
+  "dod": "Both tests pass on 10 repeated CI runs with no unhandled errors.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Seen in run 47 on unrelated PRs; a re-run cleared each. Fix the cause (timer or listener left after unmount), never skip the test.",
+  "commit": null,
+  "source": "Run 47 CI"
  }
 ]
