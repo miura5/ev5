@@ -20,12 +20,15 @@ export interface JobRoutesEnv {
   JOBS: { create(o: { id: string; params: unknown }): Promise<unknown> };
 }
 
-/** The URL slug of each job kind a caller may start. */
-const KINDS: Record<string, JobDef> = {
-  "practice-set": practiceSet as JobDef,
-  "study-plan": studyPlanJob as JobDef,
-};
-const DEFS = new Map(Object.values(KINDS).map((d) => [d.kind, d]));
+/** The job kinds this Worker starts; each URL slug is its kind with dashes (practice_set is /jobs/practice-set). */
+const JOB_DEFS: readonly JobDef[] = [
+  practiceSet as JobDef,
+  studyPlanJob as JobDef,
+];
+const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
+const KINDS: Record<string, JobDef> = Object.fromEntries(
+  JOB_DEFS.map((d) => [d.kind.replace(/_/g, "-"), d]),
+);
 
 function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   return {
