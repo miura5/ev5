@@ -35,7 +35,9 @@ const waiting = (db: D1Like, id: string, over = {}) =>
 test("date.plan_with_ev starts the study plan job for that exam", async () => {
   const s = setup();
   await s.db
-    .prepare("INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1)")
+    .prepare(
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1)",
+    )
     .run();
   const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
   assert.equal(r.status, 200);
@@ -59,10 +61,14 @@ test("studyplan.ask_changes answers the waiting plan with the change and the not
   assert.equal(r.status, 200);
   assert.equal(r.body.result.job.state, "running");
   const params = s.started.at(-1) as unknown as { input: unknown };
-  assert.deepEqual(params.input, { decision: "change", note: "lighter weekends" });
+  assert.deepEqual(params.input, {
+    decision: "change",
+    note: "lighter weekends",
+  });
   // a second tap finds the plan no longer waiting
   assert.equal(
-    (await cmd(s, "studyplan.ask_changes", { id: "sp1", note: "again" })).status,
+    (await cmd(s, "studyplan.ask_changes", { id: "sp1", note: "again" }))
+      .status,
     409,
   );
 });

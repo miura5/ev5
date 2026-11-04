@@ -31,7 +31,10 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
       "matt",
     );
     if (job.state === "failed")
-      throw new CommandError(502, job.reason ?? "the plan could not be started");
+      throw new CommandError(
+        502,
+        job.reason ?? "the plan could not be started",
+      );
     return { job };
   },
 
