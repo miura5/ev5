@@ -15409,5 +15409,77 @@
   "notes": "Tab navigates to /ask?text=; Ask screen reading ?text= is open (B-803 leftover).",
   "commit": "3607eeb",
   "source": "ops/record"
+ },
+ {
+  "id": "B-838",
+  "kind": "task",
+  "title": "Staging deploy applies data/migrations 0001..0003 to the staging D1 (audit of B-723..B-726)",
+  "dod": "staging.yml applies every migration idempotently; collections, pins, own-set tables exist on staging",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "Claimed by claude/B-838-staging-migrations",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-839",
+  "kind": "task",
+  "title": "S-60b: server handlers for plan.*, date.*, proposal.accept/edit/dismiss",
+  "dod": "Done when an E.V. plan.create makes a Suggestion, proposal.accept applies it through the docs protocol, and a test asserts no registry command with callers.matt answers 501",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-840",
+  "kind": "task",
+  "title": "Schedule consumer: scheduleEntries() drives the schedule route or is deleted",
+  "dod": "Done when scheduleEntries() has a non-test caller or is removed, with a test",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-841",
+  "kind": "task",
+  "title": "Ask passes spendAlertWriter to jobCeilings (server/ask-chat.ts)",
+  "dod": "Done when an ask test that crosses 80% of monthly creates the spend-alert needs-you record",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-842",
+  "kind": "task",
+  "title": "Reconcile ask.send with /api/v1/ask",
+  "dod": "Done when ask.send has a handler that calls ask(), or is removed from the registry, with a test",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-843",
+  "kind": "task",
+  "title": "Ceiling windows are UTC while v5 is Central: record a decision or a CONTRACT note",
+  "dod": "Done when one decision or CONTRACT line settles it",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
