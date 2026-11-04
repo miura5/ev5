@@ -71,6 +71,10 @@ export function Palette({
         <Dialog.Content
           className="kit-pal"
           aria-describedby={undefined}
+          // In a gallery story the input must not take focus on load: that scrolls the page down to the sample.
+          onOpenAutoFocus={(e) => {
+            if (container) e.preventDefault();
+          }}
           onKeyDown={(e) => {
             if (e.key !== "Tab") return;
             e.preventDefault();
