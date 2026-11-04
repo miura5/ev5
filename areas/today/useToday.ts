@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
-import { mapToday } from "./map.ts";
-import type { TodayData, WireDoc } from "./map.ts";
-import { api } from "../../commands/client.ts";
+import { mapToday, spendAlertLine } from "./map.ts";
+import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
+import { api, jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -18,6 +18,8 @@ export interface TodayState {
   data?: TodayData;
   token: string;
   error?: string;
+  /** The monthly spend alert line, when one is waiting. */
+  alert?: string;
   setToken: (t: string) => void;
 }
 
@@ -40,6 +42,7 @@ export function useToday(): TodayState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<TodayData>();
   const [error, setError] = useState<string>();
+  const [alert, setAlert] = useState<string>();
   const setToken = useCallback((t: string) => {
     try {
       localStorage.setItem(KEY, t);
@@ -62,6 +65,15 @@ export function useToday(): TodayState {
           list("exams", token),
           list("weakspots", token),
         ]);
+        try {
+          const jr = await jobApi.list(token);
+          const jobs = jr.ok
+            ? ((await jr.json()) as { jobs: WireJobLine[] }).jobs
+            : [];
+          if (live) setAlert(spendAlertLine(jobs));
+        } catch {
+          // the alert is extra: Today still loads without it
+        }
         const dayedit = day.ok ? ((await day.json()) as WireDoc) : undefined;
         if (live) {
           setData(mapToday({ exams, weakspots, dayedit }, now));
@@ -80,5 +92,5 @@ export function useToday(): TodayState {
       live = false;
     };
   }, [token]);
-  return { data, token, error, setToken };
+  return { data, token, error, alert, setToken };
 }

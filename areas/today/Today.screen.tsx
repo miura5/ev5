@@ -22,7 +22,7 @@ const EMPTY = {
 
 /** The mounted view: exams, weak spots and today's plan from /api/v1/docs; no data shows the empty day. */
 export function TodayScreen() {
-  const { data, token, error, setToken } = useToday();
+  const { data, token, error, alert, setToken } = useToday();
   const [draft, setDraft] = useState("");
   if (!token)
     return (
@@ -50,6 +50,7 @@ export function TodayScreen() {
       <TodayView
         dateLabel={dateLabel()}
         {...(data ?? EMPTY)}
+        alert={alert}
         onStartNext={none}
         onOpen={none}
         onAccept={none}
