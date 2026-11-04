@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TextArea } from "../../../kit/index.ts";
 
 export interface ComposerProps {
   onSend: (text: string) => void;
@@ -17,12 +18,11 @@ export function Composer({ onSend, initial = "" }: ComposerProps) {
   };
   return (
     <div className="ask-composer">
-      <textarea
-        className="ask-field"
+      <TextArea
         rows={1}
         value={text}
         placeholder="Ask E.V., or answer her"
-        aria-label="Message to E.V."
+        label="Message to E.V."
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, EvLine } from "../../../kit/index.ts";
+import { Button, Choice, EvLine } from "../../../kit/index.ts";
 import type { PracticeSession } from "../types.ts";
 
 export interface PracticePanelProps {
@@ -39,10 +39,9 @@ export function PracticePanel({
         </span>
       </div>
       {session.options.map((o) => (
-        <label className="ev-library-opt" key={o}>
-          <input type="radio" name="option" value={o} />
+        <Choice kind="radio" key={o} name="option" value={o}>
           {o}
-        </label>
+        </Choice>
       ))}
       {hinted && session.hint ? <EvLine quiet>{session.hint}</EvLine> : null}
       <div className="ev-library-card-foot">
