@@ -32,6 +32,9 @@ export function withTellMe(
   const messages = (base.messages ?? {}) as Raw;
   return {
     ...base,
+    writer: "page",
+    at: iso,
+    source: "v5/ask",
     messages: {
       ...messages,
       [talkKey(now, rand)]: {
