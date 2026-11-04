@@ -1,6 +1,32 @@
-import { notBuilt, test } from "./gate5.ts";
+import { expect, test } from "./gate5.ts";
+import { cmd } from "./helpers.ts";
 
-test(
-  "Question set by hand, then keep and drop E.V.\x27s drafts",
-  notBuilt("hand-made set editing is not wired (Library leftovers)"),
-);
+// Hand-made set editing through the commands. Keep/drop of E.V.'s drafts needs a job-written set: NOT covered here.
+test("Question set by hand, then keep and drop E.V.'s drafts", async ({
+  api,
+}) => {
+  const set = (
+    (await cmd(api, "set.create", { title: `e2e set ${Date.now()}` }))[
+      "set"
+    ] as { id: string }
+  ).id;
+  const item = (
+    (
+      await cmd(api, "set.item_add", {
+        set,
+        text: "Which is a vital sign?\n- Hair colour\n* Pulse\n- Shoe size",
+      })
+    )["item"] as { itemId: string }
+  ).itemId;
+  await cmd(api, "set.item_update", {
+    set,
+    item,
+    text: "Which is a vital sign?\n- Hair colour\n* Pulse\n* Temperature",
+  });
+  const bad = await api("POST", "/api/v1/commands/set.item_add", {
+    input: { set, text: "No options at all" },
+  });
+  expect(bad.status).toBe(400);
+  await cmd(api, "set.item_delete", { set, item });
+  await cmd(api, "set.done", { id: set });
+});
