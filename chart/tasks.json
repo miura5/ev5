@@ -14751,12 +14751,12 @@
   "title": "Kit Segmented and TextOptions: roving arrow-key focus through Radix ToggleGroup",
   "dod": "Segmented (kit/components/Field) and TextOptions render through @radix-ui/react-toggle-group type single (unstyled); one Tab stop per group, arrows move focus; same look: visual baselines unchanged; keyboard and focus tests per component; area tests that select these by role still pass or are updated to role and name",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-788"
   ],
   "notes": "Slice write: kit/components/Field, kit/components/TextOptions, kit/index.ts, package.json, package-lock.json. Read: areas (tests that use these). After the Palette task, so the package files do not conflict.",
-  "commit": null,
+  "commit": "f9b8b90",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:43:23.193Z"
@@ -14767,15 +14767,17 @@
   "title": "Guard: a kit component that draws a menu, listbox, combobox or modal dialog must import Radix or cmdk",
   "dod": "A check in ops/checks fails when a kit/components/*.tsx (not a story or test) contains role=\"menu\", \"listbox\", \"combobox\", \"dialog\" or aria-modal, or handles ArrowDown/Escape keys itself, and imports nothing from @radix-ui/ or cmdk; a guard-failure fixture goes red (ops/guards, docs/guards.md); main is green with it on",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-787",
    "B-788",
    "B-789"
   ],
   "notes": "Slice write: ops/checks, ops/guards, docs/guards.md. Read: kit. Cheap text check, no parser needed.",
-  "commit": null,
-  "source": "supervisor (ev-build), 2026-11-04"
+  "commit": "ea92247",
+  "source": "supervisor (ev-build), 2026-11-04",
+  "claimedBy": "run30",
+  "claimedAt": "2026-11-04T02:05:23.372Z"
  },
  {
   "id": "B-791",
@@ -14812,7 +14814,7 @@
    "B-748",
    "B-784"
   ],
-  "notes": "Merged #187. Left: B-827, B-828, look vs mock-up.",
+  "notes": "Slice write: areas/notes, package.json, package-lock.json. Read: kit, commands, docs/spikes/S-08-notes-editor.md. CONTRACT §ui.mockup: unstyled primitives for behaviour only; the kit owns every pixel.",
   "commit": "619c331",
   "source": "ops/record",
   "claimedBy": "run30",
@@ -14824,10 +14826,10 @@
   "title": "Fix the kit gallery visual baselines (height 4989 vs 5529) so the visual job is green on main Done when: visual CI job passes on main",
   "dod": null,
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "Regenerate via dispatching visual-baselines.yml on a branch (needs Docker); then push one real commit.",
-  "commit": null,
+  "commit": "109dfe9",
   "source": "ops/record",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T01:37:06.391Z"
@@ -15253,5 +15255,33 @@
   "notes": "Audit (review F34, Q3): DECISIONS.md says only 'in the v2 doc's decision log'.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
+ },
+ {
+  "id": "B-827",
+  "kind": "task",
+  "title": "domain/index.ts exports noteBlocks and Run so the notes editor drops its local copy of ev4's key order and 20,000-character run cap Done when: areas/notes/parts/editorDoc.ts uses the domain export; round-trip tests still pass",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: domain (interface change), areas/notes.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-828",
+  "kind": "task",
+  "title": "Notes editor leftovers: 4,000-line and 400-run refusals (noteFits), unwrap a row once a column is empty, ev4's HTML paste sanitiser Done when: Each has a test from the S-08 behaviours",
+  "dod": null,
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-793"
+  ],
+  "notes": "Slice write: areas/notes. Stale empty branches claude/B-795-domain-noteblocks and claude/B-796-editor-leftovers (created by mistake in run 30) can be deleted.",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
