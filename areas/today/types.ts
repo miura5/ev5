@@ -55,6 +55,10 @@ export interface TodayProps {
   onOpen: (id: string) => void;
   /** The tick on a plan item: `done` is the state it should have afterwards. */
   onTick: (id: string, done: boolean) => void;
+  /** Add a plan item for today (plan.create); resolves false when it could not be saved. */
+  onAddPlan: (title: string) => Promise<boolean>;
+  /** Add a date (date.create); `date` is "YYYY-MM-DD". Resolves false when it could not be saved. */
+  onAddDate: (title: string, date: string) => Promise<boolean>;
   onAccept: () => void;
   onEdit: () => void;
   onDismiss: () => void;

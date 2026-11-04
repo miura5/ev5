@@ -1,4 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { todayArea } from "./area.ts";
 import { TodayView } from "./Today.view.tsx";
@@ -48,6 +55,8 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
   onStartNext: vi.fn(),
   onOpen: vi.fn(),
   onTick: vi.fn(),
+  onAddPlan: vi.fn(async () => true),
+  onAddDate: vi.fn(async () => true),
   onAccept: vi.fn(),
   onEdit: vi.fn(),
   onDismiss: vi.fn(),
@@ -57,7 +66,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
 test("today shows its sections and counts what is left", () => {
   render(<TodayView {...props()} />);
   expect(todayArea.route).toBe("/today");
-  for (const name of ["Plan", "Upcoming", "This week"])
+  for (const name of ["Plan", "Coming up", "This week"])
     expect(screen.getByRole("region", { name })).toBeTruthy();
   expect(screen.getByText("Exam 3 is Thursday.")).toBeTruthy();
   expect(
