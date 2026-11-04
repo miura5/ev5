@@ -15871,5 +15871,20 @@
   "notes": "Likely the same cause as the jobs poll loop (the parent re-renders resetting the count); check after that fix.",
   "commit": null,
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
+ },
+ {
+  "id": "B-872",
+  "kind": "task",
+  "title": "Screens use raw browser controls instead of kit components, and nothing stops it",
+  "dod": "A guard (ESLint no-restricted-syntax on JSX, or an ops/checks rule like radix.ts) fails when a file under areas/ or shell/ renders a raw <input>, <button>, <select> or <textarea>; only kit/ draws them (CONTRACT §ui.kit-leads). Every current view passes it with no allowlist: views use Button, Field, TextOptions and the other kit components, and each look the kit lacks (a checkbox for todo and check rows, a multi-line field for Ask's composer and the session answer, a choice list for practice options, tabs, a back crumb) is added to kit/ first with its story, test and /kit gallery entry. docs/guards.md gets a row with the observed red output, and ops/guards/guards.test.ts proves it goes red.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [
+   "B-860",
+   "B-863"
+  ],
+  "notes": "Split along the layers if over about 400 lines: kit gaps first, then the views, then the guard last so main stays green. Raw controls on 2026-11-04 (main cca08f8): the six token paste forms in the activity, collection, deleted, library, sessions and today screens (B-860 removes them); Notes.screen.tsx Title box and Save (B-863); checkboxes in notes/parts/NoteBlocks.tsx, sessions/NoteBlocks.tsx, Sessions.view.tsx; textareas in ask/parts/Composer.tsx and Sessions.view.tsx; radios in library/parts/PracticePanel.tsx; buttons in Library.view.tsx (accuracy line, tabs), Today.view.tsx (tick), Collection.view.tsx and NotePage.view.tsx (crumb, collection pick), notes/parts/CollectionTree.tsx (fold), shell/KitGallery.tsx (theme toggle).",
+  "commit": null,
+  "source": "Matt asked 2026-11-04 whether playtests can check staging against the design system; the supervisor filed this guard so unstyled controls fail the build"
  }
 ]
