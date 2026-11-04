@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { useDeleted } from "./useDeleted.ts";
 
@@ -19,7 +19,10 @@ function fakeCopy(kept: Record<string, unknown> = {}) {
   };
 }
 
-afterEach(() => {
+afterEach(async () => {
+  // Vitest runs without globals, so Testing Library does not unmount for us: unmount, then let any read still in flight finish before the stubs and storage go.
+  cleanup();
+  await new Promise((r) => setTimeout(r, 0));
   vi.unstubAllGlobals();
   localStorage.clear();
 });
@@ -42,7 +45,8 @@ const use = () => localStorage.setItem("ev5.token", "t");
 test("offline, the saved copy shows and no error is raised", async () => {
   use();
   offline();
-  const { result } = renderHook(() => useDeleted(fakeCopy(saved)));
+  const copy = fakeCopy(saved);
+  const { result } = renderHook(() => useDeleted(copy));
   await waitFor(() => expect(ready(result.current)).toBe(true));
   expect(result.current.error).toBeUndefined();
 });
@@ -53,7 +57,9 @@ test("a server error shows the error and keeps the saved copy", async () => {
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useDeleted(copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("Something went wrong on E.V.'s side. Try again in a moment."),
+    expect(result.current.error).toBe(
+      "Something went wrong on E.V.'s side. Try again in a moment.",
+    ),
   );
   expect(copy.kept).toEqual(saved);
 });
@@ -63,9 +69,7 @@ test("a 401 is not answered from the copy", async () => {
   status(401);
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useDeleted(copy));
-  await waitFor(() =>
-    expect(result.current.refused).toBe(true),
-  );
+  await waitFor(() => expect(result.current.refused).toBe(true));
   expect(result.current.items).toEqual([]);
   expect(ready(result.current)).toBe(false);
   expect(copy.kept).toEqual(saved);
