@@ -95,3 +95,4 @@ export { SidebarSearch } from "./components/SidebarSearch/SidebarSearch";
 export { WorkspaceLine } from "./components/WorkspaceLine/WorkspaceLine";
 export { ThemeButton } from "./components/ThemeButton/ThemeButton";
 export { Toast } from "./components/Toast/Toast";
+export { Menu, type MenuItem } from "./components/Menu/Menu";

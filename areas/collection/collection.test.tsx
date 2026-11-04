@@ -1,9 +1,41 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, expect, test, vi } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import { collectionArea } from "./area.ts";
 import { CollectionView, type CollectionEntry } from "./Collection.view.tsx";
 
-afterEach(cleanup);
+beforeAll(() => {
+  // jsdom lacks what Radix's popper and pointer handling read.
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+  Element.prototype.scrollIntoView ??= () => {};
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+});
+
+afterEach(async () => {
+  cleanup();
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 20));
+  });
+});
+
+const openMenu = async (name: string) => {
+  const t = screen.getAllByLabelText(name)[0]!;
+  t.focus();
+  await act(async () => {
+    fireEvent.keyDown(t, { key: "Enter" });
+    await new Promise((r) => setTimeout(r, 5));
+  });
+};
 
 const exam: CollectionEntry = {
   id: "d1",
@@ -131,4 +163,26 @@ test("pinned items are listed under Pinned, named from their docs", async () => 
   ).toContain("Insulin types");
   localStorage.clear();
   vi.unstubAllGlobals();
+});
+
+test("the item menu opens, pins or unpins, and deletes through item.* names", async () => {
+  const onItemAction = vi.fn();
+  render(
+    <CollectionView
+      {...base}
+      pinnedItems={[note]}
+      onItemAction={onItemAction}
+    />,
+  );
+  await openMenu("Actions for Cardiac drugs");
+  fireEvent.click(screen.getByText("Unpin"));
+  expect(onItemAction).toHaveBeenCalledWith("n1", "unpin");
+  await openMenu("Actions for Labs");
+  fireEvent.click(screen.getByText("Delete"));
+  expect(onItemAction).toHaveBeenCalledWith("c2", "delete");
+});
+
+test("no menu without an action handler", () => {
+  render(<CollectionView {...base} />);
+  expect(screen.queryByLabelText("Actions for Labs")).toBeNull();
 });
