@@ -131,7 +131,7 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-840 | Schedule consumer: scheduleEntries() drives the schedule route or is deleted Done when: Done when scheduleEntries() has a non-test caller or is removed, with a test | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
 | B-849 | Notes pictures in the editor: upload to PUT /api/v1/note-images/<name> and show with the app token Done when: A picture added in a note round-trips after reload on staging (CONTRACT §data.note-images) | B-818 | Phase 5 | in progress | Routes exist (server/image-routes.ts); editor half missing. Also export IMG_KEY from domain/note so the server stops repeating the regex. |
 | B-850 | Bind R2 on staging again: add the bucket step and r2_buckets binding back Done when: Staging deploy creates ev5-staging-images and IMAGES is bound; a picture PUT/GET works on staging | B-818 | Phase 5 | open | Waits on Matt adding R2 edit to the staging Cloudflare token (error 10000 on r2 bucket create). |
-| B-851 | Offline read copy: IndexedDB copy of the record in ev5-app, read when offline Done when: Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline) | B-817 | Phase 5 | open | B-817 merged the manifest and service worker (D-472) only. Also: PNG 192/512 icons if install needs them; code-split the 763 kB bundle. |
+| B-851 | Offline read copy: IndexedDB copy of the record in ev5-app, read when offline Done when: Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline) | B-817 | Phase 5 | in progress | B-817 merged the manifest and service worker (D-472) only. Also: PNG 192/512 icons if install needs them; code-split the 763 kB bundle. |
 
 ## Your turn
 
