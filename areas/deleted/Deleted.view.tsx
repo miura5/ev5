@@ -8,6 +8,8 @@ export interface DeletedItem {
   title: string;
   /** Plain words, e.g. "Nov 1". */
   deletedOn: string;
+  /** What it was, in plain words, e.g. "Note". */
+  kind?: string;
   /** The collection it was in, if any. */
   from?: string;
   daysLeft: number;
@@ -34,7 +36,7 @@ export function DeletedView({ items, onRestore }: DeletedViewProps) {
             <div className="ev-deleted-row">
               <Row
                 title={it.title}
-                meta={`deleted ${it.deletedOn}${it.from ? ` · from ${it.from}` : ""}`}
+                meta={`${it.kind ? `${it.kind} · ` : ""}deleted ${it.deletedOn}${it.from ? ` · from ${it.from}` : ""}`}
                 value={`${it.daysLeft} days left`}
                 glyph={<Glyph type={it.type} />}
               />
