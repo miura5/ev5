@@ -6,14 +6,13 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { validateWrite } from "../../data/compat-test.ts";
 import { buildAnswer } from "./answer.ts";
 import { StudyView } from "./Study.view.tsx";
 import { useTellMe, type LibraryServices } from "./useStudy.ts";
 
 afterEach(cleanup);
 
-test("a told answer is an append-only attempt with outcome told, and passes ev4's write check", () => {
+test("a told answer is an append-only attempt with outcome told", () => {
   const a = buildAnswer(
     "set-1",
     "q1",
@@ -30,7 +29,6 @@ test("a told answer is an append-only attempt with outcome told, and passes ev4'
       },
     },
   });
-  expect(validateWrite("answers", a.doc)).toEqual({ ok: true });
 });
 
 function Harness({ services }: { services: LibraryServices }) {

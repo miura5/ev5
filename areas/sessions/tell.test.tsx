@@ -41,13 +41,11 @@ test("the screen has no open check yet, so no Just tell me tap is offered there"
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal(
     "fetch",
-    vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({ docs: [] }),
-      }),
+    vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ docs: [] }),
+    }),
   );
   render(<SessionsScreen />);
   await waitFor(() => expect(screen.getByText("Pause")).toBeTruthy());

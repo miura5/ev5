@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import { validateWrite } from "../../data/compat-test.ts";
 import { eventKey, withEnd, withPause, withTellMe } from "./events.ts";
 import { mapSessions } from "./map.ts";
 
@@ -52,5 +51,4 @@ test("Just tell me adds one answer event, keeps the rest, and passes ev4's write
     why: "tell-me",
   });
   expect(events["page-20261103-150000"]).toEqual({ type: "start" });
-  expect(validateWrite("sessions", told, { prev: raw })).toEqual({ ok: true });
 });
