@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Toast } from "../../kit/index.ts";
+import { Doc, Toast } from "../../kit/index.ts";
 import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
@@ -25,22 +25,25 @@ export function SessionsScreen({
   const stopped = paused || !!data?.ended || closed;
   const togglePause = () => {
     if (!data || data.ended) return;
-    void save(withPause(data.raw, !paused, new Date(), rand()));
+    void save((raw) => withPause(raw, !paused, new Date(), rand()));
   };
   // One append-only event on the session; the screen has no open check yet, so no answer is shown (Sessions.view answer).
   const tellMe = async () => {
     if (data && !data.ended)
-      await save(withTellMe(data.raw, new Date(), rand()));
+      await save((raw) => withTellMe(raw, new Date(), rand()));
   };
   const end = async () => {
     if (!data || data.ended) return setClosed(true);
     const now = new Date();
-    const doc = parseSession(data.raw);
-    const minutes = sessionState(
-      { ...doc, id: data.id },
-      now.getTime(),
-    ).minutes;
-    if (await save(withEnd(data.raw, minutes, now, rand()))) setSaved(true);
+    // Built on the latest stored document, so a pause just written is in it and its time is not counted.
+    const ok = await save((raw) => {
+      const minutes = sessionState(
+        { ...parseSession(raw), id: data.id },
+        now.getTime(),
+      ).minutes;
+      return withEnd(raw, minutes, now, rand());
+    });
+    if (ok) setSaved(true);
   };
   // Space pauses or resumes unless he is typing or on a control; Esc leaves the field he is typing in.
   const act = useRef({ togglePause });
@@ -75,11 +78,14 @@ export function SessionsScreen({
         <p className="ev-session-meta">
           Closed on this screen; nothing was saved.
         </p>
+      ) : !data ? (
+        // No running session: the empty line only, no bar, Pause or End (design/mockup.html).
+        <Doc title="Study session" meta="no session yet" />
       ) : (
         <SessionView
-          title={data?.title ?? "Study session"}
-          meta={data?.meta ?? "no session yet"}
-          seconds={(data?.seconds ?? 0) + (data ? extra : 0)}
+          title={data.title}
+          meta={data.meta}
+          seconds={data.seconds + extra}
           paused={paused}
           checks={[]}
           onTogglePause={togglePause}

@@ -48,6 +48,6 @@ test("the screen has no open check yet, so no Just tell me tap is offered there"
     }),
   );
   render(<SessionsScreen />);
-  await waitFor(() => expect(screen.getByText("Pause")).toBeTruthy());
+  await screen.findByText("no session yet");
   expect(screen.queryByText("Just tell me")).toBeNull();
 });

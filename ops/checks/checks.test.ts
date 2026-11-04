@@ -46,6 +46,11 @@ test('controls: a view under areas/ or shell/ draws no raw input, button, select
   assert.deepEqual(checkControls(r.root, r.files).map(f => f.file).sort(), ['areas/a/A.view.tsx', 'shell/S.tsx']);
 });
 
+test('controls: a kit checkbox input without a className is the browser\'s own box', () => {
+  const r = repo({ 'kit/components/A/A.tsx': '<input type="checkbox" checked />', 'kit/components/B/B.tsx': '<input className="x" type="checkbox" />' });
+  assert.deepEqual(checkControls(r.root, r.files).map(f => f.file), ['kit/components/A/A.tsx']);
+});
+
 test('registry: tool, command and schedule definitions outside commands/ fail', () => {
   const r = repo({ 'jobs/x.ts': 'const t = { name: "a", input_schema: {} };', 'server/s.ts': 'defineCommand(x)', 'wrangler.toml': 'crons = ["0 * * * *"]',
     'commands/ok.command.ts': 'defineCommand(x); const t = { input_schema: {} };', 'jobs/clean.ts': 'export const a = 1;' });
