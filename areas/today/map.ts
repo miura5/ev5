@@ -110,11 +110,29 @@ function planItems(doc: WireDoc | undefined): PlanItem[] {
     .map(([k, a]) => ({
       id: k,
       title: a.text,
-      meta: KINDS[a.kind] ?? a.kind,
+      meta:
+        a.kind === "todo"
+          ? "added by you"
+          : `${KINDS[a.kind] ?? a.kind} · added by you`,
       est: a.minutes ? `${a.minutes}m` : "",
       done: !!o.checks?.[k],
       tone: "ok" as const,
     }));
+}
+
+/** The E.V. line from the day's plan, open or done; none when the plan is empty. */
+function planSay(plan: PlanItem[]): TodayData["say"] | undefined {
+  if (plan.length === 0) return undefined;
+  const left = plan.filter((p) => !p.done).length;
+  return left === 0
+    ? {
+        lead: "Today's plan is done.",
+        rest: `${plan.length} ${plan.length === 1 ? "item" : "items"} ticked off.`,
+      }
+    : {
+        lead: `${left} ${left === 1 ? "item is" : "items are"} left on today's plan.`,
+        rest: `${plan.length - left} done so far.`,
+      };
 }
 
 /** Maps the documents Today reads to the view's props; no data gives the empty state, never an error. */
@@ -156,6 +174,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });
+  const plan = planItems(docs.dayedit);
   const weekEnd = addDays(today, 6);
   const thisWeek: ThisWeekItem[] = exams
     .filter((e) => (e.exam.date as string) <= weekEnd)
@@ -183,9 +202,9 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
             rest: `Start with ${weakest.v.topic}.`,
             source: cite,
           }
-        : {
+        : (planSay(plan) ?? {
             lead: "Nothing planned yet.",
             rest: "Your plan for today will appear here.",
-          };
-  return { say, plan: planItems(docs.dayedit), upcoming, thisWeek };
+          });
+  return { say, plan, upcoming, thisWeek };
 }
