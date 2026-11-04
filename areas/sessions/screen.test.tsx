@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -78,6 +79,46 @@ test("Space pauses and resumes, but not while typing; Esc leaves a field", async
   fireEvent.keyDown(field, { key: "Escape" });
   expect(document.activeElement).not.toBe(field);
   field.remove();
+});
+
+test("the timer counts up each second while running and holds while paused", async () => {
+  stub();
+  session.data.startedAt = new Date().toISOString();
+  // the server keeps what is written, so the pause comes back on the re-read
+  let stored: Record<string, unknown> = session.data;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        stored = JSON.parse(String(init.body)) as Record<string, unknown>;
+        return { ok: true, status: 200, json: async () => ({}) };
+      }
+      const json = url.includes("collection=notes")
+        ? note
+        : { docs: [{ ...session, data: stored }] };
+      return { ok: true, status: 200, json: async () => json };
+    }),
+  );
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  try {
+    render(<SessionsScreen />);
+    await screen.findByText("Cardiac output");
+    const timer = () =>
+      document.querySelector('[data-ui="timer"]')?.textContent;
+    expect(timer()).toBe("0:00");
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    expect(timer()).toBe("0:01");
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    expect(timer()).toBe("0:02");
+    fireEvent.keyDown(document.body, { key: " " });
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    const held = timer();
+    await act(() => vi.advanceTimersByTimeAsync(3000));
+    expect(timer()).toBe(held);
+  } finally {
+    vi.useRealTimers();
+    session.data.startedAt = new Date(Date.now() - 60_000).toISOString();
+  }
 });
 
 test("a todo block in the note is a real check that saves the note", async () => {
