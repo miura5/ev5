@@ -6,20 +6,18 @@ import { NotesView } from "./Notes.view.tsx";
 import { toPage, toSummary } from "./map.ts";
 import { useNotes, type NotesServices } from "./useNotes.ts";
 
-/** The mounted view: notes from the document routes; a title edit saves through the outbox, so it works offline. */
+/** The mounted view: notes from the document routes; the title is the note's first heading, edited in place in the editor, and saves through the outbox, so it works offline. */
 export function NotesScreen({ services }: { services?: NotesServices }) {
   const {
     notes,
     error,
     saveState,
-    saveTitle,
     saveBlocks,
     createNote,
     collections,
     members,
   } = useNotes(services);
   const [open, setOpen] = useState<string>();
-  const [draft, setDraft] = useState("");
   const cur = notes.find((n) => n.id === open);
   if (!cur)
     return (
@@ -36,38 +34,15 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
           collections={collections}
           onNewNote={() =>
             void createNote().then((id) => {
-              if (id) {
-                setOpen(id);
-                setDraft("Untitled");
-              }
+              if (id) setOpen(id);
             })
           }
-          onOpenNote={(id) => {
-            setOpen(id);
-            setDraft(notes.find((n) => n.id === id)?.note.title ?? "");
-          }}
+          onOpenNote={setOpen}
         />
       </>
     );
   return (
     <>
-      <form
-        className="ev-notes-titleedit"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void saveTitle(cur.id, draft);
-        }}
-      >
-        <label className="ev-notes-meta" htmlFor="ev-note-title">
-          Title
-        </label>
-        <input
-          id="ev-note-title"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-        <button type="submit">Save</button>
-      </form>
       <NotePageView
         note={{
           ...toPage(cur.id, cur.note, saveState),

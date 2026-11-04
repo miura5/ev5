@@ -82,7 +82,9 @@ export function NotePageView({
             </Button>
           )}
         </div>
-        <h1 className="ev-notes-doctitle">{note.title}</h1>
+        {note.body[0]?.type === "h1" ? null : (
+          <h1 className="ev-notes-doctitle">{note.title}</h1>
+        )}
         {editor ?? <NoteBlocks body={note.body} />}
       </div>
     </section>

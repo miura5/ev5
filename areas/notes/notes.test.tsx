@@ -117,3 +117,14 @@ test("note page shows meta and blocks, session bar only in a session", () => {
   fireEvent.click(screen.getByRole("button", { name: /Pause/ }));
   expect(onPause).toHaveBeenCalled();
 });
+
+test("a titled note shows its title once; an untitled one shows Untitled once", () => {
+  const titled: NotePageData = {
+    ...page,
+    body: [{ type: "h1", runs: [{ text: "Cardiac output" }] }, ...page.body],
+  };
+  const { rerender } = render(<NotePageView note={titled} />);
+  expect(screen.getAllByText("Cardiac output")).toHaveLength(1);
+  rerender(<NotePageView note={{ ...page, title: "Untitled" }} />);
+  expect(screen.getAllByText("Untitled")).toHaveLength(1);
+});
