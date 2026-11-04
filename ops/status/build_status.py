@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Build one status snapshot of the E.V. v5 build (public repo miura5/ev5) as JSON on stdout.
 
-Reads only public GitHub data, no token: about 6 to 12 REST calls plus two raw files.
-The "ev5 build" page shows this snapshot. Run it, then write the output to the page's
-db document status/now. Thresholds follow the build manager's rules: a lock held over
+Reads only public GitHub data: about 7 to 13 REST calls plus two raw files. It needs no
+token; in GitHub Actions it sends GH_TOKEN (the workflow's own read token) to avoid the
+anonymous rate limit. The workflow .github/workflows/status.yml publishes the output to the
+branch status-feed as status.json; the "ev5 build" page shows it as its db document status/now. Thresholds follow the build manager's rules: a lock held over
 75 min, a PR open over 2 h or failing, and no merge for 3 h are flagged.
 """
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -20,7 +22,11 @@ NOW = datetime.now(timezone.utc)
 
 
 def get(url, raw=False):
-    req = urllib.request.Request(url, headers={"User-Agent": "ev5-status", "Accept": "application/vnd.github+json"})
+    headers = {"User-Agent": "ev5-status", "Accept": "application/vnd.github+json"}
+    token = os.environ.get("GH_TOKEN")
+    if token and url.startswith(API):
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode()
     return body if raw else json.loads(body)
@@ -167,7 +173,15 @@ def main():
     handover = {"phase": line("Phase"), "running": line("Running"), "waiting": line("Waiting on Matt"),
                 "next": next_items, "staging": staging_line}
 
-    # 6. Drift fixes from the Chart
+    # 6. Comments a person wrote on issue #1 ("For Matt") in the last 24 hours
+    since = iso(NOW - timedelta(hours=24))
+    matt = [
+        {"at": c["created_at"], "url": c["html_url"], "text": c["body"][:300]}
+        for c in get(f"{API}/issues/1/comments?since={since}&per_page=50")
+        if c["user"]["type"] == "User" and ts(c["created_at"]) >= ts(since)
+    ]
+
+    # 7. Drift fixes from the Chart
 
     def group(lo, hi):
         items = [t for t in tasks if lo <= task_num(t["id"]) <= hi]
@@ -189,6 +203,7 @@ def main():
         "main": main_ci,
         "alerts": alerts,
         "handover": handover,
+        "mattComments": matt,
         "drift": drift,
     }, ensure_ascii=False))
 
