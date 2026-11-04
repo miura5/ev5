@@ -1,10 +1,12 @@
 import {
   centralDate,
+  inDays,
   deriveWeakSpot,
   examDaysLeft,
   parseExam,
   parseSet,
   parseWeakSpot,
+  plainDay,
 } from "../../domain/index.ts";
 import type {
   LibraryExam,
@@ -68,7 +70,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       const due = d.nextDue
         ? d.nextDue <= today
           ? "due today"
-          : `due ${d.nextDue}`
+          : `due ${plainDay(d.nextDue, today)}`
         : "";
       return {
         id,
@@ -96,7 +98,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       ).length;
       const left = examDaysLeft(v, today);
       const when = v.date
-        ? `${v.date}${left !== null && left >= 0 ? ` · in ${left}d` : ""}`
+        ? `${plainDay(v.date, today)}${left !== null && left >= 0 ? ` · ${inDays(left)}` : ""}`
         : "no date";
       return {
         id,

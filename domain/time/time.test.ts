@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, centralDate, centralParts, centralToInstant, daysUntil, isDue, isOverdue, occurrences, occursOn, repeatKey } from './index.ts';
+import { addDays, centralDate, centralParts, centralToInstant, daysUntil, inDays, isDue, plainDay, isOverdue, occurrences, occursOn, repeatKey } from './index.ts';
 
 describe('Central dates across daylight saving', () => {
   it('fall back 2026-11-01: 01:30 happens twice, the day has 25 hours', () => {
@@ -56,5 +56,18 @@ describe('repeat rules', () => {
     expect(addDays('2026-10-31', 2)).toBe('2026-11-02');
     expect(addDays('2027-03-13', 2)).toBe('2027-03-15');
     expect(repeatKey('abc', '2026-11-03')).toBe('rep-abc-2026-11-03');
+  });
+});
+
+describe('plain dates', () => {
+  it('names a day, with the year only when it is not this year', () => {
+    expect(plainDay('2026-12-01', '2026-11-04')).toBe('Dec 1');
+    expect(plainDay('2027-12-01', '2026-11-04')).toBe('Dec 1, 2027');
+    expect(plainDay('2026-11-04T15:00:00.000Z', '2026-11-04')).toBe('Nov 4');
+  });
+  it('says time left in words, never 392d', () => {
+    expect(inDays(0)).toBe('today');
+    expect(inDays(1)).toBe('in 1 day');
+    expect(inDays(392)).toBe('in 392 days');
   });
 });

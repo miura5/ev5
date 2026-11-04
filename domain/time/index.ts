@@ -94,3 +94,15 @@ export function occurrences(rule: Repeat, from: string, to: string): string[] {
 
 /** The idempotent key a repeat's occurrence is stored under in dayedits.added. */
 export const repeatKey = (id: string, date: string): string => `rep-${id}-${date}`;
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** A day in plain words: 'Dec 1', with the year when it is not `today`'s year ('Dec 1, 2027'). */
+export function plainDay(date: string, today: string): string {
+  const [y, m, d] = date.slice(0, 10).split('-').map(Number);
+  const label = `${MONTHS[(m ?? 1) - 1]} ${d}`;
+  return y === Number(today.slice(0, 4)) ? label : `${label}, ${y}`;
+}
+
+/** Time left in plain words: 'today', 'in 1 day', 'in N days'. */
+export const inDays = (n: number): string => (n === 0 ? 'today' : `in ${n} ${n === 1 ? 'day' : 'days'}`);

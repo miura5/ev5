@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { centralDate } from "../../domain/index.ts";
 import { Toast } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NoteEditor } from "./parts/NoteEditor.tsx";
@@ -18,18 +19,23 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
     members,
   } = useNotes(services);
   const [open, setOpen] = useState<string>();
+  const today = centralDate(Date.now());
   const cur = notes.find((n) => n.id === open);
   if (!cur)
     return (
       <>
         {error ? <Toast message={error} /> : null}
         <NotesView
-          notes={notes
+          notes={[...notes]
+            .sort((a, b) =>
+              (b.note.editedAt ?? b.note.at).localeCompare(
+                a.note.editedAt ?? a.note.at,
+              ),
+            )
             .map((n) => ({
-              ...toSummary(n.id, n.note),
+              ...toSummary(n.id, n.note, today),
               collectionId: members.get(n.id) ?? null,
-            }))
-            .sort((a, b) => b.when.localeCompare(a.when))}
+            }))}
           failed={!!error}
           collections={collections}
           onNewNote={() =>
@@ -45,7 +51,7 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
     <>
       <NotePageView
         note={{
-          ...toPage(cur.id, cur.note, saveState),
+          ...toPage(cur.id, cur.note, saveState, today),
           collectionName:
             collections.find((c) => c.id === members.get(cur.id))?.title ??
             cur.note.course ??

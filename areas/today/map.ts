@@ -1,10 +1,12 @@
 import {
   addDays,
   centralDate,
+  inDays,
   deriveWeakSpot,
   examDaysLeft,
   parseExam,
   parseWeakSpot,
+  plainDay,
 } from "../../domain/index.ts";
 import type { Exam } from "../../domain/index.ts";
 import type {
@@ -49,20 +51,6 @@ export function spendAlertLine(
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 const KINDS: Record<string, string> = {
   todo: "to do",
   reading: "reading",
@@ -87,17 +75,13 @@ function tryParse<T>(
 }
 
 /** "Thu" inside the next week, else "Nov 9". */
-function whenLabel(date: string, left: number): string {
+function whenLabel(date: string, left: number, today: string): string {
   const at = new Date(`${date}T00:00:00Z`);
-  return left < 7
-    ? (DAYS[at.getUTCDay()] ?? "")
-    : `${MONTHS[at.getUTCMonth()]} ${at.getUTCDate()}`;
+  return left < 7 ? (DAYS[at.getUTCDay()] ?? "") : plainDay(date, today);
 }
 
 const toneFor = (left: number): CourseTone =>
   left <= 3 ? "bad" : left <= 7 ? "warn" : "info";
-const inDays = (n: number) =>
-  n === 0 ? "today" : `in ${n} ${n === 1 ? "day" : "days"}`;
 
 function planItems(doc: WireDoc | undefined): PlanItem[] {
   const o = (doc?.data ?? {}) as {
@@ -169,7 +153,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       id,
       title: exam.title,
       meta: inDays(left),
-      when: whenLabel(exam.date as string, left),
+      when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
@@ -182,7 +166,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       id: `w-${id}`,
       title: exam.title,
       meta: exam.kind,
-      when: whenLabel(exam.date as string, left),
+      when: whenLabel(exam.date as string, left, today),
     }));
   const weakest = [...open].sort((a, b) => b.d.misses - a.d.misses)[0];
   const next = exams[0];
