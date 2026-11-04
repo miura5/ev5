@@ -41,7 +41,7 @@ async function setup() {
       .first<{ data: string }>();
     return r ? (JSON.parse(r.data) as Record<string, any>) : null;
   };
-  return { call, doc };
+  return { call, doc, DB };
 }
 
 test("an E.V. plan.create makes a Suggestion that Matt accepts into his day", async () => {
@@ -136,7 +136,7 @@ test("update, move to tomorrow and toggle keep every write one ev4 accepts", asy
     404,
   );
   assert.equal(
-    (await call("plan.create", { title: "x", repeat: "daily" })).status,
+    (await call("plan.create", { title: "x", repeat: "sometimes" })).status,
     400,
   );
 });
@@ -150,4 +150,108 @@ test("no command Matt calls directly answers 501 for the commands these handlers
     (x) => /^(plan|proposal)\./.test(x.name) && x.callers.matt,
   ))
     assert.ok(covered.includes(c.name), `${c.name} has no handler`);
+});
+
+test("a repeat is saved and materializes into dayedits.added under rep-<id>-<date>", async () => {
+  const { call, doc, DB } = await setup();
+  const made = await call("plan.create", {
+    title: "Flashcards",
+    date: "2026-11-05",
+    estimateMinutes: 15,
+    time: "20:00",
+    repeat: "weekdays",
+  });
+  assert.equal(made.status, 200);
+  const { id } = made.body.result;
+  const props = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
+    .bind(id)
+    .first<Record<string, any>>();
+  assert.equal(props?.time, "20:00");
+  assert.deepEqual(JSON.parse(props?.repeat), { kind: "weekdays" });
+  // 2026-11-05 is a Thursday: Fri 6, then Mon 9 .. Fri 13, Mon 16 .. Thu 19 (14 days ahead)
+  const fri = await doc("dayedits", "2026-11-06");
+  assert.equal(fri?.added[`rep-${id}-2026-11-06`].text, "Flashcards");
+  assert.equal(fri?.added[`rep-${id}-2026-11-06`].minutes, 15);
+  assert.equal(await doc("dayedits", "2026-11-07"), null); // a Saturday
+  assert.ok((await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`]);
+  for (const d of ["2026-11-05", "2026-11-06", "2026-11-09", "2026-11-19"])
+    assert.deepEqual(
+      validateWrite("dayedits", await doc("dayedits", d), { id: d }),
+      { ok: true },
+      d,
+    );
+  // an update re-runs it: nothing doubles, and Matt's edit to an occurrence stays
+  const before = (await doc("dayedits", "2026-11-06"))?.v;
+  assert.equal((await call("plan.update", { id, estimateMinutes: 20 })).status, 200);
+  assert.equal(
+    Object.keys((await doc("dayedits", "2026-11-06"))?.added).length,
+    1,
+  );
+  assert.equal((await doc("dayedits", "2026-11-06"))?.v, before);
+  // clearing the repeat keeps the time
+  assert.equal((await call("plan.update", { id, repeat: "none" })).status, 200);
+  const cleared = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
+    .bind(id)
+    .first<Record<string, any>>();
+  assert.equal(cleared?.repeat, null);
+  assert.equal(cleared?.time, "20:00");
+});
+
+test("a link and a collection are kept, and a bad option writes nothing", async () => {
+  const { call, doc, DB } = await setup();
+  await DB.prepare(
+    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('c1', 'Skills', NULL, 0, 1, 1)",
+  ).run();
+  const { id } = (
+    await call("plan.create", {
+      title: "Lab",
+      date: "2026-11-05",
+      linked: "exams/e1",
+      collection: "c1",
+    })
+  ).body.result;
+  const p = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
+    .bind(id)
+    .first<Record<string, any>>();
+  assert.equal(p?.linked_c, "exams");
+  assert.equal(p?.linked_id, "e1");
+  const m = await DB.prepare("SELECT * FROM memberships WHERE item_id = ?")
+    .bind(id)
+    .first<Record<string, any>>();
+  assert.equal(m?.collection_id, "c1");
+  // into a course: ev4's field, the row goes
+  assert.equal(
+    (await call("plan.update", { id, collection: "course:NUR 112" })).status,
+    200,
+  );
+  assert.equal((await doc("dayedits", "2026-11-05"))?.added[id].course, "NUR 112");
+  assert.equal(
+    await DB.prepare("SELECT * FROM memberships WHERE item_id = ?").bind(id).first(),
+    null,
+  );
+  assert.deepEqual(
+    validateWrite("dayedits", await doc("dayedits", "2026-11-05"), { id: "2026-11-05" }),
+    { ok: true },
+  );
+  for (const bad of [
+    { linked: "nowhere" },
+    { collection: "missing" },
+    { time: "25:00" },
+    { repeat: "weekly:9" },
+  ])
+    assert.equal(
+      (await call("plan.create", { title: "Bad", date: "2026-11-08", ...bad })).status,
+      400,
+      JSON.stringify(bad),
+    );
+  assert.equal(await doc("dayedits", "2026-11-08"), null);
+});
+
+test("a repeat is a Suggestion until Matt accepts it", async () => {
+  const { call, doc } = await setup();
+  const s = await call("plan.create", { title: "R", date: "2026-11-05", repeat: "daily" }, "ev");
+  assert.equal(s.status, 202);
+  assert.equal(await doc("dayedits", "2026-11-06"), null);
+  assert.equal((await call("proposal.accept", { id: s.body.suggestion.id })).status, 200);
+  assert.ok(await doc("dayedits", "2026-11-06"));
 });
