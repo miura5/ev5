@@ -16,7 +16,7 @@ test('counts parsed, unchecked and failed documents per collection', () => {
     exp([row('exams', 'a', exam), row('exams', 'b', { ...exam, kind: 'nope' }), row('talk', 't', { x: 1 })]) as never,
     PARSERS,
   );
-  assert.deepEqual(r.exams, { docs: 2, ok: 1, unchecked: 0, errors: { 'exam: bad kind': 1 } });
+  assert.deepEqual(r.exams, { docs: 2, ok: 1, unchecked: 0, errors: { 'invalid value: kind': 1 } });
   assert.deepEqual(r.talk, { docs: 1, ok: 0, unchecked: 1, errors: {} });
   assert.equal(errorTotal(r), 1);
 });

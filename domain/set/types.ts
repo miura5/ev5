@@ -1,52 +1,85 @@
 // Set document (ev4 sets schema 3, frozen in data/compat/schemas/sets.schema.json). Items never change once written;
 // answers live in their own collection keyed by set id and item id, so a set holds no answers.
+import { z } from 'zod';
+
 export const SET_KINDS = ['review', 'drill', 'sim', 'more', 'job', 'check'] as const;
 export const ITEM_TYPES = ['single', 'sata', 'matrix', 'numeric', 'open'] as const;
 export const SET_WRITERS = ['morning', 'worker', 'page'] as const;
 
-export type MatrixRow = { text: string; correct: number; rationale?: string };
-export type KeyPoint = { text: string; keywords: string[][] };
+const text = z.string().min(1);
+const nonNeg = z.number().int().min(0);
+const matrixRowSchema = z.looseObject({
+  text,
+  correct: nonNeg,
+  rationale: z.string().optional(),
+});
+/** @public */
+export type MatrixRow = z.infer<typeof matrixRowSchema>;
+const keyPointSchema = z.looseObject({
+  text: z.string(),
+  keywords: z.array(z.array(text).min(1)).min(1),
+});
+/** @public */
+export type KeyPoint = z.infer<typeof keyPointSchema>;
+const chapters = z.union([z.string(), z.array(z.union([z.string(), z.number()]))]);
 
-export type SetItem = {
-  id: string;
-  stem: string;
-  kind?: string;
-  type?: (typeof ITEM_TYPES)[number];
-  options?: string[];
-  correct?: number[];
-  rationales?: string[];
-  matrix?: { columns: string[]; rows: MatrixRow[] };
-  answer?: number;
-  unit?: string;
-  tolerance?: number;
-  steps?: string[];
-  weakspotId?: string;
-  objective?: string;
-  topic?: string;
-  cjStep?: string;
-  verify?: boolean;
-  sourceRef?: string | null;
-  chapters?: (string | number)[] | string;
-  keyPoints?: KeyPoint[];
-  modelAnswer?: string;
-};
+const setItemSchema = z.strictObject({
+  id: text,
+  stem: z.string(),
+  kind: z.string().optional(),
+  type: z.enum(ITEM_TYPES).optional(),
+  options: z.array(text).max(6).optional(),
+  correct: z.array(nonNeg).min(1).optional(),
+  rationales: z.array(z.string()).optional(),
+  matrix: z
+    .looseObject({
+      columns: z.array(z.string()).min(2).max(4),
+      rows: z.array(matrixRowSchema).min(3).max(6),
+    })
+    .optional(),
+  answer: z.number().optional(),
+  unit: text.optional(),
+  tolerance: z.number().min(0).optional(),
+  steps: z.array(z.string()).min(1).max(12).optional(),
+  weakspotId: z.string().optional(),
+  objective: z.string().optional(),
+  topic: z.string().optional(),
+  cjStep: z.string().optional(),
+  verify: z.boolean().optional(),
+  sourceRef: z
+    .string()
+    .regex(/^(materials|note)\//)
+    .nullish(),
+  chapters: chapters.optional(),
+  keyPoints: z.array(keyPointSchema).min(2).max(3).optional(),
+  modelAnswer: text.optional(),
+});
+export type SetItem = z.infer<typeof setItemSchema>;
 
-export type StudySet = {
-  schema: 3;
-  writer: (typeof SET_WRITERS)[number];
-  at: string;
-  source: string;
-  kind: (typeof SET_KINDS)[number];
-  items: SetItem[];
-  title?: string;
-  date?: string;
-  exam?: string | null;
-  planTaskId?: string;
-  objectives?: string[];
-  focus?: string | string[] | null;
-  asked?: number;
-  createdAt?: string;
-};
+// answers and pastAttempts are refused because the object is strict: a set holds no answers.
+export const studySetSchema = z.strictObject({
+  schema: z.literal(3),
+  writer: z.enum(SET_WRITERS),
+  at: text,
+  source: text,
+  kind: z.enum(SET_KINDS),
+  items: z.array(setItemSchema).min(1),
+  title: z.string().optional(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  exam: z.string().nullable().optional(),
+  planTaskId: z.string().optional(),
+  objectives: z.array(z.string()).optional(),
+  focus: z
+    .union([z.string(), z.array(z.string())])
+    .nullable()
+    .optional(),
+  asked: z.number().int().min(1).optional(),
+  createdAt: z.string().optional(),
+});
+export type StudySet = z.infer<typeof studySetSchema>;
 
 /** One answer to an item: the options chosen (single, sata), or one column per row (matrix). */
 export type Chosen = number[];

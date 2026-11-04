@@ -88,3 +88,9 @@ test("spendAlertLine finds the needs-you spend alert only", () => {
   expect(spendAlertLine([j("study-plan", "needs-you", "x")])).toBeUndefined();
   expect(spendAlertLine([j("spend-alert", "needs-you", "over")])).toBe("over");
 });
+
+test("Today's spend line is gone once the alert is acknowledged", () => {
+  const line = { kind: "spend-alert", summary: "80% used" };
+  expect(spendAlertLine([{ ...line, state: "needs-you" }])).toBe("80% used");
+  expect(spendAlertLine([{ ...line, state: "done" }])).toBeUndefined();
+});

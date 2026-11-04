@@ -2,6 +2,7 @@
 // Auth is applied by index.ts before these run. Callers reach /jobs/ by scope; only the app token may reach /ceilings.
 import { Hono } from "hono";
 import {
+  acknowledgeSpendAlert,
   cloudflareAdapter,
   d1JobStore,
   continueJob,
@@ -88,6 +89,21 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   const { answer } = await body(c.req.raw);
   const next = await continueJob(startEnv(c.env, def), def, rec.id, answer);
   return c.json({ job: next }, 202);
+});
+
+// Matt's acknowledge on the monthly spend alert closes it (done); only the app token, only that kind.
+jobRoutes.post("/jobs/:id/dismiss", async (c) => {
+  if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
+  const store = d1JobStore(c.env.DB, () => Date.now());
+  const rec = await store.get(c.req.param("id"));
+  if (!rec) return c.json({ error: "not found" }, 404);
+  try {
+    return c.json({
+      job: await acknowledgeSpendAlert(store, rec.id, new Date()),
+    });
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 409);
+  }
 });
 
 jobRoutes.get("/jobs/:id", async (c) => {
