@@ -57,10 +57,50 @@ function commandNamesOf(root: string): string[] {
   return commandFiles(root).flatMap(f => [...read(root, `commands/${f}`).matchAll(/\bname:\s*'([^']+)'/g)].map(m => m[1]!));
 }
 
+const CLIENT_BODY = `
+// The one door from the screens to the server (CONTRACT §cmd.registry, §drift.imports): areas and the shell call
+// commands and read the API here, never with a raw fetch of their own.
+export interface ApiOptions {
+  method?: string;
+  body?: unknown;
+}
+
+/** An /api/v1 request with the app token Matt keeps in this browser. \`path\` is relative to /api/v1. */
+export function api(path: string, token: string, o: ApiOptions = {}): Promise<Response> {
+  const headers: Record<string, string> = { authorization: \`Bearer \${token}\` };
+  if (o.body !== undefined) headers["content-type"] = "application/json";
+  return fetch(\`/api/v1/\${path}\`, {
+    method: o.method ?? (o.body === undefined ? "GET" : "POST"),
+    headers,
+    ...(o.body === undefined ? {} : { body: JSON.stringify(o.body) }),
+  });
+}
+
+/** What the command route answers: a Suggestion for an E.V. propose call, or the handler's result. */
+export type CallResult =
+  | { ok: true; mode: "direct" | "propose"; suggestion?: { command: string; input: unknown; title: string }; result?: unknown }
+  | { ok: false; status: number; reason: string };
+
+/** Call a registry command by name; the server checks the caller and the input (§cmd.propose). */
+export async function call(name: CommandName, input: unknown, token: string): Promise<CallResult> {
+  const r = await api(\`commands/\${name}\`, token, { body: { input } });
+  const b = (await r.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!r.ok) return { ok: false, status: r.status, reason: String(b.error ?? "failed") };
+  return { ok: true, mode: b.mode as "direct" | "propose", suggestion: b.suggestion as never, result: b.result };
+}
+
+/** Job helpers: the activity list, one job, and answering a job that needs you. */
+export const jobApi = {
+  list: (token: string) => api("jobs", token),
+  get: (id: string, token: string) => api(\`jobs/\${encodeURIComponent(id)}\`, token),
+  answer: (id: string, answer: unknown, token: string) => api(\`jobs/\${encodeURIComponent(id)}/continue\`, token, { body: { answer } }),
+};
+`;
+
 export function clientFile(root: string): string {
   const names = commandNamesOf(root);
   const union = names.length ? names.map(n => JSON.stringify(n)).join(' | ') : 'never';
-  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', ''].join('\n');
+  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', CLIENT_BODY].join('\n');
 }
 
 /** commands/all.generated.ts: every command array exported by a *.command.ts file, joined for the catalog. */

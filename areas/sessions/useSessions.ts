@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { parseNote, type Note } from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
 import type { SessionData, WireDoc } from "./map.ts";
+import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -39,15 +40,12 @@ export function useSessions(): SessionsState {
   }, []);
   const [note, setNote] = useState<Note>();
   const [tick, setTick] = useState(0);
-  const auth = useMemo(() => ({ authorization: `Bearer ${token}` }), [token]);
   useEffect(() => {
     if (!token) return;
     let live = true;
     void (async () => {
       try {
-        const r = await fetch("/api/v1/docs?collection=sessions", {
-          headers: auth,
-        });
+        const r = await api("docs?collection=sessions", token);
         if (r.status === 401) throw new Error("That token was not accepted.");
         if (!r.ok) throw new Error("Sessions could not load.");
         const docs = ((await r.json()) as { docs: WireDoc[] }).docs;
@@ -63,7 +61,7 @@ export function useSessions(): SessionsState {
     return () => {
       live = false;
     };
-  }, [token, auth, tick]);
+  }, [token, tick]);
   const noteId = data?.noteId;
   useEffect(() => {
     setNote(undefined);
@@ -71,10 +69,7 @@ export function useSessions(): SessionsState {
     let live = true;
     void (async () => {
       try {
-        const r = await fetch(
-          `/api/v1/docs?collection=notes&id=${encodeURIComponent(noteId)}`,
-          { headers: auth },
-        );
+        const r = await api(`docs?collection=notes&id=${encodeURIComponent(noteId)}`, token);
         if (!r.ok) return; // no note page: the session still runs
         const d = (await r.json()) as { data: unknown };
         if (live) setNote(parseNote(d.data));
@@ -85,18 +80,14 @@ export function useSessions(): SessionsState {
     return () => {
       live = false;
     };
-  }, [token, auth, noteId]);
+  }, [token, noteId]);
   const save = useCallback(
     async (doc: Record<string, unknown>) => {
       if (!data) return false;
       try {
         const q = new URLSearchParams({ collection: "sessions", id: data.id });
         if (data.v !== undefined) q.set("if_version", String(data.v));
-        const r = await fetch(`/api/v1/docs?${q}`, {
-          method: "PUT",
-          headers: { ...auth, "content-type": "application/json" },
-          body: JSON.stringify(doc),
-        });
+        const r = await api(`docs?${q}`, token, { method: "PUT", body: doc });
         if (!r.ok) {
           setError(
             r.status === 409
@@ -113,7 +104,7 @@ export function useSessions(): SessionsState {
         return false;
       }
     },
-    [data, auth],
+    [data, token],
   );
   return { data, token, error, setToken, note, save };
 }
