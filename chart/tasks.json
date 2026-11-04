@@ -15332,12 +15332,12 @@
   "title": "Area and domain writers pass validateWrite on their real output (notes, sessions, answers, dayedits)",
   "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed; domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; plan-home's plan and exam writes get the same test",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-798"
   ],
-  "notes": "Merged #255: Today ticks a plan item (areas/today/dayedit.ts, validateWrite test). No e2e journey clicks the tick yet. Rest of the writers (notes, sessions, answers) still open.",
-  "commit": null,
+  "notes": "Notes, sessions and answers writers already have validateWrite tests on main (run 37 check, 6 files pass).",
+  "commit": "6d68614",
   "source": "B-798 builder"
  },
  {
@@ -15476,10 +15476,10 @@
   "title": "Ceiling windows are UTC while v5 is Central: record a decision or a CONTRACT note",
   "dod": "Done when one decision or CONTRACT line settles it",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "From the run-35 audit of B-734/B-737/B-747",
-  "commit": null,
+  "notes": "Decision recorded; no code change.",
+  "commit": "1f2321e",
   "source": "ops/record"
  },
  {
@@ -15544,10 +15544,10 @@
   "title": "Job commands get handlers: job.stop, job.dismiss, job.retry_shorter (export a transition helper from jobs/index.ts; server slice calls it)",
   "dod": "the three commands no longer answer 501; tests cover each state change; weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes stay 501 until their jobs exist",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "From B-847 follow-up. Needs a one-line export in jobs/index.ts (Interface: jobs).",
-  "commit": null,
+  "commit": "1f2321e",
   "source": "handover run 36"
  }
 ]
