@@ -64,7 +64,7 @@ function stub() {
 test("Space pauses and resumes, but not while typing; Esc leaves a field", async () => {
   const puts = stub();
   render(<SessionsScreen />);
-  await waitFor(() => expect(screen.getByText("Cardiac output")).toBeTruthy());
+  await waitFor(() => expect(screen.getByText("Heart")).toBeTruthy());
   fireEvent.keyDown(document.body, { key: " " });
   await waitFor(() => expect(puts).toHaveLength(1));
   const ev = Object.values(
@@ -102,7 +102,7 @@ test("the timer counts up each second while running and holds while paused", asy
   vi.useFakeTimers({ shouldAdvanceTime: true });
   try {
     render(<SessionsScreen />);
-    await screen.findByText("Cardiac output");
+    await screen.findByText("Heart");
     const timer = () =>
       document.querySelector('[data-ui="timer"]')?.textContent;
     expect(timer()).toBe("0:00");
@@ -164,7 +164,7 @@ function stateful(startedAt: string) {
 test("End on a paused session ends it, and the pause survives a reload", async () => {
   const puts = stateful(new Date(Date.now() - 600_000).toISOString());
   render(<SessionsScreen />);
-  await screen.findByText("Cardiac output");
+  await screen.findByText("Heart");
   fireEvent.click(screen.getByText("Pause"));
   await screen.findByText("Resume");
   // a reload: a new screen reads the stored document and still shows it paused
@@ -203,7 +203,7 @@ test("with no active session there is no session bar, Pause or End", async () =>
 test("End pressed right after Pause (before the re-read) still ends the session", async () => {
   const puts = stateful(new Date(Date.now() - 600_000).toISOString());
   render(<SessionsScreen />);
-  await screen.findByText("Cardiac output");
+  await screen.findByText("Heart");
   fireEvent.keyDown(document.body, { key: " " });
   fireEvent.click(screen.getByText("End"));
   await waitFor(() => expect(puts.length).toBeGreaterThanOrEqual(2));

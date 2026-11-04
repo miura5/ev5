@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { api, readToken } from "../../commands/client.ts";
 import { Choice } from "../../kit/index.ts";
-import type { Note } from "../../domain/index.ts";
+import { IMG_KEY, type Note } from "../../domain/index.ts";
 
 type Block = Note["blocks"][number];
 
@@ -14,6 +15,25 @@ function runs(b: Block): ReactNode {
     if (r.href) n = <a href={r.href}>{n}</a>;
     return <span key={k}>{n}</span>;
   });
+}
+
+/** A stored note picture, fetched with the app token (the Worker keeps it owner-only, §data.note-images); the word Image only until it loads or when it can't. */
+function Picture({ k, alt }: { k?: string; alt?: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!k || !IMG_KEY.test(k)) return;
+    let live = true;
+    api(k, readToken())
+      .then(async (r) => (r.ok ? URL.createObjectURL(await r.blob()) : null))
+      .catch(() => null)
+      .then((u) => live && setUrl(u));
+    return () => {
+      live = false;
+    };
+  }, [k]);
+  if (url)
+    return <img className="ev-session-pic" src={url} alt={alt ?? "Picture"} />;
+  return <p className="ev-session-meta">{alt ? `Image · ${alt}` : "Image"}</p>;
 }
 
 function one(
@@ -51,11 +71,7 @@ function one(
         </div>
       );
     case "img":
-      return (
-        <p className="ev-session-meta">
-          {b.alt ? `Image · ${b.alt}` : "Image"}
-        </p>
-      );
+      return <Picture k={b.key} alt={b.alt} />;
     default:
       return <p>{runs(b)}</p>;
   }
