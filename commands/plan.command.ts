@@ -18,7 +18,7 @@ const planPatch = z.object({ id, ...Object.fromEntries(Object.entries(fields).ma
 
 // Plan items, proposals and drafts, dates and the study plan (PLAN §6.1). E.V. proposes; Matt accepts.
 export const planCommands = [
-  defineCommand({ name: 'plan.create', title: 'Add a plan item', input: planItem, callers: MP, effect: 'instant', changesPlan: true, palette: true }),
+  defineCommand({ name: 'plan.create', title: 'Add a plan item', input: planItem, callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
   defineCommand({ name: 'plan.update', title: 'Change a plan item', input: planPatch, callers: MP, effect: 'instant', changesPlan: true }),
   defineCommand({ name: 'plan.toggle_done', title: 'Mark a plan item done or not', input: ref, callers: M, effect: 'instant', undo: 'plan.toggle_done' }),
   defineCommand({ name: 'plan.move_tomorrow', title: 'Move to tomorrow', input: ref, callers: MP, effect: 'instant', changesPlan: true }),
@@ -31,7 +31,7 @@ export const planCommands = [
   defineCommand({ name: 'draft.drop', title: 'Drop a draft', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'draft.keep_all', title: 'Keep all drafts', input: z.object({ set: id }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'draft.drop_all', title: 'Drop all drafts', input: z.object({ set: id }), callers: M, effect: 'instant' }),
-  defineCommand({ name: 'date.create', title: 'Add a date', input: z.object({ title: z.string().min(1), date: z.string().min(1) }), callers: MP, effect: 'instant', changesPlan: true, palette: true }),
+  defineCommand({ name: 'date.create', title: 'Add a date', input: z.object({ title: z.string().min(1), date: z.string().min(1) }), callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
   defineCommand({ name: 'date.update', title: 'Change a date', input: z.object({ id, title: z.string().optional(), date: z.string().optional() }), callers: MP, effect: 'instant', changesPlan: true }),
   defineCommand({ name: 'date.plan_with_ev', title: 'Plan this date with E.V.', input: ref, callers: M, effect: 'job' }),
   defineCommand({ name: 'studyplan.approve', title: 'Approve the study plan', input: ref, callers: M, effect: 'instant' }),

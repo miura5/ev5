@@ -97,10 +97,26 @@ export const jobApi = {
 };
 `;
 
+/** The palette entries as plain data, so the shell needs no zod (CONTRACT §ui.palette). */
+function paletteData(root: string): string {
+  const out: string[] = [];
+  for (const f of commandFiles(root)) {
+    const src = read(root, `commands/${f}`);
+    for (const body of src.split(/defineCommand\(\{/).slice(1)) {
+      if (!/palette:\s*true/.test(body)) continue;
+      const name = /name:\s*'([^']+)'/.exec(body)?.[1];
+      const title = /title:\s*'((?:[^'\\]|\\.)*)'/.exec(body)?.[1];
+      const places = /places:\s*\[([^\]]*)\]/.exec(body)?.[1]?.match(/'([^']+)'/g)?.map(p => p.slice(1, -1));
+      if (name && title) out.push(JSON.stringify({ name, title, ...(places ? { places } : {}) }));
+    }
+  }
+  return out.join(',\n  ');
+}
+
 export function clientFile(root: string): string {
   const names = commandNamesOf(root);
   const union = names.length ? names.map(n => JSON.stringify(n)).join(' | ') : 'never';
-  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', CLIENT_BODY].join('\n');
+  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', '', 'export interface PaletteEntry {\n  name: CommandName;\n  title: string;\n  places?: readonly string[];\n}', '', 'export const paletteEntries: readonly PaletteEntry[] = [\n  ' + paletteData(root) + ',\n];', CLIENT_BODY].join('\n');
 }
 
 /** commands/all.generated.ts: every command array exported by a *.command.ts file, joined for the catalog. */

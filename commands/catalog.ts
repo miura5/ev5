@@ -28,10 +28,11 @@ export function tools(): Tool[] {
 export interface PaletteEntry {
   name: string;
   title: string;
+  places?: readonly string[];
 }
 
 export function paletteEntries(): PaletteEntry[] {
-  return commands.filter(c => c.callers.matt && c.palette).map(c => ({ name: c.name, title: c.title }));
+  return commands.filter(c => c.callers.matt && c.palette).map(c => ({ name: c.name, title: c.title, ...(c.places ? { places: c.places } : {}) }));
 }
 
 export interface ScheduleEntry {
