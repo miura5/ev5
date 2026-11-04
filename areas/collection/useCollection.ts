@@ -26,6 +26,8 @@ export interface CollectionState {
   refused: boolean;
   /** A plain sentence for any other failure. */
   error?: string;
+  /** Read everything again (after a pin or delete). */
+  reload: () => void;
 }
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
@@ -49,6 +51,7 @@ export function useCollection(
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -102,6 +105,14 @@ export function useCollection(
     return () => {
       live = false;
     };
-  }, [token, id, copy]);
-  return { data, pins, loaded, token, refused, error };
+  }, [token, id, copy, tick]);
+  return {
+    data,
+    pins,
+    loaded,
+    token,
+    refused,
+    error,
+    reload: () => setTick((t) => t + 1),
+  };
 }

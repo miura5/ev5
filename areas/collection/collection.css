@@ -67,3 +67,14 @@
   font-size: var(--fs-meta);
   color: var(--faint);
 }
+
+.ev-coll-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.ev-coll-entry > .kit-row {
+  flex: 1;
+  min-width: 0;
+}
