@@ -53,6 +53,9 @@ export function startSession(i: StartInput): SessionWrite {
   };
 }
 
+/** The protocol fields every write carries (§data.writers): who wrote it, when, and from where. */
+const stamp = (at: string) => ({ writer: 'page', at: isoOf(at), source: 'E.V. Home' });
+
 type Last = [string, SessionEvent] | [];
 
 function lastOf(s: SessionDoc, types: string[]): Last {
@@ -71,7 +74,7 @@ export function switchSession(s: SessionDoc | null, i: { at: string; key: string
   if (!s || !OPEN.includes(s.status ?? '')) return [];
   const end = { type: 'end', why: 'switched', at: i.at, ...(i.view ? { view: String(i.view) } : {}) };
   return [
-    { op: 'update', collection: 'sessions', id: s.id, data: { status: 'ended', endedAt: i.at, events: { [i.key]: end } } },
+    { op: 'update', collection: 'sessions', id: s.id, data: { ...stamp(i.at), status: 'ended', endedAt: i.at, events: { [i.key]: end } } },
   ];
 }
 
@@ -105,14 +108,14 @@ export function undoSwitch(
       op: 'update',
       collection: 'sessions',
       id: started.id,
-      data: { status: 'discarded', endedAt: i.at, events: { [i.keys[0]]: { type: 'end', why: 'undone', at: i.at } } },
+      data: { ...stamp(i.at), status: 'discarded', endedAt: i.at, events: { [i.keys[0]]: { type: 'end', why: 'undone', at: i.at } } },
     });
   out.push({
     op: 'update',
     collection: 'sessions',
     id: ended.id,
     // a filing begun before the Undo is void (filingOf also says so by the reopen's time)
-    data: { status: 'active', endedAt: null, filing: null, events: { [i.keys[1]]: { type: 'reopen', at: i.at } } },
+    data: { ...stamp(i.at), status: 'active', endedAt: null, filing: null, events: { [i.keys[1]]: { type: 'reopen', at: i.at } } },
   });
   return out;
 }

@@ -31,7 +31,7 @@ test('a second session ends and logs the running one; Undo restores it whole thr
   // the switch at 10: A is ended (a mark and an event)
   const sw = switchSession(a, { at: plus(10), key: sk(plus(10)) });
   expect(sw).toHaveLength(1);
-  expect(Object.keys(sw[0]?.data ?? {}).sort()).toEqual(['endedAt', 'events', 'status']);
+  expect(Object.keys(sw[0]?.data ?? {}).sort()).toEqual(['at', 'endedAt', 'events', 'source', 'status', 'writer']);
   a = apply(a, sw);
   expect(a.status).toBe('ended');
   expect(switchedAt(a)).toBe(plus(10));
