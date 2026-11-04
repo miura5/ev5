@@ -2,7 +2,11 @@
 // `markDeleted` writes a `deletions(c, id, at)` row (§delete.soft) and removes nothing.
 // It imports compat's protocol and canonical files, not its index: the index reaches the frozen schema loader (node:fs),
 // which a Worker bundle cannot carry. The checked repository, with ev4's Worker check, is in ./checked.ts.
-import { canonicalJson, canonicalText, type Json } from "../compat/canonical.ts";
+import {
+  canonicalJson,
+  canonicalText,
+  type Json,
+} from "../compat/canonical.ts";
 import {
   checkWrites,
   planBatch,
@@ -17,6 +21,12 @@ import {
   type Write,
   type WriteProblem,
 } from "../compat/protocol.ts";
+import {
+  sizeRefusal,
+  sizeWarning,
+  DOC_CEILING,
+  type SizeWarning,
+} from "./budget.ts";
 import type { D1Like, D1Statement } from "./d1.ts";
 
 /** How far back `changedSince` hands the next `since`, so a write stamped just before a read is read again. */
@@ -35,9 +45,25 @@ export interface DocsOptions {
   clock: () => number;
   /** The per-document write check (default: none; ./checked.ts adds ev4's Worker check and the domain parsers). */
   problem?: WriteProblem | null;
+  /** The platform ceiling for one document, in bytes (default: D1's 2 MB row). */
+  ceiling?: number;
+  /** Called for each write over 75% of the ceiling; there is no Activity write path yet, so it logs by default. */
+  onWarn?: (w: SizeWarning) => void;
 }
 
+/** A successful write may carry size warnings (CONTRACT §data.size). */
+export type Warned<T> = T extends { ok: true }
+  ? T & { warnings?: SizeWarning[] }
+  : T;
+
 export interface DocsRepo extends ProtocolAdapter {
+  save(
+    c: string,
+    id: string,
+    body: string,
+    ifVersion: number | null,
+  ): Promise<Warned<SaveResult>>;
+  batch(writes: unknown): Promise<Warned<BatchResult>>;
   /** Soft delete: writes the deletions row (the latest delete time wins) and leaves the document. False if none. */
   markDeleted(c: string, id: string): Promise<boolean>;
 }
@@ -54,8 +80,22 @@ const stored = (r: Row): StoredDoc => ({
 
 export function docsRepo(
   db: D1Like,
-  { clock, problem = null }: DocsOptions,
+  {
+    clock,
+    problem: inner = null,
+    ceiling = DOC_CEILING,
+    onWarn = (w) => console.warn(`doc size: ${w.message}`),
+  }: DocsOptions,
 ): DocsRepo {
+  const problem: WriteProblem = (c, id, doc, prev) =>
+    sizeRefusal(doc, ceiling) ?? (inner ? inner(c, id, doc, prev) : null);
+  const warnings = (rows: { c: string; id: string; data: Json }[]) => {
+    const out = rows.flatMap(
+      (r) => sizeWarning(r.c, r.id, r.data, ceiling) ?? [],
+    );
+    out.forEach(onWarn);
+    return out.length ? { warnings: out } : {};
+  };
   const one = (c: string, id: string) =>
     db.prepare(`${SELECT} WHERE c = ? AND id = ?`).bind(c, id).first<Row>();
 
@@ -170,7 +210,7 @@ export function docsRepo(
         const now = await one(c, id);
         return staleRefusal(c, id, ifVersion, now ? now.v : null);
       }
-      return { ok: true, at, version: row.v };
+      return { ok: true, at, version: row.v, ...warnings([row]) };
     },
 
     async batch(writes): Promise<BatchResult> {
@@ -196,6 +236,7 @@ export function docsRepo(
           doc_id: r.id,
           version: r.v,
         })),
+        ...warnings(first.rows),
       };
     },
 
