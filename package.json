@@ -6,7 +6,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/docs/*.test.ts data/migrations/ data/export/ data/scratch-check/ server/*.test.ts && vitest run",
+    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/docs/*.test.ts data/migrations/ data/export/ data/scratch-check/ server/*.test.ts jobs/*/*.test.ts e2e/*.test.ts && vitest run",
     "checks": "node ops/checks/cli.ts",
     "scratch-check": "node data/scratch-check/cli.ts",
     "test:compat": "node --test data/compat/ data/migrations/",
