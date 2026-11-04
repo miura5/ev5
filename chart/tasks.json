@@ -15516,12 +15516,12 @@
   "title": "Plan item options (repeat, linked, collection) on plan.create/plan.update handlers",
   "dod": "A Suggestion with repeat, linked or collection is accepted through the docs protocol and passes validateWrite; repeat materializes into dayedits.added key rep-<id>-<date>",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-839"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Repeat written 14 days ahead only; S-80 must top up. Editing a repeating item's title/minutes does not rewrite earlier occurrences.",
+  "commit": "55bf144",
   "source": "ops/record"
  },
  {
@@ -15530,12 +15530,12 @@
   "title": "Handlers for the remaining Matt commands: note.*, session.*, check.*, job.*, weakspot.*, set.*, study.*, collection.new_here, weeklyreview.done, ask.just_tell_me",
   "dod": "Every registry command with callers.matt except the job commands has a handler; the 501 test lists none beyond the job and scheduled commands",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-839"
   ],
-  "notes": "From the B-839 report. studyplan.approve/put_away assume plans/<id> with an exam field (S-66 not built): recheck then.",
-  "commit": null,
+  "notes": "Still no handler: job.stop, job.retry_shorter, job.dismiss, weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes.",
+  "commit": "17f2174",
   "source": "ops/record"
  }
 ]

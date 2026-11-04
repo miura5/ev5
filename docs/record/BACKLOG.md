@@ -132,8 +132,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-840 | Schedule consumer: scheduleEntries() drives the schedule route or is deleted Done when: Done when scheduleEntries() has a non-test caller or is removed, with a test | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
 | B-843 | Ceiling windows are UTC while v5 is Central: record a decision or a CONTRACT note Done when: Done when one decision or CONTRACT line settles it | — | Phase 5 | open | From the run-35 audit of B-734/B-737/B-747 |
 | B-845 | Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts Done when: One gatherer used by both; tests pass | B-810 | Phase 5 | open |  |
-| B-846 | Plan item options (repeat, linked, collection) on plan.create/plan.update handlers Done when: A Suggestion with repeat, linked or collection is accepted through the docs protocol and passes validateWrite; repeat materializes into dayedits.added key rep-<id>-<date> | B-839 | Phase 5 | open |  |
-| B-847 | Handlers for the remaining Matt commands: note.*, session.*, check.*, job.*, weakspot.*, set.*, study.*, collection.new_here, weeklyreview.done, ask.just_tell_me Done when: Every registry command with callers.matt except the job commands has a handler; the 501 test lists none beyond the job and scheduled commands | B-839 | Phase 5 | open | From the B-839 report. studyplan.approve/put_away assume plans/<id> with an exam field (S-66 not built): recheck then. |
 
 ## Your turn
 
