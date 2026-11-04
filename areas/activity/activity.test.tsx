@@ -7,9 +7,26 @@ import { toActivityJob } from "./useJobs.ts";
 afterEach(cleanup);
 
 const jobs: ActivityJob[] = [
-  { id: "a", title: "Study plan", state: "needs-you", reason: "Rate your confidence", summary: "x" },
-  { id: "b", title: "Mock exam", state: "running", summary: "Writing mock exam" },
-  { id: "c", title: "Practice set", state: "failed", reason: "The model was unreachable", summary: "y" },
+  {
+    id: "a",
+    title: "Study plan",
+    state: "needs-you",
+    reason: "Rate your confidence",
+    summary: "x",
+  },
+  {
+    id: "b",
+    title: "Mock exam",
+    state: "running",
+    summary: "Writing mock exam",
+  },
+  {
+    id: "c",
+    title: "Practice set",
+    state: "failed",
+    reason: "The model was unreachable",
+    summary: "y",
+  },
   { id: "d", title: "Morning", state: "done", summary: "Morning is done." },
 ];
 
@@ -24,9 +41,17 @@ test("jobs sit in their sections and failed shows its reason", () => {
 });
 
 test("wire jobs become rows with the reason for needs-you and failed", () => {
-  const j = toActivityJob({ id: "z", kind: "study-plan", state: "needs-you", summary: "Rate it." });
+  const j = toActivityJob({
+    id: "z",
+    kind: "study-plan",
+    state: "needs-you",
+    summary: "Rate it.",
+  });
   expect(j).toMatchObject({ title: "Study plan", reason: "Rate it." });
-  expect(toActivityJob({ id: "y", kind: "x", state: "running", summary: "s" }).reason).toBeUndefined();
+  expect(
+    toActivityJob({ id: "y", kind: "x", state: "running", summary: "s" })
+      .reason,
+  ).toBeUndefined();
 });
 
 test("empty sections say None and rows open", () => {
@@ -35,4 +60,26 @@ test("empty sections say None and rows open", () => {
   expect(screen.getAllByText("None.")).toHaveLength(2);
   fireEvent.click(screen.getByText("Mock exam"));
   expect(onOpen).toHaveBeenCalledWith("b");
+});
+
+test("the spend alert can be acknowledged from its row, and only it", () => {
+  const onDismiss = vi.fn();
+  const alert = toActivityJob({
+    id: "spend-alert:2026-11",
+    kind: "spend-alert",
+    state: "needs-you",
+    summary: "80% used",
+  });
+  expect(alert.dismissable).toBe(true);
+  expect(
+    toActivityJob({
+      id: "z",
+      kind: "study-plan",
+      state: "needs-you",
+      summary: "s",
+    }).dismissable,
+  ).toBeUndefined();
+  render(<ActivityView jobs={[alert]} onDismiss={onDismiss} />);
+  fireEvent.click(screen.getByRole("button", { name: "Got it" }));
+  expect(onDismiss).toHaveBeenCalledWith("spend-alert:2026-11");
 });

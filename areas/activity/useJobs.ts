@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
-import { jobApi } from "../../commands/client.ts";
+import { api, jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 const TITLES: Record<string, string> = {
@@ -25,6 +25,9 @@ export const toActivityJob = (j: WireJob): ActivityJob => ({
   // The server's summary already carries the reason a job needs Matt or failed.
   reason:
     j.state === "needs-you" || j.state === "failed" ? j.summary : undefined,
+  ...(j.kind === "spend-alert" && j.state === "needs-you"
+    ? { dismissable: true }
+    : {}),
 });
 
 const readToken = (): string => {
@@ -40,6 +43,8 @@ export interface JobsState {
   token: string;
   error?: string;
   setToken: (t: string) => void;
+  /** Acknowledges an alert; the list then reloads without it. */
+  dismiss: (id: string) => Promise<void>;
 }
 
 /** Reads the unfinished jobs with the app token Matt keeps in this browser (the public shell holds none, PLAN §10). */
@@ -55,6 +60,17 @@ export function useJobs(): JobsState {
     }
     setTokenState(t);
   }, []);
+  const [tick, setTick] = useState(0);
+  const dismiss = useCallback(
+    async (id: string) => {
+      const r = await api(`jobs/${encodeURIComponent(id)}/dismiss`, token, {
+        method: "POST",
+      });
+      if (!r.ok) setError("That could not be closed.");
+      else setTick((n) => n + 1);
+    },
+    [token],
+  );
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -81,6 +97,6 @@ export function useJobs(): JobsState {
       live = false;
       clearInterval(t);
     };
-  }, [token]);
-  return { jobs, token, error, setToken };
+  }, [token, tick]);
+  return { jobs, token, error, setToken, dismiss };
 }

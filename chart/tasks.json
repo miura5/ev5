@@ -14975,12 +14975,12 @@
   "title": "The 80% monthly spend alert reaches Activity and Today",
   "dod": "When a reservation crosses 80% of the monthly ceiling, jobCeilings writes one Activity needs-you item and Today shows one line; a test shows both and no repeat in the same month (CONTRACT §model.alert)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-737"
   ],
-  "notes": "Audit (review F18): ceilings.ts computes the alert; job-ceilings.ts:29-36 checks only r.ok and drops it. B-737 is marked done but never tested the alert landing. Ceiling windows are UTC (ceilings.ts:49); record it in the PR if kept.",
-  "commit": null,
+  "notes": "Merged in #227: spend-alert needs-you record spend-alert:YYYY-MM, Activity title, Today line. Windows are UTC. No acknowledge action yet (B-835).",
+  "commit": "d59f07c",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15304,12 +15304,12 @@
   "title": "Command handlers behind /api/v1/commands, and tools() and paletteEntries() used at runtime",
   "dod": "commandHandlers in server/command-routes.ts has a handler per instant command (no 501 for a command a screen calls); the Ask job takes its tools from tools() and ⌘K lists paletteEntries(); job-routes.ts takes its kinds from the registry (CONTRACT §cmd.generated, §cmd.registry)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-799"
   ],
-  "notes": "Follow-up of B-799: the route and client exist; direct calls answer 501 until handlers attach. shell/ keeps 2 raw fetch calls (useShellStatus, outbox/http) outside areas.",
-  "commit": null,
+  "notes": "Merged in #229: handlers for item.* and collection.create, client acks, GET /api/v1/commands/palette and /tools. Rest in B-833; palette/tools use in shell is B-800.",
+  "commit": "eb2c587",
   "source": "B-799 builder"
  },
  {
@@ -15336,8 +15336,50 @@
   "depends": [
    "B-798"
   ],
-  "notes": "Split from B-798, which put server/plan-home.ts through the docs protocol. Needs a Node-only test door for validateWrite: data/index.ts cannot export it (it pulls node:fs into the Worker bundle) and depcruise only-through-index blocks data/compat/index.ts, so decide the door first (ops config or a data test entry).",
+  "notes": "Notes and answers done in #231 (door: data/compat-test.ts, tests only). Sessions: B-834. Plan-home tests and dayedits writer still open.",
   "commit": null,
   "source": "B-798 builder"
+ },
+ {
+  "id": "B-833",
+  "kind": "task",
+  "title": "Handlers for the remaining instant commands (note, session, check, plan, set, study, weakspot, job.stop/dismiss ...)",
+  "dod": "Every instant command a screen calls via call() has a handler with a compat fixture, or the screen uses the outbox and the command is dropped; no 501 for a used command (CONTRACT §cmd.registry)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-830"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-830 builder"
+ },
+ {
+  "id": "B-834",
+  "kind": "task",
+  "title": "Sessions source: ev4 schema allows only Study Watch / E.V. Home but validateWrite wants a v5 prefix",
+  "dod": "One Chart decision picks: exempt sessions in validateWrite, or extend the schema enum; domain/session/validateWrite.test.ts then expects ok",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-832"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-832 builder"
+ },
+ {
+  "id": "B-835",
+  "kind": "task",
+  "title": "Spend alert needs an acknowledge action",
+  "dod": "Dismissing the spend-alert needs-you item in Activity closes it; test",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-805"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-805 builder"
  }
 ]
