@@ -157,3 +157,85 @@ test("a note is checked like ev4's Worker: bad shape is 400 on put and batch, cr
     400,
   );
 });
+
+test("size budget: a write over 75% of the ceiling warns, over 90% is refused (CONTRACT §data.size)", async () => {
+  const call = await setup();
+  const grow = (key: string, n: number, v?: number) =>
+    call("POST", "/batch", {
+      writes: [
+        {
+          op: v ? "update" : "set",
+          collection: "scratch",
+          doc_id: "big",
+          data: { [key]: key.repeat(n) },
+          if_version: v,
+        },
+      ],
+    });
+  const small = (await grow("a", 900_000)).clone();
+  assert.equal(small.status, 200);
+  assert.equal(
+    ((await small.json()) as { warnings?: unknown }).warnings,
+    undefined,
+  );
+
+  // 1.6 MB of 2 MB: stored, with the warning in the response.
+  const warned = await grow("b", 700_000, 1);
+  assert.equal(warned.status, 200);
+  const body = (await warned.json()) as {
+    warnings: {
+      collection: string;
+      doc_id: string;
+      percent: number;
+      message: string;
+    }[];
+  };
+  assert.equal(body.warnings.length, 1);
+  assert.equal(body.warnings[0]?.doc_id, "big");
+  assert.ok((body.warnings[0]?.percent ?? 0) >= 75);
+
+  // 1.85 MB: refused with the reason, and the stored document stays at version 2.
+  const refused = await grow("c", 250_000, 2);
+  assert.equal(refused.status, 400);
+  const err = (await refused.json()) as { error: string };
+  assert.match(
+    err.error,
+    /would be .*% of the .* a stored document can hold.*nothing was written/,
+  );
+  const got = (await (
+    await call("GET", "?collection=scratch&id=big")
+  ).json()) as { v: number };
+  assert.equal(got.v, 2);
+});
+
+test("size budget: a single put over 90% is refused too", async () => {
+  const { docsRepo } = await import("../data/index.ts");
+  const DB = sqliteD1();
+  await DB.prepare(
+    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  const logged: string[] = [];
+  const repo = docsRepo(DB, {
+    clock: () => 1,
+    ceiling: 1000,
+    onWarn: (w) => logged.push(w.message),
+  });
+  const ok = await repo.save(
+    "s",
+    "a",
+    JSON.stringify({ t: "x".repeat(800) }),
+    null,
+  );
+  assert.ok(ok.ok && ok.warnings?.length === 1);
+  assert.equal(logged.length, 1);
+  const no = await repo.save(
+    "s",
+    "b",
+    JSON.stringify({ t: "x".repeat(950) }),
+    null,
+  );
+  assert.ok(
+    !no.ok && no.status === 400 && /nothing was written/.test(no.error),
+  );
+  assert.equal(await repo.get("s", "b"), null);
+});

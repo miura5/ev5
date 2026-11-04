@@ -77,7 +77,12 @@ docRoutes.put("/docs", async (c) => {
     text,
     iv === undefined ? null : Number(iv),
   );
-  if (res.ok) return c.json({ at: res.at, version: res.version });
+  if (res.ok)
+    return c.json({
+      at: res.at,
+      version: res.version,
+      ...(res.warnings && { warnings: res.warnings }),
+    });
   const { status, ...rest } = res;
   return c.json(rest, status);
 });
@@ -92,7 +97,12 @@ docRoutes.post("/docs/batch", async (c) => {
     return c.json({ error: "body is not JSON" }, 400);
   }
   const res = await repo(c.env.DB).batch(writes);
-  if (res.ok) return c.json({ at: res.at, results: res.results });
+  if (res.ok)
+    return c.json({
+      at: res.at,
+      results: res.results,
+      ...(res.warnings && { warnings: res.warnings }),
+    });
   const { status, ...rest } = res;
   return c.json(rest, status);
 });
