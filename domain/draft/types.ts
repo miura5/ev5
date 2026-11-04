@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 /** What a draft is for, which names its home (PLAN §5.10). */
 export const DRAFT_KINDS = ['set-item', 'plan-item', 'set-save'] as const;
-export type DraftKind = (typeof DRAFT_KINDS)[number];
 
 export const DRAFT_STATES = ['pending', 'kept', 'dropped'] as const;
 export type DraftState = (typeof DRAFT_STATES)[number];
