@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Button, EvLine, Glyph, Row, Suggestion } from "../../kit/index.ts";
+import { AddLine } from "./parts/AddLine.tsx";
 import { ReadyBar } from "./parts/ReadyBar.tsx";
 import type { TodayProps } from "./types.ts";
 import "./today.css";
@@ -7,10 +9,12 @@ import "./today.css";
 function Section({
   title,
   count,
+  action,
   children,
 }: {
   title: string;
   count?: number;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -20,6 +24,8 @@ function Section({
         {count === undefined ? null : (
           <span className="ev-today-meta">{count}</span>
         )}
+        <span className="ev-today-grow" />
+        {action}
       </div>
       {children}
     </section>
@@ -29,6 +35,20 @@ function Section({
 /** Today: the plan list, E.V.'s suggestion, the dates coming up and the week. */
 export function TodayView(p: TodayProps) {
   const open = p.plan.filter((i) => !i.done).length;
+  const [adding, setAdding] = useState<"plan" | "date" | null>(null);
+  // C opens the plan form from anywhere on Today, unless Matt is typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.key.toLowerCase() !== "c")
+        return;
+      if (t?.closest?.("input, textarea, select, [contenteditable]")) return;
+      e.preventDefault();
+      setAdding("plan");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   return (
     <div className="ev-today" data-area="today">
       <header className="ev-today-top">
@@ -57,7 +77,22 @@ export function TodayView(p: TodayProps) {
           <b>Spend:</b> {p.alert}
         </EvLine>
       ) : null}
-      <Section title="Plan" count={open}>
+      <Section
+        title="Plan"
+        count={open}
+        action={
+          <Button kind="text" hint="C" onClick={() => setAdding("plan")}>
+            Add
+          </Button>
+        }
+      >
+        {adding === "plan" ? (
+          <AddLine
+            label="Add to today"
+            onSubmit={(title) => p.onAddPlan(title)}
+            onCancel={() => setAdding(null)}
+          />
+        ) : null}
         {p.plan.length === 0 ? (
           <span className="ev-today-meta">Nothing planned for today.</span>
         ) : null}
@@ -89,7 +124,22 @@ export function TodayView(p: TodayProps) {
           />
         ) : null}
       </Section>
-      <Section title="Upcoming">
+      <Section
+        title="Coming up"
+        action={
+          <Button kind="text" onClick={() => setAdding("date")}>
+            Add date
+          </Button>
+        }
+      >
+        {adding === "date" ? (
+          <AddLine
+            label="Add a date"
+            withDate
+            onSubmit={(title, date) => p.onAddDate(title, date)}
+            onCancel={() => setAdding(null)}
+          />
+        ) : null}
         {p.upcoming.length === 0 ? (
           <span className="ev-today-meta">No dates coming up.</span>
         ) : null}
