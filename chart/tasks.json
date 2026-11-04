@@ -16159,12 +16159,12 @@
   "title": "Server read route for pins (GET), so the collection page can show pins",
   "dod": "A GET route returns the pins for a collection from docs; a route test; no area change (slice server)",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-750"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "228c953",
   "source": "run 56 handover",
   "claimedBy": "run56",
   "claimedAt": "2026-11-04T22:11:49.812Z"
@@ -16175,12 +16175,12 @@
   "title": "Collection page shows pins from the server read route",
   "dod": "areas/collection lists pinned items on the collection page; a test; story updated",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-895"
   ],
   "notes": "needs the pins read route task",
-  "commit": null,
+  "commit": "d8a62dd",
   "source": "run 56 handover"
  },
  {
@@ -16189,12 +16189,12 @@
   "title": "Kit exports Menu from kit/index.ts, with Row trailing slot if needed",
   "dod": "kit/index.ts exports Menu and MenuItem; story and test exist; areas can import it",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-750"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "ad62d8f",
   "source": "run 56 builder report",
   "claimedBy": "run56",
   "claimedAt": "2026-11-04T22:34:18.275Z"

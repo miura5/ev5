@@ -125,9 +125,6 @@ Closed (done and declined) tasks are in chart/tasks.json.
 | B-825 | File the after-cutover backlog Done when: Each 'after cutover' item in PLAN §8 and CONTRACT (predictions and calibration, Matt-first planning, Progress beyond one line, FSRS cards, card and step sets, saved views) is a Chart task with an after-cutover milestone | — | v5 P7 | open | Audit (review F32): these were deferred on purpose (PLAN §8, D-435) but no Chart item will bring them back. |
 | B-849 | Notes pictures in the editor: upload to PUT /api/v1/note-images/<name> and show with the app token Done when: A picture added in a note round-trips after reload on staging (CONTRACT §data.note-images) | B-818 | Phase 5 | in progress | Merged #281: paste/drop upload and blob display in the notes editor; failure shows 'Picture storage isn't set up yet' while R2 is unbound. Round trip on staging waits on B-850 (R2 permission from Matt). |
 | B-851 | Offline read copy: IndexedDB copy of the record in ev5-app, read when offline Done when: Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline) | B-817 | Phase 5 | in progress | Merged #280: ev5-app v2 with a reads store, shell/readCopy.ts, docs.list through it, Saved copy notice. Left: see the next task. |
-| B-895 | Server read route for pins (GET), so the collection page can show pins Done when: A GET route returns the pins for a collection from docs; a route test; no area change (slice server) | B-750 | v5 P5 | in progress |  |
-| B-896 | Collection page shows pins from the server read route Done when: areas/collection lists pinned items on the collection page; a test; story updated | B-895 | v5 P5 | open | needs the pins read route task |
-| B-897 | Kit exports Menu from kit/index.ts, with Row trailing slot if needed Done when: kit/index.ts exports Menu and MenuItem; story and test exist; areas can import it | B-750 | v5 P5 | in progress |  |
 
 ## Your turn
 
