@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-472",
+  "date": "Nov 4",
+  "title": "Adopt vite-plugin-pwa 2.0.0 (exact) for the installed app",
+  "why": "Problem solved: E.V. must open offline as an installed desktop Chrome app (CONTRACT §data.offline, §ui.targets). Hand-writing a service worker and precache manifest risks stale or missing shell files after each build; the plugin generates the manifest and a precaching worker from the build output.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-817"
+ },
+ {
   "id": "D-471",
   "date": "Nov 4",
   "title": "Spend-ceiling windows stay UTC (hour, day, month); the Activity text names them as UTC",
