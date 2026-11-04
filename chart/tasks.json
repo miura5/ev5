@@ -14634,13 +14634,15 @@
   "title": "S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell",
   "dod": "On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-778"
   ],
   "notes": "",
   "commit": null,
-  "source": "B-778"
+  "source": "B-778",
+  "claimedBy": "builder-B-782",
+  "claimedAt": "2026-11-03T23:50:12.726Z"
  },
  {
   "id": "B-783",
