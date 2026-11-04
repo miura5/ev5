@@ -31,17 +31,72 @@ export interface ApiOptions {
   raw?: { data: Blob | ArrayBuffer; contentType: string };
 }
 
+export const TOKEN_KEY = "ev5.token";
+/** The event api() fires on window when the server refuses the token (401); the shell listens, nothing forgets the token. */
+export const UNAUTHORIZED_EVENT = "ev5:unauthorized";
+
+// If storage is blocked (private window, site data off) the token lasts this visit only.
+let visitToken = "";
+
+/** The app token kept in this browser; "" when none. */
+export function readToken(): string {
+  try {
+    return localStorage.getItem(TOKEN_KEY) ?? visitToken;
+  } catch {
+    return visitToken;
+  }
+}
+
+/** Keep the token (replacing any earlier one). */
+export function saveToken(token: string): void {
+  visitToken = token;
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    /* blocked: this visit only */
+  }
+}
+
+/** Forget the token, only when Matt asks to. */
+export function forgetToken(): void {
+  visitToken = "";
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* blocked */
+  }
+}
+
+export type FailureKind = "refused" | "offline" | "server";
+
+/** What a failed call was: a refused token (401), no connection (a rejected fetch), or anything else. */
+export function failureKind(e: unknown): FailureKind {
+  if (e instanceof TypeError) return "offline";
+  const status = typeof e === "number" ? e : (e as { status?: unknown } | null)?.status;
+  return status === 401 ? "refused" : "server";
+}
+
+/** The plain sentence for a failed call (an error, a status number or a failure kind), never the server's own text. */
+export function failureSentence(e: unknown): string {
+  const kind = e === "refused" || e === "offline" || e === "server" ? e : failureKind(e);
+  if (kind === "refused") return "E.V. did not accept this token. Paste the app token again.";
+  if (kind === "offline") return "No connection right now. Try again when you are back online.";
+  return "Something went wrong on E.V.'s side. Try again in a moment.";
+}
+
 /** An /api/v1 request with the app token Matt keeps in this browser. `path` is relative to /api/v1. */
-export function api(path: string, token: string, o: ApiOptions = {}): Promise<Response> {
+export async function api(path: string, token: string, o: ApiOptions = {}): Promise<Response> {
   const headers: Record<string, string> = { authorization: `Bearer ${token}` };
   const sent = o.raw ? o.raw.data : o.body === undefined ? undefined : JSON.stringify(o.body);
   if (o.raw) headers["content-type"] = o.raw.contentType;
   else if (o.body !== undefined) headers["content-type"] = "application/json";
-  return fetch(`/api/v1/${path}`, {
+  const r = await fetch(`/api/v1/${path}`, {
     method: o.method ?? (sent === undefined ? "GET" : "POST"),
     headers,
     ...(sent === undefined ? {} : { body: sent }),
   });
+  if (r.status === 401 && typeof window !== "undefined") window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+  return r;
 }
 
 /** What the command route answers: a Suggestion for an E.V. propose call, or the handler's result. */
