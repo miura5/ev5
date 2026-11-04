@@ -54,7 +54,7 @@ test("with none running, the latest one shows as ended", () => {
   expect(d?.ended).toBe(true);
 });
 
-test("B-873: a session with no startedAt counts from its write time, not 0:00", () => {
+test("a session with no startedAt counts from its write time, not 0:00", () => {
   const d = mapSessions(
     [{ id: "a", data: doc({ startedAt: null, events: undefined }) }],
     now,
@@ -62,7 +62,7 @@ test("B-873: a session with no startedAt counts from its write time, not 0:00", 
   expect(d?.seconds).toBe(600);
 });
 
-test("B-873: an ended session with no start shows its saved minutes", () => {
+test("an ended session with no start shows its saved minutes", () => {
   const d = mapSessions(
     [
       {
