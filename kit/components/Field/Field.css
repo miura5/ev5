@@ -20,8 +20,8 @@
 
 .kit-field:focus-visible,
 .kit-seg button:focus-visible {
-  outline: var(--sp-1) solid var(--text);
-  outline-offset: calc(-1 * var(--sp-1));
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }
 
 .kit-seg {
@@ -79,6 +79,6 @@
 }
 
 .kit-choice-box:focus-visible {
-  outline: var(--sp-1) solid var(--text);
-  outline-offset: var(--sp-1);
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }

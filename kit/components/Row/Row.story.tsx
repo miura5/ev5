@@ -11,6 +11,9 @@ export function Story() {
       />
       <Row title="Fluid balance" value="Yesterday" selected />
       <Row title="Add a note" />
+      <div data-focus-shown style={{ display: "contents" }}>
+        <Row title="Focused row" onOpen={() => undefined} />
+      </div>
     </div>
   );
 }

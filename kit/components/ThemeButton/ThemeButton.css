@@ -18,6 +18,6 @@
 }
 
 .kit-themebtn:focus-visible {
-  outline: var(--sp-1) solid var(--text);
-  outline-offset: calc(-1 * var(--sp-1));
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
 }
