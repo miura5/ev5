@@ -14137,7 +14137,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Session view merged (#148); Sessions screen now reads the sessions collection over /api/v1/docs (pasted token), elapsed time only (domain barrel lacks sessionState). Left: sessionState export, real note blocks and checks, save to Progress and toast, Space/Esc keys, Start session button on the note page.",
+  "notes": "Sessions wired (#165). Left: use sessionState (now exported from domain) for break/pause, real note blocks and checks, save to Progress, Space/Esc keys, Start session on the note page.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-749-sessions",
@@ -14153,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Collection and Recently deleted areas wired to /api/v1/collections, /memberships, /deletions (read only; Restore and pin still unwired).",
+  "notes": "Collection and Recently deleted wired to the read routes (#169); collections/memberships tables don't exist yet so they show empty. Left: /collection/:id route, nav hiding, saved-view page, item menu, pins.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
@@ -14636,12 +14636,12 @@
   "title": "S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell",
   "dod": "On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-778"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "0da8a7c",
   "source": "B-778",
   "claimedBy": "builder-B-782",
   "claimedAt": "2026-11-03T23:50:12.726Z"
@@ -14652,12 +14652,12 @@
   "title": "S-77d: practice answers through queueAnswer, wired in the Library study screen",
   "dod": "A practice answer given offline is queued and replayed; 409 counts as recorded",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-778"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "557fefb",
   "source": "B-778",
   "claimedBy": "builder-B-783",
   "claimedAt": "2026-11-04T00:14:19.786Z"
@@ -14682,12 +14682,12 @@
   "title": "S-76b: server read route for collections, memberships and deletions",
   "dod": "GET /api/v1/collections, /memberships and /deletions read their tables (empty when a table is absent); no write or delete",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-750"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "b997a74",
   "source": "B-750"
  }
 ]
