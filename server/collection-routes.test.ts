@@ -30,6 +30,12 @@ async function setup(withTables: boolean) {
       "INSERT INTO collections VALUES ('c2','Spanish',NULL,2,5,1),('c1','NUR 112',NULL,1,5,1),('c3','Unit 1','c1',1,6,1)",
     ).run();
     await DB.prepare(
+      "CREATE TABLE pins (target_c TEXT NOT NULL, target_id TEXT NOT NULL, pos INTEGER NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (target_c, target_id))",
+    ).run();
+    await DB.prepare(
+      "INSERT INTO pins VALUES ('sets','s1',1,5),('notes','n1',0,9),('notes','n2',1,8)",
+    ).run();
+    await DB.prepare(
       "INSERT INTO memberships VALUES ('notes','n1','c1',7,1),('sets','s1','c2',9,1)",
     ).run();
   }
@@ -114,6 +120,24 @@ test("deletions carry the kept item's title, for a note and for a set item", asy
   assert.equal(t.sets, null);
 });
 
+test("pins read by position, newest first within a position", async () => {
+  const call = await setup(true);
+  const r = await call("GET", "/pins");
+  assert.equal(r.status, 200);
+  const j = (await r.json()) as {
+    pins: { collection: string; id: string; pos: number }[];
+  };
+  assert.deepEqual(
+    j.pins.map((p) => [p.collection, p.id, p.pos]),
+    [
+      ["notes", "n1", 0],
+      ["notes", "n2", 1],
+      ["sets", "s1", 1],
+    ],
+  );
+  assert.equal((await call("GET", "/pins", null)).status, 401);
+});
+
 test("tables not yet migrated read as empty", async () => {
   const call = await setup(false);
   assert.deepEqual(await (await call("GET", "/collections")).json(), {
@@ -122,6 +146,7 @@ test("tables not yet migrated read as empty", async () => {
   assert.deepEqual(await (await call("GET", "/memberships")).json(), {
     memberships: [],
   });
+  assert.deepEqual(await (await call("GET", "/pins")).json(), { pins: [] });
   assert.equal(
     (
       (await (await call("GET", "/deletions")).json()) as {
