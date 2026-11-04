@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { D1Like } from "../jobs/index.ts";
 import { loadCeilingConfig, DEFAULT_CEILINGS } from "./job-run.ts";
 import { planHome } from "./plan-home.ts";
+import { validateWrite, canonicalText } from "../data/compat/index.ts";
 
 // A real SQLite behind D1's interface (the baseline and jobs migrations).
 function sqliteD1(): D1Like & { sql: DatabaseSync } {
@@ -175,6 +176,28 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
     .get() as { data: string; v: number };
   assert.equal(JSON.parse(exam.data).planId, "plan-j1");
   assert.equal(exam.v, 2, "the exam was updated once, not on the repeat");
+  // The writer's real output passes ev4's contract (§data.compat), and is stored as canonical JSON (§data.protocol).
+  const prev = {
+    schema: 2,
+    ...meta,
+    title: "Unit 3",
+    kind: "unit",
+    date: "2026-11-10",
+  };
+  assert.deepEqual(validateWrite("plans", doc, { id: "plan-j1" }), {
+    ok: true,
+  });
+  assert.deepEqual(
+    validateWrite("exams", JSON.parse(exam.data), {
+      id: "e1",
+      prev,
+      role: "worker",
+    }),
+    { ok: true },
+  );
+  assert.equal(JSON.stringify(doc), canonicalText(doc));
+  assert.equal(exam.data, canonicalText(JSON.parse(exam.data)));
+  assert.equal(doc.source, "v5/job:j1");
 });
 
 test("ceilings use the documented defaults when unset and a stored value wins", async () => {
