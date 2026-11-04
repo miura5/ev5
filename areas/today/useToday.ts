@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
-import { mapToday, spendAlertLine } from "./map.ts";
+import { mapToday, spendAlertLine, studyPlanWaiting } from "./map.ts";
 import { buildDayEdit } from "./dayedit.ts";
 import type { DayEditDoc } from "./dayedit.ts";
 import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
@@ -27,6 +27,8 @@ export interface TodayState {
   refused?: boolean;
   /** The monthly spend alert line, when one is waiting. */
   alert?: string;
+  /** A study plan waits for Matt in Activity. */
+  planWaiting?: boolean;
   /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
   tick: (id: string, done: boolean) => Promise<boolean>;
   /** Add a plan item for today (plan.create); resolves false when it could not be saved. */
@@ -60,6 +62,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
   const [alert, setAlert] = useState<string>();
+  const [planWaiting, setPlanWaiting] = useState(false);
   const [again, setAgain] = useState(0);
   useEffect(() => {
     if (!token) return;
@@ -80,7 +83,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         ]);
         try {
           const jobs = (await jobApi.list(token, copy)) as WireJobLine[];
-          if (live) setAlert(spendAlertLine(jobs));
+          if (live) {
+            setAlert(spendAlertLine(jobs));
+            setPlanWaiting(studyPlanWaiting(jobs));
+          }
         } catch {
           // the alert is extra: Today still loads without it
         }
@@ -157,5 +163,15 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     },
     [token],
   );
-  return { data, token, refused, error, alert, tick, addPlan, addDate };
+  return {
+    data,
+    token,
+    refused,
+    error,
+    alert,
+    planWaiting,
+    tick,
+    addPlan,
+    addDate,
+  };
 }
