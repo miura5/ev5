@@ -20,12 +20,19 @@ export function oneSentence(summary: string, state: string): string {
   return state === "failed" ? own.slice(1).join(" ") : own[0]!;
 }
 
+/** The one sentence a row shows: the server's own fields when present, else the trimmed summary (old servers). */
+export const rowSentence = (j: { summary: string; state: string; lead?: string; reason?: string }): string =>
+  j.state === "failed" && j.reason ? j.reason : (j.lead ?? oneSentence(j.summary, j.state));
+
 /** One entry of GET /api/v1/jobs (server/job-routes.ts); restated, areas never import the server. */
 interface WireJob {
   id: string;
   kind: string;
   state: string;
   summary: string;
+  /** Newer servers send the generic line and the reason apart (jobs/runtime/status.ts); older ones only `summary`. */
+  lead?: string;
+  reason?: string;
 }
 
 export interface AskJobRef {
@@ -37,7 +44,7 @@ export const toAskJob = (j: WireJob): AskJobRef => ({
   id: j.id,
   job: {
     title: titleOf(j.kind),
-    meta: oneSentence(j.summary, j.state),
+    meta: rowSentence(j),
     value: j.state === "needs-you" ? "needs you" : undefined,
     running: j.state === "running",
   },

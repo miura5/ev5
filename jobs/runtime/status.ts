@@ -9,6 +9,10 @@ export type JobStatus = {
   state: JobRecord['state'];
   /** One plain sentence for E.V. to relay. */
   summary: string;
+  /** The generic line alone (no reason, no pointer to Activity): what a one-line row shows. */
+  lead: string;
+  /** Why the job needs Matt or failed, as its own field; absent otherwise. `summary` still carries it for E.V. */
+  reason?: string;
   costCents: number;
   /** Link target: the output's home when done, otherwise Activity. */
   link: { home: string; id: string };
@@ -26,12 +30,22 @@ export function describe(rec: JobRecord, def?: JobDef): JobStatus {
     done: w?.done ?? `${rec.title} is done.`,
     failed: `${w?.failed ?? `${rec.title} did not finish.`} ${rec.reason ?? ''}`.trim(),
   }[rec.state];
+  const lead = {
+    queued: `${rec.title} is waiting to start.`,
+    running: w?.running ?? `${rec.title} is running.`,
+    'needs-you': w?.needsYou ?? `${rec.title} needs you.`,
+    done: w?.done ?? `${rec.title} is done.`,
+    failed: w?.failed ?? `${rec.title} did not finish.`,
+  }[rec.state];
+  const reason = (rec.state === 'needs-you' || rec.state === 'failed') && rec.reason ? rec.reason : undefined;
   const link = rec.state === 'done' && rec.output ? rec.output : { home: 'activity', id: rec.id };
   return {
     id: rec.id,
     kind: rec.kind,
     state: rec.state,
     summary,
+    lead,
+    ...(reason ? { reason } : {}),
     costCents: rec.costCents,
     link,
     finished: isTerminal(rec.state),

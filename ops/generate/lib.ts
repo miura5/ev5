@@ -138,13 +138,19 @@ export async function api(path: string, token: string, o: ApiOptions = {}): Prom
 /** What the command route answers: a Suggestion for an E.V. propose call, or the handler's result. */
 export type CallResult =
   | { ok: true; mode: "direct" | "propose"; suggestion?: { command: string; input: unknown; title: string }; result?: unknown }
-  | { ok: false; status: number; reason: string };
+  | { ok: false; status: number; reason: string }; // reason: plain words (failureSentence), status 0 when offline
 
 /** Call a registry command by name; the server checks the caller and the input (§cmd.propose). */
 export async function call(name: CommandName, input: unknown, token: string): Promise<CallResult> {
-  const r = await api(\`commands/\${name}\`, token, { body: { input } });
+  let r: Response;
+  try {
+    r = await api(\`commands/\${name}\`, token, { body: { input } });
+  } catch (e) {
+    return { ok: false, status: 0, reason: failureSentence(e) };
+  }
   const b = (await r.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!r.ok) return { ok: false, status: r.status, reason: String(b.error ?? "failed") };
+  // The reason is always a plain sentence by kind, never the server's own text or a status code.
+  if (!r.ok) return { ok: false, status: r.status, reason: failureSentence(r.status) };
   return { ok: true, mode: b.mode as "direct" | "propose", suggestion: b.suggestion as never, result: b.result };
 }
 
