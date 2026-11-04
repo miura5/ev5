@@ -13,6 +13,8 @@ import type { Caller as CommandCaller } from "../commands/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { CommandError, commandHandlers } from "./command-handlers.ts";
 import type { DocsD1 } from "../data/index.ts";
+import { askFromEnv } from "./ask-chat.ts";
+import type { AskEnv } from "./ask-chat.ts";
 
 /** A command with no handler here answers 501: the scheduled and job commands attach with their own tasks. */
 export { commandHandlers };
@@ -24,7 +26,7 @@ const BY_TOKEN = {
 } as const;
 
 export const commandRoutes = new Hono<{
-  Bindings: { DB: DocsD1 };
+  Bindings: { DB: DocsD1 } & Partial<Pick<AskEnv, "ANTHROPIC_API_KEY" | "ASK_CALL">>;
   Variables: AuthVars;
 }>();
 
@@ -69,6 +71,11 @@ commandRoutes.post("/commands/:name", async (c) => {
       db: c.env.DB,
       clock: () => Date.now(),
       newId: () => crypto.randomUUID(),
+      ask: async (text: string) => {
+        const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text);
+        if (!r.ok) throw new CommandError(r.status, r.reason);
+        return { reply: r.reply, costCents: r.costCents };
+      },
     };
     return c.json({
       mode: "direct",

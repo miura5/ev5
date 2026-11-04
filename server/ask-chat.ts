@@ -22,6 +22,7 @@ import {
   outputSchema,
   runStructured,
   sdkModelCall,
+  spendAlertWriter,
   d1CeilingStore,
 } from "../jobs/index.ts";
 import type { D1Like, ModelCall } from "../jobs/index.ts";
@@ -128,6 +129,7 @@ export async function ask(d: AskDeps, question: string): Promise<AskResult> {
     () => loadCeilingConfig(d.db),
     now,
     newId,
+    spendAlertWriter(jobStore),
   );
   try {
     await ceilings.reserve(jobId, maxCents);
@@ -179,16 +181,28 @@ export const askRoutes = new Hono<{
   Variables: AuthVars;
 }>();
 
+export interface AskEnv {
+  DB: D1Like;
+  ANTHROPIC_API_KEY?: string;
+  ASK_CALL?: ModelCall;
+}
+
+/** The one path for a typed question, used by POST /ask and the ask.send command: checks the text, then asks. */
+export async function askFromEnv(
+  env: AskEnv,
+  raw: unknown,
+): Promise<AskResult | { ok: false; status: 400 | 503; reason: string }> {
+  const text = typeof raw === "string" ? raw.trim() : "";
+  if (!text || text.length > 2000) return { ok: false, status: 400, reason: "text must be 1 to 2000 characters" };
+  const call = env.ASK_CALL ?? (env.ANTHROPIC_API_KEY ? sdkModelCall({ apiKey: env.ANTHROPIC_API_KEY }) : undefined);
+  if (!call) return { ok: false, status: 503, reason: "ANTHROPIC_API_KEY is not set on this Worker." };
+  return ask({ db: env.DB, call }, text);
+}
+
 askRoutes.post("/ask", async (c) => {
   if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
   const b = (await c.req.json().catch(() => ({}))) as { text?: unknown };
-  const text = typeof b.text === "string" ? b.text.trim() : "";
-  if (!text || text.length > 2000) return c.json({ error: "text must be 1 to 2000 characters" }, 400);
-  const call =
-    c.env.ASK_CALL ??
-    (c.env.ANTHROPIC_API_KEY ? sdkModelCall({ apiKey: c.env.ANTHROPIC_API_KEY }) : undefined);
-  if (!call) return c.json({ error: "ANTHROPIC_API_KEY is not set on this Worker." }, 503);
-  const r = await ask({ db: c.env.DB, call }, text);
+  const r = await askFromEnv(c.env, b.text);
   return r.ok
     ? c.json({ reply: r.reply, costCents: r.costCents })
     : c.json({ error: r.reason }, r.status);
