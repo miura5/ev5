@@ -16027,10 +16027,10 @@
   "title": "After a deploy the open app and a normal reload still run the old build; the new service worker waits and never takes over",
   "dod": "On staging, after a deploy that changes the bundle, a normal reload (or a focus of the open app) runs the new bundle with no hard reload and no manual step: the generated sw.js skips waiting and claims clients (or the shell tells the waiting worker to skip waiting), and the existing reload-once on controllerchange then fires; a unit test covers a waiting worker; checked on staging by comparing the loaded index-*.js with the one / serves.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Seen in playtest 3: the tab ran index-K0K3hG0W.js while / served index-D4bCKGoj.js; registration.waiting was set; a normal reload kept the old build. Posting SKIP_WAITING to the waiting worker reloaded the page into the new build, so shell/pwa.ts reload-once works. Served sw.js has skipWaiting only behind the SKIP_WAITING message and no clientsClaim (vite.config.ts VitePWA registerType autoUpdate, injectRegister false). Follows B-875.",
-  "commit": null,
+  "notes": "Run 51: #366 shell/pwa.ts posts SKIP_WAITING to a waiting worker (and a newly installed one when a controller exists); reload-once on controllerchange then fires. Still to check by eye on staging: loaded index-*.js equals what / serves.",
+  "commit": "c0c656d",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16039,10 +16039,10 @@
   "title": "Sessions shows the session bar (Session 0:00, Pause, End) when no session runs",
   "dod": "With no active session, Sessions shows no session bar and no Pause or End, only the empty line (design/mockup.html: the session bar appears only while a session runs); a screen test with no active session finds no Pause or End; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "areas/sessions/Sessions.screen.tsx renders SessionView with data null (title Study session, meta no session yet). B-871 notes said #343 fixed this; on staging run 49 build it shows again. Screenshot 05.",
-  "commit": null,
+  "notes": "Run 51: #368 no session bar, Pause or End when no session runs.",
+  "commit": "76b228e",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16063,10 +16063,10 @@
   "title": "After Pause then End, the session stays active and Sessions shows it running again",
   "dod": "End on a paused session ends it (status ended, endedAt, minutes) and Sessions then shows no running session; the pause survives a reload (the timer does not count paused time after a reload); a screen test pauses, ends and checks the write; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Playtest 3: started a session on Playtest note, paused with Space at 0:11, pressed End; reopening Sessions showed it running at 1:00 and the record still had status active. An End without a pause worked. Not yet reproduced in a test.",
-  "commit": null,
+  "notes": "Run 51: #368 saves queue one at a time on the latest stored doc (End right after Pause dropped the pause / 409); pause survives reload. Not seen reproduced exactly as in playtest 3.",
+  "commit": "76b228e",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16075,10 +16075,10 @@
   "title": "Library tabs do not show which tab is open",
   "dod": "The open Library tab is lit as design/mockup.html shows (underline, text colour) and the counts read as in the mock-up (Exams · 1); keyboard focus and hover stay distinct from the open state; a screen test checks the open tab's state; screenshots at 1280 in both themes.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "On staging the Practice tab opens with no tab lit; only hover draws a chip. Screenshot 02. Kit part: TextOptions or Segmented.",
-  "commit": null,
+  "notes": "Run 51: #369 open Library tab lit by area CSS on aria-selected (kit Button takes no className); a kit Tabs component would be cleaner, not filed. No 1280 screenshots.",
+  "commit": "f34d7e1",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16111,10 +16111,10 @@
   "title": "The kit Doc session checks are raw browser checkboxes",
   "dod": "Doc's checks draw the kit's own box as design/mockup.html .check .box (done: filled, struck through), keep a real checkbox role for keyboard and screen readers, and show the 2 px focus ring; the controls guard (B-872) catches a raw input type checkbox in kit or areas; the gallery shows it.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "kit/components/Doc/Doc.tsx:54 has input type=checkbox with appearance auto. Screenshot 04.",
-  "commit": null,
+  "notes": "Run 51: #367 Doc checks draw the kit box; controls guard flags kit raw checkbox.",
+  "commit": "e782400",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16123,10 +16123,10 @@
   "title": "The kit gallery opens scrolled down to the Palette sample",
   "dod": "/kit opens at the top: the Palette sample does not take focus on load (or the gallery restores scroll to 0); visual baseline still green.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "The sample's input autofocuses (scrollY about 4000 of 5900 on load). Screenshot 04.",
-  "commit": null,
+  "notes": "Run 51: #367 gallery Palette does not take focus on load.",
+  "commit": "e782400",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
@@ -16135,10 +16135,10 @@
   "title": "Today and Library show an empty page for a second or two while they load",
   "dod": "While their first data loads, Today and Library show their heading and a loading line (as Activity does), never an empty pane; a screen test holds the fetch open and finds the loading line.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Screenshot 06 (Today about 1 s after open). Activity already does this (B-879).",
-  "commit": null,
+  "notes": "Run 51: #369 Today and Library show heading and Loading line on first load.",
+  "commit": "f34d7e1",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
  },
  {
