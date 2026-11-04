@@ -15,6 +15,8 @@ export function checkPresence(_root: string, files: string[]): Finding[] {
   for (const f of files) {
     const m = /^((?:commands|jobs)\/.*\.(?:command|job))\.ts$/.exec(f);
     if (m) need(f, [`${m[1]}.test.ts`, `${m[1]}.test.tsx`]);
+    const j = /^(jobs\/[^/]+)\/job\.ts$/.exec(f);
+    if (j) need(f, [`${j[1]}/job.test.ts`, `${j[1]}/job.test.tsx`]);
   }
   return out;
 }

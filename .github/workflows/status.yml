@@ -1,0 +1,45 @@
+name: status
+
+# Publishes the build status snapshot (ops/status/build_status.py) as status.json on the branch
+# status-feed, one commit, replaced each run. The hourly build check reads it from
+# raw.githubusercontent.com, because its session cannot call the GitHub API.
+# Read only towards the repo: it writes nothing but that one branch.
+
+on:
+  schedule:
+    - cron: '5,35 * * * *'
+  workflow_run:
+    workflows: [CI, staging]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: status
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Build the snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 -I ops/status/build_status.py > "$RUNNER_TEMP/status.json"
+          python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "$RUNNER_TEMP/status.json"
+      - name: Publish to status-feed
+        run: |
+          git switch -q --orphan status-feed
+          cp "$RUNNER_TEMP/status.json" status.json
+          git add status.json
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -qm "status snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push -qf origin HEAD:refs/heads/status-feed
