@@ -14909,7 +14909,7 @@
    "B-788",
    "B-799"
   ],
-  "notes": "Audit (PLAN §7): shell/Shell.tsx:75-90 builds Places and Pinned by hand; only ⌘K is handled, not ⌘J.",
+  "notes": "Split: B-836 (done) and B-837 (shell).",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -14933,10 +14933,10 @@
   "title": "Decide and record how Ask E.V. answers (chat route or job) within the contract",
   "dod": "One Chart decision names the route Ask E.V. uses for a reply, its model and ceilings, its tools (registry tools() including job_status), citations or 'unverified', and attempt-first prompting, consistent with CONTRACT §job.no-chat-ask, §job.kinds, §ev.cites, §ui.attempt-first; if it needs a contract change, the decision amends the §id",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit (review F8, F32): Ask.screen.tsx answers 'not connected' after every send; ask.send is declared as a job but §job.kinds allows two kinds. Handover Next (7) only; no Chart item. B-747 is marked done.",
-  "commit": null,
+  "notes": "D-470: Ask E.V. replies on a chat route, not a job. Follow-up is B-803.",
+  "commit": "613932e",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15118,7 +15118,7 @@
   "depends": [
    "B-752"
   ],
-  "notes": "Audit (review F29, PLAN §4 'one file per journey'): e2e/journeys.ts is a custom runner over HTTP (runAll, a Fail class, todo states); gate5.spec.ts exits 0 with todos, so Gate 5 can pass with every journey todo.",
+  "notes": "Merged #245: 14 journey specs, 6 built, 8 fail as NOT BUILT. gate5-e2e.yml dispatch-only (dispatch per batch). Open: build the 8 journeys as their features land; dispatch run on staging to confirm selectors; docs still mention journeys.ts.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15336,7 +15336,7 @@
   "depends": [
    "B-798"
   ],
-  "notes": "Notes and answers done in #231 (door: data/compat-test.ts, tests only). Sessions: B-834. Plan-home tests and dayedits writer still open.",
+  "notes": "Plan/exam writer test done (#242). Open: Today dayedits writer does not exist; when built it needs a validateWrite test.",
   "commit": null,
   "source": "B-798 builder"
  },
@@ -15346,12 +15346,12 @@
   "title": "Handlers for the remaining instant commands (note, session, check, plan, set, study, weakspot, job.stop/dismiss ...)",
   "dod": "Every instant command a screen calls via call() has a handler with a compat fixture, or the screen uses the outbox and the command is dropped; no 501 for a used command (CONTRACT §cmd.registry)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-830"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "No screen calls call(); no used command answers 501. Handlers get filed when a screen first calls one.",
+  "commit": "3b94f7a",
   "source": "B-830 builder"
  },
  {
@@ -15381,5 +15381,33 @@
   "notes": "Merged in #234: POST /api/v1/jobs/:id/dismiss, Got it button in Activity.",
   "commit": "20c15ab",
   "source": "B-805 builder"
+ },
+ {
+  "id": "B-836",
+  "kind": "task",
+  "title": "Palette entries reach the client: optional places on CommandSpec, generated client.ts exports palette data",
+  "dod": "Done when: CommandSpec has optional places; paletteEntries carries it; generated commands/client.ts exports palette entries as plain data (no zod) (CONTRACT §ui.palette, §cmd.generated)",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [
+   "B-799"
+  ],
+  "notes": "Split from B-800. Merged in #243.",
+  "commit": "ddf0dc3",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-837",
+  "kind": "task",
+  "title": "Shell palette Commands group, Tab to Ask with text, and ⌘J",
+  "dod": "Done when: Shell palette has a Commands group from client.ts paletteEntries filtered by area; a test runs one command from ⌘K via call(); Tab navigates to Ask E.V. with the typed text; ⌘J toggles Ask E.V. (CONTRACT §ui.palette)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-836"
+  ],
+  "notes": "Rest of B-800. Claimed by claude/B-837-shell-palette.",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
