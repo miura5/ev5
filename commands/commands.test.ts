@@ -51,6 +51,6 @@ test('the generated client carries the palette entries as plain data', () => {
 
 test('palette entries and schedule cadences come from the registry', () => {
   expect(paletteEntries().map(e => e.name)).toContain('theme.toggle');
-  expect(commands.filter(c => c.callers.schedule).map(c => c.name)).toEqual(['morning', 'evening', 'weekly_review', 'export', 'restore_drill', 'push_summary']);
+  expect(commands.filter(c => c.callers.schedule).map(c => c.name)).toEqual(['morning', 'evening', 'weekly_review', 'export', 'restore_drill', 'push_summary', 'job_sweep']);
   expect(commands.filter(c => c.callers.schedule).every(c => c.every)).toBe(true);
 });
