@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { LibraryView } from "./Library.view.tsx";
+import { StudyView } from "./Study.view.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
+import { useStudy, type LibraryServices } from "./useStudy.ts";
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
-export function LibraryScreen() {
+export function LibraryScreen({ services }: { services?: LibraryServices }) {
   const { data, token, error, setToken } = useLibrary();
   const [draft, setDraft] = useState("");
   const [open, setOpen] = useState<string>();
+  const [studying, setStudying] = useState(false);
+  const onRate = useStudy(open ?? "", services);
   if (!token)
     return (
       <form
@@ -29,7 +33,28 @@ export function LibraryScreen() {
       </form>
     );
   const page = open ? data?.pages[open] : undefined;
-  if (page) return <SetPageView set={page} onBack={() => setOpen(undefined)} />;
+  if (page && studying)
+    return (
+      <StudyView
+        title={page.title}
+        items={page.items.map((it) => ({
+          id: it.id,
+          kicker: "Question",
+          front: it.front,
+          back: it.back ?? "",
+        }))}
+        onRate={onRate}
+        onLeave={() => setStudying(false)}
+      />
+    );
+  if (page)
+    return (
+      <SetPageView
+        set={page}
+        onStudy={() => setStudying(true)}
+        onBack={() => setOpen(undefined)}
+      />
+    );
   return (
     <>
       {error ? <p className="ev-library-meta">{error}</p> : null}

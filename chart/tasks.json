@@ -14652,13 +14652,15 @@
   "title": "S-77d: practice answers through queueAnswer, wired in the Library study screen",
   "dod": "A practice answer given offline is queued and replayed; 409 counts as recorded",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-778"
   ],
   "notes": "",
   "commit": null,
-  "source": "B-778"
+  "source": "B-778",
+  "claimedBy": "builder-B-783",
+  "claimedAt": "2026-11-04T00:14:19.786Z"
  },
  {
   "id": "B-784",
