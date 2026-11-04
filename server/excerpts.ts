@@ -5,6 +5,7 @@ import {
   chunkMaterials,
   likePatterns,
   noteBlocks,
+  parseSet,
   search,
 } from "../domain/index.ts";
 import type { D1Like } from "../jobs/index.ts";
@@ -12,27 +13,39 @@ import type { D1Like } from "../jobs/index.ts";
 const PASSAGES = 12;
 const CANDIDATES = 60;
 
-type Row = { id: string; data: string };
+type Row = { id: string; c: string; data: string };
 export type Excerpt = { id: string; text: string };
 
-/** Matt's note passages that share a word with the objectives; none when there is nothing to search for. */
-export async function gatherExcerpts(
+/**
+ * The one gatherer of Matt's documents (§cmd.code-first): a SQL `LIKE` over docs in the named collections, parsed to
+ * searchable text and ranked by domain/search. Notes always; sets only when asked for. Unparsable documents are skipped.
+ */
+export async function findPassages(
   db: D1Like,
-  objectives: readonly string[],
-): Promise<Excerpt[]> {
-  const query = objectives.join(" ");
+  query: string,
+  collections: readonly ("notes" | "sets")[],
+  k: number,
+) {
   const pats = likePatterns(query);
   if (!pats.length) return [];
   const where = pats.map(() => "data LIKE ?").join(" OR ");
+  const marks = collections.map(() => "?").join(", ");
   const { results } = await db
     .prepare(
-      `SELECT id, data FROM docs WHERE c = 'notes' AND (${where}) LIMIT ${CANDIDATES}`,
+      `SELECT id, c, data FROM docs WHERE c IN (${marks}) AND (${where}) LIMIT ${CANDIDATES}`,
     )
-    .bind(...pats)
+    .bind(...collections, ...pats)
     .all<Row>();
   const materials = results.flatMap((r) => {
     try {
       const d = JSON.parse(r.data) as Record<string, unknown>;
+      if (r.c === "sets") {
+        const s = parseSet(d);
+        const text = s.items.map((i) => i.stem).join(" ");
+        return [
+          { id: r.id, title: s.title ?? r.id, kind: "set", course: null, text },
+        ];
+      }
       const text = noteBlocks(d.blocks)
         .map((b) => (b.runs ?? []).map((x) => x.text).join(""))
         .join("\n");
@@ -49,7 +62,19 @@ export async function gatherExcerpts(
       return []; // a document that does not parse is skipped, never fixed here
     }
   });
-  return search(buildIndex(chunkMaterials(materials)), query, {
-    k: PASSAGES,
-  }).map((h) => ({ id: h.id, text: h.text }));
+  return search(buildIndex(chunkMaterials(materials)), query, { k });
+}
+
+/** Matt's note passages that share a word with the objectives; none when there is nothing to search for. */
+export async function gatherExcerpts(
+  db: D1Like,
+  objectives: readonly string[],
+): Promise<Excerpt[]> {
+  const hits = await findPassages(
+    db,
+    objectives.join(" "),
+    ["notes"],
+    PASSAGES,
+  );
+  return hits.map((h) => ({ id: h.id, text: h.text }));
 }

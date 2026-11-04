@@ -6,14 +6,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import {
-  chunkMaterials,
-  buildIndex,
-  search,
-  likePatterns,
-  noteBlocks,
-  parseSet,
-} from "../domain/index.ts";
-import {
   checkCitations,
   d1JobStore,
   jobCeilings,
@@ -26,6 +18,7 @@ import {
   d1CeilingStore,
 } from "../jobs/index.ts";
 import type { D1Like, ModelCall } from "../jobs/index.ts";
+import { findPassages } from "./excerpts.ts";
 import { DEFS } from "./job-routes.ts";
 import { loadCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
@@ -59,38 +52,6 @@ export interface AskReply {
   asksTry: boolean;
 }
 
-type Doc = { id: string; c: string; data: string };
-
-/** Matt's notes and sets that share a word with the question, as searchable text (code finds them, §cmd.code-first). */
-async function excerpts(db: D1Like, question: string) {
-  const pats = likePatterns(question);
-  if (!pats.length) return [];
-  const where = pats.map(() => "data LIKE ?").join(" OR ");
-  const { results } = await db
-    .prepare(
-      `SELECT id, c, data FROM docs WHERE c IN ('notes', 'sets') AND (${where}) LIMIT 60`,
-    )
-    .bind(...pats)
-    .all<Doc>();
-  const materials = results.flatMap((r) => {
-    try {
-      const d = JSON.parse(r.data) as Record<string, unknown>;
-      if (r.c === "notes") {
-        const text = noteBlocks(d.blocks)
-          .map((b) => (b.runs ?? []).map((x) => x.text).join(""))
-          .join("\n");
-        return [{ id: r.id, title: String(d.title ?? ""), kind: "note", course: null, text }];
-      }
-      const s = parseSet(d);
-      const text = s.items.map((i) => i.stem).join(" ");
-      return [{ id: r.id, title: s.title ?? r.id, kind: "set", course: null, text }];
-    } catch {
-      return []; // a document that does not parse is skipped, never fixed here
-    }
-  });
-  return search(buildIndex(chunkMaterials(materials)), question, { k: PASSAGES });
-}
-
 export interface AskDeps {
   db: D1Like;
   call: ModelCall;
@@ -106,7 +67,7 @@ export async function ask(d: AskDeps, question: string): Promise<AskResult> {
   const now = d.now ?? (() => new Date());
   const newId = d.newId ?? (() => crypto.randomUUID());
   const jobStore = d1JobStore(d.db, () => now().getTime());
-  const hits = await excerpts(d.db, question);
+  const hits = await findPassages(d.db, question, ["notes", "sets"], PASSAGES);
   const running = await jobStatus(jobStore, DEFS);
   const prompt = [
     `Question: ${question}`,
