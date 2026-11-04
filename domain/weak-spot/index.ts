@@ -8,7 +8,21 @@ import {
   type WeakSpot,
   type WeakSpotEvent,
 } from './types.ts';
-export * from './types.ts';
+export {
+  /** @public */
+  WEAK_SPOT_KINDS,
+  /** @public */
+  EVENT_TYPES,
+  /** @public */
+  REVIEW_RULES,
+  type WeakSpotEvent,
+  type WeakSpot,
+  type Attempt,
+  /** @public */
+  type Status,
+  type Derived,
+  type ReviewRules,
+} from './types.ts';
 export { parseWeakSpot } from './parse.ts';
 
 const KEY_TIME = /-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})(\d{3})?(?:-[a-z0-9]+)?$/;

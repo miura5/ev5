@@ -1,5 +1,20 @@
 import type { Chosen, SetAnswers, SetItem, StudySet } from './types.ts';
-export * from './types.ts';
+export {
+  /** @public */
+  SET_KINDS,
+  /** @public */
+  ITEM_TYPES,
+  /** @public */
+  SET_WRITERS,
+  /** @public */
+  type MatrixRow,
+  /** @public */
+  type KeyPoint,
+  type SetItem,
+  type StudySet,
+  type Chosen,
+  type SetAnswers,
+} from './types.ts';
 export { parseSet } from './parse.ts';
 
 /** The shape of an item: its own type, else select-all when more than one answer is right, else single. */
