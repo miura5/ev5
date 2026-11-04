@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { mapDeletions } from "./map.ts";
 import type { WireDeletion } from "./map.ts";
 import type { DeletedItem } from "./Deleted.view.tsx";
+import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 
@@ -38,9 +39,7 @@ export function useDeleted(): DeletedState {
     let live = true;
     void (async () => {
       try {
-        const r = await fetch("/api/v1/deletions", {
-          headers: { authorization: `Bearer ${token}` },
-        });
+        const r = await api("deletions", token);
         if (r.status === 401) throw new Error("That token was not accepted.");
         if (!r.ok) throw new Error("Recently deleted could not load.");
         const rows = ((await r.json()) as { deletions: WireDeletion[] })

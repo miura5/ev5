@@ -1,4 +1,5 @@
 import type { NoteCollection } from "./types.ts";
+import { api } from "../../commands/client.ts";
 
 export interface CollectionsRead {
   collections: NoteCollection[];
@@ -15,9 +16,7 @@ const token = (): string => {
 };
 
 async function get(path: string): Promise<Record<string, unknown>> {
-  const r = await fetch(`/api/v1/${path}`, {
-    headers: { authorization: `Bearer ${token()}` },
-  });
+  const r = await api(path, token());
   if (!r.ok) return {};
   return (await r.json()) as Record<string, unknown>;
 }

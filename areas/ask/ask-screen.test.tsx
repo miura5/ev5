@@ -25,7 +25,7 @@ test("with a token, open jobs show; sending says the chat is not connected", asy
   vi.stubGlobal("fetch", fetchMock);
   render(<AskScreen />);
   await waitFor(() => expect(screen.getByText("Practice set")).toBeTruthy());
-  expect(fetchMock).toHaveBeenCalledWith("/api/v1/jobs", { headers: { authorization: "Bearer t" } });
+  expect(fetchMock).toHaveBeenCalledWith("/api/v1/jobs", { method: "GET", headers: { authorization: "Bearer t" } });
   const box = screen.getByLabelText("Message to E.V.");
   fireEvent.change(box, { target: { value: "hi" } });
   fireEvent.keyDown(box, { key: "Enter" });

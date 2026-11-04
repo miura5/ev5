@@ -98,3 +98,9 @@ test('ids: D-nnn and B-nnn fail in code, CSS and READMEs; the record, history an
     'ok.ts': '// ABCD-12 and CD-1 and the D-day are not ids' });
   assert.deepEqual(checkIds(r.root, r.files).map(f => f.file).sort(), ['a.ts', 'b.css', 'jobs/README.md']);
 });
+
+test('rules: README "only" fails, job prompts are checked for ids but not for rule words', () => {
+  const r = repo({ 'CONTRACT.md': CONTRACT, 'x/README.md': 'Imports kit only.\n', 'jobs/j/prompt.md': 'Use only the excerpts. Never invent. See §a.nope.\n' });
+  assert.equal(details(checkRules(r.root, r.files).filter(f => f.file === 'x/README.md')), 'states a rule without a §id: Imports kit only.');
+  assert.match(details(checkRules(r.root, r.files).filter(f => f.file === 'jobs/j/prompt.md')), /^cites §a\.nope, which CONTRACT\.md does not define$/);
+});
