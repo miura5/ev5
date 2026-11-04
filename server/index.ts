@@ -20,7 +20,7 @@ export interface Env extends AuthEnv {
   /** Tests hand in a fake model call for Ask E.V.; production builds one from the key. */
   ASK_CALL?: import("../jobs/index.ts").ModelCall;
   /** The environment's R2 bucket for note pictures (wrangler `r2_buckets`), keys under note-images/. */
-  IMAGES: R2Like;
+  IMAGES?: R2Like;
   ASSETS: { fetch(request: Request): Promise<Response> };
   /** Set at deploy (`--var COMMIT:<sha>`). */
   COMMIT?: string;
