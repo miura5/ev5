@@ -1,0 +1,23 @@
+.kit-themebtn {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--sp-8);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: var(--fs-meta);
+  cursor: pointer;
+}
+
+.kit-themebtn:hover {
+  color: var(--text);
+}
+
+.kit-themebtn:focus-visible {
+  outline: var(--sp-1) solid var(--text);
+  outline-offset: calc(-1 * var(--sp-1));
+}
