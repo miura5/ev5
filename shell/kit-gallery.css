@@ -30,6 +30,12 @@
   font-weight: var(--fw-medium);
   margin: 0 0 var(--sp-3);
 }
+.gallery h3 {
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin: var(--sp-6) 0 var(--sp-2);
+}
 .gallery section {
   margin-bottom: var(--sp-12);
 }
