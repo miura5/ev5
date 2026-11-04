@@ -14153,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #275 and #286: /collection/:id, rows show item titles and dates. Left: pins/new/rename handlers (no write commands), saved-view page, Restore.",
+  "notes": "Run 55 #381: Restore in Recently deleted via item.restore. Left: pins on the collection page need a server read route for pins (server slice) first; saved-view page, item menu.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
@@ -14569,7 +14569,7 @@
   "depends": [
    "B-746"
   ],
-  "notes": "Library wired to staging docs (sets, exams, weakspots) via areas/library/useLibrary.ts + map.ts; set page mounts on open; token form as Today. Left: accuracy line, practice session, Edit/Study hookups, set due counts.",
+  "notes": "Run 55 #382: accuracy line (first-try, 14 days vs previous 14) and set due counts (latest answer wrong or tell-me) from areas/library/tally.ts. Left: practice session, Edit/Study hookups.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
@@ -15120,8 +15120,8 @@
   "depends": [
    "B-752"
   ],
-  "notes": "Run 40: Today tick journey through the browser + / redirects to /today (#294). Still NOT BUILT: notes-offline, practice-set, study-plan.",
-  "commit": null,
+  "notes": "Run 55: notes-offline journey built (#380, not yet run on staging: dispatch gate5-e2e; the offline reload needs sw.js to precache the shell). Still NOT BUILT: practice-set, study-plan.",
+  "commit": "1",
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.952Z"
