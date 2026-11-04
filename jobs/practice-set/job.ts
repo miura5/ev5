@@ -58,7 +58,6 @@ export const OutputSchema = z.object(
   { error: 'The answer must be an object.' },
 );
 
-export type Excerpt = z.infer<typeof ExcerptSchema>;
 export type PracticeInput = z.infer<typeof InputSchema>;
 export type PracticeItem = z.infer<typeof ItemSchema>;
 export type PracticeOutput = z.infer<typeof OutputSchema>;
@@ -81,7 +80,6 @@ export type PracticeResult =
   | { ok: false; reason: string; costCents: number };
 
 export const parseInput = parseWith(InputSchema);
-export const parseOutput = parseWith(OutputSchema);
 
 /** Plain-words problems with the items themselves; the citation check is added by the caller. */
 export function checkItems(out: PracticeOutput, count: number): string[] {

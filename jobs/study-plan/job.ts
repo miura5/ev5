@@ -49,7 +49,6 @@ const ChangeSchema = z.object({
   note: text('note', 2000),
 });
 
-export type StudyPlanInput = z.infer<typeof InputSchema>;
 export type Decision = {
   decision: 'approve' | 'put_away' | 'change';
   note?: string;

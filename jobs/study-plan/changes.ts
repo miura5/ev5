@@ -48,7 +48,6 @@ export const PatchSchema = z.object(
   },
   { error: "patch: not an object" },
 );
-export type Op = z.infer<typeof OpSchema>;
 export type Patch = z.infer<typeof PatchSchema>;
 
 export const parsePatch = parseWith(PatchSchema);
