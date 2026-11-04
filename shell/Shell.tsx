@@ -100,7 +100,7 @@ export function Shell({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
-  const View = bare === DELETED_ROUTE ? undefined : current?.view;
+  const View = current?.view;
   const groups = useMemo<PaletteGroup[]>(
     () => [
       {

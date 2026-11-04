@@ -129,3 +129,11 @@ test("areaFor opens a parent route for a sub-path", async () => {
   const { areaFor } = await import("./areas.ts");
   expect(areaFor("/collection/abc")?.id).toBe("collection");
 });
+
+test("/deleted mounts Recently deleted's view", async () => {
+  const { AREAS } = await import("./areas.ts");
+  localStorage.setItem("ev5.token", "t");
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ items: [] })));
+  render(<Shell path="/deleted" onNavigate={() => undefined} areas={AREAS} />);
+  expect(await screen.findByRole("heading", { name: /Recently deleted/ })).toBeTruthy();
+});

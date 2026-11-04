@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
 import { statusFromJobs, useShellStatus } from "./useShellStatus.ts";
@@ -38,5 +38,30 @@ describe("useShellStatus saved copy", () => {
     const c = renderHook(() => useShellStatus(60_000, answer(false, []), createReadCopy(memoryCopyStore())));
     await new Promise((r) => setTimeout(r, 20));
     expect(c.result.current).toEqual({ counts: {} });
+  });
+});
+
+describe("useShellStatus polling", () => {
+  it("fetches once on mount and once per interval, not on every render", async () => {
+    localStorage.setItem("ev5.token", "t");
+    vi.useFakeTimers();
+    const real = globalThis.fetch;
+    try {
+      const f = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ jobs: [] }) }));
+      globalThis.fetch = f as unknown as typeof fetch;
+      // No doFetch passed: the default is a new function each render, as in App.tsx.
+      const h = renderHook(() => useShellStatus(1000));
+      await vi.advanceTimersByTimeAsync(10);
+      h.rerender();
+      h.rerender();
+      await vi.advanceTimersByTimeAsync(10);
+      expect(f).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(f).toHaveBeenCalledTimes(2);
+      h.unmount();
+    } finally {
+      globalThis.fetch = real;
+      vi.useRealTimers();
+    }
   });
 });

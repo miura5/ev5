@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { storedToken } from "./outbox/index.ts";
 import type { ReadCopy } from "./readCopy.ts";
 
@@ -39,6 +39,9 @@ export function useShellStatus(
   copy?: ReadCopy,
 ): ShellStatus {
   const [status, setStatus] = useState<ShellStatus>({ counts: {} });
+  // The default fetch is a new function every render; keep the latest in a ref so the poll never restarts for it.
+  const latest = useRef({ doFetch, copy });
+  latest.current = { doFetch, copy };
   useEffect(() => {
     let live = true;
     const load = async () => {
@@ -46,13 +49,14 @@ export function useShellStatus(
       if (!token) return;
       try {
         const get = async () => {
-          const r = await doFetch("/api/v1/jobs", {
+          const r = await latest.current.doFetch("/api/v1/jobs", {
             headers: { authorization: `Bearer ${token}` },
           });
           if (!r.ok) throw new Error(`jobs ${r.status}`);
           return ((await r.json()) as { jobs?: WireJob[] }).jobs ?? [];
         };
         // Offline on a cold start, the saved list still gives the sidebar its numbers (§data.offline).
+        const { copy } = latest.current;
         const jobs = copy ? await copy.read("jobs", get) : await get();
         if (live) setStatus(statusFromJobs(jobs));
       } catch {
@@ -65,6 +69,6 @@ export function useShellStatus(
       live = false;
       clearInterval(t);
     };
-  }, [every, doFetch, copy]);
+  }, [every]);
   return status;
 }
