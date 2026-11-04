@@ -14880,11 +14880,13 @@
   "title": "Every v5 writer goes through the docs protocol and is compat-checked on its real output",
   "dod": "server/plan-home.ts writes plans and exams through data/docs (canonical JSON, if_version), not raw SQL with JSON.stringify; tests run each writer's actual output (note save, session pause/end, queueAnswer, Today dayedits, plan save, exam planId) through validateWrite; session writes set source and at like note saves (CONTRACT §data.compat, §data.protocol, §data.writers)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Merged #299 (session pause/resume/End) and #303 (tell-me, switch/undo payloads). Left: queueAnswer in shell/outbox has no validateWrite test (needs a slice that includes shell/outbox).",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run42",
+  "claimedAt": "2026-11-04T10:33:05.615Z"
  },
  {
   "id": "B-799",
@@ -15679,5 +15681,22 @@
   "notes": "Merged #300: jobApi and the session note read fall back to the saved copy; 401/5xx throw ApiError.",
   "commit": "80ca884",
   "source": "ops/record"
+ },
+ {
+  "id": "B-857",
+  "kind": "task",
+  "title": "Stuck jobs show as failed: a scheduled check finds jobs past their deadline in queued or running and marks them failed with a plain reason",
+  "dod": "defineJob gains a per-kind deadline for queued and for running (longer than the retried step time); a registered schedule-only command (job_sweep) runs on the Worker's 15-minute cron through the command registry; it finds jobs in queued or running past their kind's deadline and moves each to failed with a plain reason Activity shows (for example: stopped, its runner was lost; retry it from Activity); needs-you jobs are never swept (§job.needs-you); it never re-fires a job (§job.trace), never deletes or overwrites output already written, and keeps the job's cost and output pointer; it writes through the store's compare-and-set, so a job that finishes during the sweep wins and a second sweep changes nothing (idempotent); tests cover past-deadline queued and running, a fresh job left alone, needs-you left alone, a concurrent finish refused, and a second run with no change",
+  "milestone": "5",
+  "status": "in progress",
+  "depends": [
+   "B-735",
+   "B-736"
+  ],
+  "notes": "Gap confirmed 2026-11-04: jobs/runtime has the 5-minute step timeout and compare-and-set, but nothing moves a job whose Workflow instance, executor or Mac session died; wrangler.jsonc has no cron trigger and server/worker.ts no scheduled handler. Likely split: (1) jobs/runtime deadline field and sweepStale with tests, (2) commands job_sweep plus server scheduled handler and the */15 cron in wrangler.jsonc. B-754 (S-80) adds morning, evening and weekly to the same scheduled handler. Order: first in group 2 of the agreed Next order, after the foundation group.",
+  "commit": null,
+  "source": "Matt 2026-11-04 (ev-build): jobs going unnoticed and stale",
+  "claimedBy": "run42",
+  "claimedAt": "2026-11-04T10:33:05.429Z"
  }
 ]
