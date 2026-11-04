@@ -29,3 +29,24 @@ test("a server error shows the plain sentence", async () => {
     "Something went wrong on E.V.'s side. Try again in a moment.",
   );
 });
+
+test("while the list loads no group says None; it does once the list arrives empty", async () => {
+  localStorage.setItem("ev5.token", "t");
+  let release!: (r: Response) => void;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise<Response>((res) => (release = res))),
+  );
+  render(<ActivityScreen />);
+  await waitFor(() => expect(fetch).toHaveBeenCalled());
+  expect(screen.queryByText("None.")).toBeNull();
+  expect(screen.getAllByText("Loading…")).toHaveLength(3);
+  release(
+    new Response("[]", {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }),
+  );
+  expect(await screen.findAllByText("None.")).toHaveLength(3);
+  expect(screen.queryByText("Loading…")).toBeNull();
+});
