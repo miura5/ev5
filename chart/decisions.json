@@ -1,5 +1,25 @@
 [
  {
+  "id": "D-468",
+  "date": "Nov 3",
+  "title": "CLAUDE.md imports AGENTS.md with an @AGENTS.md line, so the agents' playbook loads at session start, not only when a session opens it",
+  "why": "Claude Code's memory docs: when CLAUDE.md and AGENTS.md sit in the same directory, only CLAUDE.md loads by default, and a CLAUDE.md that says 'read AGENTS.md' in words is not an import. No SessionStart hook prints AGENTS.md, so it loads once.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "https://code.claude.com/docs/en/memory.md#agents-md"
+ },
+ {
+  "id": "D-467",
+  "date": "Nov 3",
+  "title": "The rules check (§drift.one-file) also scans AGENTS.md (at most 250 lines) and CLAUDE.md (at most 20 lines), not only READMEs and skills",
+  "why": "Agent procedure files can hold rules too; a never/always/must line there now cites a CONTRACT §id, so a rule has one home. Matt asked for it after the Radix drift. No new check, only a wider scope.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build, 2026-11-04 ('Extend the check')"
+ },
+ {
   "id": "D-466",
   "date": "Nov 3",
   "title": "Spend limits: the Anthropic Console limit is $200 a month for the whole account, and E.V. is its only API user; D-460's ceilings (per job $1, hourly $2, daily $5, monthly $40) are confirmed as the defaults, and they stay adjustable in D1 settings without a release",
