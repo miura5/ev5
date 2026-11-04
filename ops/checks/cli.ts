@@ -4,6 +4,7 @@ import { checkAccount } from './account.ts';
 import { checkIds } from './ids.ts';
 import { listFiles } from './lib.ts';
 import { checkModelsAge } from './models.ts';
+import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
@@ -21,6 +22,7 @@ const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
   ...checkIds(root, files),
+  ...checkPlanJob(root, files),
   ...checkPresence(root, files),
   ...checkRadix(root, files),
   ...checkRegistry(root, files),
