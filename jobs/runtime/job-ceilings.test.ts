@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { jobCeilings, spendAlertWriter } from "./job-ceilings.ts";
+import {
+  acknowledgeSpendAlert,
+  jobCeilings,
+  spendAlertWriter,
+} from "./job-ceilings.ts";
 import { memoryStore } from "./ceilings-memory.ts";
 import type { JobRecord, JobStore } from "./record.ts";
 
@@ -65,4 +69,27 @@ test("a later month gets its own alert", async () => {
     "spend-alert:2026-11",
     "spend-alert:2026-12",
   ]);
+});
+
+test("acknowledging the spend alert closes it for good", async () => {
+  const js = jobs();
+  await spendAlertWriter(js)("80%", new Date("2026-11-04T10:00:00Z"));
+  const id = "spend-alert:2026-11";
+  const done = await acknowledgeSpendAlert(
+    js,
+    id,
+    new Date("2026-11-04T11:00:00Z"),
+  );
+  assert.equal(done.state, "done");
+  assert.equal(js.all.get(id)?.state, "done");
+  await spendAlertWriter(js)("80%", new Date("2026-11-05T10:00:00Z")); // no second alert this month
+  assert.equal(js.all.get(id)?.state, "done");
+  await assert.rejects(
+    acknowledgeSpendAlert(js, id, new Date()),
+    /not waiting/,
+  );
+  await assert.rejects(
+    acknowledgeSpendAlert(js, "nope", new Date()),
+    /not a spend alert/,
+  );
 });

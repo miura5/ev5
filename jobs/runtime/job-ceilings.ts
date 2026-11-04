@@ -2,7 +2,7 @@
 import { reserve, settle, release } from "./ceilings.ts";
 import type { CeilingConfig, CeilingStore } from "./ceilings.ts";
 import type { Ceilings } from "./workflow.ts";
-import { newJob } from "./record.ts";
+import { newJob, transition, update } from "./record.ts";
 import type { JobStore } from "./record.ts";
 
 const MICRO_PER_CENT = 10_000;
@@ -32,6 +32,29 @@ export function spendAlertWriter(store: JobStore) {
       needsYouAt: iso,
     });
   };
+}
+
+/**
+ * Matt's acknowledge on the spend alert: needs-you moves to done (terminal), so Activity files it under done and Today's
+ * line goes. Refuses any other kind, and an alert that is no longer waiting.
+ */
+export async function acknowledgeSpendAlert(
+  store: JobStore,
+  id: string,
+  at: Date,
+) {
+  const cur = await store.get(id);
+  if (!cur || cur.kind !== SPEND_ALERT_KIND)
+    throw new Error(`job ${id}: not a spend alert`);
+  if (cur.state !== "needs-you")
+    throw new Error(`job ${id}: the alert is not waiting`);
+  return update(store, id, (r) =>
+    transition(r, {
+      to: "done",
+      at: at.toISOString(),
+      output: { home: "activity", id },
+    }),
+  );
 }
 
 /**

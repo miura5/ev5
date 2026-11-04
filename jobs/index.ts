@@ -6,7 +6,11 @@ export {
   saveOutput,
 } from "./runtime/d1-stores.ts";
 export type { D1Like } from "./runtime/d1-stores.ts";
-export { jobCeilings, spendAlertWriter } from "./runtime/job-ceilings.ts";
+export {
+  jobCeilings,
+  spendAlertWriter,
+  acknowledgeSpendAlert,
+} from "./runtime/job-ceilings.ts";
 export { runJob } from "./runtime/workflow.ts";
 export type {
   InstanceParams,
