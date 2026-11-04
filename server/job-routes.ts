@@ -15,6 +15,7 @@ import {
 import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
+import { gatherExcerpts } from "./excerpts.ts";
 
 export interface JobRoutesEnv {
   DB: D1Like;
@@ -45,6 +46,11 @@ function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   };
 }
 
+type ScopedInput = { objectives: string[] };
+async function withGathered(db: D1Like, input: ScopedInput) {
+  return { ...input, excerpts: await gatherExcerpts(db, input.objectives) };
+}
+
 const body = async (req: Request): Promise<Record<string, unknown>> => {
   try {
     const v: unknown = await req.json();
@@ -68,12 +74,17 @@ jobRoutes.post("/jobs/:slug", async (c) => {
   const by = c.get("caller") === "app" ? "matt" : "schedule";
   if (!def.startedBy.includes(by))
     return c.json({ error: `${def.title} cannot be started by ${by}` }, 403);
-  const { input } = await body(c.req.raw);
+  const { input: asked } = await body(c.req.raw);
   try {
-    def.input(input);
+    def.input(asked);
   } catch (e) {
     return c.json({ error: (e as Error).message }, 400);
   }
+  // The caller names a scope (objectives); the server finds the passages itself and drops any it was sent.
+  const input =
+    def === (practiceSet as JobDef)
+      ? await withGathered(c.env.DB, def.input(asked) as ScopedInput)
+      : asked;
   const rec = await startJob(startEnv(c.env, def), def, input, by);
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
