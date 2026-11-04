@@ -15054,10 +15054,10 @@
   "title": "Guard: ban export *",
   "dod": "ESLint (no-restricted-syntax ExportAllDeclaration) or a dependency-cruiser rule fails on export *; an ops/guards fixture goes red; domain/weak-spot, domain/note and domain/set use named re-exports; main is green (CONTRACT §drift.imports)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F30): three index.ts files use export * and no rule bans it.",
-  "commit": null,
+  "commit": "7b8820d",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15156,10 +15156,10 @@
   "title": "Document size budget: warn at 75%, fail at 90%",
   "dod": "The docs write path measures each document against its platform ceiling; a write over 75% logs a warning in Activity, over 90% is refused with a plain reason; doc-route tests cover both (CONTRACT §data.size)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit: only the 1 MiB hard cap exists (data/compat/protocol.ts:11).",
-  "commit": null,
+  "commit": "d3f7951",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15282,6 +15282,20 @@
   ],
   "notes": "Slice write: areas/notes. Stale empty branches claude/B-795-domain-noteblocks and claude/B-796-editor-leftovers (created by mistake in run 30) can be deleted.",
   "commit": "18dff1a",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-829",
+  "kind": "task",
+  "title": "domain/index.ts exports fits and splitWide so the notes editor drops areas/notes/parts/editorFits.ts (copy with limits 4000 lines and 400 runs hardcoded)",
+  "dod": "areas/notes imports fits and splitWide from domain; editorFits.ts is removed; notes tests stay green",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-828"
+  ],
+  "notes": "Slice write: domain (interface change), areas/notes. From the B-828 builder report.",
+  "commit": null,
   "source": "ops/record"
  }
 ]
