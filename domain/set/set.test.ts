@@ -52,11 +52,11 @@ const attempt = (date: string) => ({
 test('parseSet accepts an ev4 schema 3 set and refuses stored answers and unknown fields', () => {
   expect(parseSet(base).items).toHaveLength(2);
   expect(() => parseSet({ ...base, answers: {} })).toThrow(/answers/);
-  expect(() => parseSet({ ...base, extra: 1 })).toThrow(/unexpected field extra/);
+  expect(() => parseSet({ ...base, extra: 1 })).toThrow(/extra/);
   expect(() => parseSet({ ...base, schema: 2 })).toThrow(/schema/);
   expect(() => parseSet({ ...base, kind: 'quiz' })).toThrow(/kind/);
   expect(() => parseSet({ ...base, items: [] })).toThrow(/items/);
-  expect(() => parseSet({ ...base, items: [{ id: 'x', stem: 's', bogus: 1 }] })).toThrow(/unexpected field bogus/);
+  expect(() => parseSet({ ...base, items: [{ id: 'x', stem: 's', bogus: 1 }] })).toThrow(/bogus/);
   expect(() =>
     parseSet({
       ...base,

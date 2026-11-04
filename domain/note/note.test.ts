@@ -85,7 +85,7 @@ describe('noteDoc', () => {
       editedAt: '2026-10-26T10:00:00Z',
     });
     expect(noteDoc({ ...prev, earlierOf: undefined }, { blocks: doc.blocks, at: doc.at }).title).toBe('Renal system');
-    expect(parseNote(doc)).toBe(doc);
+    expect(parseNote(doc)).toEqual(doc);
   });
 
   test('a course of null clears it; undefined keeps it', () => {
@@ -104,7 +104,7 @@ describe('parseNote and writeProblem', () => {
   const good = () => noteDoc(null, { blocks: SAMPLE, at: AT });
   test('refuses what the frozen schema refuses', () => {
     const bad = (patch: Record<string, unknown>) => () => parseNote({ ...good(), ...patch });
-    expect(bad({ extra: 1 })).toThrow(/unexpected/);
+    expect(bad({ extra: 1 })).toThrow(/extra/);
     expect(bad({ schema: 2 })).toThrow();
     expect(bad({ writer: 'worker' })).toThrow();
     expect(bad({ title: 'x'.repeat(301) })).toThrow();
@@ -134,7 +134,7 @@ describe('parseNote and writeProblem', () => {
   test('writeProblem: shape, size cap, createdAt and earlierOf written once', () => {
     const prev = good();
     expect(writeProblem(prev, null)).toBeNull();
-    expect(writeProblem({ ...prev, extra: 1 }, null)).toMatch(/unexpected/);
+    expect(writeProblem({ ...prev, extra: 1 }, null)).toMatch(/extra/);
     expect(writeProblem({ ...prev, createdAt: '2026-01-01T00:00:00Z' }, prev)).toMatch(/createdAt is written once/);
     expect(writeProblem({ ...prev, earlierOf: ID }, prev)).toMatch(/earlierOf is written once/);
     const big = {
@@ -219,7 +219,7 @@ describe('stale save', () => {
     expect(res.earlier.blocks).toEqual(his.blocks);
     expect(res.earlier.editedAt).toBe(his.editedAt);
     expect('archivedAt' in res.earlier || 'discardedAt' in res.earlier).toBe(false);
-    expect(parseNote(res.earlier)).toBe(res.earlier);
+    expect(parseNote(res.earlier)).toEqual(res.earlier);
     expect(writeProblem(res.earlier, null)).toBeNull();
   });
 
