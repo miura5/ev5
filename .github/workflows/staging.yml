@@ -37,6 +37,10 @@ jobs:
           node -e "const f='wrangler.jsonc',s=require('fs').readFileSync(f,'utf8');require('fs').writeFileSync(f,s.replace('00000000-0000-0000-0000-000000000000',process.env.DBID))"
           npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file data/staging/schema.sql
           npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file data/staging/seed.sql
+      - name: Verify every migration table exists
+        run: |
+          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --json \
+            --command "SELECT name FROM sqlite_master WHERE type IN ('table','index')" | node ops/verify-staging-schema.mjs
       - name: Deploy
         run: |
           set -o pipefail
