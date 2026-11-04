@@ -1,12 +1,9 @@
 // Repositories for collections, memberships, pins and item properties (PLAN section 5.10). Rows carry `at` (ms in D1,
 // an ISO string in the domain) and `v` with the docs protocol: a new row needs ifVersion null, a change needs the version
 // last read, and a stale write is refused, never merged. Every row read is parsed by its domain rule.
-import {
-  parseCollection,
-  parseMembership,
-} from "../../domain/collection/index.ts";
-import { parseItemProps } from "../../domain/item-props/index.ts";
-import { parsePin } from "../../domain/pin/index.ts";
+import { parseCollection, parseMembership } from "../../domain/index.ts";
+import { parseItemProps } from "../../domain/index.ts";
+import { parsePin } from "../../domain/index.ts";
 import {
   core,
   iso,

@@ -3,7 +3,7 @@ import {
   parseOwnAttempt,
   parseOwnSet,
   parseOwnSetItem,
-} from "../../domain/own-set/index.ts";
+} from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import {
   core,

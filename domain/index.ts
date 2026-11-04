@@ -27,3 +27,11 @@ export type { Exam } from "./exam/index.ts";
 export { addDays, centralDate } from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
+export { parseCollection, parseMembership } from "./collection/index.ts";
+export { parseItemProps } from "./item-props/index.ts";
+export { parsePin } from "./pin/index.ts";
+export {
+  parseOwnSet,
+  parseOwnSetItem,
+  parseOwnAttempt,
+} from "./own-set/index.ts";
