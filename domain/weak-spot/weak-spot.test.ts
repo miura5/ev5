@@ -77,7 +77,7 @@ test('spaced review: a miss after solid reopens it and raises recurrence', () =>
   });
   expect([d.status, d.streak, d.recurrence, d.nextDue]).toEqual(['open', 0, 2, '2026-10-16']);
 });
-test('D-041 pre-read: the first check after the reading decides it', () => {
+test('pre-read rule: the first check after the reading decides it', () => {
   const pre = ws('p', { preRead: true, readingDue: '2026-10-17' });
   expect(deriveWeakSpot(pre, [att('2026-10-18', true)]).solidBy).toBe('first-check-after-reading');
   const missed = deriveWeakSpot(pre, [att('2026-10-18', false)]);

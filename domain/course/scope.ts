@@ -1,7 +1,7 @@
 import { defaultCourse } from './table.ts';
 import type { CourseTable, ExamRef, ObjectiveRef, SpotRef, TaskRef } from './types.ts';
 
-// Which course a weak spot, chat note or Today task belongs to, by one rule for every reader (ev4 B-498, B-497, B-517).
+// Which course a weak spot, chat note or Today task belongs to, by one rule for every reader.
 
 /** Letters and digits only, lower case: a course name in any spacing or case. */
 const key = (s: unknown): string =>

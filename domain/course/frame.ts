@@ -1,7 +1,7 @@
 import { namedCourse } from './scope.ts';
 import type { CourseTable } from './types.ts';
 
-// How E.V.'s prompts frame material by exam for the course in context (ev4 B-601). NCLEX and next-gen framing belong to
+// How E.V.'s prompts frame material by exam for the course in context. NCLEX and next-gen framing belong to
 // a course flagged nursing only; another course frames by its own exams; no course known gets neutral framing.
 
 type ExamFrame = {

@@ -64,6 +64,7 @@ const GUARDS: Guard[] = [
   { name: 'a job without job.test.ts (ops/checks presence)', command: checks, files: { 'jobs/solo/job.ts': 'export const solo = 1;\n' }, expect: /presence: jobs\/solo\/job\.ts: missing jobs\/solo\/job\.test\.ts/ },
   { name: 'a component without a story (ops/checks presence)', command: checks, files: { 'kit/components/Btn/Btn.tsx': 'export const Btn = 1;\n', 'kit/components/Btn/Btn.test.tsx': '' }, expect: /presence: kit\/components\/Btn: missing kit\/components\/Btn\/Btn\.story\.tsx/ },
   { name: 'a kit menu without Radix (ops/checks radix)', command: checks, files: { 'kit/components/Pop/Pop.tsx': 'export const Pop = () => <ul role="menu" />;\n' }, expect: /radix: kit\/components\/Pop\/Pop\.tsx: draws or handles role="menu itself; import @radix-ui\/\* or cmdk/ },
+  { name: 'a decision id in a comment (ops/checks ids)', command: checks, files: { 'domain/why.ts': `// kept because of ${['D', '123'].join('-')}\nexport const why = 1;\n` }, expect: /ids: domain\/why\.ts: line 1 gives D.123/ },
   { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },
 ];
 

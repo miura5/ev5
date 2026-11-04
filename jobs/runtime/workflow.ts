@@ -69,7 +69,7 @@ export function workflowExecutor(wf: WorkflowAdapter, kind: string): Executor {
   };
 }
 
-/** Ceilings (B-737) arrive through this interface; every call reserves its maximum first, usage is keyed so it counts once. */
+/** Ceilings arrive through this interface; every call reserves its maximum first, usage is keyed so it counts once. */
 export interface Ceilings {
   reserve(jobId: string, maxCents: number): Promise<void>;
   record(key: string, jobId: string, cents: number): Promise<void>;
@@ -131,7 +131,7 @@ export async function runJob(
         reserve: (cents) => env.ceilings.reserve(p.jobId, cents),
         spend: async (cents) => {
           await env.ceilings.record(`${instanceId}:${name}:${c.attempt}`, p.jobId, cents);
-          // The job record shows what the job cost (B-742: it stayed 0 because only the ceilings were told).
+          // The job record shows what the job cost (it stayed 0 because only the ceilings were told).
           await update(env.store, p.jobId, (r) => addCost(r, cents, env.now()));
         },
       };

@@ -94,7 +94,7 @@ export const ALL_TABLES: TableSpec[] = [
   ...JOB_TABLES,
 ];
 
-/** D-321: the per-target system documents an export leaves out (a Worker's token is never kept in its own backup). */
+/** The per-target system documents an export leaves out (a Worker's token is never kept in its own backup). */
 export const SYSTEM_PER_TARGET = [
   "worker",
   "manifest",
