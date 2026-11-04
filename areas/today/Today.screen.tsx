@@ -26,34 +26,17 @@ export function TodayScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { data, token, error, alert, tick, setToken } = useToday(
-    services?.readCopy,
-  );
+  const { data, error, alert, tick } = useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
-  const [draft, setDraft] = useState("");
-  if (!token)
-    return (
-      <form
-        className="ev-today"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (draft.trim()) setToken(draft.trim());
-        }}
-      >
-        <label className="ev-today-meta" htmlFor="ev-token">
-          Paste your app token to see Today
-        </label>
-        <input
-          id="ev-token"
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    );
+  // No data and no failure yet (loading, or the shell's token screen is up): show nothing, never an empty day.
+  if (!data && !error) return null;
   return (
     <>
-      {error ? <p className="ev-today-meta">{error}</p> : null}
+      {error ? (
+        <p className="ev-today-meta" role="status">
+          {error}
+        </p>
+      ) : null}
       {notSaved ? <p className="ev-today-meta">Not saved. Try again.</p> : null}
       <TodayView
         dateLabel={dateLabel()}

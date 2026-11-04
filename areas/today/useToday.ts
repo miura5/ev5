@@ -4,22 +4,19 @@ import { mapToday, spendAlertLine } from "./map.ts";
 import { buildDayEdit } from "./dayedit.ts";
 import type { DayEditDoc } from "./dayedit.ts";
 import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
-import { api, jobApi } from "../../commands/client.ts";
-
-const KEY = "ev5.token";
+import {
+  ApiError,
+  api,
+  failureKind,
+  failureSentence,
+  jobApi,
+  readToken,
+} from "../../commands/client.ts";
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
 export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
-
-const readToken = (): string => {
-  try {
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
 
 export interface TodayState {
   data?: TodayData;
@@ -29,20 +26,17 @@ export interface TodayState {
   alert?: string;
   /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
   tick: (id: string, done: boolean) => Promise<boolean>;
-  setToken: (t: string) => void;
 }
-
-class Unauthorized extends Error {}
 
 async function get(path: string, token: string): Promise<Response> {
   const r = await api(`docs?${path}`, token);
-  if (r.status === 401) throw new Unauthorized();
+  if (r.status === 401) throw new ApiError(401);
   return r;
 }
 
 const list = async (collection: string, token: string): Promise<WireDoc[]> => {
   const r = await get(`collection=${collection}`, token);
-  if (!r.ok) throw new Error(collection);
+  if (!r.ok) throw new ApiError(r.status);
   return ((await r.json()) as { docs: WireDoc[] }).docs;
 };
 
@@ -54,18 +48,10 @@ const dayEdit = async (day: string, token: string): Promise<WireDoc | null> => {
 
 /** Reads exams, weak spots and today's plan edits with the app token Matt keeps in this browser (the shell holds none). */
 export function useToday(copy?: ReadCopyLike): TodayState {
-  const [token, setTokenState] = useState(readToken);
+  const [token] = useState(readToken);
   const [data, setData] = useState<TodayData>();
   const [error, setError] = useState<string>();
   const [alert, setAlert] = useState<string>();
-  const setToken = useCallback((t: string) => {
-    try {
-      localStorage.setItem(KEY, t);
-    } catch {
-      // storage blocked: the token lasts this visit only
-    }
-    setTokenState(t);
-  }, []);
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -95,11 +81,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
           setError(undefined);
         }
       } catch (e) {
+        // A refused token shows nothing here: the shell's token screen takes over.
         if (live)
           setError(
-            e instanceof Unauthorized
-              ? "That token was not accepted."
-              : "Today could not load.",
+            failureKind(e) === "refused" ? undefined : failureSentence(e),
           );
       }
     })();
@@ -144,5 +129,5 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     },
     [token],
   );
-  return { data, token, error, alert, tick, setToken };
+  return { data, token, error, alert, tick };
 }

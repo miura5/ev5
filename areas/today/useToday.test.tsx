@@ -1,3 +1,4 @@
+import { failureSentence } from "../../commands/client.ts";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { useToday } from "./useToday.ts";
@@ -80,11 +81,21 @@ function fakeCopy(kept: Record<string, unknown> = {}) {
   };
 }
 
-const exam = { id: "e1", v: 1, at: 1, data: { title: "NUR 112 exam", date: "2099-01-01" } };
+const exam = {
+  id: "e1",
+  v: 1,
+  at: 1,
+  data: { title: "NUR 112 exam", date: "2099-01-01" },
+};
 
 test("offline, Today shows the saved exams and weak spots", async () => {
   localStorage.setItem("ev5.token", "t");
-  vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => {
+      throw new TypeError("offline");
+    }),
+  );
   const copy = fakeCopy({
     "today:exams": [exam],
     "today:weakspots": [],
@@ -93,7 +104,9 @@ test("offline, Today shows the saved exams and weak spots", async () => {
   // the day key moves with the date, so seed whatever date the hook asks for
   const read = copy.read;
   copy.read = (async (key: string, f: () => Promise<unknown>) =>
-    key.startsWith("today:dayedits:") ? null : read(key, f)) as typeof copy.read;
+    key.startsWith("today:dayedits:")
+      ? null
+      : read(key, f)) as typeof copy.read;
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() => expect(result.current.data).toBeTruthy());
   expect(result.current.error).toBeUndefined();
@@ -101,11 +114,31 @@ test("offline, Today shows the saved exams and weak spots", async () => {
 
 test("a 5xx shows the error, not the saved copy, and keeps the copy", async () => {
   localStorage.setItem("ev5.token", "t");
-  vi.stubGlobal("fetch", vi.fn(async () => json({}, 503)));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => json({}, 503)),
+  );
   const saved = [exam];
   const copy = fakeCopy({ "today:exams": saved, "today:weakspots": [] });
   const { result } = renderHook(() => useToday(copy));
-  await waitFor(() => expect(result.current.error).toBe("Today could not load."));
+  await waitFor(() =>
+    expect(result.current.error).toBe(failureSentence("server")),
+  );
   expect(result.current.data).toBeUndefined();
   expect(copy.kept["today:exams"]).toBe(saved);
+});
+
+test("a 401 shows no data and no sentence, and tells the shell", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => json({}, 401)),
+  );
+  const seen = vi.fn();
+  window.addEventListener("ev5:unauthorized", seen);
+  const { result } = renderHook(() => useToday());
+  await waitFor(() => expect(seen).toHaveBeenCalled());
+  window.removeEventListener("ev5:unauthorized", seen);
+  expect(result.current.error).toBeUndefined();
+  expect(result.current.data).toBeUndefined();
 });
