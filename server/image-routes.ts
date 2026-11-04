@@ -2,8 +2,9 @@
 // Auth is applied by index.ts; only the app token's scope reaches this prefix (auth.ts SCOPES).
 //   PUT /note-images/<name>   raw picture bytes, stored under note-images/<name>; 400 on a malformed key, 413 when too big
 //   GET /note-images/<name>   the picture, 404 when absent
-// The key format is the one domain/note's IMG_KEY holds (not exported from its index, so repeated here).
+// The key format is domain/note's IMG_KEY.
 import { Hono } from "hono";
+import { IMG_KEY } from "../domain/index.ts";
 import type { AuthVars } from "./auth.ts";
 
 export interface R2Like {
@@ -23,7 +24,6 @@ export interface ImageRoutesEnv {
   IMAGES?: R2Like;
 }
 
-const KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
 const TYPES: Record<string, string> = {
   png: "image/png",
   jpg: "image/jpeg",
@@ -43,7 +43,7 @@ const typeOf = (key: string) =>
 
 imageRoutes.put("/note-images/:name", async (c) => {
   const key = `note-images/${c.req.param("name")}`;
-  if (!KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
+  if (!IMG_KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
   if (!c.env.IMAGES) return c.json({ error: "picture storage is not set up" }, 503);
   const declared = Number(c.req.header("content-length") ?? 0);
   if (declared > MAX_IMAGE)
@@ -60,7 +60,7 @@ imageRoutes.put("/note-images/:name", async (c) => {
 
 imageRoutes.get("/note-images/:name", async (c) => {
   const key = `note-images/${c.req.param("name")}`;
-  if (!KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
+  if (!IMG_KEY.test(key)) return c.json({ error: "malformed picture key" }, 400);
   if (!c.env.IMAGES) return c.json({ error: "picture storage is not set up" }, 503);
   const obj = await c.env.IMAGES.get(key);
   if (!obj) return c.json({ error: "not found" }, 404);

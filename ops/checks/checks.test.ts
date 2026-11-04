@@ -5,6 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
+import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
@@ -103,4 +104,16 @@ test('rules: README "only" fails, job prompts are checked for ids but not for ru
   const r = repo({ 'CONTRACT.md': CONTRACT, 'x/README.md': 'Imports kit only.\n', 'jobs/j/prompt.md': 'Use only the excerpts. Never invent. See §a.nope.\n' });
   assert.equal(details(checkRules(r.root, r.files).filter(f => f.file === 'x/README.md')), 'states a rule without a §id: Imports kit only.');
   assert.match(details(checkRules(r.root, r.files).filter(f => f.file === 'jobs/j/prompt.md')), /^cites §a\.nope, which CONTRACT\.md does not define$/);
+});
+
+test('planjob: the class, the ev4 binding and migration must be present, and no deleted_classes', () => {
+  const cfg = '{ "durable_objects": { "bindings": [{ "name": "PLAN_JOBS", "class_name": "PlanJob" }] }, "migrations": [{ "tag": "v1-plan-jobs", "new_sqlite_classes": ["PlanJob"] }] }';
+  const ok = repo({ 'server/worker.ts': 'export class PlanJob {}', 'wrangler.jsonc': cfg });
+  assert.deepEqual(checkPlanJob(ok.root, ok.files), []);
+  const noClass = repo({ 'server/worker.ts': 'export {}', 'wrangler.jsonc': cfg });
+  assert.equal(checkPlanJob(noClass.root, noClass.files).length, 1);
+  const noCfg = repo({ 'server/worker.ts': 'export class PlanJob {}', 'wrangler.jsonc': '{ "name": "x" }' });
+  assert.equal(checkPlanJob(noCfg.root, noCfg.files).length, 2);
+  const del = repo({ 'server/worker.ts': 'export class PlanJob {}', 'wrangler.jsonc': cfg.replace('"tag"', '"deleted_classes": ["PlanJob"], "tag"') });
+  assert.equal(checkPlanJob(del.root, del.files).length, 1);
 });
