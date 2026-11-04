@@ -1,23 +1,52 @@
-import type { Repeat } from '../time/index.ts';
+import { z } from 'zod';
+import { addDays } from '../time/index.ts';
+
+const text = z.string().min(1);
+const date = z.string().refine((v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && addDays(v, 0) === v, 'not a date');
+
+const repeatSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('daily') }),
+  z.strictObject({ kind: z.literal('weekdays') }),
+  z.strictObject({
+    kind: z.literal('weekly'),
+    days: z
+      .array(z.number().int().min(0).max(6))
+      .min(1)
+      .transform((d) => [...new Set(d)].sort((a, b) => a - b)),
+  }),
+  z.strictObject({
+    kind: z.literal('every'),
+    n: z.number().int().min(1),
+    start: date,
+  }),
+]);
 
 /** The item an item_props row points at: a collection name and an id. */
-export type Linked = { c: string; id: string };
+const linkedSchema = z.strictObject({ c: text, id: text });
+/** @public */
+export type Linked = z.infer<typeof linkedSchema>;
 
 /** Overrides for a morning-made item (ev4 has no override field): flat JSON scalars by field name. */
-export type Overrides = Record<string, string | number | boolean | null>;
+const overridesSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]));
+/** @public */
+export type Overrides = z.infer<typeof overridesSchema>;
 
-/** An item_props row (PLAN §5.10 `item_props(c, id, time, repeat, linked_c, linked_id, overrides, at, v)`). */
-export type ItemProps = {
-  c: string;
-  id: string;
+/** An item_props row (PLAN §5.10 `item_props(c, id, time, repeat, linked_c, linked_id, overrides, at, v)`); every field is present, null meaning "not set". */
+export const itemPropsSchema = z.strictObject({
+  c: text,
+  id: text,
   /** 'HH:MM' Central wall time, or null. */
-  time: string | null;
-  repeat: Repeat | null;
-  linked: Linked | null;
-  overrides: Overrides | null;
-  at: string;
-  v: number;
-};
+  time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .nullable(),
+  repeat: repeatSchema.nullable(),
+  linked: linkedSchema.nullable(),
+  overrides: overridesSchema.nullable(),
+  at: text,
+  v: z.number().int().min(1),
+});
+export type ItemProps = z.infer<typeof itemPropsSchema>;
 
 /** The ev4 kinds an added plan item may have (dayedits schema 1). */
 export type AddedKind =

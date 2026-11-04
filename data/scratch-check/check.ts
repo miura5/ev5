@@ -25,6 +25,13 @@ export function exportProblem(exp: unknown): string | null {
 // A parser message becomes a kind only if it is plain lowercase words after an entity prefix; the name that follows
 // "field"/"key" is dropped, since a key can be anything. Anything else is "other".
 function kindOf(e: unknown): string {
+  // A Zod error: the issue code and the schema's own top-level field name (never a value or a document key).
+  const issue = (e as { issues?: { code?: unknown; path?: unknown[] }[] } | null)?.issues?.[0];
+  if (issue && typeof issue.code === 'string' && /^[a-z_]{1,40}$/.test(issue.code)) {
+    const top = issue.path?.[0];
+    const field = typeof top === 'string' && /^[A-Za-z]{1,30}$/.test(top) ? top : 'document';
+    return `${issue.code.replace(/_/g, ' ')}: ${field}`;
+  }
   const msg = e instanceof Error ? e.message : '';
   const kind = msg.replace(/\b(field|key|fields|keys)\s+\S+/gi, '$1 _');
   return /^[a-z][a-z-]*: [a-z _,.-]{1,60}$/i.test(kind) ? kind.slice(0, 80) : 'other';

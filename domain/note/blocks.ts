@@ -1,8 +1,4 @@
-import { BLOCK_TYPES, LIST_TYPES, MARKS, MAX, type Block, type Run } from './types.ts';
-
-export const IMG_KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
-export const HREF = /^https?:\/\/[^\s<>"]+$/;
-export const ROW = /^[A-Za-z0-9]{1,16}$/;
+import { BLOCK_TYPES, LIST_TYPES, MARKS, MAX, HREF, IMG_KEY, ROW, type Block, type Run } from './types.ts';
 
 type Loose = Record<string, unknown> | null | undefined;
 const isHref = (h: unknown): h is string => typeof h === 'string' && h.length <= MAX.href && HREF.test(h);
