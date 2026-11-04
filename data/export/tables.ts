@@ -80,7 +80,19 @@ export const NEW_TABLES: TableSpec[] = [
   ),
 ];
 
-export const ALL_TABLES: TableSpec[] = [...EV4_TABLES, ...NEW_TABLES];
+/** Migration 0002: job records, cost ceilings and job plan content. */
+export const JOB_TABLES: TableSpec[] = [
+  t("job_records", ["id", "data", "at", "v"], ["id"]),
+  t("ceiling_use", ["w", "k", "used"], ["w", "k"]),
+  t("ceiling_holds", ["id", "amount", "limits", "open"], ["id"]),
+  t("job_plans", ["job_id", "kind", "body", "at"], ["job_id", "kind"]),
+];
+
+export const ALL_TABLES: TableSpec[] = [
+  ...EV4_TABLES,
+  ...NEW_TABLES,
+  ...JOB_TABLES,
+];
 
 /** D-321: the per-target system documents an export leaves out (a Worker's token is never kept in its own backup). */
 export const SYSTEM_PER_TARGET = [
