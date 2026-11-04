@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "../../kit/index.ts";
 import { NoteBlocks } from "./parts/NoteBlocks.tsx";
 import type { NotePageData, NoteSessionState } from "./types.ts";
@@ -7,6 +8,8 @@ export type { NotePageData, NoteSessionState } from "./types.ts";
 
 export interface NotePageProps {
   note: NotePageData;
+  /** Replaces the read-only blocks while the note is being edited. */
+  editor?: ReactNode;
   /** Present only while a study session runs. */
   session?: NoteSessionState;
   onBack?: () => void;
@@ -20,6 +23,7 @@ export interface NotePageProps {
 /** One note, one centred page; the session bar shows only while a session runs. */
 export function NotePageView({
   note,
+  editor,
   session,
   onBack,
   onPickCollection,
@@ -79,7 +83,7 @@ export function NotePageView({
           )}
         </div>
         <h1 className="ev-notes-doctitle">{note.title}</h1>
-        <NoteBlocks body={note.body} />
+        {editor ?? <NoteBlocks body={note.body} />}
       </div>
     </section>
   );
