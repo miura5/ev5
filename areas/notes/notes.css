@@ -175,6 +175,18 @@
   font-size: var(--fs-meta);
 }
 
+.ev-notes-pic img {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--r-md);
+}
+
+.ev-notes-notice {
+  margin: var(--sp-3) 0 0;
+  color: var(--faint);
+  font-size: var(--fs-meta);
+}
+
 .ev-notes-edit .ProseMirror {
   display: flex;
   flex-direction: column;

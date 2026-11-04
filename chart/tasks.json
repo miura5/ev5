@@ -15560,13 +15560,15 @@
   "title": "Notes pictures in the editor: upload to PUT /api/v1/note-images/<name> and show with the app token",
   "dod": "A picture added in a note round-trips after reload on staging (CONTRACT §data.note-images)",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-818"
   ],
   "notes": "Routes exist (server/image-routes.ts); editor half missing. Also export IMG_KEY from domain/note so the server stops repeating the regex.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T08:07:40.554Z"
  },
  {
   "id": "B-850",
