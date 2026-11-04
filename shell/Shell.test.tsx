@@ -137,3 +137,17 @@ test("/deleted mounts Recently deleted's view", async () => {
   render(<Shell path="/deleted" onNavigate={() => undefined} areas={AREAS} />);
   expect(await screen.findByRole("heading", { name: /Recently deleted/ })).toBeTruthy();
 });
+
+test("the palette's Places match the sidebar and an empty group shows no header", async () => {
+  const { AREAS } = await import("./areas.ts");
+  render(<Shell path="/today" onNavigate={() => undefined} areas={AREAS} />);
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  const options = screen.getAllByRole("option").map((o) => o.textContent ?? "");
+  for (const hidden of ["Collection", "Sessions", "Recently deleted"]) {
+    expect(options.some((o) => o.startsWith(hidden))).toBe(false);
+  }
+  expect(options.some((o) => o.startsWith("Library"))).toBe(true);
+  const places = AREAS.filter((a) => a.sidebar !== false).length;
+  const dialog = screen.getByRole("dialog");
+  expect(dialog.textContent?.includes("Commands") ?? false).toBe(options.length > places);
+});
