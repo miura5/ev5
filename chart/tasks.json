@@ -14185,7 +14185,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "",
+  "notes": "Merged #178: journeys over /api/v1 plus dispatch-only gate5-e2e.yml, not yet run on staging. 8 of 14 journeys are todo (plan-item writes, practice set, hand-made set, collection writes, study plan, notes offline, session, Ask). Add e2e/*.test.ts to npm test.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "run29",
@@ -14674,12 +14674,12 @@
   "title": "S-77e: notes collections, new note, and the real editor on the outbox",
   "dod": "Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-778"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged #179. Left: rich editor (D-464 ProseMirror direct, B-792), New collection and filing (needs write routes, C13), Services.collections reader, offline e2e journey.",
+  "commit": "8511893",
   "source": "B-778",
   "claimedBy": "run29",
   "claimedAt": "2026-11-04T00:54:03.368Z"
@@ -14704,12 +14704,12 @@
   "title": "Shell wiring: App passes counts and runningJob to Shell, and a navigate callback for areas",
   "dod": "Sidebar counts and the running-job line show staging data; areas can navigate",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-775"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "8511893",
   "source": "ops/record",
   "claimedBy": "run29",
   "claimedAt": "2026-11-04T00:54:06.574Z"
