@@ -98,7 +98,9 @@ test("the real sidebar lists the six areas in order, then Recently deleted once;
 });
 
 test("⌘K lists commands for this place and runs one through call()", () => {
-  const spy = vi.spyOn(client, "call").mockResolvedValue({ ok: true, mode: "direct" });
+  const spy = vi
+    .spyOn(client, "call")
+    .mockResolvedValue({ ok: true, mode: "direct" });
   render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
   fireEvent.keyDown(window, { key: "k", metaKey: true });
   expect(screen.getByText("Commands")).toBeTruthy();
@@ -111,9 +113,13 @@ test("⌘K lists commands for this place and runs one through call()", () => {
 
 test("Tab hands the typed text to Ask E.V., and ⌘J toggles Ask E.V.", () => {
   const onNavigate = vi.fn();
-  const { rerender } = render(<Shell path="/" onNavigate={onNavigate} areas={areas} />);
+  const { rerender } = render(
+    <Shell path="/" onNavigate={onNavigate} areas={areas} />,
+  );
   fireEvent.keyDown(window, { key: "k", metaKey: true });
-  fireEvent.change(screen.getByRole("combobox"), { target: { value: "what is a ratio" } });
+  fireEvent.change(screen.getByRole("combobox"), {
+    target: { value: "what is a ratio" },
+  });
   fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
   expect(onNavigate).toHaveBeenCalledWith("/ask?text=what%20is%20a%20ratio");
   onNavigate.mockClear();
@@ -133,9 +139,13 @@ test("areaFor opens a parent route for a sub-path", async () => {
 test("/deleted mounts Recently deleted's view", async () => {
   const { AREAS } = await import("./areas.ts");
   localStorage.setItem("ev5.token", "t");
-  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ items: [] })));
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(JSON.stringify({ items: [] })),
+  );
   render(<Shell path="/deleted" onNavigate={() => undefined} areas={AREAS} />);
-  expect(await screen.findByRole("heading", { name: /Recently deleted/ })).toBeTruthy();
+  expect(
+    await screen.findByRole("heading", { name: /Recently deleted/ }),
+  ).toBeTruthy();
 });
 
 test("the palette's Places match the sidebar and an empty group shows no header", async () => {
@@ -149,13 +159,16 @@ test("the palette's Places match the sidebar and an empty group shows no header"
   expect(options.some((o) => o.startsWith("Library"))).toBe(true);
   const places = AREAS.filter((a) => a.sidebar !== false).length;
   const dialog = screen.getByRole("dialog");
-  expect(dialog.textContent?.includes("Commands") ?? false).toBe(options.length > places);
+  expect(dialog.textContent?.includes("Commands") ?? false).toBe(
+    options.length > places,
+  );
 });
 
 test("the theme button, the \\ key and the palette command flip data-theme and keep the choice", () => {
   localStorage.clear();
   render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
-  const root = () => document.querySelector("[data-ui='shell']")?.getAttribute("data-theme");
+  const root = () =>
+    document.querySelector("[data-ui='shell']")?.getAttribute("data-theme");
   expect(root()).toBe("dark");
   fireEvent.click(screen.getByRole("button", { name: /Light theme/ }));
   expect(root()).toBe("light");
@@ -163,10 +176,49 @@ test("the theme button, the \\ key and the palette command flip data-theme and k
   fireEvent.keyDown(window, { key: "\\" });
   expect(root()).toBe("dark");
   fireEvent.keyDown(window, { key: "k", metaKey: true });
-  fireEvent.click(screen.getByRole("option", { name: "Switch light and dark" }));
+  fireEvent.click(
+    screen.getByRole("option", { name: "Switch light and dark" }),
+  );
   expect(root()).toBe("light");
   cleanup();
   render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
   expect(root()).toBe("light");
   localStorage.clear();
+});
+
+test("typing part of a title in ⌘K lists the matching record above Ask E.V.; Enter opens it", async () => {
+  const onNavigate = vi.fn();
+  const rows = {
+    exams: [{ id: "x1", v: 1, at: 1, data: { title: "Synthetic unit exam" } }],
+    notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
+    sets: [],
+    weakspots: [{ id: "w1", v: 1, at: 1, data: { topic: "Synthroid dosing" } }],
+  } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
+  const services = {
+    docs: { list: async (c: string) => rows[c] ?? [] },
+    outbox: {},
+  } as unknown as NonNullable<Parameters<typeof Shell>[0]["services"]>;
+  render(
+    <Shell
+      path="/"
+      onNavigate={onNavigate}
+      areas={[
+        ...areas,
+        { id: "library", route: "/library", nav: "Library", view: () => null },
+      ]}
+      services={services}
+    />,
+  );
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  await new Promise((r) => setTimeout(r, 20));
+  const input = screen.getByPlaceholderText(/Type a command/);
+  fireEvent.input(input, { target: { value: "synth" } });
+  const rowsShown = await screen.findAllByRole("option");
+  const names = rowsShown.map((r) => r.textContent);
+  expect(names[0]).toContain("Synthetic unit exam");
+  expect(names.some((n) => n?.includes("Synthroid dosing"))).toBe(true);
+  expect(names.some((n) => n?.includes("Heart failure"))).toBe(false);
+  expect(names[names.length - 1]).toContain("Ask E.V.: synth");
+  fireEvent.click(rowsShown[0]!);
+  expect(onNavigate).toHaveBeenCalledWith("/library?open=x1");
 });
