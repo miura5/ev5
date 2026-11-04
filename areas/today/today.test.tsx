@@ -47,6 +47,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
   ],
   onStartNext: vi.fn(),
   onOpen: vi.fn(),
+  onTick: vi.fn(),
   onAccept: vi.fn(),
   onEdit: vi.fn(),
   onDismiss: vi.fn(),
@@ -107,4 +108,15 @@ test("Today shows one spend line when the alert is set, none otherwise", () => {
     />,
   );
   expect(screen.getAllByText(/monthly limit/)).toHaveLength(1);
+});
+
+test("the tick on a plan item asks for the opposite state", () => {
+  const p = props();
+  render(<TodayView {...p} />);
+  fireEvent.click(screen.getByRole("button", { name: /Mark done: Review/ }));
+  fireEvent.click(
+    screen.getByRole("button", { name: /Mark not done: Oral liquid/ }),
+  );
+  expect(p.onTick).toHaveBeenNthCalledWith(1, "p1", true);
+  expect(p.onTick).toHaveBeenNthCalledWith(2, "p2", false);
 });
