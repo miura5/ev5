@@ -2,7 +2,7 @@
 // that keeps ev4 able to read the record after a rollback (PLAN §5.2, §5.3). The checks, in order:
 //   1. the collection is one of ev4's 36 (an unknown collection is refused, never passed);
 //   2. `writer` is one of the collection's existing writer values (a new value would be a new enum value);
-//   3. `source` names v5 (starts with "v5") on a create or a whole rewrite; a Fact keeps the envelope it was made with;
+//   3. `source` names v5 (starts with "v5") on a create or a whole rewrite (not sessions: ev4 freezes its enum); a Fact keeps the envelope it was made with;
 //   4. the frozen schema, judged as ev4 judges it (schema-check.ts), so no new field or enum value gets through;
 //   5. ev4's size cap on one document (the UTF-8 bytes of its JSON);
 //   6. given the stored document (`prev`), ev4's rules for changing one: see facts.ts.
@@ -36,6 +36,9 @@ export function writersOf(collection: string, id?: string): string[] {
   return (d ?? c).writers;
 }
 
+/** Collections whose `source` enum ev4 froze to its own values; v5 writes "E.V. Home" there (B-834). */
+const SOURCE_FROZEN: ReadonlySet<string> = new Set(['sessions']);
+
 export function validateWrite(
   collection: string,
   doc: unknown,
@@ -54,7 +57,7 @@ export function validateWrite(
   // An update to a Fact keeps the envelope it was made with (its writer and source are write-once).
   const old = isObj(prev) ? prev : null;
   const keepsEnvelope = old !== null && (c.documents?.[id ?? '']?.class ?? c.class) === 'Fact';
-  if (!keepsEnvelope && (typeof doc.source !== 'string' || !doc.source.startsWith('v5')))
+  if (!keepsEnvelope && !SOURCE_FROZEN.has(collection) && (typeof doc.source !== 'string' || !doc.source.startsWith('v5')))
     errors.push(`/source: names v5 (starts with "v5"), not ${JSON.stringify(doc.source)}`);
 
   errors.push(...schemaErrors(collection, doc, id));

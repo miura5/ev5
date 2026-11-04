@@ -57,3 +57,13 @@ test("the Worker's own check refuses a malformed, oversized or re-identified not
   assert.match(ev4WorkerProblem('notes', 'n-1', moved, goodNote()) ?? '', /createdAt is written once/);
   assert.equal(ev4WorkerProblem('scratch', 'x', { anything: true }, null), null);
 });
+
+test('the v5-source rule is waived for sessions only, where ev4 freezes the source enum', () => {
+  const base = { schema: 1, writer: 'page', at: '2026-11-04T10:00:00Z' };
+  const srcErr = (c: string, source: string) => {
+    const r = validateWrite(c, { ...base, source });
+    return !r.ok && r.errors.some(e => e.startsWith('/source: names v5'));
+  };
+  assert.equal(srcErr('sessions', 'E.V. Home'), false);
+  for (const c of ['notes', 'sets', 'answers', 'weakspots', 'dates']) assert.equal(srcErr(c, 'E.V. Home'), true, c);
+});
