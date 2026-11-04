@@ -4,7 +4,7 @@ How the agents turn `PLAN.md` into tasks and build v5 with almost no time from M
 
 ## 1. Roles
 
-| Role | Who | Does | Never |
+| Role | Who | Does | Not theirs |
 |---|---|---|---|
 | **Build manager** | A cloud scheduled Claude Code task ("E.V. v5 build"), one run at a time (the run lock, §3 step 0) | Picks the batch, starts builders, reviews, ships staging, writes the handover and release card, asks Matt only what §6 allows | Deploys live, changes ev4's live data or tasks, decides a §6 question for Matt |
 | **Supervisor** | Claude in Matt's "ev-build" channel (since 2026-11-03; before that his main chat) | Checks the handover, CI, staging and the run lock a few times a day; fixes stalls and overlaps; tells Matt when something is ready to try or needs him | Builds tasks while a run holds the lock, deploys live, decides a §6 question for Matt |
@@ -70,7 +70,7 @@ interface: none | <folder> (then expand → migrate → contract, PLAN §11)
   4. the area part.
 
   Each later task reads the earlier ones' generated interface only.
-- UI tasks name the mock-up screen they implement. A look the mock-up lacks starts as a kit task, never in a view.
+- UI tasks name the mock-up screen they implement. A look the mock-up lacks starts as a kit task, never in a view (§ui.kit-leads).
 - Every task that writes to an existing ev4 collection lists its compat fixture in "proof".
 
 ### 4.3 Seed tasks
@@ -92,8 +92,8 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-10 TypeScript, Vite, React and Vitest base. One "hello" area.
 - S-11 ESLint (`max-lines`, `ban-ts-comment`, inline disables refused), dependency-cruiser rules from PLAN §4, Stylelint tokens-only, knip.
 - S-12 Custom checks, kept small: presence (stories and tests), registry-only definitions, the CONTRACT/skill/README rule check, the interface-trailer check, the secrets scan (PLAN §10, changed by Matt on 2026-11-02).
-- S-13 Generated files: registries, folder READMEs' interface and must-not lines, `commands/client.ts`. Then regenerate-and-diff in CI.
-- S-14 Guard-failure fixtures: a PR per guard that must go red, recorded.
+- S-13 Generated files: registries, folder READMEs' interface and must-not lines (§drift.interface), `commands/client.ts`. Then regenerate-and-diff in CI.
+- S-14 Guard-failure fixtures: a PR per guard that goes red, recorded.
 - S-15 CI: branch protection, auto-merge, the staging deploy on merge (Cloudflare credentials only in GitHub), the live workflow behind Matt's approval.
 - S-16 The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record.
 - S-17 The rollback runbook in `ops/`, plus rehearsal 1 on a throwaway Worker+D1 pair.
@@ -157,7 +157,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 The task id, its slice (write and read folders), the done-when bar, and the mock-up screen if it's UI. Also:
 - the related running tasks;
-- for model-path tasks, "read current Anthropic docs, never ids or prices from memory";
+- for model-path tasks, "read current Anthropic docs, never ids or prices from memory" (§model.from-docs);
 - every library and structural rule from the PLAN or CONTRACT sections the task cites, quoted with its §id, not only the section number (for example: §ui.mockup, "unstyled Radix primitives and cmdk for behaviour").
 
 Builders **refuse and report** when a task needs a folder outside its slice. The build manager then splits the task or marks an interface change.
@@ -180,7 +180,7 @@ Everything else the build manager decides and records.
 - 2–3 options with the default first;
 - "reply with a number, or 'ok' for the default".
 
-Questions are batched. Never more than one message per run, and none while Matt has said "exam week" unless something is broken.
+Questions are batched. Never more than one message per run, and none while Matt has said "exam week" unless something is broken (§who.asking).
 
 ## 7. Handover format (`docs/handover.md`, current state only)
 
@@ -206,13 +206,13 @@ No jargon, no commit lists. Screenshots at desktop 1280.
 
 - The build task runs on a schedule chosen to fit the daily cap left after ev4's own scheduled runs (PLAN §15 C11) **[verify the plan's current cap]**. Matt can also trigger "Run now".
 - Each run is bounded: it ends after its handover. When usage runs out mid-run, the run stops at a safe point. The next run resumes from the handover.
-- ev4 keeps running live throughout. ev4 bug fixes stay in ev4's own process; this loop never touches ev4's repo except S-09.
+- ev4 keeps running live throughout. ev4 bug fixes stay in ev4's own process; this loop never touches ev4's repo except S-09 (§hard.ev4-own-process).
 
-## 10. Never
+## 10. Off limits
 
-- Deploy live, roll back, or change ev4's live tasks or data without Matt's explicit word.
+- Deploy live, roll back, or change ev4's live tasks or data without Matt's explicit word (§hard.live-on-matts-word, §hard.ev4-own-process).
 - Commit live data or copy it onto staging (CONTRACT §sec.live-data).
-- State model ids, prices or platform limits from memory.
-- Add a rule anywhere except CONTRACT.md.
-- Merge without green checks, or disable a check to get green. A known failure is fixed first. A quarantined check expires.
+- State model ids, prices or platform limits from memory (§model.from-docs).
+- Add a rule anywhere except CONTRACT.md (§drift.one-file).
+- Merge without green checks, or disable a check to get green. A known failure is fixed first. A quarantined check expires (§drift.green).
 - Delete ev4's resources or Matt's data. v5's own throwaway and staging resources may be cleaned up (CONTRACT §deliver.cleanup).

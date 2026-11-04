@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-466",
+  "date": "Nov 3",
+  "title": "The rules check (§drift.one-file) also scans AGENTS.md (at most 250 lines) and CLAUDE.md (at most 20 lines), not only READMEs and skills",
+  "why": "Agent procedure files can hold rules too; a never/always/must line there now cites a CONTRACT §id, so a rule has one home. Matt asked for it after the Radix drift. No new check, only a wider scope.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build, 2026-11-04 ('Extend the check')"
+ },
+ {
   "id": "D-465",
   "date": "Nov 3",
   "title": "Time zones: domain/time uses built-in Intl only, with no @date-fns/tz and no Temporal; supersedes PLAN §4's and §12's mention of @date-fns/tz",

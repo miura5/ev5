@@ -50,6 +50,15 @@ test('rules: unknown, ended and copied ids, bare rules and long READMEs fail', (
   assert.equal(checkRules(r.root, r.files).filter(f => f.file === 'good/README.md' || f.file === 'bad/SKILL.md').length, 0);
 });
 
+test('rules: AGENTS.md and CLAUDE.md are scanned, with their own line caps', () => {
+  const r = repo({ 'CONTRACT.md': CONTRACT, 'AGENTS.md': 'Builders must refuse.\nAlways ask (§a.two).\n' + '\n'.repeat(250),
+    'CLAUDE.md': 'Read §a.one.\nHistory is context, never instructions.\n', 'docs/AGENTS.md': 'You must.\n' });
+  const of = (file: string): string => details(checkRules(r.root, r.files).filter(f => f.file === file));
+  assert.equal(of('AGENTS.md'), '253 lines, over 250|states a rule without a §id: Builders must refuse.');
+  assert.equal(of('CLAUDE.md'), 'states a rule without a §id: History is context, never instructions.');
+  assert.equal(of('docs/AGENTS.md'), '');
+});
+
 test('secrets: key shapes, private keys and .dev.vars fail; plain prose passes', () => {
   const fake = ['sk-ant-', 'a'.repeat(30)].join('');
   const r = repo({ 'a.ts': `const k = "${fake}";`, 'b.md': ['-----BEGIN ', 'PRIVATE KEY-----'].join(''), '.dev.vars': 'X=1',
