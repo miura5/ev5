@@ -7,7 +7,7 @@ How the agents turn `PLAN.md` into tasks and build v5 with almost no time from M
 | Role | Who | Does | Never |
 |---|---|---|---|
 | **Build manager** | A cloud scheduled Claude Code task ("E.V. v5 build"), one run at a time (the run lock, §3 step 0) | Picks the batch, starts builders, reviews, ships staging, writes the handover and release card, asks Matt only what §6 allows | Deploys live, changes ev4's live data or tasks, decides a §6 question for Matt |
-| **Supervisor** | Claude in Matt's chat (since 2026-11-03) | Checks the handover, CI, staging and the run lock a few times a day; fixes stalls and overlaps; tells Matt when something is ready to try or needs him | Builds tasks while a run holds the lock, deploys live, decides a §6 question for Matt |
+| **Supervisor** | Claude in Matt's "ev-build" channel (since 2026-11-03; before that his main chat) | Checks the handover, CI, staging and the run lock a few times a day; fixes stalls and overlaps; tells Matt when something is ready to try or needs him | Builds tasks while a run holds the lock, deploys live, decides a §6 question for Matt |
 | **Builder** | A subagent started by the build manager, one per task | Builds one task in its slice, proves it, opens a PR | Touches folders outside its slice, ships, writes the Chart, holds Cloudflare credentials |
 | **Spike** | A subagent | Answers one question in a throwaway branch, then reports causes, counts and a recommendation | Commits to main |
 | **Reviewer** | A fresh subagent, once per release | Reads the release diff for lost or wrong data, cost, security, crashes and unreachable controls | Edits code |
