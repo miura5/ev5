@@ -17,3 +17,41 @@ export async function cmd(
   expect(r.status, `${name}: ${JSON.stringify(r.body)}`).toBe(200);
   return r.body["result"] as Record<string, unknown>;
 }
+
+/** Best-effort cleanup that never fails or hides the journey's own result: call it from a `finally`. */
+export async function tolerate(step: () => Promise<unknown>): Promise<void> {
+  try {
+    await step();
+  } catch {
+    // A cleanup that cannot run leaves the data; the journey's verdict is what matters.
+  }
+}
+
+/**
+ * Soft-deletes a document through the app's own delete path (writes a `deletions` row, removes nothing, §delete.soft).
+ * Only for documents; collections and sets have no delete command (§delete.who), so journeys reuse or restore those.
+ */
+export async function softDelete(api: Api, id: string): Promise<void> {
+  await tolerate(() => cmd(api, "item.delete", { id }));
+}
+
+export const PARKED_DAY = "2031-12-31";
+
+/** Parks a plan item on a day far from any real one, so Today never shows it (plan items have no delete command). */
+export async function parkPlanItem(api: Api, id: string): Promise<void> {
+  await tolerate(() => cmd(api, "plan.update", { id, date: PARKED_DAY }));
+}
+
+/** Finds a collection by title or creates it once, so repeated runs reuse one instead of adding two every time. */
+export async function collectionNamed(
+  api: Api,
+  title: string,
+): Promise<string> {
+  const list = await api("GET", "/api/v1/collections");
+  const found = (
+    (list.body["collections"] ?? []) as { id: string; title: string }[]
+  ).find((c) => c.title === title);
+  if (found) return found.id;
+  const made = await cmd(api, "collection.create", { title });
+  return (made["collection"] as { id: string }).id;
+}
