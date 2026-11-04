@@ -15731,13 +15731,13 @@
   "title": "Every screen shows a refused or failed call in plain words, never as empty, and Ask's reply stops waiting",
   "dod": "Areas read the token only through the client's token store: the six per-area paste forms and token-key copies (activity, ask, collection, library, sessions, today, deleted, notes) are removed; a 401 shows no data and no 'empty' state, only the shell's token screen; other failures show the client's plain sentence through one shared kit notice, not one-off text; Ask never prints server text: a refused or failed reply shows a plain sentence and the turn stops waiting; an e2e journey on staging (e2e/) covers no token shows the screen, a wrong token returns to it with the plain sentence, and the right token shows Today with data; tests per area for 401 and 5xx",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-858",
    "B-859"
   ],
-  "notes": "Run 44 (#323): Notes failure/401, readToken fallback, Toast in Ask and note editor done. e2e token journey (no/wrong/right token, Use a different token) added by the supervisor's thread 2026-11-04; passed on staging in gate5-e2e run 41847088493 (13 passed, 3 NOT BUILT). Left: call() reason carries raw server text.",
-  "commit": null,
+  "notes": "All parts merged; call() reason is a plain sentence (#328), checked in run 48.",
+  "commit": "b03085a",
   "source": "Matt 2026-11-04 (ev-build): first try of staging; pasted a token, Ask showed 'unauthorized', Today and Library looked empty ('is this expected?')"
  },
  {
@@ -15955,10 +15955,10 @@
   "title": "Focus rings are 4 px wide; the mock-up's are 2 px",
   "dod": "Every kit :focus-visible outline is 2 px solid var(--text), offset -2 px, as design/mockup.html; no component uses a space token (--sp-1) for an outline width; the kit gallery shows a focused Button, NavItem and Row.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "kit NavItem, SidebarSearch, Button, Row, Field and others use outline: var(--sp-1).",
-  "commit": null,
+  "commit": "97c457e",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15979,10 +15979,10 @@
   "title": "The Progress heading uses the browser's default size",
   "dod": "Progress's title uses the kit's title style (--fs-title, 600) with its meta line, like Library's; the placeholder line uses --fs-body; no text off the three sizes (CONTRACT ui.three-sizes).",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Low. Measured 28 px / 700 on staging. The charts in the mock-up are not built yet; this is only the heading.",
-  "commit": null,
+  "commit": "ce7b93b",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -15991,10 +15991,10 @@
   "title": "In the kit gallery the Toast sample floats over the other samples",
   "dod": "The /kit gallery shows the Toast sample inside its own section (not fixed to the window), and its headings use the kit's sizes, not the browser's h3 (16.38 px).",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low. Gallery only; visual baselines (S-39) need a refresh after.",
-  "commit": null,
+  "notes": "Toast sample in its own box (#353); gallery headings use --fs-body (#355). No unit test for the heading size: vitest returns empty CSS; the /kit baselines are the proof.",
+  "commit": "a0f2ca7",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
@@ -16015,10 +16015,10 @@
   "title": "Flaky test errors: window is not defined in areas/deleted/useDeleted.copy.test.tsx teardown, and kit/components/Menu/Menu.test.ts:97",
   "dod": "Both tests pass on 10 repeated CI runs with no unhandled errors.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Seen in run 47 on unrelated PRs; a re-run cleared each. Fix the cause (timer or listener left after unmount), never skip the test.",
-  "commit": null,
+  "notes": "Cause reasoned, not reproduced (about 30 clean local runs): Testing Library never auto-unmounts (vitest has no globals), so work outlived jsdom. useDeleted.copy test made one copy object and settles before teardown; Menu test waits 20 ms in act after cleanup. Watch CI for a repeat.",
+  "commit": "6fe2392",
   "source": "Run 47 CI"
  }
 ]
