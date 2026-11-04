@@ -44,3 +44,10 @@ test("a 5xx stays quiet and shows nothing", async () => {
   await new Promise((r) => setTimeout(r, 10));
   expect(result.current).toEqual([]);
 });
+
+test("open jobs use the plain title and one sentence", async () => {
+  const { toAskJob } = await import("./useAskJobs.ts");
+  const r = toAskJob({ id: "a", kind: "study_plan", state: "needs-you", summary: "Your study plan is ready. Approve it or put it away. It is waiting in Activity." });
+  expect(r.job.title).toBe("Study plan");
+  expect(r.job.meta).toBe("Your study plan is ready.");
+});

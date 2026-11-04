@@ -63,3 +63,18 @@ test("a good read refreshes the copy", async () => {
   await waitFor(() => expect(result.current.jobs).toHaveLength(1));
   expect(copy.kept.jobs).toEqual(saved);
 });
+
+test("a row reads in plain words, one sentence, no repeats", async () => {
+  const { toActivityJob, uniqueRows } = await import("./useJobs.ts");
+  const j = toActivityJob({
+    id: "a",
+    kind: "study_plan",
+    state: "needs-you",
+    summary: "Your study plan is ready. Approve it or put it away. It is waiting in Activity.",
+  });
+  expect(j.title).toBe("Study plan");
+  expect(j.summary).toBe("Your study plan is ready.");
+  const f = toActivityJob({ id: "b", kind: "study_plan", state: "failed", summary: "The study plan could not be made. No exam date." });
+  expect(f.reason).toBe("No exam date.");
+  expect(uniqueRows([j, { ...j, id: "c" }])).toHaveLength(1);
+});
