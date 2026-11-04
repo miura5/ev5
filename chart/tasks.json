@@ -15311,5 +15311,19 @@
   "notes": "Follow-up of B-799: the route and client exist; direct calls answer 501 until handlers attach. shell/ keeps 2 raw fetch calls (useShellStatus, outbox/http) outside areas.",
   "commit": null,
   "source": "B-799 builder"
+ },
+ {
+  "id": "B-831",
+  "kind": "task",
+  "title": "Domain parsers are Zod schemas, part 2",
+  "dod": "exam, objective, set, item-props, own-set, note and session parsers become Zod schemas with z.infer types (CONTRACT §drift.modules); pin, draft, collection and weak-spot are done",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-807"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-807 split"
  }
 ]
