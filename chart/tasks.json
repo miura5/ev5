@@ -15315,14 +15315,28 @@
  {
   "id": "B-831",
   "kind": "task",
+  "title": "Domain parsers are Zod schemas, part 2",
+  "dod": "exam, objective, set, item-props, own-set, note and session parsers become Zod schemas with z.infer types (CONTRACT §drift.modules); pin, draft, collection and weak-spot are done",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-807"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-807 split"
+ },
+ {
+  "id": "B-832",
+  "kind": "task",
   "title": "Area and domain writers pass validateWrite on their real output (notes, sessions, answers, dayedits)",
-  "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed, domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; no writer produces a doc validateWrite refuses",
+  "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed; domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; plan-home's plan and exam writes get the same test",
   "milestone": "v5 P5",
   "status": "open",
   "depends": [
    "B-798"
   ],
-  "notes": "Split from B-798, which did server/plan-home.ts through the docs protocol. Found: note source 'E.V. 5' and session source 'E.V. Home' fail the v5 source check. Also needed: a Node-only door so server tests can run validateWrite on real writer output (data/index.ts cannot export it: it pulls node:fs into the Worker bundle; depcruise only-through-index blocks data/compat/index.ts). Plan and exam writes in plan-home are not yet validateWrite-tested for that reason.",
+  "notes": "Split from B-798, which put server/plan-home.ts through the docs protocol. Needs a Node-only test door for validateWrite: data/index.ts cannot export it (it pulls node:fs into the Worker bundle) and depcruise only-through-index blocks data/compat/index.ts, so decide the door first (ops config or a data test entry).",
   "commit": null,
   "source": "B-798 builder"
  }
