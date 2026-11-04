@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 import { App } from "./App.tsx";
+import { forgetToken, saveToken } from "../commands/client.ts";
 
 test("/kit renders the tokens gallery and the theme toggle flips data-theme", () => {
   render(<App path="/kit" />);
@@ -20,7 +21,15 @@ test("/kit renders the tokens gallery and the theme toggle flips data-theme", ()
   expect(root?.getAttribute("data-theme")).toBe("light");
 });
 
-test("other paths open the shell on Today", () => {
+test("with no token the app shows the token screen, not the shell", () => {
+  forgetToken();
+  render(<App path="/today" />);
+  expect(screen.queryByRole("navigation", { name: "Primary" })).toBeNull();
+  expect(document.querySelector("[data-ui='token-screen']")).toBeTruthy();
+});
+
+test("other paths open the shell on Today once a token is saved", () => {
+  saveToken("t");
   render(<App path="/" />);
   expect(screen.getByRole("navigation", { name: "Primary" })).toBeTruthy();
 });
