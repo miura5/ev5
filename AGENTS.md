@@ -192,6 +192,8 @@ Questions are batched. Never more than one message per run, and none while Matt 
 ## Staging    <version · commit · what to try>   ## Live  <ev4 build | v5 version>
 ```
 
+**Next keeps an agreed order.** When Matt (or the supervisor for him) agrees an order for the build, the Next line says so, with the date. When you rewrite Next, read it from the latest main, not from the start of the run, because the supervisor can change it while you work. Keep the agreed groups and their order: drop the tasks that are done and put new tasks in the group they belong to. Only Matt or the supervisor changes the order.
+
 ## 8. The release card (what Matt reads)
 
 Posted as one comment on the "For Matt" issue. Written in plain words, short:
