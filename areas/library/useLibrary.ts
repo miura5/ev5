@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc } from "./map.ts";
 import {
   ApiError,
   api,
+  call,
+  type CommandName,
   failureKind,
   failureSentence,
   readToken,
@@ -15,6 +17,24 @@ export interface LibraryState {
   error?: string;
   /** The server refused the token: the shell asks for a new one. */
   refused?: boolean;
+  /** Runs a study-plan command, then reads the library again; resolves to a plain sentence when it fails. */
+  runPlan(
+    name: PlanCommand,
+    input: Record<string, string>,
+  ): Promise<string | undefined>;
+}
+
+export type PlanCommand = Extract<
+  CommandName,
+  | "date.plan_with_ev"
+  | "studyplan.approve"
+  | "studyplan.ask_changes"
+  | "studyplan.put_away"
+>;
+
+/** The sentence for a plan command that did not go through; 501 is a handler the server does not have yet. */
+export function planFailure(status: number, reason: string): string {
+  return status === 501 ? "E.V. cannot do that yet. It is not ready." : reason;
 }
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
@@ -38,6 +58,7 @@ function list(
 
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */
 export function useLibrary(copy?: ReadCopyLike): LibraryState {
+  const [again, setAgain] = useState(0);
   const [token] = useState(readToken);
   const [data, setData] = useState<LibraryData>();
   const [error, setError] = useState<string>();
@@ -47,14 +68,21 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     let live = true;
     void (async () => {
       try {
-        const [exams, weakspots, sets, answers] = await Promise.all([
+        const [exams, weakspots, sets, answers, planedits] = await Promise.all([
           list("exams", token, copy),
           list("weakspots", token, copy),
           list("sets", token, copy),
           list("answers", token, copy),
+          // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
+          list("planedits", token, copy).catch((): WireDoc[] => []),
         ]);
         if (live) {
-          setData(mapLibrary({ exams, weakspots, sets, answers }, Date.now()));
+          setData(
+            mapLibrary(
+              { exams, weakspots, sets, answers, planedits },
+              Date.now(),
+            ),
+          );
           setError(undefined);
         }
       } catch (e) {
@@ -69,6 +97,15 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     return () => {
       live = false;
     };
-  }, [token, copy]);
-  return { data, token, error, refused };
+  }, [token, copy, again]);
+  const runPlan = useCallback(
+    async (name: PlanCommand, input: Record<string, string>) => {
+      const r = await call(name, input, token);
+      if (!r.ok) return planFailure(r.status, r.reason);
+      setAgain((n) => n + 1);
+      return undefined;
+    },
+    [token],
+  );
+  return { data, token, error, refused, runPlan };
 }
