@@ -8,6 +8,8 @@ interface WireJob {
   kind: string;
   state: string;
   summary: string;
+  /** Newer servers send the generic line apart from the reason (jobs/runtime/status.ts). */
+  lead?: string;
 }
 
 export interface ShellStatus {
@@ -20,9 +22,28 @@ const TITLES: Record<string, string> = {
   "study-plan": "Study plan",
 };
 
-/** Sidebar numbers from the job list: Activity's needs-you count and the one running job. */
+/** The one sentence Activity's row shows (areas/activity/useJobs.ts oneSentence), restated: the shell holds no area code. */
+function sentence(j: WireJob): string {
+  if (j.lead) return j.lead;
+  const parts = (j.summary.match(/[^.!?]+[.!?]+/g) ?? [j.summary])
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const own = parts.filter((s) => s !== "It is waiting in Activity.");
+  if (own.length < 2) return own[0] ?? j.summary;
+  return j.state === "failed" ? own.slice(1).join(" ") : own[0]!;
+}
+
+/** Sidebar numbers from the job list: Activity's needs-you count and the one running job.
+ * Records that read the same count once, as Activity lists them (B-876). */
 export function statusFromJobs(jobs: readonly WireJob[]): ShellStatus {
-  const needs = jobs.filter((j) => j.state === "needs-you").length;
+  const seen = new Set<string>();
+  const needs = jobs.filter((j) => {
+    if (j.state !== "needs-you") return false;
+    const k = `${j.kind.replace(/_/g, "-")}|${sentence(j)}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  }).length;
   const run = jobs.find((j) => j.state === "running");
   return {
     counts: needs > 0 ? { activity: needs } : {},

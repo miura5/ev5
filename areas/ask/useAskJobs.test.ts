@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { toAskJob } from "./useAskJobs.ts";
+import { distinctJobs, toAskJob } from "./useAskJobs.ts";
+
+test("B-876: two needs-you jobs that read the same show one card, as Activity lists them", () => {
+  const w = { kind: "study_plan", state: "needs-you", summary: "Plan needs you. Rate it.", lead: "Plan needs you." };
+  const list = [{ id: "a", ...w }, { id: "b", ...w }, { id: "c", ...w, state: "running" }];
+  expect(distinctJobs(list).map((j) => j.id)).toEqual(["a", "c"]);
+});
 
 test("uses the server's lead and reason fields", () => {
   const w = { id: "a", kind: "study_plan", state: "needs-you", summary: "A. B. It is waiting in Activity.", lead: "Study plan needs you.", reason: "Rate it." };

@@ -40,6 +40,17 @@ export interface AskJobRef {
   job: AskJob;
 }
 
+/** Two records that read the same show once, as Activity shows them (areas/activity/useJobs.ts uniqueRows, B-876). */
+export const distinctJobs = <T extends WireJob>(jobs: readonly T[]): T[] => {
+  const seen = new Set<string>();
+  return jobs.filter((j) => {
+    const k = `${titleOf(j.kind)}|${j.state}|${j.lead ?? oneSentence(j.summary, j.state)}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+};
+
 export const toAskJob = (j: WireJob): AskJobRef => ({
   id: j.id,
   job: {
@@ -66,7 +77,7 @@ export function useAskJobs(copy?: ReadCopyLike): AskJobRef[] {
     // Offline, the saved list still shows what is open (§data.offline); any other failure stays quiet.
     (jobApi.list(token, copy) as Promise<WireJob[]>)
       .then((list) => {
-        if (live) setJobs(list.map(toAskJob));
+        if (live) setJobs(distinctJobs(list).map(toAskJob));
       })
       .catch(() => {});
     return () => {
