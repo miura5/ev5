@@ -16003,10 +16003,10 @@
   "title": "The sidebar lacks the mock-up's E.V. mark at the top",
   "dod": "The sidebar starts with the mock-up's workspace line (the mark and E.V.), as design/mockup.html's .ws; screenshot at 1280 in both themes.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "First try #345 was closed: its commit changed kit/index.ts without an Interface: kit trailer and the /kit baselines went stale. Redo from main after B-874 (merged): one commit with trailer Interface: kit, then dispatch visual-baselines.yml on the branch to refresh e2e/baselines, then PR.",
-  "commit": null,
+  "notes": "Kit WorkspaceLine (mark and E.V.) first in the sidebar; /kit baselines refreshed. No 1280 app-shell screenshot taken.",
+  "commit": "247bc35",
   "source": "Visual playtest 2 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run2)"
  },
  {
