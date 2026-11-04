@@ -16,9 +16,19 @@ function openFromUrl(): string | undefined {
   }
 }
 
+const PLAN_TEXT = {
+  none: "no plan yet",
+  draft: "draft waiting for you",
+  approved: "in force",
+  away: "put away",
+} as const;
+
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({ services }: { services?: LibraryServices }) {
-  const { data, token, refused, error } = useLibrary(services?.readCopy);
+  const { data, token, refused, error, runPlan } = useLibrary(
+    services?.readCopy,
+  );
+  const [planNote, setPlanNote] = useState<string>();
   const [open, setOpen] = useState<string | undefined>(openFromUrl);
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
@@ -35,6 +45,10 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         </div>
       </section>
     );
+  const plan = async (
+    name: Parameters<typeof runPlan>[0],
+    input: Record<string, string>,
+  ) => setPlanNote(await runPlan(name, input));
   const page = open ? data?.pages[open] : undefined;
   if (page && studying)
     return (
@@ -71,9 +85,17 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
             when: exam.meta,
             course: "",
             readiness: exam.readiness || "none yet",
-            plan: "no plan yet",
+            plan: PLAN_TEXT[exam.planState ?? "none"],
+            planState: exam.planState,
+            planId: exam.planId,
             proposals: [],
           }}
+          onPlanWithEv={() => plan("date.plan_with_ev", { id: exam.id })}
+          onApprove={(id) => plan("studyplan.approve", { id })}
+          onAskChanges={(id, note) =>
+            plan("studyplan.ask_changes", { id, note })
+          }
+          onPutAway={(id) => plan("studyplan.put_away", { id })}
           onClose={() => setOpen(undefined)}
         />
       ) : null}
@@ -87,7 +109,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
           ]}
         />
       ) : null}
-      {error ? <Toast message={error} /> : null}
+      {error || planNote ? <Toast message={planNote ?? error ?? ""} /> : null}
       <LibraryView
         practice={null}
         weakSpots={data?.weakSpots ?? []}

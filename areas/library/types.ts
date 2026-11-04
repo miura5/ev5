@@ -36,7 +36,13 @@ export interface LibraryExam {
   mastery: Mastery;
   /** Readiness, e.g. "58%". */
   readiness: string;
+  /** The study plan's state: none yet, a draft waiting, in force, or put away. */
+  planState?: PlanState;
+  /** The plan document the state is about (absent when there is none yet). */
+  planId?: string;
 }
+
+export type PlanState = "none" | "draft" | "approved" | "away";
 
 export type SetKind = "cards" | "questions" | "steps";
 
@@ -98,6 +104,8 @@ export interface ExamPlanData {
   readiness: string;
   /** Plan state, e.g. "plan waiting for you". */
   plan: string;
+  planState?: PlanState;
+  planId?: string;
   proposals: readonly { id: string; text: string }[];
 }
 

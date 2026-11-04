@@ -14,6 +14,7 @@ import type {
   LibraryExam,
   LibrarySet,
   Mastery,
+  PlanState,
   SetPageData,
   WireDoc,
   WeakSpot,
@@ -27,6 +28,27 @@ export interface LibraryDocs {
   sets: WireDoc[];
   /** Practice answers; absent reads as none. */
   answers?: WireDoc[];
+  /** Which study plan is in force or put away per exam; absent reads as none. */
+  planedits?: WireDoc[];
+}
+
+interface PlanEdit {
+  plan?: string;
+  retired?: Record<string, unknown>;
+}
+
+function planIdOf(exams: WireDoc[], id: string): string | undefined {
+  const d = exams.find((x) => x.id === id)?.data as
+    | { planId?: unknown }
+    | undefined;
+  return typeof d?.planId === "string" && d.planId ? d.planId : undefined;
+}
+
+function planStateOf(planId: string | undefined, e?: PlanEdit): PlanState {
+  if (!planId) return "none";
+  if (e?.plan === planId) return "approved";
+  if (e?.retired && planId in e.retired) return "away";
+  return "draft";
 }
 
 export interface LibraryData {
@@ -83,6 +105,9 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         due,
       };
     });
+  const edits = new Map(
+    (docs.planedits ?? []).map((p) => [p.id, (p.data ?? {}) as PlanEdit]),
+  );
   const exams: LibraryExam[] = docs.exams
     .flatMap((d) => tryParse(parseExam, d))
     .filter((e) => (e.v.status ?? "upcoming") === "upcoming")
@@ -92,6 +117,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         a.v.title.localeCompare(b.v.title),
     )
     .map(({ id, v }) => {
+      const planId = planIdOf(docs.exams, id);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
       );
@@ -115,6 +141,8 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         readiness: mine.length
           ? `${Math.round(share(ready, mine.length) * 100)}%`
           : "",
+        planState: planStateOf(planId, edits.get(id)),
+        ...(planId ? { planId } : {}),
       };
     });
   const dues = dueCounts(docs.answers ?? []);
