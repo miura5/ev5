@@ -22,7 +22,7 @@ export function oneSentence(summary: string, state: string): string {
 }
 
 /** The one sentence a row shows: the server's own fields when present, else the trimmed summary (old servers). */
-export const rowSentence = (j: { summary: string; state: string; lead?: string; reason?: string }): string =>
+const rowSentence = (j: { summary: string; state: string; lead?: string; reason?: string }): string =>
   j.state === "failed" && j.reason ? j.reason : (j.lead ?? oneSentence(j.summary, j.state));
 
 /** One entry of GET /api/v1/jobs (server/job-routes.ts, jobs/runtime/status.ts); areas never import them, so restated. */
