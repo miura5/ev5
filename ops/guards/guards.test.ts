@@ -95,3 +95,16 @@ test('red: a write fixture ev4 rejects, listed as valid (data/compat tests)', ()
   assert.notEqual(r.code, 0, `compat stayed green:\n${r.out}`);
   assert.match(r.out, /accepts ev4 rejects this/);
 });
+
+test('warn: a models.ts checked long ago prints a warning and still passes (ops/checks models)', () => {
+  const models = (on: string): Files => ({ 'jobs/runtime/models.ts': `export const MODELS_CHECKED_ON = '${on}';\nconst MAX_AGE_DAYS = 90;\n` });
+  const fresh = sandbox(models(new Date().toISOString().slice(0, 10)));
+  const f = run(fresh, ...checks(fresh));
+  assert.equal(f.code, 0, f.out);
+  assert.doesNotMatch(f.out, /models:/);
+  const root = sandbox(models('2020-01-01'));
+  const r = run(root, ...checks(root));
+  if (process.env.GUARDS_SHOW) console.log(`--- models\n${r.out.trim().slice(0, 600)}`);
+  assert.equal(r.code, 0, `a stale date must warn, not fail:\n${r.out}`);
+  assert.match(r.out, /warning: models: jobs\/runtime\/models\.ts: model ids and prices were last checked on 2020-01-01/);
+});

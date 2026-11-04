@@ -5,6 +5,8 @@ import { EditorView } from 'prosemirror-view';
 import type { Block } from '../../../domain/index.ts';
 import { blocksToDoc, docToBlocks } from './editorDoc.ts';
 import { editorPlugins, pastePlain } from './editorKeys.ts';
+import { limitPlugin, unwrapPlugin } from './editorLimits.ts';
+import { blocksFromHtml, pasteBlocks } from './editorPaste.ts';
 import { schema } from './editorSchema.ts';
 
 export interface NoteEditorProps {
@@ -19,7 +21,7 @@ const json = (b: readonly Block[]) => JSON.stringify(b);
 const start = (blocks: readonly Block[]) =>
   EditorState.create({
     doc: blocksToDoc(blocks),
-    plugins: [history(), ...editorPlugins()],
+    plugins: [history(), limitPlugin(), unwrapPlugin(), ...editorPlugins()],
   });
 
 /**
@@ -54,6 +56,8 @@ export function NoteEditor({ blocks, onChange }: NoteEditorProps) {
         'aria-multiline': 'true',
       },
       handlePaste: (vw, e) => {
+        const html = blocksFromHtml(e.clipboardData?.getData('text/html') ?? '');
+        if (html) return pasteBlocks(html)(vw.state, vw.dispatch);
         const text = e.clipboardData?.getData('text/plain') ?? '';
         return pastePlain(text)(vw.state, vw.dispatch);
       },
