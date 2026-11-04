@@ -53,6 +53,8 @@ export interface TodayProps {
   selectedId?: string;
   onStartNext: () => void;
   onOpen: (id: string) => void;
+  /** The tick on a plan item: `done` is the state it should have afterwards. */
+  onTick: (id: string, done: boolean) => void;
   onAccept: () => void;
   onEdit: () => void;
   onDismiss: () => void;
