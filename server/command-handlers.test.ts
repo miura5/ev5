@@ -43,7 +43,8 @@ test("every handler belongs to a registry command Matt calls directly", () => {
     assert.ok(cmd, name);
     // a chat turn answers once on the Worker (ask.send); ask.just_tell_me only logs, though the registry says 'job'
     assert.ok(
-      ["instant", "chat"].includes(cmd.effect) || name === "ask.just_tell_me",
+      ["instant", "chat"].includes(cmd.effect) ||
+        ["ask.just_tell_me", "job.retry_shorter"].includes(name),
       name,
     );
     assert.equal(cmd.callers.matt, "direct");

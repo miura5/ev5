@@ -33,7 +33,7 @@ const KINDS: Record<string, JobDef> = Object.fromEntries(
   JOB_DEFS.map((d) => [d.kind.replace(/_/g, "-"), d]),
 );
 
-function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
+export function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   return {
     store: d1JobStore(env.DB, () => Date.now()),
     executors: {
@@ -47,7 +47,26 @@ function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   };
 }
 
-async function withGathered(db: D1Like, input: { objectives: string[] }) {
+/** The scope a practice set was asked for, in job_plans under kind `scope`. */
+export async function saveScope(
+  db: D1Like,
+  jobId: string,
+  scope: unknown,
+  at: number,
+) {
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'scope', ?, ?) " +
+        "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
+    )
+    .bind(jobId, JSON.stringify(scope), at)
+    .run();
+}
+
+export async function withGathered(
+  db: D1Like,
+  input: { objectives: string[] },
+) {
   return { ...input, excerpts: await gatherExcerpts(db, input.objectives) };
 }
 
@@ -85,6 +104,9 @@ jobRoutes.post("/jobs/:slug", async (c) => {
     return c.json({ error: (e as Error).message }, 400);
   }
   const rec = await startJob(startEnv(c.env, def), def, input, by);
+  // Kept so "retry shorter" can start the same scope again (without the gathered passages).
+  if (def === (practiceSet as JobDef))
+    await saveScope(c.env.DB, rec.id, asked, Date.now());
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
 
