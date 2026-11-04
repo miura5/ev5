@@ -26,3 +26,19 @@ test("empty says Nothing here", () => {
   render(<DeletedView items={[]} />);
   expect(screen.getByText("Nothing here.")).toBeTruthy();
 });
+
+test("a set item and a note read as title plus kind, with the count on its own line", () => {
+  render(
+    <DeletedView
+      items={[
+        { id: "own_set_items/s1/i1", type: "questions", title: "Which lab is highest priority?", kind: "Set question", deletedOn: "Nov 1", daysLeft: 29 },
+        { id: "notes/n1", type: "note", title: "Untitled", kind: "Note", deletedOn: "Nov 1", daysLeft: 29 },
+      ]}
+    />,
+  );
+  expect(screen.getByText("Which lab is highest priority?")).toBeTruthy();
+  expect(screen.getByText("Set question · deleted Nov 1")).toBeTruthy();
+  expect(screen.getByText("Note · deleted Nov 1")).toBeTruthy();
+  expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("2 items");
+  expect(document.body.textContent).not.toMatch(/own_set_items|notes\/n1/);
+});
