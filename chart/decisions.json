@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-471",
+  "date": "Nov 4",
+  "title": "Spend-ceiling windows stay UTC (hour, day, month); the Activity text names them as UTC",
+  "why": "Ceilings are guards against runaway cost, not study-day boundaries, so a Central boundary adds a DST edge for no benefit. Revisit if Matt asks for them to follow his day.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-843, run 37"
+ },
+ {
   "id": "D-470",
   "date": "Nov 3",
   "title": "Ask E.V. replies on a chat route, not a job: ask.send is a Worker request that streams one reply, and is not a third job kind",
