@@ -3,8 +3,6 @@
 Today: the plan list, Suggestions, coming-up dates.
 
 <!-- generated:start -->
-
 Interface: todayArea
 Imports: kit, domain, commands/client (§drift.imports)
-
 <!-- generated:end -->

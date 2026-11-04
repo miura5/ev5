@@ -59,7 +59,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     void (async () => {
       try {
         // Offline, each read gives back its saved copy (§data.offline); the shell says so.
-        const saved = <T>(key: string, get: () => Promise<T>) =>
+        const saved = <T,>(key: string, get: () => Promise<T>) =>
           copy ? copy.read(key, get) : get();
         const today = centralDate(now);
         const day = await saved(`today:dayedits:${today}`, () =>
