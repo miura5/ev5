@@ -20,7 +20,7 @@ export function outputSchema(schema: z.ZodType): object {
 export function sdkModelCall(opts: ModelCallOptions): ModelCall {
   const client = new Anthropic({ apiKey: opts.apiKey, maxRetries: 0, fetch: opts.fetch });
   return async (req) => {
-    // Streamed: the SDK refuses a plain request when max_tokens could take over 10 minutes (found on staging, B-742).
+    // Streamed: the SDK refuses a plain request when max_tokens could take over 10 minutes (found on staging).
     const res = await client.messages
       .stream({
       model: modelInfo(req.model).id,

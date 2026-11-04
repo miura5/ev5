@@ -85,7 +85,7 @@ test("export then restore into scratch: every table count and hash equal", async
   src.exec(SEED);
   const x = await exportAll(sqliteD1(src), Date.UTC(2026, 10, 3));
   assert.deepEqual(await checkExport(x), []);
-  assert.equal(x.tables.docs!.count, 4); // the system "worker" document is left out (D-321)
+  assert.equal(x.tables.docs!.count, 4); // the system "worker" document is left out
   assert.equal(x.tables.system_docs!.count, 1);
   assert.deepEqual(Object.keys(x.collections), ["exams", "notes", "system"]);
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);

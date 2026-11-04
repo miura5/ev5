@@ -95,7 +95,7 @@ const HTML =
   '<h5>Small &amp; tidy &lt;b&gt;</h5><table><tr><td>a</td><td>b</td></tr></table>' +
   '<svg><text>svg text</text></svg><template><p>hidden</p></template><!--EndFragment--></body></html>';
 
-test('paste sanitiser: text, blocks, lists and marks only; no HTML or script gets through (ev4 B-402)', () => {
+test('paste sanitiser: text, blocks, lists and marks only; no HTML or script gets through', () => {
   const blocks = blocksFromHtml(HTML)!;
   expect(blocks).toEqual([
     { type: 'h1', runs: [r('Heading')] },

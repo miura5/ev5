@@ -1,4 +1,4 @@
-// Where the study plan reads its exam and weak spots and where an approved plan lands (B-768; ev4 docs collections).
+// Where the study plan reads its exam and weak spots and where an approved plan lands (ev4 docs collections).
 // load: `exams/<id>` plus the `weakspots` aimed at that exam, derived with their `answers` as of Central today, with
 // the active ones worst first (the order is code, CONTRACT §cmd.code-first). apply: the plan becomes `plans/plan-<job>`
 // (what Today reads) and the exam's `planId` points at it. Both writes are safe to repeat when a step retries.
