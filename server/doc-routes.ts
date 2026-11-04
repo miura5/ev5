@@ -7,7 +7,12 @@
 //   POST   /docs/batch                   {writes:[{op,collection,doc_id,data,if_version}]}, all or nothing
 //   DELETE /docs                         refused with 403 (§delete.who): the Worker has no delete path
 import { Hono } from "hono";
-import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
+import {
+  docsRepo,
+  MAX_BODY,
+  NO_DELETE,
+  workerNoteProblem,
+} from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 
@@ -21,7 +26,8 @@ type Ctx = {
 };
 export const docRoutes = new Hono<Ctx>();
 
-const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
+const repo = (db: DocsD1) =>
+  docsRepo(db, { clock: () => Date.now(), problem: workerNoteProblem });
 const shape = (d: {
   c: string;
   id: string;

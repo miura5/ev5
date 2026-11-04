@@ -126,3 +126,34 @@ test("there is no delete, and the bearer token is required", async () => {
     403,
   );
 });
+
+test("a note is checked like ev4's Worker: bad shape is 400 on put and batch, createdAt is write-once", async () => {
+  const call = await setup();
+  const note = {
+    schema: 1,
+    writer: "page",
+    at: "2026-11-02T15:00:00Z",
+    source: "v5/test",
+    createdAt: "2026-11-02T15:00:00Z",
+    title: "T",
+    blocks: [],
+  };
+  const bad = { ...note, html: "<b>x</b>" };
+  assert.equal(
+    (await call("PUT", "?collection=notes&id=n-a", bad)).status,
+    400,
+  );
+  const batch = {
+    writes: [{ op: "set", collection: "notes", doc_id: "n-a", data: bad }],
+  };
+  assert.equal((await call("POST", "/batch", batch)).status, 400);
+  assert.equal(
+    (await call("PUT", "?collection=notes&id=n-a", note)).status,
+    200,
+  );
+  const moved = { ...note, createdAt: "2026-11-03T00:00:00Z" };
+  assert.equal(
+    (await call("PUT", "?collection=notes&id=n-a&if_version=1", moved)).status,
+    400,
+  );
+});

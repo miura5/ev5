@@ -14606,13 +14606,15 @@
   "title": "Add data/docs/ to the npm test glob (its tests are not run by CI) and make them pass",
   "dod": "CI runs data/docs tests green",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-779"
   ],
   "notes": "",
-  "commit": null,
-  "source": "ops/record"
+  "commit": "1670a44",
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-03T23:51:22.563Z"
  },
  {
   "id": "B-781",
@@ -14620,12 +14622,12 @@
   "title": "Worker-safe notes write check (createdAt, earlierOf) on the document routes: bundle frozen schemas as JSON imports",
   "dod": "Notes writes through /api/v1/docs are checked like ev4's",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-779"
   ],
   "notes": "",
-  "commit": null,
+  "commit": "1670a44",
   "source": "ops/record"
  },
  {
