@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-463",
+  "date": "Nov 3",
+  "title": "The kit takes unstyled Radix primitives (@radix-ui/react-dropdown-menu, react-context-menu, react-dialog, react-toggle-group) and cmdk, pinned, for menus, pickers, the ⌘K dialog and roving focus; for v5, PLAN §7, §12 and CONTRACT §ui.mockup supersede ev4's native-first D-375",
+  "why": "The kit's Menu and Palette were hand-written with useState/useRef (focus, arrows, Esc, focus return, modal trap), which drifts from PLAN §7 (line 273), §12 and CONTRACT §ui.mockup. Radix and cmdk give tested keyboard and focus behaviour while the kit keeps every pixel. Each task adds only the packages it uses, so knip stays green.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
   "id": "D-462",
   "date": "Nov 3",
   "title": "Areas carry their view: area.ts exports { id, route, nav, view }, and the shell mounts the view whose route matches",
