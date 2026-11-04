@@ -15736,7 +15736,7 @@
    "B-858",
    "B-859"
   ],
-  "notes": "Run 43: parts 1 (#318 ask/today/library) and 2 (#319 activity/collection/sessions/deleted/notes) merged. Left: the e2e journey on staging (no token / wrong token / right token); Ask shows the refused sentence on a 401 in chat (DoD says nothing); Notes still shows 'No notes yet' beside the failure sentence on a refused call (areas/notes/Notes.view.tsx); shell/outbox/http.ts list() should throw ApiError(status) so notes can tell 401 apart; shell/outbox storedToken and useShellStatus should use readToken (blocked-storage fallback); part 1 areas use a plain p role=status, swap to the kit Toast now #319 exports it; call() reason still carries raw server text.",
+  "notes": "Run 44 (#323): Notes failure/401, readToken fallback, Toast in Ask and note editor done. Left: e2e token journey on staging (no/wrong/right token); call() reason carries raw server text.",
   "commit": null,
   "source": "Matt 2026-11-04 (ev-build): first try of staging; pasted a token, Ask showed 'unauthorized', Today and Library looked empty ('is this expected?')"
  },
@@ -15770,10 +15770,10 @@
   "title": "A note's page shows a raw browser Title box and Save button above the note",
   "dod": "The unstyled form in areas/notes/Notes.screen.tsx (label Title, plain input, plain Save button) is gone; the title is edited in place in the page's heading with kit styles, as design/mockup.html's note page shows (PLAN: titles edit in place); no default browser control shows on the note page.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Part of B-748 (S-75 notes editor matches the mock-up) and Next's notes editor look; filed on its own because Matt noticed it.",
-  "commit": null,
+  "notes": "Run 44 (#324): raw Title box and Save removed; title is the editor's first h1. Browser look vs the mock-up not checked.",
+  "commit": "5933401",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15782,10 +15782,10 @@
   "title": "A note with a title shows the title twice",
   "dod": "NotePageView prints no separate heading when the note's first block is its h1 title (ev4 notes keep the title as the first h1 block, withTitle in areas/notes/useNotes.ts); a titled note shows its title once, a note with no h1 shows Untitled once; tests cover both.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 44 (#324): note page prints its heading only when the body has no h1. useNotes saveTitle/withTitle now unused by the screen.",
+  "commit": "5933401",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15794,10 +15794,10 @@
   "title": "Today says Nothing planned yet while its plan lists an item",
   "dod": "areas/today/map.ts picks the E.V. line from the day's plan as well as exams and weak spots: with plan items (open or done) it never says Nothing planned yet; a plan row's meta reads like the mock-up's (for example added by you), not the bare kind to do beside a done tick; map tests cover a day with one done item.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 44 (#322): E.V. line reads the plan; plan rows say added by you; failures use the kit Toast in Today and Library.",
+  "commit": "4b0967a",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15820,7 +15820,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "The study plan flow itself is not built (S-66); this is only how a job row reads.",
+  "notes": "Run 44 (#326): job kind keys normalised (study_plan to study-plan), sentences trimmed, duplicate needs-you rows shown once. Left: Activity spacing vs mock-up; server describe() in jobs/runtime/status.ts should return the reason as its own field.",
   "commit": null,
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
@@ -15830,10 +15830,10 @@
   "title": "The palette offers Collection, Sessions and Recently deleted as places, and shows an empty Commands header",
   "dod": "The palette's Places match the sidebar (route-only areas with sidebar false are left out, or open with a real target); a Commands group with no entries shows no header; a shell test covers Today's palette.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Collection's error and empty state shown together is B-860; finding notes from the palette is B-800.",
-  "commit": null,
+  "notes": "Run 44 (#325): palette Places come from sidebarAreas; empty groups dropped. Recently deleted was never a palette place; add only if Matt wants it.",
+  "commit": "47feae5",
   "source": "Visual playtest of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04)"
  },
  {
@@ -15893,10 +15893,10 @@
   "title": "Sessions timer shows 0:00 (areas/sessions/Sessions.screen.tsx 1 s interval over data?.seconds)",
   "dod": "find why the timer stays at 0:00 on staging and fix it, with a test",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Not the B-861 poll loop (checked in run 43). Slice: areas/sessions.",
-  "commit": null,
+  "notes": "Run 44 (#321): map.ts falls back from startedAt to the first event, then the doc time; an ended session shows its saved minutes.",
+  "commit": "836a055",
   "source": "B-861 builder, run 43"
  }
 ]
