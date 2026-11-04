@@ -7,6 +7,19 @@ const TITLES: Record<string, string> = {
   "study-plan": "Study plan",
 };
 
+/** Job kinds arrive as keys (study_plan); the row shows plain words. */
+const titleOf = (kind: string): string =>
+  TITLES[kind.replace(/_/g, "-")] ?? kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
+
+/** The server's status text can carry a generic line, the specific reason, and a pointer to Activity.
+ * A row shows one sentence: the pointer goes; a failure keeps its reason, anything else its first line. */
+export function oneSentence(summary: string, state: string): string {
+  const parts = (summary.match(/[^.!?]+[.!?]+/g) ?? [summary]).map((s) => s.trim()).filter(Boolean);
+  const own = parts.filter((s) => s !== "It is waiting in Activity.");
+  if (own.length < 2) return own[0] ?? summary;
+  return state === "failed" ? own.slice(1).join(" ") : own[0]!;
+}
+
 /** One entry of GET /api/v1/jobs (server/job-routes.ts); restated, areas never import the server. */
 interface WireJob {
   id: string;
@@ -23,8 +36,8 @@ export interface AskJobRef {
 export const toAskJob = (j: WireJob): AskJobRef => ({
   id: j.id,
   job: {
-    title: TITLES[j.kind] ?? j.kind,
-    meta: j.summary,
+    title: titleOf(j.kind),
+    meta: oneSentence(j.summary, j.state),
     value: j.state === "needs-you" ? "needs you" : undefined,
     running: j.state === "running",
   },
