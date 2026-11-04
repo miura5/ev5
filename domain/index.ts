@@ -15,7 +15,9 @@ export {
   resolveStale,
   newNoteId,
   noteDoc,
+  noteBlocks,
   type Block,
+  type Run,
   type Note,
 } from "./note/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
