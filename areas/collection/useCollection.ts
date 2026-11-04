@@ -1,0 +1,72 @@
+import { useCallback, useEffect, useState } from "react";
+import { mapCollection } from "./map.ts";
+import type { CollectionData, WireCollection, WireMembership } from "./map.ts";
+
+const KEY = "ev5.token";
+
+const readToken = (): string => {
+  try {
+    return localStorage.getItem(KEY) ?? "";
+  } catch {
+    return "";
+  }
+};
+
+export interface CollectionState {
+  data?: CollectionData;
+  loaded: boolean;
+  token: string;
+  error?: string;
+  setToken: (t: string) => void;
+}
+
+async function get<T>(path: string, token: string): Promise<T> {
+  const r = await fetch(path, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  if (r.status === 401) throw new Error("That token was not accepted.");
+  if (!r.ok) throw new Error("The collection could not load.");
+  return (await r.json()) as T;
+}
+
+/** Reads collections and memberships with the app token Matt keeps in this browser. */
+export function useCollection(): CollectionState {
+  const [token, setTokenState] = useState(readToken);
+  const [data, setData] = useState<CollectionData>();
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<string>();
+  const setToken = useCallback((t: string) => {
+    try {
+      localStorage.setItem(KEY, t);
+    } catch {
+      // storage blocked: the token lasts this visit only
+    }
+    setTokenState(t);
+  }, []);
+  useEffect(() => {
+    if (!token) return;
+    let live = true;
+    void (async () => {
+      try {
+        const [c, m] = await Promise.all([
+          get<{ collections: WireCollection[] }>("/api/v1/collections", token),
+          get<{ memberships: WireMembership[] }>("/api/v1/memberships", token),
+        ]);
+        if (live) {
+          setData(mapCollection(c.collections, m.memberships));
+          setLoaded(true);
+          setError(undefined);
+        }
+      } catch (e) {
+        if (live)
+          setError(
+            e instanceof Error ? e.message : "The collection could not load.",
+          );
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [token]);
+  return { data, loaded, token, error, setToken };
+}

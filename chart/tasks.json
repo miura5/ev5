@@ -14153,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Collection and Recently deleted areas merged (#149), empty until wired. Wiring blocked: collections, memberships and deletions are not readable over /api/v1/docs (no route; needs a server read route). Left: that route, /collection/:id route, hiding Collection from the nav, saved-view page, item menu.",
+  "notes": "Collection and Recently deleted areas wired to /api/v1/collections, /memberships, /deletions (read only; Restore and pin still unwired).",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
