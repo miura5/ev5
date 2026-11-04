@@ -12,6 +12,8 @@ export interface NotesViewProps {
   collections: readonly NoteCollection[];
   /** Ids of collections shown open at first. */
   initialOpen?: readonly string[];
+  /** The read failed: the list is unknown, so it does not say "No notes yet". */
+  failed?: boolean;
   onOpenNote?: (id: string) => void;
   onNewNote?: (collectionId?: string) => void;
   onNewCollection?: () => void;
@@ -22,6 +24,7 @@ export function NotesView({
   notes,
   collections,
   initialOpen = [],
+  failed = false,
   onOpenNote,
   onNewNote,
   onNewCollection,
@@ -48,7 +51,7 @@ export function NotesView({
       </div>
       <section className="ev-notes-sec" aria-label="Recent">
         <h2 className="ev-notes-label">Recent</h2>
-        {notes.length === 0 ? (
+        {notes.length === 0 && !failed ? (
           <span className="ev-notes-meta">
             No notes yet. Press C to write one.
           </span>

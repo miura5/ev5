@@ -1,5 +1,6 @@
 // The outbox's transport and the page's reads over /api/v1/docs (server/doc-routes.ts). The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
+import { ApiError, readToken } from "../../commands/client.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -15,11 +16,7 @@ export interface DocRow {
 export const TOKEN_KEY = "ev5.token";
 
 export function storedToken(): string {
-  try {
-    return localStorage.getItem(TOKEN_KEY) ?? "";
-  } catch {
-    return "";
-  }
+  return readToken(); // falls back to this visit's token when storage is blocked
 }
 
 const q = (o: Record<string, string>) => new URLSearchParams(o).toString();
@@ -70,8 +67,7 @@ export function docsHttp(
   /** Every document of a collection; throws on a refusal or no connection. */
   async function list(c: string): Promise<DocRow[]> {
     const r = await call(`?${q({ collection: c })}`);
-    if (r.status === 401) throw new Error("That token was not accepted.");
-    if (!r.ok) throw new Error(`Notes could not load (${r.status}).`);
+    if (!r.ok) throw new ApiError(r.status);
     return ((await json(r)).docs ?? []) as DocRow[];
   }
 
