@@ -1,3 +1,4 @@
+import { centralDate, plainDay } from "../../domain/index.ts";
 import type { DeletedItem } from "./Deleted.view.tsx";
 
 /** One row of GET /api/v1/deletions (server/collection-routes.ts), restated: areas never import the server. */
@@ -19,21 +20,6 @@ const TYPES: Record<string, DeletedItem["type"]> = {
   goals: "date",
 };
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 /** Newest first; days left out of the 30 kept, never below zero. The row carries no title, so the id stands in. */
 export function mapDeletions(
   rows: readonly WireDeletion[],
@@ -42,12 +28,11 @@ export function mapDeletions(
   return [...rows]
     .sort((a, b) => b.at - a.at)
     .map((r) => {
-      const d = new Date(r.at);
       return {
         id: `${r.collection}/${r.id}`,
         type: TYPES[r.collection] ?? "note",
         title: r.id,
-        deletedOn: `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`,
+        deletedOn: plainDay(centralDate(r.at), centralDate(now)),
         from: r.collection,
         daysLeft: Math.max(0, KEPT_DAYS - Math.floor((now - r.at) / DAY)),
       };

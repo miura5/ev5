@@ -1,4 +1,9 @@
-import { parseSession, sessionState } from "../../domain/index.ts";
+import {
+  centralDate,
+  parseSession,
+  plainDay,
+  sessionState,
+} from "../../domain/index.ts";
 
 type SessionDoc = ReturnType<typeof parseSession> & { id: string };
 
@@ -46,7 +51,8 @@ function tryParse(d: WireDoc): Parsed[] {
 
 /** When the session began: its startedAt, else its first event, else when the document was written (never blank). */
 function startOf(s: Parsed): string | undefined {
-  if (Number.isFinite(Date.parse(s.startedAt ?? ""))) return s.startedAt ?? undefined;
+  if (Number.isFinite(Date.parse(s.startedAt ?? "")))
+    return s.startedAt ?? undefined;
   const first = Object.entries(s.events ?? {})
     .map(([, e]) => e?.at ?? "")
     .filter((a) => Number.isFinite(Date.parse(a)))
@@ -77,7 +83,7 @@ export function mapSessions(
     raw: pick.raw,
     noteId: pick.noteId || undefined,
     title: pick.topic ?? "Study session",
-    meta: pick.date,
+    meta: pick.date ? plainDay(pick.date, centralDate(now)) : "",
     seconds:
       ended && st.activeMs === 0 && (pick.minutes ?? 0) > 0
         ? Math.round((pick.minutes ?? 0) * 60)
