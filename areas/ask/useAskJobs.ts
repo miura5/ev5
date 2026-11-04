@@ -3,7 +3,10 @@ import type { AskJob } from "./types.ts";
 import { jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
-const TITLES: Record<string, string> = { "practice-set": "Practice set", "study-plan": "Study plan" };
+const TITLES: Record<string, string> = {
+  "practice-set": "Practice set",
+  "study-plan": "Study plan",
+};
 
 /** One entry of GET /api/v1/jobs (server/job-routes.ts); restated, areas never import the server. */
 interface WireJob {
@@ -49,13 +52,8 @@ export function useAskJobs(copy?: ReadCopyLike): AskJobRef[] {
     const token = readToken();
     if (!token) return;
     let live = true;
-    const get = async () => {
-      const r = await jobApi.list(token);
-      if (!r.ok) throw new Error(`jobs ${r.status}`);
-      return ((await r.json()) as { jobs: WireJob[] }).jobs;
-    };
     // Offline, the saved list still shows what is open (§data.offline); any other failure stays quiet.
-    (copy ? copy.read("jobs", get) : get())
+    (jobApi.list(token, copy) as Promise<WireJob[]>)
       .then((list) => {
         if (live) setJobs(list.map(toAskJob));
       })

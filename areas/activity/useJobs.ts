@@ -79,26 +79,24 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
   useEffect(() => {
     if (!token) return;
     let live = true;
-    const get = async () => {
-      const r = await jobApi.list(token);
-      if (!r.ok)
-        throw new Error(
-          r.status === 401
-            ? "That token was not accepted."
-            : "Activity could not load.",
-        );
-      return ((await r.json()) as { jobs: WireJob[] }).jobs;
-    };
     // Offline, the saved list shows (§data.offline); the shell says it is a saved copy.
     const load = () =>
-      (copy ? copy.read("jobs", get) : get())
+      (jobApi.list(token, copy) as Promise<WireJob[]>)
         .then((list) => {
           if (live) {
             setJobs(list.map(toActivityJob));
             setError(undefined);
           }
         })
-        .catch((e: Error) => live && setError(e.message));
+        .catch(
+          (e: Error) =>
+            live &&
+            setError(
+              (e as { status?: number }).status === 401
+                ? "That token was not accepted."
+                : "Activity could not load.",
+            ),
+        );
     void load();
     const t = setInterval(() => void load(), 15000);
     return () => {

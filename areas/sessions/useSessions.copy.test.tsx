@@ -110,3 +110,57 @@ test("a good read refreshes the copy", async () => {
   await waitFor(() => expect(ready(result.current)).toBe(true));
   expect(Object.keys(copy.kept).sort()).toEqual(["sessions:list"]);
 });
+
+const sessionWithNote = {
+  docs: [
+    {
+      id: "s1",
+      v: 3,
+      data: {
+        ...(saved["sessions:list"] as { data: object }[])[0]!.data,
+        noteId: "n1",
+      },
+    },
+  ],
+};
+const note = {
+  v: 2,
+  data: {
+    schema: 1,
+    writer: "page",
+    at: "2026-11-04T15:00:00.000Z",
+    source: "E.V. Home",
+    createdAt: "2026-11-04T15:00:00.000Z",
+    title: "Heart",
+    blocks: [],
+  },
+};
+
+test("offline, the note read-along comes from the saved copy", async () => {
+  use();
+  offline();
+  const copy = fakeCopy({
+    "sessions:list": sessionWithNote.docs,
+    "sessions:note:n1": note,
+  });
+  const { result } = renderHook(() => useSessions(copy));
+  await waitFor(() => expect(result.current.note).toBeDefined());
+});
+
+test("a 5xx on the note never overwrites its saved copy", async () => {
+  use();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("collection=notes")
+        ? new Response("{}", { status: 503 })
+        : new Response(JSON.stringify(sessionWithNote), { status: 200 }),
+    ),
+  );
+  const copy = fakeCopy({ "sessions:note:n1": note });
+  const { result } = renderHook(() => useSessions(copy));
+  await waitFor(() => expect(result.current.data).toBeDefined());
+  await new Promise((r) => setTimeout(r, 20));
+  expect(result.current.note).toBeUndefined();
+  expect(copy.kept["sessions:note:n1"]).toEqual(note);
+});
