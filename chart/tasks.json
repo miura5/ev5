@@ -14852,12 +14852,12 @@
   "title": "Migrations and repositories for collections, memberships, pins, item properties, own sets and own attempts",
   "dod": "data/migrations has an additive, idempotent migration for collections, memberships, pins, item_props, own_sets and own_attempts (CONTRACT §data.new-tables, §data.migrations); migrations.test applies them on ev4-schema.fixture.sql; data/ has a repository per table with the docs protocol (at, v); staging's schema has them; GET /api/v1/collections and /memberships read real rows",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-729"
   ],
   "notes": "Audit (review F3, PLAN §5.10): B-723..B-726 are done with 'Migration, repository and compat fixture', but migrations 0000-0002 create only drafts and own_set_items. collection-routes.ts reads tables no database has. views stays out (saved views come after cutover, C13).",
-  "commit": null,
+  "commit": "2c5cf52",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -14882,7 +14882,7 @@
   "milestone": "v5 P5",
   "status": "open",
   "depends": [],
-  "notes": "Audit (review F5): data/compat/validate.test.ts checks hand-made samples only; plan-home.ts:128-146 uses JSON.stringify; areas/sessions writes keep the old source and at.",
+  "notes": "Plan writer merged in #220. Rest (area and domain writers, validateWrite test door) is B-832.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -14892,10 +14892,10 @@
   "title": "Typed command client and a command route: areas and E.V. call the registry, not raw fetch",
   "dod": "commands/client.ts (generated) exports a typed call(name, input) and job helpers; a /api/v1 command route runs registry commands through resolveCall (caller, mode; an E.V. propose call makes a Suggestion); a route test refuses an unlisted caller; grep 'fetch(' in areas/ finds none (CONTRACT §cmd.registry, §cmd.generated, §cmd.propose, §drift.imports)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F16, F28): commands/client.ts lists names only; resolveCall, tools() and paletteEntries() have no caller outside tests; areas make about 10 raw fetch calls; job-routes.ts keeps its own KINDS. B-734 is marked done but its 'Tools, ⌘K and schedule generated from it' is not true at runtime.",
-  "commit": null,
+  "commit": "e5677d6",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -14989,12 +14989,12 @@
   "title": "Job input and output come from one Zod schema each",
   "dod": "JobSpec input and output are Zod schemas; practice-set and study-plan pass outputSchema(schema) to the model call; their hand-written parsers and JSON Schema literals are removed; job tests stay green (CONTRACT §job.define, §model.output, §drift.modules)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-795"
   ],
   "notes": "Audit (review F29): jobs/runtime/define.ts types input/output as Parser functions; practice-set/job.ts and study-plan/job.ts hold a hand parser plus a hand JSON Schema; outputSchema() in model-call.ts has no caller.",
-  "commit": null,
+  "commit": "b7f4762",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15005,7 +15005,7 @@
   "milestone": "v5 P5",
   "status": "open",
   "depends": [],
-  "notes": "Audit: domain/*/parse.ts are hand validators (domain/exam/index.ts:23 waits 'until zod is a recorded dependency', which D-458 settled).",
+  "notes": "Part 1 merged in #223 (pin, draft, collection, weak-spot). Rest in B-831.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15017,7 +15017,7 @@
   "milestone": "v5 P5",
   "status": "open",
   "depends": [],
-  "notes": "Audit: no cache_control in jobs/runtime/model-call.ts. Model-path task: read current Anthropic docs for the cache rules and minimum lengths.",
+  "notes": "Merged in #216 (cache_control on system prompt and first user message). Still open: a staging run showing cache_read_input_tokens in usage.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15066,10 +15066,10 @@
   "title": "Guard: no decision or task ids in code or docs",
   "dod": "ops/checks fails on a D-nnn or B-nnn in source, CSS, prompts or READMEs outside ops/record, data/compat, chart, docs/record and docs/history; the current sites (about 16, e.g. jobs/runtime/workflow.ts, domain/course/scope.ts, kit/tokens/tokens.css, e2e/journeys.ts) say the behaviour instead; an ops/guards fixture goes red (CONTRACT §drift.no-ids)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F14): ops/checks/rules.ts scans only README.md and SKILL.md, and nothing scans for ids.",
-  "commit": null,
+  "commit": "9910055",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15078,10 +15078,10 @@
   "title": "Rule check scans 'only'; READMEs cite §ids instead of restating rules",
   "dod": "ops/checks/rules.ts flags never, always, must and only without a §id, as CONTRACT §drift.one-file says, and also scans jobs/*/prompt.md; kit, kit/tokens, domain, areas and design READMEs cite the §id instead of restating the rule; main is green",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit (review F14, F33): rules.ts:2-3,35 skips 'only' with no Chart decision; kit/README.md and kit/tokens/README.md restate §ui.kit-leads, domain/README.md restates the import rule (and names @date-fns/tz).",
-  "commit": null,
+  "commit": "becc8b2",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15290,12 +15290,12 @@
   "title": "domain/index.ts exports fits and splitWide so the notes editor drops areas/notes/parts/editorFits.ts (copy with limits 4000 lines and 400 runs hardcoded)",
   "dod": "areas/notes imports fits and splitWide from domain; editorFits.ts is removed; notes tests stay green",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-828"
   ],
   "notes": "Slice write: domain (interface change), areas/notes. From the B-828 builder report.",
-  "commit": null,
+  "commit": "256f510",
   "source": "ops/record"
  },
  {
