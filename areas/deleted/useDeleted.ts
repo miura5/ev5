@@ -3,6 +3,7 @@ import { mapDeletions } from "./map.ts";
 import type { WireDeletion } from "./map.ts";
 import type { DeletedItem } from "./Deleted.view.tsx";
 import {
+  call,
   failureKind,
   failureSentence,
   readJson,
@@ -16,7 +17,12 @@ export interface DeletedState {
   refused: boolean;
   /** A plain sentence for any other failure. */
   error?: string;
+  /** Puts an item back; it leaves the list on success, and a failure is a plain sentence in `error`. */
+  restore: (id: string) => Promise<void>;
 }
+
+/** The deletions row id: the list key is "collection/id", the restore command takes the id after the collection. */
+export const restoreId = (key: string): string => key.slice(key.indexOf("/") + 1);
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
 export interface ReadCopyLike {
@@ -58,5 +64,14 @@ export function useDeleted(copy?: ReadCopyLike): DeletedState {
       live = false;
     };
   }, [token, copy]);
-  return { items, token, refused, error };
+  const restore = async (key: string) => {
+    const r = await call("item.restore", { id: restoreId(key) }, token);
+    if (r.ok) {
+      setItems((cur) => cur.filter((x) => x.id !== key));
+      setError(undefined);
+    } else {
+      setError(r.reason);
+    }
+  };
+  return { items, token, refused, error, restore };
 }
