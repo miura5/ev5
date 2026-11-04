@@ -15346,12 +15346,12 @@
   "title": "Handlers for the remaining instant commands (note, session, check, plan, set, study, weakspot, job.stop/dismiss ...)",
   "dod": "Every instant command a screen calls via call() has a handler with a compat fixture, or the screen uses the outbox and the command is dropped; no 501 for a used command (CONTRACT §cmd.registry)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-830"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "No screen calls call(); no used command answers 501. Handlers get filed when a screen first calls one.",
+  "commit": "f5d1bd3",
   "source": "B-830 builder"
  },
  {
@@ -15381,5 +15381,33 @@
   "notes": "Merged in #234: POST /api/v1/jobs/:id/dismiss, Got it button in Activity.",
   "commit": "20c15ab",
   "source": "B-805 builder"
+ },
+ {
+  "id": "B-836",
+  "kind": "task",
+  "title": "Palette entries reach the client: optional places on CommandSpec, generated client.ts exports palette data",
+  "dod": "Done when: CommandSpec has optional places; paletteEntries() carries it; generated commands/client.ts exports palette entries as plain data (no zod); palette commands tagged with places (CONTRACT §ui.palette, §cmd.generated). Interface: commands",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-799"
+  ],
+  "notes": "Split from B-800 (builder refused: shell may import commands/client.ts only).",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-837",
+  "kind": "task",
+  "title": "Shell palette Commands group, Tab to Ask with text, and ⌘J",
+  "dod": "Done when: Shell palette has a Commands group from client.ts palette entries filtered by area; a test runs one command from ⌘K via call(); Tab navigates to Ask E.V. with the typed text; ⌘J toggles Ask E.V. (CONTRACT §ui.palette)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-836"
+  ],
+  "notes": "Rest of B-800.",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
