@@ -80,7 +80,7 @@ export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Tile } from "./components/Tile/Tile";
 export { TextOptions } from "./components/TextOptions/TextOptions";
-export { Field } from "./components/Field/Field";
+export { Choice, Field, TextArea } from "./components/Field/Field";
 export { AreaIcon } from "./components/AreaIcon/AreaIcon";
 export { NavItem } from "./components/NavItem/NavItem";
 export { NavGroup } from "./components/NavGroup/NavGroup";

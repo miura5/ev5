@@ -64,12 +64,7 @@ export function CollectionTree({
         style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
         data-key={id}
       >
-        <button
-          type="button"
-          className="ev-notes-fold-btn"
-          aria-expanded={isOpen}
-          onClick={() => onToggle(id)}
-        >
+        <Button kind="text" aria-expanded={isOpen} onClick={() => onToggle(id)}>
           <span className="ev-notes-chev" data-open={isOpen} aria-hidden="true">
             ›
           </span>
@@ -78,7 +73,7 @@ export function CollectionTree({
           <span className="ev-notes-meta">
             {count} {count === 1 ? "note" : "notes"}
           </span>
-        </button>
+        </Button>
         {withNew ? (
           <Button
             kind="text"

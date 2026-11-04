@@ -55,18 +55,14 @@ export function NotePageView({
       ) : null}
       <div className="ev-notes-pagecol">
         {session ? null : (
-          <button type="button" className="ev-notes-crumb" onClick={onBack}>
+          <Button kind="text" onClick={onBack}>
             ← Notes
-          </button>
+          </Button>
         )}
         <div className="ev-notes-docmeta">
-          <button
-            type="button"
-            className="ev-notes-pick"
-            onClick={onPickCollection}
-          >
+          <Button kind="text" onClick={onPickCollection}>
             {note.collectionName ?? "no collection"}
-          </button>
+          </Button>
           <span>edited {note.edited}</span>
           <span className="ev-notes-save" data-state={note.saveState}>
             <i className="ev-notes-dot" />

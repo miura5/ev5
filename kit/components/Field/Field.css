@@ -55,3 +55,30 @@
   background: var(--sel);
   color: var(--text);
 }
+
+.kit-textarea {
+  resize: none;
+  min-height: calc(var(--row) * 2);
+}
+
+.kit-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--row);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.kit-choice-box {
+  flex: none;
+  margin: 0;
+  accent-color: var(--her);
+}
+
+.kit-choice-box:focus-visible {
+  outline: var(--sp-1) solid var(--text);
+  outline-offset: var(--sp-1);
+}

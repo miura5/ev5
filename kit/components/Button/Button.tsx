@@ -12,7 +12,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 /** An icon button has no visible label, so it must say what it does. */
 export function Button({ kind = "secondary", hint, type = "button", children, ...rest }: ButtonProps) {
   return (
-    <button {...rest} type={type} className={`kit-btn kit-btn-${kind}`} data-ui="button" data-kind={kind}>
+    <button data-ui="button" {...rest} type={type} className={`kit-btn kit-btn-${kind}`} data-kind={kind}>
       {children}
       {hint ? <kbd className="kit-kbd">{hint}</kbd> : null}
     </button>

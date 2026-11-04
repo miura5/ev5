@@ -1,4 +1,8 @@
-import type { InputHTMLAttributes } from "react";
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  TextareaHTMLAttributes,
+} from "react";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 export interface FieldProps extends Omit<
@@ -41,5 +45,49 @@ export function Segmented({ label, options, value, onChange }: SegmentedProps) {
         </ToggleGroup.Item>
       ))}
     </ToggleGroup.Root>
+  );
+}
+
+export interface TextAreaProps extends Omit<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "className"
+> {
+  /** What the box is for; every box needs one, seen or not. */
+  label: string;
+}
+
+/** The one bordered multi-line field: Ask's message box, a session answer. */
+export function TextArea({ label, rows = 2, ...rest }: TextAreaProps) {
+  return (
+    <textarea
+      {...rest}
+      rows={rows}
+      aria-label={label}
+      className="kit-field kit-textarea"
+      data-ui="textarea"
+    />
+  );
+}
+
+export interface ChoiceProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "className" | "type" | "children"
+> {
+  /** "checkbox" for a done/not-done row, "radio" for one of several answers. */
+  kind: "checkbox" | "radio";
+  children?: ReactNode;
+}
+
+/** A checkbox or radio with its words; the words are its label. */
+export function Choice({ kind, children, ...rest }: ChoiceProps) {
+  const box = (
+    <input {...rest} type={kind} className="kit-choice-box" data-ui={kind} />
+  );
+  if (children === undefined) return box;
+  return (
+    <label className="kit-choice" data-ui="choice">
+      {box}
+      {children}
+    </label>
   );
 }

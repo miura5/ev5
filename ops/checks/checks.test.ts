@@ -7,6 +7,7 @@ import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
+import { checkControls } from './controls.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
@@ -37,6 +38,12 @@ test('radix: a kit component with its own menu or key handling must import Radix
     'kit/components/C/C.tsx': "if (e.key === 'Escape') close();", 'kit/components/D/D.tsx': "import { Command } from 'cmdk';\nrole=\"listbox\"",
     'kit/components/E/E.tsx': '<div role="button" />', 'kit/components/A/A.story.tsx': '<ul role="menu" />', 'kit/components/A/A.test.tsx': 'role="dialog"' });
   assert.deepEqual(checkRadix(r.root, r.files).map(f => f.file).sort(), ['kit/components/A/A.tsx', 'kit/components/C/C.tsx']);
+});
+
+test('controls: a view under areas/ or shell/ draws no raw input, button, select or textarea', () => {
+  const r = repo({ 'areas/a/A.view.tsx': '<button type="button">x</button>', 'shell/S.tsx': '<textarea\n rows={1} />', 'areas/b/B.view.tsx': '<Button>x</Button><Field label="a" />',
+    'kit/components/K/K.tsx': '<button />', 'areas/a/A.story.tsx': '<input />', 'areas/a/a.test.tsx': '<input />' });
+  assert.deepEqual(checkControls(r.root, r.files).map(f => f.file).sort(), ['areas/a/A.view.tsx', 'shell/S.tsx']);
 });
 
 test('registry: tool, command and schedule definitions outside commands/ fail', () => {

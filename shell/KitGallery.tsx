@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { STORIES, THEMES, type Theme } from "../kit/index.ts";
+import { Button, STORIES, THEMES, type Theme } from "../kit/index.ts";
 import "./kit-gallery.css";
 
 const COLOURS = [
@@ -47,14 +47,13 @@ export function KitGallery() {
       <div className="gallery-col">
         <header className="gallery-head">
           <h1>Kit</h1>
-          <button
-            type="button"
-            className="gallery-toggle"
+          <Button
+            kind="secondary"
             data-ui="theme-toggle"
             onClick={() => setTheme(next)}
           >
             {`Theme: ${theme}, switch to ${next}`}
-          </button>
+          </Button>
         </header>
         <section aria-label="Colour" data-key="colour">
           <h2>Colour</h2>

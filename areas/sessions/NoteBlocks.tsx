@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Choice } from "../../kit/index.ts";
 import type { Note } from "../../domain/index.ts";
 
 type Block = Note["blocks"][number];
@@ -38,15 +39,16 @@ function one(
       );
     case "todo":
       return (
-        <label className="ev-session-todo" style={pad}>
-          <input
-            type="checkbox"
+        <div className="ev-session-todo" style={pad}>
+          <Choice
+            kind="checkbox"
             checked={!!b.checked}
             disabled={!onToggle}
             onChange={() => onToggle?.(k)}
-          />{" "}
-          {runs(b)}
-        </label>
+          >
+            {runs(b)}
+          </Choice>
+        </div>
       );
     case "img":
       return (

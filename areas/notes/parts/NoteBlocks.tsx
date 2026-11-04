@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Choice } from "../../../kit/index.ts";
 import type { NoteBlock, NoteBody, NoteRun } from "../types.ts";
 
 function Runs({ runs }: { runs: readonly NoteRun[] }) {
@@ -57,8 +58,8 @@ function Block({ b }: { b: NoteBlock }) {
           data-done={b.checked ? "true" : "false"}
           style={{ paddingLeft: `calc(var(--sp-6) * ${b.indent ?? 0})` }}
         >
-          <input
-            type="checkbox"
+          <Choice
+            kind="checkbox"
             checked={!!b.checked}
             readOnly
             aria-label="Done"

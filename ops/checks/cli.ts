@@ -1,6 +1,7 @@
 // node ops/checks/cli.ts [--root <repo>] [--base <git ref>]: runs every custom check, prints findings, exits 1 on any.
 // The trailer check needs a base (defaults to origin/$GITHUB_BASE_REF in a pull request, otherwise it is skipped).
 import { checkAccount } from './account.ts';
+import { checkControls } from './controls.ts';
 import { checkIds } from './ids.ts';
 import { listFiles } from './lib.ts';
 import { checkModelsAge } from './models.ts';
@@ -21,6 +22,7 @@ const base = arg('base') ?? (process.env.GITHUB_BASE_REF ? `origin/${process.env
 const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
+  ...checkControls(root, files),
   ...checkIds(root, files),
   ...checkPlanJob(root, files),
   ...checkPresence(root, files),

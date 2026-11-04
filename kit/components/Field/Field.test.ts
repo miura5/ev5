@@ -1,7 +1,13 @@
 import { createElement } from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { Field, Segmented } from "./Field";
+import { Choice, Field, Segmented, TextArea } from "./Field";
 import { Story } from "./Field.story";
 
 afterEach(cleanup);
@@ -75,6 +81,26 @@ test("one Tab stop per group and arrows move focus", async () => {
   const on = screen.getByRole("radio", { name: "5" });
   on.focus();
   fireEvent.keyDown(on, { key: "ArrowRight" });
-  await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("radio", { name: "8" })));
+  await waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole("radio", { name: "8" }),
+    ),
+  );
   expect(radios.filter((r) => r.tabIndex === 0)).toHaveLength(1);
+});
+
+test("a text area is found by its label and a choice by its words", () => {
+  render(
+    createElement(
+      "div",
+      null,
+      createElement(TextArea, { label: "Your answer", defaultValue: "x" }),
+      createElement(Choice, { kind: "checkbox" }, "Done"),
+      createElement(Choice, { kind: "radio", name: "o" }, "Heparin"),
+    ),
+  );
+  expect(screen.getByRole("textbox", { name: "Your answer" })).toBeTruthy();
+  fireEvent.click(screen.getByRole("checkbox", { name: "Done" }));
+  expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
+  expect(screen.getByRole("radio", { name: "Heparin" })).toBeTruthy();
 });

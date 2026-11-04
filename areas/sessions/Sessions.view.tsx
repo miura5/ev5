@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Button, Doc, EvLine } from "../../kit/index.ts";
+import { Button, Choice, Doc, EvLine, TextArea } from "../../kit/index.ts";
 import "./sessions.css";
 
 export interface SessionCheck {
@@ -77,14 +77,13 @@ export function SessionView(p: SessionViewProps) {
                     : "ev-session-check"
                 }
               >
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={c.done}
-                    onChange={() => p.onToggleCheck(c.id)}
-                  />
+                <Choice
+                  kind="checkbox"
+                  checked={c.done}
+                  onChange={() => p.onToggleCheck(c.id)}
+                >
                   {c.text}
-                </label>
+                </Choice>
               </li>
             ))}
           </ul>
@@ -116,12 +115,11 @@ function CheckBlock(p: {
       <EvLine quiet>
         <b>Check, in your own words.</b> {p.question}
       </EvLine>
-      <textarea
+      <TextArea
         name="answer"
-        className="ev-session-field"
         rows={2}
         placeholder="Your words"
-        aria-label="Your answer"
+        label="Your answer"
       />
       {p.answer ? (
         <EvLine>

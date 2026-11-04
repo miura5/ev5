@@ -27,7 +27,13 @@ export interface CollectionViewProps {
   onRename?: (title: string) => void;
 }
 
-function EntryRow({ e, onOpen }: { e: CollectionEntry; onOpen?: (id: string) => void }) {
+function EntryRow({
+  e,
+  onOpen,
+}: {
+  e: CollectionEntry;
+  onOpen?: (id: string) => void;
+}) {
   return (
     <Row
       title={e.title}
@@ -45,9 +51,9 @@ export function CollectionView(p: CollectionViewProps) {
   return (
     <section className="ev-coll" aria-label="Collection">
       {p.parent ? (
-        <button type="button" className="ev-coll-crumb" onClick={p.onBack}>
+        <Button kind="text" onClick={p.onBack}>
           ← {p.parent}
-        </button>
+        </Button>
       ) : null}
       <div className="ev-coll-head">
         <Glyph type="collection" />
@@ -65,7 +71,12 @@ export function CollectionView(p: CollectionViewProps) {
             Collection · {count} items{p.pinned ? " · pinned" : ""}
           </span>
         </div>
-        <Button kind="text" hint="P" onClick={p.onTogglePin} aria-pressed={!!p.pinned}>
+        <Button
+          kind="text"
+          hint="P"
+          onClick={p.onTogglePin}
+          aria-pressed={!!p.pinned}
+        >
           {p.pinned ? "Unpin" : "Pin"}
         </Button>
         <Button kind="text" hint="C" onClick={p.onNew}>
@@ -92,7 +103,8 @@ export function CollectionView(p: CollectionViewProps) {
         </div>
       ) : (
         <div className="ev-coll-empty">
-          Nothing here yet. New adds a note, a set or a date here; or move things in from their menu.
+          Nothing here yet. New adds a note, a set or a date here; or move
+          things in from their menu.
         </div>
       )}
     </section>

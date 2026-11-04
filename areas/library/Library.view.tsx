@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Glyph, Row } from "../../kit/index.ts";
+import { Button, Glyph, Row } from "../../kit/index.ts";
 import { MasteryBar } from "./parts/MasteryBar.tsx";
 import { PracticePanel } from "./parts/PracticePanel.tsx";
 import { SetsPanel } from "./parts/SetsPanel.tsx";
@@ -66,30 +66,25 @@ export function LibraryView({
         </span>
       </div>
       {accuracy ? (
-        <button
-          type="button"
-          className="ev-library-accuracy"
-          onClick={onOpenAccuracy}
-        >
+        <Button kind="text" onClick={onOpenAccuracy}>
           <span className="ev-library-meta">
             First-try accuracy, last 14 days
           </span>
           <span>{accuracy.text}</span>
-        </button>
+        </Button>
       ) : null}
       <div className="ev-library-tabs" role="tablist">
         {tabs.map((t) => (
-          <button
+          <Button
             key={t.id}
-            type="button"
+            kind="text"
             role="tab"
             aria-selected={tab === t.id}
-            className="ev-library-tab"
             onClick={() => setTab(t.id)}
           >
             {t.label}
             {t.n ? <span className="ev-library-meta"> · {t.n}</span> : null}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="ev-library-panel" data-panel={tab}>
