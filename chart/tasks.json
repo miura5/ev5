@@ -14767,14 +14767,14 @@
   "title": "Guard: a kit component that draws a menu, listbox, combobox or modal dialog must import Radix or cmdk",
   "dod": "A check in ops/checks fails when a kit/components/*.tsx (not a story or test) contains role=\"menu\", \"listbox\", \"combobox\", \"dialog\" or aria-modal, or handles ArrowDown/Escape keys itself, and imports nothing from @radix-ui/ or cmdk; a guard-failure fixture goes red (ops/guards, docs/guards.md); main is green with it on",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-787",
    "B-788",
    "B-789"
   ],
   "notes": "Slice write: ops/checks, ops/guards, docs/guards.md. Read: kit. Cheap text check, no parser needed.",
-  "commit": null,
+  "commit": "ea92247",
   "source": "supervisor (ev-build), 2026-11-04",
   "claimedBy": "run30",
   "claimedAt": "2026-11-04T02:05:23.372Z"
