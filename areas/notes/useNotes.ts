@@ -6,11 +6,16 @@ import {
   type Block,
   type Note,
 } from "../../domain/index.ts";
-import { readCollections, type CollectionsRead } from "./collections.ts";
+import {
+  readCollections,
+  type CollectionsRead,
+  type ReadCopyLike,
+} from "./collections.ts";
 import type { NoteCollection } from "./types.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface NotesServices {
+  readCopy?: ReadCopyLike;
   docs: {
     list(
       collection: string,
@@ -89,7 +94,7 @@ export function useNotes(services?: NotesServices): NotesState {
         }),
       );
       setError(undefined);
-      setCols(await readCollections());
+      setCols(await readCollections(services.readCopy));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Notes could not load.");
     }
