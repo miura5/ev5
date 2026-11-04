@@ -1,5 +1,5 @@
-import { Button, Glyph, Row } from "../../../kit/index.ts";
-import type { NoteCollection, NoteSummary } from "../types.ts";
+import { Button, Glyph, Row } from '../../../kit/index.ts';
+import type { NoteCollection, NoteSummary } from '../types.ts';
 
 export interface CollectionTreeProps {
   collections: readonly NoteCollection[];
@@ -10,37 +10,19 @@ export interface CollectionTreeProps {
   onNewNoteIn?: (collectionId: string) => void;
 }
 
-const NONE = "none";
+const NONE = 'none';
 
-function total(
-  id: string,
-  cols: readonly NoteCollection[],
-  notes: readonly NoteSummary[],
-): number {
-  const ids = new Set([
-    id,
-    ...cols.filter((c) => c.parentId === id).map((c) => c.id),
-  ]);
+function total(id: string, cols: readonly NoteCollection[], notes: readonly NoteSummary[]): number {
+  const ids = new Set([id, ...cols.filter((c) => c.parentId === id).map((c) => c.id)]);
   return notes.filter((n) => n.collectionId && ids.has(n.collectionId)).length;
 }
 
 /** Collections as folding rows, nested one level, each opening to its notes. */
-export function CollectionTree({
-  collections,
-  notes,
-  open,
-  onToggle,
-  onOpenNote,
-  onNewNoteIn,
-}: CollectionTreeProps) {
+export function CollectionTree({ collections, notes, open, onToggle, onOpenNote, onNewNoteIn }: CollectionTreeProps) {
   const own = (id: string | null) => notes.filter((n) => n.collectionId === id);
   const noteRows = (id: string | null, level: number) =>
     own(id).map((n) => (
-      <div
-        className="ev-notes-line"
-        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
-        key={n.id}
-      >
+      <div className="ev-notes-line" style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }} key={n.id}>
         <Row
           glyph={<Glyph type="note" />}
           title={n.title}
@@ -50,41 +32,22 @@ export function CollectionTree({
         />
       </div>
     ));
-  const fold = (
-    id: string,
-    title: string,
-    level: number,
-    count: number,
-    withNew: boolean,
-  ) => {
+  const fold = (id: string, title: string, level: number, count: number, withNew: boolean) => {
     const isOpen = open.has(id);
     return (
-      <div
-        className="ev-notes-fold"
-        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
-        data-key={id}
-      >
-        <button
-          type="button"
-          className="ev-notes-fold-btn"
-          aria-expanded={isOpen}
-          onClick={() => onToggle(id)}
-        >
+      <div className="ev-notes-fold" style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }} data-key={id}>
+        <button type="button" className="ev-notes-fold-btn" aria-expanded={isOpen} onClick={() => onToggle(id)}>
           <span className="ev-notes-chev" data-open={isOpen} aria-hidden="true">
             ›
           </span>
-          <Glyph type={id === NONE ? "note" : "collection"} />
+          <Glyph type={id === NONE ? 'note' : 'collection'} />
           <span className="ev-notes-fold-title">{title}</span>
           <span className="ev-notes-meta">
-            {count} {count === 1 ? "note" : "notes"}
+            {count} {count === 1 ? 'note' : 'notes'}
           </span>
         </button>
         {withNew ? (
-          <Button
-            kind="text"
-            aria-label={`New note in ${title}`}
-            onClick={() => onNewNoteIn?.(id)}
-          >
+          <Button kind="text" aria-label={`New note in ${title}`} onClick={() => onNewNoteIn?.(id)}>
             New note
           </Button>
         ) : null}
@@ -115,7 +78,7 @@ export function CollectionTree({
       ))}
       {loose ? (
         <div>
-          {fold(NONE, "No collection", 0, loose, false)}
+          {fold(NONE, 'No collection', 0, loose, false)}
           {open.has(NONE) ? noteRows(null, 1) : null}
         </div>
       ) : null}
