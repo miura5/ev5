@@ -1,113 +1,20 @@
 // The plan-item commands (CONTRACT §cmd.registry, §data.protocol): a manual item is a `dayedits.added` entry made by
 // Matt (PLAN §5.10), a tick is a `dayedits.checks` entry, and a time goes to `item_props`. Every write goes through the
-// docs protocol with the document's version, so a stale write is a 409. A repeat, a link and a collection wait for
-// their own tasks and answer 400 here rather than being dropped.
+// docs protocol with the document's version, so a stale write is a 409. A repeat, a link and a time go to
+// `item_props`; a repeat also materializes the next days' occurrences into `dayedits.added` under `rep-<id>-<date>`
+// (PLAN §5.10); a collection is a membership row, or ev4's `course` field for a `course:<key>` target.
 import { addDays, centralDate } from "../domain/index.ts";
-import { docsRepo, tablesRepo } from "../data/index.ts";
-import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
-import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-
-type Fields = {
-  title?: string;
-  date?: string;
-  time?: string;
-  estimateMinutes?: number;
-  repeat?: string;
-  linked?: string;
-  collection?: string;
-};
-type Day = Record<string, unknown> & {
-  added?: Record<string, Record<string, unknown>>;
-  checks?: Record<string, unknown>;
-};
-type Found = { date: string; day: Day; v: number };
-
-const iso = (ms: number) => new Date(ms).toISOString();
-
-function checkDate(date: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || addDays(date, 0) !== date)
-    throw new CommandError(400, `${date} is not a date`);
-  return date;
-}
-
-async function loadDay(
-  x: HandlerCtx,
-  date: string,
-): Promise<{ day: Day; v: number } | null> {
-  const doc = await docsRepo(x.db, { clock: x.clock }).get("dayedits", date);
-  return doc ? { day: doc.data as Day, v: doc.v } : null;
-}
-
-/** Saves the day with `change` applied; a new day gets its envelope, an old one keeps it. */
-async function saveDay(
-  x: HandlerCtx,
-  source: string,
-  date: string,
-  cur: { day: Day; v: number } | null,
-  change: (d: Day) => void,
-): Promise<void> {
-  const now = iso(x.clock());
-  const day: Day = cur
-    ? { ...cur.day }
-    : { schema: 1, writer: "page", at: now, source, date };
-  change(day);
-  day.updatedAt = now;
-  const r = await docsRepo(x.db, { clock: x.clock }).save(
-    "dayedits",
-    date,
-    JSON.stringify(day),
-    cur ? cur.v : null,
-  );
-  if (!r.ok) throw new CommandError(409, "that day changed; try again");
-}
-
-/** The day a manual plan item is on (a day that skipped it, because it moved, does not count). */
-async function findItem(x: HandlerCtx, id: string): Promise<Found> {
-  const { results } = await x.db
-    .prepare(
-      "SELECT id, data, v FROM docs WHERE c = 'dayedits' AND data LIKE ?",
-    )
-    .bind(`%${JSON.stringify(id).slice(1, -1)}%`)
-    .all<{ id: string; data: string; v: number }>();
-  for (const r of results) {
-    const day = JSON.parse(r.data) as Day;
-    const skipped = (day.skipped as Record<string, unknown> | undefined)?.[id];
-    if (day.added?.[id] && !skipped) return { date: r.id, day, v: r.v };
-  }
-  throw new CommandError(404, `no plan item ${id}`);
-}
-
-async function setTime(x: HandlerCtx, id: string, time: string) {
-  const props = tablesRepo(x.db, { clock: x.clock }).itemProps;
-  const cur = await props.get("dayedits", id);
-  const r = await props.save(
-    {
-      c: "dayedits",
-      id,
-      time,
-      repeat: null,
-      linked: null,
-      overrides: null,
-      ...(cur
-        ? { repeat: cur.repeat, linked: cur.linked, overrides: cur.overrides }
-        : {}),
-    },
-    cur ? cur.v : null,
-  );
-  if (!r.ok) throw new CommandError(409, "that item changed; try again");
-}
-
-function refuseUnsupported(f: Fields) {
-  for (const k of ["repeat", "linked", "collection"] as const)
-    if (f[k] !== undefined)
-      throw new CommandError(400, `${k} is not supported on a plan item yet`);
-}
+import type { CommandHandler } from "./handlers-core.ts";
+import { checkDate, findItem, iso, loadDay, saveDay } from "./plan-days.ts";
+import type { Day } from "./plan-days.ts";
+import { applyOptions, optionsOf } from "./plan-options.ts";
+import type { Fields } from "./plan-options.ts";
 
 export const planHandlers: Record<string, CommandHandler> = {
   "plan.create": async (i: Fields & { title: string }, _c, x) => {
-    refuseUnsupported(i);
     const date = checkDate(i.date ?? centralDate(x.clock()));
+    const options = await optionsOf(x, i, date);
     const id = x.newId();
     await saveDay(
       x,
@@ -127,14 +34,14 @@ export const planHandlers: Record<string, CommandHandler> = {
         };
       },
     );
-    if (i.time) await setTime(x, id, i.time);
+    await applyOptions(x, id, date, options);
     return { id, date };
   },
 
   "plan.update": async (i: Fields & { id: string }, _c, x) => {
-    refuseUnsupported(i);
     const from = await findItem(x, i.id);
     const to = i.date === undefined ? from.date : checkDate(i.date);
+    const options = await optionsOf(x, i, to);
     const item = {
       ...(from.day.added as Record<string, Record<string, unknown>>)[i.id],
     };
@@ -152,7 +59,7 @@ export const planHandlers: Record<string, CommandHandler> = {
         [i.id]: { at: iso(x.clock()), by: "Matt" },
       };
     });
-    if (i.time) await setTime(x, i.id, i.time);
+    await applyOptions(x, i.id, to, options);
     return { id: i.id, date: to };
   },
 
