@@ -33,7 +33,12 @@ export type JobSpec<I, O> = {
   wording: { running: string; needsYou: string; done: string; failed: string };
   startedBy: readonly Starter[];
   executor: ExecutorKind;
+  /** Minutes a job may sit queued or running without any update before the sweep fails it. Defaults below. */
+  deadlineMinutes?: { queued?: number; running?: number };
 };
+
+/** Longer than the 5-minute retried step time, so a slow but live job is never swept (CONTRACT §job.record). */
+export const DEFAULT_DEADLINE_MINUTES = { queued: 30, running: 60 } as const;
 
 /** `input` and `output` parse (throwing plain words); `inputSchema` and `outputSchema` are the Zod schemas behind them. */
 export type JobDef<I = unknown, O = unknown> = Readonly<
@@ -45,7 +50,11 @@ export type JobDef<I = unknown, O = unknown> = Readonly<
   }
 >;
 
-const KINDS = new Set<string>();
+const KINDS = new Map<string, { queued: number; running: number }>();
+
+/** The queued and running deadlines (minutes) for a defined kind; the defaults for an unknown one. */
+export const deadlinesFor = (kind: string): { queued: number; running: number } =>
+  KINDS.get(kind) ?? DEFAULT_DEADLINE_MINUTES;
 
 export function defineJob<I, O>(spec: JobSpec<I, O>): JobDef<I, O> {
   const bad = (m: string): never => {
@@ -68,7 +77,10 @@ export function defineJob<I, O>(spec: JobSpec<I, O>): JobDef<I, O> {
   if (!spec.startedBy.length) bad('startedBy needs at least one starter');
   for (const k of ['running', 'needsYou', 'done', 'failed'] as const)
     if (!spec.wording[k].trim()) bad(`wording.${k} is empty`);
-  KINDS.add(spec.kind);
+  const dl = { ...DEFAULT_DEADLINE_MINUTES, ...spec.deadlineMinutes };
+  if (!(dl.queued > 5) || !(dl.running > 5) || !Number.isFinite(dl.queued) || !Number.isFinite(dl.running))
+    bad('deadlineMinutes must be numbers longer than the 5-minute step time');
+  KINDS.set(spec.kind, dl);
   const { input, output, ...rest } = spec;
   return Object.freeze({
     ...rest,
