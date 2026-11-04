@@ -14,8 +14,40 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  checks:
-    name: checks
+  # The tests run in parallel jobs; `checks` (the one required check) passes only when every one of them passed.
+  # `npm run precheck` runs the same steps on a builder's machine before a push.
+  node-tests:
+    name: node tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - run: npm run test:node
+
+  unit:
+    name: unit ${{ matrix.shard }}/3
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run --shard=${{ matrix.shard }}/3
+
+  static:
+    name: static
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +59,6 @@ jobs:
           cache: npm
       - run: npm ci
       # Phase 0 checks; the full PLAN §11 set replaces this list in Phase 1 (S-11 to S-15).
-      - run: npm test
       - run: npx tsc -p .
       - run: npx vite build
       - run: npm run lint
@@ -38,6 +69,19 @@ jobs:
       - run: node ops/record/cli.ts render --check
       - run: node ops/checks/cli.ts
       - run: node ops/generate/cli.ts --check
+
+  checks:
+    name: checks
+    needs: [node-tests, unit, static]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every check job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do [ "$r" = success ] || exit 1; done
 
   visual:
     name: visual
