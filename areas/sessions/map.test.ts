@@ -45,13 +45,16 @@ test("the running session wins and its clock is rebuilt", () => {
   });
 });
 
-test("with none running, the latest one shows as ended", () => {
-  const d = mapSessions(
-    [{ id: "a", data: doc({ status: "ended", topic: undefined }) }],
-    now,
-  );
-  expect(d?.title).toBe("Study session");
-  expect(d?.ended).toBe(true);
+test("with only ended sessions there is no session to show (no stopped clock under live controls)", () => {
+  expect(
+    mapSessions(
+      [
+        { id: "a", data: doc({ status: "ended", endedAt: T0, minutes: 25 }) },
+        { id: "b", data: doc({ status: "discarded" }) },
+      ],
+      now,
+    ),
+  ).toBeUndefined();
 });
 
 test("a session with no startedAt counts from its write time, not 0:00", () => {
@@ -60,17 +63,4 @@ test("a session with no startedAt counts from its write time, not 0:00", () => {
     now,
   );
   expect(d?.seconds).toBe(600);
-});
-
-test("an ended session with no start shows its saved minutes", () => {
-  const d = mapSessions(
-    [
-      {
-        id: "a",
-        data: doc({ status: "ended", startedAt: null, endedAt: T0, minutes: 25 }),
-      },
-    ],
-    now,
-  );
-  expect(d?.seconds).toBe(1500);
 });
