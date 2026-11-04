@@ -40,7 +40,7 @@ export interface AskJobRef {
   job: AskJob;
 }
 
-/** Two records that read the same show once, as Activity shows them (areas/activity/useJobs.ts uniqueRows, B-876). */
+/** Two records that read the same show once, as Activity shows them (areas/activity/useJobs.ts uniqueRows). */
 export const distinctJobs = <T extends WireJob>(jobs: readonly T[]): T[] => {
   const seen = new Set<string>();
   return jobs.filter((j) => {

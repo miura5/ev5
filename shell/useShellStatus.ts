@@ -34,7 +34,7 @@ function sentence(j: WireJob): string {
 }
 
 /** Sidebar numbers from the job list: Activity's needs-you count and the one running job.
- * Records that read the same count once, as Activity lists them (B-876). */
+ * Records that read the same count once, as Activity lists them. */
 export function statusFromJobs(jobs: readonly WireJob[]): ShellStatus {
   const seen = new Set<string>();
   const needs = jobs.filter((j) => {

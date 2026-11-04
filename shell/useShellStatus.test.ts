@@ -17,7 +17,7 @@ describe("statusFromJobs", () => {
   });
 });
 
-describe("B-876: two needs-you records that read the same count once", () => {
+describe("two needs-you records that read the same count once", () => {
   const w = { kind: "study_plan", state: "needs-you", summary: "Plan needs you. Rate it.", lead: "Plan needs you." };
   it("counts the sidebar like Activity lists them", () => {
     const s = statusFromJobs([{ id: "a", ...w }, { id: "b", ...w }, { id: "c", ...w, kind: "spend-alert", lead: "Over." }]);

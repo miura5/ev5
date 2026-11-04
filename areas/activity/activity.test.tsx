@@ -4,7 +4,7 @@ import { activityArea } from "./area.ts";
 import { ActivityView, type ActivityJob } from "./Activity.view.tsx";
 import { toActivityJob, uniqueRows } from "./useJobs.ts";
 
-test("B-876: two needs-you jobs that read the same list once (the sidebar and Ask count once too)", () => {
+test("two needs-you jobs that read the same list once (the sidebar and Ask count once too)", () => {
   const w = { kind: "study_plan", state: "needs-you" as const, summary: "Plan needs you. Rate it.", lead: "Plan needs you." };
   const rows = uniqueRows([{ id: "a", ...w }, { id: "b", ...w }].map(toActivityJob));
   expect(rows.map((r) => r.id)).toEqual(["a"]);
