@@ -13,6 +13,8 @@ export interface LibraryState {
   data?: LibraryData;
   token: string;
   error?: string;
+  /** The server refused the token: the shell asks for a new one. */
+  refused?: boolean;
 }
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
@@ -39,6 +41,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const [token] = useState(readToken);
   const [data, setData] = useState<LibraryData>();
   const [error, setError] = useState<string>();
+  const [refused, setRefused] = useState(false);
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -55,6 +58,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
         }
       } catch (e) {
         // A refused token shows nothing here: the shell's token screen takes over.
+        if (live && failureKind(e) === "refused") setRefused(true);
         if (live)
           setError(
             failureKind(e) === "refused" ? undefined : failureSentence(e),
@@ -65,5 +69,5 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       live = false;
     };
   }, [token, copy]);
-  return { data, token, error };
+  return { data, token, error, refused };
 }

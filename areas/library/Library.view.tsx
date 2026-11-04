@@ -83,7 +83,9 @@ export function LibraryView({
             onClick={() => setTab(t.id)}
           >
             {t.label}
-            {t.n ? <span className="ev-library-meta ev-library-count">{t.n}</span> : null}
+            {t.n !== undefined ? (
+              <span className="ev-library-meta ev-library-count">{t.n}</span>
+            ) : null}
           </Button>
         ))}
       </div>
