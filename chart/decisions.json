@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-473",
+  "date": "Nov 4",
+  "title": "Decisions D-001 to D-043 (v2 era) are not carried into v5",
+  "why": "They were made under the v2 design and the later ones (D-044 onward) supersede or restate what still applies. v5 rules live only in CONTRACT.md (§drift.one-file); the v2 log stays in the v2 doc as history.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "B-826"
+ },
+ {
   "id": "D-472",
   "date": "Nov 4",
   "title": "Adopt vite-plugin-pwa 2.0.0 (exact) for the installed app",
