@@ -40,7 +40,17 @@ test("a server error does not show the saved list and keeps it", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 503 })));
   const copy = fakeCopy({ jobs: saved });
   const { result } = renderHook(() => useJobs(copy));
-  await waitFor(() => expect(result.current.error).toBe("Activity could not load."));
+  await waitFor(() => expect(result.current.error).toBe("Something went wrong on E.V.'s side. Try again in a moment."));
+  expect(result.current.jobs).toEqual([]);
+  expect(copy.kept.jobs).toBe(saved);
+});
+
+test("a 401 shows no data and keeps the saved copy", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 401 })));
+  const copy = fakeCopy({ jobs: saved });
+  const { result } = renderHook(() => useJobs(copy));
+  await waitFor(() => expect(result.current.refused).toBe(true));
   expect(result.current.jobs).toEqual([]);
   expect(copy.kept.jobs).toBe(saved);
 });

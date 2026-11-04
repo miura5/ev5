@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
@@ -14,10 +15,9 @@ export function SessionsScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { data, token, error, setToken, note, toggleTodo, save } = useSessions(
+  const { data, token, refused, error, note, toggleTodo, save } = useSessions(
     services?.readCopy,
   );
-  const [draft, setDraft] = useState("");
   const [extra, setExtra] = useState(0);
   const [closed, setClosed] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -65,29 +65,11 @@ export function SessionsScreen({
     const t = setInterval(() => setExtra((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, [stopped, data]);
-  if (!token)
-    return (
-      <form
-        className="ev-session"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (draft.trim()) setToken(draft.trim());
-        }}
-      >
-        <label className="ev-session-meta" htmlFor="ev-token">
-          Paste your app token to see Sessions
-        </label>
-        <input
-          id="ev-token"
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    );
+  // No token, or one the server refused: no data and no "no session yet"; the shell's token screen asks for it.
+  if (!token || refused) return null;
   return (
     <>
-      {error ? <p className="ev-session-meta">{error}</p> : null}
+      {error ? <Toast message={error} /> : null}
       {saved ? <p className="ev-session-meta">Saved to Progress.</p> : null}
       {closed ? (
         <p className="ev-session-meta">

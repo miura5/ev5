@@ -2,23 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 import { parseNote, type Note } from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
 import type { SessionData, WireDoc } from "./map.ts";
-import { api, readJson } from "../../commands/client.ts";
-
-const KEY = "ev5.token";
-
-const readToken = (): string => {
-  try {
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
+import { api, failureKind, failureSentence, readJson, readToken } from "../../commands/client.ts";
 
 export interface SessionsState {
   data?: SessionData;
   token: string;
+  /** The server refused the token (401): no data and no empty state; the shell's token screen takes over. */
+  refused: boolean;
+  /** A plain sentence for any other failure. */
   error?: string;
-  setToken: (t: string) => void;
   /** The note the session reads along with, once it has loaded. */
   note?: Note;
   /** Flips one todo block of the note (by its index) and writes the note back, pinned to the version read. */
@@ -33,17 +25,10 @@ export interface ReadCopyLike {
 }
 /** Reads study sessions with the app token Matt keeps in this browser (the shell holds none). */
 export function useSessions(copy?: ReadCopyLike): SessionsState {
-  const [token, setTokenState] = useState(readToken);
+  const token = readToken();
   const [data, setData] = useState<SessionData>();
   const [error, setError] = useState<string>();
-  const setToken = useCallback((t: string) => {
-    try {
-      localStorage.setItem(KEY, t);
-    } catch {
-      // storage blocked: the token lasts this visit only
-    }
-    setTokenState(t);
-  }, []);
+  const [refused, setRefused] = useState(false);
   const [note, setNote] = useState<Note>();
   const [noteRaw, setNoteRaw] = useState<{
     raw: Record<string, unknown>;
@@ -56,22 +41,23 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     void (async () => {
       try {
         // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
-        const fetcher = async (): Promise<WireDoc[]> => {
-          const r = await api("docs?collection=sessions", token);
-          if (r.status === 401) throw new Error("That token was not accepted.");
-          if (!r.ok) throw new Error("Sessions could not load.");
-          return ((await r.json()) as { docs: WireDoc[] }).docs;
-        };
-        const docs = copy
-          ? await copy.read("sessions:list", fetcher)
-          : await fetcher();
+        const docs = await readJson<WireDoc[]>(
+          "docs?collection=sessions",
+          token,
+          "sessions:list",
+          copy,
+          (b) => (b as { docs: WireDoc[] }).docs,
+        );
         if (live) {
           setData(mapSessions(docs, Date.now()));
           setError(undefined);
+          setRefused(false);
         }
       } catch (e) {
-        if (live)
-          setError(e instanceof Error ? e.message : "Sessions could not load.");
+        if (!live) return;
+        setData(undefined);
+        setRefused(failureKind(e) === "refused");
+        setError(failureSentence(e));
       }
     })();
     return () => {
@@ -97,8 +83,12 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
           setNote(parseNote(d.data));
           setNoteRaw({ raw: d.data as Record<string, unknown>, v: d.v });
         }
-      } catch {
-        // an unreadable note leaves the page empty
+      } catch (e) {
+        // an unreadable note leaves the page empty; a refused token is told like any other
+        if (live) {
+          setRefused(failureKind(e) === "refused");
+          setError(failureSentence(e));
+        }
       }
     })();
     return () => {
@@ -113,10 +103,11 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
         if (data.v !== undefined) q.set("if_version", String(data.v));
         const r = await api(`docs?${q}`, token, { method: "PUT", body: doc });
         if (!r.ok) {
+          setRefused(r.status === 401);
           setError(
             r.status === 409
               ? "The session changed elsewhere; reloaded."
-              : "That could not be saved.",
+              : failureSentence(r.status),
           );
           setTick((n) => n + 1);
           return false;
@@ -147,10 +138,11 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
         if (noteRaw.v !== undefined) q.set("if_version", String(noteRaw.v));
         const r = await api(`docs?${q}`, token, { method: "PUT", body: next });
         if (!r.ok) {
+          setRefused(r.status === 401);
           setError(
             r.status === 409
               ? "The note changed elsewhere; reload it."
-              : "That could not be saved.",
+              : failureSentence(r.status),
           );
           return;
         }
@@ -165,5 +157,5 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     },
     [noteRaw, noteId, token],
   );
-  return { data, token, error, setToken, note, toggleTodo, save };
+  return { data, token, refused, error, note, toggleTodo, save };
 }

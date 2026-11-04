@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Toast } from "../../kit/index.ts";
 import { DeletedView } from "./Deleted.view.tsx";
 import { useDeleted, type ReadCopyLike } from "./useDeleted.ts";
 
@@ -8,31 +8,12 @@ export function DeletedScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { items, token, error, setToken } = useDeleted(services?.readCopy);
-  const [draft, setDraft] = useState("");
-  if (!token)
-    return (
-      <form
-        className="ev-deleted"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (draft.trim()) setToken(draft.trim());
-        }}
-      >
-        <label className="ev-deleted-meta" htmlFor="ev-token">
-          Paste your app token to see Recently deleted
-        </label>
-        <input
-          id="ev-token"
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    );
+  const { items, token, refused, error } = useDeleted(services?.readCopy);
+  // No token, or one the server refused: no data and no "nothing here"; the shell's token screen asks for it.
+  if (!token || refused) return null;
   return (
     <>
-      {error ? <p className="ev-deleted-meta">{error}</p> : null}
+      {error ? <Toast message={error} /> : null}
       <DeletedView items={items} />
     </>
   );
