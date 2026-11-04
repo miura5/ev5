@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { parseNote, type Note } from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
 import type { SessionData, WireDoc } from "./map.ts";
 
@@ -17,6 +18,10 @@ export interface SessionsState {
   token: string;
   error?: string;
   setToken: (t: string) => void;
+  /** The note the session reads along with, once it has loaded. */
+  note?: Note;
+  /** Writes the whole session document back (pinned to the version read), then reads again. False if it failed. */
+  save: (doc: Record<string, unknown>) => Promise<boolean>;
 }
 
 /** Reads study sessions with the app token Matt keeps in this browser (the shell holds none). */
@@ -32,13 +37,16 @@ export function useSessions(): SessionsState {
     }
     setTokenState(t);
   }, []);
+  const [note, setNote] = useState<Note>();
+  const [tick, setTick] = useState(0);
+  const auth = useMemo(() => ({ authorization: `Bearer ${token}` }), [token]);
   useEffect(() => {
     if (!token) return;
     let live = true;
     void (async () => {
       try {
         const r = await fetch("/api/v1/docs?collection=sessions", {
-          headers: { authorization: `Bearer ${token}` },
+          headers: auth,
         });
         if (r.status === 401) throw new Error("That token was not accepted.");
         if (!r.ok) throw new Error("Sessions could not load.");
@@ -55,6 +63,57 @@ export function useSessions(): SessionsState {
     return () => {
       live = false;
     };
-  }, [token]);
-  return { data, token, error, setToken };
+  }, [token, auth, tick]);
+  const noteId = data?.noteId;
+  useEffect(() => {
+    setNote(undefined);
+    if (!token || !noteId) return;
+    let live = true;
+    void (async () => {
+      try {
+        const r = await fetch(
+          `/api/v1/docs?collection=notes&id=${encodeURIComponent(noteId)}`,
+          { headers: auth },
+        );
+        if (!r.ok) return; // no note page: the session still runs
+        const d = (await r.json()) as { data: unknown };
+        if (live) setNote(parseNote(d.data));
+      } catch {
+        // an unreadable note leaves the page empty
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [token, auth, noteId]);
+  const save = useCallback(
+    async (doc: Record<string, unknown>) => {
+      if (!data) return false;
+      try {
+        const q = new URLSearchParams({ collection: "sessions", id: data.id });
+        if (data.v !== undefined) q.set("if_version", String(data.v));
+        const r = await fetch(`/api/v1/docs?${q}`, {
+          method: "PUT",
+          headers: { ...auth, "content-type": "application/json" },
+          body: JSON.stringify(doc),
+        });
+        if (!r.ok) {
+          setError(
+            r.status === 409
+              ? "The session changed elsewhere; reloaded."
+              : "That could not be saved.",
+          );
+          setTick((n) => n + 1);
+          return false;
+        }
+        setTick((n) => n + 1);
+        return true;
+      } catch {
+        setError("That could not be saved; you may be offline.");
+        return false;
+      }
+    },
+    [data, auth],
+  );
+  return { data, token, error, setToken, note, save };
 }

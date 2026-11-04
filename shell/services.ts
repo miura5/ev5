@@ -12,7 +12,7 @@ import {
 /** What the shell hands every area view: reads over the document routes and the offline outbox. */
 export interface Services {
   docs: { list(collection: string): Promise<DocRow[]> };
-  outbox: Pick<Outbox, "queueNote" | "replay" | "count">;
+  outbox: Pick<Outbox, "queueNote" | "queueAnswer" | "replay" | "count">;
   /** ev4's unsent notes on this device, offered once on first boot; absent when there is nothing to offer. */
   ev4?: {
     find(): Promise<Ev4Entry[]>;
