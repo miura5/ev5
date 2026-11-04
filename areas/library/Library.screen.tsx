@@ -7,32 +7,13 @@ import { useStudy, useTellMe, type LibraryServices } from "./useStudy.ts";
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({ services }: { services?: LibraryServices }) {
-  const { data, token, error, setToken } = useLibrary(services?.readCopy);
-  const [draft, setDraft] = useState("");
+  const { data, error } = useLibrary(services?.readCopy);
   const [open, setOpen] = useState<string>();
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
-  if (!token)
-    return (
-      <form
-        className="ev-library"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (draft.trim()) setToken(draft.trim());
-        }}
-      >
-        <label className="ev-library-meta" htmlFor="ev-token">
-          Paste your app token to see Library
-        </label>
-        <input
-          id="ev-token"
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    );
+  // No data and no failure yet (loading, or the shell's token screen is up): show nothing, never an empty library.
+  if (!data && !error) return null;
   const page = open ? data?.pages[open] : undefined;
   if (page && studying)
     return (
@@ -59,7 +40,11 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
     );
   return (
     <>
-      {error ? <p className="ev-library-meta">{error}</p> : null}
+      {error ? (
+        <p className="ev-library-meta" role="status">
+          {error}
+        </p>
+      ) : null}
       <LibraryView
         practice={null}
         weakSpots={data?.weakSpots ?? []}

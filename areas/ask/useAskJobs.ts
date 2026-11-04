@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { AskJob } from "./types.ts";
-import { jobApi } from "../../commands/client.ts";
+import { jobApi, readToken } from "../../commands/client.ts";
 
-const KEY = "ev5.token";
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
   "study-plan": "Study plan",
@@ -35,14 +34,6 @@ export const toAskJob = (j: WireJob): AskJobRef => ({
 export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
-
-const readToken = (): string => {
-  try {
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
 
 /** Unfinished jobs for the chat to point at (CONTRACT §job.no-chat-ask: chat links to Activity, never starts a job).
  * Uses the token already pasted in Activity; without one the list stays empty. */
