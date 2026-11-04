@@ -8,13 +8,13 @@ export function ActivityScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { jobs, token, refused, error, dismiss } = useJobs(services?.readCopy);
+  const { jobs, loading, token, refused, error, dismiss } = useJobs(services?.readCopy);
   // No token, or one the server refused: no data and no "nothing here"; the shell's token screen asks for it.
   if (!token || refused) return null;
   return (
     <>
       {error ? <Toast message={error} /> : null}
-      <ActivityView jobs={jobs} onDismiss={(id) => void dismiss(id)} />
+      <ActivityView jobs={jobs} loading={loading} onDismiss={(id) => void dismiss(id)} />
     </>
   );
 }

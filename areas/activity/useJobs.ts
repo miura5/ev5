@@ -69,6 +69,8 @@ export interface ReadCopyLike {
 
 export interface JobsState {
   jobs: ActivityJob[];
+  /** True until the first answer (a list or a failure) arrives; "None." is only true after it. */
+  loading: boolean;
   token: string;
   /** The server refused the token (401): no data and no empty state; the shell's token screen takes over. */
   refused: boolean;
@@ -82,6 +84,7 @@ export interface JobsState {
 export function useJobs(copy?: ReadCopyLike): JobsState {
   const token = readToken();
   const [jobs, setJobs] = useState<ActivityJob[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
   const [tick, setTick] = useState(0);
@@ -107,12 +110,14 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
         .then((list) => {
           if (live) {
             setJobs(uniqueRows(list.map(toActivityJob)));
+            setLoading(false);
             setError(undefined);
             setRefused(false);
           }
         })
         .catch((e: unknown) => {
           if (!live) return;
+          setLoading(false);
           const refusedNow = failureKind(e) === "refused";
           if (refusedNow) setJobs([]);
           setRefused(refusedNow);
@@ -125,5 +130,5 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
       clearInterval(t);
     };
   }, [token, tick, copy]);
-  return { jobs, token, refused, error, dismiss };
+  return { jobs, loading, token, refused, error, dismiss };
 }
