@@ -30,21 +30,21 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 
 ## 3. One build run, step by step
 
-0. **Take the run lock** before anything else: `ops/build-lock.sh take`. Exit 3 means another run is working: end this run at once, with no handover, wait branch or PR. After each merged batch, run `ops/build-lock.sh renew`. Run `ops/build-lock.sh release` just before you open the handover or wait PR (step 10), and also when the run ends early. A lock held for more than 75 minutes is stale and the next run takes it.
+0. **Take the run lock** before anything else: `ops/build-lock.sh take`. Exit 3 means another run is working: end this run at once, with no handover, wait branch or PR. After each merged batch, run `ops/build-lock.sh renew`. Run `ops/build-lock.sh release` just before you open the handover or wait PR (step 10), and also when the run ends early. A lock held for more than 75 minutes is stale and the next run takes it. Other sessions (the supervisor, a channel thread) may open PRs at any time, but they merge to main only while the lock is released (`ops/build-lock.sh status`), or they give their Chart filings to the running build manager: each outside merge puts every open build PR behind main.
 1. **Read** `docs/handover.md`, then CONTRACT.md (PLAN.md before Phase 0's gate).
 2. **Check on last run's work:** open PRs, CI results, staging health. A red main, or a red `staging` deploy on main, is fixed first, before anything else.
 3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live", "go back"). File each one in the Chart. A bug that breaks studying jumps the queue.
 4. **Pick the batch:** the lowest open tasks whose dependencies are done, within the current phase, sized so the batch can reach a staging deploy or a gate in this run. A gate held up only by Matt or an outside input doesn't stop the build: start the next phase's tasks that don't need that input, and close the gate when it arrives. Gate 6 (before Matt tests) and anything live still wait for every earlier gate.
-5. **Claim** each task in the Chart (the claim is the lock), then start builders: one task each, with its slice and context (§5).
-6. **Merge:** each builder opens a PR from a `claude/` branch. GitHub runs every check, and auto-merge lands it on green. Nothing reaches main any other way.
+5. **Claim** each task in the Chart (the claim is the lock), then start builders: one task each, with its slice and context (§5). The run lock keeps other runs off these tasks, so the claims, done marks and notes go in the run's handover PR. Open a separate Chart PR first only when the run files new task ids, because ids race.
+6. **Merge:** each builder runs `npm run precheck` (every CI check, the Interface-trailer check included), then opens a PR from a `claude/` branch with auto-merge on. GitHub runs every check, and auto-merge lands it on green. Nothing reaches main any other way. Main takes only branches that are up to date, so land one PR at a time: when a PR merges, update the oldest open PR at once (`gh api -X PUT repos/miura5/ev5/pulls/N/update-branch`; if no CI run starts within a minute, merge main into the branch and push). A green PR that sits behind main is lost time.
 7. **Ship staging:** merging to main deploys the v5 staging Worker automatically. When a batch changes model behaviour, a job or an outside call, do **one real end-to-end run** on staging.
 8. **Gates:** when a phase's gate conditions are all true, record the proof (links to CI runs, drill output) as a Chart decision and move the handover to the next phase.
 9. **Card:** when something is on staging that Matt can try, update the release card (§8). Otherwise send no message.
-10. **Repeat or hand over:** while there is time left in the run (about 50 minutes) and work that doesn't wait on Matt, go back to step 4. Then wait for this run's PRs to merge, rewrite the handover from the latest main (§7), release the run lock, and open the handover PR last.
+10. **Repeat or hand over:** while there is time left in the run (about 50 minutes) and work that doesn't wait on Matt, go back to step 4. Then wait for this run's PRs to merge, rewrite the handover from the latest main (§7), release the run lock, and open the handover PR last, on a branch named `claude/handover-<UTC time>`: its merge starts the next run. Name it `claude/wait-<UTC time>` only when every open task waits on Matt or an outside input. Before that, check each **Waiting on Matt** item against the "For Matt" issue and the Chart, and remove the answered ones.
 
 **Stop early when:**
 - the next step needs Matt (§6): write the question and keep doing everything else it doesn't block;
-- usage is running out: finish the current builder, write the handover, end;
+- usage is running out, or the run has to end for another reason: finish the current builder, turn on auto-merge for every open PR of this run, write the handover and open the handover PR anyway, so the next run starts at once and lands those PRs;
 - the same check fails twice on a builder's fix: start a spike instead of a third try.
 
 ## 4. Turning the plan into tasks
