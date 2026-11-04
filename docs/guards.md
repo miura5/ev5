@@ -9,6 +9,7 @@ Run: `node --experimental-strip-types --test ops/guards/guards.test.ts` (Node 22
 | A 301-line file | `eslint . --max-warnings 0` | `301:1  error  File has too many lines (301). Maximum allowed is 300  max-lines` |
 | An inline `eslint-disable` | `eslint . --max-warnings 0` | `warning  '// eslint-disable-next-line no-undef' has no effect because you have 'noInlineConfig' setting in your config`, then `ESLint found too many warnings (maximum: 0).` |
 | A `@ts-ignore` comment | `eslint . --max-warnings 0` | `error  Unexpected '@ts-ignore' comment: '@ts-ignore'  no-warning-comments` |
+| An `export * from` | `eslint . --max-warnings 0` | `error  No \`export *\`: re-export by name (CONTRACT §drift.imports)  no-restricted-syntax` |
 | A bad import (`domain` into `data`) | `depcruise areas shell kit commands jobs domain data server ops --config .dependency-cruiser.cjs` | `error domain-imports: domain/bad.ts → data/index.ts` |
 | A cycle | same | `error no-cycles: domain/a.ts → domain/b.ts → domain/a.ts` |
 | A raw colour | `stylelint "**/*.css" --allow-empty-input` | `Disallowed hex color "#ff0000"  color-no-hex` and `declaration-property-value-allowed-list` |

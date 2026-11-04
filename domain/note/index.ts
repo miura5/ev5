@@ -1,6 +1,18 @@
 import { noteBlocks, noteTitleOf } from './blocks.ts';
 import { MAX, type Note } from './types.ts';
-export * from './types.ts';
+export {
+  /** @public */
+  BLOCK_TYPES,
+  /** @public */
+  LIST_TYPES,
+  /** @public */
+  MARKS,
+  /** @public */
+  MAX,
+  type Run,
+  type Block,
+  type Note,
+} from './types.ts';
 export { noteRuns, noteBlocks, splitWide, noteTitleOf, noteBlank } from './blocks.ts';
 export { docBytes, fits, tooBig, editAllowed } from './size.ts';
 export { parseNote, writeProblem } from './parse.ts';

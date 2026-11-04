@@ -56,6 +56,7 @@ const GUARDS: Guard[] = [
   { name: 'a 301-line file (eslint max-lines)', command: eslint, files: { 'domain/long.ts': lines301 }, expect: /max-lines/ },
   { name: 'an inline eslint-disable (eslint noInlineConfig)', command: eslint, files: { 'domain/dis.ts': '// eslint-disable-next-line no-undef\nexport const x = 1;\n' }, expect: /eslint-disable/ },
   { name: 'a @ts-ignore comment (eslint no-warning-comments)', command: eslint, files: { 'domain/ts.ts': '// @ts-ignore\nexport const x = 1;\n' }, expect: /no-warning-comments/ },
+  { name: 'an export * (eslint no-restricted-syntax)', command: eslint, files: { 'domain/star.ts': "export * from './ok.ts';\n" }, expect: /no-restricted-syntax/ },
   { name: 'a bad import, domain into data (dependency-cruiser)', command: depcruise, files: { 'data/index.ts': 'export const d = 1;\n', 'domain/bad.ts': "import { d } from '../data/index.ts';\nexport const b = d;\n" }, expect: /domain-imports/ },
   { name: 'a cycle (dependency-cruiser no-cycles)', command: depcruise, files: { 'domain/a.ts': "import { b } from './b.ts';\nexport const a = (): unknown => b;\n", 'domain/b.ts': "import { a } from './a.ts';\nexport const b = (): unknown => a;\n" }, expect: /no-cycles/ },
   { name: 'a raw colour (stylelint)', command: stylelint, files: { 'kit/raw.css': 'a { color: #ff0000; }\n' }, expect: /color-no-hex|declaration-property-value-allowed-list/ },
