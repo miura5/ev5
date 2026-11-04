@@ -9,6 +9,8 @@ export {
   MARKS,
   /** @public */
   MAX,
+  /** @public */
+  IMG_KEY,
   type Run,
   type Block,
   type Note,
