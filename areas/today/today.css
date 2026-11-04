@@ -69,6 +69,15 @@
   gap: var(--sp-3);
 }
 
+.ev-today-tick {
+  display: inline-flex;
+  padding: var(--sp-1);
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 .ev-today-line > .kit-row {
   flex: 1;
   min-width: 0;

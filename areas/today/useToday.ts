@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
 import { mapToday, spendAlertLine } from "./map.ts";
+import { buildDayEdit } from "./dayedit.ts";
+import type { DayEditDoc } from "./dayedit.ts";
 import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
 import { api, jobApi } from "../../commands/client.ts";
 
@@ -20,6 +22,8 @@ export interface TodayState {
   error?: string;
   /** The monthly spend alert line, when one is waiting. */
   alert?: string;
+  /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
+  tick: (id: string, done: boolean) => Promise<boolean>;
   setToken: (t: string) => void;
 }
 
@@ -92,5 +96,42 @@ export function useToday(): TodayState {
       live = false;
     };
   }, [token]);
-  return { data, token, error, alert, setToken };
+  const tick = useCallback(
+    async (id: string, done: boolean): Promise<boolean> => {
+      // online only (CONTRACT §data.offline): read the day as it is now, write it back whole, pinned to that version
+      const day = centralDate(Date.now());
+      const path = `collection=dayedits&id=${day}`;
+      for (let tries = 0; tries < 2; tries++) {
+        try {
+          const r = await get(path, token);
+          if (!r.ok && r.status !== 404) return false;
+          const cur = r.ok
+            ? ((await r.json()) as { v: number; data: Partial<DayEditDoc> })
+            : undefined;
+          const doc = buildDayEdit(cur?.data, day, id, done, new Date());
+          const v = cur ? `&if_version=${cur.v}` : "";
+          const w = await api(`docs?${path}${v}`, token, {
+            method: "PUT",
+            body: doc,
+          });
+          if (w.status === 409) continue; // the day moved on: read it again, once
+          if (!w.ok) return false;
+          setData((d) =>
+            d
+              ? {
+                  ...d,
+                  plan: d.plan.map((p) => (p.id === id ? { ...p, done } : p)),
+                }
+              : d,
+          );
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      return false;
+    },
+    [token],
+  );
+  return { data, token, error, alert, tick, setToken };
 }
