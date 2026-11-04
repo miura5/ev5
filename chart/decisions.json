@@ -1,5 +1,25 @@
 [
  {
+  "id": "D-465",
+  "date": "Nov 3",
+  "title": "Time zones: domain/time uses built-in Intl only, with no @date-fns/tz and no Temporal; supersedes PLAN §4's and §12's mention of @date-fns/tz",
+  "why": "B-714 built domain/time on Intl with DST tests for 2026-11-01 and 2027-03-14, and they pass; a library adds a dependency for no gap. Settles plan review F28's @date-fns/tz or Temporal pick. The dependency-cruiser allowlist for domain may drop @date-fns/tz when next touched.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
+  "id": "D-464",
+  "date": "Nov 3",
+  "title": "Notes editor: ProseMirror direct with the S-08 flat schema; add prosemirror-model, -state, -view, -transform, -commands, -history, -keymap and -inputrules, pinned; no Tiptap",
+  "why": "Spike S-08 (docs/spikes/S-08-notes-editor.md, B-698): the direct flat schema round-trips ev4's blocks losslessly with two export fixes (re-split runs at 20,000 characters, ev4 key order); Tiptap needs the same custom schema and adds about 25 packages; all eight packages are MIT. Settles PLAN §12's ProseMirror/Tiptap either/or and the §drift.tools decision for these dependencies. Unblocks B-784.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "supervisor (ev-build), 2026-11-04"
+ },
+ {
   "id": "D-463",
   "date": "Nov 3",
   "title": "The kit takes unstyled Radix primitives (@radix-ui/react-dropdown-menu, react-context-menu, react-dialog, react-toggle-group) and cmdk, pinned, for menus, pickers, the ⌘K dialog and roving focus; for v5, PLAN §7, §12 and CONTRACT §ui.mockup supersede ev4's native-first D-375",
