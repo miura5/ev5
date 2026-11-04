@@ -2,21 +2,18 @@
   position: fixed;
   inset: 0;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   background: var(--scrim);
   animation-name: kit-pal-fade;
   animation-duration: var(--dur-1);
 }
 
-.kit-pal-scrim::before {
-  content: "";
-  flex: none;
-  height: calc(var(--sp-12) * 2 + var(--sp-6));
-}
-
 .kit-pal {
+  position: fixed;
+  z-index: 10;
+  top: calc(var(--sp-12) * 2 + var(--sp-6));
+  right: 0;
+  left: 0;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   width: calc(var(--sp-14) * 10);
@@ -29,6 +26,11 @@
   color: var(--text);
   animation-name: kit-pal-rise;
   animation-duration: var(--dur-2);
+}
+
+.kit-pal [cmdk-root] {
+  display: flex;
+  flex-direction: column;
 }
 
 .kit-pal-in {
@@ -55,7 +57,7 @@
   overflow-y: auto;
 }
 
-.kit-pal-label {
+.kit-pal-group [cmdk-group-heading] {
   padding: var(--sp-2) var(--sp-2) var(--sp-1);
   font-size: var(--fs-meta);
   font-weight: var(--fw-medium);
@@ -72,7 +74,7 @@
   cursor: pointer;
 }
 
-.kit-pal-on {
+.kit-pal-row[data-selected="true"] {
   background: var(--hover);
 }
 
@@ -142,4 +144,13 @@
   .kit-pal {
     animation-name: none;
   }
+}
+
+.kit-pal-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

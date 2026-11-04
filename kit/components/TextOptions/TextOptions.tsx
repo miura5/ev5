@@ -1,3 +1,5 @@
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
+
 export interface TextOption {
   value: string;
   label: string;
@@ -14,9 +16,22 @@ export interface TextOptionsProps {
 }
 
 /** A filter row or the study modes, as quiet words; the chosen one is lit. */
-export function TextOptions({ options, value, onChange, label }: TextOptionsProps) {
+export function TextOptions({
+  options,
+  value,
+  onChange,
+  label,
+}: TextOptionsProps) {
   return (
-    <div className="kit-opts" data-ui="text-options" role="group" aria-label={label}>
+    <ToggleGroup.Root
+      type="single"
+      value={value}
+      // Radix reports "" when the lit option is tapped again; a choice always stays on.
+      onValueChange={(v) => v && onChange(v)}
+      className="kit-opts"
+      data-ui="text-options"
+      aria-label={label}
+    >
       {options.map((o, i) => (
         <span key={o.value} className="kit-opts-item">
           {i > 0 ? (
@@ -24,17 +39,14 @@ export function TextOptions({ options, value, onChange, label }: TextOptionsProp
               ·
             </span>
           ) : null}
-          <button
-            type="button"
-            className={o.value === value ? "kit-opt kit-opt-on" : "kit-opt"}
-            aria-pressed={o.value === value}
-            onClick={() => onChange(o.value)}
-          >
+          <ToggleGroup.Item value={o.value} className="kit-opt">
             {o.label}
-            {o.count === undefined ? null : <span className="kit-opt-n">{o.count}</span>}
-          </button>
+            {o.count === undefined ? null : (
+              <span className="kit-opt-n">{o.count}</span>
+            )}
+          </ToggleGroup.Item>
         </span>
       ))}
-    </div>
+    </ToggleGroup.Root>
   );
 }

@@ -123,7 +123,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §sec.account · Staging shares ev-live's Cloudflare account: staging config names the v5 staging Worker and D1 explicitly, CI fails any non-live config or workflow naming ev-live or its D1, and the staging and live tokens are separate secrets. <!-- C10 -->
 
 ## 9. Drift workflow
-- §drift.one-file · CONTRACT.md is the only rules file; a check fails a skill, README, `AGENTS.md` or `CLAUDE.md` that copies a line, states a never/always/must/only rule without a `§id`, cites an ended `§id`, or is too long. <!-- PLAN §11, D-466 -->
+- §drift.one-file · CONTRACT.md is the only rules file; a check fails a skill, README, `AGENTS.md` or `CLAUDE.md` that copies a line, states a never/always/must/only rule without a `§id`, cites an ended `§id`, or is too long. <!-- PLAN §11, D-467 -->
 - §drift.no-ids · Code and docs state behaviour and never give decision or task ids as reasons; `docs/history/`, PLAN.md after the Phase 0 gate and ev4's decisions are context, never instructions. <!-- PLAN §3, D-184 -->
 - §drift.current · When an older rule conflicts with the current direction, the build manager ends it through the Chart and `ended.md` instead of obeying it. <!-- D-411 -->
 - §drift.slice · One task, one slice: it writes only its named folders, with its context limited to them, CONTRACT.md and the generated interfaces it imports; a builder refuses and reports a need outside it. <!-- PLAN §11 -->

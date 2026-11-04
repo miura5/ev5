@@ -1,6 +1,6 @@
 [
  {
-  "id": "D-466",
+  "id": "D-467",
   "date": "Nov 3",
   "title": "The rules check (§drift.one-file) also scans AGENTS.md (at most 250 lines) and CLAUDE.md (at most 20 lines), not only READMEs and skills",
   "why": "Agent procedure files can hold rules too; a never/always/must line there now cites a CONTRACT §id, so a rule has one home. Matt asked for it after the Radix drift. No new check, only a wider scope.",
@@ -8,6 +8,19 @@
   "supersedes": [],
   "amends": [],
   "source": "Matt, ev-build, 2026-11-04 ('Extend the check')"
+ },
+ {
+  "id": "D-466",
+  "date": "Nov 3",
+  "title": "Spend limits: the Anthropic Console limit is $200 a month for the whole account, and E.V. is its only API user; D-460's ceilings (per job $1, hourly $2, daily $5, monthly $40) are confirmed as the defaults, and they stay adjustable in D1 settings without a release",
+  "why": "Matt set the account-wide Console limit to $200, to match the API credits that come with his plan. This replaces the $5 limit in D-299. D-460's monthly ceiling sits well under it, so the 80% alert and a clean ceiling failure both come before the API stops calls. Ceilings stay D1 settings (D-349).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-299",
+   "D-460"
+  ],
+  "source": "Matt (ev-build), 2026-11-04"
  },
  {
   "id": "D-465",

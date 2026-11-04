@@ -174,3 +174,23 @@
   color: var(--faint);
   font-size: var(--fs-meta);
 }
+
+.ev-notes-edit .ProseMirror {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  outline: none;
+}
+
+.ev-notes-edit .ev-notes-li[data-block="ul"]::before {
+  content: "•";
+}
+
+.ev-notes-edit .ev-notes-li[data-block="ol"]::before {
+  content: "–";
+}
+
+.ev-notes-edit .ev-notes-li[data-done="true"] {
+  color: var(--faint);
+  text-decoration: line-through;
+}

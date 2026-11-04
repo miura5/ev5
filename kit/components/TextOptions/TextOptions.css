@@ -27,7 +27,7 @@
 }
 
 .kit-opt:hover,
-.kit-opt-on {
+.kit-opt[data-state="on"] {
   color: var(--text);
 }
 

@@ -8,6 +8,7 @@
   font-size: var(--fs-body);
   color: var(--text);
   outline: none;
+  z-index: 1;
 }
 
 .kit-menu-item {
@@ -18,9 +19,10 @@
   padding: 0 var(--sp-2);
   border-radius: var(--r-sm);
   cursor: pointer;
+  outline: none;
 }
 
-.kit-menu-on {
+.kit-menu-item[data-highlighted] {
   background: var(--hover);
 }
 

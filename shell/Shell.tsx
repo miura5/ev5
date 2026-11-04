@@ -133,7 +133,7 @@ export function Shell({
       <main className="shell-main">
         <div className="shell-col">
           <Ev4Offer ev4={services?.ev4} />
-          {View ? <View services={services} /> : null}
+          {View ? <View services={services} onNavigate={onNavigate} /> : null}
         </div>
       </main>
       {detail ? <Detail {...detail} /> : null}

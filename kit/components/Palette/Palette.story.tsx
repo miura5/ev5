@@ -22,14 +22,18 @@ const groups = [
 
 export function Story() {
   const [last, setLast] = useState("");
+  const [host, setHost] = useState<HTMLElement | null>(null);
   return (
-    <div data-ui="story-palette">
-      <Palette
-        groups={groups}
-        onRun={(k) => setLast(`ran ${k}`)}
-        onAsk={(t) => setLast(`asked E.V.: ${t}`)}
-        onClose={() => setLast("closed")}
-      />
+    <div data-ui="story-palette" ref={setHost}>
+      {host ? (
+        <Palette
+          groups={groups}
+          container={host}
+          onRun={(k) => setLast(`ran ${k}`)}
+          onAsk={(t) => setLast(`asked E.V.: ${t}`)}
+          onClose={() => setLast("closed")}
+        />
+      ) : null}
       <p>{last || "Nothing run"}</p>
     </div>
   );

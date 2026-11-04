@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import "./browser-gaps";
+import { useEffect, useState, type ReactNode } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Command } from "cmdk";
 
 export interface PaletteItem {
   key: string;
@@ -21,14 +24,29 @@ export interface PaletteProps {
   /** Tab, or the last row: hand the typed request to E.V. */
   onAsk: (text: string) => void;
   onClose: () => void;
+  /** Where the palette is drawn; the page body when omitted (the gallery draws it inside its story). */
+  container?: HTMLElement | null;
 }
 
-/** The ⌘K palette: type to filter, arrows move, Enter runs, Tab asks E.V., Esc closes. */
-export function Palette({ groups, onRun, onAsk, onClose }: PaletteProps) {
+/** The ⌘K palette on cmdk inside a Radix dialog (behaviour only): type to filter, arrows move, Enter runs, Tab asks E.V., Esc closes. */
+export function Palette({
+  groups,
+  onRun,
+  onAsk,
+  onClose,
+  container,
+}: PaletteProps) {
   const [query, setQuery] = useState("");
-  const [at, setAt] = useState(0);
-  const input = useRef<HTMLInputElement>(null);
-  useEffect(() => input.current?.focus(), []);
+  // Radix returns focus only to a Trigger; the palette has none, so it hands focus back itself on close.
+  const [from] = useState(() => document.activeElement);
+  useEffect(
+    () => () => {
+      setTimeout(() => {
+        if (from instanceof HTMLElement && from.isConnected) from.focus();
+      });
+    },
+    [from],
+  );
   const q = query.trim();
   const needle = q.toLowerCase();
   const shown = groups
@@ -39,115 +57,94 @@ export function Palette({ groups, onRun, onAsk, onClose }: PaletteProps) {
       ),
     }))
     .filter((g) => g.items.length > 0);
-  const keys: string[] = shown.flatMap((g) => g.items.map((it) => it.key));
-  const count = keys.length + (q ? 1 : 0);
-  const on = Math.max(0, Math.min(at, count - 1));
-  const run = (i: number) => {
-    if (i >= keys.length) {
-      if (q) onAsk(q);
-    } else if (keys[i] !== undefined) onRun(keys[i]);
-  };
-  const move = (to: number) => setAt(count === 0 ? 0 : (to + count) % count);
-  let n = -1;
-  const rowClass = (i: number) => `kit-pal-row${i === on ? " kit-pal-on" : ""}`;
   return (
-    <div
-      className="kit-pal-scrim"
-      data-ui="palette"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+    <Dialog.Root
+      open
+      // Drawn inside a gallery story, the page behind stays reachable; over the app it is modal.
+      modal={!container}
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
-      <div
-        className="kit-pal"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Command palette"
-      >
-        <input
-          ref={input}
-          className="kit-pal-in"
-          role="combobox"
-          aria-expanded="true"
-          aria-controls="kit-pal-list"
-          aria-activedescendant={count ? `kit-pal-${on}` : undefined}
-          autoComplete="off"
-          placeholder="Type a command, find anything, or ask E.V."
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setAt(0);
-          }}
+      <Dialog.Portal container={container ?? undefined}>
+        <Dialog.Overlay className="kit-pal-scrim" />
+        <Dialog.Content
+          className="kit-pal"
+          aria-describedby={undefined}
           onKeyDown={(e) => {
-            if (e.key === "Escape") onClose();
-            else if (e.key === "ArrowDown") move(on + 1);
-            else if (e.key === "ArrowUp") move(on - 1);
-            else if (e.key === "Enter") run(on);
-            else if (e.key === "Tab") onAsk(q);
-            else return;
+            if (e.key !== "Tab") return;
             e.preventDefault();
+            onAsk(q);
           }}
-        />
-        <div
-          className="kit-pal-list"
-          id="kit-pal-list"
-          role="listbox"
-          aria-label="Results"
         >
-          {shown.map((g) => (
-            <div key={g.name} role="group" aria-label={g.name}>
-              <div className="kit-pal-label">{g.name}</div>
-              {g.items.map((it) => {
-                const i = ++n;
-                return (
-                  <div
-                    key={it.key}
-                    id={`kit-pal-${i}`}
-                    role="option"
-                    aria-selected={i === on}
-                    className={rowClass(i)}
-                    onMouseEnter={() => setAt(i)}
-                    onClick={() => run(i)}
-                  >
-                    {it.glyph}
-                    <span className="kit-pal-text">{it.label}</span>
-                    {it.hint ? <kbd className="kit-kbd">{it.hint}</kbd> : null}
-                  </div>
-                );
-              })}
+          <Dialog.Title className="kit-pal-title">Command palette</Dialog.Title>
+          <Command
+            data-ui="palette"
+            label="Command palette"
+            shouldFilter={false}
+            loop
+          >
+            <Command.Input
+              className="kit-pal-in"
+              autoComplete="off"
+              placeholder="Type a command, find anything, or ask E.V."
+              value={query}
+              onValueChange={setQuery}
+            />
+            <Command.List className="kit-pal-list" aria-label="Results">
+              {shown.map((g) => (
+                <Command.Group
+                  key={g.name}
+                  heading={g.name}
+                  aria-label={g.name}
+                  className="kit-pal-group"
+                >
+                  {g.items.map((it) => (
+                    <Command.Item
+                      key={it.key}
+                      value={it.key}
+                      className="kit-pal-row"
+                      onSelect={() => onRun(it.key)}
+                    >
+                      {it.glyph}
+                      <span className="kit-pal-text">{it.label}</span>
+                      {it.hint ? (
+                        <kbd className="kit-kbd">{it.hint}</kbd>
+                      ) : null}
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              ))}
+              {q ? (
+                <Command.Item
+                  value="\u0000ask"
+                  className="kit-pal-row"
+                  onSelect={() => onAsk(q)}
+                >
+                  <span className="kit-pal-mark" aria-hidden="true" />
+                  <span className="kit-pal-text">Ask E.V.: {q}</span>
+                  <kbd className="kit-kbd">Tab</kbd>
+                </Command.Item>
+              ) : null}
+            </Command.List>
+            <div className="kit-pal-foot">
+              <span className="kit-pal-hint">
+                <kbd className="kit-kbd">Tab</kbd>ask E.V.
+              </span>
+              <span className="kit-pal-grow" />
+              <span className="kit-pal-hint">
+                <kbd className="kit-kbd">↑↓</kbd>move
+              </span>
+              <span className="kit-pal-hint">
+                <kbd className="kit-kbd">↵</kbd>run
+              </span>
+              <span className="kit-pal-hint">
+                <kbd className="kit-kbd">Esc</kbd>close
+              </span>
             </div>
-          ))}
-          {q ? (
-            <div
-              id={`kit-pal-${keys.length}`}
-              role="option"
-              aria-selected={keys.length === on}
-              className={rowClass(keys.length)}
-              onMouseEnter={() => setAt(keys.length)}
-              onClick={() => run(keys.length)}
-            >
-              <span className="kit-pal-mark" aria-hidden="true" />
-              <span className="kit-pal-text">Ask E.V.: {q}</span>
-              <kbd className="kit-kbd">Tab</kbd>
-            </div>
-          ) : null}
-        </div>
-        <div className="kit-pal-foot">
-          <span className="kit-pal-hint">
-            <kbd className="kit-kbd">Tab</kbd>ask E.V.
-          </span>
-          <span className="kit-pal-grow" />
-          <span className="kit-pal-hint">
-            <kbd className="kit-kbd">↑↓</kbd>move
-          </span>
-          <span className="kit-pal-hint">
-            <kbd className="kit-kbd">↵</kbd>run
-          </span>
-          <span className="kit-pal-hint">
-            <kbd className="kit-kbd">Esc</kbd>close
-          </span>
-        </div>
-      </div>
-    </div>
+          </Command>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
