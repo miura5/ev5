@@ -1,9 +1,6 @@
 import type { Mark, Node as PMNode } from 'prosemirror-model';
-import type { Block } from '../../../domain/index.ts';
+import { noteBlocks, type Block, type Run } from '../../../domain/index.ts';
 import { M, N, schema } from './editorSchema.ts';
-
-type Run = Block['runs'][number];
-const TEXT_CAP = 20000; // ev4's longest run (spec S-08: ProseMirror joins neighbours, so export splits again)
 
 const inline = (runs: readonly Run[]): PMNode[] =>
   runs
@@ -110,30 +107,6 @@ function blockOf(n: PMNode, place: Pick<Block, 'row' | 'col'>): Block {
   return Object.assign(b, place);
 }
 
-/** ev4's key order and run cap; JSON.stringify of a note is what it stores, hashes and compares (S-08 causes 1, 2). */
-const ev4Run = (r: Run): Run => ({
-  text: r.text,
-  ...(r.b ? { b: true as const } : {}),
-  ...(r.i ? { i: true as const } : {}),
-  ...(r.u ? { u: true as const } : {}),
-  ...(r.s ? { s: true as const } : {}),
-  ...(r.href !== undefined ? { href: r.href } : {}),
-});
-
-function ev4Block(b: Block): Block {
-  const runs = b.runs.flatMap((r) =>
-    Array.from({ length: Math.max(1, Math.ceil(r.text.length / TEXT_CAP)) }, (_, k) =>
-      ev4Run({ ...r, text: r.text.slice(k * TEXT_CAP, (k + 1) * TEXT_CAP) }),
-    ),
-  );
-  const o: Block = { type: b.type, runs };
-  if (b.type === 'img') Object.assign(o, { key: b.key, width: b.width, alt: b.alt });
-  else Object.assign(o, { checked: b.checked, indent: b.indent });
-  Object.assign(o, { row: b.row, col: b.col });
-  for (const k of Object.keys(o) as (keyof Block)[]) if (o[k] === undefined) delete o[k];
-  return o;
-}
-
 /** A doc back into blocks in ev4's stored shape. */
 export function docToBlocks(doc: PMNode): Block[] {
   const out: Block[] = [];
@@ -142,5 +115,6 @@ export function docToBlocks(doc: PMNode): Block[] {
       top.forEach((col, _o, ci) => col.forEach((b) => out.push(blockOf(b, { row: top.attrs.id, col: ci as 0 | 1 }))));
     } else out.push(blockOf(top, {}));
   });
-  return out.map(ev4Block);
+  // ev4's key order and 20,000-character run cap come from the domain (S-08 causes 1, 2: ProseMirror joins runs).
+  return noteBlocks(out);
 }
