@@ -38,7 +38,7 @@ test("the running session wins and its clock is rebuilt", () => {
   );
   expect(d).toMatchObject({
     title: "Ch 42 Fluids",
-    meta: "2026-11-03",
+    meta: "Nov 3",
     seconds: 600,
     paused: false,
     ended: false,

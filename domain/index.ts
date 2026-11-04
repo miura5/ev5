@@ -25,7 +25,7 @@ export {
 } from "./note/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
-export { addDays, centralDate } from "./time/index.ts";
+export { addDays, centralDate, plainDay, inDays } from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
 export {
