@@ -41,3 +41,29 @@ test("Plan today: add, edit, delete and restore a plan item", async ({
   await cmd(api, "plan.update", { id, date: DAY });
   expect((await day(DAY)).added?.[id]?.text).toBeTruthy();
 });
+
+test("Today: the tick is clicked in the browser and survives a reload", async ({
+  page,
+  api,
+}) => {
+  // Central date, as the app reads "today".
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Chicago",
+  }).format(new Date());
+  const title = `e2e tick ${Date.now()}`;
+  await cmd(api, "plan.create", { title, date: today });
+
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/today$/);
+  const mark = page.getByRole("button", { name: `Mark done: ${title}` });
+  await expect(mark).toHaveAttribute("aria-pressed", "false");
+  await mark.click();
+  await expect(
+    page.getByRole("button", { name: `Mark not done: ${title}` }),
+  ).toHaveAttribute("aria-pressed", "true");
+
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: `Mark not done: ${title}` }),
+  ).toHaveAttribute("aria-pressed", "true");
+});
