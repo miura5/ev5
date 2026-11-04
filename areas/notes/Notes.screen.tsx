@@ -25,7 +25,10 @@ export function NotesScreen({
     collections,
     members,
   } = useNotes(services);
-  const [open, setOpen] = useState<string>();
+  // The palette opens a note with /notes?open=<id>; an unknown id just shows the list.
+  const [open, setOpen] = useState<string | undefined>(
+    () => new URLSearchParams(window.location.search).get("open") || undefined,
+  );
   const [startError, setStartError] = useState<string>();
   const today = centralDate(Date.now());
   const cur = notes.find((n) => n.id === open);
