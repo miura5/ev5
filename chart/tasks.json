@@ -15564,7 +15564,7 @@
   "depends": [
    "B-818"
   ],
-  "notes": "Routes exist (server/image-routes.ts); editor half missing. Also export IMG_KEY from domain/note so the server stops repeating the regex.",
+  "notes": "Merged #281: paste/drop upload and blob display in the notes editor; failure shows 'Picture storage isn't set up yet' while R2 is unbound. Round trip on staging waits on B-850 (R2 permission from Matt).",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
@@ -15594,10 +15594,38 @@
   "depends": [
    "B-817"
   ],
-  "notes": "B-817 merged the manifest and service worker (D-472) only. Also: PNG 192/512 icons if install needs them; code-split the 763 kB bundle.",
+  "notes": "Merged #280: ev5-app v2 with a reads store, shell/readCopy.ts, docs.list through it, Saved copy notice. Left: see the next task.",
   "commit": null,
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-04T08:07:41.110Z"
+ },
+ {
+  "id": "B-852",
+  "kind": "task",
+  "title": "api() takes a raw body (binary PUT) and domain exports the picture key pattern",
+  "dod": "commands/client api() can send bytes; areas/notes/notePictures.ts uses it instead of its own fetch and imports the key pattern from domain (IMG_KEY export, Interface change); test stays green",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-849"
+  ],
+  "notes": "Slices: ops/generate/lib.ts (generates commands/client), domain/note + domain/index.ts.",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-853",
+  "kind": "task",
+  "title": "Read copy for jobs, collections and the notes reads; test the IndexedDB store",
+  "dod": "useShellStatus, jobApi, api GETs and readCollections fall back to the saved copy; the v1 to v2 upgrade and indexedDbCopyStore are run in a test (fake-indexeddb needs a Chart decision first) or by an e2e check",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-851"
+  ],
+  "notes": "B-851 covered docs.list only (#280).",
+  "commit": null,
+  "source": "ops/record"
  }
 ]
