@@ -3,7 +3,7 @@ import { validateWrite } from "../../data/compat-test.ts";
 import { startSession, switchSession } from "./lifecycle.ts";
 import type { SessionDoc } from "./index.ts";
 
-// B-834: ev4's sessions schema allows source "Study Watch" | "E.V. Home" only, so v5 keeps "E.V. Home" and
+// ev4's sessions schema allows source "Study Watch" | "E.V. Home" only, so v5 keeps "E.V. Home" and
 // validateWrite waives the v5-source rule for sessions.
 test("a session start and a switch are writes ev4 accepts", () => {
   const w = startSession({
