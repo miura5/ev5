@@ -100,3 +100,9 @@ export interface ExamPlanData {
   plan: string;
   proposals: readonly { id: string; text: string }[];
 }
+
+/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
+export interface WireDoc {
+  id: string;
+  data: unknown;
+}

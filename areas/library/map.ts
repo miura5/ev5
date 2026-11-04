@@ -8,30 +8,33 @@ import {
   parseWeakSpot,
   plainDay,
 } from "../../domain/index.ts";
+import { accuracyLine, dueCounts } from "./tally.ts";
 import type {
+  Accuracy,
   LibraryExam,
   LibrarySet,
   Mastery,
   SetPageData,
+  WireDoc,
   WeakSpot,
 } from "./types.ts";
 
-/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
-export interface WireDoc {
-  id: string;
-  data: unknown;
-}
+export type { WireDoc } from "./types.ts";
 
 export interface LibraryDocs {
   exams: WireDoc[];
   weakspots: WireDoc[];
   sets: WireDoc[];
+  /** Practice answers; absent reads as none. */
+  answers?: WireDoc[];
 }
 
 export interface LibraryData {
   weakSpots: WeakSpot[];
   exams: LibraryExam[];
   sets: LibrarySet[];
+  /** First-try accuracy line; null until something was answered in the last 14 days. */
+  accuracy: Accuracy | null;
   /** Full pages by set id, for the set page when one is opened. */
   pages: Record<string, SetPageData>;
 }
@@ -114,13 +117,21 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
           : "",
       };
     });
+  const dues = dueCounts(docs.answers ?? []);
   const sets: LibrarySet[] = [];
   const pages: Record<string, SetPageData> = {};
   for (const { id, v } of docs.sets.flatMap((d) => tryParse(parseSet, d))) {
     const title = v.title ?? `${v.kind} set`;
     const n = v.items.length;
     const meta = `${n} ${n === 1 ? "question" : "questions"}`;
-    sets.push({ id, title, kind: "questions", meta });
+    const nDue = dues.get(id) ?? 0;
+    sets.push({
+      id,
+      title,
+      kind: "questions",
+      meta,
+      ...(nDue ? { due: `${nDue} due` } : {}),
+    });
     pages[id] = {
       id,
       title,
@@ -137,5 +148,11 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       })),
     };
   }
-  return { weakSpots, exams, sets, pages };
+  return {
+    weakSpots,
+    exams,
+    sets,
+    accuracy: accuracyLine(docs.answers ?? [], Number(now)),
+    pages,
+  };
 }

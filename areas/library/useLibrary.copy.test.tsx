@@ -29,6 +29,7 @@ const saved = {
   "library:exams": [],
   "library:weakspots": [],
   "library:sets": [],
+  "library:answers": [],
 };
 
 test("offline, the saved lists show and no error is raised", async () => {
@@ -88,6 +89,7 @@ test("a good read refreshes the copy", async () => {
   const { result } = renderHook(() => useLibrary(copy));
   await waitFor(() => expect(result.current.data).toBeDefined());
   expect(Object.keys(copy.kept).sort()).toEqual([
+    "library:answers",
     "library:exams",
     "library:sets",
     "library:weakspots",
