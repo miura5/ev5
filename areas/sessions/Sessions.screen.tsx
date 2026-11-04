@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { sessionState, parseSession } from "../../domain/index.ts";
-import { withEnd, withPause } from "./events.ts";
+import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
 import { SessionView } from "./Sessions.view.tsx";
 import { useSessions } from "./useSessions.ts";
@@ -20,6 +20,11 @@ export function SessionsScreen() {
   const togglePause = () => {
     if (!data || data.ended) return;
     void save(withPause(data.raw, !paused, new Date(), rand()));
+  };
+  // One append-only event on the session; the screen has no open check yet, so no answer is shown (Sessions.view answer).
+  const tellMe = async () => {
+    if (data && !data.ended)
+      await save(withTellMe(data.raw, new Date(), rand()));
   };
   const end = async () => {
     if (!data || data.ended) return setClosed(true);
@@ -93,7 +98,7 @@ export function SessionsScreen() {
           onEnd={() => void end()}
           onToggleCheck={none}
           onAnswer={none}
-          onTellMe={none}
+          onTellMe={() => void tellMe()}
         >
           {note ? <NoteBlocks blocks={note.blocks} /> : null}
         </SessionView>

@@ -16,6 +16,8 @@ export interface SessionViewProps {
   paused: boolean;
   /** The one check question E.V. asks in her own words; absent when none is open. */
   question?: string;
+  /** What "Just tell me" reveals, once it is logged. */
+  answer?: string;
   checks: readonly SessionCheck[];
   /** The note's blocks. */
   children?: ReactNode;
@@ -59,6 +61,7 @@ export function SessionView(p: SessionViewProps) {
         {p.question ? (
           <CheckBlock
             question={p.question}
+            answer={p.answer}
             onAnswer={p.onAnswer}
             onTellMe={p.onTellMe}
           />
@@ -93,6 +96,7 @@ export function SessionView(p: SessionViewProps) {
 
 function CheckBlock(p: {
   question: string;
+  answer?: string;
   onAnswer: (a: string) => void;
   onTellMe: () => void;
 }) {
@@ -119,6 +123,11 @@ function CheckBlock(p: {
         placeholder="Your words"
         aria-label="Your answer"
       />
+      {p.answer ? (
+        <EvLine>
+          <b>Logged: you asked to see it.</b> {p.answer}
+        </EvLine>
+      ) : null}
       <div className="ev-session-actions">
         <Button kind="primary" type="submit">
           Check

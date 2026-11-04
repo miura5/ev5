@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { eventKey, withEnd, withPause } from "./events.ts";
+import { eventKey, withEnd, withPause, withTellMe } from "./events.ts";
 import { mapSessions } from "./map.ts";
 
 const T0 = "2026-11-03T15:00:00.000Z";
@@ -39,4 +39,16 @@ test("End marks it ended with its minutes for Progress", () => {
   expect(Object.values(done.events as object)).toContainEqual(
     expect.objectContaining({ type: "end", why: "ended" }),
   );
+});
+
+test("Just tell me adds one answer event, keeps the rest, and passes ev4's write check", () => {
+  const told = withTellMe(raw, at(3), "q7");
+  const events = told.events as Record<string, unknown>;
+  expect(Object.keys(events)).toHaveLength(2);
+  expect(events["page-20261103-150300-q7"]).toEqual({
+    type: "answer",
+    at: at(3).toISOString(),
+    why: "tell-me",
+  });
+  expect(events["page-20261103-150000"]).toEqual({ type: "start" });
 });

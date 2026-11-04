@@ -3,7 +3,7 @@ import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
-import { useStudy, type LibraryServices } from "./useStudy.ts";
+import { useStudy, useTellMe, type LibraryServices } from "./useStudy.ts";
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({ services }: { services?: LibraryServices }) {
@@ -12,6 +12,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
   const [open, setOpen] = useState<string>();
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
+  const onTell = useTellMe(open ?? "", services);
   if (!token)
     return (
       <form
@@ -44,6 +45,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
           back: it.back ?? "",
         }))}
         onRate={onRate}
+        onTell={onTell}
         onLeave={() => setStudying(false)}
       />
     );

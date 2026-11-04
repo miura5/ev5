@@ -10,21 +10,35 @@ export interface AskViewProps {
   onOpenSource?: (source: string) => void;
   onOpenJob?: (id: string) => void;
   initialDraft?: string;
+  /** A line under the chat, e.g. a write that failed. */
+  notice?: string;
 }
 
 /** Ask E.V.: attempt first. Props in, events out; the shell wires the data. */
-export function AskView({ messages, onSend, onJustTell, onOpenSource, onOpenJob, initialDraft }: AskViewProps) {
+export function AskView({
+  messages,
+  onSend,
+  onJustTell,
+  onOpenSource,
+  onOpenJob,
+  initialDraft,
+  notice,
+}: AskViewProps) {
   const lastEv = messages.map((m) => m.from).lastIndexOf("ev");
   return (
     <section className="ask" aria-label="Ask E.V.">
       <div className="ask-head">
         <h1 className="ask-title">Ask E.V.</h1>
-        <span className="ask-meta">ask anything; she'll want your try first</span>
+        <span className="ask-meta">
+          ask anything; she'll want your try first
+        </span>
       </div>
       <div className="ask-chat">
         {messages.map((m, i) => (
           <div key={m.id} className="ask-turn">
-            {m.from === "ev" && m.breakBefore ? <div className="ask-break" role="separator" /> : null}
+            {m.from === "ev" && m.breakBefore ? (
+              <div className="ask-break" role="separator" />
+            ) : null}
             <Message
               message={m}
               latest={i === lastEv}
@@ -35,6 +49,11 @@ export function AskView({ messages, onSend, onJustTell, onOpenSource, onOpenJob,
           </div>
         ))}
       </div>
+      {notice ? (
+        <p className="ask-meta" role="status">
+          {notice}
+        </p>
+      ) : null}
       <Composer onSend={onSend} initial={initialDraft} />
     </section>
   );

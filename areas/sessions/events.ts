@@ -40,3 +40,10 @@ export function withEnd(
   if (key) events[key] = { ...events[key], why: "ended" };
   return { ...e, status: "ended", endedAt: now.toISOString(), minutes };
 }
+
+/** "Just tell me" on a check: one answer event, why "tell-me" (no check number: nothing is marked answered by it). */
+export function withTellMe(raw: Raw, now: Date, rand: string): Raw {
+  const events = (raw.events ?? {}) as Raw;
+  const e = { type: "answer", at: now.toISOString(), why: "tell-me" };
+  return { ...raw, events: { ...events, [eventKey(now, rand)]: e } };
+}
