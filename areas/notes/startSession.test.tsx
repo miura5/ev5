@@ -71,3 +71,17 @@ test("a refused start stays on the note and says why", async () => {
   );
   expect(onNavigate).not.toHaveBeenCalled();
 });
+
+test("?open=<id> opens that note's page; an unknown id shows the list", async () => {
+  window.history.pushState({}, "", "/notes?open=n1");
+  render(<NotesScreen services={services} />);
+  expect(
+    await screen.findByRole("button", { name: "Start session" }),
+  ).toBeDefined();
+  cleanup();
+  window.history.pushState({}, "", "/notes?open=nope");
+  render(<NotesScreen services={services} />);
+  expect(await screen.findByText("Fluids")).toBeDefined();
+  expect(screen.queryByRole("button", { name: "Start session" })).toBeNull();
+  window.history.pushState({}, "", "/");
+});
