@@ -30,6 +30,11 @@ export const toActivityJob = (j: WireJob): ActivityJob => ({
     : {}),
 });
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 const readToken = (): string => {
   try {
     return localStorage.getItem(KEY) ?? "";
@@ -48,7 +53,7 @@ export interface JobsState {
 }
 
 /** Reads the unfinished jobs with the app token Matt keeps in this browser (the public shell holds none, PLAN §10). */
-export function useJobs(): JobsState {
+export function useJobs(copy?: ReadCopyLike): JobsState {
   const [token, setTokenState] = useState(readToken);
   const [jobs, setJobs] = useState<ActivityJob[]>([]);
   const [error, setError] = useState<string>();
@@ -74,19 +79,22 @@ export function useJobs(): JobsState {
   useEffect(() => {
     if (!token) return;
     let live = true;
+    const get = async () => {
+      const r = await jobApi.list(token);
+      if (!r.ok)
+        throw new Error(
+          r.status === 401
+            ? "That token was not accepted."
+            : "Activity could not load.",
+        );
+      return ((await r.json()) as { jobs: WireJob[] }).jobs;
+    };
+    // Offline, the saved list shows (§data.offline); the shell says it is a saved copy.
     const load = () =>
-      jobApi
-        .list(token)
-        .then(async (r) => {
-          if (!r.ok)
-            throw new Error(
-              r.status === 401
-                ? "That token was not accepted."
-                : "Activity could not load.",
-            );
-          const b = (await r.json()) as { jobs: WireJob[] };
+      (copy ? copy.read("jobs", get) : get())
+        .then((list) => {
           if (live) {
-            setJobs(b.jobs.map(toActivityJob));
+            setJobs(list.map(toActivityJob));
             setError(undefined);
           }
         })
@@ -97,6 +105,6 @@ export function useJobs(): JobsState {
       live = false;
       clearInterval(t);
     };
-  }, [token, tick]);
+  }, [token, tick, copy]);
   return { jobs, token, error, setToken, dismiss };
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TodayView } from "./Today.view.tsx";
-import { useToday } from "./useToday.ts";
+import { useToday, type ReadCopyLike } from "./useToday.ts";
 
 const none = () => undefined;
 const dateLabel = () =>
@@ -21,8 +21,15 @@ const EMPTY = {
 };
 
 /** The mounted view: exams, weak spots and today's plan from /api/v1/docs; no data shows the empty day. */
-export function TodayScreen() {
-  const { data, token, error, alert, setToken } = useToday();
+export function TodayScreen({
+  services,
+}: {
+  services?: { readCopy?: ReadCopyLike };
+}) {
+  const { data, token, error, alert, tick, setToken } = useToday(
+    services?.readCopy,
+  );
+  const [notSaved, setNotSaved] = useState(false);
   const [draft, setDraft] = useState("");
   if (!token)
     return (
@@ -47,12 +54,16 @@ export function TodayScreen() {
   return (
     <>
       {error ? <p className="ev-today-meta">{error}</p> : null}
+      {notSaved ? <p className="ev-today-meta">Not saved. Try again.</p> : null}
       <TodayView
         dateLabel={dateLabel()}
         {...(data ?? EMPTY)}
         alert={alert}
         onStartNext={none}
         onOpen={none}
+        onTick={(id, done) =>
+          void tick(id, done).then((ok) => setNotSaved(!ok))
+        }
         onAccept={none}
         onEdit={none}
         onDismiss={none}

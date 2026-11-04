@@ -3,27 +3,21 @@
 // acknowledged here so the route never answers 501 for them. Nothing here removes a document (§delete.who).
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
-import type { Caller } from "../commands/index.ts";
+import { CommandError } from "./handlers-core.ts";
+import type { CommandHandler } from "./handlers-core.ts";
+import { dateHandlers } from "./handlers-dates.ts";
+import { draftHandlers } from "./handlers-drafts.ts";
+import { jobHandlers } from "./handlers-jobs.ts";
+import { noteHandlers, newHereHandler } from "./handlers-notes.ts";
+import { planHandlers } from "./handlers-plan.ts";
+import { proposalHandlers } from "./handlers-proposal.ts";
+import { sessionHandlers } from "./handlers-session.ts";
+import { setHandlers } from "./handlers-sets.ts";
+import { studyHandlers } from "./handlers-study.ts";
+import { weakHandlers } from "./handlers-weak.ts";
 
-/** A refusal with its HTTP status, raised by a handler and turned into JSON by the route. */
-export class CommandError extends Error {
-  readonly status: 400 | 404 | 409;
-  constructor(status: 400 | 404 | 409, message: string) {
-    super(message);
-    this.status = status;
-  }
-}
-
-export interface HandlerCtx {
-  db: DocsD1;
-  clock: () => number;
-  newId: () => string;
-}
-export type CommandHandler = (
-  input: never,
-  caller: Caller,
-  ctx: HandlerCtx,
-) => Promise<unknown>;
+export { CommandError };
+export type { CommandHandler } from "./handlers-core.ts";
 
 type Ref = { id: string };
 
@@ -42,6 +36,22 @@ async function collectionOf(db: DocsD1, id: string): Promise<string> {
 const ack = async () => ({ client: true });
 
 export const commandHandlers: Record<string, CommandHandler> = {
+  ...planHandlers,
+  ...dateHandlers,
+  ...draftHandlers,
+  ...proposalHandlers(() => commandHandlers),
+  ...jobHandlers,
+  ...noteHandlers,
+  ...newHereHandler(() => commandHandlers),
+  ...sessionHandlers,
+  ...weakHandlers,
+  ...setHandlers,
+  ...studyHandlers,
+  // A chat turn (effect 'chat'): the same code path as POST /api/v1/ask, so spend, ceilings and citations are shared.
+  "ask.send": async (i: { text: string }, _caller, ctx) => {
+    if (!ctx.ask) throw new CommandError(503, "asking is not available here");
+    return ctx.ask(i.text);
+  },
   // Carried out by the screen; the server only agrees.
   "item.open": ack,
   "palette.open": ack,

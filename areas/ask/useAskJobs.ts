@@ -28,6 +28,11 @@ export const toAskJob = (j: WireJob): AskJobRef => ({
   },
 });
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 const readToken = (): string => {
   try {
     return localStorage.getItem(KEY) ?? "";
@@ -38,22 +43,26 @@ const readToken = (): string => {
 
 /** Unfinished jobs for the chat to point at (CONTRACT §job.no-chat-ask: chat links to Activity, never starts a job).
  * Uses the token already pasted in Activity; without one the list stays empty. */
-export function useAskJobs(): AskJobRef[] {
+export function useAskJobs(copy?: ReadCopyLike): AskJobRef[] {
   const [jobs, setJobs] = useState<AskJobRef[]>([]);
   useEffect(() => {
     const token = readToken();
     if (!token) return;
     let live = true;
-    jobApi.list(token)
-      .then(async (r) => {
-        if (!r.ok) return;
-        const b = (await r.json()) as { jobs: WireJob[] };
-        if (live) setJobs(b.jobs.map(toAskJob));
+    const get = async () => {
+      const r = await jobApi.list(token);
+      if (!r.ok) throw new Error(`jobs ${r.status}`);
+      return ((await r.json()) as { jobs: WireJob[] }).jobs;
+    };
+    // Offline, the saved list still shows what is open (§data.offline); any other failure stays quiet.
+    (copy ? copy.read("jobs", get) : get())
+      .then((list) => {
+        if (live) setJobs(list.map(toAskJob));
       })
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, []);
+  }, [copy]);
   return jobs;
 }

@@ -5,6 +5,9 @@ import { jobRoutes } from "./job-routes.ts";
 import { docRoutes } from "./doc-routes.ts";
 import { collectionRoutes } from "./collection-routes.ts";
 import { commandRoutes } from "./command-routes.ts";
+import { askRoutes } from "./ask-chat.ts";
+import { imageRoutes } from "./image-routes.ts";
+import type { R2Like } from "./image-routes.ts";
 import { isEv4Route } from "./ev4-routes.ts";
 import type { D1Like } from "../jobs/index.ts";
 
@@ -14,6 +17,10 @@ export interface Env extends AuthEnv {
   JOBS: { create(o: { id: string; params: unknown }): Promise<unknown> };
   /** Worker secret, set by Matt (AGENTS §6); the job steps stop with a plain reason when it is missing. */
   ANTHROPIC_API_KEY?: string;
+  /** Tests hand in a fake model call for Ask E.V.; production builds one from the key. */
+  ASK_CALL?: import("../jobs/index.ts").ModelCall;
+  /** The environment's R2 bucket for note pictures (wrangler `r2_buckets`), keys under note-images/. */
+  IMAGES?: R2Like;
   ASSETS: { fetch(request: Request): Promise<Response> };
   /** Set at deploy (`--var COMMIT:<sha>`). */
   COMMIT?: string;
@@ -55,6 +62,8 @@ app.route("/api/v1", jobRoutes);
 app.route("/api/v1", docRoutes);
 app.route("/api/v1", collectionRoutes);
 app.route("/api/v1", commandRoutes);
+app.route("/api/v1", askRoutes);
+app.route("/api/v1", imageRoutes);
 
 app.all("/api/*", (c) =>
   isEv4Route(c.req.path)

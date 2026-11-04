@@ -46,3 +46,29 @@ test("pin, new and back report; empty collection explains itself", () => {
   expect(onBack).toHaveBeenCalled();
   expect(screen.getByText(/Nothing here yet/)).toBeTruthy();
 });
+
+test("/collection/:id opens that collection and Back goes to its parent", async () => {
+  const body = (path: string) =>
+    path.includes("memberships")
+      ? { memberships: [{ collection: "notes", id: "n1", collectionId: "b", at: 1 }] }
+      : {
+          collections: [
+            { id: "a", title: "NUR 112", parentId: null, pos: 0 },
+            { id: "b", title: "Labs", parentId: "a", pos: 1 },
+          ],
+        };
+  vi.doMock("../../commands/client.ts", () => ({
+    api: (path: string) =>
+      Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body(path)) }),
+  }));
+  localStorage.setItem("ev5.token", "t");
+  vi.resetModules();
+  const { CollectionScreen } = await import("./Collection.screen.tsx");
+  const onNavigate = vi.fn();
+  render(<CollectionScreen path="/collection/b" onNavigate={onNavigate} />);
+  expect(await screen.findByText("Labs")).toBeTruthy();
+  fireEvent.click(screen.getByText("← NUR 112"));
+  expect(onNavigate).toHaveBeenCalledWith("/collection/a");
+  localStorage.clear();
+  vi.doUnmock("../../commands/client.ts");
+});

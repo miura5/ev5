@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { byName, commands, paletteEntries, scheduleEntries, tools } from './catalog.ts';
-import { commandNames } from './client.ts';
+import { commandNames, paletteEntries as clientPalette } from './client.ts';
 import { defineCommand, none, ref, resolveCall, suggest } from './define.ts';
 
 const must = (name: string) => byName(name)!;
@@ -42,6 +42,11 @@ test('defineCommand refuses what the contract forbids', () => {
   expect(() => defineCommand({ ...base, name: 'Bad Name', callers: { matt: 'direct' } })).toThrow(/name/);
   expect(() => defineCommand({ ...base, name: 'x.y', callers: { schedule: 'direct' } })).toThrow(/cadence/);
   expect(defineCommand({ ...base, name: 'x.y', input: ref, callers: { matt: 'direct' } })).toBeTruthy();
+});
+
+test('the generated client carries the palette entries as plain data', () => {
+  expect(clientPalette).toEqual(paletteEntries());
+  expect(clientPalette.find(e => e.name === 'plan.create')?.places).toEqual(['today']);
 });
 
 test('palette and schedule entries come from the registry', () => {

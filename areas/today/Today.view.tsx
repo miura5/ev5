@@ -63,11 +63,19 @@ export function TodayView(p: TodayProps) {
         ) : null}
         {p.plan.map((i) => (
           <div className="ev-today-line" key={i.id} data-tone={i.tone}>
+            <button
+              type="button"
+              className="ev-today-tick"
+              aria-label={`${i.done ? "Mark not done" : "Mark done"}: ${i.title}`}
+              aria-pressed={i.done}
+              onClick={() => p.onTick(i.id, !i.done)}
+            >
+              <Glyph type="plan" done={i.done} />
+            </button>
             <Row
               title={i.title}
               meta={i.meta}
               value={i.est}
-              glyph={<Glyph type="plan" done={i.done} />}
               selected={p.selectedId === i.id}
               onOpen={() => p.onOpen(i.id)}
             />

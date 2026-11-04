@@ -8,7 +8,8 @@ export const none = z.object({});
 
 export type Caller = 'matt' | 'ev' | 'schedule' | 'external';
 export type Mode = 'direct' | 'propose';
-export type Effect = 'instant' | 'job';
+/** 'chat' is a read-only turn on the Worker that answers once; it is not a job kind (§job.kinds). */
+export type Effect = 'instant' | 'job' | 'chat';
 
 export interface CommandSpec<S extends z.ZodType = z.ZodType> {
   name: string;
@@ -27,6 +28,8 @@ export interface CommandSpec<S extends z.ZodType = z.ZodType> {
   every?: string;
   /** Show in ⌘K (Matt's commands that need no more than a typed word). Default false. */
   palette?: boolean;
+  /** Area ids where ⌘K offers it (§ui.palette). Absent means everywhere. */
+  places?: readonly string[];
 }
 
 export type Command<S extends z.ZodType = z.ZodType> = Readonly<CommandSpec<S>>;

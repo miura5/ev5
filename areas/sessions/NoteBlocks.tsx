@@ -15,7 +15,11 @@ function runs(b: Block): ReactNode {
   });
 }
 
-function one(b: Block): ReactNode {
+function one(
+  b: Block,
+  k: number,
+  onToggle?: (index: number) => void,
+): ReactNode {
   const pad = b.indent ? { paddingLeft: `${b.indent * 1.25}em` } : undefined;
   switch (b.type) {
     case "h1":
@@ -34,10 +38,15 @@ function one(b: Block): ReactNode {
       );
     case "todo":
       return (
-        <p style={pad}>
-          {b.checked ? "☑ " : "☐ "}
+        <label className="ev-session-todo" style={pad}>
+          <input
+            type="checkbox"
+            checked={!!b.checked}
+            disabled={!onToggle}
+            onChange={() => onToggle?.(k)}
+          />{" "}
           {runs(b)}
-        </p>
+        </label>
       );
     case "img":
       return (
@@ -50,12 +59,19 @@ function one(b: Block): ReactNode {
   }
 }
 
-/** A note's blocks as plain read-only text on the session page. */
-export function NoteBlocks({ blocks }: { blocks: readonly Block[] }) {
+/** A note's blocks on the session page; its todo blocks are the session's checks. */
+export function NoteBlocks({
+  blocks,
+  onToggle,
+}: {
+  blocks: readonly Block[];
+  /** Flips a todo block by its index in the note; absent leaves the checks read-only. */
+  onToggle?: (index: number) => void;
+}) {
   return (
     <div data-ui="note-blocks">
       {blocks.map((b, k) => (
-        <div key={b.key ?? k}>{one(b)}</div>
+        <div key={b.key ?? k}>{one(b, k, onToggle)}</div>
       ))}
     </div>
   );

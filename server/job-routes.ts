@@ -7,6 +7,7 @@ import {
   d1JobStore,
   continueJob,
   jobStatus,
+  parsePublicInput,
   practiceSet,
   startJob,
   studyPlanJob,
@@ -15,6 +16,7 @@ import {
 import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
+import { gatherExcerpts } from "./excerpts.ts";
 
 export interface JobRoutesEnv {
   DB: D1Like;
@@ -26,12 +28,12 @@ const JOB_DEFS: readonly JobDef[] = [
   practiceSet as JobDef,
   studyPlanJob as JobDef,
 ];
-const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
+export const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
 const KINDS: Record<string, JobDef> = Object.fromEntries(
   JOB_DEFS.map((d) => [d.kind.replace(/_/g, "-"), d]),
 );
 
-function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
+export function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
   return {
     store: d1JobStore(env.DB, () => Date.now()),
     executors: {
@@ -43,6 +45,29 @@ function startEnv(env: JobRoutesEnv, def: JobDef): StartEnv {
     now: () => new Date().toISOString(),
     newId: () => crypto.randomUUID(),
   };
+}
+
+/** The scope a practice set was asked for, in job_plans under kind `scope`. */
+export async function saveScope(
+  db: D1Like,
+  jobId: string,
+  scope: unknown,
+  at: number,
+) {
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'scope', ?, ?) " +
+        "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
+    )
+    .bind(jobId, JSON.stringify(scope), at)
+    .run();
+}
+
+export async function withGathered(
+  db: D1Like,
+  input: { objectives: string[] },
+) {
+  return { ...input, excerpts: await gatherExcerpts(db, input.objectives) };
 }
 
 const body = async (req: Request): Promise<Record<string, unknown>> => {
@@ -68,13 +93,20 @@ jobRoutes.post("/jobs/:slug", async (c) => {
   const by = c.get("caller") === "app" ? "matt" : "schedule";
   if (!def.startedBy.includes(by))
     return c.json({ error: `${def.title} cannot be started by ${by}` }, 403);
-  const { input } = await body(c.req.raw);
+  const { input: asked } = await body(c.req.raw);
+  // The caller names a scope (objectives); the server finds the passages itself and drops any it was sent.
+  let input = asked;
   try {
-    def.input(input);
+    if (def === (practiceSet as JobDef))
+      input = await withGathered(c.env.DB, parsePublicInput(asked));
+    else def.input(asked);
   } catch (e) {
     return c.json({ error: (e as Error).message }, 400);
   }
   const rec = await startJob(startEnv(c.env, def), def, input, by);
+  // Kept so "retry shorter" can start the same scope again (without the gathered passages).
+  if (def === (practiceSet as JobDef))
+    await saveScope(c.env.DB, rec.id, asked, Date.now());
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
 

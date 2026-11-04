@@ -7,6 +7,11 @@ export interface CollectionsRead {
   members: Map<string, string>;
 }
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 const token = (): string => {
   try {
     return localStorage.getItem("ev5.token") ?? "";
@@ -15,20 +20,28 @@ const token = (): string => {
   }
 };
 
-async function get(path: string): Promise<Record<string, unknown>> {
-  const r = await api(path, token());
-  if (!r.ok) return {};
-  return (await r.json()) as Record<string, unknown>;
+async function get(
+  path: string,
+  copy?: ReadCopyLike,
+): Promise<Record<string, unknown>> {
+  const fetcher = async (): Promise<Record<string, unknown>> => {
+    const r = await api(path, token());
+    if (!r.ok) throw new Error(`${path} ${r.status}`); // never kept as the saved copy
+    return (await r.json()) as Record<string, unknown>;
+  };
+  return copy ? copy.read(`notes:${path}`, fetcher) : fetcher();
 }
 
 const list = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? (v as Record<string, unknown>[]) : [];
 
 /** Collections and which notes they hold. Tolerant: a missing table, a refusal or no network reads as none. */
-export async function readCollections(): Promise<CollectionsRead> {
+export async function readCollections(
+  copy?: ReadCopyLike,
+): Promise<CollectionsRead> {
   const out: CollectionsRead = { collections: [], members: new Map() };
   try {
-    for (const c of list((await get("collections")).collections))
+    for (const c of list((await get("collections", copy)).collections))
       if (typeof c.id === "string" && typeof c.title === "string")
         out.collections.push({
           id: c.id,
@@ -36,7 +49,7 @@ export async function readCollections(): Promise<CollectionsRead> {
           parentId: typeof c.parentId === "string" ? c.parentId : null,
         });
     if (out.collections.length)
-      for (const m of list((await get("memberships")).memberships))
+      for (const m of list((await get("memberships", copy)).memberships))
         if (
           m.collection === "notes" &&
           typeof m.id === "string" &&

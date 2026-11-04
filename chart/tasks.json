@@ -14105,7 +14105,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #171: reads /api/v1/jobs only; no chat route exists on the server (CONTRACT §job.no-chat-ask), so sending shows a not-connected reply.",
+  "notes": "Ask replies on POST /api/v1/ask (server/ask-chat.ts); the earlier no-chat-route note is stale. Mock-up match rests on screen tests only.",
   "commit": "b8b3578",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-747-ask",
@@ -14137,7 +14137,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Sessions wired (#165). Left: use sessionState (now exported from domain) for break/pause, real note blocks and checks, save to Progress, Space/Esc keys, Start session on the note page.",
+  "notes": "Merged #165, #173, #287 (note todo blocks are real checks, Space/Esc, pause tests). Left: Start session button on the note page (areas/notes), save to Progress if still open.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-749-sessions",
@@ -14153,7 +14153,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Collection and Recently deleted wired to the read routes (#169); collections/memberships tables don't exist yet so they show empty. Left: /collection/:id route, nav hiding, saved-view page, item menu, pins.",
+  "notes": "Merged #275 and #286: /collection/:id, rows show item titles and dates. Left: pins/new/rename handlers (no write commands), saved-view page, Restore.",
   "commit": null,
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
@@ -14909,7 +14909,7 @@
    "B-788",
    "B-799"
   ],
-  "notes": "Audit (PLAN §7): shell/Shell.tsx:75-90 builds Places and Pinned by hand; only ⌘K is handled, not ⌘J.",
+  "notes": "Split: B-836 (done) and B-837 (shell).",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -14933,10 +14933,10 @@
   "title": "Decide and record how Ask E.V. answers (chat route or job) within the contract",
   "dod": "One Chart decision names the route Ask E.V. uses for a reply, its model and ceilings, its tools (registry tools() including job_status), citations or 'unverified', and attempt-first prompting, consistent with CONTRACT §job.no-chat-ask, §job.kinds, §ev.cites, §ui.attempt-first; if it needs a contract change, the decision amends the §id",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit (review F8, F32): Ask.screen.tsx answers 'not connected' after every send; ask.send is declared as a job but §job.kinds allows two kinds. Handover Next (7) only; no Chart item. B-747 is marked done.",
-  "commit": null,
+  "notes": "D-470: Ask E.V. replies on a chat route, not a job. Follow-up is B-803.",
+  "commit": "613932e",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -14950,7 +14950,7 @@
    "B-802",
    "B-799"
   ],
-  "notes": "Model-path task: read current Anthropic docs, never ids or prices from memory.",
+  "notes": "Merged #248 (chat route) and #249 (Ask screen). Open: one staging check that a question gets a cited or unverified reply and 'is it ready?' uses job_status; Ask screen should read ?text= from the palette Tab; gate5 ask-ready journey still NOT BUILT.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15044,7 +15044,7 @@
    "B-731",
    "B-739"
   ],
-  "notes": "Audit (review F4): domain/search has no caller; POST /api/v1/jobs/practice-set accepts whatever excerpts the caller sends (server/job-routes.ts).",
+  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15114,13 +15114,15 @@
   "title": "Gate 5 journeys as @playwright/test browser specs",
   "dod": "Each PLAN Phase 5 journey is its own @playwright/test file under e2e/ that drives the UI on staging in the Playwright Docker image; the gate run fails on any todo or skipped journey; the journeys run on every batch (CONTRACT §drift.tools, §drift.checks); e2e/journeys.ts's own runner is removed",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-752"
   ],
-  "notes": "Audit (review F29, PLAN §4 'one file per journey'): e2e/journeys.ts is a custom runner over HTTP (runAll, a Fail class, todo states); gate5.spec.ts exits 0 with todos, so Gate 5 can pass with every journey todo.",
+  "notes": "Merged #245, #252: ask-ready journey built except the real reply (needs ANTHROPIC_API_KEY on the Worker) and a running job. 7 journeys still NOT BUILT. Dispatch gate5-e2e.yml on staging to confirm selectors.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.952Z"
  },
  {
   "id": "B-817",
@@ -15128,13 +15130,15 @@
   "title": "Installable app: vite-plugin-pwa, cached shell and a local read copy",
   "dod": "vite-plugin-pwa (pinned, with a Chart decision naming the problem) builds a manifest and service worker; the shell opens offline; the page reads from its IndexedDB copy in ev5-app when offline (PLAN §5.9, CONTRACT §data.offline, §ui.targets); the offline note journey passes in a browser",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-751"
   ],
-  "notes": "Audit (PLAN §12, §5.9): vite.config.ts has react() only, index.html has no manifest, and no service worker exists; the outbox store holds queued writes only.",
+  "notes": "Merged #276: manifest, precaching sw.js, registration (D-472). Offline read copy left (new task).",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T07:47:02.677Z"
  },
  {
   "id": "B-818",
@@ -15142,13 +15146,15 @@
   "title": "Note pictures in R2 under note-images/",
   "dod": "The Worker stores note pictures in the environment's R2 bucket under note-images/ and serves them to the app token only; a picture added in a note round-trips after reload (CONTRACT §data.note-images)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-793"
   ],
-  "notes": "Audit: domain/note/blocks.ts knows the note-images key format, but wrangler.jsonc has no R2 binding and no route serves images.",
+  "notes": "Merged #277 and #278: routes PUT/GET /api/v1/note-images, 503 while IMAGES is unbound (staging token lacks R2). Client half and rebinding are new tasks.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T07:47:22.692Z"
  },
  {
   "id": "B-819",
@@ -15168,11 +15174,13 @@
   "title": "Keep ev4's PlanJob class in v5's live build",
   "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing; rehearsal 2 deploys the real entry, not a rehearsal-only one (CONTRACT §deliver.window)",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Audit (review F2, F26): only rehearsal.yml's own entry has a PlanJob stub; server/worker.ts exports default and JobWorkflow, wrangler.jsonc has no durable_objects. ops/ROLLBACK.md already says the real build must keep one. Must land before B-758.",
   "commit": null,
-  "source": "plan audit (ev-build), 2026-11-04"
+  "source": "plan audit (ev-build), 2026-11-04",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.349Z"
  },
  {
   "id": "B-821",
@@ -15332,12 +15340,12 @@
   "title": "Area and domain writers pass validateWrite on their real output (notes, sessions, answers, dayedits)",
   "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed; domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; plan-home's plan and exam writes get the same test",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-798"
   ],
-  "notes": "Notes and answers done in #231 (door: data/compat-test.ts, tests only). Sessions: B-834. Plan-home tests and dayedits writer still open.",
-  "commit": null,
+  "notes": "Notes, sessions and answers writers already have validateWrite tests on main (run 37 check, 6 files pass).",
+  "commit": "6d68614",
   "source": "B-798 builder"
  },
  {
@@ -15346,12 +15354,12 @@
   "title": "Handlers for the remaining instant commands (note, session, check, plan, set, study, weakspot, job.stop/dismiss ...)",
   "dod": "Every instant command a screen calls via call() has a handler with a compat fixture, or the screen uses the outbox and the command is dropped; no 501 for a used command (CONTRACT §cmd.registry)",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-830"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "No screen calls call(); no used command answers 501. Handlers get filed when a screen first calls one.",
+  "commit": "3b94f7a",
   "source": "B-830 builder"
  },
  {
@@ -15381,5 +15389,267 @@
   "notes": "Merged in #234: POST /api/v1/jobs/:id/dismiss, Got it button in Activity.",
   "commit": "20c15ab",
   "source": "B-805 builder"
+ },
+ {
+  "id": "B-836",
+  "kind": "task",
+  "title": "Palette entries reach the client: optional places on CommandSpec, generated client.ts exports palette data",
+  "dod": "Done when: CommandSpec has optional places; paletteEntries carries it; generated commands/client.ts exports palette entries as plain data (no zod) (CONTRACT §ui.palette, §cmd.generated)",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [
+   "B-799"
+  ],
+  "notes": "Split from B-800. Merged in #243.",
+  "commit": "ddf0dc3",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-837",
+  "kind": "task",
+  "title": "Shell palette Commands group, Tab to Ask with text, and ⌘J",
+  "dod": "Done when: Shell palette has a Commands group from client.ts paletteEntries filtered by area; a test runs one command from ⌘K via call(); Tab navigates to Ask E.V. with the typed text; ⌘J toggles Ask E.V. (CONTRACT §ui.palette)",
+  "milestone": "v5 P5",
+  "status": "done",
+  "depends": [
+   "B-836"
+  ],
+  "notes": "Tab navigates to /ask?text=; Ask screen reading ?text= is open (B-803 leftover).",
+  "commit": "3607eeb",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-838",
+  "kind": "task",
+  "title": "Staging deploy applies data/migrations 0001..0003 to the staging D1 (audit of B-723..B-726)",
+  "dod": "staging.yml applies every migration idempotently; collections, pins, own-set tables exist on staging",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "Audit finding was wrong: staging schema.sql is the baseline plus all migrations (test pins it). Added a verify step in staging.yml and ops/checks/staging.test.ts (#253).",
+  "commit": "c509dbb",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-839",
+  "kind": "task",
+  "title": "S-60b: server handlers for plan.*, date.*, proposal.accept/edit/dismiss",
+  "dod": "Done when an E.V. plan.create makes a Suggestion, proposal.accept applies it through the docs protocol, and a test asserts no registry command with callers.matt answers 501",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #258, #260: plan.*, proposal.*, date.*, draft.*, studyplan.approve/put_away. Left: B-846 (plan item options), B-847 (the rest of the Matt commands); job commands (date.plan_with_ev, studyplan.ask_changes) and scheduled commands answer 501.",
+  "commit": "636d639",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-840",
+  "kind": "task",
+  "title": "Schedule consumer: scheduleEntries() drives the schedule route or is deleted",
+  "dod": "Done when scheduleEntries() has a non-test caller or is removed, with a test",
+  "milestone": "Phase 5",
+  "status": "in progress",
+  "depends": [],
+  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.559Z"
+ },
+ {
+  "id": "B-841",
+  "kind": "task",
+  "title": "Ask passes spendAlertWriter to jobCeilings (server/ask-chat.ts)",
+  "dod": "Done when an ask test that crosses 80% of monthly creates the spend-alert needs-you record",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #256: Ask passes spendAlertWriter.",
+  "commit": "7b2c3f2",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-842",
+  "kind": "task",
+  "title": "Reconcile ask.send with /api/v1/ask",
+  "dod": "Done when ask.send has a handler that calls ask(), or is removed from the registry, with a test",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #256: ask.send runs the same ask path (askFromEnv) and answers 200/429/503, no longer 501.",
+  "commit": "7e3294f",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-843",
+  "kind": "task",
+  "title": "Ceiling windows are UTC while v5 is Central: record a decision or a CONTRACT note",
+  "dod": "Done when one decision or CONTRACT line settles it",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "Decision recorded; no code change.",
+  "commit": "1f2321e",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-844",
+  "kind": "task",
+  "title": "Remove excerpts from the practice-set job input schema (the server now gathers them)",
+  "dod": "jobs/practice-set/job.ts input names only a scope; server tests still pass",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [
+   "B-810"
+  ],
+  "notes": "Merged #261: public input names a scope only; excerpts stay internal.",
+  "commit": "b6b79da",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-845",
+  "kind": "task",
+  "title": "Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts",
+  "dod": "One gatherer used by both; tests pass",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [
+   "B-810"
+  ],
+  "notes": "",
+  "commit": "4c030cc",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-846",
+  "kind": "task",
+  "title": "Plan item options (repeat, linked, collection) on plan.create/plan.update handlers",
+  "dod": "A Suggestion with repeat, linked or collection is accepted through the docs protocol and passes validateWrite; repeat materializes into dayedits.added key rep-<id>-<date>",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [
+   "B-839"
+  ],
+  "notes": "Repeat written 14 days ahead only; S-80 must top up. Editing a repeating item's title/minutes does not rewrite earlier occurrences.",
+  "commit": "55bf144",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-847",
+  "kind": "task",
+  "title": "Handlers for the remaining Matt commands: note.*, session.*, check.*, job.*, weakspot.*, set.*, study.*, collection.new_here, weeklyreview.done, ask.just_tell_me",
+  "dod": "Every registry command with callers.matt except the job commands has a handler; the 501 test lists none beyond the job and scheduled commands",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [
+   "B-839"
+  ],
+  "notes": "Still no handler: job.stop, job.retry_shorter, job.dismiss, weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes.",
+  "commit": "17f2174",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-848",
+  "kind": "task",
+  "title": "Job commands get handlers: job.stop, job.dismiss, job.retry_shorter (export a transition helper from jobs/index.ts; server slice calls it)",
+  "dod": "the three commands no longer answer 501; tests cover each state change; weeklyreview.done, set.write_with_ev, date.plan_with_ev, studyplan.ask_changes stay 501 until their jobs exist",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [],
+  "notes": "From B-847 follow-up. Needs a one-line export in jobs/index.ts (Interface: jobs).",
+  "commit": "1f2321e",
+  "source": "handover run 36"
+ },
+ {
+  "id": "B-849",
+  "kind": "task",
+  "title": "Notes pictures in the editor: upload to PUT /api/v1/note-images/<name> and show with the app token",
+  "dod": "A picture added in a note round-trips after reload on staging (CONTRACT §data.note-images)",
+  "milestone": "Phase 5",
+  "status": "in progress",
+  "depends": [
+   "B-818"
+  ],
+  "notes": "Merged #281: paste/drop upload and blob display in the notes editor; failure shows 'Picture storage isn't set up yet' while R2 is unbound. Round trip on staging waits on B-850 (R2 permission from Matt).",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T08:07:40.554Z"
+ },
+ {
+  "id": "B-850",
+  "kind": "task",
+  "title": "Bind R2 on staging again: add the bucket step and r2_buckets binding back",
+  "dod": "Staging deploy creates ev5-staging-images and IMAGES is bound; a picture PUT/GET works on staging",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-818"
+  ],
+  "notes": "Waits on Matt adding R2 edit to the staging Cloudflare token (error 10000 on r2 bucket create).",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-851",
+  "kind": "task",
+  "title": "Offline read copy: IndexedDB copy of the record in ev5-app, read when offline",
+  "dod": "Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline)",
+  "milestone": "Phase 5",
+  "status": "in progress",
+  "depends": [
+   "B-817"
+  ],
+  "notes": "Merged #280: ev5-app v2 with a reads store, shell/readCopy.ts, docs.list through it, Saved copy notice. Left: see the next task.",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T08:07:41.110Z"
+ },
+ {
+  "id": "B-852",
+  "kind": "task",
+  "title": "api() takes a raw body (binary PUT) and domain exports the picture key pattern",
+  "dod": "commands/client api() can send bytes; areas/notes/notePictures.ts uses it instead of its own fetch and imports the key pattern from domain (IMG_KEY export, Interface change); test stays green",
+  "milestone": "Phase 5",
+  "status": "done",
+  "depends": [
+   "B-849"
+  ],
+  "notes": "Merged #284: api() raw option, IMG_KEY exported from domain, notePictures.ts uses api(). Left: server/image-routes.ts still has its own KEY regex (see B-854).",
+  "commit": "fb694f1",
+  "source": "ops/record"
+ },
+ {
+  "id": "B-853",
+  "kind": "task",
+  "title": "Read copy for jobs, collections and the notes reads; test the IndexedDB store",
+  "dod": "useShellStatus, jobApi, api GETs and readCollections fall back to the saved copy; the v1 to v2 upgrade and indexedDbCopyStore are run in a test (fake-indexeddb needs a Chart decision first) or by an e2e check",
+  "milestone": "Phase 5",
+  "status": "in progress",
+  "depends": [
+   "B-851"
+  ],
+  "notes": "Merged #285 (shell jobs poll; own IndexedDB fake in appDb.test.ts, no fake-indexeddb needed), #288 (activity, ask, today, notes collections), #289 (library). Left: commands/client jobApi/api GETs read direct; areas/sessions and areas/collection not covered; check shell hands readCopy to LibraryScreen.",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.731Z"
+ },
+ {
+  "id": "B-854",
+  "kind": "task",
+  "title": "server/image-routes.ts imports IMG_KEY from domain instead of its own KEY regex",
+  "dod": "One key pattern; server may import domain (check depcruise)",
+  "milestone": "Phase 5",
+  "status": "in progress",
+  "depends": [
+   "B-852"
+  ],
+  "notes": "From B-852 report. Slice: server/.",
+  "commit": null,
+  "source": "ops/record",
+  "claimedBy": "run40",
+  "claimedAt": "2026-11-04T09:04:12.055Z"
  }
 ]

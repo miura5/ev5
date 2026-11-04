@@ -76,3 +76,7 @@
   color: var(--faint);
   text-decoration: line-through;
 }
+
+.ev-session-todo {
+  display: block;
+}

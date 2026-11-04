@@ -63,16 +63,20 @@ const CLIENT_BODY = `
 export interface ApiOptions {
   method?: string;
   body?: unknown;
+  /** Raw bytes sent as they are (a picture), with their content type; wins over \`body\`. */
+  raw?: { data: Blob | ArrayBuffer; contentType: string };
 }
 
 /** An /api/v1 request with the app token Matt keeps in this browser. \`path\` is relative to /api/v1. */
 export function api(path: string, token: string, o: ApiOptions = {}): Promise<Response> {
   const headers: Record<string, string> = { authorization: \`Bearer \${token}\` };
-  if (o.body !== undefined) headers["content-type"] = "application/json";
+  const sent = o.raw ? o.raw.data : o.body === undefined ? undefined : JSON.stringify(o.body);
+  if (o.raw) headers["content-type"] = o.raw.contentType;
+  else if (o.body !== undefined) headers["content-type"] = "application/json";
   return fetch(\`/api/v1/\${path}\`, {
-    method: o.method ?? (o.body === undefined ? "GET" : "POST"),
+    method: o.method ?? (sent === undefined ? "GET" : "POST"),
     headers,
-    ...(o.body === undefined ? {} : { body: JSON.stringify(o.body) }),
+    ...(sent === undefined ? {} : { body: sent }),
   });
 }
 
@@ -97,10 +101,26 @@ export const jobApi = {
 };
 `;
 
+/** The palette entries as plain data, so the shell needs no zod (CONTRACT §ui.palette). */
+function paletteData(root: string): string {
+  const out: string[] = [];
+  for (const f of commandFiles(root)) {
+    const src = read(root, `commands/${f}`);
+    for (const body of src.split(/defineCommand\(\{/).slice(1)) {
+      if (!/palette:\s*true/.test(body)) continue;
+      const name = /name:\s*'([^']+)'/.exec(body)?.[1];
+      const title = /title:\s*'((?:[^'\\]|\\.)*)'/.exec(body)?.[1];
+      const places = /places:\s*\[([^\]]*)\]/.exec(body)?.[1]?.match(/'([^']+)'/g)?.map(p => p.slice(1, -1));
+      if (name && title) out.push(JSON.stringify({ name, title, ...(places ? { places } : {}) }));
+    }
+  }
+  return out.join(',\n  ');
+}
+
 export function clientFile(root: string): string {
   const names = commandNamesOf(root);
   const union = names.length ? names.map(n => JSON.stringify(n)).join(' | ') : 'never';
-  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', CLIENT_BODY].join('\n');
+  return [HEADER, '', `export type CommandName = ${union};`, '', 'export const commandNames: readonly CommandName[] = [' + names.map(n => JSON.stringify(n)).join(', ') + '];', '', 'export interface PaletteEntry {\n  name: CommandName;\n  title: string;\n  places?: readonly string[];\n}', '', 'export const paletteEntries: readonly PaletteEntry[] = [\n  ' + paletteData(root) + ',\n];', CLIENT_BODY].join('\n');
 }
 
 /** commands/all.generated.ts: every command array exported by a *.command.ts file, joined for the catalog. */

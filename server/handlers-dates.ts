@@ -1,0 +1,140 @@
+// Dates and the study plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `dates` entry written by the
+// page; a change to any date, Canvas's included, is an override in `dateedits` (a Canvas entry's fields are marks only
+// canvas-sync may write). Approving a study plan makes it the plan in force in `planedits/<exam>`; putting it away marks
+// it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
+import { addDays } from "../domain/index.ts";
+import { docsRepo } from "../data/index.ts";
+import { CommandError } from "./handlers-core.ts";
+import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
+
+type Doc = Record<string, any>;
+
+const iso = (ms: number) => new Date(ms).toISOString();
+
+function checkDate(date: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || addDays(date, 0) !== date)
+    throw new CommandError(400, `${date} is not a date`);
+  return date;
+}
+
+async function save(
+  x: HandlerCtx,
+  c: string,
+  id: string,
+  doc: Doc,
+  v: number | null,
+) {
+  const r = await docsRepo(x.db, { clock: x.clock }).save(
+    c,
+    id,
+    JSON.stringify(doc),
+    v,
+  );
+  if (!r.ok) throw new CommandError(409, "that changed; try again");
+}
+
+/** Reads a document, runs `change` on a copy (a new one gets its envelope) and saves it with the version read. */
+async function edit(
+  x: HandlerCtx,
+  [c, id]: [string, string],
+  fresh: Doc,
+  source: string,
+  change: (d: Doc) => void,
+) {
+  const cur = await docsRepo(x.db, { clock: x.clock }).get(c, id);
+  const now = iso(x.clock());
+  const doc: Doc = cur
+    ? { ...(cur.data as Doc) }
+    : { writer: "page", at: now, source, ...fresh };
+  change(doc);
+  doc.updatedAt = now;
+  await save(x, c, id, doc, cur ? cur.v : null);
+}
+
+async function need(x: HandlerCtx, c: string, id: string): Promise<Doc> {
+  const doc = await docsRepo(x.db, { clock: x.clock }).get(c, id);
+  if (!doc) throw new CommandError(404, `no ${c} entry ${id}`);
+  return doc.data as Doc;
+}
+
+/** The plan's exam, whose `planedits` document says which plan is in force and which are put away. */
+async function examOf(x: HandlerCtx, id: string): Promise<string> {
+  const exam = (await need(x, "plans", id)).exam;
+  if (typeof exam !== "string" || !exam)
+    throw new CommandError(400, `plan ${id} has no exam`);
+  return exam;
+}
+
+const planEdit = (
+  x: HandlerCtx,
+  exam: string,
+  source: string,
+  change: (d: Doc) => void,
+) => edit(x, ["planedits", exam], { schema: 2, ticks: {} }, source, change);
+
+export const dateHandlers: Record<string, CommandHandler> = {
+  "date.create": async (i: { title: string; date: string }, _c, x) => {
+    const id = x.newId();
+    const now = iso(x.clock());
+    await save(
+      x,
+      "dates",
+      id,
+      {
+        schema: 1,
+        writer: "page",
+        at: now,
+        source: "v5/command:date.create",
+        date: checkDate(i.date),
+        title: i.title,
+        kind: "other",
+        addedBy: "Matt",
+      },
+      null,
+    );
+    return { id, date: i.date };
+  },
+
+  "date.update": async (
+    i: { id: string; title?: string; date?: string },
+    _c,
+    x,
+  ) => {
+    await need(x, "dates", i.id);
+    const date = i.date === undefined ? undefined : checkDate(i.date);
+    await edit(
+      x,
+      ["dateedits", i.id],
+      { schema: 1 },
+      "v5/command:date.update",
+      (d) => {
+        d.overrides = {
+          ...d.overrides,
+          ...(date ? { date } : {}),
+          ...(i.title ? { title: i.title } : {}),
+        };
+      },
+    );
+    return { id: i.id };
+  },
+
+  "studyplan.approve": async (i: { id: string }, _c, x) => {
+    const exam = await examOf(x, i.id);
+    await planEdit(x, exam, "v5/command:studyplan.approve", (d) => {
+      const { [i.id]: _gone, ...retired } = (d.retired ?? {}) as Doc;
+      d.plan = i.id;
+      if (Object.keys(retired).length) d.retired = retired;
+      else delete d.retired;
+    });
+    return { id: i.id, exam, inForce: true };
+  },
+
+  "studyplan.put_away": async (i: { id: string }, _c, x) => {
+    const exam = await examOf(x, i.id);
+    await planEdit(x, exam, "v5/command:studyplan.put_away", (d) => {
+      if (d.plan === i.id) delete d.plan;
+      d.retired = { ...d.retired, [i.id]: { at: iso(x.clock()), by: "Matt" } };
+    });
+    return { id: i.id, exam, inForce: false };
+  },
+};

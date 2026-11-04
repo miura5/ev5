@@ -8,7 +8,7 @@ export {
   reviewNeed,
 } from "./weak-spot/index.ts";
 export type { Attempt } from "./weak-spot/index.ts";
-export { parseSet } from "./set/index.ts";
+export { parseSet, scoreAnswer, itemType } from "./set/index.ts";
 export { parseSession } from "./session/index.ts";
 export {
   parseNote,
@@ -18,6 +18,7 @@ export {
   noteBlocks,
   fits,
   splitWide,
+  IMG_KEY,
   type Block,
   type Run,
   type Note,
@@ -27,11 +28,25 @@ export type { Exam } from "./exam/index.ts";
 export { addDays, centralDate } from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
-export { parseCollection, parseMembership } from "./collection/index.ts";
-export { parseItemProps } from "./item-props/index.ts";
+export {
+  parseCollection,
+  parseMembership,
+  moveWrite,
+} from "./collection/index.ts";
+export {
+  parseItemProps,
+  materialize,
+  missingOccurrences,
+} from "./item-props/index.ts";
 export { parsePin } from "./pin/index.ts";
 export {
   parseOwnSet,
   parseOwnSetItem,
   parseOwnAttempt,
 } from "./own-set/index.ts";
+export {
+  chunkMaterials,
+  buildIndex,
+  search,
+  likePatterns,
+} from "./search/index.ts";

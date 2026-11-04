@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { Shell } from "./Shell.tsx";
+import * as client from "../commands/client.ts";
 
 afterEach(cleanup);
 
@@ -94,4 +95,37 @@ test("the real sidebar lists the six areas in order, then Recently deleted once;
   );
   for (const n of ["Hello", "Collection", "Sessions"])
     expect(labels.some((l) => l.startsWith(n))).toBe(false);
+});
+
+test("⌘K lists commands for this place and runs one through call()", () => {
+  const spy = vi.spyOn(client, "call").mockResolvedValue({ ok: true, mode: "direct" });
+  render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  expect(screen.getByText("Commands")).toBeTruthy();
+  expect(screen.queryByRole("option", { name: "New set" })).toBeNull();
+  fireEvent.click(screen.getByRole("option", { name: "Add a plan item" }));
+  expect(spy).toHaveBeenCalledWith("plan.create", {}, expect.any(String));
+  expect(document.querySelector("[data-ui='palette']")).toBeNull();
+  spy.mockRestore();
+});
+
+test("Tab hands the typed text to Ask E.V., and ⌘J toggles Ask E.V.", () => {
+  const onNavigate = vi.fn();
+  const { rerender } = render(<Shell path="/" onNavigate={onNavigate} areas={areas} />);
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "what is a ratio" } });
+  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
+  expect(onNavigate).toHaveBeenCalledWith("/ask?text=what%20is%20a%20ratio");
+  onNavigate.mockClear();
+  fireEvent.keyDown(window, { key: "j", ctrlKey: true });
+  expect(onNavigate).toHaveBeenCalledWith("/ask");
+  rerender(<Shell path="/ask" onNavigate={onNavigate} areas={areas} />);
+  onNavigate.mockClear();
+  fireEvent.keyDown(window, { key: "j", ctrlKey: true });
+  expect(onNavigate).toHaveBeenCalledWith("/");
+});
+
+test("areaFor opens a parent route for a sub-path", async () => {
+  const { areaFor } = await import("./areas.ts");
+  expect(areaFor("/collection/abc")?.id).toBe("collection");
 });

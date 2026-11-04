@@ -9,7 +9,7 @@ export interface AreaEntry {
   readonly nav: string;
   /** False for routes the sidebar does not list (collection, sessions, Recently deleted); absent means listed. */
   readonly sidebar?: boolean;
-  readonly view: ComponentType<{ services?: Services; onNavigate?: (path: string) => void }>;
+  readonly view: ComponentType<{ services?: Services; onNavigate?: (path: string) => void; path?: string }>;
 }
 
 /** The sidebar's order (CONTRACT §ui.sidebar); areas not named here follow, in registry order. */
@@ -26,10 +26,10 @@ export const AREAS: readonly AreaEntry[] = [...areas].sort((a, b) => rank(a.id) 
 export const sidebarAreas = (list: readonly AreaEntry[] = AREAS): readonly AreaEntry[] =>
   list.filter((a) => a.sidebar !== false);
 
-/** The area whose route is `path`; the first area when none matches. */
+/** The area whose route is `path` or a parent of it (`/collection/ab` opens `/collection`); the first area when none matches. */
 export function areaFor(
   path: string,
   list: readonly AreaEntry[] = AREAS,
 ): AreaEntry | undefined {
-  return list.find((a) => a.route === path) ?? list[0];
+  return list.find((a) => a.route === path) ?? list.find((a) => path.startsWith(`${a.route}/`)) ?? list[0];
 }

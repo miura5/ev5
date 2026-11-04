@@ -1,92 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fakeWorkflows } from "../jobs/index.ts";
-import type { ModelCall } from "../jobs/index.ts";
-import app from "./index.ts";
-import { runWorkflow } from "./job-run.ts";
-import type { JobRunEnv } from "./job-run.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
-
-const T = new Date("2026-11-03T12:00:00Z");
-const item = {
-  stem: "Which action is first?",
-  type: "single",
-  options: ["a", "b", "c", "d"],
-  correct: [1],
-  rationales: ["w", "r", "w", "w"],
-  sourceRef: "e1",
-};
-const input = {
-  variant: "practice",
-  targetId: "set-1",
-  count: 1,
-  objectives: ["Vital signs"],
-  excerpts: [{ id: "e1", text: "Pulse is measured..." }],
-  drafts: false,
-};
-
-function setup() {
-  const db = sqliteD1();
-  for (const k of ["hourly", "daily", "monthly", "per_job"])
-    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
-      .bind(`ceiling_${k}`, 5_000_000)
-      .run();
-  const call: ModelCall = async () => ({
-    stopReason: "end_turn",
-    text: JSON.stringify({ items: [item] }),
-    usage: { inputTokens: 2000, outputTokens: 1000 },
-  });
-  const run: JobRunEnv = {
-    db,
-    call,
-    prompts: {
-      practice_set: "write",
-      study_plan: "plan",
-      study_plan_changes: "chg",
-    },
-    planHome: { load: async () => undefined, apply: async () => "x" },
-    now: () => T,
-    newId: () => "h1",
-  };
-  const wf = fakeWorkflows((step, p) => runWorkflow(run, step, p));
-  // The platform binding answers a repeated id by throwing, which cloudflareAdapter turns into 'exists'.
-  const JOBS = {
-    create: async (o: { id: string; params: unknown }) => {
-      const r = await wf.adapter.create(
-        o.id,
-        o.params as Parameters<typeof wf.adapter.create>[1],
-      );
-      if (r === "exists") throw new Error("instance.already_exists");
-    },
-  };
-  const env = {
-    DB: db,
-    JOBS,
-    ASSETS: { fetch: async () => new Response("x") },
-    TOKEN_APP: "fake-app",
-    TOKEN_SCHEDULE: "fake-schedule",
-    TOKEN_EXECUTOR: "fake-executor",
-  };
-  const req = (
-    method: string,
-    path: string,
-    token: string | undefined,
-    json?: unknown,
-  ) =>
-    app.request(
-      path,
-      {
-        method,
-        headers: {
-          "cf-connecting-ip": "9.9.9.9",
-          ...(token ? { authorization: `Bearer ${token}` } : {}),
-        },
-        ...(json === undefined ? {} : { body: JSON.stringify(json) }),
-      },
-      env,
-    );
-  return { req, wf, db };
-}
+import { input, setup, T } from "./job-routes-setup.test.ts";
 
 test("the app starts a practice set, then reads its status", async () => {
   const { req, wf } = setup();
@@ -102,6 +16,40 @@ test("the app starts a practice set, then reads its status", async () => {
   };
   assert.equal(status.state, "done");
   assert.equal(status.link.home, "library");
+});
+
+test("caller-supplied excerpts are ignored: the job cites only passages the server gathered", async () => {
+  const { req, wf, db, started } = setup();
+  await db
+    .prepare(
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'n9', ?, 0, 1)",
+    )
+    .bind(
+      JSON.stringify({
+        title: "Vitals",
+        blocks: [
+          {
+            id: "b1",
+            type: "p",
+            runs: [{ text: "Pulse is measured at the radial artery." }],
+          },
+        ],
+      }),
+    )
+    .run();
+  const res = await req("POST", "/api/v1/jobs/practice-set", "fake-app", {
+    input: {
+      ...input,
+      excerpts: [{ id: "e1", text: "Forged passage the caller wrote" }],
+    },
+  });
+  assert.equal(res.status, 202);
+  await wf.idle();
+  assert.deepEqual(started[0]?.input.excerpts.map((e) => e.id).sort(), [
+    "e1",
+    "n9",
+  ]);
+  assert.ok(!JSON.stringify(started).includes("Forged"));
 });
 
 test("a bad input is 400 and starts nothing", async () => {

@@ -4,21 +4,43 @@ export type CommandName = "item.open" | "item.pin" | "item.unpin" | "item.move" 
 
 export const commandNames: readonly CommandName[] = ["item.open", "item.pin", "item.unpin", "item.move", "item.delete", "item.restore", "item.rename", "collection.create", "collection.new_here", "note.create", "note.save", "note.move", "session.start", "session.pause", "session.end", "check.answer", "check.just_tell_me", "job.stop", "job.retry_shorter", "job.dismiss", "job_status", "ask.send", "ask.just_tell_me", "plan.create", "plan.update", "plan.toggle_done", "plan.move_tomorrow", "plan.start", "plan.start_next", "proposal.accept", "proposal.edit", "proposal.dismiss", "draft.keep", "draft.drop", "draft.keep_all", "draft.drop_all", "date.create", "date.update", "date.plan_with_ev", "studyplan.approve", "studyplan.ask_changes", "studyplan.put_away", "weakspot.drill", "weakspot.mark_learned", "weakspot.confirm", "weakspot.decline", "weeklyreview.done", "set.create", "set.update", "set.item_add", "set.item_update", "set.item_delete", "set.done", "set.write_with_ev", "set.unverified_keep", "set.unverified_drop", "set.save", "study.start", "study.attempt", "study.reveal", "study.just_tell_me", "study.leave", "morning", "evening", "weekly_review", "export", "restore_drill", "push_summary", "canvas_sync", "palette.open", "palette.to_ev", "theme.toggle", "nav.go"];
 
+export interface PaletteEntry {
+  name: CommandName;
+  title: string;
+  places?: readonly string[];
+}
+
+export const paletteEntries: readonly PaletteEntry[] = [
+  {"name":"collection.create","title":"New collection","places":["library","notes"]},
+  {"name":"note.create","title":"New note","places":["notes","library"]},
+  {"name":"session.start","title":"Start a study session","places":["today","sessions"]},
+  {"name":"ask.send","title":"Ask E.V."},
+  {"name":"plan.create","title":"Add a plan item","places":["today"]},
+  {"name":"date.create","title":"Add a date","places":["today"]},
+  {"name":"set.create","title":"New set","places":["library"]},
+  {"name":"theme.toggle","title":"Switch light and dark"},
+  {"name":"nav.go","title":"Go to a place"},
+];
+
 // The one door from the screens to the server (CONTRACT §cmd.registry, §drift.imports): areas and the shell call
 // commands and read the API here, never with a raw fetch of their own.
 export interface ApiOptions {
   method?: string;
   body?: unknown;
+  /** Raw bytes sent as they are (a picture), with their content type; wins over `body`. */
+  raw?: { data: Blob | ArrayBuffer; contentType: string };
 }
 
 /** An /api/v1 request with the app token Matt keeps in this browser. `path` is relative to /api/v1. */
 export function api(path: string, token: string, o: ApiOptions = {}): Promise<Response> {
   const headers: Record<string, string> = { authorization: `Bearer ${token}` };
-  if (o.body !== undefined) headers["content-type"] = "application/json";
+  const sent = o.raw ? o.raw.data : o.body === undefined ? undefined : JSON.stringify(o.body);
+  if (o.raw) headers["content-type"] = o.raw.contentType;
+  else if (o.body !== undefined) headers["content-type"] = "application/json";
   return fetch(`/api/v1/${path}`, {
-    method: o.method ?? (o.body === undefined ? "GET" : "POST"),
+    method: o.method ?? (sent === undefined ? "GET" : "POST"),
     headers,
-    ...(o.body === undefined ? {} : { body: JSON.stringify(o.body) }),
+    ...(sent === undefined ? {} : { body: sent }),
   });
 }
 

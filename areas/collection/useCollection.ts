@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapCollection } from "./map.ts";
-import type { CollectionData, WireCollection, WireMembership } from "./map.ts";
+import type { CollectionData, DocsByCollection, WireCollection, WireDoc, WireMembership } from "./map.ts";
 import { api } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
@@ -29,7 +29,7 @@ async function get<T>(path: string, token: string): Promise<T> {
 }
 
 /** Reads collections and memberships with the app token Matt keeps in this browser. */
-export function useCollection(): CollectionState {
+export function useCollection(id?: string): CollectionState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<CollectionData>();
   const [loaded, setLoaded] = useState(false);
@@ -51,8 +51,19 @@ export function useCollection(): CollectionState {
           get<{ collections: WireCollection[] }>("/api/v1/collections", token),
           get<{ memberships: WireMembership[] }>("/api/v1/memberships", token),
         ]);
+        const kinds = [...new Set(m.memberships.map((x) => x.collection))];
+        const docs: DocsByCollection = {};
+        await Promise.all(
+          kinds.map(async (k) => {
+            try {
+              docs[k] = (await get<{ docs: WireDoc[] }>(`/api/v1/docs?collection=${k}`, token)).docs;
+            } catch {
+              // titles fall back to ids for a kind that will not load
+            }
+          }),
+        );
         if (live) {
-          setData(mapCollection(c.collections, m.memberships));
+          setData(mapCollection(c.collections, m.memberships, id, docs));
           setLoaded(true);
           setError(undefined);
         }
@@ -66,6 +77,6 @@ export function useCollection(): CollectionState {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, id]);
   return { data, loaded, token, error, setToken };
 }

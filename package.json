@@ -6,7 +6,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/docs/*.test.ts data/migrations/ data/export/ data/scratch-check/ server/*.test.ts jobs/*/*.test.ts e2e/*.test.ts && vitest run",
+    "test": "node --test ops/record/ ops/checks/ ops/generate/ ops/guards/ data/compat/ data/docs/*.test.ts data/migrations/ data/export/ data/scratch-check/ server/*.test.ts jobs/*/*.test.ts && vitest run",
     "checks": "node ops/checks/cli.ts",
     "scratch-check": "node data/scratch-check/cli.ts",
     "test:compat": "node --test data/compat/ data/migrations/",
@@ -19,6 +19,8 @@
     "deps": "depcruise areas shell kit commands jobs domain data server ops --config .dependency-cruiser.cjs",
     "stylelint": "stylelint \"**/*.css\" --allow-empty-input",
     "knip": "knip",
+    "test:e2e": "e2e/gate5-docker.sh",
+    "test:e2e:local": "playwright test -c e2e/playwright.gate5.config.ts",
     "test:visual": "playwright test -c e2e/playwright.visual.config.ts",
     "test:visual:docker": "e2e/visual-docker.sh"
   },
@@ -43,7 +45,9 @@
     "stylelint": "17.16.0",
     "typescript": "7.0.2",
     "vite": "8.3.5",
+    "vite-plugin-pwa": "2.0.0",
     "vitest": "5.1.0",
+    "workbox-build": "7.4.1",
     "zod": "4.6.7"
   },
   "dependencies": {

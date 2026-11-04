@@ -25,7 +25,7 @@ export const itemCommands = [
     input: z.object({ title: z.string().min(1) }),
     callers: M,
     effect: 'instant',
-    palette: true,
+    palette: true, places: ['library', 'notes'],
   }),
   defineCommand({
     name: 'collection.new_here',
