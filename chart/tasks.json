@@ -16140,5 +16140,17 @@
   "notes": "Run 51: #369 Today and Library show heading and Loading line on first load.",
   "commit": "f34d7e1",
   "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04 (screenshots in the ev-build project folder playtest-2026-11-04-run3)"
+ },
+ {
+  "id": "B-894",
+  "kind": "task",
+  "title": "The e2e journeys leave their test data on staging, so Matt sees e2e tick plan items, e2e collections and repeated Which is a vital sign? rows",
+  "dod": "Each e2e journey that writes on staging removes what it wrote when it ends (through the app's own delete path, so rows go to deletions and nothing is hard-deleted), or writes under one marked test scope that the screens hide; a one-off cleanup on staging only removes today's leftovers (the e2e tick plan items, the e2e 17... collections and their notes, the three Which is a vital sign? rows in Recently deleted); never touches live or ev4; after a gate5-e2e run, Today, Notes and Recently deleted on staging show no e2e rows.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Writers: e2e/plan-today, notes, question-set journeys (titles e2e tick <ms>, e2e <ms> A/B). Check the no-delete protocol rule before choosing the path.",
+  "commit": null,
+  "source": "Visual playtest 3 of staging in Matt's Chrome, 2026-11-04; filed on the supervisor's word"
  }
 ]
