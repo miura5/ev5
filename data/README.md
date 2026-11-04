@@ -1,6 +1,6 @@
 # data/
 
-IO only: D1 repositories, migrations, export and restore.
+The IO layer: D1 repositories, migrations, export and restore.
 
 <!-- generated:start -->
 Interface: docsRepo, DocsD1, MAX_BODY, NO_DELETE, workerNoteProblem, tablesRepo, TablesRepo, Saved

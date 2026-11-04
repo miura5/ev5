@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
+import { jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
 const TITLES: Record<string, string> = { "practice-set": "Practice set", "study-plan": "Study plan" };
@@ -53,7 +54,7 @@ export function useJobs(): JobsState {
     if (!token) return;
     let live = true;
     const load = () =>
-      fetch("/api/v1/jobs", { headers: { authorization: `Bearer ${token}` } })
+      jobApi.list(token)
         .then(async (r) => {
           if (!r.ok) throw new Error(r.status === 401 ? "That token was not accepted." : "Activity could not load.");
           const b = (await r.json()) as { jobs: WireJob[] };

@@ -15297,5 +15297,19 @@
   "notes": "Slice write: domain (interface change), areas/notes. From the B-828 builder report.",
   "commit": null,
   "source": "ops/record"
+ },
+ {
+  "id": "B-830",
+  "kind": "task",
+  "title": "Command handlers behind /api/v1/commands, and tools() and paletteEntries() used at runtime",
+  "dod": "commandHandlers in server/command-routes.ts has a handler per instant command (no 501 for a command a screen calls); the Ask job takes its tools from tools() and ⌘K lists paletteEntries(); job-routes.ts takes its kinds from the registry (CONTRACT §cmd.generated, §cmd.registry)",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-799"
+  ],
+  "notes": "Follow-up of B-799: the route and client exist; direct calls answer 501 until handlers attach. shell/ keeps 2 raw fetch calls (useShellStatus, outbox/http) outside areas.",
+  "commit": null,
+  "source": "B-799 builder"
  }
 ]

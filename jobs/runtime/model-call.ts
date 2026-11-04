@@ -11,13 +11,29 @@ type ModelCallOptions = {
   fetch?: typeof fetch;
 };
 
-/** The JSON Schema for output_config.format, derived from a Zod schema (no $schema key). */
+/**
+ * The JSON Schema for output_config.format, derived from a Zod schema (no $schema key). Zod's `.int()` adds the safe
+ * integer bounds, which structured output does not take, so those two keywords are dropped; every other range or
+ * format rule belongs in a refinement, which JSON Schema leaves out.
+ */
 export function outputSchema(schema: z.ZodType): object {
-  const { $schema: _ignored, ...rest } = z.toJSONSchema(schema) as Record<
-    string,
-    unknown
-  >;
-  return rest;
+  const strip = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(strip);
+    if (typeof v !== "object" || v === null) return v;
+    return Object.fromEntries(
+      Object.entries(v as Record<string, unknown>)
+        .filter(
+          ([k, x]) =>
+            k !== "$schema" &&
+            !(
+              (k === "minimum" || k === "maximum") &&
+              Math.abs(x as number) === Number.MAX_SAFE_INTEGER
+            ),
+        )
+        .map(([k, x]) => [k, strip(x)]),
+    );
+  };
+  return strip(z.toJSONSchema(schema)) as object;
 }
 
 /**

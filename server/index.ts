@@ -4,6 +4,7 @@ import type { AuthEnv, AuthVars } from "./auth.ts";
 import { jobRoutes } from "./job-routes.ts";
 import { docRoutes } from "./doc-routes.ts";
 import { collectionRoutes } from "./collection-routes.ts";
+import { commandRoutes } from "./command-routes.ts";
 import { isEv4Route } from "./ev4-routes.ts";
 import type { D1Like } from "../jobs/index.ts";
 
@@ -53,6 +54,7 @@ app.get("/api/v1/whoami", (c) => c.json({ caller: c.get("caller") }));
 app.route("/api/v1", jobRoutes);
 app.route("/api/v1", docRoutes);
 app.route("/api/v1", collectionRoutes);
+app.route("/api/v1", commandRoutes);
 
 app.all("/api/*", (c) =>
   isEv4Route(c.req.path)
