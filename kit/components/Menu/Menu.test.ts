@@ -22,7 +22,13 @@ beforeAll(() => {
   Element.prototype.releasePointerCapture ??= () => {};
 });
 
-afterEach(cleanup);
+afterEach(async () => {
+  cleanup();
+  // Radix moves focus and clears typeahead on timers; let them fire while the window still exists.
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 20));
+  });
+});
 
 const items: MenuItem[] = [
   { key: "a", label: "First" },
