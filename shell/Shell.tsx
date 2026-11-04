@@ -14,6 +14,7 @@ import {
 } from '../kit/index.ts';
 import { call, paletteEntries, type PaletteEntry } from '../commands/client.ts';
 import { Ev4Offer } from './Ev4Offer.tsx';
+import { SavedCopyNotice } from './SavedCopyNotice.tsx';
 import { storedToken } from './outbox/index.ts';
 import type { Services } from './services.ts';
 import { AREAS, areaFor, sidebarAreas, type AreaEntry } from './areas.ts';
@@ -164,6 +165,7 @@ export function Shell({
       <main className="shell-main">
         <div className="shell-col">
           <Ev4Offer ev4={services?.ev4} />
+          <SavedCopyNotice copy={services?.readCopy} />
           {View ? <View services={services} onNavigate={onNavigate} path={bare} /> : null}
         </div>
       </main>

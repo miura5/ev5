@@ -8,10 +8,13 @@ import {
   type Ev4Entry,
   type Outbox,
 } from "./outbox/index.ts";
+import { createReadCopy, indexedDbCopyStore, type ReadCopy } from "./readCopy.ts";
 
 /** What the shell hands every area view: reads over the document routes and the offline outbox. */
 export interface Services {
   docs: { list(collection: string): Promise<DocRow[]> };
+  /** The saved copy of reads: lets the shell say when the screen shows it. */
+  readCopy?: ReadCopy;
   outbox: Pick<Outbox, "queueNote" | "queueAnswer" | "replay" | "count">;
   /** ev4's unsent notes on this device, offered once on first boot; absent when there is nothing to offer. */
   ev4?: {
@@ -56,5 +59,7 @@ export function createServices(): Services {
     },
     decline: () => remember("declined"),
   };
-  return { docs: { list: http.list }, outbox, ev4 };
+  const readCopy = createReadCopy(indexedDbCopyStore());
+  const list = (c: string) => readCopy.read(`docs:${c}`, () => http.list(c));
+  return { docs: { list }, readCopy, outbox, ev4 };
 }
