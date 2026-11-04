@@ -14675,5 +14675,19 @@
   "notes": "",
   "commit": null,
   "source": "B-778"
+ },
+ {
+  "id": "B-785",
+  "kind": "task",
+  "title": "S-76b: server read route for collections, memberships and deletions",
+  "dod": "GET /api/v1/collections, /memberships and /deletions read their tables (empty when a table is absent); no write or delete",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-750"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "B-750"
  }
 ]
