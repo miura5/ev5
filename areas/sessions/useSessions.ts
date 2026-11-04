@@ -21,6 +21,8 @@ export interface SessionsState {
   setToken: (t: string) => void;
   /** The note the session reads along with, once it has loaded. */
   note?: Note;
+  /** Flips one todo block of the note (by its index) and writes the note back, pinned to the version read. */
+  toggleTodo: (index: number) => Promise<void>;
   /** Writes the whole session document back (pinned to the version read), then reads again. False if it failed. */
   save: (doc: Record<string, unknown>) => Promise<boolean>;
 }
@@ -39,6 +41,10 @@ export function useSessions(): SessionsState {
     setTokenState(t);
   }, []);
   const [note, setNote] = useState<Note>();
+  const [noteRaw, setNoteRaw] = useState<{
+    raw: Record<string, unknown>;
+    v?: number;
+  }>();
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!token) return;
@@ -65,14 +71,21 @@ export function useSessions(): SessionsState {
   const noteId = data?.noteId;
   useEffect(() => {
     setNote(undefined);
+    setNoteRaw(undefined);
     if (!token || !noteId) return;
     let live = true;
     void (async () => {
       try {
-        const r = await api(`docs?collection=notes&id=${encodeURIComponent(noteId)}`, token);
+        const r = await api(
+          `docs?collection=notes&id=${encodeURIComponent(noteId)}`,
+          token,
+        );
         if (!r.ok) return; // no note page: the session still runs
-        const d = (await r.json()) as { data: unknown };
-        if (live) setNote(parseNote(d.data));
+        const d = (await r.json()) as { data: unknown; v?: number };
+        if (live) {
+          setNote(parseNote(d.data));
+          setNoteRaw({ raw: d.data as Record<string, unknown>, v: d.v });
+        }
       } catch {
         // an unreadable note leaves the page empty
       }
@@ -106,5 +119,40 @@ export function useSessions(): SessionsState {
     },
     [data, token],
   );
-  return { data, token, error, setToken, note, save };
+  const toggleTodo = useCallback(
+    async (index: number) => {
+      const blocks = noteRaw?.raw.blocks;
+      if (!noteId || !noteRaw || !Array.isArray(blocks)) return;
+      const b = blocks[index] as Record<string, unknown> | undefined;
+      if (!b || b.type !== "todo") return;
+      const next = {
+        ...noteRaw.raw,
+        blocks: blocks.map((x, k) =>
+          k === index ? { ...b, checked: !b.checked } : x,
+        ),
+      };
+      try {
+        const q = new URLSearchParams({ collection: "notes", id: noteId });
+        if (noteRaw.v !== undefined) q.set("if_version", String(noteRaw.v));
+        const r = await api(`docs?${q}`, token, { method: "PUT", body: next });
+        if (!r.ok) {
+          setError(
+            r.status === 409
+              ? "The note changed elsewhere; reload it."
+              : "That could not be saved.",
+          );
+          return;
+        }
+        setNote(parseNote(next));
+        setNoteRaw({
+          raw: next,
+          v: noteRaw.v === undefined ? undefined : noteRaw.v + 1,
+        });
+      } catch {
+        setError("That could not be saved; you may be offline.");
+      }
+    },
+    [noteRaw, noteId, token],
+  );
+  return { data, token, error, setToken, note, toggleTodo, save };
 }
