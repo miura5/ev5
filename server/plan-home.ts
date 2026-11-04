@@ -10,6 +10,8 @@ import {
   parseWeakSpot,
   reviewNeed,
 } from "../domain/index.ts";
+import { docsRepo } from "../data/index.ts";
+import type { DocsD1 } from "../data/index.ts";
 import type { Attempt } from "../domain/index.ts";
 import type { D1Like, Plan } from "../jobs/index.ts";
 import type { JobRunEnv } from "./job-run.ts";
@@ -119,37 +121,41 @@ export function planHome(
         schema: 1,
         writer: "worker",
         at: new Date(at).toISOString(),
-        source: `job:${jobId}`,
+        source: `v5/job:${jobId}`,
         exam: exam.id,
         title: `${exam.title}: ${plan.summary}`.slice(0, 200),
         days,
       };
-      await db
-        .prepare(
-          "INSERT OR IGNORE INTO docs (c, id, data, at, v) VALUES ('plans', ?, ?, ?, 1)",
-        )
-        .bind(planId, JSON.stringify(doc), at)
-        .run();
-      const row = await db
-        .prepare("SELECT data, v FROM docs WHERE c = 'exams' AND id = ?")
-        .bind(exam.id)
-        .first<Row>();
+      // Both writes go through the docs protocol: canonical JSON and the version guard (§data.protocol).
+      const docs = docsRepo(db as DocsD1, { clock });
+      if (!(await docs.get("plans", planId))) {
+        const made = await docs.save(
+          "plans",
+          planId,
+          JSON.stringify(doc),
+          null,
+        );
+        if (!made.ok)
+          throw new Error(`plan ${planId} was not saved: ${made.error}`);
+      }
+      const row = await docs.get("exams", exam.id);
       if (!row)
         throw new Error(
           `exam ${exam.id} is gone, so the plan has nowhere to attach.`,
         );
-      const e = JSON.parse(row.data) as Record<string, unknown>;
+      const e = row.data as Record<string, unknown>;
       if (e.planId !== planId) {
-        const next = { ...e, planId, at: doc.at, writer: "worker" };
-        const r = await db
-          .prepare(
-            "UPDATE docs SET data = ?, at = ?, v = v + 1 WHERE c = 'exams' AND id = ? AND v = ?",
-          )
-          .bind(JSON.stringify(next), at, exam.id, row.v)
-          .run();
-        if (r.meta.changes !== 1)
+        // An exam is a Fact: its writer and source are write-once, so only planId and at change.
+        const next = { ...e, planId, at: doc.at };
+        const r = await docs.save(
+          "exams",
+          exam.id,
+          JSON.stringify(next),
+          row.v,
+        );
+        if (!r.ok)
           throw new Error(
-            `exam ${exam.id} changed while the plan was saved; try again.`,
+            `exam ${exam.id} was not updated (it may have changed while the plan was saved; try again): ${r.error}`,
           );
       }
       return planId;

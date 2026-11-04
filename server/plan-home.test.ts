@@ -175,6 +175,20 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
     .get() as { data: string; v: number };
   assert.equal(JSON.parse(exam.data).planId, "plan-j1");
   assert.equal(exam.v, 2, "the exam was updated once, not on the repeat");
+  // Stored as canonical JSON (compact, as ev4 stores it; §data.protocol) and as a v5 write; an exam keeps its envelope
+  // (a Fact's writer and source are write-once). The ev4 contract check on this output needs a Node-only test door.
+  const text = (id: string, c: string) =>
+    (
+      db.sql.prepare("SELECT data FROM docs WHERE c=? AND id=?").get(c, id) as {
+        data: string;
+      }
+    ).data;
+  assert.equal(text("plan-j1", "plans"), JSON.stringify(doc));
+  assert.equal(exam.data, JSON.stringify(JSON.parse(exam.data)));
+  const stored = JSON.parse(exam.data);
+  assert.equal(stored.writer, "page");
+  assert.equal(stored.source, "t");
+  assert.equal(doc.source, "v5/job:j1");
 });
 
 test("ceilings use the documented defaults when unset and a stored value wins", async () => {

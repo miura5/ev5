@@ -15325,5 +15325,19 @@
   "notes": "",
   "commit": null,
   "source": "B-807 split"
+ },
+ {
+  "id": "B-832",
+  "kind": "task",
+  "title": "Area and domain writers pass validateWrite on their real output (notes, sessions, answers, dayedits)",
+  "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed; domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; plan-home's plan and exam writes get the same test",
+  "milestone": "v5 P5",
+  "status": "open",
+  "depends": [
+   "B-798"
+  ],
+  "notes": "Split from B-798, which put server/plan-home.ts through the docs protocol. Needs a Node-only test door for validateWrite: data/index.ts cannot export it (it pulls node:fs into the Worker bundle) and depcruise only-through-index blocks data/compat/index.ts, so decide the door first (ops config or a data test entry).",
+  "commit": null,
+  "source": "B-798 builder"
  }
 ]
