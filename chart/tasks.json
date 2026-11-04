@@ -15588,12 +15588,14 @@
   "title": "Offline read copy: IndexedDB copy of the record in ev5-app, read when offline",
   "dod": "Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline)",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-817"
   ],
   "notes": "B-817 merged the manifest and service worker (D-472) only. Also: PNG 192/512 icons if install needs them; code-split the 763 kB bundle.",
   "commit": null,
-  "source": "ops/record"
+  "source": "ops/record",
+  "claimedBy": "builder",
+  "claimedAt": "2026-11-04T08:07:41.110Z"
  }
 ]
