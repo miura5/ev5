@@ -14882,7 +14882,7 @@
   "milestone": "v5 P5",
   "status": "open",
   "depends": [],
-  "notes": "Plan writer merged in #220. Rest (area and domain writers, validateWrite test door) is B-832.",
+  "notes": "Merged #299 (session pause/resume/End) and #303 (tell-me, switch/undo payloads). Left: queueAnswer in shell/outbox has no validateWrite test (needs a slice that includes shell/outbox).",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15582,12 +15582,12 @@
   "title": "Bind R2 on staging again: add the bucket step and r2_buckets binding back",
   "dod": "Staging deploy creates ev5-staging-images and IMAGES is bound; a picture PUT/GET works on staging",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-818"
   ],
-  "notes": "Waits on Matt adding R2 edit to the staging Cloudflare token (error 10000 on r2 bucket create).",
-  "commit": null,
+  "notes": "Merged #302: bucket step and IMAGES binding back; staging deploy green. Picture PUT/GET not yet tried on staging.",
+  "commit": "cbc116f",
   "source": "ops/record"
  },
  {
@@ -15658,12 +15658,12 @@
   "title": "PlanJob follow-ups: ops/ROLLBACK.md line 41 says v5 has no PlanJob; rehearsal.yml should deploy the real worker entry",
   "dod": "ROLLBACK.md matches the PlanJob stub; rehearsal 2 deploys server/worker.ts, not its own stub",
   "milestone": "6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-820"
   ],
-  "notes": "Left by the B-820 builder (outside its slice)",
-  "commit": null,
+  "notes": "Merged #298: rehearsal deploys server/worker.ts (throwaway ev5-rehearsal); ROLLBACK.md matches the PlanJob stub. First rehearsal run still to do.",
+  "commit": "9a5dd74",
   "source": "ops/record"
  },
  {
@@ -15672,12 +15672,12 @@
   "title": "commands/client.ts jobApi reads direct: fall back to the saved copy (generated from ops/generate/lib.ts); useSessions note read also direct",
   "dod": "jobApi and the session note read use the saved copy offline; 401/5xx still throw",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-853"
   ],
-  "notes": "B-853 rest after #296",
-  "commit": null,
+  "notes": "Merged #300: jobApi and the session note read fall back to the saved copy; 401/5xx throw ApiError.",
+  "commit": "80ca884",
   "source": "ops/record"
  }
 ]
