@@ -7,7 +7,7 @@ export interface AreaEntry {
   readonly id: string;
   readonly route: string;
   readonly nav: string;
-  readonly view: ComponentType<{ services?: Services }>;
+  readonly view: ComponentType<{ services?: Services; onNavigate?: (path: string) => void }>;
 }
 
 /** Every area, in registry order: the sidebar, the router and ⌘K's Places all read this one list. */
