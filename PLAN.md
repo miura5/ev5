@@ -112,7 +112,7 @@ Each folder has a README of at most about 15 lines: a hand-written purpose line,
 - `shell` → `kit`, `domain`, `commands/client`, and the generated area registry **[Mock-up: added]**
 - `commands` → `domain`, `data`, job clients
 - `jobs` → `domain`, `data`
-- `domain` → only `zod` and `@date-fns/tz` (and `ts-fsrs` when cards return)
+- `domain` → only `zod` (and `ts-fsrs` when cards return)
 - `data` → `domain` schemas and `zod`
 - `kit` → React, Radix primitives and `cmdk`, never the app
 
@@ -388,7 +388,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 | Claude calls | Import `@anthropic-ai/sdk` **[verify on Workers]** |
 | Menus, popovers, focus | Import Radix primitives (unstyled) |
 | ⌘K | Import `cmdk` |
-| Time zones | Import `@date-fns/tz` |
+| Time zones | `Intl`, in `domain/time` (D-465) |
 | Notes editor view | Import ProseMirror/Tiptap **[verify licence]**. Translate ev4's JSON block format and the pure note model |
 | PWA | Import `vite-plugin-pwa` |
 | Lint and structure | ESLint, dependency-cruiser, Stylelint, knip |
