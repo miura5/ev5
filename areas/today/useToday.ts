@@ -7,6 +7,7 @@ import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
 import {
   ApiError,
   api,
+  call,
   failureKind,
   failureSentence,
   jobApi,
@@ -26,6 +27,10 @@ export interface TodayState {
   alert?: string;
   /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
   tick: (id: string, done: boolean) => Promise<boolean>;
+  /** Add a plan item for today (plan.create); resolves false when it could not be saved. */
+  addPlan: (title: string) => Promise<boolean>;
+  /** Add a date (date.create); resolves false when it could not be saved. */
+  addDate: (title: string, date: string) => Promise<boolean>;
 }
 
 async function get(path: string, token: string): Promise<Response> {
@@ -52,6 +57,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   const [data, setData] = useState<TodayData>();
   const [error, setError] = useState<string>();
   const [alert, setAlert] = useState<string>();
+  const [again, setAgain] = useState(0);
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -91,7 +97,25 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     return () => {
       live = false;
     };
-  }, [token, copy]);
+  }, [token, copy, again]);
+  // An add goes through the command (§cmd.registry), then Today reads itself again so the new line shows.
+  const add = useCallback(
+    async (name: "plan.create" | "date.create", input: unknown) => {
+      const r = await call(name, input, token);
+      if (!r.ok || r.mode !== "direct") return false;
+      setAgain((n) => n + 1);
+      return true;
+    },
+    [token],
+  );
+  const addPlan = useCallback(
+    (title: string) => add("plan.create", { title }),
+    [add],
+  );
+  const addDate = useCallback(
+    (title: string, date: string) => add("date.create", { title, date }),
+    [add],
+  );
   const tick = useCallback(
     async (id: string, done: boolean): Promise<boolean> => {
       // online only (CONTRACT §data.offline): read the day as it is now, write it back whole, pinned to that version
@@ -129,5 +153,5 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     },
     [token],
   );
-  return { data, token, error, alert, tick };
+  return { data, token, error, alert, tick, addPlan, addDate };
 }

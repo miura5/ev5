@@ -27,7 +27,9 @@ export function TodayScreen({
 }: {
   services?: { readCopy?: ReadCopyLike };
 }) {
-  const { data, error, alert, tick } = useToday(services?.readCopy);
+  const { data, error, alert, tick, addPlan, addDate } = useToday(
+    services?.readCopy,
+  );
   const [notSaved, setNotSaved] = useState(false);
   // No data and no failure yet (loading, or the shell's token screen is up): show nothing, never an empty day.
   if (!data && !error) return null;
@@ -43,6 +45,18 @@ export function TodayScreen({
         onOpen={none}
         onTick={(id, done) =>
           void tick(id, done).then((ok) => setNotSaved(!ok))
+        }
+        onAddPlan={(title) =>
+          addPlan(title).then((ok) => {
+            setNotSaved(!ok);
+            return ok;
+          })
+        }
+        onAddDate={(title, date) =>
+          addDate(title, date).then((ok) => {
+            setNotSaved(!ok);
+            return ok;
+          })
         }
         onAccept={none}
         onEdit={none}

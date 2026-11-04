@@ -131,3 +131,14 @@
 .ev-today-band-bad {
   background: var(--bad);
 }
+
+.ev-today-add {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.ev-today-add .kit-field {
+  flex: 1;
+  min-width: 0;
+}
