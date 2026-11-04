@@ -62,14 +62,15 @@ function startOf(s: Parsed): string | undefined {
 
 const startMs = (s: Parsed): number => Date.parse(startOf(s) ?? "") || 0;
 
-/** Picks the running session, else the latest one by start, and maps it; no sessions gives undefined (the empty state). */
+/** Picks the latest running session by start and maps it; none running (only ended ones, or none) gives undefined (the empty state). */
 export function mapSessions(
   docs: readonly WireDoc[],
   now: number,
 ): SessionData | undefined {
   const all = docs.flatMap(tryParse);
+  // Only a running session is shown: an ended one would draw a stopped clock under live Pause and End controls.
   const pool = all.filter((s) => (s.status ?? "active") === "active");
-  const pick = (pool.length > 0 ? pool : all).sort(
+  const pick = pool.sort(
     (a, b) => startMs(b) - startMs(a) || b.id.localeCompare(a.id),
   )[0];
   if (!pick) return undefined;
