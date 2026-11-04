@@ -119,9 +119,15 @@ test("a block edit saves through the outbox, and New note queues a create", asyn
   const { s, services } = fakeServer();
   render(<NotesScreen services={services} />);
   fireEvent.click((await screen.findAllByText("Fluids"))[0]!);
-  const box = await screen.findByLabelText("Block 2");
-  fireEvent.change(box, { target: { value: "Sodium 135-145" } });
-  fireEvent.blur(box);
+  const editor = await waitFor(() => {
+    const el = document.querySelector(".ProseMirror");
+    if (!el) throw new Error("no editor");
+    return el;
+  });
+  const para = editor.querySelectorAll("[data-block]")[1]!;
+  const textNode = document.createTreeWalker(para, NodeFilter.SHOW_TEXT).nextNode()!;
+  textNode.nodeValue = "Sodium 135-145";
+  fireEvent.blur(editor);
   await waitFor(() => expect(s.v).toBe(2));
   const saved = s.data as { blocks: { runs: { text: string }[] }[] };
   expect(saved.blocks[1]!.runs[0]!.text).toBe("Sodium 135-145");
