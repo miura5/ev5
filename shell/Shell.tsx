@@ -105,7 +105,7 @@ export function Shell({
     () => [
       {
         name: 'Places',
-        items: areas.map((a) => ({ key: `area:${a.id}`, label: a.nav })),
+        items: sidebarAreas(areas).map((a) => ({ key: `area:${a.id}`, label: a.nav })),
       },
       {
         name: 'Commands',
@@ -119,7 +119,7 @@ export function Shell({
           glyph: <Glyph type={p.type} />,
         })),
       },
-    ],
+    ].filter((g) => g.items.length > 0),
     [areas, pins, current?.id],
   );
   const run = (key: string) => {
