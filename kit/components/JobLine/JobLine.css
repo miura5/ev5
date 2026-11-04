@@ -1,0 +1,31 @@
+.kit-jobline {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--sp-8);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: var(--fs-meta);
+  color: var(--quiet);
+  cursor: pointer;
+}
+
+.kit-jobline:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.kit-jobline:focus-visible {
+  outline: var(--sp-1) solid var(--text);
+  outline-offset: calc(-1 * var(--sp-1));
+}
+
+.kit-jobline-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

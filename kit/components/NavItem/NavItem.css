@@ -1,0 +1,42 @@
+.kit-nav {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--sp-8);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  color: var(--quiet);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  cursor: pointer;
+}
+
+.kit-nav:hover,
+.kit-nav-on {
+  background: var(--hover);
+}
+
+.kit-nav-on {
+  color: var(--text);
+}
+
+.kit-nav:focus-visible {
+  outline: var(--sp-1) solid var(--text);
+  outline-offset: calc(-1 * var(--sp-1));
+}
+
+.kit-nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kit-nav-count {
+  margin-left: auto;
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
