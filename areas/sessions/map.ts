@@ -44,7 +44,17 @@ function tryParse(d: WireDoc): Parsed[] {
   }
 }
 
-const startMs = (s: Parsed): number => Date.parse(s.startedAt ?? "") || 0;
+/** When the session began: its startedAt, else its first event, else when the document was written (never blank). */
+function startOf(s: Parsed): string | undefined {
+  if (Number.isFinite(Date.parse(s.startedAt ?? ""))) return s.startedAt ?? undefined;
+  const first = Object.entries(s.events ?? {})
+    .map(([, e]) => e?.at ?? "")
+    .filter((a) => Number.isFinite(Date.parse(a)))
+    .sort()[0];
+  return first || s.at;
+}
+
+const startMs = (s: Parsed): number => Date.parse(startOf(s) ?? "") || 0;
 
 /** Picks the running session, else the latest one by start, and maps it; no sessions gives undefined (the empty state). */
 export function mapSessions(
@@ -58,7 +68,8 @@ export function mapSessions(
   )[0];
   if (!pick) return undefined;
   // The clock comes from the events (domain sessionState): breaks and pauses are taken out of the study time.
-  const st = sessionState(pick, now);
+  // A document with no startedAt would read 0 s (the clock has no start); count from the first event or its write time.
+  const st = sessionState({ ...pick, startedAt: startOf(pick) }, now);
   const ended = pick.status === "ended" || pick.status === "discarded";
   return {
     id: pick.id,
@@ -67,7 +78,10 @@ export function mapSessions(
     noteId: pick.noteId || undefined,
     title: pick.topic ?? "Study session",
     meta: pick.date,
-    seconds: Math.floor(st.activeMs / 1000),
+    seconds:
+      ended && st.activeMs === 0 && (pick.minutes ?? 0) > 0
+        ? Math.round((pick.minutes ?? 0) * 60)
+        : Math.floor(st.activeMs / 1000),
     paused: st.paused || st.onBreak,
     ended,
   };
