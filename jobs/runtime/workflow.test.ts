@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { z } from 'zod';
 import assert from 'node:assert/strict';
 import { continueJob, defineJob, startJob } from './index.ts';
 import type { Env, JobRecord, JobStore } from './index.ts';
@@ -8,7 +9,7 @@ import { cloudflareAdapter, runJob, workflowExecutor } from './index.ts';
 import type { Ceilings, StepHandlers } from './index.ts';
 
 const T = '2026-11-03T12:00:00Z';
-const parse = (x: unknown) => x;
+const parse = z.unknown();
 function memory(): JobStore {
   const rows = new Map<string, JobRecord>();
   return {

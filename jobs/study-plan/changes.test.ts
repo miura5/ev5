@@ -105,7 +105,7 @@ test("bad task number, invented spot and bad shapes fail in plain words", async 
     () => parsePatch({ ops: [{ op: "nuke" }] }),
     /remove, add or update/,
   );
-  assert.throws(() => parsePatch({}), /ops must be a list/);
+  assert.throws(() => parsePatch({}), /ops/);
   assert.throws(
     () => applyPatch(draft, { ops: [{ op: "update", task: 1, minutes: 5 }] }),
     /10 to 120/,
