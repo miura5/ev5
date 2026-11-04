@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import { checkAccount } from './account.ts';
 import { listFiles } from './lib.ts';
 import { checkPresence } from './presence.ts';
+import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
 import { checkSecrets } from './secrets.ts';
@@ -27,6 +28,13 @@ test('presence: a component needs a story and a test, a command a test', () => {
     'kit/components/Ok/Ok.test.ts': '', 'commands/a.command.ts': '', 'commands/b.command.ts': '', 'commands/b.command.test.ts': '' });
   const found = checkPresence(r.root, r.files).map(f => f.detail);
   assert.deepEqual(found.sort(), ['missing commands/a.command.test.ts', 'missing kit/components/Btn/Btn.story.tsx', 'missing kit/components/Btn/Btn.test.ts']);
+});
+
+test('radix: a kit component with its own menu or key handling must import Radix or cmdk', () => {
+  const r = repo({ 'kit/components/A/A.tsx': '<ul role="menu" />', 'kit/components/B/B.tsx': "import * as M from '@radix-ui/react-menu';\n<ul role=\"menu\" />",
+    'kit/components/C/C.tsx': "if (e.key === 'Escape') close();", 'kit/components/D/D.tsx': "import { Command } from 'cmdk';\nrole=\"listbox\"",
+    'kit/components/E/E.tsx': '<div role="button" />', 'kit/components/A/A.story.tsx': '<ul role="menu" />', 'kit/components/A/A.test.tsx': 'role="dialog"' });
+  assert.deepEqual(checkRadix(r.root, r.files).map(f => f.file).sort(), ['kit/components/A/A.tsx', 'kit/components/C/C.tsx']);
 });
 
 test('registry: tool, command and schedule definitions outside commands/ fail', () => {
