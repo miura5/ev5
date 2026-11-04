@@ -120,11 +120,11 @@ test("sets tab filters tiles by type and opens a set; accuracy line shows", () =
   );
   expect(screen.getByText("72%, up from 66%")).toBeTruthy();
   fireEvent.click(screen.getByRole("tab", { name: /Sets/ }));
-  fireEvent.click(screen.getByRole("button", { name: /Questions/ }));
+  fireEvent.click(screen.getByRole("radio", { name: /Questions/ }));
   expect(screen.queryByText("Heart")).toBeNull();
   fireEvent.click(screen.getByText("Dosage"));
   expect(onOpenSet).toHaveBeenCalledWith("s2");
-  fireEvent.click(screen.getByRole("button", { name: /Steps/ }));
+  fireEvent.click(screen.getByRole("radio", { name: /Steps/ }));
   expect(screen.getByText("No steps sets yet.")).toBeTruthy();
 });
 

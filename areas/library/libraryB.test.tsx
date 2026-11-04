@@ -34,7 +34,7 @@ test("edit mode changes title, rows, kind, adds and deletes, and finishes", () =
     target: { value: "x" },
   });
   expect(h.onItem).toHaveBeenCalledWith("a", { back: "x" });
-  fireEvent.click(screen.getByRole("button", { name: "Steps" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Steps" }));
   expect(h.onKind).toHaveBeenCalledWith("steps");
   fireEvent.click(screen.getByText("+ card"));
   fireEvent.click(screen.getByLabelText("Delete row 1"));

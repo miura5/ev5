@@ -51,7 +51,7 @@
   color: var(--text);
 }
 
-.kit-seg button[aria-pressed="true"] {
+.kit-seg button[data-state="on"] {
   background: var(--sel);
   color: var(--text);
 }
