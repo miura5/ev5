@@ -58,3 +58,17 @@ test("a refused token (401) is told in plain words", async () => {
     ),
   );
 });
+
+test("a refused call shows the token sentence and not 'No notes yet'", async () => {
+  render(
+    <NotesScreen
+      services={services(async () => {
+        throw Object.assign(new Error("request failed: 401"), { status: 401 });
+      })}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.getByRole("status").textContent).toContain("did not accept"),
+  );
+  expect(document.body.textContent).not.toContain("No notes yet");
+});

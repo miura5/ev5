@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { storedToken } from "./outbox/index.ts";
+import { readToken } from "../commands/client.ts";
 import type { ReadCopy } from "./readCopy.ts";
 
 /** One entry of GET /api/v1/jobs (server/job-routes.ts), restated: the shell never imports jobs. */
@@ -45,7 +45,7 @@ export function useShellStatus(
   useEffect(() => {
     let live = true;
     const load = async () => {
-      const token = storedToken();
+      const token = readToken();
       if (!token) return;
       try {
         const get = async () => {

@@ -1,3 +1,4 @@
+import { Toast } from "../../kit/index.ts";
 import "./ask.css";
 import { Message } from "./parts/Message.tsx";
 import { Composer } from "./parts/Composer.tsx";
@@ -50,9 +51,7 @@ export function AskView({
         ))}
       </div>
       {notice ? (
-        <p className="ask-meta" role="status">
-          {notice}
-        </p>
+        <Toast message={notice} />
       ) : null}
       <Composer onSend={onSend} initial={initialDraft} />
     </section>

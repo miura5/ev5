@@ -112,7 +112,7 @@ test("a refused token shows a plain sentence and no notes", async () => {
     transport: http.transport,
   });
   render(<NotesScreen services={{ docs: http, outbox }} />);
-  expect(await screen.findByText(/Something went wrong on E\.V\.'s side/)).toBeTruthy();
+  expect(await screen.findByText(/E\.V\. did not accept this token/)).toBeTruthy();
 });
 
 test("a block edit saves through the outbox, and New note queues a create", async () => {

@@ -32,6 +32,7 @@ export function NotesScreen({ services }: { services?: NotesServices }) {
               collectionId: members.get(n.id) ?? null,
             }))
             .sort((a, b) => b.when.localeCompare(a.when))}
+          failed={!!error}
           collections={collections}
           onNewNote={() =>
             void createNote().then((id) => {
