@@ -20,17 +20,30 @@ export interface LibraryState {
   setToken: (t: string) => void;
 }
 
+/** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
+export interface ReadCopyLike {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+}
+
 class Unauthorized extends Error {}
 
-async function list(collection: string, token: string): Promise<WireDoc[]> {
-  const r = await api(`docs?collection=${collection}`, token);
-  if (r.status === 401) throw new Unauthorized();
-  if (!r.ok) throw new Error(collection);
-  return ((await r.json()) as { docs: WireDoc[] }).docs;
+/** Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept as the copy (§data.offline). */
+function list(
+  collection: string,
+  token: string,
+  copy?: ReadCopyLike,
+): Promise<WireDoc[]> {
+  const fetcher = async (): Promise<WireDoc[]> => {
+    const r = await api(`docs?collection=${collection}`, token);
+    if (r.status === 401) throw new Unauthorized();
+    if (!r.ok) throw new Error(collection);
+    return ((await r.json()) as { docs: WireDoc[] }).docs;
+  };
+  return copy ? copy.read(`library:${collection}`, fetcher) : fetcher();
 }
 
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */
-export function useLibrary(): LibraryState {
+export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const [token, setTokenState] = useState(readToken);
   const [data, setData] = useState<LibraryData>();
   const [error, setError] = useState<string>();
@@ -48,9 +61,9 @@ export function useLibrary(): LibraryState {
     void (async () => {
       try {
         const [exams, weakspots, sets] = await Promise.all([
-          list("exams", token),
-          list("weakspots", token),
-          list("sets", token),
+          list("exams", token, copy),
+          list("weakspots", token, copy),
+          list("sets", token, copy),
         ]);
         if (live) {
           setData(mapLibrary({ exams, weakspots, sets }, Date.now()));
@@ -68,6 +81,6 @@ export function useLibrary(): LibraryState {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, copy]);
   return { data, token, error, setToken };
 }

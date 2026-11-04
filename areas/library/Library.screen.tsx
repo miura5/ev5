@@ -7,7 +7,7 @@ import { useStudy, useTellMe, type LibraryServices } from "./useStudy.ts";
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({ services }: { services?: LibraryServices }) {
-  const { data, token, error, setToken } = useLibrary();
+  const { data, token, error, setToken } = useLibrary(services?.readCopy);
   const [draft, setDraft] = useState("");
   const [open, setOpen] = useState<string>();
   const [studying, setStudying] = useState(false);

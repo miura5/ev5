@@ -3,6 +3,8 @@ import { buildAnswer } from "./answer.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface LibraryServices {
+  /** The saved copy of reads (shell/readCopy.ts): Library shows it when there is no connection. */
+  readCopy?: { read<T>(key: string, fetcher: () => Promise<T>): Promise<T> };
   outbox: {
     queueAnswer?(
       c: string,
