@@ -15430,7 +15430,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Merged #258: plan.* and proposal.accept/edit/dismiss, suggestions stored as drafts. Part 2 (date.*, draft.*, studyplan.approve/put_away) running as claude/B-839-handlers-2. Left: B-846; job commands and scheduled commands still 501.",
+  "notes": "Merged #258 and #260: plan.*, proposal.*, date.*, draft.*, studyplan.approve/put_away handlers (see #260 for the exact list). Left: B-846 (plan item options), job commands (date.plan_with_ev, studyplan.ask_changes) and scheduled commands still answer 501.",
   "commit": null,
   "source": "ops/record"
  },
@@ -15488,12 +15488,12 @@
   "title": "Remove excerpts from the practice-set job input schema (the server now gathers them)",
   "dod": "jobs/practice-set/job.ts input names only a scope; server tests still pass",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-810"
   ],
-  "notes": "From B-810 report; slice: jobs/practice-set, server/job-routes.ts",
-  "commit": null,
+  "notes": "Merged #261: public input names a scope only; excerpts stay internal.",
+  "commit": "b6b79da",
   "source": "ops/record"
  },
  {
