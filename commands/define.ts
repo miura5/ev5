@@ -27,6 +27,8 @@ export interface CommandSpec<S extends z.ZodType = z.ZodType> {
   every?: string;
   /** Show in ⌘K (Matt's commands that need no more than a typed word). Default false. */
   palette?: boolean;
+  /** Area ids where ⌘K offers it (§ui.palette). Absent means everywhere. */
+  places?: readonly string[];
 }
 
 export type Command<S extends z.ZodType = z.ZodType> = Readonly<CommandSpec<S>>;
