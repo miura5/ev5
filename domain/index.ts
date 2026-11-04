@@ -14,3 +14,5 @@ export { parseNote, resolveStale, type Note } from "./note/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
 export { addDays, centralDate } from "./time/index.ts";
+/** @public Read by areas/sessions (B-783 exports it; the sessions task wires it). */
+export { sessionState } from "./session/index.ts";
