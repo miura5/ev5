@@ -14919,12 +14919,12 @@
   "title": "Sidebar shows Today, Ask E.V., Library, Notes, Progress, Activity, then pins",
   "dod": "The sidebar lists exactly Today, Ask E.V., Library, Notes, Progress, Activity in that order, then pins, the running-job line and one Recently deleted link (CONTRACT §ui.sidebar, §ui.layout); Hello is removed; collection, sessions and Recently deleted are routes, not sidebar entries; Progress has an area.ts with its one-line screen; Shell tests check the order",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-750"
   ],
-  "notes": "Audit (PLAN §7.1): the generated registry lists 9 areas alphabetically, including Hello, Collection, Sessions and Deleted; Progress has no area.ts; Recently deleted shows twice (Shell.tsx:109, :122).",
-  "commit": null,
+  "notes": "Merged in #235. areaFor falls back to Today for unknown paths such as /; no explicit redirect.",
+  "commit": "b4d3a9b",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -14960,13 +14960,13 @@
   "title": "Log every 'just tell me'",
   "dod": "A 'just tell me' tap in practice, study sessions and Ask E.V. writes one append-only event and then shows the answer (CONTRACT §ui.attempt-first, §data.append-only); tests cover each place",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-749",
    "B-777"
   ],
-  "notes": "Audit (review F32): Study.view.tsx only reveals the answer; Sessions.screen.tsx passes onTellMe={none}; Ask's onJustTell is not wired.",
-  "commit": null,
+  "notes": "Merged in #236.",
+  "commit": "cfc2ba9",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15318,12 +15318,12 @@
   "title": "Domain parsers are Zod schemas, part 2",
   "dod": "exam, objective, set, item-props, own-set, note and session parsers become Zod schemas with z.infer types (CONTRACT §drift.modules); pin, draft, collection and weak-spot are done",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-807"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged in #230; scratch-check kindOf reads Zod errors by issue code and field name.",
+  "commit": "29a93a5",
   "source": "B-807 split"
  },
  {
@@ -15360,12 +15360,12 @@
   "title": "Sessions source: ev4 schema allows only Study Watch / E.V. Home but validateWrite wants a v5 prefix",
   "dod": "One Chart decision picks: exempt sessions in validateWrite, or extend the schema enum; domain/session/validateWrite.test.ts then expects ok",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-832"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged in #233, decision D-469: sessions keep source E.V. Home; validateWrite waives the v5 prefix for sessions only.",
+  "commit": "d85da14",
   "source": "B-832 builder"
  },
  {
@@ -15374,12 +15374,12 @@
   "title": "Spend alert needs an acknowledge action",
   "dod": "Dismissing the spend-alert needs-you item in Activity closes it; test",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-805"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Merged in #234: POST /api/v1/jobs/:id/dismiss, Got it button in Activity.",
+  "commit": "20c15ab",
   "source": "B-805 builder"
  }
 ]
