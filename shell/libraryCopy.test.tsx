@@ -10,6 +10,8 @@ import { libraryArea } from "../areas/library/area.ts";
 import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
 
 const Library = libraryArea.view;
+const services = (readCopy: ReturnType<typeof createReadCopy>) =>
+  ({ readCopy, outbox: { enqueue: async () => undefined } }) as never;
 
 // Library through the shell's real read copy: the shell hands services.readCopy to the screen (§data.offline).
 afterEach(() => {
@@ -46,7 +48,7 @@ test("online the lists save; offline the saved sets show; a 503 neither shows th
     "fetch",
     vi.fn(async (u: string) => good(String(u))),
   );
-  render(<Library services={{ readCopy: copy }} />);
+  render(<Library services={services(copy)} />);
   await showSets();
   await screen.findByText("Doses");
   cleanup();
@@ -55,7 +57,7 @@ test("online the lists save; offline the saved sets show; a 503 neither shows th
     "fetch",
     vi.fn(async () => new Response("{}", { status: 503 })),
   );
-  render(<Library services={{ readCopy: copy }} />);
+  render(<Library services={services(copy)} />);
   await showSets();
   expect(screen.queryByText("Doses")).toBeNull();
   expect(copy.usingCopy()).toBe(false);
@@ -67,7 +69,7 @@ test("online the lists save; offline the saved sets show; a 503 neither shows th
       throw new TypeError("offline");
     }),
   );
-  render(<Library services={{ readCopy: copy }} />);
+  render(<Library services={services(copy)} />);
   await showSets();
   await screen.findByText("Doses");
   expect(copy.usingCopy()).toBe(true);
