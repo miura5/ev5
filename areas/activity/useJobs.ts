@@ -3,7 +3,11 @@ import type { ActivityJob } from "./Activity.view.tsx";
 import { jobApi } from "../../commands/client.ts";
 
 const KEY = "ev5.token";
-const TITLES: Record<string, string> = { "practice-set": "Practice set", "study-plan": "Study plan" };
+const TITLES: Record<string, string> = {
+  "practice-set": "Practice set",
+  "study-plan": "Study plan",
+  "spend-alert": "Monthly spend",
+};
 
 /** One entry of GET /api/v1/jobs (server/job-routes.ts, jobs/runtime/status.ts); areas never import them, so restated. */
 interface WireJob {
@@ -19,7 +23,8 @@ export const toActivityJob = (j: WireJob): ActivityJob => ({
   state: j.state,
   summary: j.summary,
   // The server's summary already carries the reason a job needs Matt or failed.
-  reason: j.state === "needs-you" || j.state === "failed" ? j.summary : undefined,
+  reason:
+    j.state === "needs-you" || j.state === "failed" ? j.summary : undefined,
 });
 
 const readToken = (): string => {
@@ -54,9 +59,15 @@ export function useJobs(): JobsState {
     if (!token) return;
     let live = true;
     const load = () =>
-      jobApi.list(token)
+      jobApi
+        .list(token)
         .then(async (r) => {
-          if (!r.ok) throw new Error(r.status === 401 ? "That token was not accepted." : "Activity could not load.");
+          if (!r.ok)
+            throw new Error(
+              r.status === 401
+                ? "That token was not accepted."
+                : "Activity could not load.",
+            );
           const b = (await r.json()) as { jobs: WireJob[] };
           if (live) {
             setJobs(b.jobs.map(toActivityJob));

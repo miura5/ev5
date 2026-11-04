@@ -30,8 +30,23 @@ export interface TodayDocs {
 
 export type TodayData = Pick<
   TodayProps,
-  "say" | "plan" | "upcoming" | "thisWeek"
+  "say" | "plan" | "upcoming" | "thisWeek" | "alert"
 >;
+
+/** One entry of GET /api/v1/jobs, restated: only what the spend alert line needs. */
+export interface WireJobLine {
+  kind: string;
+  state: string;
+  summary: string;
+}
+
+/** The monthly spend alert is a needs-you job of kind "spend-alert"; Today shows its one line. */
+export function spendAlertLine(
+  jobs: readonly WireJobLine[],
+): string | undefined {
+  return jobs.find((j) => j.kind === "spend-alert" && j.state === "needs-you")
+    ?.summary;
+}
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
