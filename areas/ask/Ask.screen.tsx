@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "../../commands/client.ts";
 import { logTellMe } from "./tellLog.ts";
 import { AskView } from "./Ask.view.tsx";
 import type { AskMessage } from "./types.ts";
@@ -21,9 +22,36 @@ const clock = () =>
     })
     .toLowerCase();
 
-/** Shown after every send until the server has a chat route (none exists yet in server/). */
-export const NOT_CONNECTED =
-  "I can't answer here yet: the chat isn't connected to the server. Your note stays on screen.";
+/** Shown when there is no token yet: the chat needs the same token Activity uses. */
+export const NO_TOKEN =
+  "I need your token to answer. Paste it in Activity first. Your note stays on screen.";
+
+/** The reply the server sends from POST /api/v1/ask (server/ask-chat.ts); restated, areas never import the server. */
+interface WireReply {
+  text: string;
+  source?: string;
+  unverified: boolean;
+  asksTry: boolean;
+}
+
+let turns = 0;
+
+async function askServer(token: string, text: string): Promise<Omit<Extract<AskMessage, { from: "ev" }>, "id">> {
+  try {
+    const r = await api("ask", token, { body: { text } });
+    const b = (await r.json()) as { reply?: WireReply; error?: string };
+    if (!r.ok || !b.reply) return { from: "ev", text: b.error ?? "I could not answer that. Try again." };
+    const { reply } = b;
+    return {
+      from: "ev",
+      text: reply.unverified ? `Unverified: ${reply.text}` : reply.text,
+      ...(reply.source ? { source: reply.source } : {}),
+      ...(reply.asksTry ? { asksTry: true } : {}),
+    };
+  } catch {
+    return { from: "ev", text: "I could not reach the server. Try again." };
+  }
+}
 
 /** The mounted view. Unfinished jobs from /api/v1/jobs show as turns that link to Activity; typed messages stay local. */
 export function AskScreen() {
@@ -58,13 +86,13 @@ export function AskScreen() {
           ? "That tap could not be logged, so the answer stays hidden. Try again."
           : undefined
       }
-      onSend={(text) =>
-        setSent((m) => [
-          ...m,
-          { id: `m${m.length + 1}`, from: "you", at: clock(), text },
-          { id: `m${m.length + 2}`, from: "ev", text: NOT_CONNECTED },
-        ])
-      }
+      onSend={(text) => {
+        const n = ++turns;
+        setSent((m) => [...m, { id: `m${n}-you`, from: "you", at: clock(), text }]);
+        const token = readToken();
+        const reply = token ? askServer(token, text) : Promise.resolve({ from: "ev" as const, text: NO_TOKEN });
+        void reply.then((r) => setSent((m) => [...m, { id: `m${n}-ev`, ...r }]));
+      }}
       onOpenJob={() => window.location.assign("/activity")}
     />
   );
