@@ -1,8 +1,16 @@
 import { createElement } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import { Detail } from "./Detail";
 import { Story } from "./Detail.story";
+
+beforeAll(() => {
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
 
 afterEach(cleanup);
 
@@ -25,21 +33,24 @@ test("a property edits in place, a plain one does not", () => {
   expect(screen.getByText("8")).toBeTruthy();
 });
 
-test("the main action and ⋯ call back; neither shows when absent", () => {
+test("the main action calls back and ⋯ opens the passed-in menu; neither shows when absent", async () => {
   const onRun = vi.fn();
-  const onMore = vi.fn();
+  const onPick = vi.fn();
   const { rerender } = render(
     createElement(Detail, {
       title: "Set",
       properties: [],
       primary: { label: "Study", onRun },
-      onMore,
+      more: { items: [{ key: "x", label: "Rename" }], onPick },
     }),
   );
   fireEvent.click(screen.getByRole("button", { name: "Study" }));
-  fireEvent.click(screen.getByRole("button", { name: "More" }));
+  const more = screen.getByRole("button", { name: "More" });
+  more.focus();
+  fireEvent.keyDown(more, { key: "Enter" });
+  fireEvent.click(await screen.findByRole("menuitem", { name: "Rename" }));
   expect(onRun).toHaveBeenCalled();
-  expect(onMore).toHaveBeenCalled();
+  expect(onPick).toHaveBeenCalledWith("x");
   rerender(createElement(Detail, { title: "Set", properties: [] }));
   expect(screen.queryByRole("button")).toBeNull();
 });

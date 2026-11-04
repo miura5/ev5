@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import type { ReactElement } from "react";
+import * as ContextMenu from "@radix-ui/react-context-menu";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export interface MenuItem {
   key: string;
@@ -13,49 +15,88 @@ export interface MenuItem {
 export interface MenuProps {
   items: MenuItem[];
   onPick: (key: string) => void;
-  onClose: () => void;
+  /** Called when the menu closes, picked or not. */
+  onClose?: () => void;
   label: string;
+  /** The element that opens the menu (a button, or the region that takes a right-click). */
+  trigger: ReactElement;
+  /** `click` opens a dropdown from the trigger; `contextmenu` opens at the pointer on right-click. */
+  on?: "click" | "contextmenu";
 }
 
-/** Item actions and every picker: arrows move, Enter picks, Esc closes. */
-export function Menu({ items, onPick, onClose, label }: MenuProps) {
-  const [at, setAt] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => ref.current?.focus(), []);
-  const last = items.length - 1;
+/** Runs of picker items share one radio group; plain items stand alone. */
+function groups(items: MenuItem[]): MenuItem[][] {
+  const out: MenuItem[][] = [];
+  for (const it of items) {
+    const prev = out[out.length - 1];
+    if (prev && (prev[0]?.checked === undefined) === (it.checked === undefined))
+      prev.push(it);
+    else out.push([it]);
+  }
+  return out;
+}
+
+/** Item actions and every picker, on Radix (behaviour only): arrows move, Enter picks, Esc closes, typeahead. */
+export function Menu({
+  items,
+  onPick,
+  onClose,
+  label,
+  trigger,
+  on = "click",
+}: MenuProps) {
+  const M = on === "contextmenu" ? ContextMenu : DropdownMenu;
+  const row = (it: MenuItem) => {
+    const cls = `kit-menu-item${it.danger ? " kit-menu-bad" : ""}`;
+    const body = (
+      <>
+        <span className="kit-menu-check" aria-hidden="true">
+          {it.checked ? "✓" : ""}
+        </span>
+        <span className="kit-menu-label">{it.label}</span>
+        {it.hint ? <kbd className="kit-kbd">{it.hint}</kbd> : null}
+      </>
+    );
+    return it.checked === undefined ? (
+      <M.Item
+        key={it.key}
+        className={cls}
+        textValue={it.label}
+        onSelect={() => onPick(it.key)}
+      >
+        {body}
+      </M.Item>
+    ) : (
+      <M.RadioItem
+        key={it.key}
+        className={cls}
+        value={it.key}
+        textValue={it.label}
+        onSelect={() => onPick(it.key)}
+      >
+        {body}
+      </M.RadioItem>
+    );
+  };
   return (
-    <div
-      ref={ref}
-      className="kit-menu"
-      data-ui="menu"
-      role="menu"
-      aria-label={label}
-      tabIndex={-1}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-        else if (e.key === "ArrowDown") setAt(at >= last ? 0 : at + 1);
-        else if (e.key === "ArrowUp") setAt(at <= 0 ? last : at - 1);
-        else if (e.key === "Enter" && items[at]) onPick(items[at].key);
-        else return;
-        e.preventDefault();
-      }}
-    >
-      {items.map((it, i) => (
-        <div
-          key={it.key}
-          role={it.checked === undefined ? "menuitem" : "menuitemradio"}
-          aria-checked={it.checked}
-          className={`kit-menu-item${i === at ? " kit-menu-on" : ""}${it.danger ? " kit-menu-bad" : ""}`}
-          onMouseEnter={() => setAt(i)}
-          onClick={() => onPick(it.key)}
-        >
-          <span className="kit-menu-check" aria-hidden="true">
-            {it.checked ? "✓" : ""}
-          </span>
-          <span className="kit-menu-label">{it.label}</span>
-          {it.hint ? <kbd className="kit-kbd">{it.hint}</kbd> : null}
-        </div>
-      ))}
-    </div>
+    <M.Root onOpenChange={(open: boolean) => (open ? undefined : onClose?.())}>
+      <M.Trigger asChild>{trigger}</M.Trigger>
+      <M.Portal>
+        <M.Content loop className="kit-menu" data-ui="menu" aria-label={label}>
+          {groups(items).map((g) =>
+            g[0]?.checked === undefined ? (
+              g.map(row)
+            ) : (
+              <M.RadioGroup
+                key={g[0].key}
+                value={g.find((it) => it.checked)?.key ?? ""}
+              >
+                {g.map(row)}
+              </M.RadioGroup>
+            ),
+          )}
+        </M.Content>
+      </M.Portal>
+    </M.Root>
   );
 }

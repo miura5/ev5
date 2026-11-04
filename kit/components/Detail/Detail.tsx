@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button } from "../Button/Button";
+import { Menu, type MenuProps } from "../Menu/Menu";
 
 export interface DetailProperty {
   label: string;
@@ -13,8 +14,8 @@ export interface DetailProps {
   properties: DetailProperty[];
   /** The one main action; when present it leads the screen. */
   primary?: { label: string; hint?: string; onRun: () => void };
-  /** The ⋯ menu button: opens the item's actions, drawn by the caller. */
-  onMore?: () => void;
+  /** The ⋯ menu: its button opens these actions (items passed in, drawn by the kit Menu). */
+  more?: Pick<MenuProps, "items" | "onPick" | "onClose">;
   onClose?: () => void;
   children?: ReactNode;
 }
@@ -24,7 +25,7 @@ export function Detail({
   title,
   properties,
   primary,
-  onMore,
+  more,
   onClose,
   children,
 }: DetailProps) {
@@ -32,10 +33,16 @@ export function Detail({
     <aside className="kit-detail" data-ui="detail" aria-label="Detail">
       <div className="kit-detail-head">
         <h2 className="kit-detail-title">{title}</h2>
-        {onMore ? (
-          <Button kind="icon" aria-label="More" onClick={onMore}>
-            ⋯
-          </Button>
+        {more ? (
+          <Menu
+            {...more}
+            label="More"
+            trigger={
+              <Button kind="icon" aria-label="More">
+                ⋯
+              </Button>
+            }
+          />
         ) : null}
         {onClose ? (
           <Button kind="icon" aria-label="Close" onClick={onClose}>
