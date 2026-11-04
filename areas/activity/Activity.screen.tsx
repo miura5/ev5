@@ -4,7 +4,7 @@ import { useJobs } from "./useJobs.ts";
 
 /** The mounted view: unfinished jobs from /api/v1/jobs. Without a token it asks for one, once per browser. */
 export function ActivityScreen() {
-  const { jobs, token, error, setToken } = useJobs();
+  const { jobs, token, error, setToken, dismiss } = useJobs();
   const [draft, setDraft] = useState("");
   if (!token)
     return (
@@ -18,13 +18,18 @@ export function ActivityScreen() {
         <label className="ev-activity-meta" htmlFor="ev-token">
           Paste your app token to see Activity
         </label>
-        <input id="ev-token" type="password" value={draft} onChange={(e) => setDraft(e.target.value)} />
+        <input
+          id="ev-token"
+          type="password"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+        />
       </form>
     );
   return (
     <>
       {error ? <p className="ev-activity-meta">{error}</p> : null}
-      <ActivityView jobs={jobs} />
+      <ActivityView jobs={jobs} onDismiss={(id) => void dismiss(id)} />
     </>
   );
 }

@@ -37,7 +37,7 @@ export interface JobStore {
 const NEXT: Record<JobState, readonly JobState[]> = {
   queued: ['running', 'failed'],
   running: ['needs-you', 'done', 'failed'],
-  'needs-you': ['running', 'failed'],
+  'needs-you': ['running', 'done', 'failed'],
   done: [],
   failed: [],
 };
