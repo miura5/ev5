@@ -7,4 +7,5 @@ test("Progress is an area with a one-line screen", () => {
   render(<View />);
   expect(progressArea.nav).toBe("Progress");
   expect(screen.getByRole("heading", { name: "Progress" })).toBeTruthy();
+  expect(screen.getByText("accuracy over time")).toBeTruthy();
 });
