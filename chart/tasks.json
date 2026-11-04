@@ -14105,7 +14105,7 @@
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #171: reads /api/v1/jobs only; no chat route exists on the server (CONTRACT §job.no-chat-ask), so sending shows a not-connected reply.",
+  "notes": "Ask replies on POST /api/v1/ask (server/ask-chat.ts); the earlier no-chat-route note is stale. Mock-up match rests on screen tests only.",
   "commit": "b8b3578",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-747-ask",
@@ -15044,7 +15044,7 @@
    "B-731",
    "B-739"
   ],
-  "notes": "Audit (review F4): domain/search has no caller; POST /api/v1/jobs/practice-set accepts whatever excerpts the caller sends (server/job-routes.ts).",
+  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15118,7 +15118,7 @@
   "depends": [
    "B-752"
   ],
-  "notes": "Merged #245: 14 journey specs, 6 built, 8 fail as NOT BUILT. gate5-e2e.yml dispatch-only (dispatch per batch). Open: build the 8 journeys as their features land; dispatch run on staging to confirm selectors; docs still mention journeys.ts.",
+  "notes": "Merged #245, #252: ask-ready journey built except the real reply (needs ANTHROPIC_API_KEY on the Worker) and a running job. 7 journeys still NOT BUILT. Dispatch gate5-e2e.yml on staging to confirm selectors.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15336,7 +15336,7 @@
   "depends": [
    "B-798"
   ],
-  "notes": "Plan/exam writer test done (#242). Open: Today dayedits writer does not exist; when built it needs a validateWrite test.",
+  "notes": "Merged #255: Today ticks a plan item (areas/today/dayedit.ts, validateWrite test). No e2e journey clicks the tick yet. Rest of the writers (notes, sessions, answers) still open.",
   "commit": null,
   "source": "B-798 builder"
  },
@@ -15416,10 +15416,10 @@
   "title": "Staging deploy applies data/migrations 0001..0003 to the staging D1 (audit of B-723..B-726)",
   "dod": "staging.yml applies every migration idempotently; collections, pins, own-set tables exist on staging",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Claimed by claude/B-838-staging-migrations",
-  "commit": null,
+  "notes": "Audit finding was wrong: staging schema.sql is the baseline plus all migrations (test pins it). Added a verify step in staging.yml and ops/checks/staging.test.ts (#253).",
+  "commit": "c509dbb",
   "source": "ops/record"
  },
  {
@@ -15430,7 +15430,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "notes": "Merged #258: plan.* and proposal.accept/edit/dismiss, suggestions stored as drafts. Part 2 (date.*, draft.*, studyplan.approve/put_away) running as claude/B-839-handlers-2. Left: B-846; job commands and scheduled commands still 501.",
   "commit": null,
   "source": "ops/record"
  },
@@ -15452,10 +15452,10 @@
   "title": "Ask passes spendAlertWriter to jobCeilings (server/ask-chat.ts)",
   "dod": "Done when an ask test that crosses 80% of monthly creates the spend-alert needs-you record",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "From the run-35 audit of B-734/B-737/B-747",
-  "commit": null,
+  "notes": "Merged #256: Ask passes spendAlertWriter.",
+  "commit": "7b2c3f2",
   "source": "ops/record"
  },
  {
@@ -15464,10 +15464,10 @@
   "title": "Reconcile ask.send with /api/v1/ask",
   "dod": "Done when ask.send has a handler that calls ask(), or is removed from the registry, with a test",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "From the run-35 audit of B-734/B-737/B-747",
-  "commit": null,
+  "notes": "Merged #256: ask.send runs the same ask path (askFromEnv) and answers 200/429/503, no longer 501.",
+  "commit": "7e3294f",
   "source": "ops/record"
  },
  {
@@ -15479,6 +15479,48 @@
   "status": "open",
   "depends": [],
   "notes": "From the run-35 audit of B-734/B-737/B-747",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-844",
+  "kind": "task",
+  "title": "Remove excerpts from the practice-set job input schema (the server now gathers them)",
+  "dod": "jobs/practice-set/job.ts input names only a scope; server tests still pass",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-810"
+  ],
+  "notes": "From B-810 report; slice: jobs/practice-set, server/job-routes.ts",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-845",
+  "kind": "task",
+  "title": "Share the notes and sets gathering between server/ask-chat.ts and server/excerpts.ts",
+  "dod": "One gatherer used by both; tests pass",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-810"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "ops/record"
+ },
+ {
+  "id": "B-846",
+  "kind": "task",
+  "title": "Plan item options (repeat, linked, collection) on plan.create/plan.update handlers",
+  "dod": "A Suggestion with repeat, linked or collection is accepted through the docs protocol and passes validateWrite; repeat materializes into dayedits.added key rep-<id>-<date>",
+  "milestone": "Phase 5",
+  "status": "open",
+  "depends": [
+   "B-839"
+  ],
+  "notes": "",
   "commit": null,
   "source": "ops/record"
  }
