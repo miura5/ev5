@@ -8,7 +8,7 @@ export {
   reviewNeed,
 } from "./weak-spot/index.ts";
 export type { Attempt } from "./weak-spot/index.ts";
-export { parseSet } from "./set/index.ts";
+export { parseSet, scoreAnswer, itemType } from "./set/index.ts";
 export { parseSession } from "./session/index.ts";
 export {
   parseNote,
