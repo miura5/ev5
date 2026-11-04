@@ -4,6 +4,37 @@
 type SwNav = Pick<Navigator, "serviceWorker">;
 type Doc = Pick<Document, "addEventListener" | "visibilityState">;
 type Reloader = () => void;
+type Waiter = { postMessage?: (m: unknown) => void } | null | undefined;
+type StateWorker = NonNullable<Waiter> & {
+  state?: string;
+  addEventListener?: (n: string, f: () => void) => void;
+};
+type Reg = {
+  update?: () => Promise<unknown>;
+  waiting?: Waiter;
+  installing?: StateWorker | null;
+  addEventListener?: (n: string, f: () => void) => void;
+};
+
+// The generated worker only skips waiting on this message, so the shell sends it: a waiting worker then takes over
+// and the reload-once on controllerchange runs the new build.
+function skipWaiting(w: Waiter): void {
+  w?.postMessage?.({ type: "SKIP_WAITING" });
+}
+function takeOverUpdates(
+  reg: Reg | undefined,
+  hasController: () => boolean,
+): void {
+  if (!reg) return;
+  if (hasController()) skipWaiting(reg.waiting);
+  reg.addEventListener?.("updatefound", () => {
+    const w = reg.installing;
+    w?.addEventListener?.("statechange", () => {
+      if (w.state === "installed" && hasController())
+        skipWaiting(reg.waiting ?? w);
+    });
+  });
+}
 
 export function registerPwa(
   nav: SwNav | undefined = globalThis.navigator,
@@ -26,9 +57,11 @@ export function registerPwa(
   });
   void sw
     .register("/sw.js", { scope: "/" })
-    .then((reg) => {
+    .then((reg: Reg | undefined) => {
+      takeOverUpdates(reg, () => Boolean(sw.controller));
       doc?.addEventListener("visibilitychange", () => {
-        if (doc.visibilityState === "visible") void reg?.update?.().catch(() => undefined);
+        if (doc.visibilityState === "visible")
+          void reg?.update?.().catch(() => undefined);
       });
     })
     .catch(() => undefined);
