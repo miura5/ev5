@@ -71,7 +71,7 @@ test("exams, weak spots and today's plan map to the view's props", () => {
     {
       id: "a",
       title: "Review doses",
-      meta: "review",
+      meta: "review · added by you",
       est: "10m",
       done: true,
       tone: "ok",
@@ -93,4 +93,35 @@ test("Today's spend line is gone once the alert is acknowledged", () => {
   const line = { kind: "spend-alert", summary: "80% used" };
   expect(spendAlertLine([{ ...line, state: "needs-you" }])).toBe("80% used");
   expect(spendAlertLine([{ ...line, state: "done" }])).toBeUndefined();
+});
+
+test("a plan with items never says Nothing planned yet, and rows read as added by you", () => {
+  const dayedit = (checks: object) => ({
+    id: "2026-11-03",
+    data: {
+      added: {
+        a: { text: "Review doses", kind: "review", minutes: 10 },
+        b: { text: "Call clinic", kind: "todo" },
+      },
+      checks,
+    },
+  });
+  const one = mapToday(
+    { exams: [], weakspots: [], dayedit: dayedit({ a: { at: "x" } }) },
+    now,
+  );
+  expect(one.say.lead).toBe("1 item is left on today's plan.");
+  expect(one.plan.map((p) => [p.done, p.meta])).toEqual([
+    [true, "review · added by you"],
+    [false, "added by you"],
+  ]);
+  const all = mapToday(
+    {
+      exams: [],
+      weakspots: [],
+      dayedit: dayedit({ a: { at: "x" }, b: { at: "x" } }),
+    },
+    now,
+  );
+  expect(all.say.lead).toBe("Today's plan is done.");
 });
