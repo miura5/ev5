@@ -13,7 +13,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function buildAnswer(
   setId: string,
   itemId: string,
-  rating: "again" | "good",
+  rating: "again" | "good" | "told",
   attempt: string,
   now: Date,
   rand: string,
@@ -33,7 +33,10 @@ export function buildAnswer(
       answers: {
         [itemId]: {
           [key]: {
-            correct: rating === "good",
+            // "told" is a "just tell me" tap: it has no right or wrong, only the outcome
+            ...(rating === "told"
+              ? { outcome: "told" }
+              : { correct: rating === "good" }),
             at: iso,
             ...(text ? { text } : {}),
           },

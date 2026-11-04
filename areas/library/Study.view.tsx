@@ -8,11 +8,19 @@ export interface StudyViewProps {
   items: readonly StudyItem[];
   /** Called with each rating as it is given. */
   onRate?: (id: string, rating: "again" | "good", attempt: string) => void;
+  /** Called when he taps "Just tell me"; the answer shows once this resolves true (an event is logged first). */
+  onTell?: (id: string) => Promise<boolean>;
   onLeave?: () => void;
 }
 
 /** Study mode: one card, his attempt first, then the back with its source, then Again or Good. */
-export function StudyView({ title, items, onRate, onLeave }: StudyViewProps) {
+export function StudyView({
+  title,
+  items,
+  onRate,
+  onTell,
+  onLeave,
+}: StudyViewProps) {
   const [i, setI] = useState(0);
   const [attempt, setAttempt] = useState("");
   const [shown, setShown] = useState(false);
@@ -33,6 +41,9 @@ export function StudyView({ title, items, onRate, onLeave }: StudyViewProps) {
         </div>
       </section>
     );
+  const tell = async () => {
+    if (!onTell || (await onTell(it.id))) setShown(true);
+  };
   const rate = (r: "again" | "good") => {
     onRate?.(it.id, r, attempt);
     if (r === "good") setGood(good + 1);
@@ -93,7 +104,7 @@ export function StudyView({ title, items, onRate, onLeave }: StudyViewProps) {
               <Button
                 kind="text"
                 title="Just tell me, logged"
-                onClick={() => setShown(true)}
+                onClick={() => void tell()}
               >
                 Just tell me
               </Button>

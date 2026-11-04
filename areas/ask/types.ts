@@ -17,6 +17,8 @@ export type AskMessage =
       source?: string;
       /** E.V. is waiting for the user's try: show "Just tell me". */
       asksTry?: boolean;
+      /** What "Just tell me" shows, once the tap is logged. */
+      answer?: string;
       job?: AskJob;
       /** A day or time break drawn above this turn. */
       breakBefore?: boolean;
