@@ -11,7 +11,7 @@ test("maps newest first with days left", () => {
     ],
     at + 3 * 86_400_000,
   );
-  expect(out.map((i) => i.title)).toEqual(["n", "k"]);
+  expect(out.map((i) => i.title)).toEqual(["Untitled", "Untitled"]);
   expect(out[0]).toMatchObject({
     id: "notes/n",
     type: "note",
@@ -19,6 +19,19 @@ test("maps newest first with days left", () => {
     daysLeft: 27,
   });
   expect(out[1]?.type).toBe("cards");
+});
+
+test("rows show the title and a plain kind, never an id or a table name", () => {
+  const out = mapDeletions(
+    [
+      { collection: "own_set_items", id: "s1/i1", at, title: "Which lab is highest priority?" },
+      { collection: "notes", id: "n9", at: at - 1, title: null },
+    ],
+    at,
+  );
+  expect(out[0]).toMatchObject({ title: "Which lab is highest priority?", kind: "Set question" });
+  expect(out[1]).toMatchObject({ title: "Untitled", kind: "Note" });
+  expect(JSON.stringify(out.map((i) => [i.title, i.kind]))).not.toMatch(/own_set_items|n9|s1\/i1/);
 });
 
 test("days left never go below zero; none is empty", () => {
