@@ -4872,7 +4872,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Part 1 merged (#524): the docs table gate (data/docs/gate.ts), docsRepo.rename, SQL-outside-data check across all folders. Remains: tablesRepo and other writers behind one gate; item.rename 409 mapping done; remove the 'no such table: deletions' tolerance in data/docs/gate.ts after fixtures add the table; move jobs/runtime/d1-stores.ts SQL into data/ (B-1002) and drop its exemption in ops/checks/serverwrites.ts. Lesson: a type import from data/compat in Worker-side data code breaks tsc (node:fs).",
+  "notes": "Part 1 #524; part 2 #533: tablesRepo writers behind data/tables/gate.ts (WriteRefused), deletions tolerance removed. Remains: B-1002 moves jobs/runtime/d1-stores.ts SQL into data/ and drops its serverwrites exemption; export WriteRefused through data/index.ts and map it to a plain 4xx in server/; docs and tables gates are two files.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -5079,15 +5079,15 @@
   "title": "Library draws its tabs, rows, sections, set editor and Detail with the kit",
   "dod": "Library uses kit Tabs for its tabs, Row (with the two-cell editor row on a set's Edit page), Page, Section and Empty, its study view uses kit StudyCard, and its exam Detail opens through the shell's host (the .ev-library-detail overlay goes); its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#library, #set, #study); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968",
    "B-969"
   ],
-  "notes": "Slice: write areas/library/; read kit/, shell's area-view props. Large area: split along its views (list, set page and editor, study) if it passes about 400 changed lines.",
-  "commit": null,
+  "notes": "Run 85: #534, all views. Not yet seen on staging in both themes. Kit gaps are B-1032.",
+  "commit": "05014ff",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5452,7 +5452,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 82: first part merged (#512): row shapes for deletions, job_records, job_plans and the ceiling tables in domain/. Still open: exam/objective/weak spot/set/session/note/course and claude_*/system_docs row shapes; data/tables, jobs/runtime and ceilings import them; commands/ and jobs/ drop their own plan Zod shapes (needs a domain plan row shape first); WireDoc lives in areas/library/types.ts (needs an areas task).",
+  "notes": "Part 1 #512; part 2 #536: docRowSchema and row shapes for exam, objective, weak spot, set, session, note, course in domain/. Remains (B-1022): data/docs/gate.ts, parsers.ts, registry.ts switch to parse*Row; data/migrations/row-shapes.test.ts gap; parseCourseTable callers; plan row shape so commands/ and jobs/ drop PlanSchema; WireDoc in areas/library/types.ts.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5476,12 +5476,12 @@
   "title": "Export and restore drill over v5's new tables",
   "dod": "The export writes every table with counts and SHA-256 in the manifest; the restore drill restores each into scratch and compares (§data.export, §data.tables). Slice write: data/export",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-998"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 85: #532; export covers every migrated table with counts and SHA-256, per-table drill, columns checked against the schema. Left: views listed but has no migration; the staging workflow for ops/restore-drill/time-travel.sh never ran (B-756).",
+  "commit": "7e25222",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
@@ -5817,10 +5817,10 @@
   "title": "The live deploy uses v5's own database, never ev4's",
   "dod": "live.yml binds a new v5 live D1 by its own name (created empty on Matt's word, CUTOVER step 3), never ev4's ev-live D1; a check fails any workflow or config that binds the ev-live D1; ops/CUTOVER.md step 7 matches (§data.own-db, §hard.data-never-lost, §sec.account)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Claims review Wrong 1: .github/workflows/live.yml:29-33 runs 'd1 info ev-live' and binds 'its existing D1', which is ev4's live database (D-330). Must be fixed before any live dispatch. The Worker name ev-live stays (§data.same-worker); only the D1 changes. Slice write: .github/workflows/, ops/checks/, ops/CUTOVER.md.",
-  "commit": null,
+  "notes": "Run 85: #535. live.yml binds ev5-live (workflow never creates it; CUTOVER step 4 needs Matt's word); check refuses an ev-live D1 binding.",
+  "commit": "8647bd5",
   "source": "ops claims review 2026-11-05"
  },
  {
@@ -5829,12 +5829,12 @@
   "title": "One way to apply migrations on staging and live",
   "dod": "wrangler.jsonc sets migrations_dir to data/migrations and both the staging and live workflows run 'd1 migrations apply'; or CUTOVER step 4 names the exact command and file it runs; staging and live use the same way (§data.migrations)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-998"
   ],
-  "notes": "Claims review Wrong 4: ops/CUTOVER.md step 4 says 'apply the migrations' with no command; wrangler.jsonc has no migrations_dir (Wrangler's default is migrations/, the files are in data/migrations/); staging.yml:40 runs 'd1 execute --file data/staging/schema.sql'. Take with or after B-998 (the new baseline). Read current Wrangler docs, nothing from memory.",
-  "commit": null,
+  "notes": "Run 85: #535. migrations_dir=data/migrations; staging runs d1 migrations apply (run 461 green). Wrangler keys were written without the docs (sandbox blocked them): live.yml unproven until a live dispatch. data/staging/schema.sql and its test are now unused: delete in a follow-up.",
+  "commit": "8647bd5",
   "source": "ops claims review 2026-11-05"
  },
  {
@@ -5913,5 +5913,17 @@
   "notes": "Merged in #527; filed after the fact because B-978 was refused until the kit had it.",
   "commit": "236950a",
   "source": "ops/record"
+ },
+ {
+  "id": "B-1032",
+  "kind": "task",
+  "title": "Kit: a one-cell editor row, a multiple-choice practice card, and a Row bar slot",
+  "dod": "The kit has an editor row with one cell, a practice card with options, and a Row slot for an always-visible meter; Library drops its .ev-library-card* CSS and the meter wrapper, and a steps set's rows show one cell (§ui.kit-leads); both themes match design/mockup.html",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Found by B-971 (run 85). Slice: write kit/, then areas/library/.",
+  "commit": null,
+  "source": "B-971 report"
  }
 ]
