@@ -14,14 +14,22 @@ import {
   type GlyphType,
   type PaletteGroup,
 } from "../kit/index.ts";
-import { call, paletteEntries, type PaletteEntry } from "../commands/client.ts";
-import { FOUND, findInRecord, readDeletedKeys, type Record_ } from "./findings.ts";
+import { call } from "../commands/client.ts";
+import {
+  FOUND,
+  findInRecord,
+  readDeletedKeys,
+  type Record_,
+} from "./findings.ts";
 import { Ev4Offer } from "./Ev4Offer.tsx";
 import { SavedCopyNotice } from "./SavedCopyNotice.tsx";
 import { storedToken } from "./outbox/index.ts";
 import type { Services } from "./services.ts";
 import { AREAS, areaFor, sidebarAreas, type AreaEntry } from "./areas.ts";
+import { commandsFor } from "./commandsFor.ts";
 import { useTheme } from "./theme.ts";
+import { DetailSlot } from "./DetailSlot.tsx";
+import { useOpenedDetail } from "./useOpenedDetail.ts";
 import "./shell.css";
 
 export interface Pin {
@@ -53,20 +61,6 @@ export interface ShellProps {
 }
 
 export const DELETED_ROUTE = "/deleted";
-
-/** Commands the palette leaves to Places and the Tab hand-off, which already do them. */
-const PLACE_COMMANDS = new Set(["nav.go", "ask.send"]);
-
-/** The registry's palette entries for the area Matt is in (§ui.palette); absent `places` means everywhere. */
-export const commandsFor = (
-  areaId: string | undefined,
-  entries: readonly PaletteEntry[] = paletteEntries,
-) =>
-  entries.filter(
-    (e) =>
-      !PLACE_COMMANDS.has(e.name) &&
-      (!e.places || (areaId && e.places.includes(areaId))),
-  );
 
 /** The frame: sidebar (areas, Pinned, Recently deleted), one centred column, Detail on demand, and ⌘K. */
 export function Shell({
@@ -122,6 +116,7 @@ export function Shell({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   const View = current?.view;
+  const [opened, setOpened, clearDetail] = useOpenedDetail(bare, palette);
   // What Matt types in ⌘K comes from the palette's onQuery; the record is read once each time the palette opens.
   const [typed, setTyped] = useState("");
   const [record, setRecord] = useState<Record_>({});
@@ -275,11 +270,16 @@ export function Shell({
           <Ev4Offer ev4={services?.ev4} />
           <SavedCopyNotice copy={services?.readCopy} />
           {View ? (
-            <View services={services} onNavigate={onNavigate} path={bare} />
+            <View
+              services={services}
+              onNavigate={onNavigate}
+              path={bare}
+              onDetail={setOpened}
+            />
           ) : null}
         </div>
       </main>
-      {detail ? <Detail {...detail} /> : null}
+      <DetailSlot opened={opened} onClear={clearDetail} legacy={detail} />
       {palette ? (
         <Palette
           groups={groups}

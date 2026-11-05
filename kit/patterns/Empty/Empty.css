@@ -1,0 +1,10 @@
+.kit-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--quiet);
+}

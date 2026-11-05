@@ -1,6 +1,10 @@
 import type { ComponentType } from "react";
+import type { DetailProps } from "../kit/index.ts";
 import type { Services } from "./services.ts";
 import { areas } from "../areas/registry.generated.ts";
+
+/** What a view calls to open or replace the shell's Detail panel, or clear it with null. */
+export type OnDetail = (detail: DetailProps | null) => void;
 
 /** What the shell reads from each area's `area.ts`: its route, sidebar label and the view it mounts. */
 export interface AreaEntry {
@@ -9,7 +13,12 @@ export interface AreaEntry {
   readonly nav: string;
   /** False for routes the sidebar does not list (collection, sessions, Recently deleted); absent means listed. */
   readonly sidebar?: boolean;
-  readonly view: ComponentType<{ services?: Services; onNavigate?: (path: string) => void; path?: string }>;
+  readonly view: ComponentType<{
+    services?: Services;
+    onNavigate?: (path: string) => void;
+    path?: string;
+    onDetail?: OnDetail;
+  }>;
 }
 
 /** The sidebar's order (CONTRACT §ui.sidebar); areas not named here follow, in registry order. */
@@ -20,16 +29,23 @@ const rank = (id: string) => {
 };
 
 /** Every area in sidebar order: the router and ⌘K's Places read this list, the sidebar its listed part. */
-export const AREAS: readonly AreaEntry[] = [...areas].sort((a, b) => rank(a.id) - rank(b.id));
+export const AREAS: readonly AreaEntry[] = [...areas].sort(
+  (a, b) => rank(a.id) - rank(b.id),
+);
 
 /** The areas the sidebar lists, in order. */
-export const sidebarAreas = (list: readonly AreaEntry[] = AREAS): readonly AreaEntry[] =>
-  list.filter((a) => a.sidebar !== false);
+export const sidebarAreas = (
+  list: readonly AreaEntry[] = AREAS,
+): readonly AreaEntry[] => list.filter((a) => a.sidebar !== false);
 
 /** The area whose route is `path` or a parent of it (`/collection/ab` opens `/collection`); the first area when none matches. */
 export function areaFor(
   path: string,
   list: readonly AreaEntry[] = AREAS,
 ): AreaEntry | undefined {
-  return list.find((a) => a.route === path) ?? list.find((a) => path.startsWith(`${a.route}/`)) ?? list[0];
+  return (
+    list.find((a) => a.route === path) ??
+    list.find((a) => path.startsWith(`${a.route}/`)) ??
+    list[0]
+  );
 }
