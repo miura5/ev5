@@ -8,6 +8,7 @@ import {
 } from "../../domain/index.ts";
 import {
   readCollections,
+  readDeletedNoteIds,
   type CollectionsRead,
   type ReadCopyLike,
 } from "./collections.ts";
@@ -85,8 +86,10 @@ export function useNotes(services?: NotesServices): NotesState {
     try {
       await services.outbox.replay();
       const rows = await services.docs.list("notes");
+      const gone = await readDeletedNoteIds(services.readCopy);
       setNotes(
         rows.flatMap((r) => {
+          if (gone.has(r.id)) return []; // in Recently deleted: out of Notes until restored
           try {
             return [{ id: r.id, v: r.v, note: parseNote(r.data) }];
           } catch {
@@ -95,7 +98,11 @@ export function useNotes(services?: NotesServices): NotesState {
         }),
       );
       setError(undefined);
-      setCols(await readCollections(services.readCopy));
+      const read = await readCollections(services.readCopy);
+      setCols({
+        ...read,
+        members: new Map([...read.members].filter(([id]) => !gone.has(id))),
+      });
     } catch (e) {
       setError(failureSentence(e)); // never the server's own words
     }

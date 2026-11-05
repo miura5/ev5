@@ -16,7 +16,16 @@ export interface ExamPlanDetailProps {
   onApprove?: (planId: string) => void;
   onAskChanges?: (planId: string, note: string) => void;
   onPutAway?: (planId: string) => void;
+  /** Opens with the proposal showing (the exam was opened by a link to review its plan). */
+  startOpen?: boolean;
 }
+
+/** "Tue" for a Central date. */
+const dayOf = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    weekday: "short",
+    timeZone: "UTC",
+  });
 
 /** Detail for an exam date: its properties, the study plan's actions, and E.V.'s dashed session proposals. */
 export function ExamPlanDetail({
@@ -30,19 +39,16 @@ export function ExamPlanDetail({
   onApprove,
   onAskChanges,
   onPutAway,
+  startOpen,
 }: ExamPlanDetailProps) {
   const [note, setNote] = useState("");
+  const [review, setReview] = useState(!!startOpen);
   const draft = exam.planState === "draft" && exam.planId;
   const planId = exam.planId ?? "";
   return (
     <Detail
       title={exam.title}
       onClose={onClose}
-      primary={{
-        label: "Review the study plan",
-        hint: "S",
-        onRun: () => onReviewPlan?.(),
-      }}
       properties={[
         { label: "Date", value: exam.when },
         { label: "Course", value: exam.course },
@@ -50,6 +56,33 @@ export function ExamPlanDetail({
         { label: "Plan", value: exam.plan },
       ]}
     >
+      <Button
+        onClick={() => {
+          setReview((r) => !r);
+          onReviewPlan?.();
+        }}
+      >
+        Review the study plan
+      </Button>
+      {review ? (
+        <div className="ev-library-panel" data-part="proposal">
+          <h3 className="ev-library-label">Proposed sessions</h3>
+          {exam.sessions?.length ? (
+            exam.sessions.map((s, i) => (
+              <div key={`${s.date}-${i}`} className="ev-library-session">
+                <span>{dayOf(s.date)}</span>
+                <span>{s.title}</span>
+                <span>{s.minutes}m</span>
+              </div>
+            ))
+          ) : (
+            <span>The sessions are not shown here yet.</span>
+          )}
+          <span>
+            Built from: this exam&apos;s date and your weak spots for it
+          </span>
+        </div>
+      ) : null}
       {draft ? (
         <div className="ev-library-panel">
           <Button kind="primary" onClick={() => onApprove?.(planId)}>

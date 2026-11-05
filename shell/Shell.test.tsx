@@ -222,3 +222,56 @@ test("typing part of a title in ⌘K lists the matching record above Ask E.V.; E
   fireEvent.click(rowsShown[0]!);
   expect(onNavigate).toHaveBeenCalledWith("/library?open=x1");
 });
+
+/** One key as the browser delivers it: keydown, the native value change with its input event, keyup. */
+function typeKeys(input: HTMLInputElement, text: string) {
+  const set = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )!.set!;
+  input.focus();
+  for (const ch of text) {
+    fireEvent.keyDown(input, { key: ch });
+    set.call(input, input.value + ch);
+    input.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        data: ch,
+        inputType: "insertText",
+      }),
+    );
+    fireEvent.keyUp(input, { key: ch });
+  }
+}
+
+test("keys typed into ⌘K one at a time stay in the box and list a note by its title", async () => {
+  const rows = {
+    notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
+  } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
+  const services = {
+    docs: { list: async (c: string) => rows[c] ?? [] },
+    outbox: {},
+  } as unknown as NonNullable<Parameters<typeof Shell>[0]["services"]>;
+  render(
+    <Shell
+      path="/"
+      onNavigate={vi.fn()}
+      areas={[
+        ...areas,
+        { id: "library", route: "/library", nav: "Library", view: () => null },
+      ]}
+      services={services}
+    />,
+  );
+  fireEvent.keyDown(window, { key: "k", metaKey: true });
+  await new Promise((r) => setTimeout(r, 20));
+  const input = screen.getByPlaceholderText(
+    /Type a command/,
+  ) as HTMLInputElement;
+  typeKeys(input, "hea");
+  expect(input.value).toBe("hea");
+  const shown = await screen.findAllByRole("option");
+  expect(shown[0]!.textContent).toContain("Heart failure");
+  typeKeys(input, "r");
+  expect(input.value).toBe("hear");
+});
