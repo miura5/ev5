@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-487",
+  "date": "Nov 5",
+  "title": "One README page for E.V.: the repo README.md is the overview (stack, folders, where things live, setup, the owner's part) and MATT.md is retired",
+  "why": "Matt asked for a README he can come back to for a high-level view of the stack (2026-11-05) and said yes to this shape. The page holds facts that stay true for months; the handover and BACKLOG hold today's state. A stack check in ops/checks fails when the README's stack table and package.json disagree, so the page is updated with each release instead of from the tasks. The rules check gives the repo README its own 150-line cap, because it is not a folder README (folder READMEs keep 20). Second way considered: a docs/overview.md page, rejected because docs/ is outside the rules check and the repo page on GitHub would stay empty.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, 2026-11-05"
+ },
+ {
   "id": "D-486",
   "date": "Nov 5",
   "title": "The owner is a role, not a name: code, prompts and tools say owner or the student, and nothing needs the owner's name to run",
