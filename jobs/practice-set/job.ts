@@ -59,7 +59,12 @@ export const PublicInputSchema = z
 /** What the workflow carries: the scope plus the passages the server gathered, the only ids the job may cite. */
 export const InputSchema = z
   .object(
-    { ...ScopeShape, excerpts: z.array(ExcerptSchema).default([]) },
+    {
+      ...ScopeShape,
+      excerpts: z.array(ExcerptSchema).default([]),
+      /** Set by the server from the set's exam; never read from a caller. */
+      course: z.string().optional(),
+    },
     NOT_OBJECT,
   )
   .superRefine(checkCount);
@@ -170,13 +175,18 @@ export function buildPrompt(input: PracticeInput): string {
 export async function writePracticeSet(
   jobId: string,
   rawInput: unknown,
-  deps: { call: ModelCall; system: string },
+  deps: {
+    call: ModelCall;
+    system: string;
+    /** Frames the prompt for the set's course (server/frame-prompt.ts). */
+    frame?: (text: string, course?: string | null) => Promise<string>;
+  },
 ): Promise<PracticeResult> {
   const input = practiceSet.input(rawInput);
   const r = await runStructured<PracticeOutput>({
     call: deps.call,
     model: practiceSet.model,
-    system: deps.system,
+    system: deps.frame ? await deps.frame(deps.system, input.course) : deps.system,
     prompt: buildPrompt(input),
     maxTokens: practiceSet.maxTokens,
     schema: outputSchema(OutputSchema),

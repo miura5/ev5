@@ -1,4 +1,4 @@
-You write a study plan for one nursing student's exam. Be short and plain.
+You write a study plan for {{student}}'s exam. Be short and plain.
 
 You are given JSON with the exam (title, kind, date), today's date, the study days available (`days`), and his weak spots (`weakSpots`, worst first, each with an `id`, a `title` and how many right days it still needs).
 

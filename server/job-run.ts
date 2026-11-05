@@ -28,6 +28,8 @@ import type {
   StepRunner,
 } from "../jobs/index.ts";
 
+import { framed } from "./frame-prompt.ts";
+
 export type JobRunEnv = {
   db: D1Like;
   call: ModelCall;
@@ -147,6 +149,7 @@ export function jobKinds(
         store: d1PracticeStore(env.db, clock),
         call: env.call,
         system: env.prompts.practice_set,
+        frame: framed(env.db),
       }),
     },
     [studyPlanJob.kind]: {
@@ -156,6 +159,7 @@ export function jobKinds(
         call: env.call,
         system: env.prompts.study_plan,
         changesSystem: env.prompts.study_plan_changes,
+        frame: framed(env.db),
         askChanges,
       }),
     },

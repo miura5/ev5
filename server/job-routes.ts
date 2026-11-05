@@ -17,6 +17,7 @@ import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts } from "./excerpts.ts";
+import { courseOfSet } from "./frame-prompt.ts";
 
 export interface JobRoutesEnv {
   DB: D1Like;
@@ -65,9 +66,14 @@ export async function saveScope(
 
 export async function withGathered(
   db: D1Like,
-  input: { objectives: string[] },
+  input: { objectives: string[]; targetId?: string },
 ) {
-  return { ...input, excerpts: await gatherExcerpts(db, input.objectives) };
+  const course = input.targetId ? await courseOfSet(db, input.targetId) : null;
+  return {
+    ...input,
+    ...(course ? { course } : {}),
+    excerpts: await gatherExcerpts(db, input.objectives),
+  };
 }
 
 const body = async (req: Request): Promise<Record<string, unknown>> => {
