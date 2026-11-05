@@ -53,8 +53,6 @@ const KINDS: Record<string, string> = {
   review: "review",
   notes: "notes",
   graded: "graded work",
-  "skills-prep": "skills prep",
-  "clinical-prep": "clinical prep",
 };
 
 function tryParse<T>(

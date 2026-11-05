@@ -7,7 +7,11 @@ test('parses a valid exam and rejects score fields', () => {
   expect(parseExam({ ...base, title: 'A', date: '2026-11-10' }).title).toBe('A');
   expect(() => parseExam({ ...base, title: 'A', score: 90 })).toThrow();
   expect(() => parseExam({ ...base, title: '' })).toThrow();
-  expect(() => parseExam({ ...base, title: 'A', kind: 'quiz' })).toThrow();
+});
+
+test('an exam kind is any short label, never blank', () => {
+  for (const kind of ['unit', 'final', 'quiz', 'Oral defence']) expect(parseExam({ ...base, title: 'A', kind }).kind).toBe(kind);
+  for (const kind of ['', '  ', 'x'.repeat(41), 3]) expect(() => parseExam({ ...base, title: 'A', kind })).toThrow();
 });
 
 test('days left and ordering', () => {

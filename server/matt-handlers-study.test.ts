@@ -145,12 +145,17 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
       .correct,
     true,
   );
+  assert.equal(
+    (await call("study.attempt", { id: "s1/q2", answer: "10 mL" })).body.result
+      .correct,
+    false,
+  );
   assert.equal((await call("study.reveal", { id: "s1/q1" })).status, 200);
   assert.equal((await call("study.just_tell_me", { id: "s1/q2" })).status, 200);
   const all = await DB.prepare("SELECT id FROM docs WHERE c = 'answers'").all<{
     id: string;
   }>();
-  assert.equal(all.results.length, 3);
+  assert.equal(all.results.length, 4);
   assert.equal(
     (await call("study.attempt", { id: "s1/zz", answer: "1" })).status,
     404,

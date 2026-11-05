@@ -1,4 +1,4 @@
-// Weak spot document (ev4 weakspots schema 1 and 2, frozen in data/compat/schemas/weakspots.schema.json) and ev4's
+// Weak spot document (schemas 1 and 2) and ev4's
 // fixed-interval scheduler, ported unchanged from ev4 core/evcore.mjs (deriveWeakspot, applyEvent, isActive, isSolid,
 // isDue, reviewNeed). Nothing derived is ever stored: state is rebuilt from the facts, the events and the answers.
 import { z } from 'zod';

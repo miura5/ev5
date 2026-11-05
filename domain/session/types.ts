@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Study session document (ev4 sessions schema 2, frozen in data/compat/schemas/sessions.schema.json). The note's
+// Study session document (schema 2). The note's
 // text never enters a session: only its length and hash. State is rebuilt from the events map, never stored.
 export const EVENT_TYPES = [
   'start',

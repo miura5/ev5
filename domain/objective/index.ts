@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Objective document (ev4 objectives schema 1, frozen in data/compat/schemas/objectives.schema.json).
+// Objective document (schema 1).
 // Objectives are seeded from a course's own stated objectives, never invented. The document id is not part of the data.
 export const objectiveSchema = z.strictObject({
   schema: z.literal(1),

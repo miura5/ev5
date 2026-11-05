@@ -61,7 +61,7 @@ export interface NotesState {
   reload: () => Promise<void>;
 }
 
-/** Who a note save names in `source`: starts with "v5", as ev4's record requires of v5's writes (validateWrite). */
+/** Who a note save names in `source`: starts with "v5" (the stored envelope; the table design drops it). */
 export const NOTE_SOURCE = "v5/notes";
 
 /** A note with its title set: the first h1 gets the new words (one is added if none), everything else is kept. */

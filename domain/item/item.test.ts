@@ -1,14 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  gradeOpenLocal,
-  gradePrompt,
-  itemType,
-  parseGrade,
-  scoreAnswer,
-  validItems,
-  validateItem,
-  type Item,
-} from './index.ts';
+import { itemType, numberAnswer, scoreAnswer, validateItem, type Item } from './index.ts';
 
 const I = (x: object) => x as Item;
 
@@ -17,7 +8,6 @@ test('question checks: single, select-all, matrix and the bad cases', () => {
     id: 'q1',
     type: 'single',
     objective: 'E4-3',
-    cjStep: 'analyze-cues',
     stem: 'Which finding needs follow-up first?',
     options: ['A', 'B', 'C', 'D'],
     correct: [2],
@@ -29,7 +19,6 @@ test('question checks: single, select-all, matrix and the bad cases', () => {
   expect(validateItem({ ...single, stem: 'Select two findings that need follow-up.' }).ok).toBe(false);
   expect(validateItem({ ...single, rationales: ['a'] }, { strict: true }).ok).toBe(false);
   expect(validateItem({ ...single, rationales: ['a'] }).ok).toBe(true);
-  expect(validateItem({ ...single, cjStep: 'guessing' }).ok).toBe(false);
   expect(validateItem({ ...single, options: ['A', 'a', 'C'], correct: [0], rationales: ['', '', ''] }).ok).toBe(false);
   const sata = {
     ...single,
@@ -50,7 +39,6 @@ test('question checks: single, select-all, matrix and the bad cases', () => {
     id: 'q3',
     type: 'matrix',
     objective: 'E4-3',
-    cjStep: 'recognize-cues',
     stem: 'For each finding in an 80-year-old, mark expected or unexpected.',
     matrix: { columns: ['Expected', 'Unexpected'], rows },
   });
@@ -61,27 +49,34 @@ test('question checks: single, select-all, matrix and the bad cases', () => {
   expect(validateItem(null).errors).toEqual(['not an object']);
 });
 
-test('numeric items: a number with a configured unit, tolerance and steps; scored within tolerance', () => {
+test('number answers: a value, any unit as free text, a tolerance and steps; scored within tolerance', () => {
   const n = I({
     id: 'n1',
     type: 'numeric',
-    stem: 'Give 250 mg from 125 mg per 5 mL. How many mL?',
-    answer: 10,
-    unit: 'mL',
-    tolerance: 0.05,
-    steps: ['250 / 125 x 5 = 10'],
-    cjStep: 'take-action',
+    stem: 'A car covers 150 km in 2.5 hours. What is its average speed?',
+    answer: 60,
+    unit: 'km/h',
+    tolerance: 0.5,
+    steps: ['150 / 2.5 = 60'],
   });
   expect(validateItem(n).errors).toEqual([]);
-  expect(validateItem({ ...n, unit: 'furlongs' }).ok).toBe(false);
+  expect(validateItem({ ...n, unit: 'furlongs per fortnight' }).ok).toBe(true);
+  expect(validateItem({ ...n, unit: undefined }).ok).toBe(true);
+  expect(validateItem({ ...n, unit: ' ' }).ok).toBe(false);
+  expect(validateItem({ ...n, tolerance: -1 }).ok).toBe(false);
+  expect(validateItem({ ...n, answer: undefined }).ok).toBe(false);
   expect(validateItem({ ...n, steps: [] }).ok).toBe(false);
   expect(validateItem({ ...n, options: ['a', 'b'] }).ok).toBe(false);
-  expect(scoreAnswer(n, '10 mL').correct).toBe(true);
-  expect(scoreAnswer(n, 10.04).correct).toBe(true);
-  expect(scoreAnswer(n, { value: 10, unit: 'ML' }).correct).toBe(true);
-  expect(scoreAnswer(n, '10 mg').correct).toBe(false);
-  expect(scoreAnswer(n, '12 mL').correct).toBe(false);
-  expect(scoreAnswer(n, 'about ten').correct).toBe(false);
+  expect(scoreAnswer(n, '60 km/h').correct).toBe(true);
+  expect(scoreAnswer(n, '60 KM / H').correct).toBe(true);
+  expect(scoreAnswer(n, 60.4).correct).toBe(true);
+  expect(scoreAnswer(n, { value: 60, unit: 'Km/H' }).correct).toBe(true);
+  expect(scoreAnswer(n, '60 mph').correct).toBe(false);
+  expect(scoreAnswer(n, '61 km/h').correct).toBe(false);
+  expect(scoreAnswer(n, 'about sixty').correct).toBe(false);
+  expect(scoreAnswer(I({ ...n, unit: undefined, tolerance: undefined }), '60').correct).toBe(true);
+  expect(numberAnswer('2.5 cm')).toEqual({ value: 2.5, unit: 'cm' });
+  expect(numberAnswer('none')).toBeNull();
   expect(itemType(n)).toBe('numeric');
 });
 
@@ -140,38 +135,8 @@ test('the open check function: a valid item passes; each break is refused; a roo
   expect(validateItem(room).errors).toEqual([]);
 });
 
-test('open answers graded by a model reply: right, partial, wrong; partial counts as a miss; the reply is shape-checked', () => {
-  const q = open();
-  const by = (hits: boolean[]) => scoreAnswer(q, { text: 'made-up answer', hits, gradedBy: 'model' }) as any;
-  expect([by([true, true]), by([true, false]), by([false, false])].map((r) => [r.grade, r.correct])).toEqual([
-    ['right', true],
-    ['partial', false],
-    ['wrong', false],
-  ]);
-  expect(by([true, false]).score).toBe(0.5);
-  expect(by([true, true]).gradedBy).toBe('model');
-  expect(parseGrade({ hits: [true, false] }, q)).toEqual([true, false]);
-  expect(parseGrade({ hits: [true] }, q)).toBeNull();
-  expect(parseGrade({ hits: ['yes', 'no'] }, q)).toBeNull();
-  expect(parseGrade('{"hits": [true, true]}', q)).toBeNull();
-  expect(parseGrade(null, q)).toBeNull();
-  const p = gradePrompt(q, 'Fluid builds up in the lungs.');
-  expect(p).toMatch(/1\. Extra fluid raises pressure in the capillaries/);
-  expect(p).toMatch(/His answer:\nFluid builds up in the lungs\./);
-  expect(p).toMatch(/\{"hits": \[true \| false, true \| false\]\}/);
-});
-
-test('the grade prompt names a nursing student unless the item is in another course', () => {
-  const q = open();
-  expect(gradePrompt(q, 'x')).toMatch(/a nursing student wrote/);
-  expect(gradePrompt(q, 'x', undefined, { nursing: true })).toMatch(/a nursing student wrote/);
-  const other = gradePrompt(q, 'x', undefined, { nursing: false });
-  expect(other).toMatch(/grade one short answer a student wrote/);
-  expect(other).not.toMatch(/nurs/i);
-});
-
-test('a clinical-judgment step is asked for only in a nursing course', () => {
-  const noStep = {
+test('no subject is asked for: a plain question passes strict checks; an open answer is not scored here', () => {
+  const plain = {
     id: 'q1',
     type: 'single',
     stem: 'Which gas do plants take in?',
@@ -180,47 +145,6 @@ test('a clinical-judgment step is asked for only in a nursing course', () => {
     rationales: ['a', 'b'],
     objective: 'o',
   };
-  expect(validateItem(noStep).warnings).toContain('no clinical-judgment step');
-  expect(validateItem(noStep, { nursing: true }).warnings).toContain('no clinical-judgment step');
-  expect(validateItem(noStep, { strict: true }).ok).toBe(false);
-  const other = validateItem(noStep, { nursing: false, strict: true });
-  expect(other.ok).toBe(true);
-  expect(other.warnings.join()).not.toMatch(/clinical-judgment/);
-});
-
-test('open answers graded locally: a point is hit when a word of every keyword group is in his answer', () => {
-  const q = open();
-  const local = (text: string) => scoreAnswer(q, text) as any;
-  const right = local('The hydrostatic pressure goes up, so water leaks into the lungs.');
-  expect([right.grade, right.hits, right.gradedBy]).toEqual(['right', [true, true], 'local']);
-  const part = local('Fluid ends up in the lungs.');
-  expect([part.grade, part.hits]).toEqual(['partial', [false, true]]);
-  const none = local('I am not sure.');
-  expect([none.grade, none.hits]).toEqual(['wrong', [false, false]]);
-  expect(gradeOpenLocal(q, 'PRESSURES rise; Waters fill the Alveoli')).toEqual([true, true]);
-  const phrase = open({ keyPoints: [{ text: 'Third spacing', keywords: [['third space']] }, open().keyPoints?.[1]] });
-  expect(gradeOpenLocal(phrase, 'fluid moves to a third space in the lung')).toEqual([true, true]);
-  expect(gradeOpenLocal(phrase, 'space for a third of the fluid in the lung')).toEqual([false, true]);
-  const mal = scoreAnswer(q, { text: 'Fluid ends up in the lungs.', hits: [true], gradedBy: 'model' }) as any;
-  expect([mal.grade, mal.gradedBy]).toEqual(['partial', 'local']);
-  expect(mal.attempt).toMatchObject({ text: 'Fluid ends up in the lungs.', grade: 'partial', gradedBy: 'local' });
-});
-
-test('a stem that gives its answer away is never shown', () => {
-  const q = (x: object = {}) =>
-    I({
-      id: 'q1',
-      kind: 'check',
-      type: 'single',
-      cjStep: 'take-action',
-      stem: 'Ordered: cephalexin 25 mg/kg/day divided every 6 hours for a 15 kg child. How many mg per dose?',
-      options: ['93.8 mg', '375 mg', '62.5 mg', '150 mg'],
-      correct: [0],
-      rationales: ['375 mg a day over 4 doses.', 'That is the daily dose.', 'No.', 'No.'],
-      ...x,
-    });
-  const set = [q({ id: 'm1' }), q({ id: 'm2', stem: q().stem + ' (Answer: 93.8 mg.)' })];
-  expect(validItems(set).map((x) => x.id)).toEqual(['m1']);
-  expect(validItems(set).filter((x) => itemType(x) === 'single')).toHaveLength(1);
-  expect(validItems('nope')).toEqual([]);
+  expect(validateItem(plain, { strict: true })).toEqual({ ok: true, errors: [], warnings: [] });
+  expect(() => scoreAnswer(open(), 'Fluid ends up in the lungs.')).toThrow(/not scored/);
 });
