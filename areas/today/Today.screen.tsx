@@ -30,17 +30,8 @@ export function TodayScreen({
   services?: { readCopy?: ReadCopyLike };
   onNavigate?: (path: string) => void;
 }) {
-  const {
-    data,
-    token,
-    refused,
-    error,
-    alert,
-    planWaiting,
-    tick,
-    addPlan,
-    addDate,
-  } = useToday(services?.readCopy);
+  const { data, token, refused, error, alert, tick, addPlan, addDate } =
+    useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
   const [openId, setOpenId] = useState<string>();
   // Esc closes the Detail panel.
@@ -68,12 +59,7 @@ export function TodayScreen({
       </div>
     );
   const view = data ?? EMPTY;
-  // The study plan job names no exam: the soonest one is the one it waits for.
-  const upcoming = view.upcoming.map((d, i) =>
-    planWaiting && i === 0
-      ? { ...d, meta: `${d.meta} · study plan waiting for you` }
-      : d,
-  );
+  const upcoming = view.upcoming;
   const opened = upcoming.find((d) => d.id === openId);
   return (
     <>
@@ -113,8 +99,12 @@ export function TodayScreen({
       {opened ? (
         <ExamDetail
           exam={opened}
-          planWaiting={!!planWaiting && opened.id === upcoming[0]?.id}
-          onReviewPlan={onNavigate ? () => onNavigate("/activity") : undefined}
+          onReviewPlan={
+            onNavigate
+              ? () =>
+                  onNavigate(`/library?open=${encodeURIComponent(opened.id)}`)
+              : undefined
+          }
           onClose={() => setOpenId(undefined)}
         />
       ) : null}

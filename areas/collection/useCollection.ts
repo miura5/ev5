@@ -65,6 +65,19 @@ export function useCollection(
         const p = await get<{ pins: WirePin[] }>("pins", token, copy).catch(
           () => ({ pins: [] as WirePin[] }),
         );
+        // Items in Recently deleted stay out until restored; an unreadable list hides nothing.
+        const del = await get<{
+          deletions: { collection: string; id: string }[];
+        }>("deletions", token, copy).catch(() => ({ deletions: [] }));
+        const gone = new Set(
+          (Array.isArray(del.deletions) ? del.deletions : []).map(
+            (x) => `${x.collection}/${x.id}`,
+          ),
+        );
+        const alive = (x: { collection: string; id: string }) =>
+          !gone.has(`${x.collection}/${x.id}`);
+        m.memberships = m.memberships.filter(alive);
+        p.pins = p.pins.filter(alive);
         const kinds = [
           ...new Set([
             ...m.memberships.map((x) => x.collection),
