@@ -65,13 +65,23 @@ export async function continueJob(env: Env, def: JobDef, jobId: string, answer: 
   if (!cur || cur.state !== 'needs-you' || !cur.step) throw new Error(`job ${jobId} is not waiting for you`);
   const ex = env.executors[def.executor];
   if (!ex) throw new Error(`no ${def.executor} executor for ${def.kind}`);
+  // A bad answer is refused before anything moves: the job stays waiting for a better one.
+  def.answer?.(answer);
   const step = cur.step;
   const next = await update(env.store, jobId, (r) => transition(r, { to: 'running', at: env.now() }));
   const round = next.v;
-  await ex.start(continuationId(jobId, step, round), next, answer, {
-    from: step,
-    round,
-  });
+  try {
+    await ex.start(continuationId(jobId, step, round), next, answer, {
+      from: step,
+      round,
+    });
+  } catch (e) {
+    // No instance is running, so the job goes back to waiting where it was instead of sitting in running.
+    await update(env.store, jobId, (r) =>
+      transition(r, { to: 'needs-you', at: env.now(), step, reason: cur.reason ?? 'Waiting for your answer.' }),
+    ).catch(() => undefined);
+    throw e;
+  }
   return next;
 }
 
