@@ -45,7 +45,12 @@ test('every migration is idempotent and only adds', () => {
   assert.equal(shape(db), once);
   const after = JSON.parse(once) as { name: string; sql: string }[];
   for (const o of base) assert.equal(after.find((x) => x.name === o.name)?.sql, o.sql);
-  for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|ALTER|DELETE|UPDATE)\b/i, m);
+  for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|DELETE|UPDATE)\b/i, m);
+  // §data.additive: adding a column is an ordinary migration; every other ALTER form (rename, drop) stays banned.
+  for (const m of migrations) {
+    const sql = read(m).replace(/--.*$/gm, '').replace(/\bALTER\s+TABLE\s+\w+\s+ADD\s+COLUMN\b/gi, '');
+    assert.doesNotMatch(sql, /\bALTER\b/i, m);
+  }
 });
 
 test('deletions soft-deletes: a row is added, no document is removed', () => {
