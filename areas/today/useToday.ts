@@ -85,6 +85,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         const planedits = await saved("today:planedits", () =>
           list("planedits", token),
         ).catch((): WireDoc[] => []);
+        // The approved plan's sessions live in its document; unreadable, Today just lists none from it.
+        const plans = await saved("today:plans", () =>
+          list("plans", token),
+        ).catch((): WireDoc[] => []);
         let jobs: WireJobLine[] = [];
         try {
           jobs = (await jobApi.list(token, copy)) as WireJobLine[];
@@ -98,7 +102,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         const dayedit = day ?? undefined;
         if (live) {
           setData(
-            mapToday({ exams, weakspots, dayedit, jobs, planedits }, now),
+            mapToday(
+              { exams, weakspots, dayedit, jobs, planedits, plans },
+              now,
+            ),
           );
           setError(undefined);
         }

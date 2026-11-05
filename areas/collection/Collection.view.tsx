@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   Button,
   Glyph,
@@ -19,6 +20,8 @@ export interface CollectionEntry {
   to?: string;
 }
 
+export type NewKind = "note" | "set" | "date" | "collection";
+
 export interface CollectionViewProps {
   title: string;
   /** The parent collection's name, when this one is nested. */
@@ -37,7 +40,10 @@ export interface CollectionViewProps {
     id: string,
     action: "open" | "pin" | "unpin" | "delete",
   ) => void;
-  onNew?: () => void;
+  /** The New menu pick: a note, a set, a date, or a collection inside (not offered inside a nested one). */
+  onNewHere?: (kind: NewKind) => void;
+  /** A collection just made: its title takes the cursor, selected, ready to type. */
+  focusTitle?: boolean;
   onTogglePin?: () => void;
   onBack?: () => void;
   onRename?: (title: string) => void;
@@ -100,6 +106,19 @@ export function CollectionView(p: CollectionViewProps) {
       onAction={p.onItemAction}
     />
   );
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!p.focusTitle || !el) return;
+    el.focus();
+    getSelection()?.selectAllChildren(el);
+  }, [p.focusTitle]);
+  const newItems: MenuItem[] = [
+    { key: "note", label: "Note" },
+    { key: "set", label: "Set" },
+    { key: "date", label: "Date" },
+    ...(p.parent ? [] : [{ key: "collection", label: "Collection inside" }]),
+  ];
   const count = p.dates.length + p.nested.length + p.items.length;
   return (
     <section className="ev-coll" aria-label="Collection">
@@ -112,6 +131,7 @@ export function CollectionView(p: CollectionViewProps) {
         <Glyph type="collection" />
         <div className="ev-coll-heading">
           <h1
+            ref={titleRef}
             className="ev-coll-title"
             contentEditable={p.onRename ? true : undefined}
             suppressContentEditableWarning
@@ -133,9 +153,16 @@ export function CollectionView(p: CollectionViewProps) {
         >
           {p.pinned ? "Unpin" : "Pin"}
         </Button>
-        <Button kind="text" hint="C" onClick={p.onNew}>
-          New
-        </Button>
+        <Menu
+          label="New in this collection"
+          items={newItems}
+          onPick={(k) => p.onNewHere?.(k as NewKind)}
+          trigger={
+            <Button kind="text" hint="C" aria-label="New in this collection">
+              New
+            </Button>
+          }
+        />
         {p.onDelete ? (
           <Button kind="text" onClick={p.onDelete}>
             Delete
