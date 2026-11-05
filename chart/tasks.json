@@ -17806,7 +17806,7 @@
   "id": "B-1018",
   "kind": "task",
   "title": "Kit Page takes an editable title and a leading glyph, and the kit has a Move picker",
-  "dod": "kit Page (or a kit EditableTitle) renames on blur, Enter commits, Escape reverts, can focus and select its title when just made, shows a placeholder, and takes an optional leading glyph (design/mockup.html line 350); a kit Move picker (or Menu items) lists collections by name with the current one ticked; stories and tests for each; both themes match design/mockup.html",
+  "dod": "kit Page (or a kit EditableTitle) renames on blur, Enter commits, Escape reverts, can focus and select its title when just made, shows a placeholder, and takes an optional leading glyph (design/mockup.html line 350); a kit Move picker (or Menu items) lists collections by name with the current one ticked; kit Row gets an always-visible actions option so a row's button is reachable by keyboard and touch (Activity's Got it button on the monthly spend alert, moved into Row actions by B-975, is hover-only until then); stories and tests for each; both themes match design/mockup.html",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
