@@ -155,3 +155,27 @@ test("own sets, their items and append-only attempts", async () => {
     true,
   );
 });
+
+test("drafts: a change is pinned to the version read; plans and settings replace by key", async () => {
+  const t = setup();
+  await t.drafts.create({
+    id: "d1",
+    jobId: "ev",
+    kind: "suggestion",
+    targetC: "commands",
+    targetId: "x",
+    body: "{}",
+  });
+  assert.equal(await t.drafts.edit("d1", 2, "{}"), false);
+  assert.equal(await t.drafts.edit("d1", 1, '{"a":1}'), true);
+  assert.equal(await t.drafts.claim("d1", 1, "kept", "{}"), false);
+  assert.equal(await t.drafts.claim("d1", 2, "kept", '{"a":1}'), true);
+  assert.equal(await t.drafts.reopen("d1", 2), false);
+  assert.equal(await t.drafts.reopen("d1", 3), true);
+  await t.deletions.markCollection("c1");
+  assert.equal(await t.deletions.restore("c1"), 1);
+  await t.jobPlans.put("j", "scope", { a: 1 });
+  await t.jobPlans.put("j", "scope", { a: 2 });
+  await t.settings.putNumbers({ k: 1 });
+  await t.settings.putNumbers({ k: 2 });
+});

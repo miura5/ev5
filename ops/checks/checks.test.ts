@@ -13,6 +13,7 @@ import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
 import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
+import { checkServerWrites } from './serverwrites.ts';
 import { checkTrailers } from './trailer.ts';
 
 // A temp repo from {path: text}; the returned root holds the files and listFiles walks it.
@@ -128,4 +129,15 @@ test('planjob: the class, the ev4 binding and migration must be present, and no 
   assert.equal(checkPlanJob(noCfg.root, noCfg.files).length, 2);
   const del = repo({ 'server/worker.ts': 'export class PlanJob {}', 'wrangler.jsonc': cfg.replace('"tag"', '"deleted_classes": ["PlanJob"], "tag"') });
   assert.equal(checkPlanJob(del.root, del.files).length, 1);
+});
+
+test('server-writes: a raw INSERT, UPDATE or DELETE in server/ fails; reads, tests and data/ pass', () => {
+  const r = repo({
+    'server/a.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
+    'server/b.ts': 'db.prepare(\n  `update drafts SET v = 1`)',
+    'server/c.ts': "db.prepare('DELETE FROM deletions')",
+    'server/ok.ts': 'db.prepare("SELECT 1 FROM drafts")',
+    'server/a.test.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
+    'data/tables/x.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")' });
+  assert.deepEqual(checkServerWrites(r.root, r.files).map(f => f.file).sort(), ['server/a.ts', 'server/b.ts', 'server/c.ts']);
 });

@@ -1,5 +1,7 @@
 // What a Workflow instance does (CONTRACT §job.steps): pick the job kind's definition and handlers, then runJob.
 // Kept apart from the WorkflowEntrypoint class so tests run it in Node with the fake Workflows and no Cloudflare runtime.
+import { tablesRepo } from "../data/index.ts";
+import type { DocsD1 } from "../data/index.ts";
 import {
   askChanges,
   d1CeilingStore,
@@ -86,14 +88,14 @@ export async function saveCeilingConfig(
   c: CeilingConfig,
   at: number,
 ): Promise<void> {
-  for (const [name, key] of Object.entries(CEILING_KEYS))
-    await db
-      .prepare(
-        "INSERT INTO claude_settings (key, value, at) VALUES (?, ?, ?) " +
-          "ON CONFLICT (key) DO UPDATE SET value = excluded.value, at = excluded.at",
-      )
-      .bind(key, c[name as keyof CeilingConfig], at)
-      .run();
+  await tablesRepo(db as DocsD1, { clock: () => at }).settings.putNumbers(
+    Object.fromEntries(
+      Object.entries(CEILING_KEYS).map(([name, key]) => [
+        key,
+        c[name as keyof CeilingConfig],
+      ]),
+    ),
+  );
 }
 
 /** Practice set content between steps: the result and any failure, in job_plans (keyed by job id). */
@@ -102,13 +104,7 @@ export function d1PracticeStore(
   clock: () => number,
 ): PracticeStore {
   const put = async (jobId: string, kind: string, body: unknown) => {
-    await db
-      .prepare(
-        "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, ?, ?, ?) " +
-          "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
-      )
-      .bind(jobId, kind, JSON.stringify(body), clock())
-      .run();
+    await tablesRepo(db as DocsD1, { clock }).jobPlans.put(jobId, kind, body);
     return `${jobId}:${kind}`;
   };
   const get = async <T>(jobId: string, kind: string) => {

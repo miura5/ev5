@@ -34,6 +34,65 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
             .bind(id, setId, kind)
             .first<{ id: string }>()
         )?.id ?? null,
+      /** Saves a new pending draft at version 1. */
+      create: async (d: {
+        id: string;
+        jobId: string;
+        kind: string;
+        targetC: string;
+        targetId: string;
+        body: string;
+      }): Promise<void> => {
+        await db
+          .prepare(
+            "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
+          )
+          .bind(
+            d.id,
+            d.jobId,
+            d.kind,
+            d.targetC,
+            d.targetId,
+            d.body,
+            opts.clock(),
+          )
+          .run();
+      },
+      /** Moves a pending draft to `state` with `body`, only if it is still at version `v`; whether it moved. */
+      claim: async (
+        id: string,
+        v: number,
+        state: "kept" | "dropped",
+        body: string,
+      ): Promise<boolean> =>
+        (
+          await db
+            .prepare(
+              "UPDATE drafts SET state = ?, body = ?, at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'pending'",
+            )
+            .bind(state, body, opts.clock(), id, v)
+            .run()
+        ).meta.changes > 0,
+      /** Hands a kept draft back to pending, only if it is still at version `v`; whether it moved. */
+      reopen: async (id: string, v: number): Promise<boolean> =>
+        (
+          await db
+            .prepare(
+              "UPDATE drafts SET state = 'pending', at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'kept'",
+            )
+            .bind(opts.clock(), id, v)
+            .run()
+        ).meta.changes > 0,
+      /** Replaces a pending draft's body, only if it is still at version `v`; whether it changed. */
+      edit: async (id: string, v: number, body: string): Promise<boolean> =>
+        (
+          await db
+            .prepare(
+              "UPDATE drafts SET body = ?, at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'pending'",
+            )
+            .bind(body, opts.clock(), id, v)
+            .run()
+        ).meta.changes > 0,
       /**
        * Keeps or drops each draft in ONE batch. A keep copies the draft into its set first. Each statement is pinned to
        * the version read and the pending state, so a draft that changed meanwhile is left alone.
@@ -70,6 +129,15 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
             "INSERT INTO deletions (c, id, at) VALUES ('own_set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
           )
           .bind(`${setId}/${itemId}`, opts.clock())
+          .run();
+      },
+      /** Soft delete of a collection; its items are not touched and show ungrouped until it is restored. */
+      markCollection: async (id: string): Promise<void> => {
+        await db
+          .prepare(
+            "INSERT INTO deletions (c, id, at) VALUES ('collections', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+          )
+          .bind(id, opts.clock())
           .run();
       },
       /** Takes an id back out of Recently deleted; the number of rows cleared. */
