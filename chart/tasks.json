@@ -17063,7 +17063,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; read nothing outside kit. Start after B-958 (undefined tokens and easing) merges. Cite to the builder: §ui.mockup (unstyled Radix primitives and cmdk for behaviour only, the kit owns every pixel), §ui.kit-leads, §ui.gallery, §ui.status (status shows only as a dot or a meter), §ui.three-sizes. Tabs and Segmented take their keyboard and focus behaviour from @radix-ui/react-toggle-group, which the kit already uses; no new package. Dot and Meter are plain elements.",
+  "notes": "Dot, Meter, Tabs, Segmented exported (#487). Visual baselines kit-dark/light not regenerated (no Docker); visual check red, not required to merge. Not compared with mock-up side by side.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17089,7 +17089,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; read nothing outside kit. Matches the mock-up's .head, .phead, .crumb, .sec, .sec-head and .empty rules. Built from kit Button, never a new button look.",
+  "notes": "Page, Section, Empty (#489), exported with @public tags because no area uses them yet (knip). Baselines not regenerated.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17101,7 +17101,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write shell/; read kit/. Interface change on shell: expand now (the new optional prop), migrate in the area tasks, then contract in the guard task. Today's and Library's exam Detail content stays in each area until the audit's proposal H (a shared feature home) is decided.",
+  "notes": "Shell draws the one Detail via optional onDetail (#488); no area calls it yet; easing token not used (stylelint refuses var(--ease) in animation).",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
