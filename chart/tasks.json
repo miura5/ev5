@@ -2188,14 +2188,14 @@
  {
   "id": "B-755",
   "kind": "task",
-  "title": "S-81: The Mac executor for Canvas (needs Matt present)",
+  "title": "S-81: Optional Canvas import from the Mac (needs Matt present)",
   "dod": "The Canvas sync runs on the Mac in small read-only parts, follows pagination past 100 items, and reports through report_job over the executor token (CONTRACT §job.executors, §data.canvas)",
-  "milestone": "Phase 6",
+  "milestone": "after-cutover",
   "status": "open",
   "depends": [
    "B-753"
   ],
-  "notes": "",
+  "notes": "2026-11-05: off the cutover list (build-order decision of 21:46Z); an optional import after cutover. Gate 6 no longer waits on it.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -2271,12 +2271,11 @@
   "status": "open",
   "depends": [
    "B-754",
-   "B-755",
    "B-756",
    "B-757",
    "B-759"
   ],
-  "notes": "",
+  "notes": "2026-11-05: B-755 (Canvas) left the gate; it is an optional import after cutover.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -2288,7 +2287,8 @@
   "milestone": "Phase 7",
   "status": "open",
   "depends": [
-   "B-760"
+   "B-760",
+   "B-1051"
   ],
   "notes": "",
   "commit": null,
@@ -2302,7 +2302,8 @@
   "milestone": "Phase 7",
   "status": "open",
   "depends": [
-   "B-760"
+   "B-760",
+   "B-1051"
   ],
   "notes": "",
   "commit": null,
@@ -2316,7 +2317,8 @@
   "milestone": "Phase 7",
   "status": "open",
   "depends": [
-   "B-760"
+   "B-760",
+   "B-1051"
   ],
   "notes": "",
   "commit": null,
@@ -4942,10 +4944,10 @@
   "title": "E.V. never cites a deleted note or set, and picks the best passages before it cuts the list",
   "dod": "findPassages leaves out documents in Recently deleted and ranks every match before it keeps the top candidates; a test proves a deleted note is never an excerpt and the best match survives more than 60 matches",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit finding 1 (the small part): server/excerpts.ts reads no deletions and applies LIMIT before ranking.",
-  "commit": null,
+  "notes": "Run 86 #539.",
+  "commit": "3a8cfc1",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
@@ -5462,11 +5464,13 @@
   "title": "Migrations baseline for v5's own tables, held to the row shapes",
   "dod": "One empty-database baseline migration creates every table with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Slice write: data/migrations",
   "milestone": "Phase 6",
-  "status": "done",
+  "status": "open",
   "depends": [
-   "B-997"
+   "B-997",
+   "B-1022",
+   "B-1035"
   ],
-  "notes": "PR 516: migration 0005 pointer indexes; PRAGMA table_info test against 14 domain row shapes; ADD COLUMN allowed. exam, objective, weak spot, set, session, note have no row shape yet.",
+  "notes": "PR 516: migration 0005 pointer indexes; PRAGMA table_info test against 14 domain row shapes; ADD COLUMN allowed. exam, objective, weak spot, set, session, note have no row shape yet. Reopened 2026-11-05: the done bar is not met on main. Migrations 0000 to 0005 create no table for exam, objective, weak spot, set, session, note, plan or talk; PR 516 added pointer indexes only. Remaining: the one migration for B-1035's design, with the PRAGMA test against B-1022's new row shapes; the export and drill then cover every new table.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5524,12 +5528,12 @@
   "title": "Job runtime stores go through data/",
   "dod": "jobs/runtime/d1-stores.ts holds no SQL; job records, job state, ceilings and model usage use data/ repositories through the gate; ops/checks refuses SQL in jobs/ (§data.gate). Slice write: jobs/runtime",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-955"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 86 #540 (data repos) and #542 (runtime adapters; the serverwrites check now refuses SQL in jobs/). No model-usage store exists, so none was built.",
+  "commit": "1e29f6a",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
@@ -5538,13 +5542,14 @@
   "title": "Practice job output is the stored set item",
   "dod": "The practice job's output schema is derived from the domain set-item row (id, sourceRef pattern and all); its items land through the gate; a model reply that fails the shape is repaired once or refused with a reason (§model.output, §data.gate). Slice write: jobs/practice",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "blocked",
   "depends": [
    "B-955",
-   "B-997"
+   "B-997",
+   "B-1035"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 86 #538. Left: model-facing ItemSchema still hand-written (domain setItemSchema not exported from the barrel); saveOutput does not parse bodies before insert. 2026-11-05: PR #538 (merged 21:01Z, run 86) fits each item to the ev4 sets document shape (schema 3, writer, sourceRef materials/ or note/). Blocked by B-1035 for a recheck: once the design gives the set item table, the job output lands there and materials/ refs go until a table exists.",
+  "commit": "07c3481",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
@@ -5553,12 +5558,13 @@
   "title": "Study plan output lands as plans and plan_items",
   "dod": "The study plan job's output goes through domain/plan into plans and plan_items; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/plan, domain/plan",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "blocked",
   "depends": [
    "B-955",
-   "B-997"
+   "B-997",
+   "B-1035"
   ],
-  "notes": "",
+  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5791,11 +5797,12 @@
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
   "dod": "domain/ has row shapes for exam, objective, weak spot, set, session, note, course, claude_* and system_docs; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "blocked",
   "depends": [
-   "B-997"
+   "B-997",
+   "B-1035"
   ],
-  "notes": "Part one merged (PR 518): domain/claude, domain/system-doc, parseDraft exported; data, jobs/runtime, ceilings parse through domain shapes; deletion and job-plan at is an integer. Remains: Zod shapes for exam..course (hand validators today), a domain plan-body shape so commands/ and jobs/ drop PlanSchema, server/ SQL for claude_settings and job_plans via the domain, areas WireDoc removal.",
+  "notes": "Part one merged (PR 518): domain/claude, domain/system-doc, parseDraft exported; data, jobs/runtime, ceilings parse through domain shapes; deletion and job-plan at is an integer. Remains: Zod shapes for exam..course (hand validators today), a domain plan-body shape so commands/ and jobs/ drop PlanSchema, server/ SQL for claude_settings and job_plans via the domain, areas WireDoc removal. 2026-11-05: blocked by B-1035 (table design). Its remainder, Zod shapes over the ev4 document shapes for exam to course, is paused; after the design's decision it is re-scoped to the row shapes of the new tables (shape-fixes review, step 3).",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5920,10 +5927,403 @@
   "title": "Kit: a one-cell editor row, a multiple-choice practice card, and a Row bar slot",
   "dod": "The kit has an editor row with one cell, a practice card with options, and a Row slot for an always-visible meter; Library drops its .ev-library-card* CSS and the meter wrapper, and a steps set's rows show one cell (§ui.kit-leads); both themes match design/mockup.html",
   "milestone": "Phase 6",
+  "status": "done",
+  "depends": [],
+  "notes": "Run 86 #541; baselines regenerated by the visual-baselines workflow (B-1021 fix worked). Not compared to the mock-up in a browser.",
+  "commit": "49d23b0",
+  "source": "B-971 report"
+ },
+ {
+  "id": "B-1033",
+  "kind": "task",
+  "title": "data/: plans and plan_items tables, migration and gated repository (B-1004 part 2)",
+  "dod": "Migration adds plans and plan_items (unique on plan_id, repeat, day); repository writes plan row and items in one batch through the gate using domain approvePlan, putAwayPlan, settle (§data.gate, §data.repeat). Slice write: data/",
+  "milestone": "Phase 6",
+  "status": "blocked",
+  "depends": [
+   "B-1004",
+   "B-1035"
+  ],
+  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts.",
+  "commit": null,
+  "source": "B-1004 report"
+ },
+ {
+  "id": "B-1034",
+  "kind": "task",
+  "title": "jobs/runtime: d1PlanStore approve and put-away use the plans repository (B-1004 part 3)",
+  "dod": "d1PlanStore.approve/putAway call the data plans repository instead of server/plan-home.ts home.apply; one path each. Slice write: jobs/runtime, server/plan-home.ts",
+  "milestone": "Phase 6",
+  "status": "blocked",
+  "depends": [
+   "B-1033",
+   "B-1035"
+  ],
+  "notes": "2026-11-05: blocked by B-1035, behind B-1033, for a recheck against the table design.",
+  "commit": null,
+  "source": "B-1004 report"
+ },
+ {
+  "id": "B-1035",
+  "kind": "task",
+  "title": "Table design: one table per stored kind, with attempts, event rows and link rows",
+  "dod": "A design doc in docs/proposals/ gives one table per stored kind under §data.tables, with its columns, ids, pointers and indexes: goals (an exam is one kind of goal; kinds are data; the date is optional), objectives, links, attempts, weak spots and their events, sets and items, sessions and their events, notes, plans and plan_items, talk, and files. It settles: one append-only attempts table for every kind of practice (sets, questions in notes, Ask E.V.), each row with the item's id and v, how it was answered, a score from 0 to 1 or none, and where it came from (§data.append-only, §data.item-versions); weak-spot, session and talk events as rows, never rewrites of a document; Ask E.V. turns as talk rows; links as the one many-to-many table, with rows from a goal to material, a goal to an objective and material to an objective (a link points at a goal or an objective by a (kind, id) pair, §data.links); course facts (an optional Canvas id, active or done) as columns on collection rows (§data.course-facts); which override documents (dateedits, examedits, planedits, dayedits) go; a deleted_at column on each deletable table as the one delete mechanism, in place of the deletions side table and its joins (§delete.soft); ev4's claude_usage, claude_reads and claude_plan_asks tables and its per-target system documents left out, and settings given a v (§data.protocol); the end of the generic docs route (PUT /docs and /docs/batch accept any kind and check only notes), once each kind has its table and command and the outbox posts to commands (§data.gate); a v5 export file kind with a manifest per v5 table, so a restore refuses an ev4 backup; and that every table is in the export and the restore drill (§data.export). The build manager reviews the doc and records a decision before the follow-on tasks start. Slice: write docs/proposals; read domain, data, server, jobs.",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Found by B-971 (run 85). Slice: write kit/, then areas/library/.",
+  "notes": "Group 4 (D-489 order as amended by D-495). First, and it blocks the rest of the data layer. The migration is B-998 (reopened) and the row shapes are B-1022 (re-scoped). Ported ev4 document shapes are reference only (D-494). Also covers the ev4 spillover audit traces T2, T3, T5, T6, T7, T8 and T15.",
   "commit": null,
-  "source": "B-971 report"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1036",
+  "kind": "task",
+  "title": "Checks so ev4 traces cannot come back",
+  "dod": "ops/checks, ESLint, dependency-cruiser or ops/record lint refuse, each with a red fixture PR recorded (§drift.checks): (1) subject words (nursing, NCLEX, clinical, dosage, cjStep, patient, course codes like NUR 112, ATI) in non-test source, prompts and seeds, no allow list; (2) a kind written to the generic docs table that is not on a shrinking list of kinds still moving, and once docs is gone, SQL naming docs, the ev4 collection names (dayedits, planedits, dateedits, examedits, answers) or the ev4 envelope (writer, a source starting v5, schema numbers), and any import of data/compat; (3) a table without a kind-prefixed id, at, v and, where deletable, deleted_at, or out of step with its domain row shape, in place of the ev4-equality migration test; (4) an export used only by its tests (knip --production with tests excluded, short allow list); (5) a §id in source that is ended or not in CONTRACT; (6) the word ev4 in non-test source outside the cutover allow list (server/ev4-routes.ts, server/worker.ts, public/retire-ev4.js, ops/checks/planjob.ts, ops/checks/account.ts, ops/record/); (7) a restore of an ev4 export kind; (8) e2e, seeds or staging scripts that write by PUT /docs instead of commands; (9) an open Chart task whose done bar names an ev4 path (tools/, core/, pwa/, page/, spec.). Slice: write ops/checks, ops/guards, eslint.config.js, the dependency-cruiser config, knip.json, ops/record/lint.ts.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1035"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495). Split if large: check 2's docs-kind list lands first, right after the table design, so no new document kind appears while the kinds move; each other check lands with or after the task that clears its traces (checks 1, 6 and 7 after the ev4 and subject-code removal sweep). Comments that give ev4 files as a reason (spillover T23) are rewritten by the task that moves their kind.",
+  "commit": null,
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1037",
+  "kind": "task",
+  "title": "Every practice answer lands as one attempts row through one command",
+  "dod": "The Library study run, the study.attempt command (own sets and E.V.'s sets), check-ins in a note session and Ask E.V.'s 'just tell me' each write one attempts row through the gate by one command; the outbox's answer kind posts to that command, not PUT /docs; own_attempts rows and answers documents are no longer written; a refused answer in the outbox is shown, not kept silently; tests pin each writer (§data.append-only, §data.gate, §data.item-versions). Slice: write data/, server/, commands/, shell/outbox (split along the layers if over 400 lines).",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1038",
+  "kind": "task",
+  "title": "Goals and objectives move to their own tables, joined by link rows",
+  "dod": "Exams and hand-made dates are one goal record: a goal made with date.create shows on Today and Library, and Plan with E.V. finds it; objectives live in their table and reach goals and material through link rows, not one exam id or a split of the objective id; the dateedits and examedits documents are gone; writes go through the gate (§data.tables, §data.links, §data.gate). Slice: write domain/, data/, server/ (split along the layers if over 400 lines).",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1039",
+  "kind": "task",
+  "title": "Weak spots and their events move to rows",
+  "dod": "Weak spots live in their table and each event is an appended row, so two quick taps never race into 'that changed; try again'; a weak spot points at its objective, not at its own exam and course; writes go through the gate (§data.append-only, §data.tables). Slice: write domain/weak-spot, data/, server/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1040",
+  "kind": "task",
+  "title": "Sets and items move to one set table and one item table",
+  "dod": "Own sets and E.V.'s sets share one set table and one item table with item v (§data.item-versions); copy-on-first-edit goes; a sourceRef names only kinds that have a table; writes go through the gate (§data.tables, §data.gate). Slice: write domain/set, data/, server/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1041",
+  "kind": "task",
+  "title": "Sessions and their events move to rows",
+  "dod": "Sessions live in their table and each session event is an appended row, not a rewrite of the session document; writes go through the gate (§data.append-only, §data.tables). Slice: write domain/session, data/, server/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1042",
+  "kind": "task",
+  "title": "Notes move to their own table",
+  "dod": "Notes live in their table with the plain-text search column (§data.search); writes go through the gate; the note editor round trip still passes (§data.tables, §data.notes). Slice: write domain/note, data/, server/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1043",
+  "kind": "task",
+  "title": "E.V. conversation is talk rows, and Ask E.V. keeps its chat",
+  "dod": "Session check-in lines and Ask E.V. turns are appended talk rows in the one talk table; Ask E.V. saves each turn and sends the saved conversation, capped by count or tokens, through the ceilings already in place (§model.ceilings); a reload keeps the chat; no summarising (§data.append-only). Slice: write data/, server/; the Ask screen part is in B-1007.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1044",
+  "kind": "task",
+  "title": "One server read for what is due and for weak-spot state, from the attempts rows",
+  "dod": "One server read derives each weak spot's state, the date it became due, and the due items from the attempts rows; Today, Library and the study run call it, so practice moves readiness, streak and due dates; the page's 'latest answer wrong' rule (domain/answers/tally.ts) goes; derived state is never stored (§data.append-only). Fixes: Today and Library ignore answers. Slice: write server/, domain/weak-spot.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1037",
+   "B-1039"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1045",
+  "kind": "task",
+  "title": "Note pictures get a files row and are in the export and the restore drill",
+  "dod": "Each stored note picture has a files row (id, type, size, SHA-256, owner pointer, at, v); the export copies the bytes or lists them with their hashes, and the restore drill checks them; an orphan picture is reported (§data.links, §data.export, §data.note-images, §hard.data-never-lost). Nothing is built for PDFs, slides or pages yet. Slice: write data/, server/image-routes.ts, data/export.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-998"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1046",
+  "kind": "task",
+  "title": "One toast host in the shell",
+  "dod": "The shell draws the one toast stack, fed through one hook, like the Detail host (D-482); the screens stop drawing their own kit Toast with their own state; a toast never shows over the palette, and each toast closes; test; both themes match design/mockup.html (§ui.kit-leads). Slice: write shell/, then areas/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 3 (kit drift). Shape-fixes review fix 8; the focus part is dropped.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1047",
+  "kind": "task",
+  "title": "One note renderer and one block list",
+  "dod": "areas/notes and areas/sessions draw note blocks with one renderer in kit/; the block type list lives once, in domain/note, and areas/notes/types.ts stops restating it; a test pins that a session from a note shows the title once (§ui.kit-leads). Slice: write kit/, then areas/notes, areas/sessions.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 3 (kit drift). Shape-fixes review fix 9; note-to-note links are after cutover.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1048",
+  "kind": "task",
+  "title": "Editing a question keeps its rationale, objective, source and table",
+  "dod": "set.item_update changes only the fields that were edited: rationale, objective, sourceRef and matrix survive an edit (server/handlers-sets.ts rebuilds the item from the typed text today and drops them); test. Slice: write server/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 4 (D-489 order as amended by D-495). Bug, fix inside the current structure; data loss on edit.",
+  "commit": null,
+  "source": "Learner tester probe 2026-11-05 (probe/2026-11-05-learner-testers.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1049",
+  "kind": "task",
+  "title": "Typed open answers are graded",
+  "dod": "A typed open answer is graded by the model through gradePrompt (no caller today) and its score is kept with the answer; a long answer is not cut at 600 characters without saying so; the Library study run grades a typed answer instead of asking for a self-rating; test (§model.output, §model.ceilings). Slice: write server/, jobs/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 4 (D-489 order as amended by D-495). Bug, fix inside the current structure. If the removal sweep deleted gradePrompt as unused, write the grade prompt with no subject.",
+  "commit": null,
+  "source": "Learner tester probe 2026-11-05 (probe/2026-11-05-learner-testers.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1050",
+  "kind": "task",
+  "title": "A plan whose days have all passed cannot be approved, and an old plan reads as ended",
+  "dod": "Approving a draft rechecks its dates: a draft whose days have all passed is refused with a plain reason and an offer to plan again; a plan past its last day reads as ended in Library, not approved, and Today does not drop its missed tasks without a word; test. Slice: write server/, domain/plan, areas/library.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 4 (D-489 order as amended by D-495). Bug, fix inside the current structure. Found by reading the code (jobs/study-plan save step, server/plan-home.ts apply); not yet reproduced on staging.",
+  "commit": null,
+  "source": "Learner tester probe 2026-11-05 (probe/2026-11-05-learner-testers.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1051",
+  "kind": "task",
+  "title": "Review and bug-fix rounds until Matt says the app is right",
+  "dod": "After Gate 6 and before Phase 7: each round is a read-only review or playtest, its findings filed, then the bugs fixed; rounds repeat until Matt says the app is what he wants, and Phase 7 starts only then.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-760"
+  ],
+  "notes": "Matt 2026-11-05 21:46Z: iterate with reviews and bug fixes before Phase 7.",
+  "commit": null,
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "B-1052",
+  "kind": "task",
+  "title": "Pick what counts toward a goal, and accept E.V. suggestions",
+  "dod": "A picker adds material to a goal by pick or bulk-add, and E.V.'s suggestions wait in drafts until accepted; each adds link rows (D-490).",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1053",
+  "kind": "task",
+  "title": "Link a note to another note",
+  "dod": "A note can link to another note by its id; the link survives a rename and shows where it points (§data.links).",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1054",
+  "kind": "task",
+  "title": "Sources: add PDFs, slides and web pages, and quote them by page",
+  "dod": "A source file or page is stored under the files table, and E.V. and notes can quote it by page (§ev.cites).",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1055",
+  "kind": "task",
+  "title": "New practice formats: label a picture, and steps checked one by one",
+  "dod": "Two new item formats, each one entry in the item formats, with its attempts in the one attempts table.",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1056",
+  "kind": "task",
+  "title": "Audio: listen and answer aloud",
+  "dod": "Notes can be read aloud and answers given by voice; attempts record that they were spoken.",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1057",
+  "kind": "task",
+  "title": "Rate confidence before answering",
+  "dod": "An optional confidence rating before an answer, one scale for answers and plan ratings, stored on the attempts row.",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1058",
+  "kind": "task",
+  "title": "Pages reflow at 200% zoom",
+  "dod": "Every screen reads and works at 200% browser zoom with no sideways scroll (§ui.access).",
+  "milestone": "after-cutover",
+  "status": "open",
+  "depends": [],
+  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
+  "commit": null,
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1059",
+  "kind": "task",
+  "title": "The e2e journeys create their data through commands, not hand-written ev4 documents",
+  "dod": "e2e/practice-set, e2e/study-plan and e2e/notes journeys (and the rest) set up their data through the app's commands, never by PUT /docs of hand-written documents with ev4 fields (writer, course codes, an ideas kind); they read through the same paths the screens use, not /docs?collection=; the Gate 5 journeys pass on the re-seeded staging (§deliver.no-hand-docs). Slice: write e2e/.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1009"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T19. After B-1009 re-seeds staging and each kind has its command.",
+  "commit": null,
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1060",
+  "kind": "task",
+  "title": "Neutral sample content in the mock-up and kit stories",
+  "dod": "design/mockup.html and the kit stories (Suggestion, EvLine, MovePicker, Row, NavItem, Tile, Doc, Detail) use sample content from no single subject; areas comments stop copying it; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26.",
+  "commit": null,
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1061",
+  "kind": "task",
+  "title": "Triage the ev4-era tasks: keep, merge or drop",
+  "dod": "Each open or blocked after-cutover task from the ev4 era (B-69 to B-670) is kept and reworded for v5 when it is a general need, merged into a v5 task that covers it, or declined with a reason when it names an ev4 path (tools/, core/, pwa/, page/, spec.) or asks for a subject-specific feature; one decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1035"
+  ],
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28.",
+  "commit": null,
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1062",
+  "kind": "task",
+  "title": "PLAN and AGENTS lines that still describe ev4 or one subject",
+  "dod": "PLAN.md:16 (the user as a student of one subject and its course codes), PLAN.md:187 (dates kept in ev4 collections and item_props) and PLAN.md:248 (clinical prep as a job kind) are reworded for v5 with no subject; AGENTS.md:97 (staging seeded from ev4's synthetic record), :109 ('Port ev4's tests') and :112 (export in ev4's manifest shape) are reworded to v5's own seed, tests and export kind. The data/compat lines are the removal sweep's. Slice: write PLAN.md, AGENTS.md.",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him.",
+  "commit": null,
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  }
 ]

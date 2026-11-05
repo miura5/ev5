@@ -26,7 +26,21 @@ export {
 export { accuracyLine, dueCounts } from "./answers/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
-export { addDays, centralDate, centralParts, clockTime, daysBetween, inDays, isDue, longDay, plainDay, shortDay, weekday, weekdayDay, weekdayShort } from "./time/index.ts";
+export {
+  addDays,
+  centralDate,
+  centralParts,
+  clockTime,
+  daysBetween,
+  inDays,
+  isDue,
+  longDay,
+  plainDay,
+  shortDay,
+  weekday,
+  weekdayDay,
+  weekdayShort,
+} from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
 export {
@@ -58,13 +72,26 @@ export { parseDeletion } from "./deletion/index.ts";
 /** @public */
 export { parseJobPlanRow } from "./job-plan/index.ts";
 /** @public */
-export { parseJobRecord, JOB_STATES, type JobRecordRow } from "./job-record/index.ts";
+export {
+  parseJobRecord,
+  JOB_STATES,
+  type JobRecordRow,
+} from "./job-record/index.ts";
 /** @public */
-export { parseCeilingUse, parseCeilingHold, parseCeilingUsage } from "./ceiling/index.ts";
+export {
+  parseCeilingUse,
+  parseCeilingHold,
+  parseCeilingUsage,
+} from "./ceiling/index.ts";
 /** @public */
 export { parseDraft } from "./draft/index.ts";
 /** @public */
-export { parseClaudeUsage, parseClaudeRead, parseClaudeSetting, parseClaudePlanAsk } from "./claude/index.ts";
+export {
+  parseClaudeUsage,
+  parseClaudeRead,
+  parseClaudeSetting,
+  parseClaudePlanAsk,
+} from "./claude/index.ts";
 /** @public */
 export { parseSystemDoc } from "./system-doc/index.ts";
 /** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
@@ -83,3 +110,16 @@ export { parseSessionRow, type SessionRow } from "./session/row.ts";
 export { parseNoteRow, type NoteRow } from "./note/row.ts";
 /** @public */
 export { parseCourseRow, type CourseRow } from "./course/row.ts";
+/** @public Study plan rows and their approve and put-away paths; the study plan job and the data gate import them. */
+export {
+  parsePlanRow,
+  parsePlanItemRow,
+  approvePlan,
+  putAwayPlan,
+  settle,
+  checkUnique,
+  planId,
+  type PlanRow,
+  type PlanItemRow,
+  type PlanWrite,
+} from "./plan/index.ts";
