@@ -37,13 +37,23 @@ export function examFrame(table: CourseTable, course?: string | null): ExamFrame
 export function frameText(table: CourseTable, text: string, course?: string | null): string {
   const f = examFrame(table, course);
   if (f.nursing || typeof text !== 'string') return text;
-  return text
-    .replace(/Realistic NCLEX-style client scenarios/g, f.scenarios)
-    .replace(/the NCLEX traps/g, f.traps)
-    .replace(/\(NCLEX and next-gen style[^)]*\)/g, '(' + f.style + ')')
-    .replace(/NCLEX-style/g, f.style)
-    .replace(/the NCLEX/g, f.exam)
-    .replace(/NCLEX/g, f.exam);
+  // One pass, longest phrase first: a replacement that itself mentions NCLEX is never rewritten again.
+  const to = (m: string) =>
+    m === 'Realistic NCLEX-style client scenarios'
+      ? f.scenarios
+      : m === 'the NCLEX traps'
+        ? f.traps
+        : m.startsWith('(NCLEX and next-gen style')
+          ? '(' + f.style + ')'
+          : m === 'NCLEX-style'
+            ? f.style
+            : m === 'the NCLEX' || m === 'NCLEX'
+              ? f.exam
+              : m;
+  return text.replace(
+    /Realistic NCLEX-style client scenarios|the NCLEX traps|\(NCLEX and next-gen style[^)]*\)|NCLEX-style|the NCLEX|NCLEX/g,
+    to,
+  );
 }
 
 /**

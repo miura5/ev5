@@ -23,8 +23,8 @@ export function unitOf(u: unknown, cfg: ItemConfig = ITEM_CONFIG): string | null
 
 export type Validation = { ok: boolean; errors: string[]; warnings: string[] };
 
-/** Checks one question. Errors make the item unusable; `strict` turns the missing-rationale and step warnings into errors. */
-export function validateItem(raw: unknown, opts: { strict?: boolean; cfg?: ItemConfig } = {}): Validation {
+/** Checks one question. Errors make the item unusable; `strict` turns the missing-rationale and step warnings into errors; `nursing: false` drops the step warning. */
+export function validateItem(raw: unknown, opts: { strict?: boolean; cfg?: ItemConfig; nursing?: boolean } = {}): Validation {
   const cfg = opts.cfg ?? ITEM_CONFIG;
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -79,12 +79,13 @@ export function validateItem(raw: unknown, opts: { strict?: boolean; cfg?: ItemC
   }
   if (!q.objective) warnings.push('no objective');
   if (q.cjStep && !cfg.cjSteps.includes(q.cjStep)) errors.push('unknown clinical-judgment step ' + q.cjStep);
-  if (!q.cjStep) (opts.strict ? errors : warnings).push('no clinical-judgment step');
+  // only a nursing course needs a clinical-judgment step; an unstated course keeps the nursing rule
+  if (!q.cjStep && opts.nursing !== false) (opts.strict ? errors : warnings).push('no clinical-judgment step');
   return { ok: errors.length === 0, errors, warnings };
 }
 
 /** A set's questions as every runner reads them: the usable ones whose stem does not give the answer away. */
-export function validItems(items: unknown, opts: { strict?: boolean; cfg?: ItemConfig } = {}): Item[] {
+export function validItems(items: unknown, opts: { strict?: boolean; cfg?: ItemConfig; nursing?: boolean } = {}): Item[] {
   const list: unknown[] = Array.isArray(items) ? items : [];
   return list.filter((q) => validateItem(q, opts).ok && !stemGivesAway(q as Item)) as Item[];
 }

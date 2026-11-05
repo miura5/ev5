@@ -183,6 +183,10 @@ test('exam framing: NCLEX only for a nursing course', () => {
   expect(framed).not.toMatch(/NCLEX-style client|NCLEX traps/);
   expect(framed).toMatch(/LAND 200's lecture and field exams/);
   expect(frameText(T, 'NCLEX', null)).toBe('his exams');
+  // the style words a replacement brings are not rewritten again
+  expect(frameText(T, 'Write NCLEX-style items.', 'LAND 200')).toBe(
+    'Write ' + examFrame(T, 'LAND 200').style + ' items.',
+  );
 });
 
 test('the chat course and her teaching line', () => {
