@@ -27,6 +27,7 @@ import {
   DOC_CEILING,
   type SizeWarning,
 } from "./budget.ts";
+import { parseDeletion } from "../../domain/index.ts";
 import type { D1Like, D1Statement } from "./d1.ts";
 
 /** How far back `changedSince` hands the next `since`, so a write stamped just before a read is read again. */
@@ -242,11 +243,12 @@ export function docsRepo(
 
     async markDeleted(c, id) {
       if (!(await one(c, id))) return false;
+      const row = parseDeletion({ c, id, at: clock() });
       await db
         .prepare(
           "INSERT INTO deletions (c, id, at) VALUES (?, ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
         )
-        .bind(c, id, clock())
+        .bind(row.c, row.id, row.at)
         .run();
       return true;
     },

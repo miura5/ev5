@@ -58,6 +58,12 @@ export { parseDeletion } from "./deletion/index.ts";
 /** @public */
 export { parseJobPlanRow } from "./job-plan/index.ts";
 /** @public */
-export { parseJobRecord, JOB_STATES } from "./job-record/index.ts";
+export { parseJobRecord, JOB_STATES, type JobRecordRow } from "./job-record/index.ts";
 /** @public */
 export { parseCeilingUse, parseCeilingHold, parseCeilingUsage } from "./ceiling/index.ts";
+/** @public */
+export { parseDraft } from "./draft/index.ts";
+/** @public */
+export { parseClaudeUsage, parseClaudeRead, parseClaudeSetting, parseClaudePlanAsk } from "./claude/index.ts";
+/** @public */
+export { parseSystemDoc } from "./system-doc/index.ts";

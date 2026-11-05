@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const deletionSchema = z.strictObject({
   c: z.string().min(1),
   id: z.string().min(1),
-  at: z.string().min(1),
+  at: z.number().int().min(0),
 });
 export type Deletion = z.infer<typeof deletionSchema>;
 

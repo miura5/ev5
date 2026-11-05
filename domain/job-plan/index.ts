@@ -6,7 +6,7 @@ export const jobPlanSchema = z.strictObject({
   kind: z.string().min(1),
   /** The saved content; each job validates its own body with its own schema. */
   body: z.unknown(),
-  at: z.string().min(1),
+  at: z.number().int().min(0),
 });
 export type JobPlanRow = z.infer<typeof jobPlanSchema>;
 

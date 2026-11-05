@@ -14,7 +14,8 @@ export interface D1Like {
   prepare(sql: string): D1Statement;
   batch(statements: D1Statement[]): Promise<unknown[]>;
 }
-import type { CeilingStore, Limit, StoreResult, Window } from "./ceilings.ts";
+import { parseCeilingHold, parseJobPlanRow, parseJobRecord } from "../../domain/index.ts";
+import type { CeilingStore, StoreResult, Window } from "./ceilings.ts";
 import type { JobRecord, JobStore } from "./record.ts";
 import type { Plan, PlanContext, PlanStore } from "../study-plan/job.ts";
 import type { DraftRow, PracticeItem } from "../practice-set/job.ts";
@@ -22,7 +23,7 @@ import type { DraftRow, PracticeItem } from "../practice-set/job.ts";
 type Clock = () => number;
 
 export function d1JobStore(db: D1Like, clock: Clock): JobStore {
-  const parse = (r: { data: string }) => JSON.parse(r.data) as JobRecord;
+  const parse = (r: { data: string }): JobRecord => parseJobRecord(JSON.parse(r.data));
   return {
     async get(id) {
       const r = await db
@@ -73,15 +74,15 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
         .bind(w, k)
         .first<{ used: number }>()
     )?.used ?? 0;
-  const hold = (id: string) =>
-    db
+  const hold = async (id: string) => {
+    const r = await db
       .prepare("SELECT amount, limits, open FROM ceiling_holds WHERE id = ?")
       .bind(id)
-      .first<{
-        amount: number;
-        limits: string;
-        open: number;
-      }>();
+      .first<{ amount: number; limits: string; open: number }>();
+    if (!r) return null;
+    const limits: unknown = JSON.parse(r.limits);
+    return parseCeilingHold({ id, amount: r.amount, limits, open: r.open === 1 });
+  };
   /** Adds `n` (may be negative) to every window; with `cap`, each add happens only if it stays within its limit. */
   const adds = (
     limits: { window: Window; key: string; limit?: number }[],
@@ -159,7 +160,7 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
                 .prepare("INSERT INTO ceiling_usage (key, hold_id) VALUES (?, ?)")
                 .bind(usageKey, id),
             ]),
-        ...adds(JSON.parse(h.limits) as Limit[], actual - h.amount),
+        ...adds(h.limits, actual - h.amount),
       ]);
     },
     async release(id) {
@@ -171,7 +172,7 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
       await db.batch([
         guard,
         db.prepare(STALE),
-        ...adds(JSON.parse(h.limits) as Limit[], -h.amount),
+        ...adds(h.limits, -h.amount),
       ]);
     },
     async findOpen(prefix) {
@@ -206,12 +207,13 @@ export function d1PlanStore(
   },
 ): PlanStore {
   const put = async (jobId: string, kind: string, body: unknown) => {
+    const row = parseJobPlanRow({ jobId, kind, body, at: clock() });
     await db
       .prepare(
         "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, ?, ?, ?) " +
           "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
       )
-      .bind(jobId, kind, json(body), clock())
+      .bind(row.jobId, row.kind, json(row.body), row.at)
       .run();
     return `${jobId}:${kind}`;
   };
