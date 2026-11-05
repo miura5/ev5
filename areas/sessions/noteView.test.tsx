@@ -38,7 +38,7 @@ const note = {
   },
 };
 
-function stub() {
+function stub(first?: { type: string; runs: { text: string }[] }) {
   const puts: unknown[] = [];
   vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: () => "blob:x" }));
   vi.stubGlobal(
@@ -51,7 +51,12 @@ function stub() {
       if (url.includes("note-images"))
         return { ok: true, status: 200, blob: async () => new Blob(["x"]) };
       const json = url.includes("collection=notes")
-        ? note
+        ? first
+          ? {
+              ...note,
+              data: { ...note.data, blocks: [first, ...note.data.blocks] },
+            }
+          : note
         : { docs: [session] };
       return { ok: true, status: 200, json: async () => json };
     }),
@@ -85,4 +90,12 @@ test("focus is on the session page, so Space pauses with no click first", async 
   expect(document.activeElement).toBe(page);
   fireEvent.keyDown(document.activeElement as Element, { key: " " });
   await vi.waitFor(() => expect(puts).toHaveLength(1));
+});
+
+test("a note whose first heading repeats its title shows the title once", async () => {
+  stub({ type: "h1", runs: [{ text: "Heart" }] });
+  render(<SessionsScreen />);
+  await screen.findByRole("heading", { name: "Heart" });
+  expect(screen.getAllByRole("heading", { name: "Heart" })).toHaveLength(1);
+  expect(screen.getByText("Intro")).toBeTruthy();
 });

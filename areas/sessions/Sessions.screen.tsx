@@ -105,6 +105,7 @@ export function SessionsScreen({
           {note ? (
             <NoteBlocks
               blocks={note.blocks}
+              title={note.title}
               onToggle={(i) => void toggleTodo(i)}
             />
           ) : null}
