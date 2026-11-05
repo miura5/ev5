@@ -59,6 +59,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
   "palette.open": ack,
   "palette.to_ev": ack,
   "theme.toggle": ack,
+  "notes.shortcuts": ack,
   "nav.go": ack,
 
   "item.pin": async (i: Ref, _c, x) => {
