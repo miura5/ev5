@@ -16681,10 +16681,10 @@
   "title": "Fix flaky main CI: unmount hooks after each test in useCollection.copy.test (unhandled 'window is not defined')",
   "dod": "useCollection.copy.test.tsx cleans up after each test; CI unit shards green",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
   "notes": "",
-  "commit": null,
+  "commit": "3770527",
   "source": "run 70",
   "claimedBy": "run-70",
   "claimedAt": "2026-11-05T09:09:27.961Z"
