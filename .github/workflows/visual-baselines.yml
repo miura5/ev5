@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   baselines:
@@ -24,6 +25,8 @@ jobs:
       - run: npm ci
       - run: e2e/visual-docker.sh --update-snapshots
       - name: Commit baselines
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -33,4 +36,7 @@ jobs:
           else
             git commit -m "Regenerate /kit visual baselines (Playwright Docker image)"
             git push
+            # A push made with GITHUB_TOKEN starts no workflow run, so start CI on the new commit by hand. Its
+            # `checks` result lands on that commit, which is what the PR's required check reads.
+            gh workflow run ci.yml --ref "$GITHUB_REF_NAME"
           fi
