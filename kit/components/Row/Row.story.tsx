@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Glyph } from "../Glyph/Glyph";
 import { Button } from "../Button/Button";
 import { EditorRow, Row } from "./Row";
 
@@ -38,6 +39,26 @@ export function Story() {
         fold={{ open, onToggle: () => setOpen(!open) }}
       />
       {open ? <Row title="Anticoagulants" level={1} /> : null}
+      {open ? (
+        <Row title="Heparin notes" level={2} glyph={<Glyph type="note" />} />
+      ) : null}
+      <Row
+        title="Monthly spend alert"
+        meta="80% of the ceiling"
+        actionsShown
+        actions={<Button kind="secondary">Got it</Button>}
+      />
+      <Row
+        title="Lab values"
+        onOpen={() => undefined}
+        actionsShown
+        menu={{
+          items: MENU,
+          onPick: () => undefined,
+          label: "Actions for Lab values",
+          button: true,
+        }}
+      />
       <EditorRow
         cells={[
           { label: "Term", value: term, onChange: setTerm },

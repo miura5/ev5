@@ -38,3 +38,7 @@
 .kit-menu-label {
   flex: 1;
 }
+
+.kit-menu-in1 {
+  padding-left: var(--sp-6);
+}
