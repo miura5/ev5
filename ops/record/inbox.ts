@@ -3,7 +3,7 @@
 // order, rewrites the P- references, and deletes the inbox file. Each inbox file is new, so sessions never collide.
 import fs from 'node:fs';
 import path from 'node:path';
-import { chartDir, list, serialize } from './chart.ts';
+import { allDecisions, allTasks, chartDir, list, serialize } from './chart.ts';
 import type { Chart, InboxEntry, InboxFile } from './chart.ts';
 import { decisionAdd } from './decisions.ts';
 import { taskAdd } from './tasks.ts';
@@ -35,7 +35,7 @@ export function inboxAdd(root: string, rec: Chart, o: Opts, session: string): Do
   const mine = new Map(cur.entries.map(e => [e.id, e.type]));
   for (const f of REF_FLAGS[type])
     for (const x of list(flags[f])) {
-      const ok = P.test(x) ? mine.get(x) === type : (type === 'task' ? rec.tasks : rec.decisions).some(y => y.id === x);
+      const ok = P.test(x) ? mine.get(x) === type : (type === 'task' ? allTasks(rec) : allDecisions(rec)).some(y => y.id === x);
       if (!ok)
         throw new Error(`--${f} ${x}: ${P.test(x) ? 'no such earlier entry in this inbox' : 'not in the record'}`);
     }

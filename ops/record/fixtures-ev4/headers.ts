@@ -1,5 +1,5 @@
 // ev4's header lines, copied verbatim from its renderer, so a test can show the carried record prints exactly as
-// ev4's committed BACKLOG.md, DECISIONS.md and CHANGELOG.md. The ids inside are ev4's text, not reasons in code.
+// ev4's committed BACKLOG.md and DECISIONS.md. The ids inside are ev4's text, not reasons in code.
 import type { Headers } from '../render.ts';
 
 const GENERATED =
@@ -22,12 +22,5 @@ export const EV4_HEADERS: Headers = {
     'Change one with `log decision`; npm test fails when this file and chart/decisions.json differ. D-001 to D-043 are',
     "in the v2 doc's decision log.",
     'Superseded decisions are in chart/decisions.json: `node tools/chart.mjs brief` or `trace`.',
-  ],
-  changelog: n => [
-    '# CHANGELOG.md: E.V. v4 deploys',
-    '',
-    GENERATED,
-    'A deploy reaches it through `ship` (or `log deploy`); npm test fails when this file and chart/deploys.json differ.',
-    `The last ${n} live releases only; every deploy is in chart/deploys.json.`,
   ],
 };

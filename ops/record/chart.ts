@@ -1,5 +1,6 @@
 // The Chart on disk: its files, statuses and kinds, load and save in ev4's exact serialization, the next free ids and
-// Central time. deploys.json is ev4's frozen deploy history: it is loaded, rendered and linted, never written.
+// Central time. deploys.json and history/ (ev4's finished tasks and its older decisions) are frozen: they are
+// loaded and linted, links resolve into them, and they are never written.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -9,7 +10,6 @@ export const DECISION_STATUS = ['proposed', 'accepted', 'superseded', 'revisit']
 export const DECISION_KINDS = ['decision', 'tenet'] as const;
 export const TENET_SCOPES = ['ui', 'data', 'ops', 'pipelines'] as const;
 export const TENET_CHECKS = ['harness', 'lint', 'ship', 'review'] as const;
-export const RELEASE_TARGETS = ['staging', 'live'] as const;
 export const TZ = 'America/Chicago';
 
 // Records keep ev4's open shape: known fields are typed, anything else ev4 wrote rides along untouched.
@@ -40,30 +40,11 @@ export interface Decision {
   check?: string;
   [k: string]: unknown;
 }
-export interface Rule {
-  id: string;
-  rule: string;
-  decision: string;
-  task: string | null;
-  command: string;
-  check: string;
-  ended?: string;
-}
 export interface Deploy {
   target: string;
   commit: string;
   time: string;
   [k: string]: unknown;
-}
-export interface Release {
-  version: string;
-  target: string;
-  commit: string;
-  time: string;
-  okFrom: string | null;
-  summary: string;
-  tasks: string[];
-  decisions: string[];
 }
 /** One filed-later entry: a provisional id (P-1, P-2 ...) and the flags its task add or decision add would take. */
 export interface InboxEntry {
@@ -81,15 +62,13 @@ export interface Chart {
   tasks: Task[];
   decisions: Decision[];
   deploys: Deploy[];
-  rules: Rule[];
-  views: Record<string, unknown>;
-  releases: Release[];
+  history: { tasks: Task[]; decisions: Decision[] };
   inbox: InboxFile[];
 }
 
-// ev4's files plus v5's releases; deploys is read-only.
-export const FILES = ['tasks', 'decisions', 'deploys', 'rules', 'views', 'releases'] as const;
+export const FILES = ['tasks', 'decisions', 'deploys'] as const;
 export const FROZEN = new Set<string>(['deploys']);
+const HISTORY = ['tasks', 'decisions'] as const;
 
 /** ev4's serialization: indent 1, no trailing newline. */
 export const serialize = (v: unknown): string => JSON.stringify(v, null, 1);
@@ -121,9 +100,7 @@ export function loadChart(root: string): Chart {
     tasks: read('tasks', []) as Task[],
     decisions: read('decisions', []) as Decision[],
     deploys: read('deploys', []) as Deploy[],
-    rules: read('rules', []) as Rule[],
-    views: read('views', {}) as Record<string, unknown>,
-    releases: read('releases', []) as Release[],
+    history: { tasks: read('history/tasks', []) as Task[], decisions: read('history/decisions', []) as Decision[] },
   };
 }
 
@@ -135,7 +112,12 @@ export function saveChart(root: string, rec: Chart): void {
     const p = path.join(dir, f + '.json');
     const onDisk = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : serialize([]);
     if (serialize(rec[f as keyof Chart]) !== onDisk)
-      throw new Error(`chart/${f}.json is frozen v4 history: the writer never changes it (use release add)`);
+      throw new Error(`chart/${f}.json is frozen v4 history: the writer never changes it`);
+  }
+  for (const f of HISTORY) {
+    const p = path.join(dir, 'history', f + '.json');
+    if (serialize(rec.history[f]) !== (fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : serialize([])))
+      throw new Error(`chart/history/${f}.json is frozen v4 history: the writer never changes it`);
   }
   for (const f of FILES) {
     if (FROZEN.has(f)) continue;
@@ -145,11 +127,15 @@ export function saveChart(root: string, rec: Chart): void {
   }
 }
 
+/** Every task and decision the record knows, the frozen history included: what a link may name. */
+export const allTasks = (rec: Chart): Task[] => [...rec.history.tasks, ...rec.tasks];
+export const allDecisions = (rec: Chart): Decision[] => [...rec.history.decisions, ...rec.decisions];
+
 const highest = (xs: string[]): number => Math.max(0, ...xs.map(id => Number(id.slice(2))).filter(Number.isFinite));
 /** The next free task id: one past the highest, continuing ev4's sequence. */
-export const nextTaskId = (rec: Chart): string => 'B-' + String(highest(rec.tasks.map(t => t.id)) + 1).padStart(2, '0');
+export const nextTaskId = (rec: Chart): string => 'B-' + String(highest(allTasks(rec).map(t => t.id)) + 1).padStart(2, '0');
 export const nextDecisionId = (rec: Chart): string =>
-  'D-' + String(highest(rec.decisions.map(d => d.id)) + 1).padStart(3, '0');
+  'D-' + String(highest(allDecisions(rec).map(d => d.id)) + 1).padStart(3, '0');
 
 export const kindOf = (d: Decision): string => d.kind || 'decision';
 export const list = (s: unknown): string[] =>
@@ -167,13 +153,4 @@ const parts = (d: Date, o: Intl.DateTimeFormatOptions): Record<string, string> =
 export const ctDate = (iso: string): string => {
   const p = parts(new Date(iso), { month: 'short', day: 'numeric' });
   return `${p.month} ${p.day}`;
-};
-/** "16:20" in Central time. */
-export const ctClock = (iso: string): string => {
-  const p = parts(new Date(iso), {
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  });
-  return `${p.hour}:${p.minute}`;
 };

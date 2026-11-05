@@ -54,7 +54,7 @@ test("load then save leaves every carried file byte-identical (ev4's indent 1, n
 test('the carried Chart files are byte-identical copies of ev4 when ev4 is present', t => {
   const ev4 = path.join(process.env.EV4_ROOT || path.resolve(ROOT, '..', 'ev4'), 'chart');
   if (!fs.existsSync(ev4)) return t.skip('no ev4 checkout (set EV4_ROOT)');
-  for (const f of ['tasks', 'decisions', 'deploys', 'rules', 'views'])
+  for (const f of ['tasks', 'decisions', 'deploys'])
     assert.equal(read(CARRIED, `chart/${f}.json`), fs.readFileSync(path.join(ev4, f + '.json'), 'utf8'), f);
 });
 
@@ -138,19 +138,22 @@ test('decision add takes the next D- id, newest first; supersedes marks the old 
   assert.equal(loadChart(dir).decisions[0]?.restated, 'Nov 3');
 });
 
-test('release add writes releases.json, never deploys.json; live needs Matt', () => {
+test('the frozen history is read, linked to and never written; ids continue past it', () => {
   const dir = scratch();
-  const deploys = read(dir, 'chart/deploys.json');
-  const args = ['release', 'add', '--version', 'v5.0.0', '--commit', 'abcdef1', '--summary', 'First'];
-  assert.equal(run(dir, ...args, '--target', 'live').code, 1);
-  assert.equal(run(dir, ...args, '--target', 'staging').code, 0);
-  assert.equal(run(dir, ...args, '--target', 'staging').code, 1, 'no duplicate');
-  assert.equal(read(dir, 'chart/deploys.json'), deploys);
-  assert.equal(loadChart(dir).releases[0]?.version, 'v5.0.0');
-  assert.match(
-    read(dir, 'docs/record/CHANGELOG.md'),
-    /\| Nov 3 \| v5\.0\.0 staging at abcdef1 \(09:00 CT\): First\. \|/,
-  );
+  fs.mkdirSync(path.join(dir, 'chart', 'history'));
+  const rec = loadChart(dir);
+  const tasks = rec.tasks.splice(0, 3),
+    decisions = rec.decisions.splice(0, 2);
+  fs.writeFileSync(path.join(dir, 'chart', 'history', 'tasks.json'), serialize(tasks));
+  fs.writeFileSync(path.join(dir, 'chart', 'history', 'decisions.json'), serialize(decisions));
+  saveChart(dir, { ...rec, history: { tasks, decisions } });
+  const id = tasks[0]?.id as string;
+  assert.equal(run(dir, 'task', 'add', '--title', 'x', '--milestone', 'm', '--depends', id).code, 0, 'links resolve');
+  assert.equal(run(dir, 'task', 'set', id, '--notes', 'n').code, 1, 'history is not editable');
+  assert.equal(lintChart(loadChart(dir)).filter(f => f.level === 'error').length, 0);
+  const frozen = loadChart(dir);
+  frozen.history.tasks.pop();
+  assert.throws(() => saveChart(dir, frozen), /chart\/history\/tasks.json is frozen/);
 });
 
 test('saveChart refuses any change to the frozen v4 deploys', () => {
@@ -169,22 +172,14 @@ test('render --check exits 1 when a generated file differs', () => {
   assert.match(r.out, /BACKLOG\.md: differs/);
 });
 
-test('lint reports dangling links in depends, supersedes, amends and rules', () => {
+test('lint reports dangling links in depends, supersedes and amends', () => {
   const rec = loadChart(scratch());
   assert.equal(lintChart(rec).filter(f => f.level === 'error').length, 0, 'the carried record is clean');
   (rec.tasks[0] as { depends: string[] }).depends.push('B-9998');
   rec.decisions[0]?.supersedes.push('D-9997');
   rec.decisions[1]?.amends.push('D-9996');
-  rec.rules.push({
-    id: 'R-99',
-    rule: 'r',
-    decision: 'D-9995',
-    task: 'B-9994',
-    command: 'c',
-    check: 'f',
-  });
   const got = lintChart(rec).map(f => `${f.check} ${f.detail}`);
-  for (const id of ['B-9998', 'D-9997', 'D-9996', 'D-9995', 'B-9994'])
+  for (const id of ['B-9998', 'D-9997', 'D-9996'])
     assert.ok(
       got.some(g => g.includes(id)),
       `${id} reported`,
