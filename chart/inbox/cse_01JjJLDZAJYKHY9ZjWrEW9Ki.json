@@ -1,0 +1,85 @@
+{
+ "session": "cse_01JjJLDZAJYKHY9ZjWrEW9Ki",
+ "entries": [
+  {
+   "id": "P-1",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "The live deploy uses v5's own database, never ev4's",
+    "dod": "live.yml binds a new v5 live D1 by its own name (created empty on Matt's word, CUTOVER step 3), never ev4's ev-live D1; a check fails any workflow or config that binds the ev-live D1; ops/CUTOVER.md step 7 matches (§data.own-db, §hard.data-never-lost, §sec.account)",
+    "notes": "Claims review Wrong 1: .github/workflows/live.yml:29-33 runs 'd1 info ev-live' and binds 'its existing D1', which is ev4's live database (D-330). Must be fixed before any live dispatch. The Worker name ev-live stays (§data.same-worker); only the D1 changes. Slice write: .github/workflows/, ops/checks/, ops/CUTOVER.md."
+   }
+  },
+  {
+   "id": "P-2",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "One way to apply migrations on staging and live",
+    "dod": "wrangler.jsonc sets migrations_dir to data/migrations and both the staging and live workflows run 'd1 migrations apply'; or CUTOVER step 4 names the exact command and file it runs; staging and live use the same way (§data.migrations)",
+    "notes": "Claims review Wrong 4: ops/CUTOVER.md step 4 says 'apply the migrations' with no command; wrangler.jsonc has no migrations_dir (Wrangler's default is migrations/, the files are in data/migrations/); staging.yml:40 runs 'd1 execute --file data/staging/schema.sql'. Take with or after B-998 (the new baseline). Read current Wrangler docs, nothing from memory.",
+    "depends": "B-998"
+   }
+  },
+  {
+   "id": "P-3",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "The nightly export fits the Free plan's limits",
+    "dod": "A staging fire of the nightly export with a large synthetic seed stays inside the Free plan's per-invocation CPU and D1 query limits (read from current Cloudflare docs), measured with Workers Logs; if it does not fit, the export moves into a Workflow or pages; a put of an existing exports/ key on staging is refused (never-overwrite) (§data.export)",
+    "notes": "Claims review Unknown 1 and 4: server/scheduled.ts runs the export inside the 15-minute cron (20 SELECTs, SHA-256 per table, JSON.stringify of all, R2 head and put); Free limits are tight and real data plus group 4's new tables grow it. server/nightly-export.ts relies on onlyIf etagDoesNotMatch '*', which the R2 docs do not spell out. Needs observability on in wrangler.jsonc. With B-822 and B-999.",
+    "depends": "B-822,B-999"
+   }
+  },
+  {
+   "id": "P-4",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "Zod checks fit a Workflow step's CPU limit on Free",
+    "dod": "Workers Logs CPU time on staging for one study plan and one large practice set shows the Zod parse in each step stays inside the Free plan's per-step CPU limit (read from current Cloudflare docs); the result is recorded as a decision (§model.output)",
+    "notes": "Claims review Unknown 3: S-07 tested hand-written validation only; the real Zod CPU check owed since D-455 and D-458 was never run. B-1005 (SDK Zod helper) makes it matter more, so run it after B-1005.",
+    "depends": "B-1005"
+   }
+  },
+  {
+   "id": "P-5",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "A job's deadline covers a step's worst-case retries",
+    "dod": "defineJob refuses a running deadline shorter than one step's worst case (STEP_RETRY attempts times the step timeout plus the backoff delays), computed from jobs/runtime/workflow.ts, not a fixed 5 minutes; a test covers it; the default and per-job deadlines are checked against it",
+    "notes": "Claims review Wrong 2: jobs/runtime/define.ts:81 only checks over 5 minutes, but one step can take about 21 minutes (4 attempts of up to 5 minutes plus 5, 10 and 20 s backoff, jobs/runtime/workflow.ts:17-19; Workflows applies the timeout per attempt). The 15/30 and default 30/60 values are builder picks, not platform limits. Slice write: jobs/runtime."
+   }
+  },
+  {
+   "id": "P-6",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "Confirm a free cron trigger slot for v5 live",
+    "dod": "Before cutover, the account's cron trigger count (ev4's Workers plus v5 staging) is read with wrangler or the dashboard and shows room for v5 live's cron within the Free plan's per-account limit (read from current Cloudflare docs); the count is recorded on this task",
+    "notes": "Claims review Unknown 5: Free allows a small number of cron triggers per account, shared with ev4's Workers; ev4's count is not visible from the repo. Read only; no change to ev4."
+   }
+  },
+  {
+   "id": "P-7",
+   "type": "task",
+   "flags": {
+    "milestone": "Phase 6",
+    "source": "ops claims review 2026-11-05",
+    "title": "Clear rollback-era and wrong names from the plan and docs",
+    "dod": "PLAN.md and docs/spikes/S-07-workflows.md use jobId-step-round (D-477), not jobId:step; CUTOVER step 6, CONTRACT §deliver.cutover and PLAN.md:494 name ev5-staging, not ev-staging; CONTRACT §drift.checks drops compat; the rollback-era PLAN lines, docs/guards.md compat rows and S-07 rollback notes are marked ended or removed (D-484)",
+    "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011."
+   }
+  }
+ ]
+}
