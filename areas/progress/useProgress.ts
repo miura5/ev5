@@ -1,0 +1,101 @@
+import { useEffect, useState } from "react";
+import { accuracyLine } from "../../domain/index.ts";
+import {
+  failureKind,
+  failureSentence,
+  readJson,
+  readToken,
+  type ReadCopyLike,
+} from "../../commands/client.ts";
+
+interface WireDoc {
+  id: string;
+  data: unknown;
+}
+
+export interface ProgressData {
+  /** First-try accuracy over the last 14 days; null when there are no answers in the window. */
+  accuracy: string | null;
+  /** Any answer at all, so the empty-state sentence shows only for a student with none. */
+  hasAnswers: boolean;
+  /** Minutes studied in ended sessions. */
+  minutes: number;
+  /** Ended sessions that carry minutes. */
+  sessions: number;
+}
+
+/** Ended-session minutes: sessions with status "ended" and a number of minutes (what End saves, §sessions). */
+export function endedMinutes(docs: readonly WireDoc[]): {
+  minutes: number;
+  sessions: number;
+} {
+  let minutes = 0;
+  let sessions = 0;
+  for (const d of docs) {
+    const s = d.data as { status?: unknown; minutes?: unknown } | null;
+    if (s?.status !== "ended" || typeof s.minutes !== "number") continue;
+    if (!(s.minutes > 0)) continue;
+    minutes += s.minutes;
+    sessions += 1;
+  }
+  return { minutes: Math.round(minutes), sessions };
+}
+
+export function mapProgress(
+  answers: readonly WireDoc[],
+  sessions: readonly WireDoc[],
+  now: number,
+): ProgressData {
+  return {
+    accuracy: accuracyLine(answers, now)?.text ?? null,
+    hasAnswers: answers.length > 0,
+    ...endedMinutes(sessions),
+  };
+}
+
+export interface ProgressState {
+  data?: ProgressData;
+  token: string;
+  refused: boolean;
+  error?: string;
+}
+
+/** Reads answers and sessions with the app token Matt keeps in this browser (the shell holds none). */
+export function useProgress(copy?: ReadCopyLike): ProgressState {
+  const [token] = useState(readToken);
+  const [data, setData] = useState<ProgressData>();
+  const [error, setError] = useState<string>();
+  const [refused, setRefused] = useState(false);
+  useEffect(() => {
+    if (!token) return;
+    let live = true;
+    const docs = (collection: string) =>
+      readJson<WireDoc[]>(
+        `docs?collection=${collection}`,
+        token,
+        `progress:${collection}`,
+        copy,
+        (b) => (b as { docs: WireDoc[] }).docs,
+      );
+    void (async () => {
+      try {
+        const [answers, sessions] = await Promise.all([
+          docs("answers"),
+          docs("sessions"),
+        ]);
+        if (live) {
+          setData(mapProgress(answers, sessions, Date.now()));
+          setError(undefined);
+        }
+      } catch (e) {
+        if (!live) return;
+        setRefused(failureKind(e) === "refused");
+        setError(failureSentence(e));
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [token, copy]);
+  return { data, token, refused, error };
+}
