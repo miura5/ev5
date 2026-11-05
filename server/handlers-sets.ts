@@ -150,12 +150,7 @@ export const setHandlers: Record<string, CommandHandler> = {
 
   "set.item_delete": async (i: { set: string; item: string }, _c, x) => {
     await ownItem(x, i.set, i.item);
-    await x.db
-      .prepare(
-        "INSERT INTO deletions (c, id, at) VALUES ('own_set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-      )
-      .bind(`${i.set}/${i.item}`, x.clock())
-      .run();
+    await repo(x).deletions.markOwnSetItem(i.set, i.item);
     return { set: i.set, item: i.item, deleted: true };
   },
 
@@ -182,12 +177,7 @@ async function unverified(
   c: Parameters<CommandHandler>[1],
   x: HandlerCtx,
 ) {
-  const row = await x.db
-    .prepare(
-      "SELECT id FROM drafts WHERE id = ? AND target_id = ? AND kind = 'set-item' AND state = 'pending'",
-    )
-    .bind(i.item, i.set)
-    .first<{ id: string }>();
+  const row = await repo(x).drafts.pendingIn(i.item, i.set, "set-item");
   if (!row)
     throw new CommandError(404, `no unverified item ${i.item} in ${i.set}`);
   return (draftHandlers[name] as CommandHandler)({ id: i.item } as never, c, x);
