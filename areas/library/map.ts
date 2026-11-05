@@ -14,6 +14,7 @@ import type {
   LibraryExam,
   LibrarySet,
   Mastery,
+  PlanSession,
   PlanState,
   SetPageData,
   WireDoc,
@@ -40,16 +41,33 @@ export interface WireJob {
   kind: string;
   state: string;
   examId?: string;
+  /** The draft's sessions, if the server sends them. */
+  tasks?: unknown;
 }
 
-/** The job id of the study plan waiting for this exam, if any. */
+/** The study plan job waiting for this exam, if any. */
 function waitingPlan(jobs: WireJob[] | undefined, exam: string) {
   return jobs?.find(
     (j) =>
       j.kind.replace(/-/g, "_") === "study_plan" &&
       j.state === "needs-you" &&
       j.examId === exam,
-  )?.id;
+  );
+}
+
+/** The sessions a job carries, by day; anything that is not a dated, titled, timed session is left out. */
+function sessionsOf(tasks: unknown): PlanSession[] {
+  if (!Array.isArray(tasks)) return [];
+  return tasks
+    .filter(
+      (t): t is PlanSession =>
+        !!t &&
+        typeof t.date === "string" &&
+        typeof t.title === "string" &&
+        typeof t.minutes === "number",
+    )
+    .map(({ date, title, minutes }) => ({ date, title, minutes }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 interface PlanEdit {
@@ -137,7 +155,9 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         a.v.title.localeCompare(b.v.title),
     )
     .map(({ id, v }) => {
-      const waiting = waitingPlan(docs.jobs, id);
+      const job = waitingPlan(docs.jobs, id);
+      const waiting = job?.id;
+      const sessions = sessionsOf(job?.tasks);
       const planId = waiting ?? planIdOf(docs.exams, id);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
@@ -166,6 +186,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         planState: waiting ? "draft" : planStateOf(planId, edits.get(id)),
         ...(planId ? { planId } : {}),
         ...(waiting ? { waiting: true } : {}),
+        ...(sessions.length ? { sessions } : {}),
       };
     });
   const dues = dueCounts(docs.answers ?? []);

@@ -86,3 +86,40 @@ test("studyplan.ask_changes refuses what is not a waiting study plan", async () 
   assert.equal((await ask("sp2", "y".repeat(2001))).status, 400);
   assert.equal((await ask("sp2", "   ")).status, 400);
 });
+
+const context = (db: D1Like, jobId: string, examId: string) =>
+  db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'context', ?, 0)",
+    )
+    .bind(jobId, JSON.stringify({ exam: { id: examId } }))
+    .run();
+
+test("a new plan for an exam puts away its older waiting draft and stops its older run", async () => {
+  const s = setup();
+  await s.db
+    .prepare(
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1), ('exams', 'x2', '{}', 0, 1)",
+    )
+    .run();
+  await waiting(s.db, "old-draft");
+  await waiting(s.db, "old-run", { state: "running", step: undefined });
+  await waiting(s.db, "other-exam");
+  await context(s.db, "old-draft", "x1");
+  await context(s.db, "old-run", "x1");
+  await context(s.db, "other-exam", "x2");
+  const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
+  assert.equal(r.status, 200);
+  const store = d1JobStore(s.db, () => 1);
+  const answers = s.started.map(
+    (p) => (p as unknown as { input?: { decision?: string } }).input?.decision,
+  );
+  assert.ok(
+    answers.includes("put_away"),
+    "the older draft is answered with put away",
+  );
+  const run = await store.get("old-run");
+  assert.equal(run?.state, "failed");
+  assert.match(run?.reason ?? "", /newer plan/);
+  assert.equal((await store.get("other-exam"))?.state, "needs-you");
+});

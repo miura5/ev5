@@ -1,6 +1,33 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { d1JobStore } from "../jobs/index.ts";
 import { input, setup, T } from "./job-routes-setup.test.ts";
+
+test("GET /jobs fails a study plan past its deadline and lists only live jobs", async () => {
+  const { req, db } = setup();
+  const put = (id: string, updatedAt: string) =>
+    d1JobStore(db, () => 1).put({
+      id,
+      kind: "study_plan",
+      title: "Study plan",
+      state: "running",
+      costCents: 0,
+      createdAt: updatedAt,
+      updatedAt,
+      v: 1,
+    });
+  await put("lost", "2020-01-01T00:00:00.000Z");
+  await put("fresh", new Date().toISOString());
+  const res = await req("GET", "/api/v1/jobs", "fake-app");
+  const { jobs } = (await res.json()) as { jobs: { id: string }[] };
+  assert.deepEqual(
+    jobs.map((j) => j.id),
+    ["fresh"],
+  );
+  const lost = await d1JobStore(db, () => 1).get("lost");
+  assert.equal(lost?.state, "failed");
+  assert.match(lost?.reason ?? "", /never finished/);
+});
 
 test("the app starts a practice set, then reads its status", async () => {
   const { req, wf } = setup();
@@ -142,6 +169,49 @@ test("a waiting study plan in the job list names its exam", async () => {
     jobs: { id: string; examId?: string }[];
   };
   assert.equal(jobs.find((j) => j.id === "sp2")?.examId, "x1");
+});
+
+test("a waiting study plan in the job list carries its draft sessions", async () => {
+  const { req, db } = setup();
+  const { d1JobStore } = await import("../jobs/index.ts");
+  await d1JobStore(db, () => T.getTime()).put({
+    id: "sp3",
+    kind: "study_plan",
+    title: "Study plan",
+    state: "needs-you",
+    step: "approve",
+    reason: "Approve it.",
+    costCents: 0,
+    createdAt: T.toISOString(),
+    updatedAt: T.toISOString(),
+    v: 1,
+  });
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('sp3', 'draft', ?, 0)",
+    )
+    .bind(
+      JSON.stringify({
+        summary: "s",
+        tasks: [
+          {
+            date: "2026-11-09",
+            title: "Cardiac review",
+            minutes: 45,
+            weakSpotId: "w1",
+          },
+          { date: "bad" },
+        ],
+      }),
+    )
+    .run();
+  const res = await req("GET", "/api/v1/jobs", "fake-app");
+  const { jobs } = (await res.json()) as {
+    jobs: { id: string; tasks?: unknown }[];
+  };
+  assert.deepEqual(jobs.find((j) => j.id === "sp3")?.tasks, [
+    { date: "2026-11-09", title: "Cardiac review", minutes: 45 },
+  ]);
 });
 
 test("the schedule token reads jobs but cannot start them or touch ceilings; the executor token reaches neither", async () => {

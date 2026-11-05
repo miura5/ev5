@@ -11,6 +11,7 @@ import {
   practiceSet,
   startJob,
   studyPlanJob,
+  sweepStale,
   workflowExecutor,
 } from "../jobs/index.ts";
 import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
@@ -157,22 +158,19 @@ jobRoutes.get("/jobs/:id", async (c) => {
   }
 });
 
-/** A waiting study plan names its exam (saved with its context at the gather step), so Library can match it. */
-async function withExams<T extends { id: string; kind: string; state: string }>(
+/** The exam each live study plan was made for, from the context saved at its gather step. */
+export async function examsOfPlans(
   db: D1Like,
-  jobs: T[],
-): Promise<(T & { examId?: string })[]> {
-  const waiting = jobs.filter(
-    (j) => j.kind === studyPlanJob.kind && j.state === "needs-you",
-  );
-  if (!waiting.length) return jobs;
+  ids: string[],
+): Promise<Map<string, string>> {
+  const exam = new Map<string, string>();
+  if (!ids.length) return exam;
   const { results } = await db
     .prepare(
-      `SELECT job_id, body FROM job_plans WHERE kind = 'context' AND job_id IN (${waiting.map(() => "?").join(",")})`,
+      `SELECT job_id, body FROM job_plans WHERE kind = 'context' AND job_id IN (${ids.map(() => "?").join(",")})`,
     )
-    .bind(...waiting.map((j) => j.id))
+    .bind(...ids)
     .all<{ job_id: string; body: string }>();
-  const exam = new Map<string, string>();
   for (const r of results)
     try {
       const id = (JSON.parse(r.body) as { exam?: { id?: unknown } }).exam?.id;
@@ -180,22 +178,82 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
     } catch {
       // a context that does not read is left without an exam
     }
-  return jobs.map((j) =>
-    exam.has(j.id) ? { ...j, examId: exam.get(j.id) } : j,
-  );
+  return exam;
 }
 
-jobRoutes.get("/jobs", async (c) =>
-  c.json({
-    jobs: await withExams(
-      c.env.DB,
-      await jobStatus(
-        d1JobStore(c.env.DB, () => Date.now()),
-        DEFS,
-      ),
-    ),
-  }),
-);
+/** The proposed sessions of each waiting study plan, from the draft saved at its draft step. */
+export async function draftTasksOfPlans(
+  db: D1Like,
+  ids: string[],
+): Promise<Map<string, { date: string; title: string; minutes: number }[]>> {
+  const out = new Map<
+    string,
+    { date: string; title: string; minutes: number }[]
+  >();
+  if (!ids.length) return out;
+  const { results } = await db
+    .prepare(
+      `SELECT job_id, body FROM job_plans WHERE kind = 'draft' AND job_id IN (${ids.map(() => "?").join(",")})`,
+    )
+    .bind(...ids)
+    .all<{ job_id: string; body: string }>();
+  for (const r of results)
+    try {
+      const tasks = (JSON.parse(r.body) as { tasks?: unknown }).tasks;
+      if (!Array.isArray(tasks)) continue;
+      out.set(
+        r.job_id,
+        tasks.flatMap(
+          (t: { date?: unknown; title?: unknown; minutes?: unknown }) =>
+            typeof t?.date === "string" &&
+            typeof t.title === "string" &&
+            typeof t.minutes === "number"
+              ? [{ date: t.date, title: t.title, minutes: t.minutes }]
+              : [],
+        ),
+      );
+    } catch {
+      // a draft that does not read is left without sessions
+    }
+  return out;
+}
+
+/** A waiting study plan names its exam and carries its proposed sessions, so Library can match and show it. */
+async function withExams<T extends { id: string; kind: string; state: string }>(
+  db: D1Like,
+  jobs: T[],
+): Promise<
+  (T & {
+    examId?: string;
+    tasks?: { date: string; title: string; minutes: number }[];
+  })[]
+> {
+  const waiting = jobs.filter(
+    (j) => j.kind === studyPlanJob.kind && j.state === "needs-you",
+  );
+  if (!waiting.length) return jobs;
+  const ids = waiting.map((j) => j.id);
+  const exam = await examsOfPlans(db, ids);
+  const tasks = await draftTasksOfPlans(db, ids);
+  return jobs.map((j) => ({
+    ...j,
+    ...(exam.has(j.id) ? { examId: exam.get(j.id) } : {}),
+    ...(tasks.has(j.id) ? { tasks: tasks.get(j.id) } : {}),
+  }));
+}
+
+// Only live jobs: one past its deadline is failed first, so a lost runner never shows as running.
+jobRoutes.get("/jobs", async (c) => {
+  const store = d1JobStore(c.env.DB, () => Date.now());
+  try {
+    await sweepStale(store, new Date().toISOString());
+  } catch (e) {
+    console.error("sweep before listing jobs failed", e);
+  }
+  return c.json({
+    jobs: await withExams(c.env.DB, await jobStatus(store, DEFS)),
+  });
+});
 
 // Only the app token changes ceilings (§sec.auth); the scope table already keeps the others out, this is the second lock.
 jobRoutes.get("/ceilings", async (c) =>
