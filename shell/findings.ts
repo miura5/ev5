@@ -4,6 +4,7 @@ import {
   likePatterns,
   search,
 } from "../domain/index.ts";
+import { api, readToken } from "../commands/client.ts";
 import type { DocRow } from "./outbox/index.ts";
 
 /** The collections ⌘K looks in, in the order their groups show, with the area that opens each (§ui.palette). */
@@ -73,4 +74,22 @@ export function findInRecord(
       .forEach((r) => out.push({ collection, id: r.id, title: r.title }));
   }
   return out;
+}
+
+/** "collection/id" of everything in Recently deleted. Tolerant: if the list cannot be read, nothing is hidden. */
+export async function readDeletedKeys(): Promise<Set<string>> {
+  try {
+    const r = await api("deletions", readToken());
+    if (!r.ok) return new Set();
+    const body = (await r.json()) as { deletions?: unknown };
+    const keys = (Array.isArray(body.deletions) ? body.deletions : [])
+      .filter(
+        (d): d is { collection: string; id: string } =>
+          typeof d?.collection === "string" && typeof d?.id === "string",
+      )
+      .map((d) => `${d.collection}/${d.id}`);
+    return new Set(keys);
+  } catch {
+    return new Set();
+  }
 }
