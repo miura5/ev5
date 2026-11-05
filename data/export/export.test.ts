@@ -53,6 +53,7 @@ function migrated(withNew: boolean): DatabaseSync {
   db.exec(sql("0000_baseline.sql"));
   db.exec(sql("0001_deletions.sql"));
   db.exec(sql("0002_jobs_ceilings.sql")); // job tables, drafts and own_set_items
+  db.exec(sql("0004_ceiling_usage.sql"));
   if (withNew) db.exec(NEW_DDL);
   return db;
 }
@@ -78,6 +79,7 @@ INSERT INTO drafts VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1
 INSERT INTO job_records VALUES ('j1','{"state":"done"}',60,1);
 INSERT INTO ceiling_use VALUES ('2026-11-03','tokens',500),('2026-11-03','calls',3);
 INSERT INTO ceiling_holds VALUES ('h1',100,'{"day":1}',1);
+INSERT INTO ceiling_usage VALUES ('j1:a:1','h1');
 INSERT INTO job_plans VALUES ('j1','plan','{"steps":[]}',61);`;
 
 test("export then restore into scratch: every table count and hash equal", async () => {

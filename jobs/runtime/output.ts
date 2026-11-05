@@ -32,6 +32,35 @@ export type StructuredResult<O> =
   | { ok: true; value: O; repaired: boolean; costCents: number }
   | { ok: false; reason: string; costCents: number };
 
+/** A model call that threw after earlier calls of the same ask were billed: carries what was spent. */
+export class ModelCallError extends Error {
+  readonly costCents: number;
+  constructor(cause: unknown, costCents: number) {
+    super(cause instanceof Error ? cause.message : String(cause), { cause });
+    this.costCents = costCents;
+  }
+}
+
+/**
+ * Runs the work after a reservation. If it throws, the step's hold is settled at what was billed (0 releases it), so
+ * a failed attempt never leaves money reserved. The original error is rethrown.
+ */
+export async function billedOnThrow<T>(
+  spend: (cents: number) => Promise<void>,
+  work: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await work();
+  } catch (e) {
+    try {
+      await spend(e instanceof ModelCallError ? e.costCents : 0);
+    } catch {
+      // the next attempt's reserve releases a hold that is still open
+    }
+    throw e;
+  }
+}
+
 /** Plain-words problems for ids cited that were not in the excerpts given. */
 export function checkCitations(cited: Iterable<string>, given: Iterable<string>): string[] {
   const allowed = new Set(given);
@@ -65,13 +94,18 @@ export async function runStructured<O>(spec: StructuredSpec<O>): Promise<Structu
   let spent = 0;
   const messages: Message[] = [{ role: 'user', content: spec.prompt }];
   for (let attempt = 0; attempt < 2; attempt++) {
-    const reply = await spec.call({
-      model: spec.model,
-      system: spec.system,
-      messages,
-      maxTokens: spec.maxTokens,
-      schema: spec.schema,
-    });
+    let reply: ModelReply;
+    try {
+      reply = await spec.call({
+        model: spec.model,
+        system: spec.system,
+        messages,
+        maxTokens: spec.maxTokens,
+        schema: spec.schema,
+      });
+    } catch (e) {
+      throw new ModelCallError(e, spent);
+    }
     spent += costCents(spec.model, reply.usage);
     if (reply.stopReason === 'max_tokens')
       return {

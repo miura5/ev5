@@ -16,12 +16,10 @@ import { newJob, transition, type JobStore } from "./record.ts";
 // A real SQLite behind D1's interface (fake-d1 only knows the docs statements): batch is one transaction.
 function sqliteD1(): D1Like {
   const sql = new DatabaseSync(":memory:");
-  sql.exec(
-    readFileSync(
-      new URL("../../data/migrations/0002_jobs_ceilings.sql", import.meta.url),
-      "utf8",
-    ),
-  );
+  for (const f of ["0002_jobs_ceilings.sql", "0004_ceiling_usage.sql"])
+    sql.exec(
+      readFileSync(new URL(`../../data/migrations/${f}`, import.meta.url), "utf8"),
+    );
   const run = (text: string, args: (string | number | null)[]) => {
     const st = sql.prepare(text);
     return /^\s*(select|with)/i.test(text)
@@ -91,6 +89,17 @@ for (const [name, make] of ceilingImpls) {
     await release(s, "b");
     assert.equal(await s.used("day", "2026-11-03"), 600);
     await assert.rejects(reserve(s, c, call("a", 1)), /already exists/);
+  });
+  test(`${name} ceilings: settle closes the hold and stores the usage key`, async () => {
+    const s = make();
+    await reserve(s, cfg, call("j1:hold:a", 300, "j1"));
+    assert.equal(await s.findOpen("j1:hold:"), "j1:hold:a");
+    await settle(s, "j1:hold:a", 100, "i:s:1");
+    assert.equal(await s.findOpen("j1:hold:"), undefined);
+    assert.equal(await s.usageSeen("i:s:1"), true);
+    await release(s, "j1:hold:a"); // closed: a late release must not take the billed amount back
+    assert.equal(await s.used("job", "j1"), 100);
+    await assert.rejects(settle(s, "j1:hold:a", 1, "i:s:2"), /no reservation/);
   });
   test(`${name} ceilings: concurrent jobs cannot overspend`, async () => {
     const s = make();

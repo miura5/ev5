@@ -58,8 +58,9 @@ export async function acknowledgeSpendAlert(
 }
 
 /**
- * A step reserves its maximum, then records what it spent. A retried attempt first releases its unsettled hold, so a
- * failed attempt never keeps money reserved. `usage` is keyed by instance, step and attempt: a repeat counts once.
+ * A step reserves its maximum, then records what it spent, which closes the hold. A retried attempt first releases
+ * its unsettled hold, so a failed attempt never keeps money reserved. `usage` is keyed by instance, step and attempt
+ * and the key is stored with the hold: a repeat counts once, even after a restart.
  */
 export function jobCeilings(
   store: CeilingStore,
@@ -68,16 +69,13 @@ export function jobCeilings(
   newId: () => string,
   onAlert?: (line: string, at: Date) => Promise<void>,
 ): Ceilings {
-  const open = new Map<string, string>();
-  const settled = new Set<string>();
+  // Holds live in the store (a job's holds start with its id), so a restarted Worker still finds them.
+  const prefix = (jobId: string) => `${jobId}:hold:`;
   return {
     async reserve(jobId, maxCents) {
-      const stale = open.get(jobId);
-      if (stale) {
-        open.delete(jobId);
-        await release(store, stale);
-      }
-      const id = `${jobId}:hold:${newId()}`;
+      const stale = await store.findOpen(prefix(jobId));
+      if (stale) await release(store, stale);
+      const id = `${prefix(jobId)}${newId()}`;
       const r = await reserve(store, await config(), {
         id,
         jobId,
@@ -92,15 +90,12 @@ export function jobCeilings(
           // the alert is a notice: a failed write never stops the job that crossed the line
         }
       }
-      open.set(jobId, id);
     },
     async record(key, jobId, cents) {
-      if (settled.has(key)) return;
-      const hold = open.get(jobId);
+      if (await store.usageSeen(key)) return;
+      const hold = await store.findOpen(prefix(jobId));
       if (!hold) throw new Error(`no reservation for ${key}`);
-      settled.add(key);
-      open.delete(jobId);
-      await settle(store, hold, micro(cents));
+      await settle(store, hold, micro(cents), key);
     },
   };
 }
