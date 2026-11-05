@@ -24,12 +24,46 @@ export function NotesScreen({
     createNote,
     collections,
     members,
+    reload,
   } = useNotes(services);
   // The palette opens a note with /notes?open=<id>; an unknown id just shows the list.
   const [open, setOpen] = useState<string | undefined>(
     () => new URLSearchParams(window.location.search).get("open") || undefined,
   );
   const [startError, setStartError] = useState<string>();
+  // Set after a delete (here, or on a collection page that sent us with ?deleted=): Undo restores it.
+  const [undo, setUndo] = useState<{ id: string; message: string } | undefined>(
+    () => {
+      const q = new URLSearchParams(window.location.search);
+      const id = q.get("deleted");
+      if (!id) return undefined;
+      return {
+        id,
+        message:
+          q.get("what") === "collection" ? "Collection deleted" : "Deleted",
+      };
+    },
+  );
+  const undoToast = undo ? (
+    <Toast
+      message={undo.message}
+      onDone={() => setUndo(undefined)}
+      onUndo={() =>
+        void call("item.restore", { id: undo.id }, readToken()).then((r) => {
+          setUndo(undefined);
+          if (r.ok) reload();
+          else setStartError(r.reason);
+        })
+      }
+    />
+  ) : null;
+  const del = (id: string, what: string) =>
+    void call("item.delete", { id }, readToken()).then((r) => {
+      if (!r.ok) return setStartError(r.reason);
+      setOpen(undefined);
+      setUndo({ id, message: what });
+      reload();
+    });
   const today = centralDate(Date.now());
   const cur = notes.find((n) => n.id === open);
   if (!cur)
@@ -38,6 +72,7 @@ export function NotesScreen({
         {error || startError ? (
           <Toast message={(error ?? startError)!} />
         ) : null}
+        {undoToast}
         <NotesView
           notes={[...notes]
             .sort((a, b) =>
@@ -71,6 +106,13 @@ export function NotesScreen({
             })
           }
           onOpenNote={setOpen}
+          onRowAction={(id, action) => {
+            if (action === "open") return setOpen(id);
+            if (action === "delete") return del(id, "Note deleted");
+            void call(`item.${action}`, { id }, readToken()).then((r) => {
+              if (!r.ok) setStartError(r.reason);
+            });
+          }}
         />
       </>
     );
@@ -87,6 +129,7 @@ export function NotesScreen({
   return (
     <>
       {startError ? <Toast message={startError} /> : null}
+      {undoToast}
       <NotePageView
         note={{
           ...toPage(cur.id, cur.note, saveState, today),
@@ -102,6 +145,7 @@ export function NotesScreen({
           />
         }
         onBack={() => setOpen(undefined)}
+        onDelete={() => del(cur.id, "Note deleted")}
         onStartSession={() => void startSession()}
       />
     </>

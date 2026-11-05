@@ -13,6 +13,8 @@ export interface NotePageProps {
   /** Present only while a study session runs. */
   session?: NoteSessionState;
   onBack?: () => void;
+  /** Delete this note (it goes to Recently deleted; the screen offers Undo). */
+  onDelete?: () => void;
   onPickCollection?: () => void;
   onMakeCards?: () => void;
   onStartSession?: () => void;
@@ -26,6 +28,7 @@ export function NotePageView({
   editor,
   session,
   onBack,
+  onDelete,
   onPickCollection,
   onMakeCards,
   onStartSession,
@@ -72,6 +75,11 @@ export function NotePageView({
           <Button kind="text" onClick={onMakeCards}>
             Make cards
           </Button>
+          {session || !onDelete ? null : (
+            <Button kind="text" onClick={onDelete}>
+              Delete
+            </Button>
+          )}
           {session ? null : (
             <Button kind="text" onClick={onStartSession}>
               Start session
