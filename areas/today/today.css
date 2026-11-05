@@ -153,3 +153,37 @@
   overflow-y: auto;
   background: var(--bg);
 }
+
+.ev-today-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ev-today-session {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ev-today-session > :nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-today-session > :first-child,
+.ev-today-session > :last-child,
+.ev-today-label {
+  color: var(--text-quiet, var(--text));
+  font-size: var(--fs-meta);
+}
+
+.ev-today-label {
+  margin: 0;
+  font-weight: var(--fw-medium);
+}
+
+.ev-today-day {
+  width: calc(var(--sp-8) * 2);
+  flex: none;
+}

@@ -24,14 +24,24 @@ test("maps newest first with days left", () => {
 test("rows show the title and a plain kind, never an id or a table name", () => {
   const out = mapDeletions(
     [
-      { collection: "own_set_items", id: "s1/i1", at, title: "Which lab is highest priority?" },
+      {
+        collection: "own_set_items",
+        id: "s1/i1",
+        at,
+        title: "Which lab is highest priority?",
+      },
       { collection: "notes", id: "n9", at: at - 1, title: null },
     ],
     at,
   );
-  expect(out[0]).toMatchObject({ title: "Which lab is highest priority?", kind: "Set question" });
+  expect(out[0]).toMatchObject({
+    title: "Which lab is highest priority?",
+    kind: "Set question",
+  });
   expect(out[1]).toMatchObject({ title: "Untitled", kind: "Note" });
-  expect(JSON.stringify(out.map((i) => [i.title, i.kind]))).not.toMatch(/own_set_items|n9|s1\/i1/);
+  expect(JSON.stringify(out.map((i) => [i.title, i.kind]))).not.toMatch(
+    /own_set_items|n9|s1\/i1/,
+  );
 });
 
 test("days left never go below zero; none is empty", () => {
@@ -42,4 +52,27 @@ test("days left never go below zero; none is empty", () => {
     )[0]?.daysLeft,
   ).toBe(0);
   expect(mapDeletions([], at)).toEqual([]);
+});
+
+test("items deleted on the same Central day have the same days left, whatever the hour", () => {
+  const nov4Early = Date.UTC(2026, 10, 4, 7); // 01:00 Central
+  const nov4Late = Date.UTC(2026, 10, 5, 4); // 22:00 Central, still Nov 4
+  const now = Date.UTC(2026, 10, 5, 17); // Nov 5 Central
+  const out = mapDeletions(
+    [
+      { collection: "notes", id: "a", at: nov4Early },
+      { collection: "notes", id: "b", at: nov4Late },
+    ],
+    now,
+  );
+  expect(out.map((i) => i.daysLeft)).toEqual([29, 29]);
+});
+
+test("a deleted collection shows the folder icon", () => {
+  expect(
+    mapDeletions([{ collection: "collections", id: "c", at }], at)[0],
+  ).toMatchObject({
+    type: "collection",
+    kind: "Collection",
+  });
 });

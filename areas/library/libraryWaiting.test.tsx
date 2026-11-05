@@ -140,7 +140,7 @@ test("opened by a link, the plan shows its sessions by day with minutes and Buil
   const rows = [...document.querySelectorAll(".ev-library-session")].map(
     (r) => r.textContent,
   );
-  expect(rows).toEqual(["FriDosage by weight25m", "SunMisses only10m"]);
+  expect(rows).toEqual(["Fri Jan 2Dosage by weight25m", "Sun Jan 4Misses only10m"]);
   expect(screen.getByText(/Built from/)).toBeTruthy();
 });
 

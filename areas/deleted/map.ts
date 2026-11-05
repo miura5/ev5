@@ -1,4 +1,4 @@
-import { centralDate, plainDay } from "../../domain/index.ts";
+import { centralDate, daysBetween, plainDay } from "../../domain/index.ts";
 import type { DeletedItem } from "./Deleted.view.tsx";
 
 /** One row of GET /api/v1/deletions (server/collection-routes.ts), restated: areas never import the server. */
@@ -10,7 +10,6 @@ export interface WireDeletion {
   title?: string | null;
 }
 
-const DAY = 86_400_000;
 const KEPT_DAYS = 30;
 const TYPES: Record<string, DeletedItem["type"]> = {
   notes: "note",
@@ -21,6 +20,7 @@ const TYPES: Record<string, DeletedItem["type"]> = {
   jobs: "job",
   goals: "date",
   own_set_items: "questions",
+  collections: "collection",
 };
 /** Plain words for what was deleted; never a table name. */
 const KINDS: Record<string, string> = {
@@ -37,7 +37,7 @@ const KINDS: Record<string, string> = {
   collections: "Collection",
 };
 
-/** Newest first; days left out of the 30 kept, never below zero. A row without a title reads Untitled, never its id. */
+/** Newest first; days left out of the 30 kept by Central calendar date (same day deleted, same days left), never below zero. A row without a title reads Untitled, never its id. */
 export function mapDeletions(
   rows: readonly WireDeletion[],
   now: number,
@@ -45,13 +45,17 @@ export function mapDeletions(
   return [...rows]
     .sort((a, b) => b.at - a.at)
     .map((r) => {
+      const deleted = centralDate(r.at);
       return {
         id: `${r.collection}/${r.id}`,
         type: TYPES[r.collection] ?? "note",
         title: r.title?.trim() || "Untitled",
         kind: KINDS[r.collection] ?? "Item",
-        deletedOn: plainDay(centralDate(r.at), centralDate(now)),
-        daysLeft: Math.max(0, KEPT_DAYS - Math.floor((now - r.at) / DAY)),
+        deletedOn: plainDay(deleted, centralDate(now)),
+        daysLeft: Math.max(
+          0,
+          KEPT_DAYS - daysBetween(deleted, centralDate(now)),
+        ),
       };
     });
 }
