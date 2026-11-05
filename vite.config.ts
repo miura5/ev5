@@ -20,6 +20,7 @@ export default defineConfig({
         icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
       },
       workbox: {
+        importScripts: ["retire-ev4.js"],
         globPatterns: ["**/*.{js,css,html,svg}"],
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/auth\//],

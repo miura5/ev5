@@ -122,3 +122,66 @@ test("with a kind attached the run is made once per Central date", async () => {
     delete SCHEDULED_KINDS.morning;
   }
 });
+
+import { exportKey, writeNightlyExport } from "./nightly-export.ts";
+
+const fakeBucket = () => {
+  const objects = new Map<string, string>();
+  return {
+    objects,
+    head: async (k: string) => (objects.has(k) ? {} : null),
+    put: async (k: string, v: string) => {
+      if (objects.has(k)) return null;
+      objects.set(k, v);
+      return {};
+    },
+  };
+};
+const fakeExport = async () => ({
+  collections: {},
+  tables: { docs: { count: 3 }, sets: { count: 2 } },
+});
+const T0030 = Date.parse("2026-11-05T06:40:00Z"); // 00:40 Central (CST)
+
+test("the nightly export writes once per Central date under exports/ and returns counts only", async () => {
+  const IMAGES = fakeBucket();
+  const env = { DB: sqliteD1() as never, IMAGES, exportAll: fakeExport };
+  assert.ok(
+    !(await runScheduled(env, CRON, T0030 - 20 * 60_000)).includes("export"),
+  );
+  assert.deepEqual(
+    (await runScheduled(env, CRON, T0030)).filter((n) => n === "export"),
+    ["export"],
+  );
+  assert.deepEqual([...IMAGES.objects.keys()], [exportKey("2026-11-05")]);
+  assert.deepEqual(
+    (await runScheduled(env, CRON, T0030 + 15 * 60_000)).filter(
+      (n) => n === "export",
+    ),
+    [],
+  );
+});
+
+test("the export is not run in the quiet window, and never overwrites an existing object", async () => {
+  const IMAGES = fakeBucket();
+  const env = { DB: sqliteD1() as never, IMAGES, exportAll: fakeExport };
+  const quiet = Date.parse("2026-11-05T07:30:00Z"); // 01:30 Central
+  assert.ok(!(await runScheduled(env, CRON, quiet)).includes("export"));
+  IMAGES.objects.set(exportKey("2026-11-05"), "kept");
+  await assert.rejects(
+    writeNightlyExport(IMAGES, fakeExport, T0030),
+    /not overwritten/,
+  );
+  assert.equal(IMAGES.objects.get(exportKey("2026-11-05")), "kept");
+  const n = await writeNightlyExport(IMAGES, fakeExport, T0030 + 86_400_000);
+  assert.deepEqual(n, { key: exportKey("2026-11-06"), tables: 2, rows: 5 });
+});
+
+test("with no exporter given, the export runs data's real export and stores a parseable manifest", async () => {
+  const IMAGES = fakeBucket();
+  const env = { DB: sqliteD1() as never, IMAGES };
+  assert.ok((await runScheduled(env, CRON, T0030)).includes("export"));
+  const saved = JSON.parse(IMAGES.objects.get(exportKey("2026-11-05"))!);
+  assert.equal(saved.kind, "ev-d1-export");
+  assert.ok(saved.tables.docs);
+});

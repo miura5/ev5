@@ -11,3 +11,13 @@ const EV4_ROUTES: RegExp[] = [
 export function isEv4Route(path: string): boolean {
   return EV4_ROUTES.some((r) => r.test(path));
 }
+
+/** The files ev4's page boots from and its service worker caches (the worker's own /sw.js and the manifest are replaced in place by v5's). */
+const EV4_PAGE_FILES = new Set(["/bridge.js", "/app.js", "/core.js", "/spec.json", "/styles.css"]);
+
+export function isEv4PageFile(path: string): boolean {
+  return EV4_PAGE_FILES.has(path);
+}
+
+/** What an old ev4 page or API caller reads when it reaches v5. */
+export const MOVED_TEXT = "E.V. has moved, reload";
