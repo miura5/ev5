@@ -42,6 +42,15 @@ export interface LibraryExam {
   planId?: string;
   /** The plan is still the job waiting for his answer; planId is then the job's id. */
   waiting?: boolean;
+  /** The plan's proposed sessions, when the server sends them with the waiting job. */
+  sessions?: readonly PlanSession[];
+}
+
+/** One proposed study session: a Central date (YYYY-MM-DD), what to do and how long. */
+export interface PlanSession {
+  date: string;
+  title: string;
+  minutes: number;
 }
 
 export type PlanState = "none" | "draft" | "approved" | "away";
@@ -109,6 +118,8 @@ export interface ExamPlanData {
   planState?: PlanState;
   planId?: string;
   proposals: readonly { id: string; text: string }[];
+  /** The proposed sessions; absent when the server did not send them. */
+  sessions?: readonly PlanSession[];
 }
 
 /** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */

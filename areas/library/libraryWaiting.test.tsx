@@ -124,3 +124,38 @@ test("with no waiting plan the exam offers Plan with E.V.", async () => {
   expect(await screen.findByText("Plan with E.V.")).toBeTruthy();
   expect(screen.queryByText("Approve")).toBeNull();
 });
+
+const sessions = [
+  { date: "2099-01-04", title: "Misses only", minutes: 10 },
+  { date: "2099-01-02", title: "Dosage by weight", minutes: 25 },
+];
+
+test("opened by a link, the plan shows its sessions by day with minutes and Built from", async () => {
+  boot([{ ...waitingJob, tasks: sessions }]);
+  await screen.findByText("Proposed sessions");
+  const rows = [...document.querySelectorAll(".ev-library-session")].map(
+    (r) => r.textContent,
+  );
+  expect(rows).toEqual(["FriDosage by weight25m", "SunMisses only10m"]);
+  expect(screen.getByText(/Built from/)).toBeTruthy();
+});
+
+test("Review the study plan toggles the proposal", async () => {
+  boot();
+  await screen.findByText("Proposed sessions");
+  fireEvent.click(screen.getByText("Review the study plan"));
+  expect(screen.queryByText("Proposed sessions")).toBeNull();
+  fireEvent.click(screen.getByText("Review the study plan"));
+  expect(screen.getByText("Proposed sessions")).toBeTruthy();
+});
+
+test("Approve and Send changes each give a sign", async () => {
+  boot();
+  fireEvent.click(await screen.findByText("Approve"));
+  await screen.findByText("Plan approved");
+  fireEvent.change(screen.getByLabelText("Ask for changes"), {
+    target: { value: "fewer evenings" },
+  });
+  fireEvent.click(screen.getByText("Send changes"));
+  await screen.findByText("Changes sent");
+});

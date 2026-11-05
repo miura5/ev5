@@ -29,6 +29,8 @@ export interface UpcomingDate {
   /** "Thursday, Nov 5", for the Detail panel. */
   whenFull?: string;
   course?: string;
+  /** The study plan for this exam: waiting for his answer, or approved and in force. */
+  plan?: "waiting" | "approved";
 }
 
 export interface ThisWeekItem {

@@ -80,17 +80,28 @@ function one(
 /** A note's blocks on the session page; its todo blocks are the session's checks. */
 export function NoteBlocks({
   blocks,
+  title,
   onToggle,
 }: {
   blocks: readonly Block[];
+  /** The page title above; a leading heading that repeats it is left out so it shows once. */
+  title?: string;
   /** Flips a todo block by its index in the note; absent leaves the checks read-only. */
   onToggle?: (index: number) => void;
 }) {
+  const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+  const first = blocks[0];
+  const skip =
+    title !== undefined &&
+    first?.type === "h1" &&
+    norm(first.runs.map((r) => r.text).join("")) === norm(title)
+      ? 0
+      : -1;
   return (
     <div data-ui="note-blocks">
-      {blocks.map((b, k) => (
-        <div key={b.key ?? k}>{one(b, k, onToggle)}</div>
-      ))}
+      {blocks.map((b, k) =>
+        k === skip ? null : <div key={b.key ?? k}>{one(b, k, onToggle)}</div>,
+      )}
     </div>
   );
 }

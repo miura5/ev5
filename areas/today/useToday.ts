@@ -81,8 +81,13 @@ export function useToday(copy?: ReadCopyLike): TodayState {
           saved("today:exams", () => list("exams", token)),
           saved("today:weakspots", () => list("weakspots", token)),
         ]);
+        // Which plan is in force is a nicety: when it cannot be read, none is approved.
+        const planedits = await saved("today:planedits", () =>
+          list("planedits", token),
+        ).catch((): WireDoc[] => []);
+        let jobs: WireJobLine[] = [];
         try {
-          const jobs = (await jobApi.list(token, copy)) as WireJobLine[];
+          jobs = (await jobApi.list(token, copy)) as WireJobLine[];
           if (live) {
             setAlert(spendAlertLine(jobs));
             setPlanWaiting(studyPlanWaiting(jobs));
@@ -92,7 +97,9 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         }
         const dayedit = day ?? undefined;
         if (live) {
-          setData(mapToday({ exams, weakspots, dayedit }, now));
+          setData(
+            mapToday({ exams, weakspots, dayedit, jobs, planedits }, now),
+          );
           setError(undefined);
         }
       } catch (e) {
