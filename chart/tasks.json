@@ -14215,9 +14215,12 @@
    "B-790",
    "B-908",
    "B-909",
-   "B-910"
+   "B-910",
+   "B-918",
+   "B-920",
+   "B-921"
   ],
-  "notes": "Reopened 2026-11-05 (build manager decision after playtest 4, D-475): the study plan journey was broken for Matt in the browser (B-908 can't review the plan before approving, no sign Approve or Send changes worked; B-909 drafts pile up; B-910 Today shows the wrong exam). Run 61 merged fixes for all three; Gate 5 closes again when they are seen working on staging in Matt's browser. The e2e pass (D-474) stands as proof for the rest.",
+  "notes": "Reopened 2026-11-05 (D-475) after playtest 4. Playtest 5 (2026-11-05 03:00Z) saw B-908, B-909 and B-910 work on staging, but the study plan journey still needs a page reload: Gate 5 now waits on B-918 (exam Detail misses a new or revised draft until reload), B-921 (approved sessions shown nowhere) and B-920 (a revised plan schedules past days), each seen on staging in Matt's browser (D-476).",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
