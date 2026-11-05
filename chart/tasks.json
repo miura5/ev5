@@ -16554,5 +16554,31 @@
   "notes": "Screenshots 06, 05, 12, 04. Detail was about 250 px wide for e2e plan exam and about 380 px for Synthetic unit exam. Collection e2e 1793776216740 B: 'Collection · 1 items'. Mock-up also puts Approve, Ask for changes and Put away on one line with Ask for changes secondary.",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-926",
+  "kind": "task",
+  "title": "Move the answers tally (accuracyLine, dueCounts, attemptsByItem) from areas/library/tally.ts into domain/answers so Progress can share it",
+  "dod": "domain/answers exports the three functions via domain/index.ts with the moved tests; Library imports them from domain; no behaviour change",
+  "milestone": "5",
+  "status": "open",
+  "depends": [
+   "B-923"
+  ],
+  "notes": "Split from B-923 by builder refusal (areas cannot import areas/library).",
+  "commit": null,
+  "source": "run63 build manager"
+ },
+ {
+  "id": "B-927",
+  "kind": "task",
+  "title": "Progress shows the same accuracy line as Library and ended-session minutes",
+  "dod": "areas/progress fetches answers and sessions through commands/client and shows domain/answers accuracy plus ended-session minutes; test; seen on staging; B-923 closes",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "B-923b. Depends on the domain/answers task.",
+  "commit": null,
+  "source": "run63 build manager"
  }
 ]
