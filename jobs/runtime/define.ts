@@ -33,6 +33,8 @@ export type JobSpec<I, O> = {
   wording: { running: string; needsYou: string; done: string; failed: string };
   startedBy: readonly Starter[];
   executor: ExecutorKind;
+  /** Checks Matt's answer at a needs-you step (throws plain words); a bad answer leaves the job waiting. */
+  answer?: Parser<unknown>;
   /** Minutes a job may sit queued or running without any update before the sweep fails it. Defaults below. */
   deadlineMinutes?: { queued?: number; running?: number };
 };
@@ -47,6 +49,7 @@ export type JobDef<I = unknown, O = unknown> = Readonly<
     outputSchema: z.ZodType<O>;
     input: Parser<I>;
     output: Parser<O>;
+    answer?: Parser<unknown>;
   }
 >;
 

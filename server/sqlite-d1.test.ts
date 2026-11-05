@@ -5,12 +5,10 @@ import type { D1Like } from "../jobs/index.ts";
 
 export function sqliteD1(): D1Like {
   const sql = new DatabaseSync(":memory:");
-  sql.exec(
-    readFileSync(
-      new URL("../data/migrations/0002_jobs_ceilings.sql", import.meta.url),
-      "utf8",
-    ),
-  );
+  for (const f of ["0002_jobs_ceilings.sql", "0004_ceiling_usage.sql"])
+    sql.exec(
+      readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
+    );
   sql.exec(
     "CREATE TABLE claude_settings (key TEXT PRIMARY KEY, value INTEGER NOT NULL, at INTEGER NOT NULL)",
   );

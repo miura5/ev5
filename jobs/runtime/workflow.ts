@@ -111,17 +111,25 @@ export async function runJob(
   const instanceId = p.from ? continuationId(p.jobId, p.from, p.round ?? 0) : p.jobId;
   const names = p.from ? def.steps.slice(def.steps.indexOf(p.from) + 1) : def.steps;
   if (p.from && !def.steps.includes(p.from)) throw new Error(`${def.kind} has no step ${p.from}`);
+  // A stopped, swept or replaced job is no longer running: nothing more of this instance may land under it.
+  const stillRunning = async () => (await env.store.get(p.jobId))?.state === 'running';
   const move = (name: string, to: Parameters<typeof transition>[1]) =>
     step.do(name, STEP_RETRY, async () => {
       const cur = await env.store.get(p.jobId);
       if (cur?.state === to.to) return cur.id;
+      if (!cur || (name !== 'begin' && cur.state !== 'running')) return p.jobId;
       return (await update(env.store, p.jobId, (r) => transition(r, to))).id;
     });
   const fail = (reason: string) => move('fail', { to: 'failed', at: env.now(), reason });
-  if (!p.from) await move('begin', { to: 'running', at: env.now() });
+  if (!p.from) {
+    const first = await env.store.get(p.jobId);
+    if (first && first.state !== 'queued' && first.state !== 'running') return;
+    await move('begin', { to: 'running', at: env.now() });
+  }
   const prior: Record<string, string[]> = {};
   for (const name of names) {
-    const run = async (c: { attempt: number }): Promise<StepResult> => {
+    const run = async (c: { attempt: number }): Promise<StepResult | { stopped: true }> => {
+      if (!(await stillRunning())) return { stopped: true };
       const ctx: StepCtx = {
         jobId: p.jobId,
         instanceId,
@@ -140,13 +148,14 @@ export async function runJob(
       if ('ids' in r) checkIds(name, r.ids);
       return r;
     };
-    let r: StepResult;
+    let r: StepResult | { stopped: true };
     try {
       r = await step.do(name, STEP_RETRY, run);
     } catch (e) {
       await fail(`${def.title} stopped at ${name}: ${(e as Error).message}`);
       return;
     }
+    if ('stopped' in r) return;
     if ('needsYou' in r) {
       await move(`needs-you:${name}`, {
         to: 'needs-you',

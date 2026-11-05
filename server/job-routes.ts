@@ -122,7 +122,9 @@ jobRoutes.post("/jobs/:slug", async (c) => {
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
 
+// Only the app token (Matt) answers a waiting job; schedule and executor tokens get 403 (§sec.auth).
 jobRoutes.post("/jobs/:id/continue", async (c) => {
+  if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
   const rec = await d1JobStore(c.env.DB, () => Date.now()).get(
     c.req.param("id"),
   );
@@ -131,6 +133,11 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   if (rec.state !== "needs-you")
     return c.json({ error: "job is not waiting for you" }, 409);
   const { answer } = await body(c.req.raw);
+  try {
+    def.answer?.(answer);
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 400);
+  }
   // Putting a plan away needs no Workflow: it ends now as done, so it never shows as running and lands in Done today.
   if (
     def.kind === studyPlanJob.kind &&
