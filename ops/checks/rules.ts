@@ -1,17 +1,17 @@
 // Rule check (PLAN §11): skills, READMEs, AGENTS.md and CLAUDE.md cite CONTRACT §ids. They may not cite an unknown or
 // ended id, copy a CONTRACT line, state never/always/must/only without a §id, or run long. Job prompts (jobs/*/prompt.md) are
-// scanned for ids and copied lines. ("never imports" is exempt: import direction is enforced by dependency-cruiser, §drift.imports.)
+// scanned for ids and copied lines. The repo's own README.md is the overview page, so it gets its own, longer cap. ("never imports" is exempt: import direction is enforced by dependency-cruiser, §drift.imports.)
 import type { Finding } from './lib.ts';
 import { read } from './lib.ts';
 
 const ID = /§[a-z][a-z0-9-]*\.[a-z0-9][a-z0-9.-]*[a-z0-9]/g;
-const MAX = { README: 20, SKILL: 200, AGENTS: 250, CLAUDE: 20, PROMPT: Infinity };
+const MAX = { ROOT: 150, README: 20, SKILL: 200, AGENTS: 250, CLAUDE: 20, PROMPT: Infinity };
 const KINDS = Object.keys(MAX) as (keyof typeof MAX)[];
 
 // AGENTS.md and CLAUDE.md are procedure prose where "only" is ordinary; job prompts instruct the model and are
 // checked for ids and copied lines, not for these words.
 const words = (kind: string): RegExp =>
-  kind === 'README' || kind === 'SKILL' ? /\b(?:never(?! imports)|always|must|only)\b/i : /\b(?:never(?! imports)|always|must)\b/i;
+  kind === 'ROOT' || kind === 'README' || kind === 'SKILL' ? /\b(?:never(?! imports)|always|must|only)\b/i : /\b(?:never(?! imports)|always|must)\b/i;
 
 export function contractRules(text: string): Map<string, string> {
   const rules = new Map<string, string>();
@@ -25,7 +25,7 @@ export function checkRules(root: string, files: string[]): Finding[] {
   const ended = new Set(files.includes('docs/contract/ended.md')
     ? [...read(root, 'docs/contract/ended.md').matchAll(/^[-|] ?(§[a-z0-9.-]+)/gm)].map(m => m[1]!) : []);
   for (const f of files) {
-    const kind = /^jobs\/[^/]+\/prompt\.md$/.test(f) ? 'PROMPT' : KINDS.find(k => new RegExp(`(?:^|/)${k}\\.md$`).test(f));
+    const kind = f === 'README.md' ? 'ROOT' : /^jobs\/[^/]+\/prompt\.md$/.test(f) ? 'PROMPT' : KINDS.find(k => new RegExp(`(?:^|/)${k}\\.md$`).test(f));
     if (!kind || f.startsWith('docs/')) continue;
     const lines = read(root, f).replace(/<!--[\s\S]*?-->/g, '').split('\n');
     const add = (detail: string): void => void out.push({ check: 'rules', file: f, detail });
