@@ -12,6 +12,9 @@ import {
   readToken,
 } from "../../commands/client.ts";
 
+/** How often Library reads again, so a new or changed plan draft shows without a reload. */
+export const PLAN_POLL_MS = 10_000;
+
 export interface LibraryState {
   data?: LibraryData;
   token: string;
@@ -74,16 +77,19 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     let live = true;
     void (async () => {
       try {
-        const [exams, weakspots, sets, answers, planedits, jobs] = await Promise.all([
-          list("exams", token, copy),
-          list("weakspots", token, copy),
-          list("sets", token, copy),
-          list("answers", token, copy),
-          // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
-          list("planedits", token, copy).catch((): WireDoc[] => []),
-          // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
-          jobApi.list(token, copy).catch((): unknown[] => []),
-        ]);
+        const [exams, weakspots, sets, answers, planedits, plans, jobs] =
+          await Promise.all([
+            list("exams", token, copy),
+            list("weakspots", token, copy),
+            list("sets", token, copy),
+            list("answers", token, copy),
+            // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
+            list("planedits", token, copy).catch((): WireDoc[] => []),
+            // The approved plan's sessions live in its document; unreadable, the Detail just lists none.
+            list("plans", token, copy).catch((): WireDoc[] => []),
+            // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
+            jobApi.list(token, copy).catch((): unknown[] => []),
+          ]);
         if (live) {
           setData(
             mapLibrary(
@@ -93,6 +99,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
                 sets,
                 answers,
                 planedits,
+                plans,
                 jobs: jobs as WireJob[],
               },
               Date.now(),
@@ -113,6 +120,14 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       live = false;
     };
   }, [token, copy, again]);
+  // A study plan job changes state on its own (drafted, revised): follow it without a reload.
+  useEffect(() => {
+    if (!token) return;
+    const t = setInterval(() => {
+      if (document.visibilityState !== "hidden") setAgain((n) => n + 1);
+    }, PLAN_POLL_MS);
+    return () => clearInterval(t);
+  }, [token]);
   const runPlan = useCallback(
     async (name: PlanCommand, input: Record<string, string>) => {
       const r = await call(name, input, token);

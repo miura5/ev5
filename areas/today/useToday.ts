@@ -115,6 +115,14 @@ export function useToday(copy?: ReadCopyLike): TodayState {
       live = false;
     };
   }, [token, copy, again]);
+  // A study plan job changes on its own (drafted, revised, approved): read again so Today follows without a reload.
+  useEffect(() => {
+    if (!token) return;
+    const t = setInterval(() => {
+      if (document.visibilityState !== "hidden") setAgain((n) => n + 1);
+    }, 10_000);
+    return () => clearInterval(t);
+  }, [token]);
   // An add goes through the command (§cmd.registry), then Today reads itself again so the new line shows.
   const add = useCallback(
     async (name: "plan.create" | "date.create", input: unknown) => {

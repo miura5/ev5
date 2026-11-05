@@ -101,6 +101,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
       {exam ? (
         <div className="ev-library-detail">
           <ExamPlanDetail
+            key={`${exam.id}:${exam.planState}`}
             exam={{
               id: exam.id,
               title: exam.title,
