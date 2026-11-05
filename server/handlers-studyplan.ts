@@ -4,17 +4,55 @@
 import {
   continueJob,
   d1JobStore,
+  isTerminal,
   startJob,
   studyPlanJob,
+  transition,
+  update,
 } from "../jobs/index.ts";
 import type { JobDef } from "../jobs/index.ts";
 import { CommandError } from "./handlers-core.ts";
-import type { CommandHandler } from "./handlers-core.ts";
-import { startEnv } from "./job-routes.ts";
+import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
+import { examsOfPlans, startEnv } from "./job-routes.ts";
 
 const def = studyPlanJob as JobDef;
 const MAX_NOTE = 2000;
 const PLAN_PREFIX = "plan-";
+
+/** One exam keeps one plan in the making: the older drafts for it are put away and the older runs stopped. */
+async function replaceOlder(x: HandlerCtx, examId: string, keep: string) {
+  const store = d1JobStore(x.db as never, x.clock);
+  const live = (await store.list()).filter(
+    (r) => r.kind === def.kind && r.id !== keep && !isTerminal(r.state),
+  );
+  const exams = await examsOfPlans(
+    x.db as never,
+    live.map((r) => r.id),
+  );
+  for (const rec of live) {
+    if (exams.get(rec.id) !== examId) continue;
+    try {
+      if (rec.state === "needs-you")
+        await continueJob(
+          startEnv({ DB: x.db as never, JOBS: x.jobs! }, def),
+          def,
+          rec.id,
+          { decision: "put_away" },
+        );
+      else
+        await update(store, rec.id, (r) =>
+          transition(r, {
+            to: "failed",
+            at: new Date(x.clock()).toISOString(),
+            reason: "Replaced by a newer plan for the same exam.",
+          }),
+        );
+    } catch (e) {
+      // A race with Matt's own tap: that plan has already moved on, which is what was wanted.
+      console.warn(`older plan ${rec.id} was not replaced`, e);
+    }
+  }
+}
 
 export const studyPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
@@ -35,6 +73,7 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
         502,
         job.reason ?? "the plan could not be started",
       );
+    await replaceOlder(x, i.id, job.id);
     return { job };
   },
 

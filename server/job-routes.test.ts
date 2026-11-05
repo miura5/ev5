@@ -1,6 +1,33 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { d1JobStore } from "../jobs/index.ts";
 import { input, setup, T } from "./job-routes-setup.test.ts";
+
+test("GET /jobs fails a study plan past its deadline and lists only live jobs", async () => {
+  const { req, db } = setup();
+  const put = (id: string, updatedAt: string) =>
+    d1JobStore(db, () => 1).put({
+      id,
+      kind: "study_plan",
+      title: "Study plan",
+      state: "running",
+      costCents: 0,
+      createdAt: updatedAt,
+      updatedAt,
+      v: 1,
+    });
+  await put("lost", "2020-01-01T00:00:00.000Z");
+  await put("fresh", new Date().toISOString());
+  const res = await req("GET", "/api/v1/jobs", "fake-app");
+  const { jobs } = (await res.json()) as { jobs: { id: string }[] };
+  assert.deepEqual(
+    jobs.map((j) => j.id),
+    ["fresh"],
+  );
+  const lost = await d1JobStore(db, () => 1).get("lost");
+  assert.equal(lost?.state, "failed");
+  assert.match(lost?.reason ?? "", /never finished/);
+});
 
 test("the app starts a practice set, then reads its status", async () => {
   const { req, wf } = setup();
