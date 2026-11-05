@@ -87,7 +87,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
   const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
   return (
     <>
-      {error || planNote ? <Toast message={planNote ?? error ?? ""} /> : null}
+      {error || planNote ? <Toast message={planNote ?? error ?? ""} onDone={() => setPlanNote(undefined)} /> : null}
       <LibraryView
         practice={null}
         weakSpots={data?.weakSpots ?? []}
