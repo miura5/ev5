@@ -1,0 +1,35 @@
+.kit-sec {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--sans);
+}
+
+.kit-sec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.kit-sec-label {
+  margin: 0;
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--faint);
+}
+
+.kit-sec-count {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.kit-sec-add {
+  display: flex;
+  margin-left: auto;
+  visibility: hidden;
+}
+
+.kit-sec:hover .kit-sec-add,
+.kit-sec:focus-within .kit-sec-add {
+  visibility: visible;
+}
