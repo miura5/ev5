@@ -113,6 +113,16 @@ export function CollectionScreen({
             if (r.ok) reload();
           })
         }
+        onRename={(title) => {
+          const t = title.replace(/\s+/g, " ").trim();
+          if (!data || !t || t === data.title) return reload();
+          void call("item.rename", { id: data.id, title: t }, token).then(
+            (r) => {
+              setFailed(r.ok ? undefined : r.reason);
+              reload();
+            },
+          );
+        }}
         onNewHere={newHere}
         focusTitle={fresh}
         onItemAction={(eid, action) => {
