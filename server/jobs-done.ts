@@ -1,9 +1,10 @@
 // What finished today (Central), for Activity's "Done today": finished jobs and ended study sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { centralDate } from "../domain/index.ts";
-import { isTerminal } from "../jobs/index.ts";
+import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
-import type { JobStore } from "../jobs/runtime/record.ts";
+
+type JobStore = ReturnType<typeof d1JobStore>;
 
 export interface DoneEntry {
   id: string;
