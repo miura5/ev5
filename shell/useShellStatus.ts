@@ -17,10 +17,15 @@ export interface ShellStatus {
   runningJob?: { id: string; text: string };
 }
 
-const TITLES: Record<string, string> = {
-  "practice-set": "Practice set",
-  "study-plan": "Study plan",
+/** What a running job is doing, in Matt's words (the mock-up's job line); kinds arrive as keys (study_plan). */
+const DOING: Record<string, string> = {
+  "practice-set": "Writing your practice set",
+  "study-plan": "Building your study plan",
 };
+
+const doing = (kind: string): string =>
+  DOING[kind.replace(/_/g, "-")] ??
+  `Working on ${kind.replace(/[_-]+/g, " ").toLowerCase()}`;
 
 /** The one sentence Activity's row shows (areas/activity/useJobs.ts oneSentence), restated: the shell holds no area code. */
 function sentence(j: WireJob): string {
@@ -47,9 +52,7 @@ export function statusFromJobs(jobs: readonly WireJob[]): ShellStatus {
   const run = jobs.find((j) => j.state === "running");
   return {
     counts: needs > 0 ? { activity: needs } : {},
-    runningJob: run
-      ? { id: run.id, text: `${TITLES[run.kind] ?? run.kind} running` }
-      : undefined,
+    runningJob: run ? { id: run.id, text: doing(run.kind) } : undefined,
   };
 }
 
