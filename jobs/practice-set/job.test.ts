@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import type { ModelCall, ModelReply } from "../runtime/index.ts";
+import { parseSet } from "../../domain/index.ts";
 import { MODELS } from "../runtime/models.ts";
 import { outputSchema } from "../runtime/model-call.ts";
 import {
@@ -164,4 +165,47 @@ test("citations are checked against the gathered excerpts, not anything the call
   const r = await writePracticeSet("j", gathered, { call, system });
   assert.ok(r.ok && r.repaired);
   assert.match(reqs[1]!.messages.at(-1)!.content, /"e1"/);
+});
+
+test("stored items are domain set items: an id, and a sourceRef starting note/ or materials/", async () => {
+  const r = await writePracticeSet(
+    "job-7",
+    input({
+      excerpts: [
+        { id: "e1", text: "x" },
+        { id: "materials/m2", text: "y" },
+      ],
+    }),
+    { ...script(reply([q("e1"), q("materials/m2")])), system },
+  );
+  assert.ok(r.ok);
+  assert.deepEqual(
+    r.items.map((i) => [i.id, i.sourceRef]),
+    [
+      ["job-7:i0", "note/e1"],
+      ["job-7:i1", "materials/m2"],
+    ],
+  );
+  const set = parseSet({
+    schema: 3,
+    writer: "worker",
+    at: "t",
+    source: "s",
+    kind: "job",
+    items: r.items,
+  });
+  assert.equal(set.items.length, 2);
+});
+
+test("an item the domain refuses gets one repair ask, then is refused with the reason", async () => {
+  const seven = q("e1", {
+    options: ["1", "2", "3", "4", "5", "6", "7"],
+    rationales: ["1", "2", "3", "4", "5", "6", "7"],
+  });
+  const bad = reply([seven, q("e1")]);
+  const { call, reqs } = script(bad, bad);
+  const r = await writePracticeSet("j", input(), { call, system });
+  assert.ok(!r.ok);
+  assert.equal(reqs.length, 2);
+  assert.match(reqs[1]!.messages.at(-1)!.content, /Item 1 options/);
 });
