@@ -17292,11 +17292,16 @@
   "title": "E.V.'s answer schema comes from the Anthropic SDK's own Zod converter",
   "dod": "outputSchema() in jobs/runtime/model-call.ts is deleted and the call uses zodOutputFormat(schema).schema from the SDK already in package.json; output schemas use plain .min/.max/.length where they used .refine only to keep a bound; runStructured, the repair ask and the citation check stay; one real end-to-end run on staging per job kind (practice set, study plan) is green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "Slice: write jobs/; read none. Read the SDK's current helper docs (node_modules/@anthropic-ai/sdk) for the import path and behaviour, never from memory. The model sees a slightly different schema, hence the staging runs.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Same work as the data-layer study's SDK Zod helper task (B-1005 in PR 490), which keeps it",
+   "at": "2026-11-05T16:04:36.763Z"
+  }
  },
  {
   "id": "B-982",
@@ -17485,5 +17490,33 @@
   "notes": "Slice: write ops/record/, chart/; read none. Gate 5 was opened and closed through four decisions, while two decisions that contradict CONTRACT lines were never ended.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1012",
+  "kind": "task",
+  "title": "Back and Forward move between screens, through wouter in the shell",
+  "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-969"
+  ],
+  "notes": "Slice: write shell/, package.json, .dependency-cruiser.cjs, e2e/; read areas/. Interface: shell. Claim after B-969 (same shell files). Read wouter's current README for its API, never from memory. Decision: D-485.",
+  "commit": null,
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+ },
+ {
+  "id": "B-1013",
+  "kind": "task",
+  "title": "Screens read their address from the shell, never from the browser",
+  "dod": "the five window.location.search reads in areas/ (collection, library, ask, notes) use the address props from the shell; any screen-to-screen move uses the shell's navigate prop; ESLint refuses window.location and window.history in areas/, with a red guard fixture recorded; precheck green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1012"
+  ],
+  "notes": "Slice: write areas/, eslint.config.js, ops/guards/; read shell/. Decision: D-485.",
+  "commit": null,
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
  }
 ]
