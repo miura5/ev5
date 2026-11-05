@@ -143,3 +143,26 @@ test("while the study plan job still runs after Approve, the exam is not shown a
   );
   expect(d.upcoming[0]?.plan).toBe("working");
 });
+
+test("a weekly review waiting for Matt is a Weekly review row in This week", () => {
+  const job = (state: string) => ({
+    kind: "weekly_review",
+    state,
+    summary: "5h 10m studied · 2 weak spots to confirm",
+  });
+  const waiting = mapToday(
+    { exams: [], weakspots: [], jobs: [job("needs-you")] },
+    now,
+  );
+  expect(waiting.thisWeek).toEqual([
+    {
+      id: "w-weekly-review",
+      title: "Weekly review",
+      meta: "5h 10m studied · 2 weak spots to confirm",
+      when: "Sun",
+    },
+  ]);
+  expect(
+    mapToday({ exams: [], weakspots: [], jobs: [job("done")] }, now).thisWeek,
+  ).toEqual([]);
+});
