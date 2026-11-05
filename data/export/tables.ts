@@ -85,6 +85,7 @@ export const JOB_TABLES: TableSpec[] = [
   t("job_records", ["id", "data", "at", "v"], ["id"]),
   t("ceiling_use", ["w", "k", "used"], ["w", "k"]),
   t("ceiling_holds", ["id", "amount", "limits", "open"], ["id"]),
+  t("ceiling_usage", ["key", "hold_id"], ["key"]),
   t("job_plans", ["job_id", "kind", "body", "at"], ["job_id", "kind"]),
 ];
 

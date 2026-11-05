@@ -12,6 +12,7 @@ export async function setup() {
     "0001_deletions",
     "0002_jobs_ceilings",
     "0003_collections_pins_own",
+    "0004_ceiling_usage",
   ])
     for (const stmt of readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),

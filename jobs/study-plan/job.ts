@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { defineJob, parseWith } from '../runtime/define.ts';
 import { outputSchema } from '../runtime/model-call.ts';
-import { checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
+import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
 import { addDays, examDaysLeft, type Exam } from '../../domain/index.ts';
 
@@ -189,9 +189,11 @@ export function studyPlanHandlers({ store, call, system, changesSystem, frame, a
     const ctx = buildContext(found);
     await store.putContext(c.jobId, ctx);
     await c.reserve(COST_CAP_CENTS);
-    const r = await askChanges(
-      { call, system: frame ? await frame(changesSystem, ctx.exam.course) : changesSystem },
-      { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
+    const r = await billedOnThrow(c.spend, async () =>
+      askChanges(
+        { call, system: frame ? await frame(changesSystem, ctx.exam.course) : changesSystem },
+        { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
+      ),
     );
     await c.spend(r.costCents);
     if (!r.ok) {
@@ -215,16 +217,18 @@ export function studyPlanHandlers({ store, call, system, changesSystem, frame, a
       if (earlier) throw new Error(earlier);
       const ctx = await store.getContext(c.jobId);
       await c.reserve(COST_CAP_CENTS);
-      const r = await runStructured({
-        call,
-        model: MODEL,
-        system: frame ? await frame(system, ctx.exam.course) : system,
-        prompt: JSON.stringify(ctx),
-        maxTokens: MAX_TOKENS,
-        schema: outputSchema(PlanSchema),
-        parse: studyPlanJob.output,
-        check: (p) => checkPlan(p, ctx),
-      });
+      const r = await billedOnThrow(c.spend, async () =>
+        runStructured({
+          call,
+          model: MODEL,
+          system: frame ? await frame(system, ctx.exam.course) : system,
+          prompt: JSON.stringify(ctx),
+          maxTokens: MAX_TOKENS,
+          schema: outputSchema(PlanSchema),
+          parse: studyPlanJob.output,
+          check: (p) => checkPlan(p, ctx),
+        }),
+      );
       await c.spend(r.costCents);
       if (!r.ok) {
         await store.putFailure(c.jobId, r.reason);

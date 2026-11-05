@@ -5,7 +5,9 @@ import {
   jobCeilings,
   spendAlertWriter,
 } from "./job-ceilings.ts";
+import { release } from "./ceilings.ts";
 import { memoryStore } from "./ceilings-memory.ts";
+import { billedOnThrow, runStructured } from "./output.ts";
 import type { JobRecord, JobStore } from "./record.ts";
 
 function jobs(): JobStore & { all: Map<string, JobRecord> } {
@@ -92,4 +94,100 @@ test("acknowledging the spend alert closes it for good", async () => {
     acknowledgeSpendAlert(js, "nope", new Date()),
     /not a spend alert/,
   );
+});
+
+const model = "sonnet";
+const spec = (call: Parameters<typeof runStructured>[0]["call"]) => ({
+  call,
+  model,
+  system: "s",
+  prompt: "p",
+  maxTokens: 100,
+  schema: {},
+  parse: (r: unknown) => r as { a: number },
+});
+
+test("a model call that throws on every attempt leaves no hold open", async () => {
+  const store = memoryStore();
+  const now = new Date("2026-11-04T10:00:00Z");
+  const c = jobCeilings(
+    store,
+    config,
+    () => now,
+    (() => {
+      let n = 0;
+      return () => String(n++);
+    })(),
+  );
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await c.reserve("j1", 50);
+    await assert.rejects(
+      billedOnThrow(
+        (cents) => c.record(`i:draft:${attempt}`, "j1", cents),
+        () =>
+          runStructured(
+            spec(async () => {
+              throw new Error("network down");
+            }),
+          ),
+      ),
+      /network down/,
+    );
+    assert.equal(await store.findOpen("j1:hold:"), undefined);
+  }
+  for (const [w, k] of [
+    ["hour", "2026-11-04T10"],
+    ["day", "2026-11-04"],
+    ["month", "2026-11"],
+    ["job", "j1"],
+  ] as const)
+    assert.equal(await store.used(w, k), 0, w);
+});
+
+test("a repair call that throws still bills the first call", async () => {
+  const store = memoryStore();
+  const now = new Date("2026-11-04T10:00:00Z");
+  const c = jobCeilings(
+    store,
+    config,
+    () => now,
+    () => "x",
+  );
+  await c.reserve("j1", 50);
+  let calls = 0;
+  const usage = {
+    inputTokens: 1000,
+    outputTokens: 1000,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+  };
+  await assert.rejects(
+    billedOnThrow(
+      (cents) => c.record("i:draft:1", "j1", cents),
+      () =>
+        runStructured(
+          spec(async () => {
+            if (calls++) throw new Error("boom");
+            return { stopReason: "end_turn", text: "not json", usage };
+          }),
+        ),
+    ),
+    /boom/,
+  );
+  assert.ok((await store.used("job", "j1")) > 0, "first call's cost is kept");
+  assert.equal(await store.findOpen("j1:hold:"), undefined);
+});
+
+test("a settled hold is closed, found again after a restart, and a repeated key counts once", async () => {
+  const store = memoryStore();
+  const now = () => new Date("2026-11-04T10:00:00Z");
+  const a = jobCeilings(store, config, now, () => "h");
+  await a.reserve("j1", 10);
+  const b = jobCeilings(store, config, now, () => "z"); // a restarted Worker: no in-memory state
+  await b.record("i:s:1", "j1", 4);
+  await b.record("i:s:1", "j1", 4);
+  assert.equal(await store.used("job", "j1"), 40_000);
+  assert.equal(await store.findOpen("j1:hold:"), undefined);
+  await release(store, "j1:hold:h"); // a late release of a settled hold changes nothing
+  assert.equal(await store.used("job", "j1"), 40_000);
 });

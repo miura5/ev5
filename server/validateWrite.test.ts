@@ -9,7 +9,7 @@ import { planHome } from "./plan-home.ts";
 // A real SQLite behind D1's interface (the baseline and jobs migrations).
 function sqliteD1(): D1Like & { sql: DatabaseSync } {
   const sql = new DatabaseSync(":memory:");
-  for (const f of ["0000_baseline.sql", "0002_jobs_ceilings.sql"])
+  for (const f of ["0000_baseline.sql", "0002_jobs_ceilings.sql", "0004_ceiling_usage.sql"])
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
     );

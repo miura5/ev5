@@ -139,21 +139,28 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
         throw e;
       }
     },
-    async settle(id, actual) {
+    async settle(id, actual, usageKey) {
       const h = await hold(id);
       if (!h || !h.open) throw new Error(`no reservation ${id}`);
+      // One batch: the hold closes at the billed amount, the usage key is recorded (a repeated key fails the batch), and
+      // every window moves from the reserved amount to the billed one.
       const guard = db
         .prepare(
-          "UPDATE ceiling_holds SET amount = ? WHERE id = ? AND open = 1 AND amount = ?",
+          "UPDATE ceiling_holds SET amount = ?, open = 0 WHERE id = ? AND open = 1 AND amount = ?",
         )
         .bind(actual, id, h.amount);
-      await db.batch(
-        [
-          guard,
-          db.prepare(STALE),
-          ...adds(JSON.parse(h.limits) as Limit[], actual - h.amount),
-        ].map((s) => s),
-      );
+      await db.batch([
+        guard,
+        db.prepare(STALE),
+        ...(usageKey === undefined
+          ? []
+          : [
+              db
+                .prepare("INSERT INTO ceiling_usage (key, hold_id) VALUES (?, ?)")
+                .bind(usageKey, id),
+            ]),
+        ...adds(JSON.parse(h.limits) as Limit[], actual - h.amount),
+      ]);
     },
     async release(id) {
       const h = await hold(id);
@@ -166,6 +173,21 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
         db.prepare(STALE),
         ...adds(JSON.parse(h.limits) as Limit[], -h.amount),
       ]);
+    },
+    async findOpen(prefix) {
+      const r = await db
+        .prepare(
+          "SELECT id FROM ceiling_holds WHERE open = 1 AND substr(id, 1, ?) = ? ORDER BY id LIMIT 1",
+        )
+        .bind(prefix.length, prefix)
+        .first<{ id: string }>();
+      return r?.id;
+    },
+    async usageSeen(key) {
+      return !!(await db
+        .prepare("SELECT 1 AS x FROM ceiling_usage WHERE key = ?")
+        .bind(key)
+        .first());
     },
     used,
   };

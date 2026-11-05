@@ -29,7 +29,11 @@ export interface CeilingStore {
     amount: number;
     limits: Limit[];
   }): Promise<StoreResult>;
-  settle(id: string, actual: number): Promise<void>; // reservation becomes the billed amount
+  /** The reservation becomes the billed amount and the hold is closed. `usageKey` (once per key) makes a repeat a no-op. */
+  settle(id: string, actual: number, usageKey?: string): Promise<void>;
+  /** The open hold whose id starts with `prefix`, if any (so a restarted Worker finds its job's hold). */
+  findOpen(prefix: string): Promise<string | undefined>;
+  usageSeen(key: string): Promise<boolean>;
   release(id: string): Promise<void>; // nothing was billed
   used(window: Window, key: string): Promise<number>;
 }
@@ -142,6 +146,10 @@ export async function reserve(
   return { ok: true, id: call.id };
 }
 
-export const settle = (store: CeilingStore, id: string, actual: number) =>
-  store.settle(id, actual);
+export const settle = (
+  store: CeilingStore,
+  id: string,
+  actual: number,
+  usageKey?: string,
+) => store.settle(id, actual, usageKey);
 export const release = (store: CeilingStore, id: string) => store.release(id);
