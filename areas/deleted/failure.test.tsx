@@ -1,6 +1,9 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { DeletedScreen } from "./Deleted.screen.tsx";
+import { DeletedScreen as RawDeletedScreen } from "./Deleted.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
+
+const DeletedScreen = withToasts(RawDeletedScreen);
 
 afterEach(() => {
   cleanup();

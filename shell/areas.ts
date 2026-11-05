@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { DetailProps } from "../kit/index.ts";
 import type { Services } from "./services.ts";
+import type { OnToast } from "./useToasts.ts";
 import { areas } from "../areas/registry.generated.ts";
 
 /** What a view calls to open or replace the shell's Detail panel, or clear it with null. */
@@ -18,6 +19,7 @@ export interface AreaEntry {
     onNavigate?: (path: string) => void;
     path?: string;
     onDetail?: OnDetail;
+    onToast?: OnToast;
   }>;
 }
 

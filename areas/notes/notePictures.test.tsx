@@ -6,8 +6,11 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { NoteEditor } from "./parts/NoteEditor.tsx";
+import { NoteEditor as RawEditor } from "./parts/NoteEditor.tsx";
+import { withToasts } from "../testToasts.tsx";
 import { NO_STORAGE } from "./parts/notePictures.ts";
+
+const NoteEditor = withToasts(RawEditor);
 
 const IMG_KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
 const png = () =>

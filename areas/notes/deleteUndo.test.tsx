@@ -7,8 +7,11 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { noteDoc } from "../../domain/index.ts";
-import { NotesScreen } from "./Notes.screen.tsx";
+import { NotesScreen as RawNotesScreen } from "./Notes.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
 import type { NotesServices } from "./useNotes.ts";
+
+const NotesScreen = withToasts(RawNotesScreen);
 
 afterEach(() => {
   cleanup();

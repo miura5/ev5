@@ -1,5 +1,5 @@
 import { clockTime } from "../../domain/index.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, failureSentence, readToken } from "../../commands/client.ts";
 import { logTellMe } from "./tellLog.ts";
 import { AskView } from "./Ask.view.tsx";
@@ -52,14 +52,22 @@ async function askServer(
 /** The mounted view. Unfinished jobs from /api/v1/jobs show as turns that link to Activity; typed messages stay local. */
 export function AskScreen({
   services,
+  onToast,
 }: {
   services?: { readCopy?: ReadCopyLike };
+  onToast?: (message: string) => void;
 }) {
   const [sent, setSent] = useState<AskMessage[]>([]);
   const [told, setTold] = useState<readonly string[]>([]);
   const [failed, setFailed] = useState(false);
   const jobs = useAskJobs(services?.readCopy);
   const [draft] = useState(readDraft);
+  useEffect(() => {
+    if (failed)
+      onToast?.(
+        "That tap could not be logged, so the answer stays hidden. Try again.",
+      );
+  }, [failed, onToast]);
   // The tap is logged first (one append-only talk message); only then does the answer show (§ui.attempt-first).
   const onJustTell = (id: string) => {
     void logTellMe(readToken(), id).then(
@@ -83,11 +91,6 @@ export function AskScreen({
       messages={[...jobTurns, ...sent].map(reveal)}
       onJustTell={onJustTell}
       initialDraft={draft}
-      notice={
-        failed
-          ? "That tap could not be logged, so the answer stays hidden. Try again."
-          : undefined
-      }
       onSend={(text) => {
         const n = ++turns;
         setSent((m) => [

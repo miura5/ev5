@@ -1,4 +1,4 @@
-import { Empty, Page, Toast } from "../../kit/index.ts";
+import { Empty, Page } from "../../kit/index.ts";
 import "./ask.css";
 import { Message } from "./parts/Message.tsx";
 import { Composer } from "./parts/Composer.tsx";
@@ -11,8 +11,6 @@ export interface AskViewProps {
   onOpenSource?: (source: string) => void;
   onOpenJob?: (id: string) => void;
   initialDraft?: string;
-  /** A line under the chat, e.g. a write that failed. */
-  notice?: string;
 }
 
 /** Ask E.V.: attempt first. Props in, events out; the shell wires the data. */
@@ -23,7 +21,6 @@ export function AskView({
   onOpenSource,
   onOpenJob,
   initialDraft,
-  notice,
 }: AskViewProps) {
   const lastEv = messages.map((m) => m.from).lastIndexOf("ev");
   return (
@@ -49,7 +46,6 @@ export function AskView({
             ))}
           </div>
         )}
-        {notice ? <Toast message={notice} /> : null}
         <Composer onSend={onSend} initial={initialDraft} />
       </section>
     </Page>
