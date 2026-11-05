@@ -35,7 +35,9 @@ export function NotesScreen({
   if (!cur)
     return (
       <>
-        {error ? <Toast message={error} /> : null}
+        {error || startError ? (
+          <Toast message={(error ?? startError)!} />
+        ) : null}
         <NotesView
           notes={[...notes]
             .sort((a, b) =>
@@ -52,6 +54,20 @@ export function NotesScreen({
           onNewNote={() =>
             void createNote().then((id) => {
               if (id) setOpen(id);
+            })
+          }
+          onNewCollection={() =>
+            void call(
+              "collection.create",
+              { title: "Untitled collection" },
+              readToken(),
+            ).then((r) => {
+              const id = (
+                r.ok ? (r.result as { collection?: { id?: string } }) : {}
+              ).collection?.id;
+              if (id)
+                onNavigate?.(`/collection/${encodeURIComponent(id)}?new=1`);
+              else setStartError(r.ok ? failureSentence(500) : r.reason);
             })
           }
           onOpenNote={setOpen}
