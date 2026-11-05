@@ -16791,6 +16791,22 @@
  },
  {
   "id": "B-943",
+  "kind": "bug",
+  "title": "Screens show a small delay before their items, where the mock-up draws at once",
+  "dod": "Each area opens on its last saved answer at once, then the server's (stale-while-revalidate through the shell read copy); Today, Notes and Collection send their reads in parallel; a refusal takes the saved answer down; a note opens for editing only from the server's answer; unit tests cover the saved-first paint; seen on staging.",
+  "milestone": "5",
+  "status": "in progress",
+  "depends": [],
+  "notes": "Measured on staging 2026-11-05 in Matt's Chrome: each read takes 90 to 180 ms; Today waited about 480 ms (four rounds one after another), Notes about 530 ms (four rounds), Library about 175 ms, Progress and Activity about 150 ms. Every visit read from scratch and showed Loading or an empty state first. Built in PR #459.",
+  "commit": null,
+  "source": "Matt, ev-build channel, 2026-11-05",
+  "words": "why is the read a little delayed? in the prototype the items and stuff load instantly but theres a tiny but noticeable delay in ev5 staging",
+  "reportedAt": "2026-11-05T14:07:09.119Z",
+  "claimedBy": "ev-build thread",
+  "claimedAt": "2026-11-05T14:07:09.452Z"
+ },
+ {
+  "id": "B-952",
   "kind": "task",
   "title": "Only the app token can answer a waiting job (approve, put away, keep or drop)",
   "dod": "POST /api/v1/jobs/:id/continue answers 403 for the schedule and executor tokens and works for the app token; a server test proves both",
@@ -16802,7 +16818,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-944",
+  "id": "B-953",
   "kind": "task",
   "title": "A failed model call releases its cost reservation, and a settled hold is closed",
   "dod": "When a job's model call throws on its last attempt, its ceiling hold is released (hourly, daily, monthly and per-job use go back to what was billed); settle marks the hold closed; the usage key is stored in the hold row; a test that throws on every attempt proves no hold stays open",
@@ -16814,7 +16830,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-945",
+  "id": "B-954",
   "kind": "task",
   "title": "A stopped, swept or replaced job stops running, and a bad answer no longer destroys a waiting job",
   "dod": "Each Workflow step first checks the job record is still running and stops when it is not, so nothing lands under a failed job; /continue checks the answer before the move (400 on a bad answer, the job stays waiting); if the Workflow fails to start, the job goes back to waiting; tests prove all three",
@@ -16826,7 +16842,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-946",
+  "id": "B-955",
   "kind": "task",
   "title": "Every Worker write to an ev4 collection passes ev4's write rules, and Rename works only where a title belongs",
   "dod": "The Worker's docs repository applies a Worker-safe write check (writer values, write-once fields, documents carrying migratedAt or migratedTo, legacy collections) by default on every route and command; item.rename refuses collections whose ev4 schema has no title or keeps it write-once; a refused write gives its real reason, not 409 try again; tests cover rename on an exam and a remade plan's planId",
@@ -16838,7 +16854,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-947",
+  "id": "B-956",
   "kind": "task",
   "title": "Every test file runs in CI and every source and test file is type-checked",
   "dod": "data/tables/tables.test.ts and data/staging/seed.test.ts run in CI; a check fails on any *.test.* file that neither runner collects; a second tsconfig type-checks data, jobs, ops and the server and jobs tests in CI",
@@ -16850,7 +16866,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-948",
+  "id": "B-957",
   "kind": "task",
   "title": "The /kit visual diff blocks a merge when it is red",
   "dod": "The visual job is in the required checks job's needs in .github/workflows/ci.yml, and a red visual turns checks red",
@@ -16862,7 +16878,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-949",
+  "id": "B-958",
   "kind": "task",
   "title": "Kit tokens that areas use all exist, and transitions use the kit's easing",
   "dod": "Every var(--x) used in a CSS file is defined in kit/tokens/tokens.css (a check fails otherwise); --sp-5, --lh-body, --fw-body and --text-quiet uses are fixed; Stylelint accepts var(--ease) and still refuses raw easing values",
@@ -16874,7 +16890,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-950",
+  "id": "B-959",
   "kind": "task",
   "title": "A bad table row can't be saved, one bad row doesn't break a whole list, and Restore brings back only the item asked for",
   "dod": "Table repositories parse a row before they write it; a list skips and reports a bad row instead of throwing; deletions.restore takes the collection and the id; tests prove each",
@@ -16886,7 +16902,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-951",
+  "id": "B-960",
   "kind": "task",
   "title": "Every scheduled fire and a failed nightly export leave a record",
   "dod": "Each 15-minute cron fire that finds a command due writes a run record (done, skipped with the reason, or failed with the reason) that Activity can show; a failed nightly export writes a failed record, not only a console line; tests cover a skip and a failed export",
@@ -16898,7 +16914,7 @@
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
-  "id": "B-952",
+  "id": "B-961",
   "kind": "task",
   "title": "E.V. never cites a deleted note or set, and picks the best passages before it cuts the list",
   "dod": "findPassages leaves out documents in Recently deleted and ranks every match before it keeps the top candidates; a test proves a deleted note is never an excerpt and the best match survives more than 60 matches",

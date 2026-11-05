@@ -10,6 +10,8 @@ export interface CollectionsRead {
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
 export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+  /** The saved copy alone, never the server; `missed()` says a key had none. */
+  saved?(): ReadCopyLike & { missed(): boolean };
 }
 
 async function get(

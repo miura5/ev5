@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
 import {
   api,
@@ -7,6 +7,7 @@ import {
   jobApi,
   readJson,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 const TITLES: Record<string, string> = {
@@ -118,32 +119,34 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
     },
     [token],
   );
+  const warm = useRef(true);
   useEffect(() => {
     if (!token) return;
     let live = true;
     // Offline, the saved list shows (§data.offline); the shell says it is a saved copy.
     // What finished today is a second read; if it fails the unfinished list still shows.
-    const finished = () =>
+    const finished = (c: ReadCopyLike | undefined) =>
       readJson<WireJob[]>(
         "jobs?finished=today",
         token,
         "jobs-done",
-        copy,
+        c,
         (b) => (b as { jobs: WireJob[] }).jobs,
       ).catch(() => [] as WireJob[]);
-    const load = () =>
-      Promise.all([jobApi.list(token, copy) as Promise<WireJob[]>, finished()])
-        .then(([open, done]) => {
-          if (live) {
-            const ids = new Set(open.map((j) => j.id));
-            const list = [...open, ...done.filter((j) => !ids.has(j.id))];
-            setJobs(uniqueRows(list.map(toActivityJob)));
-            setLoading(false);
-            setError(undefined);
-            setRefused(false);
-          }
-        })
-        .catch((e: unknown) => {
+    const read = (c: ReadCopyLike | undefined) =>
+      Promise.all([jobApi.list(token, c) as Promise<WireJob[]>, finished(c)]);
+    // The first read opens on the last list kept, then the server's (§ui.instant); the 15 s re-reads go to the server.
+    const load = (first = false) =>
+      savedFirst(copy, first, read, ([open, done]) => {
+        if (live) {
+          const ids = new Set(open.map((j) => j.id));
+          const list = [...open, ...done.filter((j) => !ids.has(j.id))];
+          setJobs(uniqueRows(list.map(toActivityJob)));
+          setLoading(false);
+          setError(undefined);
+          setRefused(false);
+        }
+      }, () => setJobs([])).catch((e: unknown) => {
           if (!live) return;
           setLoading(false);
           const refusedNow = failureKind(e) === "refused";
@@ -151,13 +154,16 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
           setRefused(refusedNow);
           setError(failureSentence(e));
         });
-    void load();
-    const t = setInterval(() => void load(), 15000);
-    window.addEventListener("ev5:jobs-changed", load);
+    void load(warm.current);
+    warm.current = false;
+    // A re-read (the 15 s timer, a job change) goes to the server only.
+    const reload = () => void load();
+    const t = setInterval(reload, 15000);
+    window.addEventListener("ev5:jobs-changed", reload);
     return () => {
       live = false;
       clearInterval(t);
-      window.removeEventListener("ev5:jobs-changed", load);
+      window.removeEventListener("ev5:jobs-changed", reload);
     };
   }, [token, tick, copy]);
   return { jobs, loading, token, refused, error, dismiss };
