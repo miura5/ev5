@@ -17,6 +17,7 @@ import "./components/Bars/Bars.css";
 import "./components/Glyph/Glyph.css";
 import "./components/EvLine/EvLine.css";
 import "./components/StudyCard/StudyCard.css";
+import "./components/PracticeCard/PracticeCard.css";
 import "./components/Detail/Detail.css";
 import "./components/Doc/Doc.css";
 import "./components/SessionBar/SessionBar.css";
@@ -56,6 +57,7 @@ import { Story as TileStory } from "./components/Tile/Tile.story";
 import { Story as GlyphStory } from "./components/Glyph/Glyph.story";
 import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
 import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story";
+import { Story as PracticeCardStory } from "./components/PracticeCard/PracticeCard.story";
 import { Story as DetailStory } from "./components/Detail/Detail.story";
 import { Story as DocStory } from "./components/Doc/Doc.story";
 import { Story as SessionBarStory } from "./components/SessionBar/SessionBar.story";
@@ -80,6 +82,7 @@ export const STORIES = [
   { name: "Glyph", Story: GlyphStory },
   { name: "E.V. line", Story: EvLineStory },
   { name: "Study card", Story: StudyCardStory },
+  { name: "Practice card", Story: PracticeCardStory },
   { name: "Detail", Story: DetailStory },
   { name: "Doc", Story: DocStory },
   { name: "Session bar", Story: SessionBarStory },
@@ -110,6 +113,7 @@ export { Doc } from "./components/Doc/Doc";
 export { SessionBar } from "./components/SessionBar/SessionBar";
 /** @public Waits for the areas to take it up. */
 export { StudyCard } from "./components/StudyCard/StudyCard";
+export { PracticeCard } from "./components/PracticeCard/PracticeCard";
 export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Bars } from "./components/Bars/Bars";

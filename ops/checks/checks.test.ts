@@ -139,16 +139,17 @@ test('planjob: the class, the ev4 binding and migration must be present, and no 
   assert.equal(checkPlanJob(del.root, del.files).length, 1);
 });
 
-test('server-writes: a raw INSERT, UPDATE or DELETE outside data/ fails; reads, tests and data/ pass', () => {
+test('server-writes: a raw INSERT, UPDATE or DELETE outside data/ fails; reads outside jobs/, tests and data/ pass; any SQL in jobs/ fails', () => {
   const r = repo({
     'server/a.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
     'server/b.ts': 'db.prepare(\n  `update drafts SET v = 1`)',
     'server/c.ts': "db.prepare('DELETE FROM deletions')",
     'server/ok.ts': 'db.prepare("SELECT 1 FROM drafts")',
     'jobs/d.ts': 'db.prepare("UPDATE drafts SET v = 1")',
+    'jobs/e.ts': 'db.prepare("SELECT 1 FROM job_records")',
     'server/a.test.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
     'data/tables/x.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")' });
-  assert.deepEqual(checkServerWrites(r.root, r.files).map(f => f.file).sort(), ['jobs/d.ts', 'server/a.ts', 'server/b.ts', 'server/c.ts']);
+  assert.deepEqual(checkServerWrites(r.root, r.files).map(f => f.file).sort(), ['jobs/d.ts', 'jobs/e.ts', 'server/a.ts', 'server/b.ts', 'server/c.ts']);
 });
 
 test('rules: the repo README.md has its own longer cap and the same rule words', () => {

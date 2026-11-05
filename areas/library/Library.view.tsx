@@ -89,12 +89,7 @@ export function LibraryView({
           onOpen={onOpenAccuracy}
         />
       ) : null}
-      <Tabs
-        label="Library"
-        tabs={tabs}
-        value={tab}
-        onChange={pick}
-      />
+      <Tabs label="Library" tabs={tabs} value={tab} onChange={pick} />
       <div data-panel={tab}>
         {tab === "practice" ? (
           <PracticePanel
@@ -108,16 +103,15 @@ export function LibraryView({
         ) : null}
         {tab === "weak"
           ? weakSpots.map((w) => (
-              <div className="ev-library-line" key={w.id}>
-                <Row
-                  title={w.title}
-                  meta={w.meta}
-                  value={w.due}
-                  glyph={<Glyph type="questions" />}
-                  onOpen={onDrill ? () => onDrill(w.id) : undefined}
-                />
-                <Mastered mastery={w.mastery} />
-              </div>
+              <Row
+                key={w.id}
+                title={w.title}
+                meta={w.meta}
+                value={w.due}
+                glyph={<Glyph type="questions" />}
+                onOpen={onDrill ? () => onDrill(w.id) : undefined}
+                bar={<Mastered mastery={w.mastery} />}
+              />
             ))
           : null}
         {tab === "exams" && exams.length === 0 ? (
@@ -125,16 +119,15 @@ export function LibraryView({
         ) : null}
         {tab === "exams"
           ? exams.map((x) => (
-              <div className="ev-library-line" key={x.id}>
-                <Row
-                  title={x.title}
-                  meta={x.meta}
-                  value={x.readiness}
-                  glyph={<Glyph type="date" />}
-                  onOpen={onOpenExam ? () => onOpenExam(x.id) : undefined}
-                />
-                <Mastered mastery={x.mastery} />
-              </div>
+              <Row
+                key={x.id}
+                title={x.title}
+                meta={x.meta}
+                value={x.readiness}
+                glyph={<Glyph type="date" />}
+                onOpen={onOpenExam ? () => onOpenExam(x.id) : undefined}
+                bar={<Mastered mastery={x.mastery} />}
+              />
             ))
           : null}
         {tab === "sets" ? (

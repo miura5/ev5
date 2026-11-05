@@ -142,6 +142,34 @@ test("an editor row has two named cells that edit in place", () => {
   expect(onTerm).toHaveBeenCalledWith("Warfarin");
 });
 
+test("an editor row can have one cell", () => {
+  const onStep = vi.fn();
+  render(
+    createElement(EditorRow, {
+      cells: [{ label: "Step", value: "Wash hands", onChange: onStep }],
+    }),
+  );
+  expect(screen.getAllByRole("textbox")).toHaveLength(1);
+  expect(document.querySelector(".kit-erow-one")).toBeTruthy();
+  fireEvent.change(screen.getByRole("textbox", { name: "Step" }), {
+    target: { value: "Glove up" },
+  });
+  expect(onStep).toHaveBeenCalledWith("Glove up");
+});
+
+test("a row's bar slot is always drawn, apart from the hover actions", () => {
+  render(
+    createElement(Row, {
+      title: "Weak spot",
+      bar: createElement("i", { "data-testid": "bar" }),
+      actions: "x",
+    }),
+  );
+  const bar = screen.getByTestId("bar");
+  expect(bar.closest(".kit-row-bar")).toBeTruthy();
+  expect(bar.closest(".kit-row-act")).toBeNull();
+});
+
 test("the story renders", () => {
   render(createElement(Story));
   expect(screen.getByText("Fluid balance")).toBeTruthy();
