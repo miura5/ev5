@@ -1,0 +1,25 @@
+.kit-sessionbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--row2);
+  padding: 0 var(--sp-6);
+  border-bottom: var(--hairline) solid var(--line);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--quiet);
+}
+
+.kit-sessionbar-timer {
+  white-space: nowrap;
+}
+
+.kit-sessionbar-note {
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+
+.kit-sessionbar-grow {
+  flex: 1;
+}
