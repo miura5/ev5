@@ -139,6 +139,17 @@ export function CollectionView(p: CollectionViewProps) {
             contentEditable={p.onRename ? true : undefined}
             suppressContentEditableWarning
             data-placeholder="Untitled collection"
+            tabIndex={p.onRename ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (!p.onRename) return;
+              if (e.key === "Enter") {
+                e.preventDefault();
+                e.currentTarget.blur();
+              } else if (e.key === "Escape") {
+                e.currentTarget.textContent = p.title;
+                e.currentTarget.blur();
+              }
+            }}
             onBlur={(e) => p.onRename?.(e.currentTarget.textContent ?? "")}
           >
             {p.title}

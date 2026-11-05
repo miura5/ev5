@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Button } from "../../kit/index.ts";
 import { RowActions } from "./parts/RowActions.tsx";
 import { NoteBlocks } from "./parts/NoteBlocks.tsx";
@@ -18,6 +18,10 @@ export interface NotePageProps {
   /** Present only while a study session runs. */
   session?: NoteSessionState;
   onBack?: () => void;
+  /** Present: the title is a field Matt types in; Enter or leaving it saves, Esc cancels. */
+  onRename?: (title: string) => void;
+  /** A note just made: its title is selected and ready to type. */
+  focusTitle?: boolean;
   /** Delete this note (it goes to Recently deleted; the screen offers Undo). */
   onDelete?: () => void;
   /** The Move picker's targets, the note's collection, and the picks of the note menu. */
@@ -32,12 +36,64 @@ export interface NotePageProps {
   onEndSession?: () => void;
 }
 
+/** The note's title, edited in place: Enter or leaving saves, Esc puts the old words back. */
+function TitleField({
+  title,
+  focus,
+  onRename,
+}: {
+  title: string;
+  focus?: boolean;
+  onRename: (title: string) => void;
+}) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!focus || !el) return;
+    el.focus();
+    getSelection()?.selectAllChildren(el);
+  }, [focus]);
+  return (
+    <h1
+      ref={ref}
+      className="ev-notes-doctitle"
+      data-ui="note-title"
+      role="textbox"
+      aria-label="Title"
+      tabIndex={0}
+      contentEditable
+      suppressContentEditableWarning
+      data-placeholder="Untitled"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          e.currentTarget.blur();
+        } else if (e.key === "Escape") {
+          e.currentTarget.textContent = title;
+          e.currentTarget.blur();
+        }
+      }}
+      onBlur={(e) => {
+        const t = (e.currentTarget.textContent ?? "")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!t) e.currentTarget.textContent = title;
+        else if (t !== title) onRename(t);
+      }}
+    >
+      {title}
+    </h1>
+  );
+}
+
 /** One note, one centred page; the session bar shows only while a session runs. */
 export function NotePageView({
   note,
   editor,
   session,
   onBack,
+  onRename,
+  focusTitle,
   onDelete,
   collections,
   collectionId,
@@ -122,7 +178,13 @@ export function NotePageView({
             </Button>
           )}
         </RowActions>
-        {note.body[0]?.type === "h1" ? null : (
+        {onRename ? (
+          <TitleField
+            title={note.title}
+            focus={focusTitle}
+            onRename={onRename}
+          />
+        ) : note.body[0]?.type === "h1" ? null : (
           <h1 className="ev-notes-doctitle">{note.title}</h1>
         )}
         {editor ?? <NoteBlocks body={note.body} />}
