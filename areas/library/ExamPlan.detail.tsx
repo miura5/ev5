@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { weekdayShort } from "../../domain/index.ts";
 import { Button, Detail, Suggestion, TextArea } from "../../kit/index.ts";
 import type { ExamPlanData } from "./types.ts";
 import "./library.css";
@@ -21,11 +22,7 @@ export interface ExamPlanDetailProps {
 }
 
 /** "Tue" for a Central date. */
-const dayOf = (date: string) =>
-  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
-    weekday: "short",
-    timeZone: "UTC",
-  });
+const dayOf = weekdayShort;
 
 /** Detail for an exam date: its properties, the study plan's actions, and E.V.'s dashed session proposals. */
 export function ExamPlanDetail({

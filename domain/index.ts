@@ -26,7 +26,7 @@ export {
 export { accuracyLine, dueCounts } from "./answers/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
-export { addDays, centralDate, centralParts, isDue, plainDay, inDays, weekday } from "./time/index.ts";
+export { addDays, centralDate, centralParts, clockTime, inDays, isDue, longDay, plainDay, shortDay, weekday, weekdayDay, weekdayShort } from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
 export {

@@ -7,6 +7,7 @@ import {
   parseExam,
   parseWeakSpot,
   plainDay,
+  weekdayDay,
 } from "../../domain/index.ts";
 import type { Exam } from "../../domain/index.ts";
 import type {
@@ -200,12 +201,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       ...(planLine ? { plan: planLine } : {}),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
-      whenFull: new Date(`${exam.date}T00:00:00Z`).toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-        timeZone: "UTC",
-      }),
+      whenFull: weekdayDay(exam.date as string),
       dateLine: `${plainDay(exam.date as string, today)} · ${inDays(left)}`,
       course: exam.course,
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
