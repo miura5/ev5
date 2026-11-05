@@ -17518,5 +17518,55 @@
   "notes": "Slice: write areas/, eslint.config.js, ops/guards/; read shell/. Decision: D-485.",
   "commit": null,
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+ },
+ {
+  "id": "B-1014",
+  "kind": "task",
+  "title": "E.V.'s prompts call the user the student, not by name",
+  "dod": "Ask E.V.'s system prompt (server/ask-chat.ts) and the study-plan changes prompt (jobs/study-plan/changes-prompt.md), and any other model prompt, name no person: they say the student or you; one real end-to-end Ask and study-plan run on staging is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1015",
+  "kind": "task",
+  "title": "The app's user role is owner in the code, not a person's name",
+  "dod": "the Caller and Starter value 'matt' becomes 'owner' (commands/define.ts and every *.command.ts, commands/catalog.ts, jobs/runtime/define.ts, both jobs, server/command-routes.ts, server/job-routes.ts, server/handlers-jobs.ts, server/handlers-studyplan.ts) and comments in those files say the owner; generated files are up to date; an ESLint rule refuses the owner's first name in non-test code, with an allow list only for data/compat (ev4's frozen schemas) and the files that still write ev4's stored 'by' value until the data study's row shapes replace it, each with a one-line reason; a red guard fixture is recorded; precheck green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1016",
+  "kind": "task",
+  "title": "The build status script works in any clone of the repo",
+  "dod": "ops/status/build_status.py reads the repository from GITHUB_REPOSITORY (or the git remote when run locally) instead of a fixed owner and name, and the questions issue number from an env var that defaults to 1; its workflow still produces the same snapshot",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write ops/status/, .github/workflows/ (the status workflow only); read none. Decision: D-486. rehearsal.yml's ev4 clone is left alone: it is ev4-specific and ends with the rollback to ev4.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1017",
+  "kind": "task",
+  "title": "The Chart tools record the owner as a role, not a name",
+  "dod": "ops/record writes 'owner' for --waiting-on and --ok, and a live release needs --ok owner; the live Chart's existing values are rewritten; chart/history keeps its words; the renders say the owner; lint and render green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-994"
+  ],
+  "notes": "Slice: write ops/record/, chart/, docs/record/; read none. Decision: D-486. After B-994, so ev4's history is frozen first and only the live files change. The playtest refresh script outside the repo reads BACKLOG.md: keep its table format.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  }
 ]
