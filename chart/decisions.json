@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-496",
+  "date": "Nov 5",
+  "title": "Table design accepted (docs/proposals/table-design.md): one table per stored kind, goals/links/attempts, events as rows, deleted_at as the one delete, expand then contract with a v5 export kind",
+  "why": "Settles the open choices with the doc's defaults: drop the weak spot links array, keep set_item_versions, a new chat_id starts a new Ask E.V. chat. Follow-on order: row shapes, migration, docs-kind check, goals and objectives, notes and sets, attempts, weak spots, sessions and talk, plans, then cleanup.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "build manager, run 87"
+ },
+ {
   "id": "D-495",
   "date": "Nov 5",
   "title": "Build order amended: group 4 is the table design and the shape fixes; Canvas sync leaves the cutover list; review and bug-fix rounds come before Phase 7",

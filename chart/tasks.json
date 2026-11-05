@@ -5969,10 +5969,10 @@
   "title": "Table design: one table per stored kind, with attempts, event rows and link rows",
   "dod": "A design doc in docs/proposals/ gives one table per stored kind under §data.tables, with its columns, ids, pointers and indexes: goals (an exam is one kind of goal; kinds are data; the date is optional), objectives, links, attempts, weak spots and their events, sets and items, sessions and their events, notes, plans and plan_items, talk, and files. It settles: one append-only attempts table for every kind of practice (sets, questions in notes, Ask E.V.), each row with the item's id and v, how it was answered, a score from 0 to 1 or none, and where it came from (§data.append-only, §data.item-versions); weak-spot, session and talk events as rows, never rewrites of a document; Ask E.V. turns as talk rows; links as the one many-to-many table, with rows from a goal to material, a goal to an objective and material to an objective (a link points at a goal or an objective by a (kind, id) pair, §data.links); course facts (an optional Canvas id, active or done) as columns on collection rows (§data.course-facts); which override documents (dateedits, examedits, planedits, dayedits) go; a deleted_at column on each deletable table as the one delete mechanism, in place of the deletions side table and its joins (§delete.soft); ev4's claude_usage, claude_reads and claude_plan_asks tables and its per-target system documents left out, and settings given a v (§data.protocol); the end of the generic docs route (PUT /docs and /docs/batch accept any kind and check only notes), once each kind has its table and command and the outbox posts to commands (§data.gate); a v5 export file kind with a manifest per v5 table, so a restore refuses an ev4 backup; and that every table is in the export and the restore drill (§data.export). The build manager reviews the doc and records a decision before the follow-on tasks start. Slice: write docs/proposals; read domain, data, server, jobs.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). First, and it blocks the rest of the data layer. The migration is B-998 (reopened) and the row shapes are B-1022 (re-scoped). Ported ev4 document shapes are reference only (D-494). Also covers the ev4 spillover audit traces T2, T3, T5, T6, T7, T8 and T15.",
-  "commit": null,
+  "notes": "Run 87: docs/proposals/table-design.md. Reviewed by the build manager; see the decision. Proposes two tasks: a generated typed repository over data/tables/gate.ts, and the final cleanup (drop docs routes, data/docs, migration 0007).",
+  "commit": "f07dd3c",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
  {
@@ -6122,10 +6122,10 @@
   "title": "One toast host in the shell",
   "dod": "The shell draws the one toast stack, fed through one hook, like the Detail host (D-482); the screens stop drawing their own kit Toast with their own state; a toast never shows over the palette, and each toast closes; test; both themes match design/mockup.html (§ui.kit-leads). Slice: write shell/, then areas/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Group 3 (kit drift). Shape-fixes review fix 8; the focus part is dropped.",
-  "commit": null,
+  "notes": "Run 87: shell/ToastHost with useToasts; areas call onToast; no toast over the palette. Area tests use areas/testToasts.tsx as a stand-in host.",
+  "commit": "dc030a2",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
  {
@@ -6134,10 +6134,10 @@
   "title": "One note renderer and one block list",
   "dod": "areas/notes and areas/sessions draw note blocks with one renderer in kit/; the block type list lives once, in domain/note, and areas/notes/types.ts stops restating it; a test pins that a session from a note shows the title once (§ui.kit-leads). Slice: write kit/, then areas/notes, areas/sessions.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Group 3 (kit drift). Shape-fixes review fix 9; note-to-note links are after cutover.",
-  "commit": null,
+  "notes": "Run 87: kit/NoteBlocks is the one renderer; Note blocks type from domain/note is the one block shape. Notes view still shows an Image placeholder for pictures (only sessions fetch them). Check list markers on staging.",
+  "commit": "1db0a50",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
  {
@@ -6325,5 +6325,33 @@
   "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-1063",
+  "kind": "task",
+  "title": "A generated typed repository over data/tables/gate.ts",
+  "dod": null,
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1035"
+  ],
+  "notes": "Group 4, follows the accepted table design. Slice: write data/.",
+  "commit": null,
+  "source": "table design"
+ },
+ {
+  "id": "B-1064",
+  "kind": "task",
+  "title": "Contract the generic docs store: remove the docs routes, data/docs and the deletions table; drop docs, deletions, system_docs and claude_* tables",
+  "dod": null,
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1035"
+  ],
+  "notes": "Group 4, last of the data moves; lands only after every kind has its table, command and outbox path.",
+  "commit": null,
+  "source": "table design"
  }
 ]
