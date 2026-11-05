@@ -5,6 +5,12 @@ import { d1JobStore, newJob } from "../jobs/index.ts";
 import { commands } from "../commands/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { commandHandlers } from "./command-handlers.ts";
+import {
+  exportExists,
+  writeNightlyExport,
+  type ExportBucket,
+  type ExportResult,
+} from "./nightly-export.ts";
 
 /** The cron expression a command's cadence needs, or null when no cron fires it yet ("every:15m" only). */
 export function cronFor(every: string | undefined): string | null {
@@ -16,6 +22,8 @@ export const SCHEDULE: Record<string, { time: string; weekday?: number }> = {
   morning: { time: "05:00" },
   evening: { time: "20:00" },
   weekly_review: { time: "05:00", weekday: 0 },
+  // Before the 01:00 to 03:00 quiet window; the export runs here, not as a job (CONTRACT §data.export).
+  export: { time: "00:30" },
 };
 
 /** The job kind each scheduled command starts. None is attached yet (§job.kinds: a new kind needs a Chart decision). */
@@ -46,7 +54,11 @@ export function dueNow(
 /** Runs each due command once; one that throws does not stop the others. Returns the names that ran, and
  * "skipped:<name>" for a due job command with no job kind attached yet. */
 export async function runScheduled(
-  env: { DB: DocsD1 },
+  env: {
+    DB: DocsD1;
+    IMAGES?: ExportBucket;
+    exportAll?: (now: number) => Promise<ExportResult>;
+  },
   cron: string,
   now: number,
 ): Promise<string[]> {
@@ -54,6 +66,26 @@ export async function runScheduled(
   const store = d1JobStore(env.DB as never, () => now);
   let records: Awaited<ReturnType<typeof store.list>> | undefined;
   for (const c of commands) {
+    if (c.name === "export" && c.callers.schedule) {
+      if (cron !== "*/15 * * * *") continue;
+      try {
+        if (!env.IMAGES || !env.exportAll) {
+          console.warn("scheduled export has no bucket or exporter bound");
+          continue;
+        }
+        const date = centralDate(now);
+        const have = await exportExists(env.IMAGES, now);
+        if (!dueNow(c.name, now, have ? [date] : [])) continue;
+        const n = await writeNightlyExport(env.IMAGES, env.exportAll, now);
+        console.log(
+          `scheduled export wrote ${n.key}: ${n.tables} tables, ${n.rows} rows`,
+        );
+        ran.push(c.name);
+      } catch (e) {
+        console.error(`scheduled ${c.name} failed`, e);
+      }
+      continue;
+    }
     if (
       c.callers.schedule &&
       c.effect === "job" &&
