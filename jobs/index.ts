@@ -32,6 +32,7 @@ export { askChanges } from "./study-plan/changes.ts";
 export type { PlanStore, Plan } from "./study-plan/job.ts";
 export {
   startJob,
+  newJob,
   continueJob,
   jobStatus,
   workflowExecutor,
