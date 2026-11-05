@@ -65,6 +65,18 @@ export interface Release {
   tasks: string[];
   decisions: string[];
 }
+/** One filed-later entry: a provisional id (P-1, P-2 ...) and the flags its task add or decision add would take. */
+export interface InboxEntry {
+  id: string;
+  type: 'task' | 'decision';
+  flags: Record<string, string>;
+}
+/** chart/inbox/<session>.json: a session's entries waiting for the lock holder to give them real ids. */
+export interface InboxFile {
+  file: string;
+  session: string;
+  entries: InboxEntry[];
+}
 export interface Chart {
   tasks: Task[];
   decisions: Decision[];
@@ -72,6 +84,7 @@ export interface Chart {
   rules: Rule[];
   views: Record<string, unknown>;
   releases: Release[];
+  inbox: InboxFile[];
 }
 
 // ev4's files plus v5's releases; deploys is read-only.
@@ -89,7 +102,22 @@ export function loadChart(root: string): Chart {
     const p = path.join(dir, f + '.json');
     return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : fallback;
   };
+  const inboxDir = path.join(dir, 'inbox');
+  const inbox = fs.existsSync(inboxDir)
+    ? fs
+        .readdirSync(inboxDir)
+        .filter(f => f.endsWith('.json'))
+        .sort()
+        .map(
+          f =>
+            ({
+              ...JSON.parse(fs.readFileSync(path.join(inboxDir, f), 'utf8')),
+              file: f,
+            }) as InboxFile,
+        )
+    : [];
   return {
+    inbox,
     tasks: read('tasks', []) as Task[],
     decisions: read('decisions', []) as Decision[],
     deploys: read('deploys', []) as Deploy[],
@@ -119,8 +147,7 @@ export function saveChart(root: string, rec: Chart): void {
 
 const highest = (xs: string[]): number => Math.max(0, ...xs.map(id => Number(id.slice(2))).filter(Number.isFinite));
 /** The next free task id: one past the highest, continuing ev4's sequence. */
-export const nextTaskId = (rec: Chart): string =>
-  'B-' + String(highest(rec.tasks.map(t => t.id)) + 1).padStart(2, '0');
+export const nextTaskId = (rec: Chart): string => 'B-' + String(highest(rec.tasks.map(t => t.id)) + 1).padStart(2, '0');
 export const nextDecisionId = (rec: Chart): string =>
   'D-' + String(highest(rec.decisions.map(d => d.id)) + 1).padStart(3, '0');
 
@@ -134,7 +161,7 @@ export const list = (s: unknown): string[] =>
 
 const parts = (d: Date, o: Intl.DateTimeFormatOptions): Record<string, string> =>
   Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', { timeZone: TZ, ...o }).formatToParts(d).map(p => [p.type, p.value])
+    new Intl.DateTimeFormat('en-US', { timeZone: TZ, ...o }).formatToParts(d).map(p => [p.type, p.value]),
   );
 /** "Oct 19" in Central time. */
 export const ctDate = (iso: string): string => {
@@ -143,6 +170,10 @@ export const ctDate = (iso: string): string => {
 };
 /** "16:20" in Central time. */
 export const ctClock = (iso: string): string => {
-  const p = parts(new Date(iso), { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const p = parts(new Date(iso), {
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
   return `${p.hour}:${p.minute}`;
 };
