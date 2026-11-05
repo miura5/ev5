@@ -38,6 +38,8 @@ test("a count reads beside its tab, zero included", () => {
           id: "x",
           title: "E",
           meta: "",
+          when: "",
+          course: "",
           mastery: { right: 1, shaky: 0, wrong: 0 },
           readiness: "1%",
         },
