@@ -1,5 +1,5 @@
-// ev4's write protocol over D1's `docs(c, id, data, at, v)` table, as pure functions plus the interface every v5
-// repository over that table implements. Ported from ev4's pwa/runapi.js and pwa/worker.js.
+// The write protocol (CONTRACT §data.protocol) over D1's `docs(c, id, data, at, v)` table, as pure functions plus the
+// interface every repository over that table implements.
 //   - v is 1 when a document is created and one more on every write; at is the server clock (ms) of the write.
 //   - A write to a document that exists names the version it read (if_version); a create names none. Anything else
 //     writes nothing and answers 409 with the current version.
@@ -49,8 +49,8 @@ export type BatchResult =
 export type WriteProblem = (collection: string, id: string, doc: Json, prev: Json | null) => string | null;
 
 /**
- * What a v5 repository over ev4's `docs` table must do. There is deliberately no delete, remove or purge method.
- * `save` is the page's PUT /api/db/<c>/<id>?if_version=<n> (a whole body as text); `batch` is POST /api/run/batch.
+ * What a repository over the `docs` table must do. There is deliberately no delete, remove or purge method
+ * (§delete.soft). `save` writes one whole body as text, pinned to `ifVersion`; `batch` is all or nothing.
  */
 export interface ProtocolAdapter {
   get(c: string, id: string): Promise<StoredDoc | null>;
@@ -125,7 +125,7 @@ export interface PlannedRow {
   v: number;
 }
 
-/** The 409 for a pin that does not hold: what ev4 answers, naming the entry and the current version. */
+/** The 409 for a pin that does not hold, naming the entry and the current version. */
 export function staleRefusal(c: string, id: string, want: number | null, have: number | null, entry?: number): Refusal {
   const who = entry === undefined ? `${c}/${id}` : `entry ${entry} (${c}/${id})`;
   const error =

@@ -1,7 +1,7 @@
 // The one write gate for the side tables (§data.gate), the sibling of data/docs/gate.ts: a row is parsed by its domain rule
 // and measured against the size budget before anything is written, and a refusal carries a plain reason. A stale version
 // is the only conflict (the Saved result); a refused row throws WriteRefused, so no caller can mistake it for a 409.
-import type { Json } from "../compat/canonical.ts";
+import type { Json } from "../protocol/canonical.ts";
 import { sizeRefusal } from "../docs/budget.ts";
 
 /** A write the rules refused: `message` is the plain reason, and nothing was written. */

@@ -1,4 +1,4 @@
-/** ev4's /api routes. v5 answers each with 410 Gone at cutover (data/compat/routes.json lists them). */
+/** ev4's /api routes. v5 answers each with 410 Gone (§data.ev4-routes; ev4-routes.test.ts lists them one by one). */
 const EV4_ROUTES: RegExp[] = [
   /^\/api\/db(\/[^/]+\/[^/]+)?$/,
   /^\/api\/run(\/.*)?$/,

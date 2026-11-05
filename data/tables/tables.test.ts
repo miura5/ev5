@@ -9,7 +9,6 @@ import { WriteRefused } from "./gate.ts";
 const dir = new URL("../migrations/", import.meta.url);
 function make(onBad?: (b: { table: string; reason: string }) => void) {
   const db = new DatabaseSync(":memory:");
-  db.exec(readFileSync(new URL("ev4-schema.fixture.sql", dir), "utf8"));
   for (const f of readdirSync(dir)
     .filter((f) => /^\d{4}_.*\.sql$/.test(f))
     .sort())

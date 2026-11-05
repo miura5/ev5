@@ -1,12 +1,11 @@
-// The ev4 write protocol (data/compat) over D1's `docs(c, id, data, at, v)` table. There is no delete path:
-// `markDeleted` writes a `deletions(c, id, at)` row (§delete.soft) and removes nothing.
-// It imports compat's protocol and canonical files, not its index: the index reaches the frozen schema loader (node:fs),
-// which a Worker bundle cannot carry. The checked repository, with ev4's Worker check, is in ./checked.ts.
+// The write protocol (data/protocol, §data.protocol) over D1's `docs(c, id, data, at, v)` table, through the gate
+// (gate.ts, §data.gate). There is no delete path: `markDeleted` writes a `deletions(c, id, at)` row (§delete.soft)
+// and removes nothing.
 import {
   canonicalJson,
   canonicalText,
   type Json,
-} from "../compat/canonical.ts";
+} from "../protocol/canonical.ts";
 import {
   checkWrites,
   planBatch,
@@ -20,7 +19,7 @@ import {
   type StoredDoc,
   type Write,
   type WriteProblem,
-} from "../compat/protocol.ts";
+} from "../protocol/protocol.ts";
 import {
   sizeRefusal,
   sizeWarning,

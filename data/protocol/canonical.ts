@@ -1,4 +1,4 @@
-// The one canonical JSON form ev4 stores every document in (pwa/runapi.js canonicalJson).
+// The one canonical JSON form every document is stored in (§data.protocol).
 // It is exactly the text JSON.stringify gives for the value JSON.parse read: compact, keys in the order every reader
 // already sees them (integer-like keys first, ascending, then the rest as written). Keys are NOT sorted. Only
 // whitespace, escapes and the spelling of numbers change. A number JSON cannot hold (1e400 parses to Infinity, which

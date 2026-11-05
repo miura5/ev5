@@ -1,6 +1,5 @@
-// The reference ProtocolAdapter: ev4's `docs` table held in memory, with ev4's Worker semantics (pwa/worker.js for
-// the page's save, pwa/runapi.js for the batch). Every v5 repository over D1 must pass the same suite
-// (protocol-suite.ts) that this one passes.
+// The reference ProtocolAdapter: the `docs` table held in memory, under §data.protocol. Every repository over D1 must
+// pass the same suite (protocol-suite.ts) that this one passes. Test-only.
 import { canonicalJson, canonicalText, type Json } from './canonical.ts';
 import {
   checkWrites,
@@ -22,7 +21,7 @@ export const OVERLAP_MS = 5000;
 export interface MemoryAdapterOptions {
   /** The server clock, in ms. */
   clock?: () => number;
-  /** The per-document check ev4's Worker runs on every write path (notes, in ev4). */
+  /** The per-document check run on every write path (the gate's, in the tests). */
   problem?: WriteProblem | null;
 }
 

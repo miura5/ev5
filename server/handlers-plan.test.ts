@@ -5,7 +5,6 @@ import app from "./index.ts";
 import type { Env } from "./index.ts";
 import { commands } from "../commands/index.ts";
 import { commandHandlers } from "./command-handlers.ts";
-import { validateWrite } from "../data/compat-test.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 async function setup() {
@@ -63,9 +62,6 @@ test("an E.V. plan.create makes a Suggestion that Matt accepts into his day", as
   const ok = await call("proposal.accept", { id });
   assert.equal(ok.status, 200);
   const day = await doc("dayedits", "2026-11-05");
-  assert.deepEqual(validateWrite("dayedits", day, { id: "2026-11-05" }), {
-    ok: true,
-  });
   assert.equal(day?.added[ok.body.result.result.id].text, "Read ch 4");
   assert.equal(day?.added[ok.body.result.result.id].by, "Matt");
   assert.equal((await call("proposal.accept", { id })).status, 404); // applies once
@@ -121,11 +117,6 @@ test("update, move to tomorrow and toggle keep every write one ev4 accepts", asy
   );
   const moved = await call("plan.move_tomorrow", { id });
   assert.equal(moved.body.result.date, "2026-11-06");
-  for (const d of ["2026-11-05", "2026-11-06"])
-    assert.deepEqual(
-      validateWrite("dayedits", await doc("dayedits", d), { id: d }),
-      { ok: true },
-    );
   assert.equal(
     (await doc("dayedits", "2026-11-06"))?.added[id].text,
     "Skills lab",
@@ -175,12 +166,6 @@ test("a repeat is saved and materializes into dayedits.added under rep-<id>-<dat
   assert.equal(fri?.added[`rep-${id}-2026-11-06`].minutes, 15);
   assert.equal(await doc("dayedits", "2026-11-07"), null); // a Saturday
   assert.ok((await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`]);
-  for (const d of ["2026-11-05", "2026-11-06", "2026-11-09", "2026-11-19"])
-    assert.deepEqual(
-      validateWrite("dayedits", await doc("dayedits", d), { id: d }),
-      { ok: true },
-      d,
-    );
   // an update re-runs it: nothing doubles, and Matt's edit to an occurrence stays
   const before = (await doc("dayedits", "2026-11-06"))?.v;
   assert.equal((await call("plan.update", { id, estimateMinutes: 20 })).status, 200);
@@ -229,10 +214,6 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
   assert.equal(
     await DB.prepare("SELECT * FROM memberships WHERE item_id = ?").bind(id).first(),
     null,
-  );
-  assert.deepEqual(
-    validateWrite("dayedits", await doc("dayedits", "2026-11-05"), { id: "2026-11-05" }),
-    { ok: true },
   );
   for (const bad of [
     { linked: "nowhere" },

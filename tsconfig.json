@@ -14,5 +14,5 @@
     "types": ["vite/client"]
   },
   "include": ["e2e", "areas", "shell", "kit", "domain", "commands", "server", "vite.config.ts"],
-  "exclude": ["e2e/playwright.visual.config.ts", "server/**/*.test.ts", "kit/tokens/tokens.test.ts", "**/validateWrite.test.ts", "areas/notes/notePictureFrame.test.ts", "areas/notes/roundTrip.script.ts", "areas/notes/roundTrip.test.ts"]
+  "exclude": ["e2e/playwright.visual.config.ts", "server/**/*.test.ts", "kit/tokens/tokens.test.ts", "areas/notes/notePictureFrame.test.ts", "areas/notes/roundTrip.script.ts", "areas/notes/roundTrip.test.ts"]
 }

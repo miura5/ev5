@@ -84,22 +84,6 @@ for (const g of GUARDS) {
   });
 }
 
-test('red: a write fixture ev4 rejects, listed as valid (data/compat tests)', () => {
-  const root = sandbox({});
-  fs.cpSync(path.join(REAL, 'data/compat'), path.join(root, 'data/compat'), { recursive: true });
-  const cmd = (): Cmd => [process.execPath, [...strip, '--test', 'data/compat/validate.test.ts']];
-  assert.equal(run(root, ...cmd()).code, 0, 'the copied compat suite must pass first');
-  const f = path.join(root, 'data/compat/samples/writes.ts');
-  const text = fs.readFileSync(f, 'utf8');
-  const bad = text.replace("{ name: 'a new note', doc: note },", "{ name: 'a new note', doc: note },\n      { name: 'ev4 rejects this', doc: { ...note, html: '<b>x</b>' } },");
-  assert.notEqual(bad, text, 'the fixture edit did not apply');
-  fs.writeFileSync(f, bad);
-  const r = run(root, ...cmd());
-  if (process.env.GUARDS_SHOW) console.log(`--- compat\n${r.out.split('\n').filter(l => /ev4 rejects|not ok|unknown field/.test(l)).slice(0, 6).join('\n')}`);
-  assert.notEqual(r.code, 0, `compat stayed green:\n${r.out}`);
-  assert.match(r.out, /accepts ev4 rejects this/);
-});
-
 test('warn: a models.ts checked long ago prints a warning and still passes (ops/checks models)', () => {
   const models = (on: string): Files => ({ 'jobs/runtime/models.ts': `export const MODELS_CHECKED_ON = '${on}';\nconst MAX_AGE_DAYS = 90;\n` });
   const fresh = sandbox(models(new Date().toISOString().slice(0, 10)));

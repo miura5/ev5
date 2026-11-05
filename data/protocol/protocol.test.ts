@@ -1,25 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ev4WorkerProblem, memoryAdapter, PROTOCOL_CASES, registerProtocolSuite, testClock } from './index.ts';
-import type { ProtocolAdapter } from './index.ts';
+import { gateProblem } from '../docs/gate.ts';
+import { memoryAdapter } from './memory-adapter.ts';
+import { PROTOCOL_CASES, registerProtocolSuite, testClock } from './protocol-suite.ts';
+import type { ProtocolAdapter } from './protocol.ts';
 
 // The reference adapter passes the whole suite.
-registerProtocolSuite('in-memory reference', clock => memoryAdapter({ clock, problem: ev4WorkerProblem }), test);
+registerProtocolSuite('in-memory reference', clock => memoryAdapter({ clock, problem: gateProblem }), test);
 
 // The suite can fail: adapters each with one protocol bug are caught by at least one case.
 const broken: Record<string, (clock: () => number) => ProtocolAdapter> = {
   'ignores if_version on a page save': clock => {
-    const a = memoryAdapter({ clock, problem: ev4WorkerProblem });
+    const a = memoryAdapter({ clock, problem: gateProblem });
     return { ...a, save: async (c, id, body) => a.save(c, id, body, (await a.get(c, id))?.v ?? null) };
   },
   'stamps some writes with a clock other than the server clock': clock => {
     let n = 0;
-    return memoryAdapter({ clock: () => (n++ % 2 ? clock() : 0), problem: ev4WorkerProblem });
+    return memoryAdapter({ clock: () => (n++ % 2 ? clock() : 0), problem: gateProblem });
   },
-  'has a delete method': clock => ({ ...memoryAdapter({ clock, problem: ev4WorkerProblem }), delete: async () => {} }) as ProtocolAdapter,
+  'has a delete method': clock => ({ ...memoryAdapter({ clock, problem: gateProblem }), delete: async () => {} }) as ProtocolAdapter,
   'skips the note check': clock => memoryAdapter({ clock, problem: null }),
   'writes a batch entry by entry': clock => {
-    const a = memoryAdapter({ clock, problem: ev4WorkerProblem });
+    const a = memoryAdapter({ clock, problem: gateProblem });
     return {
       ...a,
       batch: async w => {

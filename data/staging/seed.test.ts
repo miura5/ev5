@@ -2,12 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DOMAIN_PARSERS } from "../docs/parsers.ts";
-import { checkedDocsRepo } from "../docs/checked.ts";
+import { docsRepo } from "../docs/repo.ts";
 import { fakeD1 } from "../docs/fake-d1.ts";
 
-// Collections in the seed that have no domain parser, with the reason each one is only checked by ev4's Worker check.
+// Collections in the seed that have no domain parser, with the reason each one is not parsed.
 const NO_PARSER: Record<string, string> = {
-  ideas: "ideas has no domain entity yet; only ev4's Worker check applies",
+  ideas: "ideas has no domain entity yet",
 };
 
 // The seed's INSERT rows: ('c', 'id', '<json>', at, v). Single quotes inside the JSON would be doubled.
@@ -30,7 +30,7 @@ test("the seed has rows", () => {
 test("every seed document is read by the repository and parses", async () => {
   const db = fakeD1();
   for (const r of seedRows()) db.docs.set(`${r.c}\n${r.id}`, r);
-  const repo = checkedDocsRepo(db, { clock: () => 1_800_000_000_000, parsers: DOMAIN_PARSERS });
+  const repo = docsRepo(db, { clock: () => 1_800_000_000_000 });
   for (const r of seedRows()) {
     const doc = await repo.get(r.c, r.id);
     assert.ok(doc, `${r.c}/${r.id} is read back`);
@@ -40,8 +40,8 @@ test("every seed document is read by the repository and parses", async () => {
   }
 });
 
-test("a seed document is written back through the checked repository", async () => {
-  const repo = checkedDocsRepo(fakeD1(), { clock: () => 1_800_000_000_000, parsers: DOMAIN_PARSERS });
+test("a seed document is written back through the repository and its gate", async () => {
+  const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
   for (const r of seedRows()) {
     const res = await repo.save(r.c, r.id, r.data, null);
     assert.ok(res.ok, `${r.c}/${r.id}: ${JSON.stringify(res)}`);

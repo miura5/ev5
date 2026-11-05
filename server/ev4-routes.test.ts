@@ -4,14 +4,33 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import app from './index.ts';
 
-const doc = JSON.parse(readFileSync(join(import.meta.dirname, '../data/compat/routes.json'), 'utf8')) as {
-  routes: { method: string; path: string }[];
-};
+// Every route ev4's page and scripts called (§data.ev4-routes: each answers 410).
+const EV4_ROUTES: [method: string, path: string][] = [
+  ['GET', '/api/db'],
+  ['PUT', '/api/db/<collection>/<id>'],
+  ['GET', '/api/run/list'],
+  ['GET', '/api/run/get'],
+  ['POST', '/api/run/batch'],
+  ['GET', '/api/run/collections'],
+  ['DELETE', '/api/run/<any>'],
+  ['GET', '/api/run/system/<name>'],
+  ['PUT', '/api/run/system/<name>'],
+  ['POST', '/api/images'],
+  ['GET', '/api/images/<key>'],
+  ['POST', '/api/backup/export'],
+  ['GET', '/api/backup/newest'],
+  ['GET', '/api/backup/get'],
+  ['POST', '/api/claude'],
+  ['GET', '/api/claude/usage'],
+  ['GET', '/api/claude/limits'],
+  ['PUT', '/api/claude/limits'],
+  ['POST', '/api/jobs/<id>/run'],
+];
 const env = { DB: { prepare: () => ({ first: async () => null }) }, ASSETS: { fetch: async () => new Response('x') } };
 
-for (const r of doc.routes) {
-  test(`${r.method} ${r.path} is 410`, async () => {
-    const res = await app.request(r.path.replace(/<[^>]+>/g, 'x'), { method: r.method }, env);
+for (const [method, path] of EV4_ROUTES) {
+  test(`${method} ${path} is 410`, async () => {
+    const res = await app.request(path.replace(/<[^>]+>/g, 'x'), { method }, env);
     assert.equal(res.status, 410);
   });
 }

@@ -4,7 +4,6 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 
 const read = (name: string): string => readFileSync(new URL(name, import.meta.url), 'utf8');
-const ev4 = read('ev4-schema.fixture.sql'); // frozen copy of ev4's pwa/schema.sql
 const migrations = readdirSync(new URL('.', import.meta.url))
   .filter((f) => /^\d{4}_.*\.sql$/.test(f))
   .sort();
@@ -17,34 +16,25 @@ test('migrations are numbered in order from the baseline', () => {
   migrations.forEach((m, i) => assert.equal(Number(m.slice(0, 4)), i, m));
 });
 
-test('the baseline is a no-op on ev4 schema: same objects, same rows', () => {
+test('the migrations apply cleanly, in order, to an empty database', () => {
   const db = new DatabaseSync(':memory:');
-  db.exec(ev4);
-  db.exec("INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'n1', '{}', 1, 3)");
-  const before = shape(db);
-  db.exec(read('0000_baseline.sql'));
-  assert.equal(shape(db), before);
-  assert.equal(JSON.stringify(db.prepare('SELECT c, id, v FROM docs').all()), '[{"c":"notes","id":"n1","v":3}]');
-});
-
-test('the baseline alone builds the same schema as ev4', () => {
-  const a = new DatabaseSync(':memory:');
-  a.exec(ev4);
-  const b = new DatabaseSync(':memory:');
-  b.exec(read('0000_baseline.sql'));
-  assert.equal(shape(b), shape(a));
+  for (const m of migrations) assert.doesNotThrow(() => db.exec(read(m)), m);
+  const tables = (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((t) => t.name);
+  for (const t of ['docs', 'deletions', 'job_records', 'collections']) assert.ok(tables.includes(t), t);
 });
 
 test('every migration is idempotent and only adds', () => {
   const db = new DatabaseSync(':memory:');
-  db.exec(ev4);
-  const base = JSON.parse(shape(db)) as { name: string; sql: string }[];
-  for (const m of migrations) db.exec(read(m));
+  let before = JSON.parse(shape(db)) as { name: string; sql: string }[];
+  for (const m of migrations) {
+    db.exec(read(m));
+    const after = JSON.parse(shape(db)) as { name: string; sql: string }[];
+    for (const o of before) assert.equal(after.find((x) => x.name === o.name)?.sql, o.sql, `${m} changed ${o.name}`);
+    before = after;
+  }
   const once = shape(db);
   for (const m of migrations) db.exec(read(m));
   assert.equal(shape(db), once);
-  const after = JSON.parse(once) as { name: string; sql: string }[];
-  for (const o of base) assert.equal(after.find((x) => x.name === o.name)?.sql, o.sql);
   for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|DELETE|UPDATE)\b/i, m);
   // §data.additive: adding a column is an ordinary migration; every other ALTER form (rename, drop) stays banned.
   for (const m of migrations) {

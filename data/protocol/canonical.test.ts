@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { canonicalJson, canonicalText, finiteJson } from './index.ts';
+import { canonicalJson, canonicalText, finiteJson } from './canonical.ts';
 
-const samples = JSON.parse(readFileSync(join(import.meta.dirname, 'samples/canonical.json'), 'utf8')) as {
+const samples = JSON.parse(readFileSync(join(import.meta.dirname, 'canonical.samples.json'), 'utf8')) as {
   canonical: { in: string; out: string }[];
   refused: { in: string; error: string }[];
 };
 
-test('canonicalJson gives the exact text ev4 stores for each sample body', () => {
+test('canonicalJson gives the exact text stored for each sample body', () => {
   for (const s of samples.canonical) assert.equal(canonicalJson(s.in).text, s.out, JSON.stringify(s.in));
 });
 
@@ -17,7 +17,7 @@ test('canonical text keeps the data, is a fixpoint, and is what a read re-serial
   for (const s of samples.canonical) {
     const { text } = canonicalJson(s.in);
     assert.ok(text !== undefined);
-    // The one change to the data is the sign of a zero: -0 is stored as 0, as in ev4.
+    // The one change to the data is the sign of a zero: -0 is stored as 0.
     const unsigned = (t: string) => JSON.parse(t, (_k, v) => (Object.is(v, -0) ? 0 : v));
     assert.deepEqual(JSON.parse(text), unsigned(s.in), 'the same data');
     assert.equal(canonicalJson(text).text, text, 'canonicalising twice changes nothing');
@@ -25,7 +25,7 @@ test('canonical text keeps the data, is a fixpoint, and is what a read re-serial
   }
 });
 
-test('a body that is not JSON, or holds a number JSON cannot, is refused with ev4 wording', () => {
+test('a body that is not JSON, or holds a number JSON cannot, is refused with a plain reason', () => {
   for (const s of samples.refused) assert.deepEqual(canonicalJson(s.in), { error: s.error }, s.in);
 });
 

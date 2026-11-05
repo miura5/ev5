@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ok, setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.test.ts";
 
 test("an own set takes items, updates and removes them (softly), and drafts are kept or dropped", async () => {
   const { call, DB } = await setup();
@@ -151,7 +151,6 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
     id: string;
   }>();
   assert.equal(all.results.length, 3);
-  for (const r of all.results) ok("answers", await doc("answers", r.id));
   assert.equal(
     (await call("study.attempt", { id: "s1/zz", answer: "1" })).status,
     404,

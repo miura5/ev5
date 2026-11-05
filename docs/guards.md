@@ -20,11 +20,9 @@ Run: `node --experimental-strip-types --test ops/guards/guards.test.ts` (Node 22
 | A view under `areas/` or `shell/` that renders a raw `<input>`, `<button>`, `<select>` or `<textarea>` | `node ops/checks/cli.ts --root <repo>` | `controls: areas/x/X.view.tsx: renders a raw <button>; use the kit component (Button, Field, TextArea, Choice, TextOptions...), adding it to kit/ first if missing (§ui.kit-leads)` |
 | A tool defined outside the registry | `node ops/checks/cli.ts --root <repo>` | `registry: server/tool.ts: a Claude tool definition outside commands/` |
 | A `jobs/runtime/models.ts` checked more than its age limit ago (a warning, exit 0) | `node ops/checks/cli.ts --root <repo>` | `warning: models: jobs/runtime/models.ts: model ids and prices were last checked on 2020-01-01, ... days ago (limit 90). Check them against the Anthropic docs.` |
-| A write fixture ev4's schema rejects | `node --test data/compat/validate.test.ts` | the fixture, listed as valid, fails: `not ok - notes: accepts ev4 rejects this` with `/html: unknown field` |
 
 ## Notes
 
-- The compat guard is the suite itself: a write that ev4's frozen schema refuses must be listed under `invalid` in `data/compat/samples/writes.ts`. The test copies `data/compat`, adds a note with an unknown field to `valid`, and the suite goes red. (The runtime path, `validateWrite`, has no CLI of its own; the Worker will call it from the repository layer.)
 - The checks run from a temp repo, so `package.json` there declares no dependencies; otherwise knip would report the real app's dependencies as unused. `knip.json` is copied untouched.
 - Not yet proven: the other custom checks (`rules`, `secrets`, `stack`, `trailer`) have their own tests in `ops/checks/checks.test.ts`; `generate --check` and the TypeScript step are not covered here.
 - `npm test` and CI do not run `ops/guards/` yet: that needs `ops/guards/` added to the `test` script in `package.json`, which is outside this task's slice.

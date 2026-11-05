@@ -5,7 +5,6 @@ import app from "./index.ts";
 import type { Env } from "./index.ts";
 import { commands } from "../commands/index.ts";
 import { commandHandlers } from "./command-handlers.ts";
-import { validateWrite } from "../data/compat-test.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 async function setup() {
@@ -49,13 +48,7 @@ async function setup() {
       .run();
   return { DB, call, doc, put };
 }
-const ok = async (
-  doc: Promise<Record<string, any> | null>,
-  c: string,
-  id: string,
-) => assert.deepEqual(validateWrite(c, await doc, { id }), { ok: true });
-
-test("a date is added and changed through an override, both writes ev4 accepts", async () => {
+test("a date is added and changed through an override", async () => {
   const { call, doc } = await setup();
   const made = await call("date.create", {
     title: "Skills check",
@@ -63,7 +56,6 @@ test("a date is added and changed through an override, both writes ev4 accepts",
   });
   assert.equal(made.status, 200);
   const { id } = made.body.result;
-  await ok(doc("dates", id), "dates", id);
   assert.equal((await doc("dates", id))?.addedBy, "Matt");
   assert.equal(
     (
@@ -75,7 +67,6 @@ test("a date is added and changed through an override, both writes ev4 accepts",
     ).status,
     200,
   );
-  await ok(doc("dateedits", id), "dateedits", id);
   assert.deepEqual((await doc("dateedits", id))?.overrides, {
     date: "2026-11-21",
     title: "Skills validation",
@@ -105,11 +96,9 @@ test("approving a study plan puts it in force and putting it away retires it", a
     exam: "e1",
   });
   assert.equal((await call("studyplan.approve", { id: "p1" })).status, 200);
-  await ok(doc("planedits", "e1"), "planedits", "e1");
   assert.equal((await doc("planedits", "e1"))?.plan, "p1");
   assert.equal((await call("studyplan.put_away", { id: "p1" })).status, 200);
   const edits = await doc("planedits", "e1");
-  await ok(Promise.resolve(edits), "planedits", "e1");
   assert.equal(edits?.plan, undefined);
   assert.ok(edits?.retired.p1.at);
   assert.equal((await call("studyplan.approve", { id: "p1" })).status, 200); // back in force, no longer retired
