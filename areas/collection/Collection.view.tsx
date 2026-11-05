@@ -7,6 +7,7 @@ import {
   type GlyphType,
   type MenuItem,
 } from "../../kit/index.ts";
+import { RowActions } from "./RowActions.tsx";
 import "./collection.css";
 
 /** One thing in a collection as the collection read reports it; areas never import data, so the shape is restated. */
@@ -40,6 +41,10 @@ export interface CollectionViewProps {
     id: string,
     action: "open" | "pin" | "unpin" | "delete",
   ) => void;
+  /** Move picked a collection for an item (item.move). */
+  onMove?: (id: string, collectionId: string) => void;
+  /** Every collection, for the Move picker. */
+  targets?: readonly { id: string; title: string }[];
   /** The New menu pick: a note, a set, a date, or a collection inside (not offered inside a nested one). */
   onNewHere?: (kind: NewKind) => void;
   /** A collection just made: its title takes the cursor, selected, ready to type. */
@@ -54,19 +59,18 @@ export interface CollectionViewProps {
 function EntryRow({
   e,
   pinned,
+  targets,
   onOpen,
   onAction,
+  onMove,
 }: {
   e: CollectionEntry;
   pinned: boolean;
+  targets: readonly { id: string; title: string }[];
   onOpen?: (id: string) => void;
   onAction?: CollectionViewProps["onItemAction"];
+  onMove?: CollectionViewProps["onMove"];
 }) {
-  const menu: MenuItem[] = [
-    { key: "open", label: "Open" },
-    pinned ? { key: "unpin", label: "Unpin" } : { key: "pin", label: "Pin" },
-    { key: "delete", label: "Delete", danger: true },
-  ];
   const row = (
     <Row
       title={e.title}
@@ -78,19 +82,16 @@ function EntryRow({
   );
   if (!onAction) return row;
   return (
-    <div className="ev-coll-entry" data-entry={e.id}>
+    <RowActions
+      title={e.title}
+      entry={e.id}
+      pinned={pinned}
+      targets={targets.filter((t) => t.id !== e.id)}
+      onAction={(a) => onAction(e.id, a)}
+      onMove={onMove ? (c) => onMove(e.id, c) : undefined}
+    >
       {row}
-      <Menu
-        label={`Actions for ${e.title}`}
-        items={menu}
-        onPick={(k) => onAction(e.id, k as "open" | "pin" | "unpin" | "delete")}
-        trigger={
-          <Button kind="text" aria-label={`Actions for ${e.title}`}>
-            ⋯
-          </Button>
-        }
-      />
-    </div>
+    </RowActions>
   );
 }
 
@@ -102,6 +103,8 @@ export function CollectionView(p: CollectionViewProps) {
       key={e.id}
       e={e}
       pinned={pinnedIds.has(e.id)}
+      targets={p.targets ?? []}
+      onMove={p.onMove}
       onOpen={p.onOpen}
       onAction={p.onItemAction}
     />

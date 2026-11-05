@@ -1,7 +1,12 @@
 import type { ReactNode } from "react";
 import { Button } from "../../kit/index.ts";
+import { RowActions } from "./parts/RowActions.tsx";
 import { NoteBlocks } from "./parts/NoteBlocks.tsx";
-import type { NotePageData, NoteSessionState } from "./types.ts";
+import type {
+  NoteCollection,
+  NotePageData,
+  NoteSessionState,
+} from "./types.ts";
 import "./notes.css";
 
 export type { NotePageData, NoteSessionState } from "./types.ts";
@@ -15,6 +20,11 @@ export interface NotePageProps {
   onBack?: () => void;
   /** Delete this note (it goes to Recently deleted; the screen offers Undo). */
   onDelete?: () => void;
+  /** The Move picker's targets, the note's collection, and the picks of the note menu. */
+  collections?: readonly NoteCollection[];
+  collectionId?: string | null;
+  onMove?: (collectionId: string) => void;
+  onPin?: () => void;
   onPickCollection?: () => void;
   onMakeCards?: () => void;
   onStartSession?: () => void;
@@ -29,6 +39,10 @@ export function NotePageView({
   session,
   onBack,
   onDelete,
+  collections,
+  collectionId,
+  onMove,
+  onPin,
   onPickCollection,
   onMakeCards,
   onStartSession,
@@ -62,7 +76,21 @@ export function NotePageView({
             ← Notes
           </Button>
         )}
-        <div className="ev-notes-docmeta">
+        <RowActions
+          className="ev-notes-docmeta"
+          title={note.title}
+          targets={collections}
+          current={collectionId}
+          onMove={session ? undefined : onMove}
+          onAction={
+            session
+              ? undefined
+              : (a) => {
+                  if (a === "pin") onPin?.();
+                  if (a === "delete") onDelete?.();
+                }
+          }
+        >
           <Button kind="text" onClick={onPickCollection}>
             {note.collectionName ?? "no collection"}
           </Button>
@@ -85,7 +113,7 @@ export function NotePageView({
               Start session
             </Button>
           )}
-        </div>
+        </RowActions>
         {note.body[0]?.type === "h1" ? null : (
           <h1 className="ev-notes-doctitle">{note.title}</h1>
         )}

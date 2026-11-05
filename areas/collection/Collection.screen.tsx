@@ -106,6 +106,13 @@ export function CollectionScreen({
             : undefined
         }
         onOpen={open}
+        targets={data?.all ?? []}
+        onMove={(eid, collection) =>
+          void call("item.move", { id: eid, collection }, token).then((r) => {
+            setFailed(r.ok ? undefined : r.reason);
+            if (r.ok) reload();
+          })
+        }
         onNewHere={newHere}
         focusTitle={fresh}
         onItemAction={(eid, action) => {
