@@ -1,6 +1,6 @@
 /* Only what no kit part draws is kept here; each rule says why. */
 
-/* The note page column (kit Page needs an editable title, which it lacks). */
+/* The note page column: kit Page and the body share it. */
 .ev-notes {
   display: flex;
   flex-direction: column;
@@ -11,59 +11,25 @@
   color: var(--text);
 }
 
-.ev-notes-docmeta,
+/* The session bar: a row of status, timer and two buttons; no kit part is a bar. */
 .ev-notes-session {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-}
-
-.ev-notes-grow {
-  flex: 1;
-}
-
-.ev-notes-doctitle {
-  margin: 0;
-  font-size: var(--fs-title);
-  font-weight: var(--fw-title);
-  line-height: var(--lh-title);
-  letter-spacing: var(--track-title);
-}
-
-/* The note page meta line and the session bar; no kit part draws them. */
-.ev-notes-meta,
-.ev-notes-docmeta {
-  font-size: var(--fs-meta);
-  color: var(--faint);
-}
-
-.ev-notes-pagecol {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-
-.ev-notes-session {
   height: 48px;
   color: var(--quiet);
   font-size: var(--fs-body);
 }
 
-.ev-notes-dot {
-  width: var(--sp-2);
-  height: var(--sp-2);
-  border-radius: var(--r-round);
-  background: var(--faint);
-}
-
-.ev-notes-dot[data-state="running"] {
-  background: var(--info);
-}
-
-.ev-notes-save {
-  display: inline-flex;
-  align-items: center;
+.ev-notes-end {
+  display: flex;
   gap: var(--sp-2);
+  margin-left: auto;
+}
+
+/* The menu host around kit Page adds no box of its own. */
+.ev-notes-host {
+  display: contents;
 }
 
 .ev-notes-doc {
@@ -181,13 +147,4 @@
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-4);
-}
-
-.ev-notes-doctitle[contenteditable] {
-  outline: none;
-}
-
-.ev-notes-doctitle:empty::before {
-  content: attr(data-placeholder);
-  color: var(--faint);
 }
