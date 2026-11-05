@@ -4193,7 +4193,7 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 60 #403 (with B-901, B-902): prompts take {{student}} via server/frame-prompt.ts; course table from system_docs spec. Risk: Matt's nursing wording needs nursing:true on NUR 112 in the spec doc on the target; check on staging.",
+  "notes": "Run 60 #403 (with B-901, B-902): prompts take {{student}} via server/frame-prompt.ts; course table from system_docs spec. Risk: Matt's nursing wording needs nursing:true on NUR 112 in the spec doc on the target; check on staging. Superseded 2026-11-05 by the ev4 sweep (#547, #548): the nursing framing these tasks kept for a nursing course is removed altogether; no course is framed in code.",
   "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -4205,7 +4205,7 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 60 #403",
+  "notes": "Run 60 #403 Superseded 2026-11-05 by the ev4 sweep (#547, #548): the nursing framing these tasks kept for a nursing course is removed altogether; no course is framed in code.",
   "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -4217,7 +4217,7 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 60 #403",
+  "notes": "Run 60 #403 Superseded 2026-11-05 by the ev4 sweep (#547, #548): the nursing framing these tasks kept for a nursing course is removed altogether; no course is framed in code.",
   "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -4229,7 +4229,7 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 60 #406: gradePrompt takes {nursing}. No caller passes the course yet (default stays nursing): jobs/ and server/ grading must pass examFrame(table, course).nursing.",
+  "notes": "Run 60 #406: gradePrompt takes {nursing}. No caller passes the course yet (default stays nursing): jobs/ and server/ grading must pass examFrame(table, course).nursing. Superseded 2026-11-05 by the ev4 sweep (#547, #548): the nursing framing these tasks kept for a nursing course is removed altogether; no course is framed in code.",
   "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -4241,20 +4241,20 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 60 #406: validateItem, validItems, normalizeItem, tagItems take nursing; own-set/parse.ts and job paths do not pass the course yet.",
+  "notes": "Run 60 #406: validateItem, validItems, normalizeItem, tagItems take nursing; own-set/parse.ts and job paths do not pass the course yet. Superseded 2026-11-05 by the ev4 sweep (#547, #548): the nursing framing these tasks kept for a nursing course is removed altogether; no course is framed in code.",
   "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
   "id": "B-905",
   "kind": "task",
-  "title": "Decide whether the clinical-prep and skills-prep plan item kinds show only on nursing courses",
-  "dod": "domain/item-props/types.ts:60-61 lists skills-prep and clinical-prep as built-in plan item kinds (areas/today/map.ts:71 labels clinical prep). Recommendation: keep both kinds in the type, because ev4's dayedits schema 1 holds them; offer them only for a course flagged nursing wherever a kind picker lists kinds, and keep showing any stored item of those kinds. Record the decision in the Chart; if a picker offers them today, gate it with a test. Slice: write areas, domain/item-props; read domain/course.",
+  "title": "Plan items have no nursing kinds",
+  "dod": "skills-prep and clinical-prep are gone from the plan item kinds and Today's labels; generic kinds stay (§what.framing)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. Re-scoped 2026-11-05 (ev4 sweep, #548): v5 starts empty, so no stored item needs the ev4 kinds. graded stays as a generic kind. Same PR: no nursing item config, one number answer format (value, unit, tolerance), one itemType and scoreAnswer in domain/item, exam kind is free text, unused ev4 item ports deleted.",
+  "commit": "54cf941",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -4265,7 +4265,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9).",
   "commit": null,
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -5663,9 +5663,9 @@
   "id": "B-1011",
   "kind": "task",
   "title": "Retire ev4-only code",
-  "dod": "data/compat, ajv, the course-name fallback, item_props and dayedits, copy-on-first-edit sets, json_extract deletion joins and the ev4 outbox import on first boot (shell/outbox/ev4-import.ts) are deleted; knip and the checks pass (§data.own-db, §data.ev4-routes)",
+  "dod": "data/compat, ajv, worker-check (ev4's write check), the ev4 migration fixture and its equality tests, the scratch-check, the validateWrite tests and the ev4 outbox import on first boot are deleted; the write protocol lives in data/protocol; the export kind is ev5-export and a restore refuses ev4's; knip and the checks pass (§data.own-db, §data.ev4-routes)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-1001",
    "B-1002",
@@ -5673,8 +5673,8 @@
    "B-1007",
    "B-1008"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Narrowed and done 2026-11-05 (ev4 sweep): #545 (first-boot import), #550 (data/compat, export kind). The rest of the old done bar moves to the table design: item_props and dayedits to B-1033/B-1038, copy-on-first-edit sets to B-1040, json_extract deletion joins to B-1035's deleted_at column, the course-name fallback and the course table with T9's remainder. The writer/source envelope fields stay until the tables land.",
+  "commit": "87aa217",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
@@ -5713,7 +5713,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs.",
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
@@ -5905,7 +5905,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011.",
+  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011. 2026-11-05 ev4 sweep (#550) did part of this: CONTRACT §drift.checks drops compat, docs/guards.md compat rows gone, PLAN compat lines marked ended (D-484). The rest of the list stands.",
   "commit": null,
   "source": "ops claims review 2026-11-05"
  },
@@ -5985,7 +5985,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Split if large: check 2's docs-kind list lands first, right after the table design, so no new document kind appears while the kinds move; each other check lands with or after the task that clears its traces (checks 1, 6 and 7 after the ev4 and subject-code removal sweep). Comments that give ev4 files as a reason (spillover T23) are rewritten by the task that moves their kind.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Split if large: check 2's docs-kind list lands first, right after the table design, so no new document kind appears while the kinds move; each other check lands with or after the task that clears its traces (checks 1, 6 and 7 after the ev4 and subject-code removal sweep). Comments that give ev4 files as a reason (spillover T23) are rewritten by the task that moves their kind. 2026-11-05 ev4 sweep (#547) added server/prompt-words.test.ts: the model prompts refuse nursing, NCLEX, clinical, patient, dosage and the owner's name. The repo-wide checks in this done bar are still to do.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
