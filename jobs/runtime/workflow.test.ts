@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { z } from 'zod';
 import assert from 'node:assert/strict';
-import { continueJob, defineJob, startJob } from './index.ts';
+import { continuationId, continueJob, defineJob, startJob } from './index.ts';
 import type { Env, JobRecord, JobStore } from './index.ts';
 import { forgetKinds } from './define.ts';
 import { fakeWorkflows } from './workflow.fake.ts';
@@ -74,10 +74,13 @@ test('needs-you ends the instance; one continuation, repeated, saves once', asyn
   assert.deepEqual([...usage.keys()], ['j1:call:1']);
   assert.equal(waiting.costCents, 7); // the job record shows the spend, not only the ceilings
 
-  await continueJob(env, def, 'j1', 'yes');
+  const running = await continueJob(env, def, 'j1', 'yes');
   await assert.rejects(continueJob(env, def, 'j1', 'yes'), /not waiting/);
   // even a direct second start of the same continuation id is a no-op
-  await env.executors.workflow!.start('j1:approve', (await store.get('j1'))!, 'yes');
+  await env.executors.workflow!.start(continuationId('j1', 'approve', running.v), running, 'yes', {
+    from: 'approve',
+    round: running.v,
+  });
   await wf.idle();
   assert.deepEqual(saved, ['yes']);
   const done = (await store.get('j1'))!;
@@ -144,4 +147,30 @@ test('cloudflareAdapter turns a repeated instance id into exists', async () => {
   const p = { jobId: 'j', kind: 'k', input: null };
   assert.equal(await a.create('j:approve', p), 'created');
   assert.equal(await a.create('j:approve', p), 'exists');
+});
+
+test('two rounds at the same step get different valid instance ids and spend keys', async () => {
+  const h: StepHandlers = {
+    plan: async () => ({ ids: ['p'] }),
+    call: async (c) => (await c.spend(2), { ids: ['d'] }),
+    approve: async () => ({ needsYou: 'Approve.' }),
+    save: async () => ({ ids: ['x'] }),
+  };
+  const { def, env, store, wf, usage } = setup(h);
+  await startJob(env, def, {}, 'matt');
+  await wf.idle();
+  for (const from of ['plan', 'plan']) {
+    // an answer at a step that waits again: the job goes back to needs-you at `approve`, then is answered again
+    const cur = (await store.get('j1'))!;
+    const r = cur.v + 1;
+    const next = { ...cur, state: 'running' as const, v: r };
+    delete next.step;
+    await store.put(next);
+    await env.executors.workflow!.start(continuationId('j1', from, r), next, 'a', { from, round: r });
+    await wf.idle();
+  }
+  const keys = [...usage.keys()];
+  assert.equal(keys.length, 3);
+  assert.equal(new Set(keys).size, 3);
+  for (const k of keys) assert.match(k.split(':')[0]!, /^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,99}$/);
 });
