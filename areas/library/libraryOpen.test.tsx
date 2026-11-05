@@ -102,3 +102,23 @@ test("an unknown id does nothing", async () => {
   expect(screen.queryByText("Review the study plan")).toBeNull();
   expect(screen.queryByText("How many mL?")).toBeNull();
 });
+
+test("an exam's detail sits beside the library with the date, days left and course", async () => {
+  boot("x1");
+  await waitFor(() =>
+    expect(screen.getByText("Review the study plan")).toBeTruthy(),
+  );
+  const panel = document.querySelector(".ev-library-detail") as HTMLElement;
+  const lib = document.querySelector("section.ev-library") as HTMLElement;
+  expect(panel).toBeTruthy();
+  // After the page in the document, never above it.
+  expect(
+    lib.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  const row = (label: string) =>
+    screen.getAllByText(label).find((e) => panel.contains(e))?.parentElement
+      ?.textContent ?? "";
+  expect(row("Course")).toContain("NUR 112");
+  expect(row("Date")).toMatch(/in [\d]+ days|years|weeks|days/);
+  expect(row("Date")).not.toContain("NUR 112");
+});

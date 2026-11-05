@@ -33,6 +33,10 @@ export interface LibraryExam {
   title: string;
   /** Date and plan state, e.g. "Thursday, Nov 5 · plan waiting for you". */
   meta: string;
+  /** The date and days left, e.g. "Thu, Nov 5 · in 2 days"; "no date" when unset. */
+  when: string;
+  /** The course the exam belongs to; empty when unset. */
+  course: string;
   mastery: Mastery;
   /** Readiness, e.g. "58%". */
   readiness: string;
