@@ -1,11 +1,43 @@
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Button, Menu, type MenuItem } from "../../../kit/index.ts";
+import { Button, Menu, Palette, type MenuItem } from "../../../kit/index.ts";
 
 export type RowAction = "open" | "pin" | "delete";
 
 export interface MoveTarget {
   id: string;
   title: string;
+  /** The parent collection, so a child is listed under it. */
+  parentId?: string | null;
+}
+
+/** The picker's rows: collections by name, each child directly under its parent, the current one marked. */
+export function moveItems(
+  targets: readonly MoveTarget[],
+  current: string | null,
+) {
+  const ids = new Set(targets.map((t) => t.id));
+  const out: {
+    key: string;
+    label: string;
+    indent: number;
+    current: boolean;
+  }[] = [];
+  const walk = (parent: string | null, depth: number, seen: Set<string>) => {
+    for (const t of targets) {
+      const p = t.parentId && ids.has(t.parentId) ? t.parentId : null;
+      if (p !== parent || seen.has(t.id)) continue;
+      seen.add(t.id);
+      out.push({
+        key: t.id,
+        label: t.title,
+        indent: depth,
+        current: t.id === current,
+      });
+      walk(t.id, depth + 1, seen);
+    }
+  };
+  walk(null, 0, new Set());
+  return out;
 }
 
 export interface RowActionsProps {
@@ -91,35 +123,17 @@ export function RowActions({
         }
       />
       {moving ? (
-        <div
-          className="ev-notes-move"
-          role="dialog"
-          aria-label={`Move ${title} to`}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setMoving(false);
+        <Palette
+          ask={false}
+          label={`Move ${title} to`}
+          placeholder="Move to a collection"
+          groups={[{ name: "Move to", items: moveItems(targets, current) }]}
+          onRun={(id) => {
+            setMoving(false);
+            if (id !== current) onMove?.(id);
           }}
-        >
-          <span className="ev-notes-meta">Move to</span>
-          {targets.map((c) => (
-            <Button
-              key={c.id}
-              kind="text"
-              aria-pressed={c.id === current}
-              onClick={() => {
-                setMoving(false);
-                if (c.id !== current) onMove?.(c.id);
-              }}
-            >
-              {c.title}
-            </Button>
-          ))}
-          {targets.length === 0 ? (
-            <span className="ev-notes-meta">No collections yet.</span>
-          ) : null}
-          <Button kind="text" onClick={() => setMoving(false)}>
-            Cancel
-          </Button>
-        </div>
+          onClose={() => setMoving(false)}
+        />
       ) : null}
     </>
   );

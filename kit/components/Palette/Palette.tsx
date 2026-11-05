@@ -10,6 +10,10 @@ export interface PaletteItem {
   hint?: string;
   /** The type glyph, drawn by the caller. */
   glyph?: ReactNode;
+  /** A picker's nesting depth: a child sits under its parent. */
+  indent?: number;
+  /** A picker's current choice, marked with a check. */
+  current?: boolean;
 }
 
 export interface PaletteGroup {
@@ -22,12 +26,17 @@ export interface PaletteProps {
   groups: PaletteGroup[];
   onRun: (key: string) => void;
   /** Tab, or the last row: hand the typed request to E.V. */
-  onAsk: (text: string) => void;
+  onAsk?: (text: string) => void;
   onClose: () => void;
   /** Called with the text in the box each time it changes, so the caller can add found items to `groups`. */
   onQuery?: (text: string) => void;
   /** Where the palette is drawn; the page body when omitted (the gallery draws it inside its story). */
   container?: HTMLElement | null;
+  /** False makes a plain picker: no "Ask E.V." row and no Tab. The command palette leaves it on. */
+  ask?: boolean;
+  /** The box's placeholder, and the dialog's name; the command palette's own when omitted. */
+  placeholder?: string;
+  label?: string;
 }
 
 /** The ⌘K palette on cmdk inside a Radix dialog (behaviour only): type to filter, arrows move, Enter runs, Tab asks E.V., Esc closes. */
@@ -38,6 +47,9 @@ export function Palette({
   onClose,
   onQuery,
   container,
+  ask = true,
+  placeholder = "Type a command, find anything, or ask E.V.",
+  label = "Command palette",
 }: PaletteProps) {
   const [query, setQuery] = useState("");
   // Radix returns focus only to a Trigger; the palette has none, so it hands focus back itself on close.
@@ -79,22 +91,17 @@ export function Palette({
             if (container) e.preventDefault();
           }}
           onKeyDown={(e) => {
-            if (e.key !== "Tab") return;
+            if (!ask || e.key !== "Tab") return;
             e.preventDefault();
-            onAsk(q);
+            onAsk?.(q);
           }}
         >
-          <Dialog.Title className="kit-pal-title">Command palette</Dialog.Title>
-          <Command
-            data-ui="palette"
-            label="Command palette"
-            shouldFilter={false}
-            loop
-          >
+          <Dialog.Title className="kit-pal-title">{label}</Dialog.Title>
+          <Command data-ui="palette" label={label} shouldFilter={false} loop>
             <Command.Input
               className="kit-pal-in"
               autoComplete="off"
-              placeholder="Type a command, find anything, or ask E.V."
+              placeholder={placeholder}
               value={query}
               onValueChange={(text) => {
                 setQuery(text);
@@ -114,10 +121,22 @@ export function Palette({
                       key={it.key}
                       value={it.key}
                       className="kit-pal-row"
+                      style={
+                        it.indent
+                          ? {
+                              paddingLeft: `calc(var(--sp-2) + ${it.indent} * var(--sp-6))`,
+                            }
+                          : undefined
+                      }
                       onSelect={() => onRun(it.key)}
                     >
                       {it.glyph}
                       <span className="kit-pal-text">{it.label}</span>
+                      {it.current ? (
+                        <span className="kit-pal-current" aria-label="current">
+                          ✓
+                        </span>
+                      ) : null}
                       {it.hint ? (
                         <kbd className="kit-kbd">{it.hint}</kbd>
                       ) : null}
@@ -125,11 +144,11 @@ export function Palette({
                   ))}
                 </Command.Group>
               ))}
-              {q ? (
+              {ask && q ? (
                 <Command.Item
                   value="\u0000ask"
                   className="kit-pal-row"
-                  onSelect={() => onAsk(q)}
+                  onSelect={() => onAsk?.(q)}
                 >
                   <span className="kit-pal-mark" aria-hidden="true" />
                   <span className="kit-pal-text">Ask E.V.: {q}</span>
@@ -138,9 +157,11 @@ export function Palette({
               ) : null}
             </Command.List>
             <div className="kit-pal-foot">
-              <span className="kit-pal-hint">
-                <kbd className="kit-kbd">Tab</kbd>ask E.V.
-              </span>
+              {ask ? (
+                <span className="kit-pal-hint">
+                  <kbd className="kit-kbd">Tab</kbd>ask E.V.
+                </span>
+              ) : null}
               <span className="kit-pal-grow" />
               <span className="kit-pal-hint">
                 <kbd className="kit-kbd">↑↓</kbd>move

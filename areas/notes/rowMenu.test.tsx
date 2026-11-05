@@ -1,8 +1,22 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, expect, test, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NotesView, type NoteSummary } from "./Notes.view.tsx";
 
+beforeAll(() => {
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+  Element.prototype.scrollIntoView ??= () => {};
+});
 afterEach(cleanup);
 
 const collections = [
@@ -52,7 +66,7 @@ test("Move picks a collection and calls onMove with it", async () => {
   const { onMove } = setup();
   fireEvent.contextMenu(screen.getAllByText("Med math")[0]!);
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("button", { name: "BIO 201" }));
+  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
   expect(onMove).toHaveBeenCalledWith("a", "c2");
 });
 
@@ -63,6 +77,38 @@ test("a note in the By-collection tree has the menu too", async () => {
   fireEvent.keyDown(dots[1]!, { key: "Enter" });
   fireEvent.click(await screen.findByRole("menuitem", { name: /Delete/ }));
   expect(onRowAction).toHaveBeenCalledWith("a", "delete");
+});
+
+test("the Move picker is a list with children under their parent, the current one marked, and Esc cancels", async () => {
+  const { onMove } = (() => {
+    const onMove = vi.fn();
+    render(
+      <NotesView
+        notes={[note("a", "Med math", "c1")]}
+        collections={[
+          { id: "k2", title: "Pharm", parentId: "c1" },
+          ...collections,
+        ]}
+        initialOpen={["c1"]}
+        onRowAction={vi.fn()}
+        onMove={onMove}
+      />,
+    );
+    return { onMove };
+  })();
+  fireEvent.contextMenu(screen.getAllByText("Med math")[0]!);
+  fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
+  const opts = await screen.findAllByRole("option");
+  expect(opts.map((o) => o.textContent?.replace("✓", "").trim())).toEqual([
+    "NUR 112",
+    "Pharm",
+    "BIO 201",
+  ]);
+  expect(opts[0]!.textContent).toContain("✓");
+  expect(screen.queryAllByRole("button", { name: "Cancel" }).length).toBe(0);
+  fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(onMove).not.toHaveBeenCalled();
 });
 
 test("the note page menu has Pin, Move and Delete", async () => {
@@ -90,6 +136,6 @@ test("the note page menu has Pin, Move and Delete", async () => {
   expect(onPin).toHaveBeenCalled();
   fireEvent.contextMenu(screen.getByText(/edited today/));
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("button", { name: "BIO 201" }));
+  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
   expect(onMove).toHaveBeenCalledWith("c2");
 });

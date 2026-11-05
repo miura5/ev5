@@ -154,3 +154,8 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.kit-pal-current {
+  flex: none;
+  color: var(--faint);
+}
