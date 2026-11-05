@@ -16847,11 +16847,13 @@
   "title": "Every Worker write to an ev4 collection passes ev4's write rules, and Rename works only where a title belongs",
   "dod": "The Worker's docs repository applies a Worker-safe write check (writer values, write-once fields, documents carrying migratedAt or migratedTo, legacy collections) by default on every route and command; item.rename refuses collections whose ev4 schema has no title or keeps it write-once; a refused write gives its real reason, not 409 try again; tests cover rename on an exam and a remade plan's planId",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "blocked",
   "depends": [],
   "notes": "Audit finding 3: only PUT /docs checks note shape (server/doc-routes.ts); handlers build docsRepo with no check; item.rename writes title anywhere (server/command-handlers.ts); approving a remade plan rewrites exams.planId (server/plan-home.ts); refusals map to 409 (server/handlers-edit.ts, handlers-dates.ts). Protects rollback to ev4.",
   "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
+  "waitingOn": "Matt",
+  "waitingWhere": "decision"
  },
  {
   "id": "B-956",
