@@ -7,13 +7,27 @@ import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 function setup(monthly: number) {
   const db = sqliteD1();
-  db.prepare("CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))").run();
-  for (const [k, v] of Object.entries({ ceiling_hourly: 5e9, ceiling_daily: 5e9, ceiling_monthly: monthly, ceiling_per_job: 5e9 }))
-    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)").bind(k, v).run();
+  db.prepare(
+    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  db.prepare(
+    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  for (const [k, v] of Object.entries({
+    ceiling_hourly: 5e9,
+    ceiling_daily: 5e9,
+    ceiling_monthly: monthly,
+    ceiling_per_job: 5e9,
+  }))
+    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
+      .bind(k, v)
+      .run();
   const held: number[] = [];
   const call: ModelCall = async () => {
     // While the model runs, the month's use is exactly this turn's reservation.
-    const row = await db.prepare("SELECT used FROM ceiling_use WHERE w = 'month'").first<{ used: number }>();
+    const row = await db
+      .prepare("SELECT used FROM ceiling_use WHERE w = 'month'")
+      .first<{ used: number }>();
     held.push(row?.used ?? 0);
     return answer;
   };
@@ -22,9 +36,26 @@ function setup(monthly: number) {
     text: JSON.stringify({ text: "Ok.", cited: [], asksTry: false }),
     usage: { inputTokens: 500, outputTokens: 100 },
   } as const;
-  const env = { DB: db, JOBS: { create: async () => undefined }, ASSETS: { fetch: async () => new Response("x") }, TOKEN_APP: "fake-app", ASK_CALL: call };
+  const env = {
+    DB: db,
+    JOBS: { create: async () => undefined },
+    ASSETS: { fetch: async () => new Response("x") },
+    TOKEN_APP: "fake-app",
+    ASK_CALL: call,
+  };
   const post = (path: string, body: object) =>
-    app.request(path, { method: "POST", headers: { authorization: "Bearer fake-app", "cf-connecting-ip": "9.9.9.9" }, body: JSON.stringify(body) }, env);
+    app.request(
+      path,
+      {
+        method: "POST",
+        headers: {
+          authorization: "Bearer fake-app",
+          "cf-connecting-ip": "9.9.9.9",
+        },
+        body: JSON.stringify(body),
+      },
+      env,
+    );
   return { post, db, held };
 }
 
@@ -35,7 +66,10 @@ async function alerts(db: ReturnType<typeof sqliteD1>) {
 
 test("an Ask turn that takes the month past 80% writes the spend-alert needs-you record", async () => {
   const { post, db, held } = setup(1_000_000_000);
-  assert.equal((await post("/api/v1/ask", { text: "what is bradycardia?" })).status, 200);
+  assert.equal(
+    (await post("/api/v1/ask", { text: "what is bradycardia?" })).status,
+    200,
+  );
   assert.equal((await alerts(db)).length, 0);
   const reserved = held[0] ?? 0;
   assert.ok(reserved > 0);
@@ -48,14 +82,23 @@ test("an Ask turn that takes the month past 80% writes the spend-alert needs-you
 
 test("ask.send runs the same ask path as /api/v1/ask", async () => {
   const { post } = setup(1_000_000_000);
-  const res = await post("/api/v1/commands/ask.send", { input: { text: "what is bradycardia?" } });
+  const res = await post("/api/v1/commands/ask.send", {
+    input: { text: "what is bradycardia?" },
+  });
   assert.equal(res.status, 200);
-  const body = (await res.json()) as { mode: string; result: { reply: { text: string } } };
+  const body = (await res.json()) as {
+    mode: string;
+    result: { reply: { text: string } };
+  };
   assert.equal(body.mode, "direct");
   assert.equal(body.result.reply.text, "Ok.");
 });
 
 test("ask.send answers 429 when a ceiling is hit, like /api/v1/ask", async () => {
   const { post } = setup(0);
-  assert.equal((await post("/api/v1/commands/ask.send", { input: { text: "hi there" } })).status, 429);
+  assert.equal(
+    (await post("/api/v1/commands/ask.send", { input: { text: "hi there" } }))
+      .status,
+    429,
+  );
 });

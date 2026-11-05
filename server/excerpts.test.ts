@@ -60,3 +60,37 @@ test("no objectives, or no match, gathers nothing", async () => {
   assert.deepEqual(await gatherExcerpts(db, []), []);
   assert.deepEqual(await gatherExcerpts(db, ["zebra"]), []);
 });
+
+test("a note in Recently deleted is never an excerpt", async () => {
+  const { db, put } = seeded();
+  await put("notes", "n1", note("Vitals", "Pulse is measured at the wrist."));
+  await put("notes", "n2", note("Old", "Pulse pulse pulse pulse measurement."));
+  await db
+    .prepare("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n2', 1)")
+    .run();
+  const got = await gatherExcerpts(db, ["Pulse measurement"]);
+  assert.deepEqual(
+    got.map((e) => e.id),
+    ["n1"],
+  );
+});
+
+test("the best match survives more than 60 matches", async () => {
+  const { db, put } = seeded();
+  for (let i = 0; i < 70; i++)
+    await put(
+      "notes",
+      `a${String(i).padStart(2, "0")}`,
+      note("Misc", `A pulse is mentioned in passing ${i}.`),
+    );
+  await put(
+    "notes",
+    "zbest",
+    note(
+      "Pulse measurement",
+      "Pulse measurement: take the pulse at the radial artery.",
+    ),
+  );
+  const got = await gatherExcerpts(db, ["Pulse measurement"]);
+  assert.equal(got[0]!.id, "zbest");
+});
