@@ -38,9 +38,9 @@ const jobs: ActivityJob[] = [
 
 test("jobs sit in their sections and failed shows its reason", () => {
   render(<ActivityView jobs={jobs} />);
-  const needs = document.querySelector('[data-section="Needs you"]')!;
+  const needs = screen.getByRole("region", { name: "Needs you" });
   expect(needs.textContent).toContain("Study plan");
-  const done = document.querySelector('[data-section="Done today"]')!;
+  const done = screen.getByRole("region", { name: "Done today" });
   expect(done.textContent).toContain("The model was unreachable");
   expect(done.textContent).toContain("Morning");
   expect(activityArea.nav).toBe("Activity");
