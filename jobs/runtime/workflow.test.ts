@@ -23,7 +23,7 @@ function memory(): JobStore {
   };
 }
 
-function setup(handlers: StepHandlers, ceil?: Partial<Ceilings>) {
+function setup(handlers: StepHandlers, ceil?: Partial<Ceilings>, answer?: (raw: unknown) => unknown) {
   forgetKinds();
   const def = defineJob({
     kind: 'study_plan',
@@ -36,6 +36,7 @@ function setup(handlers: StepHandlers, ceil?: Partial<Ceilings>) {
     steps: ['plan', 'call', 'approve', 'save'],
     startedBy: ['matt'],
     executor: 'workflow',
+    ...(answer ? { answer } : {}),
     wording: { running: 'a', needsYou: 'b', done: 'c', failed: 'd' },
   });
   const store = memory();
@@ -173,4 +174,95 @@ test('two rounds at the same step get different valid instance ids and spend key
   assert.equal(keys.length, 3);
   assert.equal(new Set(keys).size, 3);
   for (const k of keys) assert.match(k.split(':')[0]!, /^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,99}$/);
+});
+
+test('a job that is no longer running stops: no later step runs and nothing lands under it', async () => {
+  const ran: string[] = [];
+  let store!: JobStore;
+  const h: StepHandlers = {
+    plan: async () => (ran.push('plan'), { ids: ['p'] }),
+    call: async () => {
+      ran.push('call');
+      const cur = (await store.get('j1'))!;
+      // the sweep (or a replacing plan) fails the job while this step is working
+      await store.put({ ...cur, state: 'failed', reason: 'Swept.', v: cur.v + 1 });
+      return { ids: ['d'] };
+    },
+    approve: async () => (ran.push('approve'), { needsYou: 'Approve.' }),
+    save: async () => (ran.push('save'), { ids: ['x'] }),
+  };
+  const s = setup(h);
+  store = s.store;
+  await startJob(s.env, s.def, {}, 'matt');
+  await s.wf.idle();
+  assert.deepEqual(ran, ['plan', 'call']);
+  const r = (await s.store.get('j1'))!;
+  assert.equal(r.state, 'failed');
+  assert.equal(r.reason, 'Swept.');
+});
+
+test('a job that failed before it began is not started', async () => {
+  const ran: string[] = [];
+  const s = setup({ plan: async () => (ran.push('plan'), { ids: ['p'] }) });
+  await s.store.put({
+    id: 'j9',
+    kind: 'study_plan',
+    title: 'Study plan',
+    state: 'failed',
+    reason: 'Gone.',
+    costCents: 0,
+    createdAt: T,
+    updatedAt: T,
+    v: 1,
+  });
+  await s.env.executors.workflow!.start('j9', (await s.store.get('j9'))!, {});
+  await s.wf.idle();
+  assert.deepEqual(ran, []);
+  assert.equal((await s.store.get('j9'))!.state, 'failed');
+});
+
+const waiting = {
+  plan: async () => ({ ids: ['p'] }),
+  call: async () => ({ ids: ['d'] }),
+  approve: async () => ({ needsYou: 'Approve the plan.' }),
+  save: async () => ({ ids: ['plan-1'] }),
+};
+
+test('a bad answer is refused before the move: the job stays waiting and a good answer still works', async () => {
+  const check = (raw: unknown) => {
+    if (raw !== 'yes') throw new Error('Answer yes.');
+    return raw;
+  };
+  const { def, env, store, wf } = setup(waiting, undefined, check);
+  await startJob(env, def, {}, 'matt');
+  await wf.idle();
+  const before = (await store.get('j1'))!;
+  await assert.rejects(continueJob(env, def, 'j1', 'nope'), /Answer yes/);
+  assert.deepEqual(await store.get('j1'), before);
+  await continueJob(env, def, 'j1', 'yes');
+  await wf.idle();
+  assert.equal((await store.get('j1'))!.state, 'done');
+});
+
+test('a Workflow that fails to start puts the job back to waiting, then a retry works', async () => {
+  const { def, env, store, wf } = setup(waiting);
+  await startJob(env, def, {}, 'matt');
+  await wf.idle();
+  const before = (await store.get('j1'))!;
+  const real = env.executors.workflow!;
+  env.executors.workflow = {
+    kind: 'workflow',
+    start: async () => {
+      throw new Error('binding down');
+    },
+  };
+  await assert.rejects(continueJob(env, def, 'j1', 'yes'), /binding down/);
+  const back = (await store.get('j1'))!;
+  assert.equal(back.state, 'needs-you');
+  assert.equal(back.step, before.step);
+  assert.equal(back.reason, before.reason);
+  env.executors.workflow = real;
+  await continueJob(env, def, 'j1', 'yes');
+  await wf.idle();
+  assert.equal((await store.get('j1'))!.state, 'done');
 });

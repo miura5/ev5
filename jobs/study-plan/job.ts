@@ -158,6 +158,7 @@ export const studyPlanJob = defineJob({
   },
   startedBy: ['matt'],
   executor: 'workflow',
+  answer: (raw) => parseAnswer(raw),
   // One model call and a save: a plan that has not moved in half an hour is not coming back.
   deadlineMinutes: { queued: 15, running: 30 },
 });
