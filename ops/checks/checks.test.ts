@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { checkAccount } from './account.ts';
+import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
@@ -158,4 +159,16 @@ test('stack: the README stack table names installed packages and every runtime d
   assert.equal(details(checkStack(bad.root, bad.files)), 'names wouter, which package.json does not install|names react-*, which package.json does not install|has no row for the dependency prosemirror-model|has no row for the dependency cmdk');
   const none = repo({ 'package.json': pkg, 'README.md': '# x\n' });
   assert.match(details(checkStack(none.root, none.files)), /^no <!-- stack:start -->/);
+});
+
+test('handover: over 4 KB or a line over 600 characters fails', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'handover-'));
+  fs.mkdirSync(path.join(dir, 'docs'));
+  const f = 'docs/handover.md';
+  fs.writeFileSync(path.join(dir, f), '## Phase 6\n'.repeat(10));
+  assert.deepEqual(checkHandover(dir, [f]), []);
+  fs.writeFileSync(path.join(dir, f), 'x'.repeat(601));
+  assert.equal(checkHandover(dir, [f]).length, 1);
+  fs.writeFileSync(path.join(dir, f), 'short line\n'.repeat(400));
+  assert.equal(checkHandover(dir, [f]).length, 1);
 });
