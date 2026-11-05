@@ -16697,7 +16697,7 @@
   "milestone": "5",
   "status": "done",
   "depends": [],
-  "notes": "Run 73: GET /jobs names the exam of a running study plan; Library and Today show 'saving the plan' instead of the old plan until it lands; Library polls every 2 s meanwhile (#458). Staging not yet seen.",
+  "notes": "Run 73: GET /jobs names the exam of a running study plan; Library and Today show 'saving the plan' instead of the old plan until it lands; Library polls every 2 s meanwhile (#458). Staging not yet seen. Seen on staging (playtest 7, 2026-11-05 14:23Z, 8b1807f): Approve showed 'E.V. is saving the plan' at +2 s and the new plan's 7 sessions at +7 s, with no older plan shown.",
   "commit": "d162e3d",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16713,7 +16713,7 @@
   "milestone": "5",
   "status": "done",
   "depends": [],
-  "notes": "Run 73: Today's Plan lists approved-plan sessions dated today (Central) (#456). Start next only toasts the first open item.",
+  "notes": "Run 73: Today's Plan lists approved-plan sessions dated today (Central) (#456). Start next only toasts the first open item. Seen on staging (playtest 7): Today's Plan listed today's session of the approved plan, and of the new plan right after the next Approve, without a reload.",
   "commit": "caf4b21",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16727,7 +16727,7 @@
   "milestone": "5",
   "status": "done",
   "depends": [],
-  "notes": "Run 73: put away ends the job done at once via d1PlanStore.putAway, worded 'put away' in Done today; sidebar and Activity reload on an ev5:jobs-changed event (#457). replaceOlder still puts older drafts away through the Workflow.",
+  "notes": "Run 73: put away ends the job done at once via d1PlanStore.putAway, worded 'put away' in Done today; sidebar and Activity reload on an ev5:jobs-changed event (#457). replaceOlder still puts older drafts away through the Workflow. Seen on staging (playtest 7): Put away gave a toast, Activity Running None, Done today 'put away', no sidebar count. Done today merges alike rows (B-951).",
   "commit": "aea9044",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16741,7 +16741,7 @@
   "milestone": "5",
   "status": "done",
   "depends": [],
-  "notes": "Run 73: New collection on Notes and New menu on a collection page (#455). LEFT: typing a new title does not save (no collection rename command); Set and Date picks do not land inside the collection.",
+  "notes": "Run 73: New collection on Notes and New menu on a collection page (#455). LEFT: typing a new title does not save (no collection rename command); Set and Date picks do not land inside the collection. Seen on staging (playtest 7): New collection opens 'Untitled collection'; New offers Note, Set, Date, Collection inside; a child collection was made and lists under its parent. Title typing still does not save (B-947).",
   "commit": "e8f53e1",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16755,7 +16755,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Run 74 (#460, #468): collection delete to Notes with Undo; row menu (Open, Pin, Move with picker, Delete) from the dots, right-click or the . key on Notes rows, By-collection rows, the note page and collection rows. Left: Pin never shows Unpin on Notes rows; two near-duplicate RowActions (areas cannot import each other; a kit component would fix it); not seen on staging.",
+  "notes": "Run 74 (#460, #468): collection delete to Notes with Undo; row menu (Open, Pin, Move with picker, Delete) from the dots, right-click or the . key on Notes rows, By-collection rows, the note page and collection rows. Left: Pin never shows Unpin on Notes rows; two near-duplicate RowActions (areas cannot import each other; a kit component would fix it); not seen on staging. Seen on staging (playtest 7): collection Delete goes to Notes with an Undo toast; Undo restores (item.restore 200) when pressed within the 4 s toast; note row Delete with Undo; right-click and the . key open Open, Pin, Move…, Delete on Notes rows and the note page; Move works. Also: the note page menu offers Open on its own page and Delete twice (button and menu); By-collection rows show no menu; the Move picker is B-950.",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16769,7 +16769,7 @@
   "milestone": "5",
   "status": "done",
   "depends": [],
-  "notes": "Run 73: weekday+date on plan rows, deleted days left by Central date (domain exports daysBetween), folder icon, Today exam Detail sessions and Plan with E.V., 3m (#463). Not seen on staging.",
+  "notes": "Run 73: weekday+date on plan rows, deleted days left by Central date (domain exports daysBetween), folder icon, Today exam Detail sessions and Plan with E.V., 3m (#463). Not seen on staging. Seen on staging (playtest 7): weekday and date on plan rows, Recently deleted 29 days left for every Nov 4 item, folder icon, Progress '3m'. The day column wraps 'Wed Nov / 11' (B-949).",
   "commit": "0cb0341",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -16783,7 +16783,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Run 74 (#462, #467), PARTIAL: Progress bars and trend 'up N points', Today Upcoming/This week/readiness bar, Weekly review row when a weekly-review job needs you. LEFT: Courses in the sidebar and course-tone dot on Today rows. design/mockup.html has neither (it wins over the PNGs, §ui.mockup): update the mock-up first (design agent) or drop them from the done bar. Needs a course list in the shell, a kit NavGroup and per-course token. Light theme and PNG comparison not done.",
+  "notes": "Run 74 (#462, #467), PARTIAL: Progress bars and trend 'up N points', Today Upcoming/This week/readiness bar, Weekly review row when a weekly-review job needs you. LEFT: Courses in the sidebar and course-tone dot on Today rows. design/mockup.html has neither (it wins over the PNGs, §ui.mockup): update the mock-up first (design agent) or drop them from the done bar. Needs a course list in the shell, a kit NavGroup and per-course token. Light theme and PNG comparison not done. Playtest 7 vs design/screens/progress.png and today.png: big numbers and weekly bars show; the study line repeats ('3m · 2 sessions · 3m in 2 sessions in all', mock-up '28 sessions · 164 answers'); the last accuracy week is labelled '30' where the mock-up labels week starts up to the current week; in light the study-minute bars are nearly invisible (screen 34); Today has Upcoming and This week, no course dots or Courses.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
@@ -16804,6 +16804,76 @@
   "reportedAt": "2026-11-05T14:07:09.119Z",
   "claimedBy": "ev-build thread",
   "claimedAt": "2026-11-05T14:07:09.452Z"
+ },
+ {
+  "id": "B-947",
+  "kind": "bug",
+  "title": "You can't name a note or a collection: the title doesn't take typing",
+  "dod": "On a note page and a collection page the title can be edited in place (click it or press Enter on it, type, Enter or leaving the field saves; Esc cancels); New note and New collection open with the title ready to type; the new title shows in Notes, the palette and Recently deleted; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screens 20, 12. areas/notes/NotePage.view.tsx:118 renders the note title as a static h1 (ev-notes-doctitle): after a click, typing goes into the body, so New note leaves an 'Untitled' note that can never be renamed (an older 'Untitled' note on staging has the same problem). The collection title is selected on ?new=1 but typing does not save (known since run 73, no collection rename command; not filed then). item.rename in server/command-handlers.ts handles docs only; collections live in their own table.",
+  "commit": null,
+  "source": "Visual playtest 7 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run7)",
+  "words": "playtest 7",
+  "reportedAt": "2026-11-05T14:32:57.274Z"
+ },
+ {
+  "id": "B-948",
+  "kind": "bug",
+  "title": "Notes and Progress say there is nothing yet while they are still loading",
+  "dod": "While a screen's first read is in flight, Notes and Progress show the loading line or the last saved copy, never their empty-state words ('No notes yet. Press C to write one.', 'Your accuracy over time will show here'); a test for each; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screen 26. Measured on staging 8b1807f by reading the page text every 50 ms after the sidebar click: Notes showed 'No notes yet' for about 300 ms and Progress its empty accuracy line for about 150 ms, then the data. Today shows 'Loading…' for about 560 ms (right state, slow); Library and Activity open at once. The open speed-fix PR #459 (not on staging) may cover reads that have a saved copy; check the first load with no copy too.",
+  "commit": null,
+  "source": "Visual playtest 7 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run7)",
+  "words": "playtest 7",
+  "reportedAt": "2026-11-05T14:32:57.446Z"
+ },
+ {
+  "id": "B-949",
+  "kind": "bug",
+  "title": "The page scrolls by 16 px, and some dates collide with their neighbours",
+  "dod": "The app fills the window exactly at 1280 in both themes (no page scroll: the body keeps no browser margin); Today's Upcoming date never overlaps the readiness bar ('Dec 1, 2027'); the exam Detail day column keeps 'Wed Nov 11' on one line; the collection page header leaves the mock-up's space (#coll) between the title block and the list or empty line; both themes; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Design pass, playtest 7. Screen 32: scrollY 16 at 1280x657 (scrollHeight 673): body has the browser's 8 px margin around a 100vh root, so Tab to the sidebar foot scrolls the whole app. Screens 01 and 33: 'Dec 1, 2027' runs over the bar. Screens 02 and 04: 'Wed Nov' / '11' on two lines (also 'Wed Nov 18', 'Tue Nov 24' on the Synthetic plan). Screens 15 and 36: 'Everything newest first' and 'Nothing here yet…' sit right under the subtitle.",
+  "commit": null,
+  "source": "Visual playtest 7 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run7)",
+  "words": "playtest 7",
+  "reportedAt": "2026-11-05T14:32:57.659Z"
+ },
+ {
+  "id": "B-950",
+  "kind": "bug",
+  "title": "Move… shows every collection as a row of buttons instead of a menu",
+  "dod": "Move… on a note (row menu and note page) opens a kit Menu or a palette-style picker that lists collections by name with children under their parent and the current collection marked, Esc cancels, as design/mockup.html; no wall of inline buttons; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screen 19. Move works (a test note moved into a collection), but the picker is a wrapping line of 11 plain buttons with 'Move to' and Cancel among them, and the child collection is listed flat. If the kit lacks the look, start in kit/ (§ui.kit-leads).",
+  "commit": null,
+  "source": "Visual playtest 7 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run7)",
+  "words": "playtest 7",
+  "reportedAt": "2026-11-05T14:32:57.866Z"
+ },
+ {
+  "id": "B-951",
+  "kind": "bug",
+  "title": "Activity's Done today merges different jobs and doesn't say which exam a study plan was for",
+  "dod": "Done today lists each finished job once, without merging different jobs that read alike; a study-plan row names its exam (for example 'Study plan · e2e plan exam'); the count matches the rows; the sidebar's 'Building your study plan' line clears when the exam Detail shows the approved plan; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screen 10. GET /api/v1/jobs?finished=today returned 7 jobs (3 approved plans, 2 put away, 2 study sessions); the screen showed 3 rows and 'Done today 3', because uniqueRows (areas/activity/useJobs.ts:73) merges rows with the same title, state and summary (meant for duplicate needs-you rows, B-876). After Approve the sidebar said 'Building your study plan' for about 20 s after the Detail showed the new plan (screen 07).",
+  "commit": null,
+  "source": "Visual playtest 7 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run7)",
+  "words": "playtest 7",
+  "reportedAt": "2026-11-05T14:32:58.028Z"
  },
  {
   "id": "B-952",
@@ -16984,5 +17054,224 @@
   "reportedAt": "2026-11-05T13:40:11.713Z",
   "waitingOn": "Matt",
   "waitingWhere": "decision"
+ },
+ {
+  "id": "B-966",
+  "kind": "task",
+  "title": "The kit has a status dot, a meter and underline tabs, and exports its segmented choice",
+  "dod": "kit/components/Dot (the mock-up's .dot with status tones from tokens.css), Meter (the mock-up's segmented 4 px .meter with an accessible name) and Tabs (the mock-up's .tabs with counts and the lit tab) each show in /kit in every state with a test; Segmented (already built in Field) is exported from kit/index.ts; both themes match design/mockup.html; visual baselines updated",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write kit/; read nothing outside kit. Start after B-958 (undefined tokens and easing) merges. Cite to the builder: §ui.mockup (unstyled Radix primitives and cmdk for behaviour only, the kit owns every pixel), §ui.kit-leads, §ui.gallery, §ui.status (status shows only as a dot or a meter), §ui.three-sizes. Tabs and Segmented take their keyboard and focus behaviour from @radix-ui/react-toggle-group, which the kit already uses; no new package. Dot and Meter are plain elements.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-967",
+  "kind": "task",
+  "title": "Kit Row shows its actions only on hover, and has the status dot, done, folding and two-cell editor forms",
+  "dod": "Row keeps its current props and gains: an actions slot hidden until hover, focus-within or selection, with right-click and '.' opening the kit Menu (§ui.lists, §ui.keymap); a status dot (kit Dot); a done state (faint title); a folding form (chevron, one nesting level indented 24 px, aria-expanded, arrow keys fold and unfold); and a two-cell editor row with borderless cells (the mock-up's .cell). 40 px rows, at most four things (§ui.grid, §ui.glyphs). Every form shows in /kit with a test that selects by role and name",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966"
+  ],
+  "notes": "Slice: write kit/; read nothing outside kit. Matches the Row line in design/mockup.html's System screen and its .row, .trow, .chev and .cell rules. The old props stay, so areas keep working while they move (expand, then migrate).",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-968",
+  "kind": "task",
+  "title": "Kit page head, section and empty state patterns",
+  "dod": "kit/patterns/ holds Page (title at 20, one meta, optional crumb and actions, in the one centred 720 px column, §ui.layout), Section (label head, a quiet add action shown on hover or focus, 48 px between sections, §ui.grid) and Empty (one quiet line plus one action, the mock-up's .empty); each is exported from kit/index.ts and shows in /kit with a test; kit/patterns/README.md lists what lives there",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write kit/; read nothing outside kit. Matches the mock-up's .head, .phead, .crumb, .sec, .sec-head and .empty rules. Built from kit Button, never a new button look.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-969",
+  "kind": "task",
+  "title": "The shell draws the one Detail panel beside the column for every screen",
+  "dod": "Area views get an onDetail prop that opens or clears the kit Detail; the shell draws it beside the column as in design/mockup.html (up to 400 px, on demand, its rise animation); Esc, its close button and leaving the screen clear it; shell tests cover open, replace and clear; areas that still draw their own Detail keep working until they move",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write shell/; read kit/. Interface change on shell: expand now (the new optional prop), migrate in the area tasks, then contract in the guard task. Today's and Library's exam Detail content stays in each area until the audit's proposal H (a shared feature home) is decided.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-970",
+  "kind": "task",
+  "title": "Today draws its rows, sections, empty states and exam Detail with the kit",
+  "dod": "Today uses kit Row (dot, done, actions on hover), Page, Section, Empty and Meter for readiness, and opens its exam Detail through the shell's host (the .ev-today-detail overlay goes); its glyphs lose their colours (§ui.glyphs); its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#today); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968",
+   "B-969"
+  ],
+  "notes": "Slice: write areas/today/; read kit/, shell's area-view props. Touches the same files as B-942 (Today content): claim it with B-942 or after it, never in parallel.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-971",
+  "kind": "task",
+  "title": "Library draws its tabs, rows, sections, set editor and Detail with the kit",
+  "dod": "Library uses kit Tabs for its tabs, Row (with the two-cell editor row on a set's Edit page), Page, Section and Empty, its study view uses kit StudyCard, and its exam Detail opens through the shell's host (the .ev-library-detail overlay goes); its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#library, #set, #study); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968",
+   "B-969"
+  ],
+  "notes": "Slice: write areas/library/; read kit/, shell's area-view props. Large area: split along its views (list, set page and editor, study) if it passes about 400 changed lines.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-972",
+  "kind": "task",
+  "title": "Notes home and note page draw their rows, sections and empty states with the kit",
+  "dod": "Notes uses kit Row (the folding form for collections, one level, with arrow keys), Page, Section and Empty, and any Detail it opens goes through the shell's host; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#notes, #note); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/notes/; read kit/, shell's area-view props. Open note fixes in PR 461 and PR 474 (title typing, loading lines) touch the same files: land those first. The note editor's two extra renderers are not part of this task.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-973",
+  "kind": "task",
+  "title": "A collection's page draws its rows, head, sections and empty state with the kit",
+  "dod": "Collection uses kit Row (actions on hover, the menu on right-click), Page, Section and Empty; its own RowActions copy goes; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#coll); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/collection/; read kit/, shell's area-view props.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-974",
+  "kind": "task",
+  "title": "Recently deleted draws its rows, head and empty state with the kit",
+  "dod": "Recently deleted uses kit Row (Restore as a hover action), Page, Section and Empty; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#deleted); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/deleted/; read kit/.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-975",
+  "kind": "task",
+  "title": "Activity draws its rows, sections and empty states with the kit",
+  "dod": "Activity uses kit Row (a job's status as a dot or its ring glyph), Page, Section and Empty, and any Detail it opens goes through the shell's host; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#activity); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/activity/; read kit/, shell's area-view props.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-976",
+  "kind": "task",
+  "title": "Progress draws its head, sections and meters with the kit",
+  "dod": "Progress uses kit Page, Section, Empty, Meter and Bars; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#progress); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/progress/; read kit/. Touches the same files as B-942 (Progress content): claim it with B-942 or after it.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-977",
+  "kind": "task",
+  "title": "Ask E.V. draws its head and empty state with the kit",
+  "dod": "Ask E.V. uses kit Page and Empty, and E.V. line, Source and Suggestion for her replies; the .ask-head copy goes; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#ask); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/ask/; read kit/.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-978",
+  "kind": "task",
+  "title": "A study session draws its card and session bar with the kit",
+  "dod": "Sessions use kit StudyCard for the card and kit Doc's session bar for the bar (both built and unused today), plus Page and Empty; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#study, #note during a session); seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-966",
+   "B-967",
+   "B-968"
+  ],
+  "notes": "Slice: write areas/sessions/; read kit/.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-979",
+  "kind": "task",
+  "title": "A check stops screens from drawing their own rows, heads, sections, empty states or Detail",
+  "dod": "Stylelint refuses, in areas/, the row-height tokens, selectors for rows, page heads, sections, empty states or panels, and any rule on a .kit- class; ESLint refuses an import of kit Detail from areas/ (the shell's host is the one way); each new guard has a red fixture PR recorded (as S-14 did); the shell's interface contract step is done; npm run precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-969",
+   "B-970",
+   "B-971",
+   "B-972",
+   "B-973",
+   "B-974",
+   "B-975",
+   "B-976",
+   "B-977",
+   "B-978"
+  ],
+  "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first.",
+  "commit": null,
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  }
 ]
