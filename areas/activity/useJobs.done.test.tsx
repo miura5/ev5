@@ -74,3 +74,36 @@ test("if the finished read fails, the unfinished jobs still show", async () => {
   await waitFor(() => expect(result.current.jobs).toHaveLength(1));
   expect(result.current.error).toBeUndefined();
 });
+
+test("Done today lists every finished job, even ones that read alike, and names a plan's exam", async () => {
+  localStorage.setItem("ev5.token", "t");
+  const plan = (id: string, examTitle?: string) => ({
+    id,
+    kind: "study_plan",
+    state: "done",
+    summary: "Your study plan is ready.",
+    lead: "Your study plan is ready.",
+    examTitle,
+  });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      String(url).includes("finished=today")
+        ? json({
+            jobs: [
+              plan("a", "e2e plan exam"),
+              plan("b", "e2e plan exam"),
+              plan("c"),
+            ],
+          })
+        : json({ jobs: [] }),
+    ),
+  );
+  const { result } = renderHook(() => useJobs());
+  await waitFor(() => expect(result.current.jobs).toHaveLength(3));
+  expect(result.current.jobs.map((j) => j.title)).toEqual([
+    "Study plan · e2e plan exam",
+    "Study plan · e2e plan exam",
+    "Study plan",
+  ]);
+});
