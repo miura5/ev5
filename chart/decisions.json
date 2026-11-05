@@ -1,5 +1,67 @@
 [
  {
+  "id": "D-495",
+  "date": "Nov 5",
+  "title": "Build order amended: group 4 is the table design and the shape fixes; Canvas sync leaves the cutover list; review and bug-fix rounds come before Phase 7",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'before phase 7. we're going to try and iterate with reviews and bug fixes so whatever these major bugs are get sorted out and the app is what i want'. Group 4 starts with the table design (one table per stored kind, §data.tables), which blocks the rest of the data layer; the shape-fixes review found the core kinds still stored as whole documents in the generic docs table. Canvas sync (B-755) becomes an optional after-cutover import, so Gate 6 no longer waits on it. After Gate 6, rounds of review then bug fixes repeat until Matt says the app is right; only then Phase 7.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-489"
+  ],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "D-494",
+  "date": "Nov 5",
+  "title": "No subject or workflow is built into E.V.; ev4 code is reference only",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'a good knowledge management app shouldnt rely on what im doing', and he wants 'an open, intuitive knowledge management app that can work with any workflow or learning style'. So no subject, exam type, unit list, question style or course system is built in; kinds, units and styles are data. ev4 code may be read for reference but is never ported as a shape (§what.framing, §data.own-db).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "D-493",
+  "date": "Nov 5",
+  "title": "Progress shows what is solid, what is slipping and what to do next, for any material",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'use your recommendation for each 5 open questions'. Progress works the same for any goal and any material: what is solid, what is slipping, and the next thing to do, read from the attempts record. No subject-specific measure.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "D-492",
+  "date": "Nov 5",
+  "title": "Reviews wait during breaks: Today shows a short catch-up list, not the whole backlog",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'use your recommendation for each 5 open questions'. When he comes back after days away, nothing is lost and nothing piles onto one day: Today shows a short list of the most overdue items to catch up on; the rest stay due and come back in later days. Spreading a backlog over days is after cutover.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "D-491",
+  "date": "Nov 5",
+  "title": "All practice counts in one record: one append-only attempts table for sets, questions in notes and Ask E.V.",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'use your recommendation for each 5 open questions'. Every answer, from any place, is one attempts row with the item's id and version, how it was answered, a score from 0 to 1 or none, and where it came from (§data.append-only, §data.item-versions). Weak spots, what is due, readiness and Progress all read that one record, so no screen ignores answers.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
+  "id": "D-490",
+  "date": "Nov 5",
+  "title": "Nothing counts toward a goal by itself: links are explicit rows, added by pick, by bulk-add or by an accepted E.V. suggestion",
+  "why": "Matt, ev-build 2026-11-05 21:46Z: 'use your recommendation for each 5 open questions'. No 'use all' switch. Bulk-add is a copy: adding a collection writes one link row per item that day, and the screen says that items added to the collection later count only once added. An E.V. suggestion lives in drafts until he accepts it (§data.drafts), so nothing lands in the link table before. A link points at a goal or an objective, so a goal with no stated objectives can still hold material. The link table is the only many-to-many link; memberships, item_props links and own_sets sources stay single typed pointers. Recommended by the shape-fixes review.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-05 21:46Z"
+ },
+ {
   "id": "D-489",
   "date": "Nov 5",
   "title": "Build order amended 2026-11-05: drift fixes (record, then kit) come before new building",
