@@ -69,10 +69,10 @@ test("key C is ignored while typing, and a failed add keeps the form open", asyn
   expect(screen.queryByRole("form")).toBeNull();
 });
 
-test("Add date on Coming up needs a title and a date, then calls onAddDate", async () => {
+test("Add date on Upcoming needs a title and a date, then calls onAddDate", async () => {
   const p = props();
   render(<TodayView {...p} />);
-  expect(screen.getByRole("region", { name: "Coming up" })).toBeTruthy();
+  expect(screen.getByRole("region", { name: "Upcoming" })).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Add date" }));
   const form = screen.getByRole("form", { name: "Add a date" });
   fireEvent.change(within(form).getByLabelText("Title"), {

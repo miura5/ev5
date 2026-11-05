@@ -153,9 +153,17 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
     return {
       id,
       title: exam.title,
-      meta: planLine
-        ? `${inDays(left)} · study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`
-        : inDays(left),
+      meta: [
+        inDays(left),
+        mine.length === 0
+          ? "readiness none yet"
+          : `${Math.round((100 * ready) / mine.length)}% ready`,
+        ...(planLine
+          ? [
+              `study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`,
+            ]
+          : []),
+      ].join(" · "),
       ...(planLine ? { plan: planLine } : {}),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
