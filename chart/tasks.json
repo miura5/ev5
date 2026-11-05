@@ -16674,5 +16674,19 @@
   "notes": "Merged #440: data/staging/seed.test.ts parses every seed row through the repositories; seed notes fixed (schema 1, writer, course). ideas has no parser (named in test). Staging rows notes/synthetic-1 and -2 stay invalid until re-seeded (INSERT OR IGNORE). B-733 can close on this proof.",
   "commit": "d202930",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
+ },
+ {
+  "id": "B-935",
+  "kind": "task",
+  "title": "Fix flaky main CI: unmount hooks after each test in useCollection.copy.test (unhandled 'window is not defined')",
+  "dod": "useCollection.copy.test.tsx cleans up after each test; CI unit shards green",
+  "milestone": "Phase 6",
+  "status": "in progress",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "run 70",
+  "claimedBy": "run-70",
+  "claimedAt": "2026-11-05T09:09:27.961Z"
  }
 ]
