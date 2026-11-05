@@ -153,9 +153,11 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
         });
     void load();
     const t = setInterval(() => void load(), 15000);
+    window.addEventListener("ev5:jobs-changed", load);
     return () => {
       live = false;
       clearInterval(t);
+      window.removeEventListener("ev5:jobs-changed", load);
     };
   }, [token, tick, copy]);
   return { jobs, loading, token, refused, error, dismiss };

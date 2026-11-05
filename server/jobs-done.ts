@@ -31,9 +31,13 @@ export async function finishedJobsToday(
       continue;
     const w = defs.get(r.kind)?.wording;
     const failed = r.state === "failed";
+    // A study plan put away ends done with its status row as the output (jobs/runtime/d1-stores.ts), not a plan.
+    const putAway = r.kind === "study_plan" && r.output?.id.endsWith(":status");
     const lead = failed
       ? (w?.failed ?? `${r.title} did not finish.`)
-      : (w?.done ?? `${r.title} is done.`);
+      : putAway
+        ? "Your study plan was put away."
+        : (w?.done ?? `${r.title} is done.`);
     out.push({
       id: r.id,
       kind: r.kind,
@@ -42,7 +46,7 @@ export async function finishedJobsToday(
       summary: failed && r.reason ? `${lead} ${r.reason}` : lead,
       ...(failed && r.reason ? { reason: r.reason } : {}),
       costCents: r.costCents,
-      link: !failed && r.output ? r.output : { home: "activity", id: r.id },
+      link: !failed && !putAway && r.output ? r.output : { home: "activity", id: r.id },
       finished: true,
       at: r.updatedAt,
     });

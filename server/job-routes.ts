@@ -12,6 +12,8 @@ import {
   startJob,
   studyPlanJob,
   sweepStale,
+  transition,
+  update,
   workflowExecutor,
 } from "../jobs/index.ts";
 import { tablesRepo } from "../data/index.ts";
@@ -127,6 +129,28 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   if (rec.state !== "needs-you")
     return c.json({ error: "job is not waiting for you" }, 409);
   const { answer } = await body(c.req.raw);
+  // Putting a plan away needs no Workflow: it ends now as done, so it never shows as running and lands in Done today.
+  if (
+    def.kind === studyPlanJob.kind &&
+    (answer as { decision?: unknown } | undefined)?.decision === "put_away"
+  ) {
+    const clock = () => Date.now();
+    const at = new Date().toISOString();
+    await c.env.DB.prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'status', ?, ?) " +
+        "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
+    )
+      .bind(rec.id, JSON.stringify("put away"), clock())
+      .run();
+    const done = await update(d1JobStore(c.env.DB, clock), rec.id, (r) =>
+      transition(r, {
+        to: "done",
+        at,
+        output: { home: "library", id: `${rec.id}:status` },
+      }),
+    );
+    return c.json({ job: done }, 202);
+  }
   const next = await continueJob(startEnv(c.env, def), def, rec.id, answer);
   return c.json({ job: next }, 202);
 });
