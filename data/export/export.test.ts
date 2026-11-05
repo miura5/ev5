@@ -43,7 +43,6 @@ const NEW_DDL = `
 CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT, parent_id TEXT, pos INTEGER, at INTEGER, v INTEGER);
 CREATE TABLE memberships (item_c TEXT, item_id TEXT, collection_id TEXT, at INTEGER, v INTEGER, PRIMARY KEY (item_c, item_id));
 CREATE TABLE pins (target_c TEXT, target_id TEXT, pos INTEGER, at INTEGER, PRIMARY KEY (target_c, target_id));
-CREATE TABLE views (id TEXT PRIMARY KEY, title TEXT, query TEXT, at INTEGER, v INTEGER);
 CREATE TABLE item_props (c TEXT, id TEXT, time TEXT, repeat TEXT, linked_c TEXT, linked_id TEXT, overrides TEXT, at INTEGER, v INTEGER, PRIMARY KEY (c, id));
 CREATE TABLE own_sets (id TEXT PRIMARY KEY, title TEXT, type TEXT, source_c TEXT, source_id TEXT, at INTEGER, v INTEGER);
 CREATE TABLE own_attempts (set_id TEXT, item_id TEXT, key TEXT, at INTEGER, body TEXT, PRIMARY KEY (set_id, item_id, key, at));`;
@@ -60,17 +59,16 @@ function migrated(withNew: boolean): DatabaseSync {
 
 const SEED = `
 INSERT INTO docs VALUES ('notes','n1','{"a":1}',10,2),('notes','n2','{"b":"é"}',11,1),('exams','e1','{}',12,1),
- ('system','worker','{"token":"x"}',13,1),('system','other','{}',14,1);
+ ('system','one','{}',13,1),('system','other','{}',14,1);
 INSERT INTO deletions VALUES ('notes','gone',20);
 INSERT INTO claude_usage VALUES (100,'2026-11-03',50,2);
 INSERT INTO claude_reads VALUES ('n1','h1',30);
 INSERT INTO claude_settings VALUES ('claude.hourTokens',1000,31);
 INSERT INTO claude_plan_asks VALUES ('job1',2,32);
-INSERT INTO system_docs VALUES ('manifest','{}',33),('keepme','{}',34);
+INSERT INTO system_docs VALUES ('one','{}',33),('two','{}',34);
 INSERT INTO collections VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
 INSERT INTO memberships VALUES ('notes','n1','k2',42,1);
 INSERT INTO pins VALUES ('notes','n1',0,43);
-INSERT INTO views VALUES ('v1','Due','{"q":1}',44,1);
 INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
 INSERT INTO own_sets VALUES ('s1','Mine','question',NULL,NULL,46,1);
 INSERT INTO own_set_items VALUES ('s1','i1',0,'{"q":"?"}',47,1),('s1','i2',1,'{"q":"!"}',47,1);
@@ -87,8 +85,9 @@ test("export then restore into scratch: every table count and hash equal", async
   src.exec(SEED);
   const x = await exportAll(sqliteD1(src), Date.UTC(2026, 10, 3));
   assert.deepEqual(await checkExport(x), []);
-  assert.equal(x.tables.docs!.count, 4); // the system "worker" document is left out
-  assert.equal(x.tables.system_docs!.count, 1);
+  assert.equal(x.kind, "ev5-export");
+  assert.equal(x.tables.docs!.count, 5); // every row, system documents included
+  assert.equal(x.tables.system_docs!.count, 2);
   assert.deepEqual(Object.keys(x.collections), ["exams", "notes", "system"]);
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);
   assert.equal(x.tables.own_attempts!.count, 2);
@@ -158,7 +157,24 @@ test("a tampered export is refused before anything is written", async () => {
   );
 });
 
-test("the export covers every non-virtual table the migrations create", () => {
+test("a restore refuses a file of any other kind, an ev4 backup included, and writes nothing", async () => {
+  const src = migrated(true);
+  src.exec(SEED);
+  const x = await exportAll(sqliteD1(src));
+  for (const kind of ["ev-d1-export", "other"]) {
+    const scratch = migrated(true);
+    const report = await restoreInto(sqliteD1(scratch), { ...x, kind } as never);
+    assert.equal(report.ok, false, kind);
+    assert.match(report.diffs[0] ?? "", /only v5's own export is restored/);
+    assert.equal(
+      (scratch.prepare("SELECT count(*) AS n FROM docs").get() as { n: number })
+        .n,
+      0,
+    );
+  }
+});
+
+test("the export covers every non-virtual table the migrations create, and lists no table they do not", () => {
   const db = new DatabaseSync(":memory:");
   const files = readdirSync(new URL("../migrations/", import.meta.url))
     .filter((f) => /^\d+_.*\.sql$/.test(f))
@@ -179,5 +195,10 @@ test("the export covers every non-virtual table the migrations create", () => {
     real.filter((n) => !covered.has(n)),
     [],
     "tables missing from data/export/tables.ts",
+  );
+  assert.deepEqual(
+    [...covered].filter((n) => !real.includes(n)),
+    [],
+    "tables listed in data/export/tables.ts that no migration creates",
   );
 });
