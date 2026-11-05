@@ -16813,7 +16813,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; read nothing outside kit. Start after B-958 (undefined tokens and easing) merges. Cite to the builder: §ui.mockup (unstyled Radix primitives and cmdk for behaviour only, the kit owns every pixel), §ui.kit-leads, §ui.gallery, §ui.status (status shows only as a dot or a meter), §ui.three-sizes. No new dependency.",
+  "notes": "Slice: write kit/; read nothing outside kit. Start after B-958 (undefined tokens and easing) merges. Cite to the builder: §ui.mockup (unstyled Radix primitives and cmdk for behaviour only, the kit owns every pixel), §ui.kit-leads, §ui.gallery, §ui.status (status shows only as a dot or a meter), §ui.three-sizes. Tabs and Segmented take their keyboard and focus behaviour from @radix-ui/react-toggle-group, which the kit already uses; no new package. Dot and Meter are plain elements.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
