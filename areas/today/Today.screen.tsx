@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { longDay } from "../../domain/index.ts";
-import { Empty, Page, Toast, type DetailProps } from "../../kit/index.ts";
+import { Empty, Page, type DetailProps } from "../../kit/index.ts";
 import { examDetail } from "./ExamDetail.tsx";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
@@ -22,10 +22,12 @@ export function TodayScreen({
   services,
   onNavigate,
   onDetail,
+  onToast,
 }: {
   services?: { readCopy?: ReadCopyLike };
   onNavigate?: (path: string) => void;
   onDetail?: (detail: DetailProps | null) => void;
+  onToast?: (message: string) => void;
 }) {
   const {
     data,
@@ -38,15 +40,16 @@ export function TodayScreen({
     addDate,
     planWithEv,
   } = useToday(services?.readCopy);
-  const [notSaved, setNotSaved] = useState(false);
+  const notSaved = (ok: boolean) => {
+    if (!ok) onToast?.("Not saved. Try again.");
+  };
   const [openId, setOpenId] = useState<string>();
   // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
   const [openKey, setOpenKey] = useState(0);
-  const [started, setStarted] = useState<string>();
   const opened = data?.upcoming.find((d) => d.id === openId);
   // The exam's Detail lives in the shell's host; the shell closes it on Esc and when Matt leaves the screen.
-  const last = useRef({ onNavigate, planWithEv });
-  last.current = { onNavigate, planWithEv };
+  const last = useRef({ onNavigate, planWithEv, onToast });
+  last.current = { onNavigate, planWithEv, onToast };
   useEffect(() => {
     if (!onDetail) return;
     if (!opened) return onDetail(null);
@@ -60,12 +63,17 @@ export function TodayScreen({
           void last.current
             .planWithEv(opened.id)
             .then((ok) =>
-              ok ? setStarted("E.V. is drafting a plan") : setNotSaved(true),
+              last.current.onToast?.(
+                ok ? "E.V. is drafting a plan" : "Not saved. Try again.",
+              ),
             ),
         onClose: () => setOpenId(undefined),
       }),
     );
   }, [opened, openKey, onDetail]);
+  useEffect(() => {
+    if (error && token && !refused) onToast?.(error);
+  }, [error, token, refused, onToast]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty day.
   if (!token || refused) return null;
   // First data still on its way: the heading and a loading line, never an empty pane.
@@ -79,9 +87,6 @@ export function TodayScreen({
   const upcoming = view.upcoming;
   return (
     <>
-      {error ? <Toast message={error} /> : null}
-      {started ? <Toast message={started} /> : null}
-      {notSaved ? <Toast message="Not saved. Try again." /> : null}
       <TodayView
         dateLabel={dateLabel()}
         {...view}
@@ -90,7 +95,7 @@ export function TodayScreen({
         alert={alert}
         onStartNext={() => {
           const first = view.plan.find((p) => !p.done);
-          setStarted(
+          onToast?.(
             first ? `Started · ${first.title}` : "Nothing left on today's plan",
           );
         }}
@@ -100,17 +105,17 @@ export function TodayScreen({
           setOpenKey((k) => k + 1);
         }}
         onTick={(id, done) =>
-          void tick(id, done).then((ok) => setNotSaved(!ok))
+          void tick(id, done).then((ok) => notSaved(ok))
         }
         onAddPlan={(title) =>
           addPlan(title).then((ok) => {
-            setNotSaved(!ok);
+            notSaved(ok);
             return ok;
           })
         }
         onAddDate={(title, date) =>
           addDate(title, date).then((ok) => {
-            setNotSaved(!ok);
+            notSaved(ok);
             return ok;
           })
         }
