@@ -67,3 +67,19 @@ export { parseDraft } from "./draft/index.ts";
 export { parseClaudeUsage, parseClaudeRead, parseClaudeSetting, parseClaudePlanAsk } from "./claude/index.ts";
 /** @public */
 export { parseSystemDoc } from "./system-doc/index.ts";
+/** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
+export { docRowSchema } from "./doc-row/index.ts";
+/** @public */
+export { parseExamRow, type ExamRow } from "./exam/row.ts";
+/** @public */
+export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";
+/** @public */
+export { parseWeakSpotRow, type WeakSpotRow } from "./weak-spot/row.ts";
+/** @public */
+export { parseSetRow, type SetRow } from "./set/row.ts";
+/** @public */
+export { parseSessionRow, type SessionRow } from "./session/row.ts";
+/** @public */
+export { parseNoteRow, type NoteRow } from "./note/row.ts";
+/** @public */
+export { parseCourseRow, type CourseRow } from "./course/row.ts";

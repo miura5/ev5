@@ -5,7 +5,7 @@ import { daysBetween } from '../time/index.ts';
 // The score lives in examedits and the prediction in predictions; neither is stored here.
 export const EXAM_KINDS = ['unit', 'dosage', 'final', 'ati', 'lab'] as const;
 
-const examSchema = z.strictObject({
+export const examSchema = z.strictObject({
   schema: z.literal(2),
   writer: z.enum(['canvas-sync', 'page', 'worker']),
   at: z.string().min(1),
