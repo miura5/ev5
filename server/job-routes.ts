@@ -18,6 +18,7 @@ import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts } from "./excerpts.ts";
+import { endedSessionsToday, finishedJobsToday } from "./jobs-done.ts";
 import { courseOfSet } from "./frame-prompt.ts";
 
 export interface JobRoutesEnv {
@@ -245,6 +246,16 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
 // Only live jobs: one past its deadline is failed first, so a lost runner never shows as running.
 jobRoutes.get("/jobs", async (c) => {
   const store = d1JobStore(c.env.DB, () => Date.now());
+  // ?finished=today is Activity's "Done today": what finished since midnight Central (server/jobs-done.ts).
+  if (c.req.query("finished") === "today") {
+    const now = Date.now();
+    return c.json({
+      jobs: [
+        ...(await finishedJobsToday(store, DEFS, now)),
+        ...(await endedSessionsToday(c.env.DB, now)),
+      ],
+    });
+  }
   try {
     await sweepStale(store, new Date().toISOString());
   } catch (e) {

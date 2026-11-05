@@ -1,29 +1,47 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
-import { api, failureKind, failureSentence, jobApi, readToken } from "../../commands/client.ts";
+import {
+  api,
+  failureKind,
+  failureSentence,
+  jobApi,
+  readJson,
+  readToken,
+} from "../../commands/client.ts";
 
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
   "study-plan": "Study plan",
   "spend-alert": "Monthly spend",
+  "study-session": "Study session",
 };
 
 /** Job kinds arrive as keys (study_plan); the row shows plain words. */
 const titleOf = (kind: string): string =>
-  TITLES[kind.replace(/_/g, "-")] ?? kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
+  TITLES[kind.replace(/_/g, "-")] ??
+  kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
 
 /** The server's status text can carry a generic line, the specific reason, and a pointer to Activity.
  * A row shows one sentence: the pointer goes; a failure keeps its reason, anything else its first line. */
 export function oneSentence(summary: string, state: string): string {
-  const parts = (summary.match(/[^.!?]+[.!?]+/g) ?? [summary]).map((s) => s.trim()).filter(Boolean);
+  const parts = (summary.match(/[^.!?]+[.!?]+/g) ?? [summary])
+    .map((s) => s.trim())
+    .filter(Boolean);
   const own = parts.filter((s) => s !== "It is waiting in Activity.");
   if (own.length < 2) return own[0] ?? summary;
   return state === "failed" ? own.slice(1).join(" ") : own[0]!;
 }
 
 /** The one sentence a row shows: the server's own fields when present, else the trimmed summary (old servers). */
-const rowSentence = (j: { summary: string; state: string; lead?: string; reason?: string }): string =>
-  j.state === "failed" && j.reason ? j.reason : (j.lead ?? oneSentence(j.summary, j.state));
+const rowSentence = (j: {
+  summary: string;
+  state: string;
+  lead?: string;
+  reason?: string;
+}): string =>
+  j.state === "failed" && j.reason
+    ? j.reason
+    : (j.lead ?? oneSentence(j.summary, j.state));
 
 /** One entry of GET /api/v1/jobs (server/job-routes.ts, jobs/runtime/status.ts); areas never import them, so restated. */
 interface WireJob {
@@ -96,8 +114,7 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
       if (!r.ok) {
         setRefused(failureKind(r.status) === "refused");
         setError(failureSentence(r.status));
-      }
-      else setTick((n) => n + 1);
+      } else setTick((n) => n + 1);
     },
     [token],
   );
@@ -105,10 +122,21 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
     if (!token) return;
     let live = true;
     // Offline, the saved list shows (§data.offline); the shell says it is a saved copy.
+    // What finished today is a second read; if it fails the unfinished list still shows.
+    const finished = () =>
+      readJson<WireJob[]>(
+        "jobs?finished=today",
+        token,
+        "jobs-done",
+        copy,
+        (b) => (b as { jobs: WireJob[] }).jobs,
+      ).catch(() => [] as WireJob[]);
     const load = () =>
-      (jobApi.list(token, copy) as Promise<WireJob[]>)
-        .then((list) => {
+      Promise.all([jobApi.list(token, copy) as Promise<WireJob[]>, finished()])
+        .then(([open, done]) => {
           if (live) {
+            const ids = new Set(open.map((j) => j.id));
+            const list = [...open, ...done.filter((j) => !ids.has(j.id))];
             setJobs(uniqueRows(list.map(toActivityJob)));
             setLoading(false);
             setError(undefined);
