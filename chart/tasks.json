@@ -17170,7 +17170,8 @@
   "depends": [
    "B-966",
    "B-967",
-   "B-968"
+   "B-968",
+   "B-1018"
   ],
   "notes": "Slice: write areas/collection/; read kit/, shell's area-view props.",
   "commit": null,
@@ -17800,5 +17801,17 @@
   "notes": "Slice: write ops/record/, chart/, docs/record/; read none. Decision: D-486. After B-994, so ev4's history is frozen first and only the live files change. The playtest refresh script outside the repo reads BACKLOG.md: keep its table format.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1018",
+  "kind": "task",
+  "title": "Kit Page takes an editable title and a leading glyph, and the kit has a Move picker",
+  "dod": "kit Page (or a kit EditableTitle) renames on blur, Enter commits, Escape reverts, can focus and select its title when just made, shows a placeholder, and takes an optional leading glyph (design/mockup.html line 350); a kit Move picker (or Menu items) lists collections by name with the current one ticked; stories and tests for each; both themes match design/mockup.html",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page), which stopped with no PR because the kit lacks these. B-973 depends on this.",
+  "commit": null,
+  "source": "B-973 builder report, run 80"
  }
 ]
