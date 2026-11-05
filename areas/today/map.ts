@@ -33,6 +33,8 @@ export interface TodayDocs {
   jobs?: readonly WireJobLine[];
   /** Which study plan is in force per exam; absent reads as none. */
   planedits?: WireDoc[];
+  /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
+  plans?: WireDoc[];
 }
 
 export type TodayData = Pick<
@@ -125,21 +127,68 @@ function whenLabel(date: string, left: number, today: string): string {
 const toneFor = (left: number): CourseTone =>
   left <= 3 ? "bad" : left <= 7 ? "warn" : "info";
 
-function planItems(doc: WireDoc | undefined): PlanItem[] {
+type Session = { id: string; text: string; minutes?: number; kind: string };
+
+/** Today's sessions from the plans in force: each task dated today (Central), keyed by its task id so a tick sticks. */
+function planSessions(
+  docs: TodayDocs,
+  examIds: string[],
+  today: string,
+): Session[] {
+  return examIds.flatMap((examId) => {
+    if (planOf(examId, docs) !== "approved") return [];
+    const planId = (
+      docs.exams.find((d) => d.id === examId)?.data as { planId?: string }
+    ).planId;
+    const days = (
+      docs.plans?.find((p) => p.id === planId)?.data as
+        | { days?: unknown }
+        | undefined
+    )?.days;
+    if (!Array.isArray(days)) return [];
+    return days.flatMap((day: { date?: unknown; tasks?: unknown }) =>
+      day?.date === today && Array.isArray(day.tasks)
+        ? day.tasks.flatMap(
+            (t: { id?: unknown; text?: unknown; minutes?: unknown }) =>
+              typeof t?.id === "string" && typeof t.text === "string"
+                ? [
+                    {
+                      id: t.id,
+                      text: t.text,
+                      kind: "plan",
+                      ...(typeof t.minutes === "number"
+                        ? { minutes: t.minutes }
+                        : {}),
+                    },
+                  ]
+                : [],
+          )
+        : [],
+    );
+  });
+}
+
+function planItems(
+  doc: WireDoc | undefined,
+  sessions: Session[] = [],
+): PlanItem[] {
   const o = (doc?.data ?? {}) as {
     added?: Record<string, { text: string; kind: string; minutes?: number }>;
     checks?: Record<string, unknown>;
     skipped?: Record<string, unknown>;
   };
-  return Object.entries(o.added ?? {})
+  const fromPlan = Object.fromEntries(sessions.map((x) => [x.id, x]));
+  return Object.entries({ ...fromPlan, ...(o.added ?? {}) })
     .filter(([k]) => !o.skipped?.[k])
     .map(([k, a]) => ({
       id: k,
       title: a.text,
       meta:
-        a.kind === "todo"
-          ? "added by you"
-          : `${KINDS[a.kind] ?? a.kind} · added by you`,
+        a.kind === "plan"
+          ? "from your study plan"
+          : a.kind === "todo"
+            ? "added by you"
+            : `${KINDS[a.kind] ?? a.kind} · added by you`,
       est: a.minutes ? `${a.minutes}m` : "",
       done: !!o.checks?.[k],
       tone: "ok" as const,
@@ -207,7 +256,14 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });
-  const plan = planItems(docs.dayedit);
+  const plan = planItems(
+    docs.dayedit,
+    planSessions(
+      docs,
+      docs.exams.map((d) => d.id),
+      today,
+    ),
+  );
   const weekEnd = addDays(today, 6);
   const thisWeek: ThisWeekItem[] = exams
     .filter((e) => (e.exam.date as string) <= weekEnd)

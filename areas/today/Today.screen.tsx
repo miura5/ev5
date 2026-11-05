@@ -29,6 +29,7 @@ export function TodayScreen({
     useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
   const [openId, setOpenId] = useState<string>();
+  const [started, setStarted] = useState<string>();
   // Esc closes the Detail panel.
   useEffect(() => {
     if (!openId) return;
@@ -59,6 +60,7 @@ export function TodayScreen({
   return (
     <>
       {error ? <Toast message={error} /> : null}
+      {started ? <Toast message={started} /> : null}
       {notSaved ? <Toast message="Not saved. Try again." /> : null}
       <TodayView
         dateLabel={dateLabel()}
@@ -66,7 +68,12 @@ export function TodayScreen({
         upcoming={upcoming}
         selectedId={opened?.id}
         alert={alert}
-        onStartNext={none}
+        onStartNext={() => {
+          const first = view.plan.find((p) => !p.done);
+          setStarted(
+            first ? `Started · ${first.title}` : "Nothing left on today's plan",
+          );
+        }}
         onOpen={(id) =>
           setOpenId((cur) =>
             upcoming.some((d) => d.id === id) && cur !== id ? id : undefined,

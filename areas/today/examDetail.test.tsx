@@ -144,3 +144,40 @@ test("Today's exam Detail uses Library's words: date with days left, readiness, 
   expect(detail.textContent).toContain("no plan yet");
   expect(screen.getByText("Review the study plan")).toBeTruthy();
 });
+
+test("an approved plan's session dated today lists on Today's Plan, and Start next starts it", async () => {
+  localStorage.setItem("ev5.token", "t");
+  const today = centralDate(new Date());
+  const days = [
+    {
+      date: today,
+      tasks: [
+        { id: "j-1", text: "Gather notes and make a review list", minutes: 30 },
+      ],
+    },
+    { date: "2099-01-01", tasks: [{ id: "j-2", text: "Later", minutes: 10 }] },
+  ];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("jobs")
+        ? json({ jobs: [] })
+        : url.includes("dayedits")
+          ? json({}, 404)
+          : url.includes("collection=exams")
+            ? json({ docs: [{ id: "e3", data: { ...exam, planId: "p1" } }] })
+            : url.includes("collection=planedits")
+              ? json({ docs: [{ id: "e3", data: { plan: "p1" } }] })
+              : url.includes("collection=plans")
+                ? json({ docs: [{ id: "p1", data: { days } }] })
+                : json({ docs: [] }),
+    ),
+  );
+  render(<TodayScreen />);
+  await screen.findByText("Gather notes and make a review list");
+  expect(screen.getByText("30m")).toBeTruthy();
+  expect(screen.queryByText("Later")).toBeNull();
+  expect(screen.queryByText(/Nothing planned/)).toBeNull();
+  fireEvent.click(screen.getByText("Start next"));
+  await screen.findByText("Started · Gather notes and make a review list");
+});
