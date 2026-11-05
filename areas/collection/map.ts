@@ -38,6 +38,8 @@ export interface CollectionData {
   parentId?: string;
   nested: CollectionEntry[];
   items: CollectionEntry[];
+  /** Every collection, for the Move picker. */
+  all: { id: string; title: string }[];
 }
 
 /** The pinned items (GET /pins, already by pos then newest first), named from their docs. */
@@ -128,6 +130,7 @@ export function mapCollection(
     title: pick.title,
     parent,
     parentId: pick.parentId ?? undefined,
+    all: byPos.map((c) => ({ id: c.id, title: c.title })),
     nested: byPos
       .filter((c) => c.parentId === pick.id)
       .map((c) => ({ id: c.id, type: "collection", title: c.title })),

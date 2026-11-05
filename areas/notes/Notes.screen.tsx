@@ -64,6 +64,11 @@ export function NotesScreen({
       setUndo({ id, message: what });
       reload();
     });
+  const move = (id: string, collection: string) =>
+    void call("item.move", { id, collection }, readToken()).then((r) => {
+      if (!r.ok) return setStartError(r.reason);
+      reload();
+    });
   const today = centralDate(Date.now());
   const cur = notes.find((n) => n.id === open);
   if (!cur)
@@ -106,6 +111,7 @@ export function NotesScreen({
             })
           }
           onOpenNote={setOpen}
+          onMove={(id, collection) => move(id, collection)}
           onRowAction={(id, action) => {
             if (action === "open") return setOpen(id);
             if (action === "delete") return del(id, "Note deleted");
@@ -146,6 +152,14 @@ export function NotesScreen({
         }
         onBack={() => setOpen(undefined)}
         onDelete={() => del(cur.id, "Note deleted")}
+        collections={collections}
+        collectionId={members.get(cur.id) ?? null}
+        onMove={(c) => move(cur.id, c)}
+        onPin={() =>
+          void call("item.pin", { id: cur.id }, readToken()).then((r) => {
+            if (!r.ok) setStartError(r.reason);
+          })
+        }
         onStartSession={() => void startSession()}
       />
     </>

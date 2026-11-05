@@ -1,4 +1,5 @@
 import { Button, Glyph, Row } from "../../../kit/index.ts";
+import { RowActions, type RowAction } from "./RowActions.tsx";
 import type { NoteCollection, NoteSummary } from "../types.ts";
 
 export interface CollectionTreeProps {
@@ -8,6 +9,8 @@ export interface CollectionTreeProps {
   onToggle: (id: string) => void;
   onOpenNote?: (id: string) => void;
   onNewNoteIn?: (collectionId: string) => void;
+  onRowAction?: (id: string, action: RowAction) => void;
+  onMove?: (id: string, collectionId: string) => void;
 }
 
 const NONE = "none";
@@ -32,14 +35,20 @@ export function CollectionTree({
   onToggle,
   onOpenNote,
   onNewNoteIn,
+  onRowAction,
+  onMove,
 }: CollectionTreeProps) {
   const own = (id: string | null) => notes.filter((n) => n.collectionId === id);
   const noteRows = (id: string | null, level: number) =>
     own(id).map((n) => (
-      <div
-        className="ev-notes-line"
-        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
+      <RowActions
         key={n.id}
+        title={n.title}
+        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
+        targets={collections}
+        current={n.collectionId}
+        onAction={onRowAction ? (a) => onRowAction(n.id, a) : undefined}
+        onMove={onMove ? (c) => onMove(n.id, c) : undefined}
       >
         <Row
           glyph={<Glyph type="note" />}
@@ -48,7 +57,7 @@ export function CollectionTree({
           value={n.when}
           onOpen={() => onOpenNote?.(n.id)}
         />
-      </div>
+      </RowActions>
     ));
   const fold = (
     id: string,
