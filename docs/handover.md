@@ -14,6 +14,7 @@ Open: B-942 (Today/Progress vs mock-up; Courses in the sidebar and course dots a
 Then B-1036's docs-kind check (its other checks land with the tasks that clear their traces), B-1022 (new row shapes), B-998 (migration).
 Moves: B-1037 attempts, B-1038 goals and objectives with link rows, B-1039 weak spots, B-1040 sets, B-1041 sessions, B-1042 notes, B-1043 talk (Ask E.V. keeps its chat), B-1004/B-1033/B-1034 plans; then B-1044 (due read on attempts), B-1045 (note pictures).
 Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; this sandbox cannot), B-1009. Bugs alongside, in folders the current task does not write: B-1048, B-1049, B-1050. B-1006, B-1007, B-1008, B-1011 wait for group 3. Small follow-up: pass onBad to the table repos.
+Small ev4-trace cleanups in group 4: B-1059 (journeys, after B-1009), B-1060 (sample content, with B-942), B-1061 (Chart triage, after B-1035), B-1062 (PLAN and AGENTS lines; the AGENTS part needs Matt's yes).
 (5) Cutover steps: B-822 (staging proof, Mac copy), B-754 (morning, evening, weekly_review job kinds), B-757 (drills on the new tables), B-756, B-759, B-823, B-1026, B-1027 (after B-1005), B-1028, B-1029, B-1030. B-755 (Canvas) is now optional after cutover (D-495).
 (6) Gate 6 B-760.
 (7) B-1051: review, then fix bugs, repeated until Matt says the app is right. Only then Phase 7 (B-825, review, UX pass, release card).
