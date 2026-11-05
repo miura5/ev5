@@ -24,7 +24,7 @@ export function framePrompt(table: CourseTable, text: string, course?: string | 
   const named = course && table.some((c) => c.name === course) ? course : null;
   const student = f.nursing ? "one nursing student" : named ? `one student of ${named}` : "one student";
   const style = f.nursing ? "NCLEX-style" : named ? `${named} exam-style` : "exam-style";
-  // frameText's non-nursing style words repeat "NCLEX", so the one phrase these prompts use is set here.
+  // the prompts' one style phrase is set here, shorter than frameText's exam-style words.
   return text.replaceAll("NCLEX-style", style).replaceAll("{{student}}", student);
 }
 

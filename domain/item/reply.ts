@@ -83,7 +83,7 @@ const keep = (o: Loose, keys: string[]): Loose =>
 
 /** A question as the model wrote it, mended where its shape drifted without changing what it says, holding only the
  *  fields a stored item may (an extra key would refuse the set's write). */
-export function normalizeItem(raw: unknown, cfg: ItemConfig = ITEM_CONFIG): any {
+export function normalizeItem(raw: unknown, cfg: ItemConfig = ITEM_CONFIG, nursing?: boolean): any {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
   const q: Loose = { ...raw };
   if (!q.stem)
@@ -114,7 +114,8 @@ export function normalizeItem(raw: unknown, cfg: ItemConfig = ITEM_CONFIG): any 
     for (const k of ['answer', 'tolerance'])
       if (typeof q[k] === 'string' && q[k].trim() && Number.isFinite(Number(q[k]))) q[k] = Number(q[k]);
   }
-  if (typeof q.cjStep === 'string') {
+  if (nursing === false) delete q.cjStep; // only a nursing course keeps a clinical-judgment step
+  else if (typeof q.cjStep === 'string') {
     const s = slug(q.cjStep);
     if (cfg.cjSteps.includes(s)) q.cjStep = s;
     else if (cfg.cjSteps.length) delete q.cjStep; // a step it could not name is no step, not a refused question
@@ -141,12 +142,12 @@ export function replyItems(res: unknown): unknown[] {
  *  still on it. */
 export function tagItems(
   res: unknown,
-  opts: { ids?: string[]; spots?: { id: string; objective?: string }[]; checks?: boolean; type?: string } = {},
+  opts: { ids?: string[]; spots?: { id: string; objective?: string }[]; checks?: boolean; type?: string; nursing?: boolean } = {},
 ): any[] {
-  const { ids = [], spots = [], checks = false, type } = opts;
+  const { ids = [], spots = [], checks = false, type, nursing } = opts;
   return replyItems(res)
     .map((raw) => {
-      const q = normalizeItem(raw);
+      const q = normalizeItem(raw, ITEM_CONFIG, nursing);
       return q && typeof q === 'object' && !Array.isArray(q) && answerKeyProblem({ ...q, calc: (raw as Loose).calc })
         ? null
         : q;

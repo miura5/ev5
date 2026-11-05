@@ -161,6 +161,33 @@ test('open answers graded by a model reply: right, partial, wrong; partial count
   expect(p).toMatch(/\{"hits": \[true \| false, true \| false\]\}/);
 });
 
+test('the grade prompt names a nursing student unless the item is in another course', () => {
+  const q = open();
+  expect(gradePrompt(q, 'x')).toMatch(/a nursing student wrote/);
+  expect(gradePrompt(q, 'x', undefined, { nursing: true })).toMatch(/a nursing student wrote/);
+  const other = gradePrompt(q, 'x', undefined, { nursing: false });
+  expect(other).toMatch(/grade one short answer a student wrote/);
+  expect(other).not.toMatch(/nurs/i);
+});
+
+test('a clinical-judgment step is asked for only in a nursing course', () => {
+  const noStep = {
+    id: 'q1',
+    type: 'single',
+    stem: 'Which gas do plants take in?',
+    options: ['CO2', 'O2'],
+    correct: [0],
+    rationales: ['a', 'b'],
+    objective: 'o',
+  };
+  expect(validateItem(noStep).warnings).toContain('no clinical-judgment step');
+  expect(validateItem(noStep, { nursing: true }).warnings).toContain('no clinical-judgment step');
+  expect(validateItem(noStep, { strict: true }).ok).toBe(false);
+  const other = validateItem(noStep, { nursing: false, strict: true });
+  expect(other.ok).toBe(true);
+  expect(other.warnings.join()).not.toMatch(/clinical-judgment/);
+});
+
 test('open answers graded locally: a point is hit when a word of every keyword group is in his answer', () => {
   const q = open();
   const local = (text: string) => scoreAnswer(q, text) as any;
