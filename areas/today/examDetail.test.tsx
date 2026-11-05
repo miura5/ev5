@@ -5,6 +5,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { centralDate } from "../../domain/index.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { TodayScreen } from "./Today.screen.tsx";
 
@@ -16,9 +17,7 @@ afterEach(() => {
 
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status });
-const soon = new Date(Date.now() + 3 * 86_400_000).toLocaleDateString("en-CA", {
-  timeZone: "America/Chicago",
-});
+const soon = centralDate(Date.now() + 3 * 86_400_000);
 const exam = {
   schema: 2,
   writer: "page",

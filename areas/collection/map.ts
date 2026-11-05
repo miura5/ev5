@@ -1,3 +1,4 @@
+import { shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
 /** The read routes' rows (server/collection-routes.ts), restated: areas never import the server. */
@@ -102,11 +103,7 @@ export const docTitle = (d: WireDoc | undefined): string =>
 
 /** "Nov 3", Central time (§time), from epoch ms. */
 export const shortDate = (ms: number): string =>
-  new Date(ms).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "America/Chicago",
-  });
+  shortDay(ms);
 
 /** Shows the collection `id`, else the first top-level one (by pos), with its sub-collections and members; none gives undefined (empty state). */
 export function mapCollection(

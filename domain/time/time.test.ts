@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, centralDate, centralParts, centralToInstant, daysUntil, inDays, isDue, plainDay, isOverdue, occurrences, occursOn, repeatKey } from './index.ts';
+import { addDays, clockTime, longDay, shortDay, weekdayDay, weekdayShort, centralDate, centralParts, centralToInstant, daysUntil, inDays, isDue, plainDay, isOverdue, occurrences, occursOn, repeatKey } from './index.ts';
 
 describe('Central dates across daylight saving', () => {
   it('fall back 2026-11-01: 01:30 happens twice, the day has 25 hours', () => {
@@ -69,5 +69,22 @@ describe('plain dates', () => {
     expect(inDays(0)).toBe('today');
     expect(inDays(1)).toBe('in 1 day');
     expect(inDays(392)).toBe('in 392 days');
+  });
+});
+
+describe('on-screen formats in Central time', () => {
+  it('reads the Central day, not the UTC day', () => {
+    const lateEvening = Date.parse('2026-11-04T03:30:00Z'); // 21:30 on Nov 3 in Central
+    expect(shortDay(lateEvening)).toBe('Nov 3');
+    expect(longDay(lateEvening)).toBe('Tuesday, November 3');
+    expect(clockTime(lateEvening)).toBe('9:30 pm');
+  });
+  it('follows daylight saving', () => {
+    expect(clockTime(Date.parse('2026-07-01T17:05:00Z'))).toBe('12:05 pm');
+    expect(clockTime(Date.parse('2026-12-01T17:05:00Z'))).toBe('11:05 am');
+  });
+  it('names the weekday of a Central date', () => {
+    expect(weekdayShort('2026-11-03')).toBe('Tue');
+    expect(weekdayDay('2026-11-03')).toBe('Tuesday, Nov 3');
   });
 });

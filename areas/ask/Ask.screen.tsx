@@ -1,3 +1,4 @@
+import { clockTime } from "../../domain/index.ts";
 import { useState } from "react";
 import { api, failureSentence, readToken } from "../../commands/client.ts";
 import { logTellMe } from "./tellLog.ts";
@@ -5,14 +6,7 @@ import { AskView } from "./Ask.view.tsx";
 import type { AskMessage } from "./types.ts";
 import { useAskJobs, type ReadCopyLike } from "./useAskJobs.ts";
 
-const clock = () =>
-  new Date()
-    .toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: "America/Chicago",
-    })
-    .toLowerCase();
+const clock = () => clockTime(new Date());
 
 /** The reply the server sends from POST /api/v1/ask (server/ask-chat.ts); restated, areas never import the server. */
 interface WireReply {

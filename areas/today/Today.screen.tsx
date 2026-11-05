@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
+import { longDay } from "../../domain/index.ts";
 import { Toast } from "../../kit/index.ts";
 import { ExamDetail } from "./ExamDetail.tsx";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
 
 const none = () => undefined;
-const dateLabel = () =>
-  new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    timeZone: "America/Chicago",
-  });
+const dateLabel = () => longDay(new Date());
 const EMPTY = {
   say: {
     lead: "Nothing planned yet.",

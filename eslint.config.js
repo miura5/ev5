@@ -32,4 +32,25 @@ export default [
       ],
     },
   },
+  {
+    // Dates and times on screen come from domain/time, in America/Chicago (§job.schedule).
+    files: ["areas/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ExportAllDeclaration",
+          message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
+        },
+        {
+          selector: "MemberExpression[property.name=/^toLocale(Date|Time)String$/]",
+          message: "Format dates and times through domain/time, not toLocaleDateString or toLocaleTimeString (§job.schedule).",
+        },
+        {
+          selector: "MemberExpression[object.name='Intl'][property.name='DateTimeFormat']",
+          message: "Format dates and times through domain/time, not Intl.DateTimeFormat (§job.schedule).",
+        },
+      ],
+    },
+  },
 ];

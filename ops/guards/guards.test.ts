@@ -58,6 +58,8 @@ const GUARDS: Guard[] = [
   { name: 'a @ts-ignore comment (eslint no-warning-comments)', command: eslint, files: { 'domain/ts.ts': '// @ts-ignore\nexport const x = 1;\n' }, expect: /no-warning-comments/ },
   { name: 'an export * (eslint no-restricted-syntax)', command: eslint, files: { 'domain/star.ts': "export * from './ok.ts';\n" }, expect: /no-restricted-syntax/ },
   { name: 'a bad import, domain into data (dependency-cruiser)', command: depcruise, files: { 'data/index.ts': 'export const d = 1;\n', 'domain/bad.ts': "import { d } from '../data/index.ts';\nexport const b = d;\n" }, expect: /domain-imports/ },
+  { name: 'toLocaleDateString in an area (eslint no-restricted-syntax)', command: eslint, files: { 'areas/x/d.ts': "export const d = (): string => new Date().toLocaleDateString('en-US');\n" }, expect: /domain\/time/ },
+  { name: 'Intl.DateTimeFormat in an area (eslint no-restricted-syntax)', command: eslint, files: { 'areas/x/f.ts': "export const f = new Intl.DateTimeFormat('en-US');\n" }, expect: /domain\/time/ },
   { name: 'a cycle (dependency-cruiser no-cycles)', command: depcruise, files: { 'domain/a.ts': "import { b } from './b.ts';\nexport const a = (): unknown => b;\n", 'domain/b.ts': "import { a } from './a.ts';\nexport const b = (): unknown => a;\n" }, expect: /no-cycles/ },
   { name: 'a raw colour (stylelint)', command: stylelint, files: { 'kit/raw.css': 'a { color: #ff0000; }\n' }, expect: /color-no-hex|declaration-property-value-allowed-list/ },
   { name: 'an unused export (knip)', command: knip, files: { 'domain/dead.ts': 'export const used = 1;\nexport const unused = 2;\n', 'domain/dead.test.ts': "import { used } from './dead.ts';\nexport const t = used;\n" }, expect: /unused/i },

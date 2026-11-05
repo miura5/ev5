@@ -106,3 +106,27 @@ export function plainDay(date: string, today: string): string {
 
 /** Time left in plain words: 'today', 'in 1 day', 'in N days'. */
 export const inDays = (n: number): string => (n === 0 ? 'today' : `in ${n} ${n === 1 ? 'day' : 'days'}`);
+
+const chicago = (o: Intl.DateTimeFormatOptions): Intl.DateTimeFormat =>
+  new Intl.DateTimeFormat('en-US', { timeZone: ZONE, ...o });
+const SHORT_DAY = chicago({ month: 'short', day: 'numeric' });
+const LONG_DAY = chicago({ weekday: 'long', month: 'long', day: 'numeric' });
+const CLOCK = chicago({ hour: 'numeric', minute: '2-digit' });
+// A 'YYYY-MM-DD' date is read as midnight UTC, so it formats in UTC to keep the same calendar day.
+const WEEKDAY_SHORT = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short' });
+const WEEKDAY_DAY = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'long', month: 'short', day: 'numeric' });
+
+/** 'Nov 3', the Central day of an instant. */
+export const shortDay = (instant: Date | number): string => SHORT_DAY.format(instant);
+
+/** 'Thursday, November 5', the Central day of an instant. */
+export const longDay = (instant: Date | number): string => LONG_DAY.format(instant);
+
+/** '3:05 pm', the Central clock time of an instant. */
+export const clockTime = (instant: Date | number): string => CLOCK.format(instant).toLowerCase();
+
+/** 'Tue' for a Central date ('YYYY-MM-DD'). */
+export const weekdayShort = (date: string): string => WEEKDAY_SHORT.format(utcMs(date));
+
+/** 'Tuesday, Nov 3' for a Central date ('YYYY-MM-DD'). */
+export const weekdayDay = (date: string): string => WEEKDAY_DAY.format(utcMs(date));
