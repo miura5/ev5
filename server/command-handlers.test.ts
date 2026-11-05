@@ -44,11 +44,19 @@ test("every handler belongs to a registry command Matt calls directly", () => {
     // a chat turn answers once on the Worker (ask.send); ask.just_tell_me only logs, though the registry says 'job'
     assert.ok(
       ["instant", "chat"].includes(cmd.effect) ||
-        ["ask.just_tell_me", "job.retry_shorter"].includes(name),
+        [
+          "ask.just_tell_me",
+          "job.retry_shorter",
+          "date.plan_with_ev",
+          "studyplan.ask_changes",
+        ].includes(name),
       name,
     );
     // job_sweep is the schedule's own command (the 15-minute cron), not Matt's
-    assert.equal(cmd.callers[name === "job_sweep" ? "schedule" : "matt"], "direct");
+    assert.equal(
+      cmd.callers[name === "job_sweep" ? "schedule" : "matt"],
+      "direct",
+    );
   }
 });
 

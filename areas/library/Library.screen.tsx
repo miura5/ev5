@@ -25,7 +25,7 @@ const PLAN_TEXT = {
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({ services }: { services?: LibraryServices }) {
-  const { data, token, refused, error, runPlan } = useLibrary(
+  const { data, token, refused, error, runPlan, answerPlan } = useLibrary(
     services?.readCopy,
   );
   const [planNote, setPlanNote] = useState<string>();
@@ -49,6 +49,9 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
     name: Parameters<typeof runPlan>[0],
     input: Record<string, string>,
   ) => setPlanNote(await runPlan(name, input));
+  // A waiting plan is a job, not yet a document: approving or putting it away answers the job.
+  const answer = async (id: string, decision: "approve" | "put_away") =>
+    setPlanNote(await answerPlan(id, decision));
   const page = open ? data?.pages[open] : undefined;
   if (page && studying)
     return (
@@ -91,11 +94,19 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
             proposals: [],
           }}
           onPlanWithEv={() => plan("date.plan_with_ev", { id: exam.id })}
-          onApprove={(id) => plan("studyplan.approve", { id })}
+          onApprove={(id) =>
+            exam.waiting
+              ? answer(id, "approve")
+              : plan("studyplan.approve", { id })
+          }
           onAskChanges={(id, note) =>
             plan("studyplan.ask_changes", { id, note })
           }
-          onPutAway={(id) => plan("studyplan.put_away", { id })}
+          onPutAway={(id) =>
+            exam.waiting
+              ? answer(id, "put_away")
+              : plan("studyplan.put_away", { id })
+          }
           onClose={() => setOpen(undefined)}
         />
       ) : null}

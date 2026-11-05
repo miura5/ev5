@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapLibrary } from "./map.ts";
-import type { LibraryData, WireDoc } from "./map.ts";
+import type { LibraryData, WireDoc, WireJob } from "./map.ts";
 import {
   ApiError,
   api,
   call,
+  jobApi,
   type CommandName,
   failureKind,
   failureSentence,
@@ -21,6 +22,11 @@ export interface LibraryState {
   runPlan(
     name: PlanCommand,
     input: Record<string, string>,
+  ): Promise<string | undefined>;
+  /** Answers a study plan that is still waiting (approve or put away), then reads again. */
+  answerPlan(
+    jobId: string,
+    decision: "approve" | "put_away",
   ): Promise<string | undefined>;
 }
 
@@ -68,18 +74,27 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     let live = true;
     void (async () => {
       try {
-        const [exams, weakspots, sets, answers, planedits] = await Promise.all([
+        const [exams, weakspots, sets, answers, planedits, jobs] = await Promise.all([
           list("exams", token, copy),
           list("weakspots", token, copy),
           list("sets", token, copy),
           list("answers", token, copy),
           // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
           list("planedits", token, copy).catch((): WireDoc[] => []),
+          // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
+          jobApi.list(token, copy).catch((): unknown[] => []),
         ]);
         if (live) {
           setData(
             mapLibrary(
-              { exams, weakspots, sets, answers, planedits },
+              {
+                exams,
+                weakspots,
+                sets,
+                answers,
+                planedits,
+                jobs: jobs as WireJob[],
+              },
               Date.now(),
             ),
           );
@@ -107,5 +122,18 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
-  return { data, token, error, refused, runPlan };
+  const answerPlan = useCallback(
+    async (jobId: string, decision: "approve" | "put_away") => {
+      try {
+        const r = await jobApi.answer(jobId, { decision }, token);
+        if (!r.ok) return planFailure(r.status, failureSentence(r.status));
+      } catch (e) {
+        return failureSentence(e);
+      }
+      setAgain((n) => n + 1);
+      return undefined;
+    },
+    [token],
+  );
+  return { data, token, error, refused, runPlan, answerPlan };
 }

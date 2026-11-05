@@ -168,8 +168,8 @@ test("a draft is kept into its set exactly once, or dropped; the whole set at on
   );
 });
 
-// Out of scope for these handlers: model jobs (their own route) and scheduled commands (no Matt caller).
-const STILL_501 = ["date.plan_with_ev", "studyplan.ask_changes"];
+const STILL_501: string[] = [];
+// Out of scope for these handlers: scheduled commands (no Matt caller) and the ones waiting on other tasks.
 const WAITING = ["weeklyreview.done", "set.write_with_ev"];
 
 test("every command Matt calls directly has a handler, except the ones listed here", () => {

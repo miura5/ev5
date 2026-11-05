@@ -149,7 +149,10 @@ test('startJob, continuation id, and idempotent needs-you', async () => {
     reason: 'Approve the plan.',
   });
   await continueJob(e, def, j.id, { ok: true });
-  assert.deepEqual(started, ['j1', continuationId(j.id, 'approve')]);
+  assert.deepEqual(started, ['j1', continuationId(j.id, 'approve', 4)]);
+  assert.match(started[1]!, /^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,99}$/);
+  assert.notEqual(continuationId(j.id, 'approve', 4), continuationId(j.id, 'approve', 6));
+  assert.throws(() => continuationId('a:b', 'approve', 1), /valid Workflow instance id/);
   await assert.rejects(continueJob(e, def, j.id, {}), /not waiting/);
   assert.equal(store.rows.get(j.id)?.state, 'running');
 });
@@ -215,12 +218,21 @@ test('job_status: the reason is its own field, summary keeps it for E.V.', async
   const [q] = await jobStatus(e.store, defs, j.id);
   assert.equal(q?.reason, undefined);
   await reportJob(e, { jobId: j.id, state: 'running' });
-  await reportJob(e, { jobId: j.id, state: 'needs-you', step: 'approve', reason: 'Keep or drop 3 items.' });
+  await reportJob(e, {
+    jobId: j.id,
+    state: 'needs-you',
+    step: 'approve',
+    reason: 'Keep or drop 3 items.',
+  });
   const [w] = await jobStatus(e.store, defs, j.id);
   assert.equal(w?.reason, 'Keep or drop 3 items.');
   assert.ok(!w!.lead.includes('Keep or drop'));
   assert.ok(!w!.lead.includes('Activity'));
-  await reportJob(e, { jobId: j.id, state: 'failed', reason: 'Over the cost cap.' });
+  await reportJob(e, {
+    jobId: j.id,
+    state: 'failed',
+    reason: 'Over the cost cap.',
+  });
   const [f] = await jobStatus(e.store, defs, j.id);
   assert.equal(f?.reason, 'Over the cost cap.');
   assert.equal(f?.lead, 'The set did not finish.');

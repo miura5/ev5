@@ -14181,12 +14181,12 @@
   "title": "S-78: The e2e journeys from Gate 5",
   "dod": "All journeys pass",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
-  "notes": "Run 57: gate5-e2e on staging 14 of 16 specs pass, including notes-offline. Left NOT BUILT: practice-set (needs a model-written set in the browser) and study-plan (approval UI and change rounds).",
-  "commit": null,
+  "notes": "Run 59: all 16 gate5-e2e journeys pass on staging (run 41940764495).",
+  "commit": "adeedcf",
   "source": "AGENTS.md §4.3",
   "claimedBy": "run29",
   "claimedAt": "2026-11-04T00:54:03.207Z"
@@ -15116,12 +15116,12 @@
   "title": "Gate 5 journeys as @playwright/test browser specs",
   "dod": "Each PLAN Phase 5 journey is its own @playwright/test file under e2e/ that drives the UI on staging in the Playwright Docker image; the gate run fails on any todo or skipped journey; the journeys run on every batch (CONTRACT §drift.tools, §drift.checks); e2e/journeys.ts's own runner is removed",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-752"
   ],
-  "notes": "Run 55: notes-offline journey built (#380, not yet run on staging: dispatch gate5-e2e; the offline reload needs sw.js to precache the shell). Still NOT BUILT: practice-set, study-plan.",
-  "commit": "1",
+  "notes": "Run 59: all 16 journeys pass on staging (gate5-e2e run 41940764495 at adeedcf), study-plan and practice-set included; the study-plan journey makes one real plan and one change round.",
+  "commit": "adeedcf",
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "run40",
   "claimedAt": "2026-11-04T09:04:12.952Z"

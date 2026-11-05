@@ -6,11 +6,25 @@ import { newJob, transition, update, type JobRecord, type JobStore, type OutputL
 export interface Executor {
   kind: ExecutorKind;
   /** Starts the run under `instanceId`; starting the same id twice must be a no-op (idempotent). */
-  start(instanceId: string, job: JobRecord, input: unknown): Promise<void>;
+  start(instanceId: string, job: JobRecord, input: unknown, cont?: Continuation): Promise<void>;
 }
 
-/** A continuation after "needs you" runs under `jobId:step`, so a repeated answer cannot start two. */
-export const continuationId = (jobId: string, step: string): string => `${jobId}:${step}`;
+/** Where a continuation resumes: after `from`, in the round `round` (the job record's version after the answer). */
+export type Continuation = { from: string; round: number };
+
+/** Cloudflare Workflows: an instance id is 1 to 100 characters of letters, digits, `-` and `_`, not starting with `-`. */
+const INSTANCE_ID = /^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,99}$/;
+
+/**
+ * A continuation after "needs you" runs under `jobId-step-round`. The round is the record version, new at every
+ * answer, so a second answer at the same step gets a new instance and new spend keys; a repeated answer cannot
+ * start two because only the needs-you to running move starts one.
+ */
+export function continuationId(jobId: string, step: string, round: number): string {
+  const id = `${jobId}-${step}-${round}`;
+  if (!INSTANCE_ID.test(id)) throw new Error(`continuation id "${id}" is not a valid Workflow instance id`);
+  return id;
+}
 
 export type Env = {
   store: JobStore;
@@ -53,7 +67,11 @@ export async function continueJob(env: Env, def: JobDef, jobId: string, answer: 
   if (!ex) throw new Error(`no ${def.executor} executor for ${def.kind}`);
   const step = cur.step;
   const next = await update(env.store, jobId, (r) => transition(r, { to: 'running', at: env.now() }));
-  await ex.start(continuationId(jobId, step), next, answer);
+  const round = next.v;
+  await ex.start(continuationId(jobId, step, round), next, answer, {
+    from: step,
+    round,
+  });
   return next;
 }
 
