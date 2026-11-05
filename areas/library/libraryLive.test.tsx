@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryScreen } from "./Library.screen.tsx";
+import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 import { PLAN_POLL_MS } from "./useLibrary.ts";
 

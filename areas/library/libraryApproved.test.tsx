@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "vitest";
-import { ExamPlanDetail } from "./ExamPlan.detail.tsx";
+import { ExamPlanDetail } from "./testHost.tsx";
 
 afterEach(cleanup);
 

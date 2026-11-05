@@ -36,7 +36,7 @@ const body = (docs: unknown[]) =>
 const showSets = async () => {
   // Sets sit on their own tab; wait until the lists have loaded (the tab is there from the first paint).
   await new Promise((r) => setTimeout(r, 50));
-  fireEvent.click(screen.getByRole("tab", { name: /sets/i }));
+  fireEvent.click(screen.getByRole("radio", { name: /sets/i }));
 };
 const good = (url: string) =>
   url.endsWith("/jobs")

@@ -9,7 +9,7 @@
   // Cron triggers run the schedule-only commands whose cadence is every:15m (server/scheduled.ts).
   "triggers": { "crons": ["*/15 * * * *"] },
   "vars": { "ENV_NAME": "staging" },
-  "d1_databases": [{ "binding": "DB", "database_name": "ev5-staging", "database_id": "00000000-0000-0000-0000-000000000000" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "ev5-staging", "migrations_dir": "data/migrations", "database_id": "00000000-0000-0000-0000-000000000000" }],
   // ev4's PlanJob Durable Object: same binding name and migration tag as ev4's config, and no deleted_classes
   // (CONTRACT §data.same-worker: removing it would delete ev4's stored state). ops/checks fails if any of it goes missing.
   "durable_objects": { "bindings": [{ "name": "PLAN_JOBS", "class_name": "PlanJob" }] },

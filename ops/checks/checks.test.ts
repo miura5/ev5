@@ -106,6 +106,12 @@ test('account: a non-live config or workflow naming ev-live fails; the live work
     ['.github/workflows/staging.yml:2', 'wrangler.jsonc:1', 'wrangler.staging.toml:1']);
 });
 
+test('account: binding the ev-live D1 fails even in the live workflow; the ev-live Worker and ev5-live store pass', () => {
+  const r = repo({ '.github/workflows/live.yml': 'WORKER: ev-live\nDB: ev5-live\nrun: wrangler d1 info ev-live\n', 'wrangler.jsonc': '{ "database_name": "ev-live" }',
+    '.github/workflows/x.yml': 'run: wrangler d1 info "ev5-live"' });
+  assert.deepEqual(checkAccount(r.root, r.files).map(f => `${f.file}:${f.detail.split(' ')[1]}`).sort(), ['.github/workflows/live.yml:3', 'wrangler.jsonc:1']);
+});
+
 test('ids: D-nnn and B-nnn fail in code, CSS and READMEs; the record, history and rule files may carry them', () => {
   const d = (n: number): string => `D-${n}`;
   const b = (n: number): string => `B-${n}`;

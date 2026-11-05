@@ -20,11 +20,11 @@ test("the open tab is the only one marked selected, and moves on click", () => {
   render(<LibraryView practice={null} weakSpots={[]} exams={[]} />);
   const selected = () =>
     screen
-      .getAllByRole("tab")
-      .filter((t) => t.getAttribute("aria-selected") === "true")
+      .getAllByRole("radio")
+      .filter((t) => t.getAttribute("aria-checked") === "true")
       .map((t) => t.textContent);
   expect(selected()).toEqual(["Practice"]);
-  fireEvent.click(screen.getByRole("tab", { name: /Exams/ }));
+  fireEvent.click(screen.getByRole("radio", { name: /Exams/ }));
   expect(selected()).toEqual(["Exams0"]);
 });
 
@@ -46,8 +46,8 @@ test("a count reads beside its tab, zero included", () => {
       ]}
     />,
   );
-  expect(screen.getByRole("tab", { name: "Exams1" })).toBeTruthy();
-  expect(screen.getByRole("tab", { name: "Weak spots0" })).toBeTruthy();
+  expect(screen.getByRole("radio", { name: "Exams1" })).toBeTruthy();
+  expect(screen.getByRole("radio", { name: "Weak spots0" })).toBeTruthy();
 });
 
 for (const [name, Screen] of [
