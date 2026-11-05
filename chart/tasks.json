@@ -11858,7 +11858,7 @@
   "title": "Request (reported Oct 31): A past exam with no score (e.g. postponed with an old date) now reads as done",
   "dod": "The issue in the report is fixed or found harmless; one test or a look on staging says which.",
   "milestone": "Release review follow-ups",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -11869,8 +11869,9 @@
    "row": "v4 B-628: A past exam with no score (e.g. postponed with an old date) now reads…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T09:56:41.984Z"
+   "outcome": "declined",
+   "reason": "v4 bug. v5 reads an exam's status field (domain/exam isUpcoming), never its date or score, so a past exam without a score stays upcoming.",
+   "at": "2026-11-05T17:10:07.652Z"
   }
  },
  {
@@ -12012,7 +12013,7 @@
   "title": "Request (reported Oct 31): conversation.mjs refreshes Quizlet on its own weekday list, separate from classWeekdays",
   "dod": "The issue in the report is fixed or found harmless; one test or a look on staging says which.",
   "milestone": "Release review follow-ups",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12023,8 +12024,9 @@
    "row": "v4 B-635: conversation.mjs refreshes Quizlet on its own weekday list, separate…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T09:57:00.170Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). v5 has no conversation.mjs and no Quizlet refresh.",
+   "at": "2026-11-05T17:10:07.788Z"
   }
  },
  {
@@ -12054,10 +12056,10 @@
   "kind": "request",
   "title": "Request (reported Oct 31): Stream practice and plan answers from the Worker to the page (TransformStream SSE pass-through, usage counted as it flows, bridge reads SSE) so nothing sits silent and the page can show progress; today the Worker buffers the whole stream before answering",
   "dod": "A streamed ask reaches the page as it is written (SSE through the Worker and bridge), usage counted once, a cut-off detected; a test; one real practice ask on staging shows progress.",
-  "milestone": "Release review follow-ups",
+  "milestone": "after-cutover",
   "status": "open",
   "depends": [],
-  "notes": "",
+  "notes": "Was Release review follow-ups (v4). v5: practice and plan are Workflow jobs with a status line; Ask E.V.'s chat route still answers whole, so streaming its reply is the part left. Not needed for cutover.",
   "commit": null,
   "source": "B-624 spike Oct 31",
   "words": "Stream practice and plan answers from the Worker to the page (TransformStream SSE pass-through, usage counted as it flows, bridge reads SSE) so nothing sits silent and the page can show progress; today the Worker buffers the whole stream before answering",
@@ -12160,7 +12162,7 @@
   "title": "Request (reported Oct 31): Release review follow-ups (Oct 31): a card answer clears a half-typed line in the side chat box; a refused send restores the card answer to the chat box, not the card; a card check answer outside a timed session can consume a pending plan target; record-past fetches the run twice, trusts --release when no local tag, and compares short shas; releaseOf fetches with no timeout; checks.yml parses HARNESSES with tr and counts PASS lines by log format",
   "dod": "Each listed follow-up fixed or declined with a reason in a note; tests for the fixed ones.",
   "milestone": "Release review follow-ups",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12171,8 +12173,9 @@
    "row": "v4 B-642: Release review follow-ups (Oct 31): a card answer clears a half-typed…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T13:15:52.531Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). Names ev4's side chat, record-past, releaseOf and checks.yml HARNESSES; v5 has none of them.",
+   "at": "2026-11-05T17:10:07.921Z"
   }
  },
  {
@@ -12181,7 +12184,7 @@
   "title": "Request (reported Oct 31): Notes check card: after a check is graded its pill still says your turn",
   "dod": "After a notes check is graded, its pill no longer says your turn; a test.",
   "milestone": "Release review follow-ups",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12192,8 +12195,9 @@
    "row": "v4 B-643: Notes check card: after a check is graded its pill still says your…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T13:15:50.025Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's Notes check card; v5's check question is B-749's check-event job.",
+   "at": "2026-11-05T17:10:08.080Z"
   }
  },
  {
@@ -12307,7 +12311,7 @@
   "title": "Request (reported Oct 31): D-416: read live counts for concepts, predictions, share-set jobs and ideas",
   "dod": "Counts read through the token holder; each at 0 with no reader filed as a retire task or kept with a reason.",
   "milestone": "Simplify (D-416)",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12318,8 +12322,9 @@
    "row": "v4 B-649: D-416: read live counts for concepts, predictions, share-set jobs and…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T13:21:25.920Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). D-416 counts for ev4's concepts, predictions, share-set jobs and ideas.",
+   "at": "2026-11-05T17:10:08.204Z"
   }
  },
  {
@@ -12372,7 +12377,7 @@
   "title": "Request (reported Oct 31): D-416 release review backlog: an old queued flashcards job runs as general instead of a clean retired failure; weekInsights writes energy null so old checkin days lose energy in the weekly review; an old active skill session is never closed; an old flashcards job card vanishes with no stand-in line; jobresults quizlet/deckId/deckCards kept but not shown",
   "dod": "Each listed follow-up fixed or declined with a reason in a note.",
   "milestone": "Release review follow-ups",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12383,8 +12388,9 @@
    "row": "v4 B-652: D-416 release review backlog: an old queued flashcards job runs as…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T22:35:56.076Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). D-416 backlog for ev4's flashcards jobs, weekInsights and jobresults; v5 has none of them.",
+   "at": "2026-11-05T17:10:08.354Z"
   }
  },
  {
@@ -12437,7 +12443,7 @@
   "title": "Bug (reported Oct 31): checks.yml: the playwright install --with-deps step hung about 30 min on the runner apt mirror in five harness jobs (run 41250074524); give the step a timeout-minutes and a retry, or cache the browser",
   "dod": "checks.yml browser install step has a timeout and one retry, or the browser is cached; a hung mirror fails fast",
   "milestone": "Ops",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12448,8 +12454,9 @@
    "row": "v4 B-655: checks.yml: the playwright install --with-deps step hung about 30 min…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T23:49:59.956Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's checks.yml; v5's CI jobs each have timeout-minutes (ci.yml, gate5-e2e.yml, staging.yml).",
+   "at": "2026-11-05T17:10:08.506Z"
   }
  },
  {
@@ -12457,10 +12464,10 @@
   "kind": "request",
   "title": "Request (reported Oct 31): B-653 review backlog: images GET returns 500 on a malformed % key (should be 400); add nosniff to image reads; a picture inserted while typing during the upload lands at the old position; a tampered img block falls back to an empty paragraph; upload reads the whole body before the 8 MB check",
   "dod": "Each listed B-653 review item is fixed or declined with a reason",
-  "milestone": "Notes images",
+  "milestone": "after-cutover",
   "status": "open",
   "depends": [],
-  "notes": "",
+  "notes": "Was Notes images (v4). v5's picture routes already send nosniff and check the size before reading. Left to check in v5: a picture pasted while typing during the upload, and a broken picture block. Not needed for cutover.",
   "commit": null,
   "source": "B-653 release review",
   "words": "B-653 review backlog: images GET returns 500 on a malformed % key (should be 400); add nosniff to image reads; a picture inserted while typing during the upload lands at the old position; a tampered img block falls back to an empty paragraph; upload reads the whole body before the 8 MB check",
@@ -12478,10 +12485,10 @@
   "kind": "request",
   "title": "Request (reported Oct 31): B-654 review backlog: canonical() ignores data-col so a column change may skip a repaint; tidy() indexes cols without a col check; a picture dropped onto a block already in a row goes to the column top, not beside the line; no keyboard way or hint to make or undo a row; deleting a selection across both columns collapses the layout into one column (no text lost)",
   "dod": "Each listed B-654 review item is fixed or declined with a reason",
-  "milestone": "Notes images",
+  "milestone": "after-cutover",
   "status": "open",
   "depends": [],
-  "notes": "",
+  "notes": "Was Notes images (v4). v5's editor keeps a two-column row (areas/notes/parts/editorSchema.ts). Left to check in v5: a keyboard way to make or undo a row, and a delete across both columns. Not needed for cutover.",
   "commit": null,
   "source": "B-654 release review",
   "words": "B-654 review backlog: canonical() ignores data-col so a column change may skip a repaint; tidy() indexes cols without a col check; a picture dropped onto a block already in a row goes to the column top, not beside the line; no keyboard way or hint to make or undo a row; deleting a selection across both columns collapses the layout into one column (no text lost)",
@@ -12647,7 +12654,7 @@
   "title": "Request (reported Nov 1): Repo skeleton plan from the five-area map: (1) remove/fix: chart/import, docs/lessons.md, retired fixtures/tests, cutover/import commands, frozenPage, check-procedure contradictions, dead docs/cutover.md citations, pwa/README; (2) CLAUDE.md ~100 lines, handover state-only, fold skill references; (3) chart archive of closed tasks; (4) split tools/chart.mjs, build.mjs, hooks.mjs; (5) core layering, shared helpers, split evcore/steps; (6) tests mirror source; (7) page components/tabs/order file",
   "dod": "Steps 1-3 done tonight (fixes, dead weight, markdown slim-down); steps 4-7 stay as later tasks",
   "milestone": "Ops",
-  "status": "in progress",
+  "status": "declined",
   "depends": [],
   "notes": "Steps 1-3 done (1820c5e, 9883b42); full check green except the known B-661; steps 4-7 stay open for later releases",
   "commit": null,
@@ -12658,8 +12665,9 @@
    "row": "v4 B-665: Repo skeleton plan from the five-area map: (1) remove/fix:…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-01T22:43:38.384Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). A skeleton plan for ev4's tools/chart.mjs, build.mjs, hooks.mjs and pwa/; v5's handover and Chart clean-up are B-995, B-994 and B-996.",
+   "at": "2026-11-05T17:10:08.656Z"
   }
  },
  {
@@ -12689,7 +12697,7 @@
   "title": "Request (reported Nov 1): Re-running ship live on a commit already recorded live shows a release-name mismatch in live verify (build name vs tag); harmless, the record shows the deploy",
   "dod": "Re-running ship live on a commit already recorded live verifies without a release-name mismatch, or prints that the commit is already live and stops; a test in test/chart.test.mjs covers it.",
   "milestone": "Ops",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12700,8 +12708,9 @@
    "row": "v4 B-667: Re-running ship live on a commit already recorded live shows a…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:34:49.239Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's ship live script; v5 ships through live.yml.",
+   "at": "2026-11-05T17:10:08.792Z"
   }
  },
  {
@@ -12710,7 +12719,7 @@
   "title": "Request (reported Nov 1): B-473 phase 2: the last ArtifactData uses: live ship's running-sessions read, the builder trace's yourturn write (D-201 allowance), the artifact path in core/run.mjs, page/app/03-connect.js; and the run token (system/worker) still lives in the claude.ai record",
   "dod": "No ArtifactData use is left in live ship's running-sessions read, the builder trace's yourturn write, core/run.mjs or page/app/03-connect.js, and the run token is read from the Worker, not the claude.ai record; tests pin each path and one staging run proves the trace.",
   "milestone": "workflow (ops)",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12721,8 +12730,9 @@
    "row": "v4 B-668: B-473 phase 2: the last ArtifactData uses: live ship's…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:34:52.162Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's ArtifactData uses and run token; v5 has no artifact store.",
+   "at": "2026-11-05T17:10:08.935Z"
   }
  },
  {
@@ -12751,10 +12761,10 @@
   "kind": "request",
   "title": "Request (reported Nov 1): Other fixed dates in the harness seed (for example the journal entry at 2026-10-01) can fall behind the synthetic record's dates relative to today, as B-661's long note did; date them relative to today too.",
   "dod": "No harness seed record carries a fixed calendar date that the synthetic record's today-relative dates can pass; the harness passes on any run date (a test runs it with a date a month ahead).",
-  "milestone": "Ops",
+  "milestone": "after-cutover",
   "status": "open",
   "depends": [],
-  "notes": "",
+  "notes": "Was Ops (v4 harness). v5's staging seed (data/staging/seed.sql) also has fixed dates (2026-11-01); check that no journey needs them in the future. Not needed for cutover.",
   "commit": null,
   "source": "B-661 builder, Nov 1",
   "words": "Other fixed dates in the harness seed (for example the journal entry at 2026-10-01) can fall behind the synthetic record's dates relative to today, as B-661's long note did; date them relative to today too.",
@@ -12773,7 +12783,7 @@
   "title": "Request (reported Nov 1): A practice-set job files its set under the soonest exam of any course, so a BIO 201 set can sit under a NUR exam, be dropped by the cross-course check and be missed by BIO quizzes; use the course the brief names.",
   "dod": "A practice-set job files its set under the course its brief names; a BIO 201 set lands under a BIO exam and a BIO quiz serves it; a unit test covers it.",
   "milestone": "After Notes",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12784,8 +12794,9 @@
    "row": "v4 B-671: A practice-set job files its set under the soonest exam of any…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:52:16.351Z"
+   "outcome": "declined",
+   "reason": "Covered in v5: the practice set job takes its course from the set's exam, set by the server (jobs/practice-set/job.ts).",
+   "at": "2026-11-05T17:10:09.082Z"
   }
  },
  {
@@ -12794,7 +12805,7 @@
   "title": "Request (reported Nov 1): A plain quiz me with only one or two questions left in the course still serves that short card instead of writing more.",
   "dod": "A plain quiz me on a course with fewer than five questions left writes a full set instead of serving a short card; the B-517 in-place check is updated to match.",
   "milestone": "After Notes",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12805,8 +12816,9 @@
    "row": "v4 B-672: A plain quiz me with only one or two questions left in the course…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:52:18.757Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's quiz me card in conversation; v5 practice runs from Library sets.",
+   "at": "2026-11-05T17:10:09.263Z"
   }
  },
  {
@@ -12815,7 +12827,7 @@
   "title": "Request (reported Nov 1): generalTagCheck and popChatChecks in test/harness/run.cjs run only under EV_ONLY, never in the full CI run.",
   "dod": "generalTagCheck and popChatChecks run in the full harness run on CI, and pass.",
   "milestone": "Ops",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12826,8 +12838,9 @@
    "row": "v4 B-673: generalTagCheck and popChatChecks in test/harness/run.cjs run only…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:52:21.100Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's test/harness/run.cjs; v5 runs its journeys through gate5-e2e.",
+   "at": "2026-11-05T17:10:09.400Z"
   }
  },
  {
@@ -12836,7 +12849,7 @@
   "title": "Request (reported Nov 1): A 20-question practice set (mostly matrix or select-all) may not fit one 8,192-token Worker answer and come back cut short; cap mock exams at 15 or write them in two batches. A short topic batch also makes the next ask write a whole new batch.",
   "dod": "A mock-exam request never comes back cut short: the set is capped or written in batches that each fit one Worker answer; a short batch is topped up rather than rewritten; a unit test proves the request sizes.",
   "milestone": "After Notes",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12847,8 +12860,9 @@
    "row": "v4 B-674: A 20-question practice set (mostly matrix or select-all) may not fit…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T01:02:31.835Z"
+   "outcome": "declined",
+   "reason": "Covered in v5: each practice variant has a MAX_ITEMS cap and the model call is streamed (jobs/practice-set/job.ts, jobs/runtime/model-call.ts).",
+   "at": "2026-11-05T17:10:09.541Z"
   }
  },
  {
@@ -12857,7 +12871,7 @@
   "title": "Request (reported Nov 1): Topic matching for quizzes can match falsely: the chapter pattern can hit a 'ch 9' inside a stem or title, and four-letter word stems let unrelated words match (cardiac and cardinal); add tests and tighten.",
   "dod": "Chapter and topic matching has tests for 'ch 9' inside stems and for look-alike word stems, and neither matches falsely.",
   "milestone": "After Notes",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12868,8 +12882,9 @@
    "row": "v4 B-675: Topic matching for quizzes can match falsely: the chapter pattern can…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T01:02:36.317Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's chapter and word-stem topic matcher; v5 picks items by set and objectives.",
+   "at": "2026-11-05T17:10:09.690Z"
   }
  },
  {
@@ -12878,7 +12893,7 @@
   "title": "Bug (reported Nov 1): The staging deploy's run API check (pwa/run-api.test.mjs, '25 documents at version 1 ... then 25 pinned updates at version 2') failed once with fetch failed in listAll after about 26 seconds, then passed on a rerun; likely the request landing while the new Worker rolled out.",
   "dod": "The staging deploy's run API suite waits for the new Worker to answer before its first test and retries a dropped connection once, so a rollout blip doesn't fail the deploy; a test covers the retry.",
   "milestone": "Ops",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12889,8 +12904,9 @@
    "row": "v4 B-676: The staging deploy's run API check (pwa/run-api.test.mjs, '25…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T01:49:09.567Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's pwa/run-api.test.mjs flake.",
+   "at": "2026-11-05T17:10:09.830Z"
   }
  },
  {
@@ -12899,7 +12915,7 @@
   "title": "Bug (reported Nov 1): ship live asks for list_triggers, which this desktop build chat lacks; RemoteTrigger list ignores its cursor, so the live cloud tasks past the first page of 20 had to be read one by one with get and saved as a second page; ship then printed 5 prompt updates that were already in place.",
   "dod": "ship live reads every enabled task in a desktop build chat (paging through RemoteTrigger or get per spec task id) and prints no update for a prompt already in place; a test in test/chart.test.mjs covers a two-page list.",
   "milestone": "Ops",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12910,8 +12926,9 @@
    "row": "v4 B-677: ship live asks for list_triggers, which this desktop build chat…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T01:44:31.252Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's ship live and its list_triggers call.",
+   "at": "2026-11-05T17:10:09.969Z"
   }
  },
  {
@@ -12941,7 +12958,7 @@
   "title": "Bug (reported Nov 1): The BIO 201 chapter 9 mock exam tags its questions and misses with nursing clinical judgment steps (Analyze cues, Prioritize hypotheses, Recognize cues), which do not belong on a biology course.",
   "dod": "Questions written for a non-nursing course (BIO 201) carry no clinical judgment step, in the card's subtitle or its result summary; NUR questions keep theirs; a unit test pins both, and existing BIO items stop showing them.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12952,8 +12969,9 @@
    "row": "v4 B-679: The BIO 201 chapter 9 mock exam tags its questions and misses with…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:22:42.563Z"
+   "outcome": "declined",
+   "reason": "Covered in v5: a non-nursing course drops the clinical-judgment step (domain/item/reply.ts, validate.ts).",
+   "at": "2026-11-05T17:10:10.111Z"
   }
  },
  {
@@ -12962,7 +12980,7 @@
   "title": "Bug (reported Nov 1): The quiz result summary in a question card is unstyled: each miss's topic and its tag run together with no gap, the '1 more' and '9 right' links run together, and in the narrow right side panel a long row overflows the card; the card should read well at every width it appears in, side panel included.",
   "dod": "The question card's result summary (score, misses with their tag, the more and right folds) is a Proprietary component with proper spacing and wrapping, and reads well at 1280 in the chat, in the right side panel and in Study; screenshots at each, pixdiff limited to the summary.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12973,8 +12991,9 @@
    "row": "v4 B-680: The quiz result summary in a question card is unstyled: each miss's…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:22:45.063Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's quiz result card; v5 screens come from the kit and the mock-up.",
+   "at": "2026-11-05T17:10:10.247Z"
   }
  },
  {
@@ -12983,7 +13002,7 @@
   "title": "Bug (reported Nov 1): E.V. often opens a reply by correcting her previous answer when nothing was wrong with it, e.g. saying she should have tagged general knowledge when the general knowledge tag was already shown; it happens about every other message.",
   "dod": "E.V. never retracts or corrects an earlier answer unless he says it was wrong or a tool result contradicts it; the general-knowledge mark she wrote stays visible to her in the conversation history she is sent; a test pins the history shape, and a staging thread of 6 replies mixing cited and general answers has no false correction.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -12994,8 +13013,9 @@
    "row": "v4 B-681: E.V. often opens a reply by correcting her previous answer when…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:25:27.338Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's conversation prompt; Ask E.V. in v5 has its own prompt. A repeat on v5 is a new bug.",
+   "at": "2026-11-05T17:10:10.403Z"
   }
  },
  {
@@ -13004,7 +13024,7 @@
   "title": "Bug (reported Nov 1): The study-session check card in Notes needs polish: its answer box shows a heavy dark outline offset from the box while typing, the Check answer button sits too close under the box, and the card's spacing (labels, questions, input, button) needs the same pass as the result summary.",
   "dod": "The Notes check card's answer box has one clean focus ring (the design system's, no offset dark outline), the button has proper space above it, and the card's spacing matches the result summary's pass (B-680); screenshots at 1280 in Notes and the side panel, hover, focus and dark checked by hand.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13015,8 +13035,9 @@
    "row": "v4 B-682: The study-session check card in Notes needs polish: its answer box…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:37:18.673Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's study-session check card; v5's look comes from the kit.",
+   "at": "2026-11-05T17:10:10.561Z"
   }
  },
  {
@@ -13025,7 +13046,7 @@
   "title": "Bug (reported Nov 1): E.V.'s hero stage no longer shows in Conversation at desktop width (it still shows in a narrower window), and has been missing for several versions; she should be large at the start of the day and settle beside the messages once the conversation goes, as D-213 sizes her at every width.",
   "dod": "At 1280 and wider, with and without the right side panel, E.V.'s stage shows at D-213's size (140 px, 168 px when taller than 1000 px, 70% in a session) at the start of the day and settles as the conversation fills, as it does in a narrower window; the commit that lost it is named; a harness check at 1280 pins her stage on screen.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13036,8 +13057,9 @@
    "row": "v4 B-683: E.V.'s hero stage no longer shows in Conversation at desktop width…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:40:18.300Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's hero stage; v5's mock-up has no E.V. stage in Ask E.V.",
+   "at": "2026-11-05T17:10:10.734Z"
   }
  },
  {
@@ -13046,7 +13068,7 @@
   "title": "Request (reported Nov 1): The weekly review is a wall of text in Today's side panel; it should be structured (what moved, still weak nearest exam first, what to do next) and shown with the same row component the weak spots list uses, both in what the weekly run writes and in how the page shows it.",
   "dod": "The weekly run writes the review as sections with items (what moved, still weak nearest exam first, next steps), each item at most two lines; Today's side panel shows a one-line headline and the items with the weak spots list's row component; an older prose review still shows, folded; screenshot at 1280; the weekly run proven once on staging.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13057,8 +13079,9 @@
    "row": "v4 B-684: The weekly review is a wall of text in Today's side panel; it should…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:44:47.264Z"
+   "outcome": "declined",
+   "reason": "Folded into B-754 (what weekly_review writes) and B-942 (the Weekly review row on Today).",
+   "at": "2026-11-05T17:10:10.882Z"
   }
  },
  {
@@ -13067,7 +13090,7 @@
   "title": "Bug (reported Nov 1): Record's Notes list is full of E.V.'s own study-session questions and comments (saved as Learning notes, about 20 a day), so his own logged notes are buried and the list is hard to read.",
   "dod": "E.V.'s study-session questions and comments are kept with their session, not saved as his notes: Record's Notes shows only what he logged, and each session row opens to its E.V. comments; existing session-written notes are marked to their session (nothing deleted); screenshot at 1280 of both.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "Matt, Nov 1: either delete her items from the Notes list or move them to their related study session. Moving is the plan (D-424); nothing is deleted under the hard limits.",
   "commit": null,
@@ -13078,8 +13101,9 @@
    "row": "v4 B-685: Record's Notes list is full of E.V.'s own study-session questions and…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T02:44:50.051Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4 saved study-session questions as Learning notes; v5 sessions do not write notes.",
+   "at": "2026-11-05T17:10:11.022Z"
   }
  },
  {
@@ -13088,7 +13112,7 @@
   "title": "Request (reported Nov 1): A way to delete things, like Linear: a right-click menu with Delete on list items (the main way), a three-dot menu where a row or page has no natural right click, a confirm dialog, and a Recently deleted view that keeps items for 30 days; one consistent rule for where each menu appears.",
   "dod": "A design pass decides where the right-click menu and the three-dot menu appear (right click on list rows by default); both are Proprietary components with Delete, a confirm dialog and a Recently deleted view with Restore; deleted items leave every view and count; the purge rule follows Matt's answer on the hard limit; screenshots at 1280.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "Matt, Nov 1: purge after 30 days (D-425). The CLAUDE.md hard-limits line and spec.boundaries are guarded: the builder returns the exact wording, the build manager applies it with the release.",
   "commit": null,
@@ -13099,10 +13123,10 @@
    "row": "v4 B-686: A way to delete things, like Linear: a right-click menu with Delete…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T03:05:24.569Z"
-  },
-  "waitingOn": "Matt"
+   "outcome": "declined",
+   "reason": "Covered in v5: right-click and more menus with Delete, and Recently deleted with restore (playtests 4 to 7, B-940).",
+   "at": "2026-11-05T17:10:11.149Z"
+  }
  },
  {
   "id": "B-687",
@@ -13110,7 +13134,7 @@
   "title": "Bug (reported Nov 1): In Conversation, his own message bubble wraps a short two-line message early and right-aligns the text inside it, so a line ends ragged on the left with a wide box; his bubbles should size to their text and read left-aligned.",
   "dod": "His message bubbles size to their text up to a set max width, with text left-aligned inside a right-aligned bubble; a one-line, two-line and long message look right at 1280 and in the narrow window; pixdiff limited to his bubbles.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13121,8 +13145,9 @@
    "row": "v4 B-687: In Conversation, his own message bubble wraps a short two-line…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T03:14:03.777Z"
+   "outcome": "declined",
+   "reason": "v4-only (D-484: v5 is a new app; ev4 is archived). ev4's conversation bubbles; v5's Ask E.V. look comes from the mock-up.",
+   "at": "2026-11-05T17:10:11.298Z"
   }
  },
  {
@@ -13131,7 +13156,7 @@
   "title": "Bug (reported Nov 1): Asked 'is the mock exam ready yet', E.V. said she can't see its status and offered to write another, though the practice job's state (writing, posted, failed) is in the record; she should answer from it.",
   "dod": "E.V. can read the state of practice jobs she started in this thread (writing, posted with its card, failed with why) and answers 'is it ready' from it, never offering a duplicate while one is writing; a unit test pins the tool result; seen once on staging.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13142,8 +13167,9 @@
    "row": "v4 B-688: Asked 'is the mock exam ready yet', E.V. said she can't see its…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T03:14:06.185Z"
+   "outcome": "declined",
+   "reason": "Covered in v5: E.V. reads a job's state through the job_status command (commands/notes.command.ts).",
+   "at": "2026-11-05T17:10:11.434Z"
   }
  },
  {
@@ -13152,7 +13178,7 @@
   "title": "Request (reported Nov 2): A keyboard shortcut that opens the E.V. agent window from any view and hides it again.",
   "dod": "Cmd+J (Ctrl+J elsewhere) toggles the E.V. agent window from any view: open puts the caret in its input, again (or Esc) hides it and returns focus; it works while typing in a note; shown in the button's tooltip and the Cmd+K menu; checked in the installed app window that Chrome does not take the key; a harness check pins the toggle.",
   "milestone": "UI polish",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "",
   "commit": null,
@@ -13163,8 +13189,9 @@
    "row": "v4 B-689: A keyboard shortcut that opens the E.V. agent window from any view…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T09:21:35.077Z"
+   "outcome": "declined",
+   "reason": "Covered in v5: Cmd+J toggles Ask E.V. from any view (CONTRACT §ui.palette, shell/Shell.tsx).",
+   "at": "2026-11-05T17:10:11.571Z"
   }
  },
  {
@@ -13839,15 +13866,18 @@
   "title": "S-53: The scratch-copy parse check (needs Matt's OK; counts only)",
   "dod": "Zero parse errors",
   "milestone": "v5 P3",
-  "status": "blocked",
+  "status": "declined",
   "depends": [
    "B-709"
   ],
   "notes": "Moved to the cutover checklist (D-457): run on a restricted copy of a live export, counts only, before going live.",
   "commit": null,
   "source": "AGENTS.md §4.3",
-  "waitingOn": "Matt",
-  "waitingWhere": "mac"
+  "triage": {
+   "outcome": "declined",
+   "reason": "Obsolete since D-484: v5 starts empty and copies nothing from ev4, so there is no live export to parse. Not on the cutover checklist (ops/CUTOVER.md).",
+   "at": "2026-11-05T17:10:13.017Z"
+  }
  },
  {
   "id": "B-733",
@@ -14236,7 +14266,7 @@
   "depends": [
    "B-753"
   ],
-  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry.",
+  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next.",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
@@ -14276,9 +14306,10 @@
   "milestone": "v5 P6",
   "status": "open",
   "depends": [
-   "B-753"
+   "B-753",
+   "B-999"
   ],
-  "notes": "Run 74 (#466): data/export/drill.test.ts drills all 20 tables (counts, hashes, canonical JSON, refuse non-empty, tamper caught), ops/restore-drill/time-travel.sh (staging only), ops/RESTORE.md. LEFT: a GitHub workflow with the staging token that runs time-travel.sh ev5-staging (script never run); views has no migration yet.",
+  "notes": "Run 74 (#466): data/export/drill.test.ts drills all 20 tables (counts, hashes, canonical JSON, refuse non-empty, tamper caught), ops/restore-drill/time-travel.sh (staging only), ops/RESTORE.md. LEFT: a GitHub workflow with the staging token that runs time-travel.sh ev5-staging (script never run); views has no migration yet. Rescoped 2026-11-05: the drills run on v5's new tables after B-999, not on the docs-table export.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -15144,12 +15175,12 @@
   "title": "Installable app: vite-plugin-pwa, cached shell and a local read copy",
   "dod": "vite-plugin-pwa (pinned, with a Chart decision naming the problem) builds a manifest and service worker; the shell opens offline; the page reads from its IndexedDB copy in ev5-app when offline (PLAN §5.9, CONTRACT §data.offline, §ui.targets); the offline note journey passes in a browser",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-751"
   ],
-  "notes": "Merged #276: manifest, precaching sw.js, registration (D-472). Offline read copy left (new task).",
-  "commit": null,
+  "notes": "Merged #276: manifest, precaching sw.js, registration (D-472). The offline read copy came in B-851 and B-853. Proof: the notes-offline journey (shell opens offline, saved copy notice, notes list) passed on staging in gate5-e2e run 41962697027 at 45af7e0.",
+  "commit": "23fac7b",
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "builder",
   "claimedAt": "2026-11-04T07:47:02.677Z"
@@ -15160,12 +15191,12 @@
   "title": "Note pictures in R2 under note-images/",
   "dod": "The Worker stores note pictures in the environment's R2 bucket under note-images/ and serves them to the app token only; a picture added in a note round-trips after reload (CONTRACT §data.note-images)",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-793"
   ],
-  "notes": "Merged #277 and #278: routes PUT/GET /api/v1/note-images, 503 while IMAGES is unbound (staging token lacks R2). Client half and rebinding are new tasks.",
-  "commit": null,
+  "notes": "Merged #277 and #278 (routes PUT/GET /api/v1/note-images); B-850 (#302) bound R2 on staging again. Proof: playtest 1 (2026-11-04 11:07Z, Matt's Chrome) saw a picture upload PUT/GET 200 and stay after reload; playtest 2 saw it in its frame (B-870).",
+  "commit": "929d503",
   "source": "plan audit (ev-build), 2026-11-04",
   "claimedBy": "builder",
   "claimedAt": "2026-11-04T07:47:22.692Z"
@@ -15582,12 +15613,12 @@
   "title": "Notes pictures in the editor: upload to PUT /api/v1/note-images/<name> and show with the app token",
   "dod": "A picture added in a note round-trips after reload on staging (CONTRACT §data.note-images)",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-818"
   ],
-  "notes": "Merged #281: paste/drop upload and blob display in the notes editor; failure shows 'Picture storage isn't set up yet' while R2 is unbound. Round trip on staging waits on B-850 (R2 permission from Matt).",
-  "commit": null,
+  "notes": "Merged #281: paste/drop upload and display in the editor. Proof: playtest 1 (2026-11-04) added a picture to a note on staging and it round-tripped after reload; playtests 3 and 4 saw pictures in sessions (B-886, B-914).",
+  "commit": "7f93912",
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-04T08:07:40.554Z"
@@ -15612,12 +15643,12 @@
   "title": "Offline read copy: IndexedDB copy of the record in ev5-app, read when offline",
   "dod": "Shell opens offline and areas read the local copy; an offline note journey passes (CONTRACT §data.offline)",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-817"
   ],
-  "notes": "Merged #280: ev5-app v2 with a reads store, shell/readCopy.ts, docs.list through it, Saved copy notice. Left: see the next task.",
-  "commit": null,
+  "notes": "Merged #280: ev5-app v2 reads store, shell/readCopy.ts, Saved copy notice; B-853 (#360) took the copy to jobs, collections and Library. Proof: the notes-offline journey passed on staging in gate5-e2e run 41962697027 at 45af7e0.",
+  "commit": "1d34306",
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-04T08:07:41.110Z"
@@ -16529,10 +16560,10 @@
   "title": "Progress says you have no answers yet while Library shows 100% first-try accuracy, and a session that says Saved to Progress shows nowhere in Progress",
   "dod": "Progress and Library's accuracy line read the same answers, so they agree; an ended study session that says Saved to Progress shows in Progress (or the end line names the place it went); test; seen on staging.",
   "milestone": "5",
-  "status": "in progress",
+  "status": "done",
   "depends": [],
-  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
-  "commit": null,
+  "notes": "Fixed by B-927 (#433). Proof: playtest 6 (2026-11-05, Matt's Chrome) saw Progress match Library and the ended session in Done today and Progress (D-481, screenshots 17 and 18).",
+  "commit": "45af7e0",
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
   "claimedAt": "2026-11-05T03:25:42.708Z"
