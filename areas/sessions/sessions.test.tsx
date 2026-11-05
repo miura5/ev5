@@ -50,12 +50,12 @@ test("paused offers Resume, and checks toggle", () => {
 test("a check sends the answer in her words or lets the user be told", () => {
   const p = base({ question: "Why does stroke volume rise?" });
   render(<SessionView {...p} />);
-  fireEvent.click(screen.getByText("Check"));
+  fireEvent.click(screen.getByText("Turn over"));
   expect(p.onAnswer).not.toHaveBeenCalled();
   fireEvent.change(screen.getByLabelText("Your answer"), {
     target: { value: " stretch " },
   });
-  fireEvent.click(screen.getByText("Check"));
+  fireEvent.click(screen.getByText("Turn over"));
   expect(p.onAnswer).toHaveBeenCalledWith("stretch");
   fireEvent.click(screen.getByText("Just tell me"));
   expect(p.onTellMe).toHaveBeenCalled();

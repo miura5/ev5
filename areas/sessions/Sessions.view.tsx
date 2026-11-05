@@ -1,5 +1,12 @@
-import type { ReactNode, Ref } from "react";
-import { Button, Choice, Doc, EvLine, TextArea } from "../../kit/index.ts";
+import { useState, type ReactNode, type Ref } from "react";
+import {
+  Choice,
+  Doc,
+  EvLine,
+  SessionBar,
+  StudyCard,
+  TextArea,
+} from "../../kit/index.ts";
 import "./sessions.css";
 
 export interface SessionCheck {
@@ -44,25 +51,13 @@ export function SessionView(p: SessionViewProps) {
       ref={p.rootRef}
       tabIndex={-1}
     >
-      <div className="ev-session-bar" data-ui="session-bar">
-        <i
-          className={
-            p.paused ? "ev-session-dot ev-session-dot-paused" : "ev-session-dot"
-          }
-          aria-hidden="true"
-        />
-        <span>
-          Session <span data-ui="timer">{formatTimer(p.seconds)}</span>
-        </span>
-        <span className="ev-session-meta">read-along on</span>
-        <span className="ev-session-grow" />
-        <Button kind="text" onClick={p.onTogglePause} hint="Space">
-          {p.paused ? "Resume" : "Pause"}
-        </Button>
-        <Button kind="secondary" onClick={p.onEnd}>
-          End
-        </Button>
-      </div>
+      <SessionBar
+        timer={formatTimer(p.seconds)}
+        paused={p.paused}
+        readAlong
+        onTogglePause={p.onTogglePause}
+        onEnd={p.onEnd}
+      />
       <Doc title={p.title} meta={p.meta}>
         {p.children}
         {p.question ? (
@@ -106,41 +101,34 @@ function CheckBlock(p: {
   onAnswer: (a: string) => void;
   onTellMe: () => void;
 }) {
+  const [text, setText] = useState("");
   return (
-    <form
-      className="ev-session-check-block"
-      data-ui="check-block"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const field = e.currentTarget.elements.namedItem(
-          "answer",
-        ) as HTMLTextAreaElement;
-        const text = field.value.trim();
-        if (text) p.onAnswer(text);
-      }}
-    >
-      <EvLine quiet>
-        <b>Check, in your own words.</b> {p.question}
-      </EvLine>
-      <TextArea
-        name="answer"
-        rows={2}
-        placeholder="Your words"
-        label="Your answer"
+    <div data-ui="check-block">
+      <StudyCard
+        kicker="Check, in your own words"
+        face={
+          <>
+            <EvLine quiet>{p.question}</EvLine>
+            <TextArea
+              rows={2}
+              placeholder="Your words"
+              label="Your answer"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </>
+        }
+        onTurn={() => {
+          const t = text.trim();
+          if (t) p.onAnswer(t);
+        }}
+        onJustTell={p.onTellMe}
       />
       {p.answer ? (
         <EvLine>
           <b>Logged: you asked to see it.</b> {p.answer}
         </EvLine>
       ) : null}
-      <div className="ev-session-actions">
-        <Button kind="primary" type="submit">
-          Check
-        </Button>
-        <Button kind="text" onClick={p.onTellMe} title="Just tell me · logged">
-          Just tell me
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 }

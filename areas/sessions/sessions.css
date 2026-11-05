@@ -1,3 +1,4 @@
+/* The session root: stacks the bar over the page. */
 .ev-session {
   display: flex;
   flex-direction: column;
@@ -5,64 +6,13 @@
   color: var(--text);
 }
 
-.ev-session-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  height: var(--sp-12);
-  padding: 0 var(--sp-6);
-  border-bottom: 1px solid var(--line);
-  color: var(--quiet);
-  font-size: var(--fs-body);
-}
-
-.ev-session-grow {
-  flex: 1;
-}
-
+/* The quiet status line ("Saved to Progress", image alt): no kit part draws a bare note. */
 .ev-session-meta {
   font-size: var(--fs-meta);
   color: var(--faint);
 }
 
-.ev-session-dot {
-  width: var(--sp-2);
-  height: var(--sp-2);
-  border-radius: var(--r-round);
-  background: var(--info);
-}
-
-.ev-session-dot-paused {
-  background: var(--faint);
-}
-
-.ev-session-check-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-4);
-  margin: var(--sp-4) 0;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--surface);
-}
-
-.ev-session-field {
-  font: inherit;
-  color: var(--text);
-  background: var(--bg);
-  border: 1px solid var(--line2);
-  border-radius: var(--r-sm);
-  padding: var(--sp-3);
-  resize: vertical;
-}
-
-.ev-session-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-}
-
+/* The note's checks list: no kit list draws a struck-through done row. */
 .ev-session-checks {
   list-style: none;
   margin: var(--sp-4) 0 0;
@@ -77,16 +27,19 @@
   text-decoration: line-through;
 }
 
+/* A note to-do row inside the blocks. */
 .ev-session-todo {
   display: block;
 }
 
+/* A note picture fits the column. */
 .ev-session-pic {
   display: block;
   max-width: 100%;
   border-radius: var(--r-md);
 }
 
+/* The page takes focus so Space pauses; no ring on the page itself. */
 .ev-session:focus {
   outline: none;
 }
