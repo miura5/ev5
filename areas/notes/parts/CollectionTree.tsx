@@ -39,18 +39,18 @@ export function CollectionTree({
   onMove,
 }: CollectionTreeProps) {
   const own = (id: string | null) => notes.filter((n) => n.collectionId === id);
-  const noteRows = (id: string | null, level: number) =>
+  const noteRows = (id: string | null, level: 0 | 1) =>
     own(id).map((n) => (
       <RowActions
         key={n.id}
         title={n.title}
-        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
         targets={collections}
         current={n.collectionId}
         onAction={onRowAction ? (a) => onRowAction(n.id, a) : undefined}
         onMove={onMove ? (c) => onMove(n.id, c) : undefined}
       >
         <Row
+          level={level}
           glyph={<Glyph type="note" />}
           title={n.title}
           meta={n.preview}
@@ -62,43 +62,37 @@ export function CollectionTree({
   const fold = (
     id: string,
     title: string,
-    level: number,
+    level: 0 | 1,
     count: number,
     withNew: boolean,
-  ) => {
-    const isOpen = open.has(id);
-    return (
-      <div
-        className="ev-notes-fold"
-        style={{ paddingLeft: `calc(var(--sp-6) * ${level})` }}
-        data-key={id}
-      >
-        <Button kind="text" aria-expanded={isOpen} onClick={() => onToggle(id)}>
-          <span className="ev-notes-chev" data-open={isOpen} aria-hidden="true">
-            ›
-          </span>
-          <Glyph type={id === NONE ? "note" : "collection"} />
-          <span className="ev-notes-fold-title">{title}</span>
-          <span className="ev-notes-meta">
-            {count} {count === 1 ? "note" : "notes"}
-          </span>
-        </Button>
-        {withNew ? (
-          <Button
-            kind="text"
-            aria-label={`New note in ${title}`}
-            onClick={() => onNewNoteIn?.(id)}
-          >
-            New note
-          </Button>
-        ) : null}
-      </div>
-    );
-  };
+  ) => (
+    <div data-key={id}>
+      <Row
+        level={level}
+        fold={{ open: open.has(id), onToggle: () => onToggle(id) }}
+        glyph={<Glyph type={id === NONE ? "note" : "collection"} />}
+        title={title}
+        value={`${count} ${count === 1 ? "note" : "notes"}`}
+        actions={
+          withNew ? (
+            <span onClick={(e) => e.stopPropagation()}>
+              <Button
+                kind="text"
+                aria-label={`New note in ${title}`}
+                onClick={() => onNewNoteIn?.(id)}
+              >
+                New note
+              </Button>
+            </span>
+          ) : undefined
+        }
+      />
+    </div>
+  );
   const tops = collections.filter((c) => !c.parentId);
   const loose = own(null).length;
   return (
-    <div className="ev-notes-tree">
+    <div>
       {tops.map((c) => (
         <div key={c.id}>
           {fold(c.id, c.title, 0, total(c.id, collections, notes), true)}
@@ -109,7 +103,7 @@ export function CollectionTree({
                 .map((k) => (
                   <div key={k.id}>
                     {fold(k.id, k.title, 1, own(k.id).length, true)}
-                    {open.has(k.id) ? noteRows(k.id, 2) : null}
+                    {open.has(k.id) ? noteRows(k.id, 1) : null}
                   </div>
                 ))}
               {noteRows(c.id, 1)}
