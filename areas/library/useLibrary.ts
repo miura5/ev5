@@ -14,6 +14,8 @@ import {
 
 /** How often Library reads again, so a new or changed plan draft shows without a reload. */
 export const PLAN_POLL_MS = 10_000;
+/** While a plan is being saved, read again sooner so the new plan shows as soon as it lands. */
+export const WORKING_POLL_MS = 2_000;
 
 export interface LibraryState {
   data?: LibraryData;
@@ -120,14 +122,18 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       live = false;
     };
   }, [token, copy, again]);
+  const working = !!data?.exams.some((e) => e.planState === "working");
   // A study plan job changes state on its own (drafted, revised): follow it without a reload.
   useEffect(() => {
     if (!token) return;
-    const t = setInterval(() => {
-      if (document.visibilityState !== "hidden") setAgain((n) => n + 1);
-    }, PLAN_POLL_MS);
+    const t = setInterval(
+      () => {
+        if (document.visibilityState !== "hidden") setAgain((n) => n + 1);
+      },
+      working ? WORKING_POLL_MS : PLAN_POLL_MS,
+    );
     return () => clearInterval(t);
-  }, [token]);
+  }, [token, working]);
   const runPlan = useCallback(
     async (name: PlanCommand, input: Record<string, string>) => {
       const r = await call(name, input, token);

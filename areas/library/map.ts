@@ -106,6 +106,16 @@ function planIdOf(exams: WireDoc[], id: string): string | undefined {
   return typeof d?.planId === "string" && d.planId ? d.planId : undefined;
 }
 
+/** A study plan job E.V. is still running for this exam: after Matt's answer the plan is not in force yet. */
+function workingPlan(jobs: WireJob[] | undefined, exam: string): boolean {
+  return !!jobs?.some(
+    (j) =>
+      j.kind.replace(/-/g, "_") === "study_plan" &&
+      j.state === "running" &&
+      j.examId === exam,
+  );
+}
+
 function planStateOf(planId: string | undefined, e?: PlanEdit): PlanState {
   if (!planId) return "none";
   if (e?.plan === planId) return "approved";
@@ -182,9 +192,12 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       const job = waitingPlan(docs.jobs, id);
       const waiting = job?.id;
       const planId = waiting ?? planIdOf(docs.exams, id);
+      const working = !waiting && workingPlan(docs.jobs, id);
       const sessions = waiting
         ? sessionsOf(job?.tasks)
-        : sessionsOfPlan(docs.plans, planId);
+        : working
+          ? []
+          : sessionsOfPlan(docs.plans, planId);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
       );
@@ -211,7 +224,11 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
           ? `${Math.round(share(ready, mine.length) * 100)}%`
           : "",
         // A plan still waiting for his answer has no document yet: it is a draft, and its job id stands for it.
-        planState: waiting ? "draft" : planStateOf(planId, edits.get(id)),
+        planState: waiting
+          ? "draft"
+          : working
+            ? "working"
+            : planStateOf(planId, edits.get(id)),
         ...(planId ? { planId } : {}),
         ...(waiting ? { waiting: true } : {}),
         ...(sessions.length ? { sessions } : {}),

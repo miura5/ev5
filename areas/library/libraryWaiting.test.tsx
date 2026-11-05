@@ -82,7 +82,8 @@ test("jobs that are not this exam's waiting plan change nothing", () => {
       Date.parse("2026-11-04T12:00:00Z"),
     ).exams[0]?.planState;
   expect(state([{ ...waitingJob, examId: "other" }])).toBe("none");
-  expect(state([{ ...waitingJob, state: "running" }])).toBe("none");
+  // A running plan job is being saved: it shows neither a draft nor an earlier plan.
+  expect(state([{ ...waitingJob, state: "running" }])).toBe("working");
   expect(state([{ ...waitingJob, kind: "practice_set" }])).toBe("none");
 });
 

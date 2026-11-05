@@ -125,3 +125,18 @@ test("a plan with items never says Nothing planned yet, and rows read as added b
   );
   expect(all.say.lead).toBe("Today's plan is done.");
 });
+
+test("while the study plan job still runs after Approve, the exam is not shown as approved", () => {
+  const d = mapToday(
+    {
+      exams: [{ id: "e4", data: exam("2026-11-20", { planId: "plan-old" }) }],
+      weakspots: [],
+      planedits: [{ id: "e4", data: { plan: "plan-old" } }],
+      jobs: [
+        { kind: "study_plan", state: "running", summary: "", examId: "e4" },
+      ],
+    },
+    now,
+  );
+  expect(d.upcoming[0]?.plan).toBe("working");
+});

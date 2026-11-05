@@ -21,6 +21,7 @@ const PLAN_TEXT = {
   draft: "draft waiting for you",
   approved: "in force",
   away: "put away",
+  working: "E.V. is saving the plan",
 } as const;
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
