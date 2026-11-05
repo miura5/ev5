@@ -53,11 +53,17 @@ interface WireJob {
   /** Newer servers send the generic line and the reason apart (jobs/runtime/status.ts); older ones only `summary`. */
   lead?: string;
   reason?: string;
+  /** A study plan's exam, in Matt's words, when the server names it (the exam's title). */
+  examTitle?: string;
 }
 
 export const toActivityJob = (j: WireJob): ActivityJob => ({
   id: j.id,
-  title: titleOf(j.kind),
+  title:
+    titleOf(j.kind) +
+    (j.kind.replace(/_/g, "-") === "study-plan" && j.examTitle
+      ? ` \u00b7 ${j.examTitle}`
+      : ""),
   state: j.state,
   summary: j.lead ?? oneSentence(j.summary, j.state),
   // The reason a job needs Matt or failed is its own field; old servers only fold it into the summary.
@@ -137,23 +143,32 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
       Promise.all([jobApi.list(token, c) as Promise<WireJob[]>, finished(c)]);
     // The first read opens on the last list kept, then the server's (§ui.instant); the 15 s re-reads go to the server.
     const load = (first = false) =>
-      savedFirst(copy, first, read, ([open, done]) => {
-        if (live) {
-          const ids = new Set(open.map((j) => j.id));
-          const list = [...open, ...done.filter((j) => !ids.has(j.id))];
-          setJobs(uniqueRows(list.map(toActivityJob)));
-          setLoading(false);
-          setError(undefined);
-          setRefused(false);
-        }
-      }, () => setJobs([])).catch((e: unknown) => {
-          if (!live) return;
-          setLoading(false);
-          const refusedNow = failureKind(e) === "refused";
-          if (refusedNow) setJobs([]);
-          setRefused(refusedNow);
-          setError(failureSentence(e));
-        });
+      savedFirst(
+        copy,
+        first,
+        read,
+        ([open, done]) => {
+          if (live) {
+            const ids = new Set(open.map((j) => j.id));
+            // Only unfinished rows are de-duplicated (repeat needs-you records); each finished job is its own row.
+            setJobs([
+              ...uniqueRows(open.map(toActivityJob)),
+              ...done.filter((j) => !ids.has(j.id)).map(toActivityJob),
+            ]);
+            setLoading(false);
+            setError(undefined);
+            setRefused(false);
+          }
+        },
+        () => setJobs([]),
+      ).catch((e: unknown) => {
+        if (!live) return;
+        setLoading(false);
+        const refusedNow = failureKind(e) === "refused";
+        if (refusedNow) setJobs([]);
+        setRefused(refusedNow);
+        setError(failureSentence(e));
+      });
     void load(warm.current);
     warm.current = false;
     // A re-read (the 15 s timer, a job change) goes to the server only.

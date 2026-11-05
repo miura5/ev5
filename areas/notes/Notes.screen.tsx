@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { call, failureSentence, readToken } from "../../commands/client.ts";
-import { centralDate } from "../../domain/index.ts";
+import { centralDate, type Block } from "../../domain/index.ts";
 import { Toast } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NoteEditor } from "./parts/NoteEditor.tsx";
@@ -22,6 +22,7 @@ export function NotesScreen({
     error,
     saveState,
     saveBlocks,
+    saveTitle,
     createNote,
     collections,
     members,
@@ -32,6 +33,8 @@ export function NotesScreen({
     () => new URLSearchParams(window.location.search).get("open") || undefined,
   );
   const [startError, setStartError] = useState<string>();
+  // Set by New note: the page opens with its title selected, ready to type.
+  const [fresh, setFresh] = useState<string>();
   // Set after a delete (here, or on a collection page that sent us with ?deleted=): Undo restores it.
   const [undo, setUndo] = useState<{ id: string; message: string } | undefined>(
     () => {
@@ -95,7 +98,10 @@ export function NotesScreen({
           collections={collections}
           onNewNote={() =>
             void createNote().then((id) => {
-              if (id) setOpen(id);
+              if (id) {
+                setFresh(id);
+                setOpen(id);
+              }
             })
           }
           onNewCollection={() =>
@@ -134,6 +140,8 @@ export function NotesScreen({
     setStartError(undefined);
     onNavigate?.("/sessions");
   };
+  // The title is its own field above the editor: the leading heading block is kept out of the editor and put back on save.
+  const titled = cur.note.blocks[0]?.type === "h1";
   return (
     <>
       {startError ? <Toast message={startError} /> : null}
@@ -148,10 +156,17 @@ export function NotesScreen({
         }}
         editor={
           <NoteEditor
-            blocks={cur.note.blocks}
-            onChange={(b) => void saveBlocks(cur.id, b)}
+            blocks={titled ? cur.note.blocks.slice(1) : cur.note.blocks}
+            onChange={(b) =>
+              void saveBlocks(
+                cur.id,
+                titled ? [cur.note.blocks[0] as Block, ...b] : b,
+              )
+            }
           />
         }
+        onRename={(t) => void saveTitle(cur.id, t)}
+        focusTitle={fresh === cur.id}
         onBack={() => setOpen(undefined)}
         onDelete={() => del(cur.id, "Note deleted")}
         collections={collections}

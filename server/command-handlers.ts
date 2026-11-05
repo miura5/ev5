@@ -123,6 +123,15 @@ export const commandHandlers: Record<string, CommandHandler> = {
     return { restored };
   },
   "item.rename": async (i: Ref & { title: string }, _c, x) => {
+    // A collection lives in its own table: rename it there (nothing else changes).
+    const t = tablesRepo(x.db, { clock: x.clock });
+    const coll = await t.collections.get(i.id);
+    if (coll) {
+      const r = await t.collections.save({ ...coll, title: i.title }, coll.v);
+      if (!r.ok)
+        throw new CommandError(409, "that collection changed; try again");
+      return { version: r.row.v };
+    }
     const repo = docsRepo(x.db, { clock: x.clock });
     const c = await collectionOf(x.db, i.id);
     const doc = await repo.get(c, i.id);

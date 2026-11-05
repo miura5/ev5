@@ -166,3 +166,19 @@ test("deleting a collection writes one row for it; its items show ungrouped unti
     ["s1"],
   );
 });
+
+test("item.rename renames a collection in its own table", async () => {
+  const call = await setup();
+  const made = (await (
+    await call("collection.create", { title: "Untitled collection" })
+  ).json()) as { result: { collection: { id: string } } };
+  const id = made.result.collection.id;
+  assert.equal(
+    (await call("item.rename", { id, title: "BIO 201" })).status,
+    200,
+  );
+  assert.equal(
+    (await call("item.rename", { id, title: "BIO 202" })).status,
+    200,
+  );
+});
