@@ -24,6 +24,8 @@ export interface PaletteProps {
   /** Tab, or the last row: hand the typed request to E.V. */
   onAsk: (text: string) => void;
   onClose: () => void;
+  /** Called with the text in the box each time it changes, so the caller can add found items to `groups`. */
+  onQuery?: (text: string) => void;
   /** Where the palette is drawn; the page body when omitted (the gallery draws it inside its story). */
   container?: HTMLElement | null;
 }
@@ -34,6 +36,7 @@ export function Palette({
   onRun,
   onAsk,
   onClose,
+  onQuery,
   container,
 }: PaletteProps) {
   const [query, setQuery] = useState("");
@@ -93,7 +96,10 @@ export function Palette({
               autoComplete="off"
               placeholder="Type a command, find anything, or ask E.V."
               value={query}
-              onValueChange={setQuery}
+              onValueChange={(text) => {
+                setQuery(text);
+                onQuery?.(text);
+              }}
             />
             <Command.List className="kit-pal-list" aria-label="Results">
               {shown.map((g) => (

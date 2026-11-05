@@ -30,6 +30,8 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
   );
   const [planNote, setPlanNote] = useState<string>();
   const [open, setOpen] = useState<string | undefined>(openFromUrl);
+  // An exam opened by a link (Today's Review the study plan) shows its proposal at once.
+  const [openedByLink] = useState(() => !!openFromUrl());
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
@@ -45,13 +47,18 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         </div>
       </section>
     );
+  // A plan answer that went through says so; one that did not says why.
   const plan = async (
     name: Parameters<typeof runPlan>[0],
     input: Record<string, string>,
-  ) => setPlanNote(await runPlan(name, input));
+    done: string,
+  ) => setPlanNote((await runPlan(name, input)) ?? done);
   // A waiting plan is a job, not yet a document: approving or putting it away answers the job.
   const answer = async (id: string, decision: "approve" | "put_away") =>
-    setPlanNote(await answerPlan(id, decision));
+    setPlanNote(
+      (await answerPlan(id, decision)) ??
+        (decision === "approve" ? "Plan approved" : "Plan put away"),
+    );
   const page = open ? data?.pages[open] : undefined;
   if (page && studying)
     return (
@@ -92,20 +99,28 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
             planState: exam.planState,
             planId: exam.planId,
             proposals: [],
+            sessions: exam.sessions,
           }}
-          onPlanWithEv={() => plan("date.plan_with_ev", { id: exam.id })}
+          startOpen={openedByLink}
+          onPlanWithEv={() =>
+            plan(
+              "date.plan_with_ev",
+              { id: exam.id },
+              "E.V. is drafting a plan",
+            )
+          }
           onApprove={(id) =>
             exam.waiting
               ? answer(id, "approve")
-              : plan("studyplan.approve", { id })
+              : plan("studyplan.approve", { id }, "Plan approved")
           }
           onAskChanges={(id, note) =>
-            plan("studyplan.ask_changes", { id, note })
+            plan("studyplan.ask_changes", { id, note }, "Changes sent")
           }
           onPutAway={(id) =>
             exam.waiting
               ? answer(id, "put_away")
-              : plan("studyplan.put_away", { id })
+              : plan("studyplan.put_away", { id }, "Plan put away")
           }
           onClose={() => setOpen(undefined)}
         />

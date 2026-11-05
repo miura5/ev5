@@ -122,7 +122,7 @@ export function Shell({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   const View = current?.view;
-  // What Matt types in ⌘K is read off the palette's own input; the record is read once each time the palette opens.
+  // What Matt types in ⌘K comes from the palette's onQuery; the record is read once each time the palette opens.
   const [typed, setTyped] = useState("");
   const [record, setRecord] = useState<Record_>({});
   useEffect(() => {
@@ -130,12 +130,6 @@ export function Shell({
       setTyped("");
       return;
     }
-    const onInput = (e: Event) => {
-      const t = e.target as HTMLElement | null;
-      if (t?.hasAttribute("cmdk-input"))
-        setTyped((t as HTMLInputElement).value);
-    };
-    window.addEventListener("input", onInput, true);
     let live = true;
     const docs = services?.docs;
     if (docs)
@@ -152,7 +146,6 @@ export function Shell({
       });
     return () => {
       live = false;
-      window.removeEventListener("input", onInput, true);
     };
   }, [palette, services]);
   const found = useMemo<PaletteGroup[]>(() => {
@@ -284,6 +277,7 @@ export function Shell({
           onRun={run}
           onAsk={ask}
           onClose={() => setPalette(false)}
+          onQuery={setTyped}
         />
       ) : null}
     </div>
