@@ -1,0 +1,35 @@
+import { expect, test } from 'vitest';
+import { parseDeletion } from './deletion/index.ts';
+import { parseJobPlanRow } from './job-plan/index.ts';
+import { parseJobRecord } from './job-record/index.ts';
+import { parseCeilingHold, parseCeilingUsage, parseCeilingUse } from './ceiling/index.ts';
+
+const T = '2026-11-05T00:00:00Z';
+
+test('a deletions row parses and refuses extras', () => {
+  expect(parseDeletion({ c: 'notes', id: 'note-1', at: T }).id).toBe('note-1');
+  expect(() => parseDeletion({ c: 'notes', id: '', at: T })).toThrow();
+  expect(() => parseDeletion({ c: 'notes', id: 'a', at: T, v: 1 })).toThrow();
+});
+
+test('a job_plans row keeps any body', () => {
+  expect(parseJobPlanRow({ jobId: 'j', kind: 'plan', body: { a: 1 }, at: T }).kind).toBe('plan');
+  expect(() => parseJobPlanRow({ jobId: 'j', kind: '', body: 1, at: T })).toThrow();
+});
+
+test('a job record parses, and a bad state is refused', () => {
+  const rec = { id: 'j', kind: 'practice-set', title: 't', state: 'queued', costCents: 0, createdAt: T, updatedAt: T, v: 1 };
+  expect(parseJobRecord(rec).state).toBe('queued');
+  expect(parseJobRecord({ ...rec, output: { home: 'library', id: 'x' } }).output?.id).toBe('x');
+  expect(() => parseJobRecord({ ...rec, state: 'paused' })).toThrow();
+  expect(() => parseJobRecord({ ...rec, v: 0 })).toThrow();
+});
+
+test('ceiling rows parse', () => {
+  expect(parseCeilingUse({ w: 'day', k: '2026-11-05', used: 5 }).used).toBe(5);
+  expect(() => parseCeilingUse({ w: 'year', k: 'x', used: 0 })).toThrow();
+  const hold = { id: 'h', amount: 10, limits: [{ window: 'job', key: 'j', limit: 100 }], open: true };
+  expect(parseCeilingHold(hold).limits).toHaveLength(1);
+  expect(() => parseCeilingHold({ ...hold, amount: -1 })).toThrow();
+  expect(parseCeilingUsage({ key: 'k', holdId: 'h' }).holdId).toBe('h');
+});

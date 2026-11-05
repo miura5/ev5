@@ -53,3 +53,11 @@ export {
 } from "./search/index.ts";
 export { parseCourseTable, examFrame, chatCourse } from "./course/index.ts";
 export type { CourseTable } from "./course/types.ts";
+/** @public Row shapes for the side tables; the data gate and the job runtime import them (wired by follow-up tasks). */
+export { parseDeletion } from "./deletion/index.ts";
+/** @public */
+export { parseJobPlanRow } from "./job-plan/index.ts";
+/** @public */
+export { parseJobRecord, JOB_STATES } from "./job-record/index.ts";
+/** @public */
+export { parseCeilingUse, parseCeilingHold, parseCeilingUsage } from "./ceiling/index.ts";
