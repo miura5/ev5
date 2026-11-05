@@ -1,4 +1,18 @@
-import type { ReactNode } from "react";
+import { useRef } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import { Dot, type DotTone } from "../Dot/Dot";
+import { Menu, type MenuItem } from "../Menu/Menu";
+
+export interface RowMenu {
+  items: MenuItem[];
+  onPick: (key: string) => void;
+  label: string;
+}
+
+export interface RowFold {
+  open: boolean;
+  onToggle: () => void;
+}
 
 export interface RowProps {
   title: string;
@@ -10,30 +24,149 @@ export interface RowProps {
   glyph?: ReactNode;
   selected?: boolean;
   onOpen?: () => void;
+  /** Buttons that show on hover, focus or selection and are hidden otherwise. */
+  actions?: ReactNode;
+  /** The item menu: right-click or `.` opens it. */
+  menu?: RowMenu;
+  /** A status dot before the value. */
+  status?: { tone: DotTone; label?: string };
+  /** A finished item: the title goes faint. */
+  done?: boolean;
+  /** Makes the row fold: a chevron, `aria-expanded`, and arrow keys. */
+  fold?: RowFold;
+  /** Nesting depth of a folding tree, 0 or 1 (24 px in). */
+  level?: 0 | 1;
 }
 
-/** One line of a list: glyph, title, one meta, one value. */
-export function Row({ title, meta, value, glyph, selected, onOpen }: RowProps) {
-  return (
+/** One line of a list: glyph, title, one meta, one value; actions appear on hover. */
+export function Row({
+  title,
+  meta,
+  value,
+  glyph,
+  selected,
+  onOpen,
+  actions,
+  menu,
+  status,
+  done,
+  fold,
+  level = 0,
+}: RowProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const interactive = Boolean(onOpen || fold);
+  const open = () => (onOpen ? onOpen() : fold?.onToggle());
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (interactive && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      open();
+    } else if (fold && e.key === "ArrowRight" && !fold.open) {
+      e.preventDefault();
+      fold.onToggle();
+    } else if (fold && e.key === "ArrowLeft" && fold.open) {
+      e.preventDefault();
+      fold.onToggle();
+    } else if (menu && e.key === ".") {
+      e.preventDefault();
+      const r = e.currentTarget.getBoundingClientRect();
+      e.currentTarget.dispatchEvent(
+        new MouseEvent("contextmenu", {
+          bubbles: true,
+          cancelable: true,
+          clientX: r.left + 16,
+          clientY: r.bottom,
+        }),
+      );
+    }
+  };
+  const toggle = (e: MouseEvent) => {
+    e.stopPropagation();
+    fold?.onToggle();
+  };
+  const classes = ["kit-row"];
+  if (selected) classes.push("kit-row-sel");
+  if (done) classes.push("kit-row-done");
+  if (fold || level) classes.push("kit-row-tree");
+  if (level) classes.push("kit-row-lv1");
+  const row = (
     <div
-      className={selected ? "kit-row kit-row-sel" : "kit-row"}
+      ref={ref}
+      className={classes.join(" ")}
       data-ui="row"
-      role={onOpen ? "button" : undefined}
-      tabIndex={onOpen ? 0 : undefined}
-      onClick={onOpen}
-      onKeyDown={(e) => {
-        if (onOpen && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onOpen();
-        }
-      }}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive || menu ? 0 : undefined}
+      aria-expanded={fold ? fold.open : undefined}
+      onClick={interactive ? open : undefined}
+      onKeyDown={onKeyDown}
     >
+      {fold ? (
+        <span onClick={toggle} className="kit-chev-hit">
+          <svg
+            className={fold.open ? "kit-chev kit-chev-open" : "kit-chev"}
+            viewBox="0 0 12 12"
+            aria-hidden="true"
+          >
+            <path d="M4.5 2.5 8 6l-3.5 3.5" />
+          </svg>
+        </span>
+      ) : null}
       {glyph}
       <div className="kit-row-text">
         <div className="kit-row-title">{title}</div>
         {meta ? <span className="kit-row-meta">{meta}</span> : null}
       </div>
-      {value ? <span className="kit-row-value">{value}</span> : null}
+      {actions ? <span className="kit-row-act">{actions}</span> : null}
+      {status || value ? (
+        <span className="kit-row-value">
+          {status ? <Dot tone={status.tone} label={status.label} /> : null}
+          {value}
+        </span>
+      ) : null}
+    </div>
+  );
+  return menu ? (
+    <Menu
+      on="contextmenu"
+      label={menu.label}
+      items={menu.items}
+      onPick={menu.onPick}
+      trigger={row}
+    />
+  ) : (
+    row
+  );
+}
+
+export interface EditorCell {
+  /** What the cell is for; screen readers and tests find it by this. */
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export interface EditorRowProps {
+  /** Two cells: the term and its meaning, or a step and its detail. */
+  cells: [EditorCell, EditorCell];
+  /** Buttons that show on hover or focus. */
+  actions?: ReactNode;
+}
+
+/** A set editor line: two borderless cells that edit in place. */
+export function EditorRow({ cells, actions }: EditorRowProps) {
+  return (
+    <div className="kit-erow" data-ui="editor-row">
+      {cells.map((c) => (
+        <input
+          key={c.label}
+          className="kit-cell"
+          type="text"
+          aria-label={c.label}
+          value={c.value}
+          onChange={(e) => c.onChange(e.target.value)}
+        />
+      ))}
+      {actions ? <span className="kit-row-act">{actions}</span> : null}
     </div>
   );
 }
