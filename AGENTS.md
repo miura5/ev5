@@ -77,7 +77,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 **Phase 0: Decide and freeze**
 - S-01 Bootstrap the repo: the skeleton from PLAN §4, `CLAUDE.md` (a pointer to CONTRACT and this file), `docs/handover.md`, and the pinned "For Matt" issue. Done when the tree matches PLAN §4 and CI runs an empty check.
-- S-02 The record writer `ops/record`. Carry ev4's `chart/*.json` unchanged. Keep the field names and id formats. Render BACKLOG, DECISIONS and CHANGELOG. Lint the links. Freeze `deploys.json` as v4 history. Done when the renders match ev4's for the carried data.
+- S-02 The record writer `ops/record`. Carry ev4's `chart/*.json` unchanged. Keep the field names and id formats. Render BACKLOG and DECISIONS. Lint the links. Freeze `deploys.json` as v4 history. Done when the renders match ev4's for the carried data.
 - S-03 File the seed tasks (this list) through `ops/record`.
 - S-04 Record Matt's confirmations (PLAN §15) as decisions. Any unanswered item keeps its default, marked "default".
 - S-05 Sweep the 322 accepted decisions plus PLAN §2–§12 into CONTRACT.md, giving every rule a `§id`, and list the ended rules. Done when the hard-limits section is marked for Matt's yes (the only CONTRACT question he gets).
