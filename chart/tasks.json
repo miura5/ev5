@@ -17280,6 +17280,223 @@
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
+  "id": "B-980",
+  "kind": "task",
+  "title": "Repeat job failures end the job at once instead of being retried",
+  "dod": "A failure that will repeat (a refusal, max_tokens, output that fails Zod or the semantic checks after the repair ask) throws Workflows' NonRetryableError from cloudflare:workflows, so the step is not retried; putFailure and getFailure and their store methods are deleted; the test fake treats NonRetryableError as final; a test shows one attempt only for each failure kind; one real end-to-end run on staging of a job that fails this way",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write jobs/; read none. Today the failure is saved to D1 and thrown as a plain Error, and each retry reads it back and throws again (jobs/study-plan/job.ts, jobs/practice-set/handlers.ts). Read current Cloudflare Workflows docs for NonRetryableError, never from memory.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-981",
+  "kind": "task",
+  "title": "E.V.'s answer schema comes from the Anthropic SDK's own Zod converter",
+  "dod": "outputSchema() in jobs/runtime/model-call.ts is deleted and the call uses zodOutputFormat(schema).schema from the SDK already in package.json; output schemas use plain .min/.max/.length where they used .refine only to keep a bound; runStructured, the repair ask and the citation check stay; one real end-to-end run on staging per job kind (practice set, study plan) is green",
+  "milestone": "Phase 6",
+  "status": "declined",
+  "depends": [],
+  "notes": "Slice: write jobs/; read none. Read the SDK's current helper docs (node_modules/@anthropic-ai/sdk) for the import path and behaviour, never from memory. The model sees a slightly different schema, hence the staging runs.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Same work as the data-layer study's SDK Zod helper task (B-1005 in PR 490), which keeps it",
+   "at": "2026-11-05T16:04:36.763Z"
+  }
+ },
+ {
+  "id": "B-982",
+  "kind": "task",
+  "title": "Every test runs under Vitest: one test runner",
+  "dod": "vite.config.ts has test projects: dom (jsdom: areas, shell, kit) and node (domain, commands, jobs, data, server, ops, with a longer timeout for ops/guards); the 56 node:test files use Vitest (most only change their import line); the test:node script and its globs are deleted; npm test runs Vitest only; CI green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-956"
+  ],
+  "notes": "Slice: write vite.config.ts, package.json and *.test.ts files only; read none. Carries out the Phase 0 tools decision that said S-10 moves the tests to Vitest. Do after B-956, so its uncollected-test check is written once for one runner. Split by folder if the change passes about 400 lines.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-983",
+  "kind": "task",
+  "title": "Testing Library cleans up after every test by itself, and the flaky jsdom tests stop",
+  "dod": "One Vitest setup file calls cleanup() after each test and holds the jsdom gap fillers; the hand-written cleanup() calls in about 75 test files are deleted; kit/components/Palette/browser-gaps.ts moves out of the shipped code into that setup; the 'window is not defined' and Menu focus flakes no longer fail main (20 CI runs of the unit shards green)",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-982"
+  ],
+  "notes": "Slice: write vite.config.ts, the setup file, kit/components/Palette/ and *.test.tsx files; read none. Main went red on 9 of 70 pushes, 5 of them these flakes.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-984",
+  "kind": "task",
+  "title": "A builder can run the full precheck in its own sandbox, and CI runs the same script",
+  "dod": "npm run precheck passes on the Node version the builder sandboxes run (today 22), or package.json engines and a .nvmrc name a version both CI and builders use; ci.yml calls the npm scripts instead of keeping its own copy of the step list; docs/guards.md's stale bullet and ci.yml's Phase 0 comment are fixed",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write package.json, .github/workflows/ci.yml, docs/guards.md and files a Node 22 failure points at; read none. Today 8 node-test suites fail locally on Node 22, so size and lint failures first show up on PRs.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-985",
+  "kind": "task",
+  "title": "Menus and the ⌘K palette follow the theme Matt picked",
+  "dod": "data-theme is set on the page root (document.documentElement), not on the .shell div, so Radix and cmdk portals inherit it; a test opens a Menu and the palette with a theme that differs from the system's; seen on staging in both themes",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write shell/; read kit/. Radix portals render into body, outside .shell (shell/Shell.tsx). Read from the code, not yet seen on screen.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-986",
+  "kind": "task",
+  "title": "A new build reaches the open app through the PWA plugin's own update code",
+  "dod": "shell/pwa.ts and its test are replaced by registerSW from virtual:pwa-register (vite-plugin-pwa, already a dependency) with an immediate takeover and a check on focus; after a staging deploy the open app runs the new build without a hard reload, checked by comparing the loaded index-*.js with what / serves",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write shell/, vite.config.ts; read none. Two earlier fixes for the stale build were never seen working by eye; ev4 had the same class of bug.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-987",
+  "kind": "task",
+  "title": "The command generator reads the registry itself, and screens get typed commands",
+  "dod": "ops/generate imports the registry instead of matching name: '…' with a regex; the hand-written client code moves out of the template string in ops/generate/client-body.ts into a real module that commands/client.ts re-exports; call() takes and returns each command's own z.input and z.output types (type-only imports, no runtime Zod in the shell); generated files are up to date and precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write ops/generate/, commands/; read areas/ (callers keep compiling; removing their casts is a follow-up). Interface: commands. Handler typing on the server stays with the full audit's proposal B.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-988",
+  "kind": "task",
+  "title": "Ask E.V. checks its message length in one place",
+  "dod": "ask.send's Zod input holds the 1 to 2000 character limit, and the hand-written check in server/ask-chat.ts is deleted; a test sends 0, 2000 and 2001 characters",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write commands/, server/; read none. Interface: commands.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-989",
+  "kind": "task",
+  "title": "Four custom checks become ESLint rules",
+  "dod": "controls, server-writes, registry and radix are no-restricted-syntax rules in eslint.config.js, each scoped by files; their ops/checks files and unit tests are deleted; the registry check's cron pattern, which can never match wrangler.jsonc, is dropped; each guard fixture in ops/guards still goes red; precheck green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write eslint.config.js, ops/checks/, ops/guards/; read none. ESLint reads the syntax tree, so strings and comments can't fool it.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-990",
+  "kind": "task",
+  "title": "The Interface trailer is asked for only when a folder's interface listing changes",
+  "dod": "ops/checks/trailer.ts asks for an Interface: <folder> trailer only when the generated Interface: line of that folder's README changes, as the contract's interface rule says, not on every edit of index.ts or a schema file; the READMEs' Imports: line, which copies .dependency-cruiser.cjs, is no longer generated; tests cover both cases",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write ops/checks/, ops/generate/, every folder README.md; read none. The handover lists a stale generated file or a missing trailer as the usual CI reds.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-991",
+  "kind": "task",
+  "title": "The ⌘K palette ranks Places and Commands with cmdk's own filter",
+  "dod": "kit Palette lets cmdk filter and rank the static groups (Places, Commands) and keeps its own filter only for found items from the server; each command row shows its key hint where it has one; kit tests and the /kit gallery cover it",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-983"
+  ],
+  "notes": "Slice: write kit/components/Palette/; read none. Today shouldFilter is off and a hand-written substring filter replaces cmdk's.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-992",
+  "kind": "task",
+  "title": "Queued note saves and answers are sent as soon as the app is back online",
+  "dod": "the outbox replays on the window online event and when the tab becomes visible, as well as on a save; a test queues an answer offline and sees it sent on online with no other save",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write shell/outbox/; read none. Today a queued practice answer waits until the next save or a Notes mount.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-993",
+  "kind": "task",
+  "title": "Parallel sessions can't take the same task or decision id",
+  "dod": "ops/record task add and decision add refuse unless ops/build-lock.sh shows this session holds the build lock; any other session uses a new ops/record inbox add, which writes chart/inbox/<session>.json with provisional ids P-1, P-2 (depends may name P- or B- ids); ops/record inbox file, run by the lock holder, gives each entry the next real id in order, rewrites P- depends, and deletes the inbox file in the same commit; lint fails a P- id outside chart/inbox and an inbox entry with a broken depends; tests cover two sessions' inboxes filed together",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write ops/record/, chart/; read ops/build-lock.sh. Today the next id is the highest on the session's own branch plus one, so outside PRs collide (three renumbers on 2026-11-05). ev4 fixed the same race with provisional ids that only the filer turns into real ones; v5 carried the Chart but not that rule. Each inbox file is new, so two sessions never edit the same lines. The AGENTS.md wording for this goes to Matt as a repo instruction change; the tool works without it.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-994",
+  "kind": "task",
+  "title": "ev4's finished tasks and its decisions move out of the live Chart into frozen history",
+  "dod": "ev4-era tasks that are done or declined, and decisions up to D-439, move to chart/history/ (read-only like deploys.json: the writer refuses to change them, and lint still resolves links into them); chart/rules.json and chart/views.json (ev4's ship rules and retired Docs views) are deleted; chart/releases.json and the v4-only CHANGELOG render are dropped, the release card being the release record; the id sequence continues unchanged; BACKLOG.md keeps its table format for open tasks; render and lint green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write chart/, ops/record/, docs/record/; read none. Today about 700 of 977 tasks and 395 of 439 decisions are ev4's, loaded by every session that opens the Chart. The ev4-era tasks still open (moved to after cutover) stay in the live file. The playtest refresh script outside the repo reads BACKLOG.md through its raw URL, so keep that file and its open-task rows.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-995",
+  "kind": "task",
+  "title": "The handover holds only the current state, and a check keeps it short",
+  "dod": "docs/handover.md has only AGENTS.md section 7's five parts (phase, running, waiting on Matt, next, staging and live); a check fails it over 4 KB or with a line over 600 characters; the per-run diary goes in each handover PR's description instead; every Lessons entry is either deleted because its cause is fixed or listed in the PR for the build manager to propose into AGENTS.md",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write docs/handover.md, ops/checks/; read AGENTS.md. Today the handover is 56 KB, its first line 16,100 characters, with a block per run from run 5 to 76. The rules check skips docs/ today. Changing AGENTS.md is a repo instruction change that goes to Matt, so this task only lists the lessons.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
+  "id": "B-996",
+  "kind": "task",
+  "title": "The Chart's milestones have one spelling, no task stays in progress after its work merged, and gates are tracked as tasks",
+  "dod": "lint fails a live task whose milestone is outside Phase 0 to Phase 7, after-cutover or Inbox, and the existing '5', 'v5 P5' and similar spellings are rewritten to Phase n; B-665, B-817, B-818, B-849, B-851, B-923 and B-943 are closed with their commit or set back to open from what their PRs show; lint warns on a new decision whose title only opens or closes a gate, since a gate's state is its task's status and notes",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-994"
+  ],
+  "notes": "Slice: write ops/record/, chart/; read none. Gate 5 was opened and closed through four decisions, while two decisions that contradict CONTRACT lines were never ended.",
+  "commit": null,
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+ },
+ {
   "id": "B-997",
   "kind": "task",
   "title": "One Zod row shape per stored kind in domain/",
@@ -17505,5 +17722,83 @@
   "notes": "",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-1012",
+  "kind": "task",
+  "title": "Back and Forward move between screens, through wouter in the shell",
+  "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-969"
+  ],
+  "notes": "Slice: write shell/, package.json, .dependency-cruiser.cjs, e2e/; read areas/. Interface: shell. Claim after B-969 (same shell files). Read wouter's current README for its API, never from memory. Decision: D-485.",
+  "commit": null,
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+ },
+ {
+  "id": "B-1013",
+  "kind": "task",
+  "title": "Screens read their address from the shell, never from the browser",
+  "dod": "the five window.location.search reads in areas/ (collection, library, ask, notes) use the address props from the shell; any screen-to-screen move uses the shell's navigate prop; ESLint refuses window.location and window.history in areas/, with a red guard fixture recorded; precheck green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1012"
+  ],
+  "notes": "Slice: write areas/, eslint.config.js, ops/guards/; read shell/. Decision: D-485.",
+  "commit": null,
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+ },
+ {
+  "id": "B-1014",
+  "kind": "task",
+  "title": "E.V.'s prompts call the user the student, not by name",
+  "dod": "Ask E.V.'s system prompt (server/ask-chat.ts) and the study-plan changes prompt (jobs/study-plan/changes-prompt.md), and any other model prompt, name no person: they say the student or you; one real end-to-end Ask and study-plan run on staging is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1015",
+  "kind": "task",
+  "title": "The app's user role is owner in the code, not a person's name",
+  "dod": "the Caller and Starter value 'matt' becomes 'owner' (commands/define.ts and every *.command.ts, commands/catalog.ts, jobs/runtime/define.ts, both jobs, server/command-routes.ts, server/job-routes.ts, server/handlers-jobs.ts, server/handlers-studyplan.ts) and comments in those files say the owner; generated files are up to date; an ESLint rule refuses the owner's first name in non-test code, with an allow list only for data/compat (ev4's frozen schemas) and the files that still write ev4's stored 'by' value until the data study's row shapes replace it, each with a one-line reason; a red guard fixture is recorded; precheck green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1016",
+  "kind": "task",
+  "title": "The build status script works in any clone of the repo",
+  "dod": "ops/status/build_status.py reads the repository from GITHUB_REPOSITORY (or the git remote when run locally) instead of a fixed owner and name, and the questions issue number from an env var that defaults to 1; its workflow still produces the same snapshot",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Slice: write ops/status/, .github/workflows/ (the status workflow only); read none. Decision: D-486.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1017",
+  "kind": "task",
+  "title": "The Chart tools record the owner as a role, not a name",
+  "dod": "ops/record writes 'owner' for --waiting-on and --ok, and a live release needs --ok owner; the live Chart's existing values are rewritten; chart/history keeps its words; the renders say the owner; lint and render green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-994"
+  ],
+  "notes": "Slice: write ops/record/, chart/, docs/record/; read none. Decision: D-486. After B-994, so ev4's history is frozen first and only the live files change. The playtest refresh script outside the repo reads BACKLOG.md: keep its table format.",
+  "commit": null,
+  "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  }
 ]
