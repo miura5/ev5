@@ -34,6 +34,8 @@ export interface NotePageProps {
   onStartSession?: () => void;
   onTogglePause?: () => void;
   onEndSession?: () => void;
+  /** Opens the list of the editor's keys. */
+  onShortcuts?: () => void;
 }
 
 /** The note's title, edited in place: Enter or leaving saves, Esc puts the old words back. */
@@ -104,6 +106,7 @@ export function NotePageView({
   onStartSession,
   onTogglePause,
   onEndSession,
+  onShortcuts,
 }: NotePageProps) {
   return (
     <section className="ev-notes" aria-label="Note" data-area="note">
@@ -156,6 +159,15 @@ export function NotePageView({
             {note.saveState}
           </span>
           <span className="ev-notes-grow" />
+          {session || !onShortcuts ? null : (
+            <Button
+              kind="text"
+              title="The keys the note editor understands"
+              onClick={onShortcuts}
+            >
+              Shortcuts
+            </Button>
+          )}
           <Button
             kind="text"
             title="Start a set from this note; E.V. drafts, you keep or drop"

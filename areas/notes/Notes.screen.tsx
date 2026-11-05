@@ -1,20 +1,27 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { call, failureSentence, readToken } from "../../commands/client.ts";
 import { centralDate, type Block } from "../../domain/index.ts";
-import { Toast } from "../../kit/index.ts";
+import { Toast, type DetailProps } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NoteEditor } from "./parts/NoteEditor.tsx";
 import { NotesView } from "./Notes.view.tsx";
 import { toPage, toSummary } from "./map.ts";
 import { useNotes, type NotesServices } from "./useNotes.ts";
+import {
+  SHORTCUTS,
+  SHORTCUTS_EVENT,
+  onMac,
+} from "./parts/shortcuts.ts";
 
 /** The mounted view: notes from the document routes; the title is the note's first heading, edited in place in the editor, and saves through the outbox, so it works offline. */
 export function NotesScreen({
   services,
   onNavigate,
+  onDetail,
 }: {
   services?: NotesServices;
   onNavigate?: (path: string) => void;
+  onDetail?: (detail: DetailProps | null) => void;
 }) {
   const {
     notes,
@@ -28,6 +35,22 @@ export function NotesScreen({
     members,
     reload,
   } = useNotes(services);
+  // The editor's keys, quietly listed in the Detail panel: from the note page, or from ⌘K's "Note shortcuts".
+  const showShortcuts = useCallback(() => {
+    const mac = onMac();
+    onDetail?.({
+      title: "Note shortcuts",
+      properties: SHORTCUTS.map((s) => ({
+        label: s.label,
+        value: s.shown(mac),
+      })),
+      onClose: () => onDetail(null),
+    });
+  }, [onDetail]);
+  useEffect(() => {
+    window.addEventListener(SHORTCUTS_EVENT, showShortcuts);
+    return () => window.removeEventListener(SHORTCUTS_EVENT, showShortcuts);
+  }, [showShortcuts]);
   // The palette opens a note with /notes?open=<id>; an unknown id just shows the list.
   const [open, setOpen] = useState<string | undefined>(
     () => new URLSearchParams(window.location.search).get("open") || undefined,
@@ -179,6 +202,7 @@ export function NotesScreen({
           })
         }
         onStartSession={() => void startSession()}
+        onShortcuts={showShortcuts}
       />
     </>
   );
