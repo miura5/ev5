@@ -15,6 +15,7 @@ import {
   type TablesOptions,
 } from "./core.ts";
 import type { D1Like } from "../docs/d1.ts";
+import { gateRow } from "./gate.ts";
 import { ownRepo } from "./own.ts";
 import { draftsRepo } from "./drafts.ts";
 import { jobsRepo } from "./jobs.ts";
@@ -165,7 +166,9 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
           )
           .bind(targetC, targetId, pos, at)
           .run();
-        return parsePin({ targetC, targetId, pos, at: iso(at) });
+        return gateRow("pins", () =>
+          parsePin({ targetC, targetId, pos, at: iso(at) }),
+        );
       },
       remove: async (targetC: string, targetId: string): Promise<boolean> =>
         (

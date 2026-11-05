@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { D1Like, D1Statement } from "../docs/d1.ts";
 import { tablesRepo } from "./tables.ts";
+import { WriteRefused } from "./gate.ts";
 
 const dir = new URL("../migrations/", import.meta.url);
 function make(onBad?: (b: { table: string; reason: string }) => void) {
@@ -190,6 +191,17 @@ test("a row the domain refuses is not written, and a bad stored row is skipped a
   // refused before the write: nothing reaches the table
   await assert.rejects(
     repo.collections.save({ id: "", title: "", parentId: null, pos: 0 }, null),
+    (e) =>
+      e instanceof WriteRefused &&
+      /^collections: the row does not parse/.test(e.message),
+  );
+  // a refusal is never a 409: a stale version on a good row is the only conflict
+  const big = await repo.collections
+    .save({ ...good("c9"), title: "x".repeat(1_900_000) }, null)
+    .catch((e: unknown) => e);
+  assert.ok(
+    big instanceof WriteRefused,
+    "an oversize row is refused with a reason",
   );
   assert.equal(
     (db.prepare("SELECT COUNT(*) AS n FROM collections").get() as { n: number })
