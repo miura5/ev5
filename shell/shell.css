@@ -84,3 +84,18 @@ body {
 .shell-token-note {
   color: var(--faint);
 }
+
+@keyframes shell-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise));
+  }
+}
+
+.shell-detail {
+  flex: 0 1 calc(var(--sp-14) * 7 + var(--sp-2));
+  max-width: calc(var(--sp-14) * 7 + var(--sp-2));
+  overflow-y: auto;
+  animation-name: shell-rise;
+  animation-duration: var(--dur-2);
+}

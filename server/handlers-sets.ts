@@ -1,4 +1,4 @@
-// Matt's own sets (CONTRACT §data.new-tables, §ui.own-everything): `own_sets` rows with their items in `own_set_items`,
+// Matt's own sets (CONTRACT §data.tables, §ui.own-everything): `own_sets` rows with their items in `own_set_items`,
 // written with the table protocol (a version, a stale write is a 409). An item is typed as a question, then "- " lines
 // for options and "* " for the right ones. Removing an item writes a `deletions` row and leaves the row (§delete.soft).
 import { tablesRepo } from "../data/index.ts";
