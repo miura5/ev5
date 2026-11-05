@@ -28,6 +28,8 @@ export type InstanceParams = {
   jobId: string;
   kind: string;
   from?: string;
+  /** With `from`: the round (job record version) that makes the continuation's instance id new. */
+  round?: number;
   input: unknown;
 };
 
@@ -57,13 +59,12 @@ export function cloudflareAdapter(binding: {
 export function workflowExecutor(wf: WorkflowAdapter, kind: string): Executor {
   return {
     kind: 'workflow',
-    start: async (id, job, input) => {
-      const from = id.startsWith(`${job.id}:`) ? id.slice(job.id.length + 1) : undefined;
+    start: async (id, job, input, cont) => {
       await wf.create(id, {
         jobId: job.id,
         kind,
         input,
-        ...(from ? { from } : {}),
+        ...(cont ? { from: cont.from, round: cont.round } : {}),
       });
     },
   };
@@ -107,7 +108,7 @@ export async function runJob(
   handlers: StepHandlers,
   p: InstanceParams,
 ): Promise<void> {
-  const instanceId = p.from ? continuationId(p.jobId, p.from) : p.jobId;
+  const instanceId = p.from ? continuationId(p.jobId, p.from, p.round ?? 0) : p.jobId;
   const names = p.from ? def.steps.slice(def.steps.indexOf(p.from) + 1) : def.steps;
   if (p.from && !def.steps.includes(p.from)) throw new Error(`${def.kind} has no step ${p.from}`);
   const move = (name: string, to: Parameters<typeof transition>[1]) =>
