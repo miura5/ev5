@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { ProgressScreen } from "./Progress.screen.tsx";
 import { endedMinutes, mapProgress } from "./useProgress.ts";
-import { endedMinutesText } from "./text.ts";
+import { endedMinutesText, trendText } from "./text.ts";
 import { dailyMinutes, weeklyAccuracy, windowTotals } from "./series.ts";
 
 const NOW = Date.UTC(2026, 10, 5, 12);
@@ -127,4 +127,14 @@ test("daily minutes put each ended session on its Central day, today last", () =
   expect(days[6]).toMatchObject({ label: "Today", value: 50 });
   expect(days[4]?.value).toBe(45);
   expect(windowTotals(docs, NOW)).toEqual({ minutes: 95, sessions: 3 });
+});
+
+test("the accuracy trend reads as points, as in the mock-up", () => {
+  expect(trendText("72", "up from 69%")).toBe(
+    "up 3 points on the 2 weeks before",
+  );
+  expect(trendText("60", "down from 61%")).toBe(
+    "down 1 point on the 2 weeks before",
+  );
+  expect(trendText("72", "other")).toBe("other");
 });

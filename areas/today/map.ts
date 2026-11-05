@@ -191,6 +191,18 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       meta: exam.kind,
       when: whenLabel(exam.date as string, left, today),
     }));
+  // The weekly review is a job that waits for Matt on Sunday; Today names it in This week while it does.
+  const review = (docs.jobs ?? []).find(
+    (j) =>
+      j.kind.replace(/_/g, "-") === "weekly-review" && j.state === "needs-you",
+  );
+  if (review)
+    thisWeek.push({
+      id: "w-weekly-review",
+      title: "Weekly review",
+      meta: review.summary,
+      when: "Sun",
+    });
   const weakest = [...open].sort((a, b) => b.d.misses - a.d.misses)[0];
   const next = exams[0];
   const cite = "from Weak spots";
