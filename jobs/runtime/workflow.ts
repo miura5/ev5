@@ -1,6 +1,6 @@
 // The Workflows runtime (CONTRACT §job.steps, §job.needs-you). Cloudflare's binding sits behind WorkflowAdapter so tests run
 // on an in-memory fake. A step returns ids, never content; the step's retry policy is the only retry layer (the Anthropic
-// SDK runs with maxRetries: 0); "needs you" ends the instance and Matt's answer starts a continuation `jobId:step`.
+// SDK runs with maxRetries: 0); "needs you" ends the instance and Matt's answer starts a continuation `jobId-step-round`.
 import type { JobDef } from './define.ts';
 import { continuationId, type Executor } from './executors.ts';
 import { addCost, transition, update, type JobStore } from './record.ts';

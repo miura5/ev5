@@ -20,4 +20,4 @@ export function isEv4PageFile(path: string): boolean {
 }
 
 /** What an old ev4 page or API caller reads when it reaches v5. */
-export const MOVED_TEXT = "E.V. has moved, reload";
+export const MOVED_TEXT = "E.V. updated, reload";
