@@ -16414,5 +16414,29 @@
   "notes": "Screenshot 00. Shell passes the job kind as text.",
   "commit": null,
   "source": "Visual playtest 4 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run4)"
+ },
+ {
+  "id": "B-916",
+  "kind": "task",
+  "title": "Library plan proposal shows no sessions: GET /jobs should send the waiting study plan's draft sessions",
+  "dod": "GET /jobs adds tasks (date, title, minutes) to a waiting study_plan job from the draft in job_plans; Library's Proposed sessions lists them; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "From B-908 builder: withExams in server/job-routes.ts should add the draft tasks from job_plans kind draft; Built from text is fixed and could send real sources.",
+  "commit": null,
+  "source": "run 61"
+ },
+ {
+  "id": "B-917",
+  "kind": "task",
+  "title": "Palette still lists deleted notes",
+  "dod": "A note in Recently deleted does not show in the palette (shell/); Restore brings it back; test.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Left over from B-912 (areas only).",
+  "commit": null,
+  "source": "run 61"
  }
 ]
