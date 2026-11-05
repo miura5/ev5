@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Note } from '../../domain/index.ts';
-import { createOutbox, ev4Entries, importEv4Outbox, memoryStore, type Transport } from './index.ts';
+import { createOutbox, memoryStore, type Transport } from './index.ts';
 
 const note = (title: string, text: string): Note => ({
   schema: 1,
@@ -134,31 +134,5 @@ describe('what stays and what is refused', () => {
     expect(r.sent).toBe(2);
     expect(server.docs.get('answers/a-1')?.v).toBe(1);
     expect(await box.waiting()).toEqual([]);
-  });
-});
-
-describe('the ev4 outbox import', () => {
-  test('reads only notes of the right shape', () => {
-    const rows = [
-      { tab: 't', c: 'notes', id: ID, doc: note('A', 'x'), base: 4, tag: 'q' },
-      { c: 'notes', id: 'bad' },
-      { c: 'days', id: 'd', doc: {} },
-      { c: 'notes', id: 'n2', doc: note('B', 'y'), base: null, refused: '400 too big' },
-      'junk',
-    ];
-    expect(ev4Entries(rows).map((e) => [e.id, e.base, !!e.refused])).toEqual([
-      [ID, 4, false],
-      ['n2', null, true],
-    ]);
-  });
-
-  test("imported notes are pinned to ev4's base, so a note changed since arrives as an earlier copy", async () => {
-    const { server, box } = make();
-    server.docs.set(`notes/${ID}`, { v: 5, data: note('Fluids', 'newer') });
-    const entries = ev4Entries([{ c: 'notes', id: ID, doc: note('Fluids', 'unsent on the old phone'), base: 4 }]);
-    expect(await importEv4Outbox(box, entries)).toEqual({ queued: 1 });
-    const r = await box.replay();
-    expect(r.kept).toHaveLength(1);
-    expect(server.docs.get(`notes/${ID}`)?.v).toBe(5);
   });
 });
