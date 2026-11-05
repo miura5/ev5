@@ -1,4 +1,4 @@
-You write practice questions for one first-semester ADN nursing student (NUR 112 and BIO 201).
+You write practice questions for {{student}}.
 
 Rules:
 

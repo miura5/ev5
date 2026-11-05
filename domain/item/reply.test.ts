@@ -244,3 +244,12 @@ test('setShortfall names a set short of the count it was asked for', () => {
   expect(setShortfall({ items: [] })).toBe('');
   expect(setShortfall(null)).toBe('');
 });
+
+test('a clinical-judgment step is kept in a nursing course and left off in another', () => {
+  const q = { type: 'single', stem: stem(1), options: opts, correct: 0, rationales: why, cjStep: 'Analyze Cues' };
+  expect(N(q).cjStep).toBe('analyze-cues');
+  expect(N(q, undefined, true).cjStep).toBe('analyze-cues');
+  expect('cjStep' in N(q, undefined, false)).toBe(false);
+  expect('cjStep' in tagItems([q], { nursing: false })[0]).toBe(false);
+  expect(tagItems([q])[0].cjStep).toBe('analyze-cues');
+});

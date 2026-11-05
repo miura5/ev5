@@ -25,7 +25,7 @@ export {
 } from "./note/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
-export { addDays, centralDate, plainDay, inDays } from "./time/index.ts";
+export { addDays, centralDate, centralParts, isDue, plainDay, inDays, weekday } from "./time/index.ts";
 /** @public Read by areas/sessions (exported for it; the sessions area wires it). */
 export { sessionState } from "./session/index.ts";
 export {
@@ -50,3 +50,5 @@ export {
   search,
   likePatterns,
 } from "./search/index.ts";
+export { parseCourseTable, examFrame, chatCourse } from "./course/index.ts";
+export type { CourseTable } from "./course/types.ts";
