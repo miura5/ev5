@@ -13855,7 +13855,7 @@
   "title": "G-3: Gate 3: domain and data",
   "dod": "PLAN §13 Phase 3 gate items all true",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-714",
    "B-715",
@@ -13877,8 +13877,8 @@
    "B-731",
    "B-934"
   ],
-  "notes": "Per D-457 the scratch-copy check (B-732) moved to the cutover checklist; Phase 4 does not wait for it. Checked 2026-11-05 (daily review): still open. Domain tests and data/compat pass in CI run 41960648306 at e2f4fb9, but 'the repositories parse every synthetic document' has no proof and the seed notes fail parseNote: B-934.",
-  "commit": null,
+  "notes": "Gate 3 closed: B-934 seed.test.ts parses every seed row; domain and data tasks merged; main CI green (run 41974713311). Scratch-copy check stays on the cutover checklist (D-457).",
+  "commit": "eb04c11",
   "source": "AGENTS.md §4.3"
  },
  {
