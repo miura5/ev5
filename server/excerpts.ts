@@ -54,7 +54,7 @@ export async function findPassages(
           id: r.id,
           title: String(d.title ?? ""),
           kind: "note",
-          course: null,
+          course: typeof d.course === "string" ? d.course : null,
           text,
         },
       ];
