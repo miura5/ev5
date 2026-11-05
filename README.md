@@ -61,7 +61,7 @@ dependency-cruiser keeps imports in this direction. Each folder's README lists w
 | The plan and its reasons | [PLAN.md](PLAN.md) |
 | How the agents build | [AGENTS.md](AGENTS.md) |
 | The look | [design/mockup.html](design/mockup.html), then [kit/](kit/) |
-| Tasks and decisions | `chart/*.json`, written by `ops/record`. Read [BACKLOG](docs/record/BACKLOG.md), [DECISIONS](docs/record/DECISIONS.md) and [CHANGELOG](docs/record/CHANGELOG.md) |
+| Tasks and decisions | `chart/*.json`, written by `ops/record`. Read [BACKLOG](docs/record/BACKLOG.md) and [DECISIONS](docs/record/DECISIONS.md) |
 | Today's state | [docs/handover.md](docs/handover.md) |
 | The guards and their red output | [docs/guards.md](docs/guards.md) |
 | Cutover and restore | [ops/CUTOVER.md](ops/CUTOVER.md), [ops/RESTORE.md](ops/RESTORE.md) |
