@@ -16455,7 +16455,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 07, 09, 13. After Send changes on Synthetic unit exam the Detail switched to Plan: in force with only Plan with E.V.; GET /api/v1/jobs already had the revised draft needs-you and the sidebar showed Activity 1, but closing and reopening the Detail still showed in force. Only a page reload showed the draft. Same after Plan with E.V. on e2e plan exam. Reasoned cause: areas/library/Library.screen.tsx reads jobs once in its load and does not follow the shell's jobs poll.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16469,7 +16469,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 07, 13. Both stayed up for more than 50 seconds. kit/components/Toast/Toast.tsx has no timer, and Library sets planNote and never clears it.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16483,7 +16483,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshot 09. Revised draft 4c960a09 for Synthetic unit exam, sent on Nov 4 Central, starts Tue 2026-11-03. checkPlan only checks the days in the context, and the draft was first built earlier (it already waited in playtest 4), so the reasoned cause is that a change round reuses the first round's days.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16497,7 +16497,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 10, 16. areas/library/ExamPlan.detail.tsx shows 'The sessions are not shown here yet.' for a plan in force. Today showed no session from the approved plan today either (its days were Nov 3, 6, 9...), so after approving there is no place to see what was added.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16511,7 +16511,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshot 17. In playtest 5 I approved the Synthetic unit exam plan, put away the e2e plan exam draft and ended a session; Activity showed Needs you, Running and Done today all None. GET /api/v1/jobs returned only the one waiting job, so it may not send finished jobs.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16525,7 +16525,7 @@
   "milestone": "5",
   "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 18 and 05. Library: First-try accuracy, last 14 days 100%. Progress: 'Your accuracy over time will show here once you have answered some practice questions.' Ending a session from the Playtest note said Saved to Progress.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
   "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
   "claimedBy": "run63",
@@ -16537,11 +16537,13 @@
   "title": "Today's and Library's exam Detail say different things for the same exam, and Library lights the wrong tab",
   "dod": "One exam Detail for Today and Library: the same date line (date and days left), readiness words and plan words, and the same plan actions; opening an exam from Today's Review the study plan lights Library's Exams tab; Library keeps its tab on reload; screen test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 14, 15. Today: Date Thursday, Nov 12; Readiness 0 ready, 0 shaky, 0 weak; Plan waiting for you. Library: Nov 12, in 8 days; none yet; draft waiting for you. Review from Today opens /library?open=e2e-plan-exam with the plan shown but the Practice tab lit. A reload of /library goes back to Practice.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:39:11.382Z"
  },
  {
   "id": "B-925",
@@ -16549,11 +16551,13 @@
   "title": "Study plan Detail look: the day names are not in a column so the session titles are ragged, the Detail changes width with its content, and a collection says 1 items",
   "dod": "Proposed sessions put the day in a fixed-width column, as in design/mockup.html (PLAN_PROPOSAL: 32 px), so titles line up; the Detail panel keeps one width; the collection count says 1 item; checked against the mock-up at 1280 in both themes.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
-  "notes": "Screenshots 06, 05, 12, 04. Detail was about 250 px wide for e2e plan exam and about 380 px for Synthetic unit exam. Collection e2e 1793776216740 B: 'Collection · 1 items'. Mock-up also puts Approve, Ask for changes and Put away on one line with Ask for changes secondary.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:39:11.674Z"
  },
  {
   "id": "B-926",
@@ -16561,13 +16565,15 @@
   "title": "Move the answers tally (accuracyLine, dueCounts, attemptsByItem) from areas/library/tally.ts into domain/answers so Progress can share it",
   "dod": "domain/answers exports the three functions via domain/index.ts with the moved tests; Library imports them from domain; no behaviour change",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-923"
   ],
-  "notes": "Split from B-923 by builder refusal (areas cannot import areas/library).",
-  "commit": null,
-  "source": "run63 build manager"
+  "notes": "Merged in #431.",
+  "commit": "45af7e0",
+  "source": "run63 build manager",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:39:12.286Z"
  },
  {
   "id": "B-927",
@@ -16575,10 +16581,12 @@
   "title": "Progress shows the same accuracy line as Library and ended-session minutes",
   "dod": "areas/progress fetches answers and sessions through commands/client and shows domain/answers accuracy plus ended-session minutes; test; seen on staging; B-923 closes",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
-  "notes": "B-923b. Depends on the domain/answers task.",
+  "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476).",
   "commit": null,
-  "source": "run63 build manager"
+  "source": "run63 build manager",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:39:11.981Z"
  }
 ]
