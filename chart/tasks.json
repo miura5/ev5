@@ -1135,7 +1135,7 @@
   "kind": "task",
   "title": "S-01: Bootstrap the repo: PLAN §4 skeleton, CLAUDE.md, handover, the pinned \"For Matt\" issue",
   "dod": "The tree matches PLAN §4 and CI runs an empty check",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "Skeleton, README per folder, CI empty check, For Matt issue miura5/ev5#1",
@@ -1149,7 +1149,7 @@
   "kind": "task",
   "title": "S-02: The record writer ops/record, carrying ev4's chart/*.json",
   "dod": "Renders match ev4's for the carried data; deploys.json frozen as v4 history",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "14/14 tests; renders byte-match ev4; lint green",
@@ -1163,7 +1163,7 @@
   "kind": "task",
   "title": "S-03: File the seed tasks through ops/record",
   "dod": "Every AGENTS.md §4.3 seed is a Chart task",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [
    "B-692"
@@ -1179,7 +1179,7 @@
   "kind": "task",
   "title": "S-04: Record Matt's confirmations (PLAN §15) as decisions",
   "dod": "C1–C15 and E-1, E-2 are Chart decisions",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [
    "B-692"
@@ -1195,7 +1195,7 @@
   "kind": "task",
   "title": "S-05: Sweep the accepted decisions and PLAN §2–§12 into CONTRACT.md, with §ids, and list the ended rules",
   "dod": "CONTRACT.md exists; its hard-limits section is marked for Matt's yes",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "CONTRACT.md: 153 lines, 125 §ids; 322 accepted read, 199 ended in docs/contract/ended.md. Hard limits await Matt's yes",
@@ -1209,7 +1209,7 @@
   "kind": "task",
   "title": "S-06: data/compat: frozen ev4 schemas, protocol tests, ev4's route list",
   "dod": "The compat tests pass against the reference adapter",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "36 schemas frozen at ev4 9d9af38; 19 routes; protocol suite 72 tests; reference adapter",
@@ -1223,7 +1223,7 @@
   "kind": "task",
   "title": "S-07: Spike: Workflows on the current plan tier",
   "dod": "A report with pass/fail per PLAN §13 item and a recommendation",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "S-07 complete. All four part-2 tests pass on the Free plan (run 41573826112); report in docs/spikes/S-07-workflows.md. ev5-spike Worker, Workflows and D1 deleted.",
@@ -1237,7 +1237,7 @@
   "kind": "task",
   "title": "S-08: Spike: the notes editor round trip (ProseMirror/Tiptap ⇄ ev4 blocks)",
   "dod": "A report with pass/fail per block type and harness behaviour",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [],
   "notes": "ProseMirror direct, flat schema: 63/63 lossless with two export fixes; Tiptap stock lists lossy. Code on claude/spike-s-08-editor",
@@ -1251,7 +1251,7 @@
   "kind": "task",
   "title": "S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec",
   "dod": "Shipped through ev4's own process; not built here",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "blocked",
   "depends": [],
   "notes": "ev4 task: ships through ev4's own process, never from this repo",
@@ -1264,7 +1264,7 @@
   "kind": "task",
   "title": "G-0: Gate 0: decide and freeze",
   "dod": "S-04…S-08 done and Matt's yes on the CONTRACT hard limits",
-  "milestone": "v5 P0",
+  "milestone": "Phase 0",
   "status": "done",
   "depends": [
    "B-691",
@@ -1285,7 +1285,7 @@
   "kind": "task",
   "title": "S-10: TypeScript, Vite, React and Vitest base, with one \"hello\" area",
   "dod": "Builds and tests green in CI",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1301,7 +1301,7 @@
   "kind": "task",
   "title": "S-11: ESLint, dependency-cruiser, Stylelint (tokens only), knip, per PLAN §4 and §11",
   "dod": "Each runs in CI",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1317,7 +1317,7 @@
   "kind": "task",
   "title": "S-12: Custom checks: presence, registry-only definitions, CONTRACT/skill/README rule check, interface trailer, secrets scan",
   "dod": "Each runs in CI",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1333,7 +1333,7 @@
   "kind": "task",
   "title": "S-13: Generated files: registries, folder README interface and must-not lines, commands/client.ts; regenerate-and-diff in CI",
   "dod": "CI fails on a stale generated file",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1349,7 +1349,7 @@
   "kind": "task",
   "title": "S-14: Guard-failure fixtures: one PR per guard that must go red, recorded",
   "dod": "Every PLAN §13 Phase 1 guard shown red",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1365,7 +1365,7 @@
   "kind": "task",
   "title": "S-15: CI: required checks, auto-merge, staging deploy on merge, the live workflow behind Matt's approval, and a check refusing non-live configs that name ev-live",
   "dod": "Staging deploys on merge; live waits in the live environment",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1381,7 +1381,7 @@
   "kind": "task",
   "title": "S-16: The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record",
   "dod": "The empty app answers on staging",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1397,7 +1397,7 @@
   "kind": "task",
   "title": "S-17: The rollback runbook in ops/, plus rehearsal 1 on a throwaway Worker+D1 pair",
   "dod": "Rehearsal 1 passes all five steps",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-700"
@@ -1413,7 +1413,7 @@
   "kind": "task",
   "title": "G-1: Gate 1: repo, guards, walking skeleton",
   "dod": "Every guard shown to fail, and rehearsal 1 passes",
-  "milestone": "v5 P1",
+  "milestone": "Phase 1",
   "status": "done",
   "depends": [
    "B-701",
@@ -1434,7 +1434,7 @@
   "kind": "task",
   "title": "S-20: tokens.css from ev4's values, matching design/mockup.html in both themes; normalize stray sizes or record the exception",
   "dod": "Tokens match the mock-up",
-  "milestone": "v5 P2",
+  "milestone": "Phase 2",
   "status": "done",
   "depends": [
    "B-709"
@@ -1448,7 +1448,7 @@
   "kind": "task",
   "title": "S-21: Kit first set (PLAN §7): one task per component, each with its story and test, filed as each starts",
   "dod": "All 15 components have stories and tests",
-  "milestone": "v5 P2",
+  "milestone": "Phase 2",
   "status": "done",
   "depends": [
    "B-709"
@@ -1464,7 +1464,7 @@
   "kind": "task",
   "title": "S-39: The /kit gallery route and Playwright visual baselines in Docker",
   "dod": "Baselines committed",
-  "milestone": "v5 P2",
+  "milestone": "Phase 2",
   "status": "done",
   "depends": [
    "B-709"
@@ -1478,7 +1478,7 @@
   "kind": "task",
   "title": "G-2: Gate 2: kit",
   "dod": "Baselines committed, and the gallery matches the mock-up",
-  "milestone": "v5 P2",
+  "milestone": "Phase 2",
   "status": "done",
   "depends": [
    "B-710",
@@ -1494,7 +1494,7 @@
   "kind": "task",
   "title": "S-40: domain/time with the DST tests and the \"due by Central date\" rule",
   "dod": "DST tests pass on 2026-11-01 and 2027-03-14",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1510,7 +1510,7 @@
   "kind": "task",
   "title": "S-41: Entity: exam",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1526,7 +1526,7 @@
   "kind": "task",
   "title": "S-42: Entity: objective",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1542,7 +1542,7 @@
   "kind": "task",
   "title": "S-43: Entity: weak spot, with its fixed-interval scheduler",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1558,7 +1558,7 @@
   "kind": "task",
   "title": "S-44: Entity: set",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1574,7 +1574,7 @@
   "kind": "task",
   "title": "S-45: Entity: item",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1590,7 +1590,7 @@
   "kind": "task",
   "title": "S-46: Entity: session",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1606,7 +1606,7 @@
   "kind": "task",
   "title": "S-47: Entity: note",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1622,7 +1622,7 @@
   "kind": "task",
   "title": "S-48: Entity: course",
   "dod": "ev4's tests ported and passing",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1638,7 +1638,7 @@
   "kind": "task",
   "title": "S-48a: New entities: collection and membership (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1654,7 +1654,7 @@
   "kind": "task",
   "title": "S-48b: New entity: pin (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1670,7 +1670,7 @@
   "kind": "task",
   "title": "S-48c: New entity: item properties with repeat (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture; materialization idempotent",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1686,7 +1686,7 @@
   "kind": "task",
   "title": "S-48d: New entities: own set, items and attempts (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1702,7 +1702,7 @@
   "kind": "task",
   "title": "S-48e: New entity: draft (PLAN §5.10)",
   "dod": "Migration, repository and compat fixture",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1718,7 +1718,7 @@
   "kind": "task",
   "title": "S-49: D1 repositories over docs, with Zod parsing and the protocol",
   "dod": "Pass the data/compat protocol suite",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1732,7 +1732,7 @@
   "kind": "task",
   "title": "S-50: The migration baseline and the deletions table",
   "dod": "Baseline is a no-op on a copy of ev4's schema",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1748,7 +1748,7 @@
   "kind": "task",
   "title": "S-51: Export every table in ev4's manifest shape (incl. §5.10 tables), plus a restore into scratch",
   "dod": "Counts and SHA-256 match after restore",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1764,7 +1764,7 @@
   "kind": "task",
   "title": "S-52: domain/search and its retrieval test set",
   "dod": "The retrieval test set passes",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-709"
@@ -1780,7 +1780,7 @@
   "kind": "task",
   "title": "S-53: The scratch-copy parse check (needs Matt's OK; counts only)",
   "dod": "Zero parse errors",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "declined",
   "depends": [
    "B-709"
@@ -1799,7 +1799,7 @@
   "kind": "task",
   "title": "G-3: Gate 3: domain and data",
   "dod": "PLAN §13 Phase 3 gate items all true",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [
    "B-714",
@@ -1831,7 +1831,7 @@
   "kind": "task",
   "title": "S-60: The command registry, defineCommand, propose mode, generated tools and descriptions (PLAN §6.1 list)",
   "dod": "Tools, ⌘K and schedule generated from it",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1847,7 +1847,7 @@
   "kind": "task",
   "title": "S-61: The job record, defineJob, executors and job_status",
   "dod": "Job lifecycle tests pass",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1863,7 +1863,7 @@
   "kind": "task",
   "title": "S-62: The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation",
   "dod": "Continuation is idempotent",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1879,7 +1879,7 @@
   "kind": "task",
   "title": "S-63: Ceilings: hourly, daily, monthly, per job, with pre-flight reservation and the 80% alert",
   "dod": "A forced ceiling hit fails cleanly",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1895,7 +1895,7 @@
   "kind": "task",
   "title": "S-64: Structured output, validation, repair ask, citation checks; models.ts with its checked-on date",
   "dod": "A forced invalid output and max_tokens fail cleanly",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1911,7 +1911,7 @@
   "kind": "task",
   "title": "S-65: The practice set job (mock exam variant; drafts output for Write with E.V.)",
   "dod": "Runs on v5 staging",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1927,7 +1927,7 @@
   "kind": "task",
   "title": "S-66: The study plan job",
   "dod": "Runs on v5 staging",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1943,7 +1943,7 @@
   "kind": "task",
   "title": "S-67: Hono routes, scoped tokens, rate limiting, ev4-route 410s",
   "dod": "Route tests pass",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-713"
@@ -1959,7 +1959,7 @@
   "kind": "task",
   "title": "G-4: Gate 4: commands, runtime, server",
   "dod": "PLAN §13 Phase 4 gate items all true",
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-734",
@@ -1982,7 +1982,7 @@
   "kind": "task",
   "title": "S-70: Shell: sidebar (areas, pins, Recently deleted), Detail panel, ⌘K",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -1998,7 +1998,7 @@
   "kind": "task",
   "title": "S-71: Activity",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2014,7 +2014,7 @@
   "kind": "task",
   "title": "S-72: Today",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2030,7 +2030,7 @@
   "kind": "task",
   "title": "S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2046,7 +2046,7 @@
   "kind": "task",
   "title": "S-74: Ask E.V.",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2062,7 +2062,7 @@
   "kind": "task",
   "title": "S-75: The notes editor: home list and note page",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2078,7 +2078,7 @@
   "kind": "task",
   "title": "S-76: Study sessions and read-along",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2094,7 +2094,7 @@
   "kind": "task",
   "title": "S-76a: Collection page, Recently deleted, pins",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2110,7 +2110,7 @@
   "kind": "task",
   "title": "S-77: The offline outbox, and the ev4-outbox import",
   "dod": "Offline note journey passes",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2126,7 +2126,7 @@
   "kind": "task",
   "title": "S-78: The e2e journeys from Gate 5",
   "dod": "All journeys pass",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2142,7 +2142,7 @@
   "kind": "task",
   "title": "G-5: Gate 5: shell and areas",
   "dod": "e2e journeys pass",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-743",
@@ -2176,7 +2176,7 @@
   "kind": "task",
   "title": "S-80: Scheduled commands: morning, evening, weekly",
   "dod": "Scheduled commands run from a 15-minute Worker cron: one is due when its Central wall time has passed and no run exists for that Central date; nothing is scheduled 01:00-03:00 Central; a missing run is reported, never re-fired; tested across DST on 2026-11-01 and 2027-03-14 (CONTRACT §job.schedule, §job.trace)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753"
@@ -2190,7 +2190,7 @@
   "kind": "task",
   "title": "S-81: The Mac executor for Canvas (needs Matt present)",
   "dod": "The Canvas sync runs on the Mac in small read-only parts, follows pagination past 100 items, and reports through report_job over the executor token (CONTRACT §job.executors, §data.canvas)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753"
@@ -2204,7 +2204,7 @@
   "kind": "task",
   "title": "S-82: The push task (C7)",
   "dod": "A push reaches the phone from v5's summary",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753"
@@ -2218,7 +2218,7 @@
   "kind": "task",
   "title": "S-83: Restore drills, including a Time Travel restore on staging",
   "dod": "Drills pass for every table",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753",
@@ -2233,7 +2233,7 @@
   "kind": "task",
   "title": "S-84: Rehearsal 2",
   "dod": "All five steps pass",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "declined",
   "depends": [
    "B-753",
@@ -2253,7 +2253,7 @@
   "kind": "task",
   "title": "S-85: One end-to-end run",
   "dod": "Passes on staging",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753"
@@ -2267,7 +2267,7 @@
   "kind": "task",
   "title": "G-6: Gate 6: ops",
   "dod": "The end-to-end run and both restore drills pass",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-754",
@@ -2285,7 +2285,7 @@
   "kind": "task",
   "title": "S-90: The whole-repo review",
   "dod": "No open findings on lost data, cost, security, crashes, unreachable controls",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "open",
   "depends": [
    "B-760"
@@ -2299,7 +2299,7 @@
   "kind": "task",
   "title": "S-91: A UX pass against the rules and the mock-up",
   "dod": "Findings fixed or filed",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "open",
   "depends": [
    "B-760"
@@ -2313,7 +2313,7 @@
   "kind": "task",
   "title": "S-92: The release card; Matt tests",
   "dod": "Matt says ship",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "open",
   "depends": [
    "B-760"
@@ -2478,7 +2478,7 @@
   "kind": "task",
   "title": "Stream the model call (the SDK refuses a long non-streamed request); found by the Gate 4 staging run",
   "dod": null,
-  "milestone": "v5 P4",
+  "milestone": "Phase 4",
   "status": "done",
   "depends": [
    "B-742"
@@ -2492,7 +2492,7 @@
   "kind": "task",
   "title": "Kit: sidebar looks (nav item with count, group label, running-job line, sidebar search, area icons)",
   "dod": "Kit components and stories matching the mock-up sidebar; shell swaps its Row stand-ins",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-711"
@@ -2506,7 +2506,7 @@
   "kind": "task",
   "title": "Wire the areas to data: Today, Activity, Ask, Library, Sessions, Collection, Deleted read props from commands/client (the screens are empty today)",
   "dod": "Each screen shows staging data and the Detail panel opens from a row",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-743"
@@ -2522,7 +2522,7 @@
   "kind": "task",
   "title": "Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6)",
   "dod": "Matches the mock-up",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-746"
@@ -2538,7 +2538,7 @@
   "kind": "task",
   "title": "S-77b: wire the outbox into the notes editor and answers, and the first-boot ev4 import offer",
   "dod": "Offline note journey passes in the browser (e2e)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-751"
@@ -2554,7 +2554,7 @@
   "kind": "task",
   "title": "Server document routes (list, get, conditional put) over data repositories",
   "dod": "Routes pass tests with the compat protocol",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-742"
@@ -2570,7 +2570,7 @@
   "kind": "task",
   "title": "Add data/docs/ to the npm test glob (its tests are not run by CI) and make them pass",
   "dod": "CI runs data/docs tests green",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-779"
@@ -2586,7 +2586,7 @@
   "kind": "task",
   "title": "Worker-safe notes write check (createdAt, earlierOf) on the document routes: bundle frozen schemas as JSON imports",
   "dod": "Notes writes through /api/v1/docs are checked like ev4's",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-779"
@@ -2600,7 +2600,7 @@
   "kind": "task",
   "title": "S-77c: first-boot ev4 import offer (importEv4Outbox) in the shell",
   "dod": "On first boot a found ev4 outbox is offered; Matt's yes queues its entries; nothing lost",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-778"
@@ -2616,7 +2616,7 @@
   "kind": "task",
   "title": "S-77d: practice answers through queueAnswer, wired in the Library study screen",
   "dod": "A practice answer given offline is queued and replayed; 409 counts as recorded",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-778"
@@ -2632,7 +2632,7 @@
   "kind": "task",
   "title": "S-77e: notes collections, new note, and the real editor on the outbox",
   "dod": "Notes screen shows collections, creates notes, edits blocks through queueNote; offline e2e journey passes",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-778"
@@ -2648,7 +2648,7 @@
   "kind": "task",
   "title": "S-76b: server read route for collections, memberships and deletions",
   "dod": "GET /api/v1/collections, /memberships and /deletions read their tables (empty when a table is absent); no write or delete",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-750"
@@ -2662,7 +2662,7 @@
   "kind": "task",
   "title": "Shell wiring: App passes counts and runningJob to Shell, and a navigate callback for areas",
   "dod": "Sidebar counts and the running-job line show staging data; areas can navigate",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-775"
@@ -2678,7 +2678,7 @@
   "kind": "task",
   "title": "Kit Menu onto Radix: DropdownMenu for ⋯ and '.', ContextMenu for right-click, radio items for pickers; Detail's ⋯ opens the kit Menu",
   "dod": "kit/components/Menu renders through @radix-ui/react-dropdown-menu and @radix-ui/react-context-menu (unstyled, kit CSS only); Detail's ⋯ is the Menu trigger (items passed in, not drawn by the caller); no useState/useRef focus or key code left in Menu; same look: Playwright visual baselines for Menu and Detail unchanged; keyboard and focus tests: arrows move, Enter picks, Esc closes and returns focus to the trigger, typeahead, radio item checked state",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Slice write: kit/components/Menu, kit/components/Detail, kit/index.ts, package.json, package-lock.json. Read: areas, shell (no caller uses Menu or onMore yet). Wiring Row right-click into areas is area work, not this task. The visual job is not required in CI (handover): run the visual diff and record it in the PR.",
@@ -2692,7 +2692,7 @@
   "kind": "task",
   "title": "Kit Palette (⌘K) onto cmdk inside an unstyled Radix Dialog",
   "dod": "kit/components/Palette renders through cmdk's Command (Command.Dialog over @radix-ui/react-dialog); groups, found items and pins filter as now; Tab hands the request to E.V. (CONTRACT §ui.palette); Shell's Palette props unchanged; same look: Palette visual baseline unchanged; keyboard and focus tests: focus lands in the input, arrows move, Enter runs, Tab asks, Esc closes and returns focus, focus trapped while open",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-787"
@@ -2708,7 +2708,7 @@
   "kind": "task",
   "title": "Kit Segmented and TextOptions: roving arrow-key focus through Radix ToggleGroup",
   "dod": "Segmented (kit/components/Field) and TextOptions render through @radix-ui/react-toggle-group type single (unstyled); one Tab stop per group, arrows move focus; same look: visual baselines unchanged; keyboard and focus tests per component; area tests that select these by role still pass or are updated to role and name",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-788"
@@ -2724,7 +2724,7 @@
   "kind": "task",
   "title": "Guard: a kit component that draws a menu, listbox, combobox or modal dialog must import Radix or cmdk",
   "dod": "A check in ops/checks fails when a kit/components/*.tsx (not a story or test) contains role=\"menu\", \"listbox\", \"combobox\", \"dialog\" or aria-modal, or handles ArrowDown/Escape keys itself, and imports nothing from @radix-ui/ or cmdk; a guard-failure fixture goes red (ops/guards, docs/guards.md); main is green with it on",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-787",
@@ -2742,7 +2742,7 @@
   "kind": "task",
   "title": "Decide and record the time-zone library: domain/time keeps Intl, or takes @date-fns/tz as PLAN §4 and §12 name",
   "dod": "One Chart decision picks Intl or @date-fns/tz for domain/time (plan review F28 item 3: @date-fns/tz or Temporal, pick in Phase 0); if Intl, the decision amends PLAN §4 and §12 and the dependency-cruiser allowlist for domain drops @date-fns/tz; if @date-fns/tz, it is added pinned and domain/time uses it with the DST tests for 2026-11-01 and 2027-03-14 still green",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Decided by D-465: Intl only.",
@@ -2754,7 +2754,7 @@
   "kind": "task",
   "title": "Decide and record the notes editor dependency: ProseMirror direct with the S-08 flat schema, or Tiptap",
   "dod": "One Chart decision names the editor packages and pinned versions (S-08 recommends prosemirror-model, -state, -view, -transform, -commands, -history, -keymap, -inputrules, all MIT), as CONTRACT §drift.tools needs for a new runtime dependency; B-784's real editor builds on it",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Decided by D-464: ProseMirror direct.",
@@ -2766,7 +2766,7 @@
   "kind": "task",
   "title": "S-75a: Notes editor on ProseMirror direct (D-464): replace the textarea-per-block editor in areas/notes/parts/NoteEditor.tsx with a ProseMirror view on the S-08 flat schema; saves go through the outbox as now Done when: A note typed, edited and reloaded round-trips ev4's blocks losslessly (S-08 fixtures); undo/redo, headings, lists, checks work; matches the mock-up",
   "dod": null,
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-748",
@@ -2783,7 +2783,7 @@
   "kind": "task",
   "title": "Fix the kit gallery visual baselines (height 4989 vs 5529) so the visual job is green on main Done when: visual CI job passes on main",
   "dod": null,
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Regenerate via dispatching visual-baselines.yml on a branch (needs Docker); then push one real commit.",
@@ -2797,7 +2797,7 @@
   "kind": "task",
   "title": "CI runs the jobs tests",
   "dod": "npm test runs every jobs/**/*.test.ts (ceilings, workflow, output, model-call, d1-stores, practice-set, study-plan); the CI log lists them and they pass; failures found are fixed in the same PR",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit: package.json test script and vite.config.ts include list leave out jobs/, so 15 jobs tests never run in CI and the proofs behind B-735..B-738 were never run there. Slice write: package.json, vite.config.ts, jobs (fixes only).",
@@ -2809,7 +2809,7 @@
   "kind": "task",
   "title": "Migrations and repositories for collections, memberships, pins, item properties, own sets and own attempts",
   "dod": "data/migrations has an additive, idempotent migration for collections, memberships, pins, item_props, own_sets and own_attempts (CONTRACT §data.new-tables, §data.migrations); migrations.test applies them on ev4-schema.fixture.sql; data/ has a repository per table with the docs protocol (at, v); staging's schema has them; GET /api/v1/collections and /memberships read real rows",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-729"
@@ -2823,7 +2823,7 @@
   "kind": "task",
   "title": "Export covers every migrated table, checked by a test",
   "dod": "data/export ALL_TABLES includes job_records, ceiling_use, ceiling_holds and job_plans with counts and SHA-256; a test applies data/migrations/*.sql, reads sqlite_master and fails on any non-virtual table missing from the export; the restore check passes for them (CONTRACT §data.export)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-730"
@@ -2837,7 +2837,7 @@
   "kind": "task",
   "title": "Every v5 writer goes through the docs protocol and is compat-checked on its real output",
   "dod": "server/plan-home.ts writes plans and exams through data/docs (canonical JSON, if_version), not raw SQL with JSON.stringify; tests run each writer's actual output (note save, session pause/end, queueAnswer, Today dayedits, plan save, exam planId) through validateWrite; session writes set source and at like note saves (CONTRACT §data.compat, §data.protocol, §data.writers)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #299 (session pause/resume/End) and #303 (tell-me, switch/undo payloads). Left: queueAnswer in shell/outbox has no validateWrite test (needs a slice that includes shell/outbox).",
@@ -2851,7 +2851,7 @@
   "kind": "task",
   "title": "Typed command client and a command route: areas and E.V. call the registry, not raw fetch",
   "dod": "commands/client.ts (generated) exports a typed call(name, input) and job helpers; a /api/v1 command route runs registry commands through resolveCall (caller, mode; an E.V. propose call makes a Suggestion); a route test refuses an unlisted caller; grep 'fetch(' in areas/ finds none (CONTRACT §cmd.registry, §cmd.generated, §cmd.propose, §drift.imports)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F16, F28): commands/client.ts lists names only; resolveCall, tools() and paletteEntries() have no caller outside tests; areas make about 10 raw fetch calls; job-routes.ts keeps its own KINDS. B-734 is marked done but its 'Tools, ⌘K and schedule generated from it' is not true at runtime.",
@@ -2863,7 +2863,7 @@
   "kind": "task",
   "title": "⌘K lists the registry's commands by place; ⌘J toggles Ask E.V.",
   "dod": "Shell's palette has a Commands group built from paletteEntries() filtered by place, beside Places, found items and Pinned; a test runs one command from ⌘K; Tab hands the typed text to Ask E.V.; ⌘J toggles Ask E.V. (CONTRACT §ui.palette, §cmd.generated)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-788",
@@ -2878,7 +2878,7 @@
   "kind": "task",
   "title": "Sidebar shows Today, Ask E.V., Library, Notes, Progress, Activity, then pins",
   "dod": "The sidebar lists exactly Today, Ask E.V., Library, Notes, Progress, Activity in that order, then pins, the running-job line and one Recently deleted link (CONTRACT §ui.sidebar, §ui.layout); Hello is removed; collection, sessions and Recently deleted are routes, not sidebar entries; Progress has an area.ts with its one-line screen; Shell tests check the order",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-750"
@@ -2892,7 +2892,7 @@
   "kind": "task",
   "title": "Decide and record how Ask E.V. answers (chat route or job) within the contract",
   "dod": "One Chart decision names the route Ask E.V. uses for a reply, its model and ceilings, its tools (registry tools() including job_status), citations or 'unverified', and attempt-first prompting, consistent with CONTRACT §job.no-chat-ask, §job.kinds, §ev.cites, §ui.attempt-first; if it needs a contract change, the decision amends the §id",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "D-470: Ask E.V. replies on a chat route, not a job. Follow-up is B-803.",
@@ -2904,7 +2904,7 @@
   "kind": "task",
   "title": "Connect Ask E.V. to the Worker",
   "dod": "On staging, a question in Ask E.V. gets a reply that cites Matt's notes or sets or says 'unverified'; 'is it ready?' while a job runs is answered through job_status; a Gate 5 journey covers it",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "open",
   "depends": [
    "B-802",
@@ -2919,7 +2919,7 @@
   "kind": "task",
   "title": "Log every 'just tell me'",
   "dod": "A 'just tell me' tap in practice, study sessions and Ask E.V. writes one append-only event and then shows the answer (CONTRACT §ui.attempt-first, §data.append-only); tests cover each place",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-749",
@@ -2934,7 +2934,7 @@
   "kind": "task",
   "title": "The 80% monthly spend alert reaches Activity and Today",
   "dod": "When a reservation crosses 80% of the monthly ceiling, jobCeilings writes one Activity needs-you item and Today shows one line; a test shows both and no repeat in the same month (CONTRACT §model.alert)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-737"
@@ -2948,7 +2948,7 @@
   "kind": "task",
   "title": "Job input and output come from one Zod schema each",
   "dod": "JobSpec input and output are Zod schemas; practice-set and study-plan pass outputSchema(schema) to the model call; their hand-written parsers and JSON Schema literals are removed; job tests stay green (CONTRACT §job.define, §model.output, §drift.modules)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-795"
@@ -2962,7 +2962,7 @@
   "kind": "task",
   "title": "Domain parsers are Zod schemas",
   "dod": "Each domain/<entity> parser is a Zod schema with its type derived (z.infer), replacing the hand validators; data/docs parsers use them; tests stay green (CONTRACT §drift.modules)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Part 1 #223, part 2 B-831 #230; all domain parsers are Zod.",
@@ -2974,7 +2974,7 @@
   "kind": "task",
   "title": "Prompt caching on stable prefixes",
   "dod": "The model call marks the system prompt and course context with cache_control; a test sees it in the request; a staging run shows cache reads in usage (CONTRACT §model.choice)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "open",
   "depends": [],
   "notes": "Merged in #216 (cache_control on system prompt and first user message). Still open: a staging run showing cache_read_input_tokens in usage.",
@@ -2986,7 +2986,7 @@
   "kind": "task",
   "title": "Run the models.ts 'checked on' warning",
   "dod": "ops/checks prints a warning (not a failure) when models.ts was checked more than its age limit ago; a guard fixture with an old date shows the warning (CONTRACT §model.registry)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F35): modelsStaleWarning is called only from a test.",
@@ -2998,7 +2998,7 @@
   "kind": "task",
   "title": "The server gathers practice-set excerpts from Matt's record",
   "dod": "The practice-set job input names a scope, not excerpts; the server finds passages with a LIKE query over docs ranked by domain/search; a test shows caller-supplied excerpts are ignored; a job run cites only gathered ids (CONTRACT §data.search, §ev.cites)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "open",
   "depends": [
    "B-731",
@@ -3013,7 +3013,7 @@
   "kind": "task",
   "title": "Guard: ban export *",
   "dod": "ESLint (no-restricted-syntax ExportAllDeclaration) or a dependency-cruiser rule fails on export *; an ops/guards fixture goes red; domain/weak-spot, domain/note and domain/set use named re-exports; main is green (CONTRACT §drift.imports)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F30): three index.ts files use export * and no rule bans it.",
@@ -3025,7 +3025,7 @@
   "kind": "task",
   "title": "Guard: no decision or task ids in code or docs",
   "dod": "ops/checks fails on a D-nnn or B-nnn in source, CSS, prompts or READMEs outside ops/record, data/compat, chart, docs/record and docs/history; the current sites (about 16, e.g. jobs/runtime/workflow.ts, domain/course/scope.ts, kit/tokens/tokens.css, e2e/journeys.ts) say the behaviour instead; an ops/guards fixture goes red (CONTRACT §drift.no-ids)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F14): ops/checks/rules.ts scans only README.md and SKILL.md, and nothing scans for ids.",
@@ -3037,7 +3037,7 @@
   "kind": "task",
   "title": "Rule check scans 'only'; READMEs cite §ids instead of restating rules",
   "dod": "ops/checks/rules.ts flags never, always, must and only without a §id, as CONTRACT §drift.one-file says, and also scans jobs/*/prompt.md; kit, kit/tokens, domain, areas and design READMEs cite the §id instead of restating the rule; main is green",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F14, F33): rules.ts:2-3,35 skips 'only' with no Chart decision; kit/README.md and kit/tokens/README.md restate §ui.kit-leads, domain/README.md restates the import rule (and names @date-fns/tz).",
@@ -3049,7 +3049,7 @@
   "kind": "task",
   "title": "dependency-cruiser matches the plan: drop @date-fns/tz, add server and data rules",
   "dod": "The domain externals allowlist drops @date-fns/tz (the time-zone decision is Intl); domain/README.md stops naming it; server gets an only() rule (commands, jobs, data, domain) and data an externals rule (zod); depcruise is green (CONTRACT §drift.imports)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F28): B-791 is done and its done-when says the allowlist drops @date-fns/tz, but .dependency-cruiser.cjs:44 still lists it.",
@@ -3061,7 +3061,7 @@
   "kind": "task",
   "title": "Presence check covers jobs/<kind>/job.ts",
   "dod": "ops/checks/presence.ts requires a test beside every jobs/<kind>/job.ts; a guard fixture without job.test.ts goes red",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit (PLAN §11): presence.ts:16 matches only *.job.ts, so jobs/<kind>/job.ts is never checked.",
@@ -3073,7 +3073,7 @@
   "kind": "task",
   "title": "Gate 5 journeys as @playwright/test browser specs",
   "dod": "Each PLAN Phase 5 journey is its own @playwright/test file under e2e/ that drives the UI on staging in the Playwright Docker image; the gate run fails on any todo or skipped journey; the journeys run on every batch (CONTRACT §drift.tools, §drift.checks); e2e/journeys.ts's own runner is removed",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-752"
@@ -3089,7 +3089,7 @@
   "kind": "task",
   "title": "Installable app: vite-plugin-pwa, cached shell and a local read copy",
   "dod": "vite-plugin-pwa (pinned, with a Chart decision naming the problem) builds a manifest and service worker; the shell opens offline; the page reads from its IndexedDB copy in ev5-app when offline (PLAN §5.9, CONTRACT §data.offline, §ui.targets); the offline note journey passes in a browser",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-751"
@@ -3105,7 +3105,7 @@
   "kind": "task",
   "title": "Note pictures in R2 under note-images/",
   "dod": "The Worker stores note pictures in the environment's R2 bucket under note-images/ and serves them to the app token only; a picture added in a note round-trips after reload (CONTRACT §data.note-images)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-793"
@@ -3121,7 +3121,7 @@
   "kind": "task",
   "title": "Document size budget: warn at 75%, fail at 90%",
   "dod": "The docs write path measures each document against its platform ceiling; a write over 75% logs a warning in Activity, over 90% is refused with a plain reason; doc-route tests cover both (CONTRACT §data.size)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Audit: only the 1 MiB hard cap exists (data/compat/protocol.ts:11).",
@@ -3133,7 +3133,7 @@
   "kind": "task",
   "title": "Keep ev4's PlanJob class in v5's live build",
   "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing (CONTRACT §data.same-worker: removing the class deletes ev4's stored state)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Audit (review F2, F26): only rehearsal.yml's own entry has a PlanJob stub; server/worker.ts exports default and JobWorkflow, wrangler.jsonc has no durable_objects. ops/ROLLBACK.md already says the real build must keep one. Must land before B-758.",
@@ -3147,7 +3147,7 @@
   "kind": "task",
   "title": "Retire ev4's page cleanly at cutover",
   "dod": "ev4 routes answer 410 with the text 'E.V. updated, reload' and a test asserts the body; v5 serves a /sw.js (or its PWA worker) that replaces ev4's cached service worker; rehearsal 2 installs ev4's worker in a browser, deploys v5, reloads and lands on v5's page (CONTRACT §data.ev4-routes)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [
    "B-817"
@@ -3161,7 +3161,7 @@
   "kind": "task",
   "title": "Nightly export to R2 from v5's Worker",
   "dod": "A Worker cron runs the export command nightly in Central time; it writes a never-overwritten R2 export whose manifest matches; the copy reaches Matt's Mac backups folder; staging shows one run (CONTRACT §data.export)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-754",
@@ -3177,7 +3177,7 @@
   "kind": "task",
   "title": "Cutover checklist and run record",
   "dod": "ops/CUTOVER.md lists CONTRACT §deliver.cutover's steps (outboxes empty, ev4 cloud tasks off through ev4's process, Mac tasks re-created with Matt, v5's own live D1 and R2 created empty on Matt's word, v5 export and Time Travel bookmark, ev-staging then ev-live, live check, ev4 service worker retired); on the day each step's result is recorded in the Chart",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "open",
   "depends": [
    "B-760",
@@ -3192,7 +3192,7 @@
   "kind": "task",
   "title": "Scratch-copy check round-trips every note through the editor (counts only)",
   "dod": "data/scratch-check runs every note through the ProseMirror adapter and back and reports lossless count = note count, counts only (CONTRACT §data.notes, §sec.staging-data)",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "done",
   "depends": [
    "B-793",
@@ -3207,7 +3207,7 @@
   "kind": "task",
   "title": "File the after-cutover backlog",
   "dod": "Each 'after cutover' item in PLAN §8 and CONTRACT (predictions and calibration, Matt-first planning, Progress beyond one line, FSRS cards, card and step sets, saved views) is a Chart task with an after-cutover milestone",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "open",
   "depends": [],
   "notes": "Audit (review F32): these were deferred on purpose (PLAN §8, D-435) but no Chart item will bring them back.",
@@ -3219,7 +3219,7 @@
   "kind": "task",
   "title": "Record where decisions D-001..D-043 live, or that they are not carried",
   "dod": "docs/record/DECISIONS.md names the location of the v2 decision log, or a Chart decision says it is not carried",
-  "milestone": "v5 P7",
+  "milestone": "Phase 7",
   "status": "done",
   "depends": [],
   "notes": "Recorded as D-473: D-001..D-043 are not carried.",
@@ -3231,7 +3231,7 @@
   "kind": "task",
   "title": "domain/index.ts exports noteBlocks and Run so the notes editor drops its local copy of ev4's key order and 20,000-character run cap Done when: areas/notes/parts/editorDoc.ts uses the domain export; round-trip tests still pass",
   "dod": null,
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-793"
@@ -3245,7 +3245,7 @@
   "kind": "task",
   "title": "Notes editor leftovers: 4,000-line and 400-run refusals (noteFits), unwrap a row once a column is empty, ev4's HTML paste sanitiser Done when: Each has a test from the S-08 behaviours",
   "dod": null,
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-793"
@@ -3259,7 +3259,7 @@
   "kind": "task",
   "title": "domain/index.ts exports fits and splitWide so the notes editor drops areas/notes/parts/editorFits.ts (copy with limits 4000 lines and 400 runs hardcoded)",
   "dod": "areas/notes imports fits and splitWide from domain; editorFits.ts is removed; notes tests stay green",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-828"
@@ -3273,7 +3273,7 @@
   "kind": "task",
   "title": "Command handlers behind /api/v1/commands, and tools() and paletteEntries() used at runtime",
   "dod": "commandHandlers in server/command-routes.ts has a handler per instant command (no 501 for a command a screen calls); the Ask job takes its tools from tools() and ⌘K lists paletteEntries(); job-routes.ts takes its kinds from the registry (CONTRACT §cmd.generated, §cmd.registry)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-799"
@@ -3287,7 +3287,7 @@
   "kind": "task",
   "title": "Domain parsers are Zod schemas, part 2",
   "dod": "exam, objective, set, item-props, own-set, note and session parsers become Zod schemas with z.infer types (CONTRACT §drift.modules); pin, draft, collection and weak-spot are done",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-807"
@@ -3301,7 +3301,7 @@
   "kind": "task",
   "title": "Area and domain writers pass validateWrite on their real output (notes, sessions, answers, dayedits)",
   "dod": "slice: write areas/notes, areas/library, areas/today, domain/session, domain/note (+ a compat test per writer): note save sets source starting v5 (now 'E.V. 5'); session start/pause/end set source (v5-prefixed; domain/session says 'E.V. Home') and at like note saves; queueAnswer and Today dayedits output run through validateWrite in a test; plan-home's plan and exam writes get the same test",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-798"
@@ -3315,7 +3315,7 @@
   "kind": "task",
   "title": "Handlers for the remaining instant commands (note, session, check, plan, set, study, weakspot, job.stop/dismiss ...)",
   "dod": "Every instant command a screen calls via call() has a handler with a compat fixture, or the screen uses the outbox and the command is dropped; no 501 for a used command (CONTRACT §cmd.registry)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-830"
@@ -3329,7 +3329,7 @@
   "kind": "task",
   "title": "Sessions source: ev4 schema allows only Study Watch / E.V. Home but validateWrite wants a v5 prefix",
   "dod": "One Chart decision picks: exempt sessions in validateWrite, or extend the schema enum; domain/session/validateWrite.test.ts then expects ok",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-832"
@@ -3343,7 +3343,7 @@
   "kind": "task",
   "title": "Spend alert needs an acknowledge action",
   "dod": "Dismissing the spend-alert needs-you item in Activity closes it; test",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-805"
@@ -3357,7 +3357,7 @@
   "kind": "task",
   "title": "Palette entries reach the client: optional places on CommandSpec, generated client.ts exports palette data",
   "dod": "Done when: CommandSpec has optional places; paletteEntries carries it; generated commands/client.ts exports palette entries as plain data (no zod) (CONTRACT §ui.palette, §cmd.generated)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-799"
@@ -3371,7 +3371,7 @@
   "kind": "task",
   "title": "Shell palette Commands group, Tab to Ask with text, and ⌘J",
   "dod": "Done when: Shell palette has a Commands group from client.ts paletteEntries filtered by area; a test runs one command from ⌘K via call(); Tab navigates to Ask E.V. with the typed text; ⌘J toggles Ask E.V. (CONTRACT §ui.palette)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-836"
@@ -3619,7 +3619,7 @@
   "kind": "task",
   "title": "PlanJob follow-ups: ops/ROLLBACK.md line 41 says v5 has no PlanJob; rehearsal.yml should deploy the real worker entry",
   "dod": "ROLLBACK.md matches the PlanJob stub; rehearsal 2 deploys server/worker.ts, not its own stub",
-  "milestone": "6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [
    "B-820"
@@ -3633,7 +3633,7 @@
   "kind": "task",
   "title": "commands/client.ts jobApi reads direct: fall back to the saved copy (generated from ops/generate/lib.ts); useSessions note read also direct",
   "dod": "jobApi and the session note read use the saved copy offline; 401/5xx still throw",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-853"
@@ -3647,7 +3647,7 @@
   "kind": "task",
   "title": "Stuck jobs show as failed: a scheduled check finds jobs past their deadline in queued or running and marks them failed with a plain reason",
   "dod": "defineJob gains a per-kind deadline for queued and for running (longer than the retried step time); a registered schedule-only command (job_sweep) runs on the Worker's 15-minute cron through the command registry; it finds jobs in queued or running past their kind's deadline and moves each to failed with a plain reason Activity shows (for example: stopped, its runner was lost; retry it from Activity); needs-you jobs are never swept (§job.needs-you); it never re-fires a job (§job.trace), never deletes or overwrites output already written, and keeps the job's cost and output pointer; it writes through the store's compare-and-set, so a job that finishes during the sweep wins and a second sweep changes nothing (idempotent); tests cover past-deadline queued and running, a fresh job left alone, needs-you left alone, a concurrent finish refused, and a second run with no change",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-735",
@@ -3664,7 +3664,7 @@
   "kind": "task",
   "title": "One app token for the whole app: the client keeps it and says when staging refuses it",
   "dod": "commands/client.ts (generated by ops/generate) gains readToken, saveToken and forgetToken over localStorage ev5.token (storage blocked: the token lasts this visit only), and api() reports a 401 once through one signal the shell can listen to (for example a window event ev5:unauthorized) without forgetting the token itself; a helper gives the plain sentence for a failed call by kind (refused token, offline, server error), never the server's raw text; tests cover save/read/forget, blocked storage, the 401 signal firing once per refused call and not on 403 or 5xx, and each plain sentence",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged in #315 (run 43).",
@@ -3676,7 +3676,7 @@
   "kind": "task",
   "title": "A token screen: paste the staging app token once, and paste it again in plain words when it is refused",
   "dod": "The shell shows one token screen before any area when no token is saved, and again after the client's 401 signal: one password field, a line saying it stays in this browser only, and after a refusal the plain sentence 'That token was not accepted. Paste the app token again.'; a 'Use a different token' control in the shell (sidebar foot or palette) forgets the saved token and shows the screen; the token is never logged, put in a URL or sent anywhere but the Authorization header; built from kit parts in the mock-up's look (§ui.kit-leads); tests cover first visit, refusal returns to the screen with the sentence, the right token shows the area, and Use a different token",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-858"
@@ -3690,7 +3690,7 @@
   "kind": "task",
   "title": "Every screen shows a refused or failed call in plain words, never as empty, and Ask's reply stops waiting",
   "dod": "Areas read the token only through the client's token store: the six per-area paste forms and token-key copies (activity, ask, collection, library, sessions, today, deleted, notes) are removed; a 401 shows no data and no 'empty' state, only the shell's token screen; other failures show the client's plain sentence through one shared kit notice, not one-off text; Ask never prints server text: a refused or failed reply shows a plain sentence and the turn stops waiting; an e2e journey on staging (e2e/) covers no token shows the screen, a wrong token returns to it with the plain sentence, and the right token shows Today with data; tests per area for 401 and 5xx",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-858",
@@ -3705,7 +3705,7 @@
   "kind": "task",
   "title": "The sidebar asks for the jobs list about 5 times a second instead of every 30 seconds",
   "dod": "shell/useShellStatus.ts polls /api/v1/jobs once on mount and once per interval (30 s): its effect no longer depends on a default fetch function made new on every render (App.tsx passes undefined), so a status update does not restart it; a test renders the hook, lets it settle and counts one fetch, then one more per interval; on staging the browser's network list shows about 2 jobs calls a minute on Today. Check whether the Sessions timer stuck at 0:00 is the same loop.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged in #316. Still to check on staging: about 2 jobs calls a minute.",
@@ -3717,7 +3717,7 @@
   "kind": "task",
   "title": "Recently deleted opens as a blank page",
   "dod": "shell/Shell.tsx mounts deletedArea's view on /deleted (it now sets View to undefined for DELETED_ROUTE), so the page shows its heading, the kept-30-days line, the item count and Nothing here. when empty; a shell test opens /deleted and finds the Recently deleted heading.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged in #316.",
@@ -3729,7 +3729,7 @@
   "kind": "task",
   "title": "A note's page shows a raw browser Title box and Save button above the note",
   "dod": "The unstyled form in areas/notes/Notes.screen.tsx (label Title, plain input, plain Save button) is gone; the title is edited in place in the page's heading with kit styles, as design/mockup.html's note page shows (PLAN: titles edit in place); no default browser control shows on the note page.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 44 (#324): raw Title box and Save removed; title is the editor's first h1. Browser look vs the mock-up not checked.",
@@ -3741,7 +3741,7 @@
   "kind": "task",
   "title": "A note with a title shows the title twice",
   "dod": "NotePageView prints no separate heading when the note's first block is its h1 title (ev4 notes keep the title as the first h1 block, withTitle in areas/notes/useNotes.ts); a titled note shows its title once, a note with no h1 shows Untitled once; tests cover both.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 44 (#324): note page prints its heading only when the body has no h1. useNotes saveTitle/withTitle now unused by the screen.",
@@ -3753,7 +3753,7 @@
   "kind": "task",
   "title": "Today says Nothing planned yet while its plan lists an item",
   "dod": "areas/today/map.ts picks the E.V. line from the day's plan as well as exams and weak spots: with plan items (open or done) it never says Nothing planned yet; a plan row's meta reads like the mock-up's (for example added by you), not the bare kind to do beside a done tick; map tests cover a day with one done item.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 44 (#322): E.V. line reads the plan; plan rows say added by you; failures use the kit Toast in Today and Library.",
@@ -3765,7 +3765,7 @@
   "kind": "task",
   "title": "Today lacks the mock-up's Add on Plan and Add date on Coming up",
   "dod": "Today's Plan section has the mock-up's Add control (key C) through plan.create, and the dates section is titled Coming up with Add date through date.*, as design/mockup.html's Today shows; screen tests cover both.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #335; seen working on staging in playtest 2 (Add C on Plan, Add date on Coming up).",
@@ -3777,7 +3777,7 @@
   "kind": "task",
   "title": "Activity and Ask show the raw job name study_plan and repeat the job's sentence",
   "dod": "Job rows in Activity and Ask's open-jobs lines show the plain job title (Study plan), never the kind key; a row's text is one sentence, not the generic line followed by the specific one; Activity's sections (Needs you, Running, Done today) have the mock-up's spacing; two needs-you records for the same plan show once or each says what differs.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #326 and #329; playtest 2 on staging shows Study plan, not study_plan, and one sentence per row.",
@@ -3789,7 +3789,7 @@
   "kind": "task",
   "title": "The palette offers Collection, Sessions and Recently deleted as places, and shows an empty Commands header",
   "dod": "The palette's Places match the sidebar (route-only areas with sidebar false are left out, or open with a real target); a Commands group with no entries shows no header; a shell test covers Today's palette.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 44 (#325): palette Places come from sidebarAreas; empty groups dropped. Recently deleted was never a palette place; add only if Matt wants it.",
@@ -3801,7 +3801,7 @@
   "kind": "task",
   "title": "Dates and times left read three different ways across screens",
   "dod": "One plain date style everywhere (Today, Library exams, Notes list and note page, Sessions): a day reads like Dec 1, with the year when it is not this year, and time left reads in 392 days, never in 392d; no screen shows a raw 2026-11-04; the Library tab label reads Exams 1 with its spacing, not Exams· 1.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #337; playtest 2 on staging: Dec 1, 2027 · in 392 days, Nov 4, Exams 1.",
@@ -3813,7 +3813,7 @@
   "kind": "task",
   "title": "A note picture sits in a frame wider than the picture",
   "dod": "A picture block in the notes editor sizes its frame to the picture (up to the column width), as the kit's Doc shows; no empty grey band beside a narrow picture.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #334; playtest 2 on staging: the frame fits the picture.",
@@ -3825,7 +3825,7 @@
   "kind": "task",
   "title": "The Sessions timer stays at 0:00 while a session runs",
   "dod": "Sessions' timer counts up each second while a session is running and stops when paused; a screen test advances fake timers and reads 0:01, 0:02; on staging the timer moves.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #343: no running session shows no session yet, with no Pause or End.",
@@ -3837,7 +3837,7 @@
   "kind": "task",
   "title": "Screens use raw browser controls instead of kit components, and nothing stops it",
   "dod": "A guard (ESLint no-restricted-syntax on JSX, or an ops/checks rule like radix.ts) fails when a file under areas/ or shell/ renders a raw <input>, <button>, <select> or <textarea>; only kit/ draws them (CONTRACT §ui.kit-leads). Every current view passes it with no allowlist: views use Button, Field, TextOptions and the other kit components, and each look the kit lacks (a checkbox for todo and check rows, a multi-line field for Ask's composer and the session answer, a choice list for practice options, tabs, a back crumb) is added to kit/ first with its story, test and /kit gallery entry. docs/guards.md gets a row with the observed red output, and ops/guards/guards.test.ts proves it goes red.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-860",
@@ -3852,7 +3852,7 @@
   "kind": "task",
   "title": "Sessions timer shows 0:00 (areas/sessions/Sessions.screen.tsx 1 s interval over data?.seconds)",
   "dod": "find why the timer stays at 0:00 on staging and fix it, with a test",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 44 (#321): map.ts falls back from startedAt to the first event, then the doc time; an ended session shows its saved minutes.",
@@ -3864,7 +3864,7 @@
   "kind": "task",
   "title": "Switch light and dark does nothing in the app",
   "dod": "The palette's Switch light and dark, the sidebar foot's theme button and the \\ key (as design/mockup.html's sidebar shows) set data-theme on the app root and keep the choice on this device; the first load follows the system; a screen test flips it; screenshots of Today in both themes at 1280.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #348: theme button in the sidebar foot, key backslash and the palette set data-theme; choice kept on this device. Not yet seen on staging; no 1280 screenshots taken.",
@@ -3876,7 +3876,7 @@
   "kind": "task",
   "title": "After a deploy the app opens the old build until a hard reload",
   "dod": "When a new build is deployed, the next normal load (or a focus of the open app) runs the new build: the service worker updates and the page reloads once or says a new version is ready; an e2e or unit test covers the update path.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-817"
@@ -3890,7 +3890,7 @@
   "kind": "task",
   "title": "The sidebar's Activity count says 2 while Activity lists 1",
   "dod": "The sidebar's Activity count, Activity's Needs you count and Ask's job cards all come from the same jobs list and agree; a test plants two needs-you jobs for one exam and checks all three.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #346: sidebar count and Ask cards merge same-reading jobs like Activity. The rule is restated in shell and Ask (no shared import allowed).",
@@ -3902,7 +3902,7 @@
   "kind": "task",
   "title": "Recently deleted rows show raw ids and a table name instead of titles",
   "dod": "Each Recently deleted row shows the item's title (or Untitled) and its kind in plain words, never an id or a table name like own_set_items; the count sits on its own line; a screen test covers a set item and a note.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #347: deleted rows show the item title and a plain kind.",
@@ -3914,7 +3914,7 @@
   "kind": "task",
   "title": "Focus rings are 4 px wide; the mock-up's are 2 px",
   "dod": "Every kit :focus-visible outline is 2 px solid var(--text), offset -2 px, as design/mockup.html; no component uses a space token (--sp-1) for an outline width; the kit gallery shows a focused Button, NavItem and Row.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "kit NavItem, SidebarSearch, Button, Row, Field and others use outline: var(--sp-1).",
@@ -3926,7 +3926,7 @@
   "kind": "task",
   "title": "Activity shows None. in every group while it loads",
   "dod": "While the jobs list loads, Activity shows a loading state (no None. lines); None. shows only once the list has arrived empty; a screen test holds the fetch open and checks.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #344: Loading until the first answer, None only after an empty list.",
@@ -3938,7 +3938,7 @@
   "kind": "task",
   "title": "The Progress heading uses the browser's default size",
   "dod": "Progress's title uses the kit's title style (--fs-title, 600) with its meta line, like Library's; the placeholder line uses --fs-body; no text off the three sizes (CONTRACT ui.three-sizes).",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Low. Measured 28 px / 700 on staging. The charts in the mock-up are not built yet; this is only the heading.",
@@ -3950,7 +3950,7 @@
   "kind": "task",
   "title": "In the kit gallery the Toast sample floats over the other samples",
   "dod": "The /kit gallery shows the Toast sample inside its own section (not fixed to the window), and its headings use the kit's sizes, not the browser's h3 (16.38 px).",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Toast sample in its own box (#353); gallery headings use --fs-body (#355). No unit test for the heading size: vitest returns empty CSS; the /kit baselines are the proof.",
@@ -3962,7 +3962,7 @@
   "kind": "task",
   "title": "The sidebar lacks the mock-up's E.V. mark at the top",
   "dod": "The sidebar starts with the mock-up's workspace line (the mark and E.V.), as design/mockup.html's .ws; screenshot at 1280 in both themes.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Kit WorkspaceLine (mark and E.V.) first in the sidebar; /kit baselines refreshed. No 1280 app-shell screenshot taken.",
@@ -3974,7 +3974,7 @@
   "kind": "task",
   "title": "Flaky test errors: window is not defined in areas/deleted/useDeleted.copy.test.tsx teardown, and kit/components/Menu/Menu.test.ts:97",
   "dod": "Both tests pass on 10 repeated CI runs with no unhandled errors.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Cause reasoned, not reproduced (about 30 clean local runs): Testing Library never auto-unmounts (vitest has no globals), so work outlived jsdom. useDeleted.copy test made one copy object and settles before teardown; Menu test waits 20 ms in act after cleanup. Watch CI for a repeat.",
@@ -3986,7 +3986,7 @@
   "kind": "task",
   "title": "After a deploy the open app and a normal reload still run the old build; the new service worker waits and never takes over",
   "dod": "On staging, after a deploy that changes the bundle, a normal reload (or a focus of the open app) runs the new bundle with no hard reload and no manual step: the generated sw.js skips waiting and claims clients (or the shell tells the waiting worker to skip waiting), and the existing reload-once on controllerchange then fires; a unit test covers a waiting worker; checked on staging by comparing the loaded index-*.js with the one / serves.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #366 shell/pwa.ts posts SKIP_WAITING to a waiting worker (and a newly installed one when a controller exists); reload-once on controllerchange then fires. Still to check by eye on staging: loaded index-*.js equals what / serves.",
@@ -3998,7 +3998,7 @@
   "kind": "task",
   "title": "Sessions shows the session bar (Session 0:00, Pause, End) when no session runs",
   "dod": "With no active session, Sessions shows no session bar and no Pause or End, only the empty line (design/mockup.html: the session bar appears only while a session runs); a screen test with no active session finds no Pause or End; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #368 no session bar, Pause or End when no session runs.",
@@ -4010,7 +4010,7 @@
   "kind": "task",
   "title": "A session started from a note shows Study session and the date above the note's own title, and the note's picture as the word Image",
   "dod": "A session over a note shows the note's title once (no extra Study session heading and date), the note's pictures as pictures (as on the note page), as design/mockup.html #note/n-co/session; Space pauses right after Start session without a click on the page first; screen tests; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "areas/sessions NoteBlocks read-only view shows an Image placeholder (known since run 38, never filed). After Start session the focus stays on the old Start session button, so the first Space does nothing. Screenshot 01.",
@@ -4022,7 +4022,7 @@
   "kind": "task",
   "title": "After Pause then End, the session stays active and Sessions shows it running again",
   "dod": "End on a paused session ends it (status ended, endedAt, minutes) and Sessions then shows no running session; the pause survives a reload (the timer does not count paused time after a reload); a screen test pauses, ends and checks the write; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #368 saves queue one at a time on the latest stored doc (End right after Pause dropped the pause / 409); pause survives reload. Not seen reproduced exactly as in playtest 3.",
@@ -4034,7 +4034,7 @@
   "kind": "task",
   "title": "Library tabs do not show which tab is open",
   "dod": "The open Library tab is lit as design/mockup.html shows (underline, text colour) and the counts read as in the mock-up (Exams · 1); keyboard focus and hover stay distinct from the open state; a screen test checks the open tab's state; screenshots at 1280 in both themes.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #369 open Library tab lit by area CSS on aria-selected (kit Button takes no className); a kit Tabs component would be cleaner, not filed. No 1280 screenshots.",
@@ -4046,7 +4046,7 @@
   "kind": "task",
   "title": "On Today, a Coming up exam row lights on click but opens nothing",
   "dod": "Clicking an exam row on Today opens the Detail panel for that exam (and its study plan when one waits), as design/screens/today-detail.png; Esc closes it; a screen test opens and closes it.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Library's exam Detail is B-777; this is Today's. The row meta also lacks the mock-up's study plan waiting for you line while a plan waits in Activity.",
@@ -4058,7 +4058,7 @@
   "kind": "task",
   "title": "The palette finds nothing in the record: typing synth offers only Ask E.V., not the Synthetic unit exam",
   "dod": "Typing in the palette lists matching notes, exams, sets and weak spots (through domain/search) above Ask E.V.; Enter opens the item; a screen test types part of a title and opens it; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 03. Places and Commands groups work. Run 52 (#373): shell/findings.ts lists notes, exams, sets and weak spots by title (domain/search ranks) above Ask E.V.; Enter navigates to /notes?open=<id> or /library?open=<id>. LEFT: areas/notes and areas/library must read ?open=<id> and open that item (outside shell slice); the kit Palette lacks an onQuery prop (shell reads the input through a delegated listener); not seen on staging.",
@@ -4070,7 +4070,7 @@
   "kind": "task",
   "title": "The kit Doc session checks are raw browser checkboxes",
   "dod": "Doc's checks draw the kit's own box as design/mockup.html .check .box (done: filled, struck through), keep a real checkbox role for keyboard and screen readers, and show the 2 px focus ring; the controls guard (B-872) catches a raw input type checkbox in kit or areas; the gallery shows it.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #367 Doc checks draw the kit box; controls guard flags kit raw checkbox.",
@@ -4082,7 +4082,7 @@
   "kind": "task",
   "title": "The kit gallery opens scrolled down to the Palette sample",
   "dod": "/kit opens at the top: the Palette sample does not take focus on load (or the gallery restores scroll to 0); visual baseline still green.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #367 gallery Palette does not take focus on load.",
@@ -4094,7 +4094,7 @@
   "kind": "task",
   "title": "Today and Library show an empty page for a second or two while they load",
   "dod": "While their first data loads, Today and Library show their heading and a loading line (as Activity does), never an empty pane; a screen test holds the fetch open and finds the loading line.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 51: #369 Today and Library show heading and Loading line on first load.",
@@ -4106,7 +4106,7 @@
   "kind": "task",
   "title": "The e2e journeys leave their test data on staging, so Matt sees e2e tick plan items, e2e collections and repeated Which is a vital sign? rows",
   "dod": "Each e2e journey that writes on staging removes what it wrote when it ends (through the app's own delete path, so rows go to deletions and nothing is hard-deleted), or writes under one marked test scope that the screens hide; a one-off cleanup on staging only removes today's leftovers (the e2e tick plan items, the e2e 17... collections and their notes, the three Which is a vital sign? rows in Recently deleted); never touches live or ev4; after a gate5-e2e run, Today, Notes and Recently deleted on staging show no e2e rows.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #378: journeys park plan items at 2031-12-31, soft-delete their note, reuse two fixed collections, restore the question-set item. Not met: leftover e2e rows already on staging (plan items, e2e 17... collections, sets, three Which is a vital sign? rows) need Matt's hand in the UI or a server-side path; app token has no delete for plan items, collections, sets.",
@@ -4118,7 +4118,7 @@
   "kind": "task",
   "title": "Server read route for pins (GET), so the collection page can show pins",
   "dod": "A GET route returns the pins for a collection from docs; a route test; no area change (slice server)",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-750"
@@ -4134,7 +4134,7 @@
   "kind": "task",
   "title": "Collection page shows pins from the server read route",
   "dod": "areas/collection lists pinned items on the collection page; a test; story updated",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-895"
@@ -4148,7 +4148,7 @@
   "kind": "task",
   "title": "Kit exports Menu from kit/index.ts, with Row trailing slot if needed",
   "dod": "kit/index.ts exports Menu and MenuItem; story and test exist; areas can import it",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-750"
@@ -4164,7 +4164,7 @@
   "kind": "task",
   "title": "Study-plan approval UI in the Library exam Detail",
   "dod": "Library exam Detail shows Plan with E.V., Approve, Ask for changes and Put away; handlers still 501 show a plain not-ready sentence",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #391; ids used by run 58 without a Chart entry",
@@ -4176,7 +4176,7 @@
   "kind": "task",
   "title": "Practice-set journey in the browser",
   "dod": "e2e journey: Library, Study, answer, reveal, leave, attempt read back",
-  "milestone": "v5 P5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #390 (uses a set written through the API; unrun on staging); ids used by run 58 without a Chart entry",
@@ -4188,7 +4188,7 @@
   "kind": "task",
   "title": "Ask E.V. stops calling itself a nursing-school study partner on every course",
   "dod": "server/ask-chat.ts:33 ASK_SYSTEM says \"Matt's study partner for nursing school\" on every chat. Frame it through domain/course (examFrame/chatCourse in domain/course/frame.ts), like the other prompts: a course flagged nursing keeps the nursing wording, another course gets its own exams, no known course gets neutral wording. A server test pins all three. Slice: write server; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Run 60 #403 (with B-901, B-902): prompts take {{student}} via server/frame-prompt.ts; course table from system_docs spec. Risk: Matt's nursing wording needs nursing:true on NUR 112 in the spec doc on the target; check on staging.",
@@ -4200,7 +4200,7 @@
   "kind": "task",
   "title": "Study plan prompts stop saying \"one nursing student\" for every course",
   "dod": "jobs/study-plan/prompt.md:1 (\"one nursing student's exam\") and jobs/study-plan/changes-prompt.md:1 (\"one nursing student\") are framed by the plan's course through domain/course/frame.ts (both loaded in server/job-workflow.ts:7-8): nursing wording only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/study-plan, server; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Run 60 #403",
@@ -4212,7 +4212,7 @@
   "kind": "task",
   "title": "Practice set prompt stops naming NUR 112 and BIO 201 and asking for NCLEX-style questions on every course",
   "dod": "jobs/practice-set/prompt.md:1 names two courses (\"first-semester ADN nursing student (NUR 112 and BIO 201)\"), against §data.course-facts (no course is named in code), and :7 asks for NCLEX-style questions on every set. The prompt names no course and is framed by the set's course through domain/course/frame.ts (frameText already reframes NCLEX-style): NCLEX only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/practice-set, server; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Run 60 #403",
@@ -4224,7 +4224,7 @@
   "kind": "task",
   "title": "Short-answer grading stops calling every student a nursing student",
   "dod": "domain/item/open.ts:65 gradePrompt says \"a nursing student\" for every short answer. The grader names no subject, or takes it from the item's course through domain/course framing. A test pins that a non-nursing item's grade prompt has no nursing wording. Slice: write domain/item; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Run 60 #406: gradePrompt takes {nursing}. No caller passes the course yet (default stays nursing): jobs/ and server/ grading must pass examFrame(table, course).nursing.",
@@ -4236,7 +4236,7 @@
   "kind": "task",
   "title": "Questions outside a nursing course stop warning about a missing clinical-judgment step",
   "dod": "domain/item/validate.ts:81-82 warns (an error in strict mode) on every question with no cjStep, and domain/item/reply.ts:119-120 keeps cjSteps on any course. Only an item in a course flagged nursing needs or keeps a clinical-judgment step; other courses get no warning and no step. A test pins both. Related ev4 bug: B-679 (BIO 201 mock exam shows clinical-judgment steps, v4); this is the v5 side. Slice: write domain/item; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Run 60 #406: validateItem, validItems, normalizeItem, tagItems take nursing; own-set/parse.ts and job paths do not pass the course yet.",
@@ -4248,7 +4248,7 @@
   "kind": "task",
   "title": "Decide whether the clinical-prep and skills-prep plan item kinds show only on nursing courses",
   "dod": "domain/item-props/types.ts:60-61 lists skills-prep and clinical-prep as built-in plan item kinds (areas/today/map.ts:71 labels clinical prep). Recommendation: keep both kinds in the type, because ev4's dayedits schema 1 holds them; offer them only for a course flagged nursing wherever a kind picker lists kinds, and keep showing any stored item of those kinds. Record the decision in the Chart; if a picker offers them today, gate it with a test. Slice: write areas, domain/item-props; read domain/course.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [],
   "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
@@ -4260,7 +4260,7 @@
   "kind": "task",
   "title": "A course not synced from Canvas needs no Canvas course id",
   "dod": "domain/course/types.ts:6 requires canvasId: number and domain/course/table.ts:19 refuses a course without an integer canvasId. canvasId becomes optional for a course not synced from Canvas; table.ts still refuses a canvasId that is present but not an integer; canvas-sync and every reader of canvasId (domain/exam, server/handlers-dates.ts, data/compat) skip a course without one. Tests pin a course with no canvasId, and the ev4 compat fixture still passes. Slice: write domain/course; read domain/exam, data/compat.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [],
   "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
@@ -4272,7 +4272,7 @@
   "kind": "task",
   "title": "Typing in the palette does nothing: the box stays empty, so search and ask from the palette can't be used",
   "dod": "Typed letters show in the palette box and filter the list; typing part of a note or exam title lists it and Enter opens it; a screen test types with real key events (not a value change) and sees the text; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 05. Worked in playtest 3. Reasoned cause, not proven: shell/Shell.tsx listens for input on window in the capture phase and calls setTyped, which re-renders the controlled cmdk input before cmdk's onChange, so the value goes back to empty (since #373). Fix in one place: give the kit Palette an onQuery prop instead of the window listener.",
@@ -4284,7 +4284,7 @@
   "kind": "task",
   "title": "You can't see the study plan you approve: Review the study plan does nothing in Library and goes to Activity from Today, and no proposed sessions show",
   "dod": "Review the study plan opens the plan proposal as in design/mockup.html (PLAN_PROPOSAL: Proposed sessions by day with minutes, Built from, then Approve, Ask for changes, Put away), from Library and from Today; Approve and Send changes each give a sign they worked (the Detail changes, or a toast); screen tests; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshots 02, 03, 04. areas/library/Library.screen.tsx passes proposals: [] and no onReviewPlan; Today's ExamDetail sends Review to Activity. Mock-up: Review the study plan is a secondary button on the date Detail, not primary. A refusal reason could not be reached: a nonsense change request was taken.",
@@ -4296,7 +4296,7 @@
   "kind": "task",
   "title": "Study plan jobs pile up: two drafts wait for Synthetic unit exam, approving one leaves the other, and two plans show building with no end",
   "dod": "One exam has at most one waiting draft (a new Plan with E.V. or change round replaces or names the older one); after Approve the Detail no longer says draft waiting; a study plan that never finishes is swept to failed with a plain reason (deadline from defineJob); Activity Running shows only live jobs; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 04. GET /api/v1/jobs on 2026-11-05 01:05Z: two needs-you study_plan jobs for synthetic-exam, two running study_plan jobs with no examId (aaa1fe5c, 91ece246) that never end; I approved 77cb5410 in the playtest and 4c960a09 still waits. Some may come from the gate5 study-plan journey on staging (it adds a job per run): check its cleanup too.",
@@ -4308,7 +4308,7 @@
   "kind": "task",
   "title": "Today says the study plan waits for the soonest exam, not the exam it is for",
   "dod": "Today's Coming up row and exam Detail show plan waiting only for the exam whose job names it (GET /jobs examId), and approved for an exam whose plan is in force; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 14. areas/today/Today.screen.tsx stamps the first upcoming exam (comment: the job names no exam), but jobs carry examId since #395. On staging e2e plan exam shows waiting (its plan is approved) and Synthetic unit exam shows nothing (a draft waits).",
@@ -4320,7 +4320,7 @@
   "kind": "task",
   "title": "Library's exam Detail opens above the Library page instead of beside it, with the course in the Date row and Course empty",
   "dod": "The exam Detail in Library opens as the side panel, as on Today and in design/mockup.html; Date shows the date and days left, Course shows the course; screen test; seen on staging at 1280.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 62: PR #422. Exam Detail is a right-hand panel; Date shows day and days left, Course shows the course; weak-spot Detail uses the same panel. CHECK ON STAGING at 1280.",
@@ -4332,7 +4332,7 @@
   "kind": "task",
   "title": "Deleted notes still show in Notes and in their collection",
   "dod": "A note in Recently deleted does not show in Notes (Recent, collection counts and lists), the collection page or the palette; Restore brings it back; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshots 08, 11. Five e2e notes in Recently deleted show as Untitled in Notes Recent and in e2e journey B (5 notes). No area reads /api/v1/deletions except Recently deleted.",
@@ -4344,7 +4344,7 @@
   "kind": "task",
   "title": "Collection page rows show raw note ids, and Open (menu or row) does nothing for a note",
   "dod": "Collection rows show the item's title (Untitled when it has none) and its kind in words; Open and a row click open the note, set or date; a collection with notes shows them and its name (not Untitled collection, 0 items); screen test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshots 11, 13. areas/collection/Collection.screen.tsx open() only goes to nested collections. /collection/24f0e46a-00ac-4f38-91d3-43820531ebf1 shows Untitled collection, 0 items, while Notes lists 1 note in it (e2e 1793776216740 B). Pin and Unpin work.",
@@ -4356,7 +4356,7 @@
   "kind": "task",
   "title": "A session started from a note still shows the note's title twice",
   "dod": "A session over a note whose first block is a heading equal to its title shows the title once, as the note page does; screen test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 06. B-886 left this case: the note page hides the leading h1 that repeats the title, the session view does not. Pictures, Space and Pause then End now work.",
@@ -4368,7 +4368,7 @@
   "kind": "task",
   "title": "The sidebar shows a running job as study_plan running",
   "dod": "The sidebar job line names the job in plain words (for example Building your study plan), as design/mockup.html's jobline; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Screenshot 00. Shell passes the job kind as text.",
@@ -4380,7 +4380,7 @@
   "kind": "task",
   "title": "Library plan proposal shows no sessions: GET /jobs should send the waiting study plan's draft sessions",
   "dod": "GET /jobs adds tasks (date, title, minutes) to a waiting study_plan job from the draft in job_plans; Library's Proposed sessions lists them; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "From B-908 builder: withExams in server/job-routes.ts should add the draft tasks from job_plans kind draft; Built from text is fixed and could send real sources.",
@@ -4392,7 +4392,7 @@
   "kind": "task",
   "title": "Palette still lists deleted notes",
   "dod": "A note in Recently deleted does not show in the palette (shell/); Restore brings it back; test.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 62: PR #421. Palette hides records listed in GET /deletions (notes, exams, sets, weak spots); restoring shows them after reopening. Test lives in shell/paletteDeleted.test.tsx.",
@@ -4404,7 +4404,7 @@
   "kind": "task",
   "title": "A new or changed study plan doesn't show in Library's exam Detail until the page is reloaded: after Send changes or Plan with E.V. it says in force with no Approve",
   "dod": "When a study plan job for the open exam changes state (a new draft, a revised draft after Send changes, approved, put away), the open exam Detail in Library and Today shows it without a reload: Plan reads draft waiting for you and Approve, Ask for changes and Put away appear as soon as the draft is ready; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: new and revised drafts showed with Approve, no reload.",
@@ -4418,7 +4418,7 @@
   "kind": "task",
   "title": "Toasts never go away: Changes sent and E.V. is drafting a plan stay at the bottom of Library until you leave the page",
   "dod": "A toast hides on its own after about 4 seconds, as in design/mockup.html (toast(): 4000 ms), in every area that shows one; the kit Toast or one shared helper owns the timer; story and test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: toasts closed in about 5 s.",
@@ -4432,7 +4432,7 @@
   "kind": "task",
   "title": "A changed study plan can put sessions on days that have already passed",
   "dod": "Every session in a first or revised study plan draft falls between today (Central) and the day before the exam; a change round rebuilds the study days from the day it runs, or the check refuses past dates; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: first and revised drafts ran Nov 5 to Nov 11 even when asked to start Tuesday.",
@@ -4446,7 +4446,7 @@
   "kind": "task",
   "title": "After you approve a study plan its sessions disappear: the exam Detail says The sessions are not shown here yet",
   "dod": "After Approve the exam Detail keeps the plan's sessions listed (day, title, minutes) with a line saying the plan is approved, as in design/mockup.html (approvePlan: Approved, N sessions added to your plan); an exam whose plan is in force shows its sessions in Review the study plan; screen test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: approved sessions stay listed (a one-poll lag after Approve is B-936).",
@@ -4460,7 +4460,7 @@
   "kind": "task",
   "title": "Activity's Done today stays None after you approve a plan, put one away or end a session",
   "dod": "Activity Done today lists the jobs and sessions that finished today (Central), with plain names, as in design/mockup.html (act-done); test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: approve and session end listed; put away is not (B-938).",
@@ -4474,7 +4474,7 @@
   "kind": "task",
   "title": "Progress says you have no answers yet while Library shows 100% first-try accuracy, and a session that says Saved to Progress shows nowhere in Progress",
   "dod": "Progress and Library's accuracy line read the same answers, so they agree; an ended study session that says Saved to Progress shows in Progress (or the end line names the place it went); test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Fixed by B-927 (#433). Proof: playtest 6 (2026-11-05, Matt's Chrome) saw Progress match Library and the ended session in Done today and Progress (D-481, screenshots 17 and 18).",
@@ -4488,7 +4488,7 @@
   "kind": "task",
   "title": "Today's and Library's exam Detail say different things for the same exam, and Library lights the wrong tab",
   "dod": "One exam Detail for Today and Library: the same date line (date and days left), readiness words and plan words, and the same plan actions; opening an exam from Today's Review the study plan lights Library's Exams tab; Library keeps its tab on reload; screen test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: date, course, readiness and plan rows match; Today lacks the sessions list (B-941).",
@@ -4502,7 +4502,7 @@
   "kind": "task",
   "title": "Study plan Detail look: the day names are not in a column so the session titles are ragged, the Detail changes width with its content, and a collection says 1 items",
   "dod": "Proposed sessions put the day in a fixed-width column, as in design/mockup.html (PLAN_PROPOSAL: 32 px), so titles line up; the Detail panel keeps one width; the collection count says 1 item; checked against the mock-up at 1280 in both themes.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: day column fixed, Exams tab lit from Today.",
@@ -4516,7 +4516,7 @@
   "kind": "task",
   "title": "Move the answers tally (accuracyLine, dueCounts, attemptsByItem) from areas/library/tally.ts into domain/answers so Progress can share it",
   "dod": "domain/answers exports the three functions via domain/index.ts with the moved tests; Library imports them from domain; no behaviour change",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [
    "B-923"
@@ -4532,7 +4532,7 @@
   "kind": "task",
   "title": "Progress shows the same accuracy line as Library and ended-session minutes",
   "dod": "areas/progress fetches answers and sessions through commands/client and shows domain/answers accuracy plus ended-session minutes; test; seen on staging; B-923 closes",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 63 merged the fix; gate5-e2e green on 45af7e0. NOT yet seen in Matt's browser on staging: close when seen (D-476). Playtest 6 (2026-11-05): seen working in Matt's browser on staging: Progress 100% matches Library, ended-session minutes shown.",
@@ -4546,7 +4546,7 @@
   "kind": "task",
   "title": "A collection can't be deleted: add Delete and Restore for a collection, and make the collection journey delete a collection",
   "dod": "Deleting a collection by hand writes one deletions row for the collection only; its items show ungrouped, and Restore regroups them (§delete.collection, §ui.own-everything); the collection page and item menu offer Delete; e2e/collection.journey.spec.ts makes a collection, moves a note in, pins it, deletes and restores the collection (PLAN §13 Gate 5); tests; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #441: item.delete on a collection writes one deletions row; reads hide it; Delete button on the collection page; journey deletes and restores a collection. NOT yet seen on staging or by the Playwright journey run (dispatch gate5-e2e). Child collection of a deleted parent still listed; item.move into a deleted collection not blocked. Playtest 6 (2026-11-05): seen working in Matt's browser on staging: Delete on the collection page, gone from Notes, Restore from Recently deleted brings it back (child check not possible, B-939).",
@@ -4558,7 +4558,7 @@
   "kind": "task",
   "title": "A failed Suggestion accept puts the draft back without the data protocol: no at and no version pin",
   "dod": "When proposal.accept's command fails, the draft goes back to pending through a write that sets at from the Worker clock, bumps v and is pinned to the version it claimed, 409 when stale (§data.protocol); a test covers the failure path.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged #439 (run 66). Test passes on old code too; stale-revert 409 untested.",
@@ -4570,7 +4570,7 @@
   "kind": "task",
   "title": "Server writes go through data/ repositories, not raw SQL in server/",
   "dod": "No prepare() in server/ writes (INSERT, UPDATE, DELETE); every write goes through a data/ repository that applies §data.protocol; reads move where a repository exists; a guard refuses new raw writes in server/; split by file if over about 400 lines; tests pass.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Merged #442 and #444 (run 66): all non-test server writes go through data/ repositories; check ops/checks/serverwrites.ts refuses new raw writes. Writes in jobs/ (d1PlanStore) not covered.",
@@ -4582,7 +4582,7 @@
   "kind": "task",
   "title": "The CONTRACT and comments name the continuation id as the code makes it: jobId-step-round",
   "dod": "CONTRACT §job.needs-you says the continuation id is jobId-step-round; the comments in jobs/runtime/workflow.ts, jobs/runtime/record.ts and jobs/study-plan/job.ts say the same; render and checks pass.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Merged #438. Workflows instance-id rule still unverified against Cloudflare docs (403 from proxy). jobId:step remains in PLAN.md:227 and docs/spikes/S-07-workflows.md:22.",
@@ -4594,7 +4594,7 @@
   "kind": "task",
   "title": "Old ev4 pages read the agreed sentence: E.V. updated, reload",
   "dod": "server/ev4-routes.ts MOVED_TEXT and its test say \"E.V. updated, reload\" as CONTRACT §data.ev4-routes and PLAN §9 do; no \"has moved\" is left in server/ or public/.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Merged #438.",
@@ -4606,7 +4606,7 @@
   "kind": "task",
   "title": "Every date and time on screen is formatted through domain/time",
   "dod": "areas/collection/map.ts, areas/library/ExamPlan.detail.tsx, areas/today/map.ts, areas/today/Today.screen.tsx and areas/ask/Ask.screen.tsx format through domain/time in America/Chicago (§job.schedule); no toLocaleDateString, toLocaleTimeString or Intl.DateTimeFormat is left in areas/; a guard refuses new ones; tests.",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Merged #443: domain/time shortDay, longDay, clockTime, weekdayShort, weekdayDay; eslint refuses toLocale*/Intl.DateTimeFormat in areas/. Not looked at on staging.",
@@ -4618,7 +4618,7 @@
   "kind": "task",
   "title": "Gate 3: the repositories parse every synthetic document",
   "dod": "A test runs every document in data/staging/seed.sql through the data/ repositories with their domain parsers and passes; the seed notes get the fields the note parser needs, or the parser takes them; a collection with no parser (ideas) is named in the test with the reason (PLAN §13 Gate 3).",
-  "milestone": "v5 P3",
+  "milestone": "Phase 3",
   "status": "done",
   "depends": [],
   "notes": "Merged #440: data/staging/seed.test.ts parses every seed row through the repositories; seed notes fixed (schema 1, writer, course). ideas has no parser (named in test). Staging rows notes/synthetic-1 and -2 stay invalid until re-seeded (INSERT OR IGNORE). B-733 can close on this proof.",
@@ -4644,7 +4644,7 @@
   "kind": "bug",
   "title": "Right after Approve, the exam Detail shows the previous approved plan for up to 10 seconds",
   "dod": "Right after Approve, the exam Detail in Library and Today lists the new plan's sessions (no earlier approved plan shows, even for a moment); test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 73: GET /jobs names the exam of a running study plan; Library and Today show 'saving the plan' instead of the old plan until it lands; Library polls every 2 s meanwhile (#458). Staging not yet seen. Seen on staging (playtest 7, 2026-11-05 14:23Z, 8b1807f): Approve showed 'E.V. is saving the plan' at +2 s and the new plan's 7 sessions at +7 s, with no older plan shown.",
@@ -4660,7 +4660,7 @@
   "kind": "bug",
   "title": "Today's Plan says Nothing planned for today while the approved study plan has a session today",
   "dod": "Today's Plan lists the sessions of every approved study plan that fall on today (Central), with title and minutes, as in design/mockup.html (Plan rows from your plan for an exam); Start next starts the first; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 73: Today's Plan lists approved-plan sessions dated today (Central) (#456). Start next only toasts the first open item. Seen on staging (playtest 7): Today's Plan listed today's session of the approved plan, and of the new plan right after the next Approve, without a reload.",
@@ -4674,7 +4674,7 @@
   "kind": "bug",
   "title": "Put away a plan and Activity's Done today doesn't list it; Activity shows it as Running for a few seconds and the sidebar keeps Activity 1",
   "dod": "After Put away, Activity Done today lists the study plan as put away (plain words), Running never shows it, and the sidebar Activity count drops to what Needs you holds; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 73: put away ends the job done at once via d1PlanStore.putAway, worded 'put away' in Done today; sidebar and Activity reload on an ev5:jobs-changed event (#457). replaceOlder still puts older drafts away through the Workflow. Seen on staging (playtest 7): Put away gave a toast, Activity Running None, Done today 'put away', no sidebar count. Done today merges alike rows (B-951).",
@@ -4688,7 +4688,7 @@
   "kind": "bug",
   "title": "New collection on Notes and New on a collection page do nothing, so you can't make a collection by hand",
   "dod": "New collection on Notes makes an untitled collection and opens it with its title ready to type; New on a collection page offers a note, a set, a date or a collection here, as in design/mockup.html (coll); test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 73: New collection on Notes and New menu on a collection page (#455). LEFT: typing a new title does not save (no collection rename command); Set and Date picks do not land inside the collection. Seen on staging (playtest 7): New collection opens 'Untitled collection'; New offers Note, Set, Date, Collection inside; a child collection was made and lists under its parent. Title typing still does not save (B-947).",
@@ -4702,7 +4702,7 @@
   "kind": "bug",
   "title": "Deleting is risky and hard to find: a collection's Delete has no Undo and lands you on the next collection with Delete under the pointer, and a note can only be deleted from a collection page",
   "dod": "Delete on a collection, a note or a row shows a toast with Undo, as in design/mockup.html (toast with undo); after deleting a collection the page goes to Notes, not to another collection; the row menu (right-click, the dots or the . key) on Notes and on a note page has Open, Pin, Move and Delete; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "open",
   "depends": [],
   "notes": "Run 74 (#460, #468): collection delete to Notes with Undo; row menu (Open, Pin, Move with picker, Delete) from the dots, right-click or the . key on Notes rows, By-collection rows, the note page and collection rows. Left: Pin never shows Unpin on Notes rows; two near-duplicate RowActions (areas cannot import each other; a kit component would fix it); not seen on staging. Seen on staging (playtest 7): collection Delete goes to Notes with an Undo toast; Undo restores (item.restore 200) when pressed within the 4 s toast; note row Delete with Undo; right-click and the . key open Open, Pin, Move…, Delete on Notes rows and the note page; Move works. Also: the note page menu offers Open on its own page and Delete twice (button and menu); By-collection rows show no menu; the Move picker is B-950.",
@@ -4716,7 +4716,7 @@
   "kind": "bug",
   "title": "Dates and small labels: plan sessions show only a weekday, Recently deleted says 30 or 29 days left for the same day, a deleted collection shows a note icon",
   "dod": "Plan session rows show the weekday and the date (an 8-day plan no longer shows Wed twice); Recently deleted gives every item deleted on the same day the same days left, through domain/time; a collection shows the folder icon there; Today's exam Detail lists the plan's sessions and Plan with E.V. like Library's; Progress says 3m, not 3 m; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Run 73: weekday+date on plan rows, deleted days left by Central date (domain exports daysBetween), folder icon, Today exam Detail sessions and Plan with E.V., 3m (#463). Not seen on staging. Seen on staging (playtest 7): weekday and date on plan rows, Recently deleted 29 days left for every Nov 4 item, folder icon, Progress '3m'. The day column wraps 'Wed Nov / 11' (B-949).",
@@ -4730,7 +4730,7 @@
   "kind": "bug",
   "title": "Today and Progress don't follow the mock-up: Today lacks This week, readiness bars and Courses; Progress is two plain lines",
   "dod": "Today matches design/mockup.html (#today) and design/screens/today.png: section Upcoming with course dot, readiness bar and plan state, a This week section, Courses in the sidebar, Start next as the primary button. Progress matches #progress and design/screens/progress.png: Retrieval accuracy and Study minutes sections, each with its big number, its line and its weekly bars; both themes; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "open",
   "depends": [],
   "notes": "Run 74 (#462, #467), PARTIAL: Progress bars and trend 'up N points', Today Upcoming/This week/readiness bar, Weekly review row when a weekly-review job needs you. LEFT: Courses in the sidebar and course-tone dot on Today rows. design/mockup.html has neither (it wins over the PNGs, §ui.mockup): update the mock-up first (design agent) or drop them from the done bar. Needs a course list in the shell, a kit NavGroup and per-course token. Light theme and PNG comparison not done. Playtest 7 vs design/screens/progress.png and today.png: big numbers and weekly bars show; the study line repeats ('3m · 2 sessions · 3m in 2 sessions in all', mock-up '28 sessions · 164 answers'); the last accuracy week is labelled '30' where the mock-up labels week starts up to the current week; in light the study-minute bars are nearly invisible (screen 34); Today has Upcoming and This week, no course dots or Courses.",
@@ -4744,11 +4744,11 @@
   "kind": "bug",
   "title": "Screens show a small delay before their items, where the mock-up draws at once",
   "dod": "Each area opens on its last saved answer at once, then the server's (stale-while-revalidate through the shell read copy); Today, Notes and Collection send their reads in parallel; a refusal takes the saved answer down; a note opens for editing only from the server's answer; unit tests cover the saved-first paint; seen on staging.",
-  "milestone": "5",
-  "status": "in progress",
+  "milestone": "Phase 5",
+  "status": "done",
   "depends": [],
-  "notes": "Measured on staging 2026-11-05 in Matt's Chrome: each read takes 90 to 180 ms; Today waited about 480 ms (four rounds one after another), Notes about 530 ms (four rounds), Library about 175 ms, Progress and Activity about 150 ms. Every visit read from scratch and showed Loading or an empty state first. Built in PR #459.",
-  "commit": null,
+  "notes": "Merged #459: screens open on their last saved answer, then the server's; reads go out at once. Measured before: Today about 480 ms, Notes about 530 ms, Library about 175 ms.",
+  "commit": "8bf9898",
   "source": "Matt, ev-build channel, 2026-11-05",
   "words": "why is the read a little delayed? in the prototype the items and stuff load instantly but theres a tiny but noticeable delay in ev5 staging",
   "reportedAt": "2026-11-05T14:07:09.119Z",
@@ -4760,7 +4760,7 @@
   "kind": "bug",
   "title": "You can't name a note or a collection: the title doesn't take typing",
   "dod": "On a note page and a collection page the title can be edited in place (click it or press Enter on it, type, Enter or leaving the field saves; Esc cancels); New note and New collection open with the title ready to type; the new title shows in Notes, the palette and Recently deleted; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged run 77; not yet seen on staging by Matt",
@@ -4774,7 +4774,7 @@
   "kind": "bug",
   "title": "Notes and Progress say there is nothing yet while they are still loading",
   "dod": "While a screen's first read is in flight, Notes and Progress show the loading line or the last saved copy, never their empty-state words ('No notes yet. Press C to write one.', 'Your accuracy over time will show here'); a test for each; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged run 77; not yet seen on staging by Matt",
@@ -4788,7 +4788,7 @@
   "kind": "bug",
   "title": "The page scrolls by 16 px, and some dates collide with their neighbours",
   "dod": "The app fills the window exactly at 1280 in both themes (no page scroll: the body keeps no browser margin); Today's Upcoming date never overlaps the readiness bar ('Dec 1, 2027'); the exam Detail day column keeps 'Wed Nov 11' on one line; the collection page header leaves the mock-up's space (#coll) between the title block and the list or empty line; both themes; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged run 77; not yet seen on staging by Matt",
@@ -4802,7 +4802,7 @@
   "kind": "bug",
   "title": "Move… shows every collection as a row of buttons instead of a menu",
   "dod": "Move… on a note (row menu and note page) opens a kit Menu or a palette-style picker that lists collections by name with children under their parent and the current collection marked, Esc cancels, as design/mockup.html; no wall of inline buttons; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged run 77; not yet seen on staging by Matt",
@@ -4816,7 +4816,7 @@
   "kind": "bug",
   "title": "Activity's Done today merges different jobs and doesn't say which exam a study plan was for",
   "dod": "Done today lists each finished job once, without merging different jobs that read alike; a study-plan row names its exam (for example 'Study plan · e2e plan exam'); the count matches the rows; the sidebar's 'Building your study plan' line clears when the exam Detail shows the approved plan; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Merged run 77 (#480 areas/activity, #483 server examTitle); the sidebar line already clears via ev5:jobs-changed; not seen on staging",
@@ -4866,7 +4866,7 @@
   "kind": "task",
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-997",
@@ -4953,7 +4953,7 @@
   "kind": "request",
   "title": "An empty note shows a quiet line to start from, not a blank page",
   "dod": "When a note's body is empty, areas/notes/parts/NoteEditor.tsx shows a quiet placeholder line such as 'Start writing, or type # for a heading' in the muted text token; it goes away at the first character and is never saved into the note; both themes; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Polish inside the existing structure (§ui.kit-leads): no new buttons. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
@@ -4967,7 +4967,7 @@
   "kind": "request",
   "title": "You can find the note editor's shortcuts from the note page and from ⌘K",
   "dod": "The editor's keys from areas/notes/parts/editorKeys.ts (# ## ### headings, - or * and 1. lists, [] checklist, Tab and Shift-Tab indent, Mod-B, Mod-I, Mod-U bold italic underline, Shift-Mod-X strike, Mod-Z undo, Shift-Mod-Z or Mod-Y redo) are listed as quiet hints that a note page can open and that ⌘K finds (for example 'Note shortcuts'), per §ui.keys, built from kit parts only (a missing look starts as a kit task, §ui.kit-leads); the list is generated from or tested against editorKeys.ts so the two cannot drift; test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "No toolbar. If Matt picks the line style indicator (B-965), it may replace this hint, so keep this small. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
@@ -4981,7 +4981,7 @@
   "kind": "request",
   "title": "Make cards and Start session on a note say what they do when you point at them",
   "dod": "On the note page, Make cards has the tooltip 'Start a set from this note; E.V. drafts, you keep or drop' and Start session has 'Start a study session', as the titles in design/mockup.html (renderDocMeta), through the kit's tooltip, with the key hint if the action has one (§ui.keys); test; seen on staging.",
-  "milestone": "5",
+  "milestone": "Phase 5",
   "status": "done",
   "depends": [],
   "notes": "Make cards drafts a flashcard set from the note; Start session runs a timed study session with read-along. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
@@ -5449,7 +5449,7 @@
   "kind": "task",
   "title": "One Zod row shape per stored kind in domain/",
   "dod": "Each table in §data.tables has one Zod row shape in domain/<kind>; commands, jobs and the gate import it and restate nothing; WireDoc and the four plan shapes are gone (§data.gate, §model.output). Slice write: domain/",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [],
   "notes": "Run 82: first part merged (#512): row shapes for deletions, job_records, job_plans and the ceiling tables in domain/. Still open: exam/objective/weak spot/set/session/note/course and claude_*/system_docs row shapes; data/tables, jobs/runtime and ceilings import them; commands/ and jobs/ drop their own plan Zod shapes (needs a domain plan row shape first); WireDoc lives in areas/library/types.ts (needs an areas task).",
@@ -5461,7 +5461,7 @@
   "kind": "task",
   "title": "Migrations baseline for v5's own tables, held to the row shapes",
   "dod": "One empty-database baseline migration creates every table with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Slice write: data/migrations",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-997"
@@ -5475,7 +5475,7 @@
   "kind": "task",
   "title": "Export and restore drill over v5's new tables",
   "dod": "The export writes every table with counts and SHA-256 in the manifest; the restore drill restores each into scratch and compares (§data.export, §data.tables). Slice write: data/export",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-998"
@@ -5489,7 +5489,7 @@
   "kind": "task",
   "title": "Import from ev4's export into v5's tables",
   "dod": "An idempotent import reads ev4's R2 export, checks its manifest, writes every row through the gate, and reports counts per ev4 collection and v5 table, orphans and collections not imported; a second run adds nothing; tested on ev4's synthetic record only (§data.import). Slice write: data/import",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "declined",
   "depends": [
    "B-955",
@@ -5509,7 +5509,7 @@
   "kind": "task",
   "title": "Server routes and commands read and write through the gate",
   "dod": "No LIKE over JSON, no bare-id lookup without its kind, list reads are paged; drafts restore by kind and id; every route and command writes through data/ (§data.gate, §data.tables). Slice write: server/",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-955"
@@ -5523,7 +5523,7 @@
   "kind": "task",
   "title": "Job runtime stores go through data/",
   "dod": "jobs/runtime/d1-stores.ts holds no SQL; job records, job state, ceilings and model usage use data/ repositories through the gate; ops/checks refuses SQL in jobs/ (§data.gate). Slice write: jobs/runtime",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-955"
@@ -5537,7 +5537,7 @@
   "kind": "task",
   "title": "Practice job output is the stored set item",
   "dod": "The practice job's output schema is derived from the domain set-item row (id, sourceRef pattern and all); its items land through the gate; a model reply that fails the shape is repaired once or refused with a reason (§model.output, §data.gate). Slice write: jobs/practice",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-955",
@@ -5552,7 +5552,7 @@
   "kind": "task",
   "title": "Study plan output lands as plans and plan_items",
   "dod": "The study plan job's output goes through domain/plan into plans and plan_items; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/plan, domain/plan",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-955",
@@ -5567,7 +5567,7 @@
   "kind": "task",
   "title": "Model output uses the SDK's Zod helper",
   "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/model",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-997"
@@ -5581,7 +5581,7 @@
   "kind": "task",
   "title": "Today, Activity and Sessions read typed rows",
   "dod": "These areas read parsed rows from the commands client only, with paging where they list; no PUT /docs from an area (§data.gate). Slice write: areas/today, areas/activity, areas/sessions",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1001"
@@ -5595,7 +5595,7 @@
   "kind": "task",
   "title": "Library and Ask read typed rows",
   "dod": "Library and Ask read parsed rows from the commands client only, with paging where they list; weak spots get their attempts from the attempts table; no PUT /docs from an area (§data.gate). Slice write: areas/library, areas/ask",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1001"
@@ -5609,7 +5609,7 @@
   "kind": "task",
   "title": "Notes and collections read typed rows",
   "dod": "Notes and collection pages read parsed rows from the commands client only, with paging where they list; search uses the plain-text columns; no PUT /docs from an area (§data.gate, §data.search). Slice write: areas/notes, areas/collection",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1001"
@@ -5623,7 +5623,7 @@
   "kind": "task",
   "title": "Re-seed staging with synthetic v5 rows through the gate",
   "dod": "Staging's D1 is rebuilt from the baseline and filled with synthetic v5 rows written through the gate; no real data; the Gate 5 journeys pass on it (§sec.staging-data, §data.gate). Slice write: data/staging",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-955",
@@ -5638,7 +5638,7 @@
   "kind": "task",
   "title": "Import rehearsal on a scratch copy of ev4's export",
   "dod": "On Matt's OK, the import runs on a scratch copy of ev4's export; the report gives counts and error kinds only, and the rows to write fit the daily write limit or are split across days (§data.import, §sec.staging-data). Replaces rehearsal 2 (B-758)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "declined",
   "depends": [
    "B-1000",
@@ -5658,7 +5658,7 @@
   "kind": "task",
   "title": "Retire ev4-only code",
   "dod": "data/compat, ajv, the course-name fallback, item_props and dayedits, copy-on-first-edit sets, json_extract deletion joins and the ev4 outbox import on first boot (shell/outbox/ev4-import.ts) are deleted; knip and the checks pass (§data.own-db, §data.ev4-routes)",
-  "milestone": "v5 P6",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1001",
@@ -5754,7 +5754,7 @@
   "kind": "task",
   "title": "A kit or shell change cannot leave the /kit screenshot check red",
   "dod": "The visual job is one of the jobs the required checks job waits for, so a PR that moves the /kit gallery cannot merge until its baselines match; the visual-baselines workflow run on a PR branch is followed by a CI run on its commit (a GITHUB_TOKEN push starts no CI); a PR that leaves the gallery alone is not slowed (§drift.checks, §ui.gallery)",
-  "milestone": "Ops",
+  "milestone": "Phase 6",
   "status": "done",
   "depends": [],
   "notes": "Main was red from #482 (B-949) to #494: B-949, B-966, B-968, B-963 and B-967 merged with visual red, because visual is not in checks' needs. Smallest fix: add visual to needs in .github/workflows/ci.yml and make the baselines workflow trigger CI after its commit. Builders have no Docker: they dispatch visual-baselines on their branch.",
