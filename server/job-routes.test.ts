@@ -171,6 +171,49 @@ test("a waiting study plan in the job list names its exam", async () => {
   assert.equal(jobs.find((j) => j.id === "sp2")?.examId, "x1");
 });
 
+test("a waiting study plan in the job list carries its draft sessions", async () => {
+  const { req, db } = setup();
+  const { d1JobStore } = await import("../jobs/index.ts");
+  await d1JobStore(db, () => T.getTime()).put({
+    id: "sp3",
+    kind: "study_plan",
+    title: "Study plan",
+    state: "needs-you",
+    step: "approve",
+    reason: "Approve it.",
+    costCents: 0,
+    createdAt: T.toISOString(),
+    updatedAt: T.toISOString(),
+    v: 1,
+  });
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('sp3', 'draft', ?, 0)",
+    )
+    .bind(
+      JSON.stringify({
+        summary: "s",
+        tasks: [
+          {
+            date: "2026-11-09",
+            title: "Cardiac review",
+            minutes: 45,
+            weakSpotId: "w1",
+          },
+          { date: "bad" },
+        ],
+      }),
+    )
+    .run();
+  const res = await req("GET", "/api/v1/jobs", "fake-app");
+  const { jobs } = (await res.json()) as {
+    jobs: { id: string; tasks?: unknown }[];
+  };
+  assert.deepEqual(jobs.find((j) => j.id === "sp3")?.tasks, [
+    { date: "2026-11-09", title: "Cardiac review", minutes: 45 },
+  ]);
+});
+
 test("the schedule token reads jobs but cannot start them or touch ceilings; the executor token reaches neither", async () => {
   const { req } = setup();
   const start = await req(
