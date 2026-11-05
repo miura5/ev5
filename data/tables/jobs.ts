@@ -9,6 +9,14 @@ import { gateRow } from "./gate.ts";
 export function jobsRepo(db: D1Like, opts: TablesOptions) {
   return {
     jobPlans: {
+      /** The saved body for (job, kind), or undefined. */
+      get: async (jobId: string, kind: string): Promise<unknown> => {
+        const r = await db
+          .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = ?")
+          .bind(jobId, kind)
+          .first<{ body: string }>();
+        return r ? (JSON.parse(r.body) as unknown) : undefined;
+      },
       /** Saves `body` as the job's `kind` entry, replacing an earlier one. */
       put: async (
         jobId: string,

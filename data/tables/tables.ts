@@ -19,6 +19,7 @@ import { gateRow } from "./gate.ts";
 import { ownRepo } from "./own.ts";
 import { draftsRepo } from "./drafts.ts";
 import { jobsRepo } from "./jobs.ts";
+import { jobStoresRepo } from "./job-stores.ts";
 
 type Collection = ReturnType<typeof parseCollection>;
 type Membership = ReturnType<typeof parseMembership>;
@@ -225,6 +226,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...ownRepo(db, opts),
     ...draftsRepo(db, opts),
     ...jobsRepo(db, opts),
+    ...jobStoresRepo(db, opts),
   };
 }
 /** @public Used by the first consumer, a later task. */
