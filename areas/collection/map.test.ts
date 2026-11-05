@@ -17,7 +17,7 @@ test("picks the first top-level collection with its nested and members, newest f
   expect(d.title).toBe("NUR 112");
   expect(d.nested.map((e) => e.title)).toEqual(["Labs"]);
   expect(d.items.map((e) => [e.id, e.type])).toEqual([
-    ["k1", "cards"],
+    ["Untitled", "cards"],
     ["n1", "note"],
   ]);
   expect(d.items[0]!.title).toBe("k1");
@@ -40,7 +40,7 @@ test("an id opens that collection, with its parent id for Back", () => {
   expect(mapCollection(cs, ms, "zzz")!.title).toBe("NUR 112");
 });
 
-test("members show the item's title and date, falling back to the id", () => {
+test("members show the item's title and date, falling back to Untitled", () => {
   const nov3 = Date.UTC(2026, 10, 3, 18);
   const d = mapCollection(cs, ms, "a", {
     notes: [{ id: "n1", at: nov3, data: { title: "  Heart sounds " } }],
@@ -48,13 +48,15 @@ test("members show the item's title and date, falling back to the id", () => {
   const byId = Object.fromEntries(d.items.map((e) => [e.id, e]));
   expect(byId.n1).toMatchObject({
     title: "Heart sounds",
-    meta: "notes · Nov 3",
+    meta: "Note · Nov 3",
+    to: "/notes?open=n1",
   });
-  expect(byId.k1!.title).toBe("k1");
-  expect(byId.k1!.meta).toMatch(/^cards · /);
+  expect(byId.k1!.title).toBe("Untitled");
+  expect(byId.k1!.meta).toMatch(/^Cards · /);
+  expect(byId.k1!.to).toBeUndefined();
 });
 
-test("pins keep the server order and are named from docs, else by id", () => {
+test("pins keep the server order and are named from docs, else Untitled", () => {
   const e = mapPins(
     [
       { collection: "notes", id: "n1", pos: 0, at: 2 },
