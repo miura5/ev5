@@ -15,8 +15,8 @@ export default {
   },
 };
 export { JobWorkflow } from "./job-workflow.ts";
-// ev4's study-plan Durable Object, kept as a stub while the rollback window is open so a redeploy of ev4 finds its class
-// and binding in place (CONTRACT §deliver.window). v5 never deletes it.
+// ev4's study-plan Durable Object class, kept as a stub on the ev-live Worker: removing the class would delete ev4's
+// stored state (CONTRACT §data.same-worker, §hard.ev4-own-process). v5 never deletes it.
 export class PlanJob {
   fetch(): Response {
     return new Response("PlanJob stub", { status: 410 });

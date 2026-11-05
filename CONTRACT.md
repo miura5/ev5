@@ -6,51 +6,50 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 
 > Matt's yes given 2026-11-02 (D-451). Only things an agent can't undo: lost data, a broken live app, a leaked secret, money spent.
 
-- §hard.data-never-lost · Matt's data in live D1 and the backups is never lost: only items he deletes himself are purged, 30 days after his delete and never before the rollback window closes (§delete.purge); schema changes stay additive (§data.additive) until the window closes. <!-- PLAN §2.1.3, §2.1.5, §5.6 -->
+- §hard.data-never-lost · Matt's data in v5's D1 database and its backups is never lost: only items he deletes himself are purged, 30 days after his delete (§delete.purge); v5 never reads or writes ev4's database, buckets or Durable Objects, which stay as they are as an archive (§data.own-db). <!-- PLAN §2.1.3, §5.6; reworded when the rollback to ev4 ended -->
 - §hard.live-on-matts-word · Live deploys and rollbacks happen only on Matt's word, only after staging, and only through the approval-gated `live` GitHub environment. <!-- PLAN §2.1.4, D-331 -->
 - §hard.no-secrets-in-files · Secrets (API keys, tokens, `.dev.vars`) never go in a file, commit, prompt or log; they live only as Cloudflare or GitHub secrets. <!-- PLAN §10, D-301, D-309, D-320 -->
-- §hard.ev4-own-process · Until the rollback window closes, ev4's repo, live data, resources and tasks change only through ev4's own process, never from v5's build. <!-- AGENTS §9-10 -->
+- §hard.ev4-own-process · ev4's repo, live data, resources and tasks change only through ev4's own process, never from v5's build. <!-- AGENTS §9-10 -->
 - §hard.money · No spending, plan upgrade, new paid service or account change without Matt's word. <!-- PLAN §1, D-451 -->
 
 ## 2. What E.V. is
-- §what.framing · E.V. is a personal knowledge app with a study partner built in: no built-in courses or semesters; ev4 courses show as collections and exams as dated goals (a UI mapping, not a schema change). <!-- C12 -->
+- §what.framing · E.V. is a personal knowledge app with a study partner built in: no built-in courses or semesters; a course is a collection and an exam is a dated goal. <!-- C12 -->
 - §what.loop · Every feature serves the loop notes → practice → errors → weak spots and review → today's plan → practice, or it waits; Matt does the retrieval and the planning, E.V. proposes, questions and checks, and a design that does his thinking for him is a defect. <!-- PLAN §1 -->
 - §what.priority · When goals conflict: data safety → reliability → drift resistance → simplicity → learning features; the higher wins and the trade-off is written down. <!-- PLAN §1 -->
 
-## 3. Data and ev4 compatibility
-- §data.docs-table · v5 keeps ev4's `docs(c, id, data, at, v)` table and five small tables, reads every ev4 document without migration, and D1 is the only live record: nothing reads, writes or syncs a claude.ai artifact database. <!-- PLAN §5.1, D-297, D-307 -->
-- §data.additive · Additive means new tables or nullable columns; never new fields, enum values, `writer` values or `schema` numbers inside an existing collection. <!-- PLAN §5.2 -->
+## 3. Data
+- §data.additive · A column or table is removed only expand → migrate → contract, once no release reads it; adding a table or column is an ordinary migration. <!-- PLAN §5.2, PLAN §11; the rollback window ended -->
 - §data.protocol · Every write bumps `v`, sets `at` from the Worker clock, stores canonical JSON and is pinned to a version (`if_version`, 409 when stale); batches are all-or-nothing. <!-- PLAN §5.3, D-329, D-341 -->
-- §data.compat · CI validates every v5 write to an existing collection against the frozen ev4 schemas in `data/compat`, which accept every schema version live holds; nothing there is removed inside the rollback window. <!-- D-338 -->
-- §data.writers · v5 writes an ev4 field only as the writer that owns it, using existing `writer` values (`page` for Matt's edits) with `source` naming v5; every other ev4 fact field is write-once, and documents carrying `migratedAt`/`migratedTo` or in ev4's legacy collections are never written. <!-- D-053, D-089, D-336, D-090 -->
-- §data.ev4-sets · ev4 sets are immutable and their answers are keyed by item id; editing one copies it into an own set on first edit, leaving the original and its answers untouched and hidden. <!-- C14 -->
-- §data.same-worker · v5 runs on ev4's Cloudflare Worker, D1 database and backups, keeping ev-live's URL; a separate derived database (search) is allowed per §5.8 of the plan. <!-- PLAN §2.1.5, §5.8; a design choice, demoted from the hard limits by D-451 -->
+- §data.own-db · v5 keeps its record in its own D1 database, one table per kind, which starts empty: nothing is copied from ev4. D1 is the only live record: nothing reads, writes or syncs a claude.ai artifact database. <!-- D-297, D-307; Matt chose an empty start 2026-11-05 -->
+- §data.same-worker · v5 runs as the ev-live Worker, keeping its URL, with its own D1 database and R2 buckets; the Worker keeps ev4's PlanJob Durable Object class as a stub and ships no Durable Object deletion, because removing the class would delete ev4's stored state (§hard.ev4-own-process). <!-- PLAN §2.1.5 -->
 - §data.canvas · E.V. never writes to Canvas; it reads through Matt's signed-in browser on the Mac. How it reads is a design choice that a later decision may change (a read-only token, if his school allows one). <!-- PLAN §2.1.2, D-079, D-303, D-451 -->
 - §data.links · Every id field that points at another collection or table resolves, or is reported as an orphan; never dropped. <!-- D-241 -->
+- §data.tables · Ids start with their kind; a pointer is a typed column with an index, or a (kind, id) pair with an index only where it can name several kinds; appends are rows, never rewrites of a document; every table has `at` and `v` under §data.protocol, an export count and SHA-256, and a restore-drill check before it goes live. <!-- PLAN §5.4, §5.10; replaces §data.new-tables -->
+- §data.gate · Every writer (commands, jobs, scheduled commands, the outbox's server side) writes through one gate in `data/`, the only place with SQL: it parses the row with its `domain` schema, applies the kind's write rules and the size budget, then §data.protocol; a refusal gives its reason and only a stale version answers 409; reads parse each row, report and leave out a bad one, and leave out deleted rows unless asked. <!-- PLAN §4, §5.3 -->
+- §data.item-versions · Set items carry `v`; an attempt records the item id and version it answered, so editing an item never rewrites or orphans attempts. <!-- replaces §data.ev4-sets -->
 - §data.append-only · Answers, events, reviews, attempts and talk are append-only; derived state is rebuilt from them, never stored as truth. <!-- D-047, D-068, D-095, D-120, D-128, D-064 -->
-- §data.new-tables · The mock-up's new things live only in `collections`, `memberships`, `pins`, `views`, `item_props`, `own_sets`, `own_set_items`, `own_attempts` and `drafts`; each new table has an additive idempotent migration, `at` and `v` with the `docs` protocol, an export count and SHA-256 over canonical rows, and a restore-drill check, all before it goes live. <!-- PLAN §5.4, §5.10, PLAN §5.10 -->
-- §data.membership · An item sits in at most one collection: its `memberships` row, else ev4's `course`; moving into a course writes `course` and removes the row, and a newer ev4 `course` change wins; collections nest one level (checked in `domain/collection`), and ev4 courses appear as read-only virtual collections `course:<key>`. <!-- PLAN §5.10 -->
-- §data.repeat · A repeat materializes each day's occurrence into ev4's `dayedits.added` under the idempotent key `rep-<id>-<date>`; repeat rules are written in `domain/time`, with no recurrence library. <!-- PLAN §5.10, §12 -->
+- §data.membership · An item sits in at most one collection, named by its `collection_id`; collections nest one level, checked in `domain/collection`. <!-- PLAN §5.10 -->
+- §data.repeat · A repeat makes each day's plan item once, unique by repeat and day; repeat rules are written in `domain/time`, with no recurrence library. <!-- PLAN §5.10, §12 -->
 - §data.drafts · E.V.'s drafts and Today proposals live in `drafts` until kept; keeping one copies it into its home and marks it kept in one batch, so the copy exists exactly once. <!-- PLAN §5.10 -->
-- §data.migrations · Wrangler migrations start from a baseline restating ev4's `schema.sql`; each is additive and idempotent, added and never rewritten; a Time Travel bookmark is noted before every live migration. <!-- PLAN §5.5 -->
-- §data.export · The export covers every non-virtual table, with `docs` in ev4's manifest shape (per-collection counts and SHA-256), goes to R2 and is never overwritten, with the nightly backup and Sunday Markdown mirror also in Matt's Mac backups folder; a restore drill restores it as written into a scratch D1, checks its own manifest, then migrates; and a restore into live happens only on Matt's word with him present. <!-- PLAN §5.4, D-302, D-091, D-186, D-057, D-061, D-322 -->
-- §data.search · No FTS5 or other virtual table in live D1; search is `LIKE` plus passage scoring in `domain/search`, proven by a retrieval test set; any index is derived, in a separate database, on Matt's call. <!-- PLAN §5.8 -->
+- §data.migrations · Wrangler migrations build v5's own database from an empty baseline; each is idempotent, added and never rewritten; a Time Travel bookmark is noted before every live migration. <!-- PLAN §5.5 -->
+- §data.export · The export covers every table with per-table counts and SHA-256 over canonical rows, goes to R2 and is never overwritten, with the nightly backup and Sunday Markdown mirror also in Matt's Mac backups folder; a restore drill restores it as written into a scratch D1, checks its own manifest, then migrates; and a restore into live happens only on Matt's word with him present. <!-- PLAN §5.4, D-302, D-091, D-186, D-057, D-061, D-322 -->
+- §data.search · No FTS5 or other virtual table in live D1; search is `LIKE` over the plain-text columns of notes and materials plus passage scoring in `domain/search`, proven by a retrieval test set; any index is derived, in a separate database, on Matt's call. <!-- PLAN §5.8 -->
 - §data.offline · v5's IndexedDB name differs from ev4's `ev-app`; only note saves and practice answers queue offline; every other write is online-only and shows "not saved" when it fails. <!-- PLAN §5.9 -->
 - §data.notes · Notes keep ev4's JSON block format, translated losslessly to the editor (a two-column row is a flat-list mark: row id, col 0/1); an edit that shrinks an oversized note is allowed, and a stale save is never merged: both versions are kept, the one not kept as an "(earlier)" copy. <!-- D-325, D-332, D-418, D-326 -->
 - §data.writing-time · A note's study session counts writing time: it counts up, pauses after 2 idle minutes and saves itself after 60 paused minutes. <!-- D-353 -->
 - §data.note-images · Note pictures live in the environment's R2 bucket under `note-images/`, served by the Worker to the owner only. <!-- D-417 -->
 - §data.size · Every stored document has a size budget against its platform ceiling: a check warns at 75% and fails at 90%. <!-- D-183 -->
-- §data.course-facts · Course facts (Canvas ids, class weekdays, exam kinds) are data in ev4's spec; no course is named in code. <!-- D-099, D-205, D-414 -->
+- §data.course-facts · Course facts (Canvas ids, class weekdays, exam kinds) are data on the course's collection row; no course is named in code. <!-- D-099, D-205, D-414 -->
 - §data.study-logic · ev4's study logic ports unchanged into `domain`, with its tests: the fixed-interval weak-spot scheduler, day planning, prep days, urgency only for one-time deadlines, a set done on its first attempt. <!-- PLAN §5.7, D-051, D-086, D-095, D-117, D-143, D-204, D-078, D-133, D-144 -->
 - §data.shadow · A change to the scheduler or to what the morning writes runs in shadow for a week and Matt reads the comparison before the flip. <!-- D-116, D-190 -->
 - §data.cards · FSRS cards arrive after cutover, starting fresh; every review is logged from the first, invalid events are skipped and logged, and a card whose replay errors starts fresh, flagged. <!-- PLAN §5.7, §9 -->
-- §data.ev4-routes · v5 answers ev4's routes with 410 "E.V. updated, reload", and on first boot offers to import unsent ev4 outbox notes. <!-- PLAN §9 -->
+- §data.ev4-routes · v5 answers ev4's routes with 410 "E.V. updated, reload". <!-- PLAN §9; the ev4 outbox import ended with the empty start -->
 
 ## 4. Deletes
-- §delete.soft · A delete writes a `deletions(c, id, at)` row, which ev4 ignores; no document is removed on delete. <!-- PLAN §5.6 -->
+- §delete.soft · A delete sets `deleted_at` on the row, the one delete mechanism; no row is removed on delete. <!-- PLAN §5.6 -->
 - §delete.who · Only Matt deletes, by hand; E.V., jobs, the schedule and agents have no delete path, enforced by the Worker, not by prompts; jobs are never deleted. <!-- D-345 -->
-- §delete.purge · The purge runs only after the rollback window closes, clearing live D1 30 days after Matt's delete; backups keep everything, and the UI says so. <!-- PLAN §5.6, C4, D-425 -->
-- §delete.collection · Deleting a collection writes one row for the collection only; its items show ungrouped, and restoring it regroups them. <!-- PLAN §5.6 -->
+- §delete.purge · The purge clears a row from live D1 30 days after Matt's delete; backups keep everything, and the UI says so. <!-- PLAN §5.6, C4, D-425 -->
+- §delete.collection · Deleting a collection marks the collection only; its items show ungrouped, and restoring it regroups them. <!-- PLAN §5.6 -->
 
 ## 5. Commands, jobs and E.V.
 - §cmd.registry · One registry in `commands/`: each command declares its name, Zod input, callers (Matt, E.V., schedule, external executor), effect (instant or starts a job) and mode per caller (direct or propose). <!-- PLAN §6.1, D-203 -->
@@ -80,7 +79,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §model.registry · Model ids and prices live only in `jobs/runtime/models.ts` with a "checked on" date; a check warns when it is old, and no environment variable overrides it. <!-- PLAN §6.5 -->
 - §model.from-docs · Agents take model ids, prices and platform limits from current docs, never from memory. <!-- PLAN §2.1.6; a working rule, demoted from the hard limits by D-451 -->
 - §model.choice · The server picks the model and max tokens: a new or remade study plan uses Sonnet, plan edits are patches on Haiku, every other ask uses Haiku, and stable prefixes (system prompt, course context) use prompt caching. <!-- D-305, D-355, D-356, PLAN §6.5 -->
-- §model.output · Strict structured output from the job's Zod schema; `max_tokens` or a refusal fails the job; then Zod and semantic checks (every cited id was in the excerpts); one repair ask, then fail; half-parsed output never lands. <!-- PLAN §6.3 -->
+- §model.output · Strict structured output from the job's Zod output schema, derived from the `domain` schema of the rows it lands in (minus the fields the server sets), converted by the Anthropic SDK's own Zod helper; `max_tokens` or a refusal fails the job; then Zod and semantic checks (every cited id was in the excerpts); one repair ask, then fail; half-parsed output never lands. <!-- PLAN §6.3 -->
 - §model.ceilings · Hourly and daily ceilings are D1 settings changed without a release, plus an atomic per-job ask cap and a monthly ceiling, all counted as billed; every call reserves its maximum cost first, and a ceiling hit fails the job cleanly with the reason, with nothing landing. <!-- PLAN §6.5, D-349, D-352, §9 -->
 - §model.alert · At 80% of the monthly ceiling: an Activity "needs you" alert and one line on Today; the Anthropic Console spend limit stays the final backstop. <!-- PLAN §6.5 -->
 
@@ -119,7 +118,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §sec.auth · A bearer token per caller (app, cloud schedule, Mac executor), scoped to its routes, compared in constant time, with wrong attempts rate-limited; only the app token changes ceilings. <!-- PLAN §10 -->
 - §sec.shell · The public shell holds no personal config (settings load from D1 behind the token), and logs and Workflow step outputs hold ids and counts, never prompts or note text. <!-- PLAN §10 -->
 - §sec.live-data · Personal data may be in the repo, but the repo is public, so agents never commit live data or copy it onto staging; fixtures are synthetic. Real data may reach a builder when a task needs it (a bug Matt reports). <!-- C15, D-106, D-451 -->
-- §sec.staging-data · Staging holds synthetic data only; the one real-data check runs read-only in a restricted scratch copy on Matt's OK and reports counts and errors only. <!-- PLAN §10, C1 -->
+- §sec.staging-data · Staging holds synthetic data only; real data never reaches staging. <!-- PLAN §10, C1 -->
 - §sec.account · Staging shares ev-live's Cloudflare account: staging config names the v5 staging Worker and D1 explicitly, CI fails any non-live config or workflow naming ev-live or its D1, and the staging and live tokens are separate secrets. <!-- C10 -->
 
 ## 9. Drift workflow
@@ -142,8 +141,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §deliver.done · A definition of done asks Matt only what no check can decide; every checkable clause names its test or run. <!-- D-182 -->
 - §deliver.no-hand-docs · Agents never write hand-made documents into a staging or live record; proofs drive the app's own paths. <!-- D-363 -->
 - §deliver.sequence · Work is sequenced by completion, never the calendar; only Matt's "exam week" pauses features, leaving bug fixes. <!-- PLAN §14, D-390 -->
-- §deliver.window · While the rollback window is open, v5 keeps a `PlanJob` stub and ships no Durable Object deletion, and a rollback runs the rehearsed `ops/` runbook (drain jobs, deploy the tagged last ev4 live build through ev4's workflow, re-enable ev4's tasks); the window ends on Matt's word after one exam on v5. <!-- PLAN §13, C6 -->
-- §deliver.cutover · Cutover, on Matt's word once PLAN §8's scope matches or beats ev4: outboxes empty, ev4 cloud tasks off, Mac tasks re-created with Matt, R2 export and bookmark, ev-staging then ev-live, parity against the manifest. <!-- PLAN §8, §13 -->
+- §deliver.cutover · Cutover, on Matt's word once PLAN §8's scope matches or beats ev4: outboxes empty, ev4's cloud tasks off through ev4's process, Mac tasks re-created with Matt, v5's own live database created empty with an R2 export and Time Travel bookmark, then ev-staging and ev-live. <!-- PLAN §8, §13 -->
 - §deliver.spike · When the same check fails twice on a fix, a spike answers it in a throwaway branch instead of a third try. <!-- D-409 -->
 - §deliver.cleanup · The build may delete v5's own throwaway and staging resources (spike Workers, scratch D1s, branches); never ev4's resources or Matt's data. <!-- D-451 -->
 

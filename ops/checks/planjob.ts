@@ -1,5 +1,5 @@
-// The rollback window keeps ev4's PlanJob (CONTRACT §deliver.window): worker.ts exports the class, and the Worker config
-// binds it under ev4's binding and migration tag without ever deleting it.
+// The ev-live Worker keeps ev4's PlanJob class, because removing it would delete ev4's stored state (CONTRACT
+// §data.same-worker): worker.ts exports the class, and the Worker config binds it under ev4's binding and migration tag.
 import type { Finding } from './lib.ts';
 import { read } from './lib.ts';
 

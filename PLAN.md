@@ -2,6 +2,8 @@
 
 **Status:** the plan the ev5 repository starts from. It merges the original v5 plan with the architect's review of it against the ev4 prototype. The review, with its evidence, is in `docs/history/ev5-plan-review.md`.
 
+**Update 2026-11-05 (D-484):** Matt chose no rollback to ev4. v5 gets its own database with one table per kind, and it starts empty: nothing is copied from ev4. Every part of this plan that exists only for the rollback window or for ev4's shared database (most of §5, rehearsals 1 and 2, the rollback after cutover, C4 and C6) has ended. CONTRACT.md §3 and `ops/CUTOVER.md` hold the current rules.
+
 **How this document relates to the others:**
 - Phase 0 copies the rules in this plan into `CONTRACT.md`, each with a `§id`.
 - From the Phase 0 gate onward, **CONTRACT.md wins** and this file is history. Only the build manager edits it, and only to tick off phases.

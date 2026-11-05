@@ -14288,14 +14288,19 @@
   "title": "S-84: Rehearsal 2",
   "dod": "All five steps pass",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "declined",
   "depends": [
    "B-753",
    "B-820"
   ],
   "notes": "",
   "commit": null,
-  "source": "AGENTS.md §4.3"
+  "source": "AGENTS.md §4.3",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Rehearsal 2 tested going back to ev4 and forward again; there is no rollback to ev4 (D-484). The import rehearsal (B-993) replaces it.",
+   "at": "2026-11-05T15:53:20.549Z"
+  }
  },
  {
   "id": "B-759",
@@ -14315,7 +14320,7 @@
   "id": "B-760",
   "kind": "task",
   "title": "G-6: Gate 6: ops",
-  "dod": "The end-to-end run, both drills and rehearsal 2 pass",
+  "dod": "The end-to-end run and both restore drills pass",
   "milestone": "v5 P6",
   "status": "open",
   "depends": [
@@ -14323,7 +14328,6 @@
    "B-755",
    "B-756",
    "B-757",
-   "B-758",
    "B-759"
   ],
   "notes": "",
@@ -15182,7 +15186,7 @@
   "id": "B-820",
   "kind": "task",
   "title": "Keep ev4's PlanJob class in v5's live build",
-  "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing; rehearsal 2 deploys the real entry, not a rehearsal-only one (CONTRACT §deliver.window)",
+  "dod": "server/worker.ts exports a PlanJob stub class; the live config binds it under ev4's binding and migration tag with no deleted_classes; an ops/checks rule fails if either is missing (CONTRACT §data.same-worker: removing the class deletes ev4's stored state)",
   "milestone": "v5 P6",
   "status": "done",
   "depends": [],
@@ -15226,14 +15230,14 @@
   "id": "B-823",
   "kind": "task",
   "title": "Cutover checklist and run record",
-  "dod": "ops/CUTOVER.md lists CONTRACT §deliver.cutover's steps (outboxes empty, ev4 cloud tasks off, Mac tasks re-created with Matt, R2 export and Time Travel bookmark, ev-staging then ev-live, parity against the manifest) plus the scratch-copy check and the PlanJob check; on the day each step's result is recorded in the Chart",
+  "dod": "ops/CUTOVER.md lists CONTRACT §deliver.cutover's steps (outboxes empty, ev4 cloud tasks off through ev4's process, Mac tasks re-created with Matt, v5's own live D1 and R2 created empty on Matt's word, v5 export and Time Travel bookmark, ev-staging then ev-live, live check, ev4 service worker retired); on the day each step's result is recorded in the Chart",
   "milestone": "v5 P7",
   "status": "open",
   "depends": [
    "B-760",
    "B-753"
   ],
-  "notes": "Run 75 #470: ops/CUTOVER.md (12 steps, who, Matt's word, proof, blank run record). Open: the checklist is not rehearsed; Gate 6 (B-760) must close first.",
+  "notes": "Rewritten 2026-11-05 for D-484: no rollback to ev4, v5 starts empty. Run 75 #470 had the shared-database version.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -16915,10 +16919,13 @@
   "id": "B-955",
   "kind": "task",
   "title": "Every Worker write to an ev4 collection passes ev4's write rules, and Rename works only where a title belongs",
-  "dod": "The Worker's docs repository applies a Worker-safe write check (writer values, write-once fields, documents carrying migratedAt or migratedTo, legacy collections) by default on every route and command; item.rename refuses collections whose ev4 schema has no title or keeps it write-once; a refused write gives its real reason, not 409 try again; tests cover rename on an exam and a remade plan's planId",
+  "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
   "status": "blocked",
-  "depends": [],
+  "depends": [
+   "B-980",
+   "B-981"
+  ],
   "notes": "Audit finding 3: only PUT /docs checks note shape (server/doc-routes.ts); handlers build docsRepo with no check; item.rename writes title anywhere (server/command-handlers.ts); approving a remade plan rewrites exams.planId (server/plan-home.ts); refusals map to 409 (server/handlers-edit.ts, handlers-dates.ts). Protects rollback to ev4.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
@@ -17273,5 +17280,232 @@
   "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+ },
+ {
+  "id": "B-980",
+  "kind": "task",
+  "title": "One Zod row shape per stored kind in domain/",
+  "dod": "Each table in §data.tables has one Zod row shape in domain/<kind>; commands, jobs and the gate import it and restate nothing; WireDoc and the four plan shapes are gone (§data.gate, §model.output). Slice write: domain/",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-981",
+  "kind": "task",
+  "title": "Migrations baseline for v5's own tables, held to the row shapes",
+  "dod": "One empty-database baseline migration creates every table with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Slice write: data/migrations",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-980"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-982",
+  "kind": "task",
+  "title": "Export and restore drill over v5's new tables",
+  "dod": "The export writes every table with counts and SHA-256 in the manifest; the restore drill restores each into scratch and compares (§data.export, §data.tables). Slice write: data/export",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-981"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-983",
+  "kind": "task",
+  "title": "Import from ev4's export into v5's tables",
+  "dod": "An idempotent import reads ev4's R2 export, checks its manifest, writes every row through the gate, and reports counts per ev4 collection and v5 table, orphans and collections not imported; a second run adds nothing; tested on ev4's synthetic record only (§data.import). Slice write: data/import",
+  "milestone": "v5 P6",
+  "status": "declined",
+  "depends": [
+   "B-955",
+   "B-982"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Matt chose an empty start on 2026-11-05: nothing is copied from ev4. A notes-only import can be filed later, only if Matt asks.",
+   "at": "2026-11-05T15:56:00.844Z"
+  }
+ },
+ {
+  "id": "B-984",
+  "kind": "task",
+  "title": "Server routes and commands read and write through the gate",
+  "dod": "No LIKE over JSON, no bare-id lookup without its kind, list reads are paged; drafts restore by kind and id; every route and command writes through data/ (§data.gate, §data.tables). Slice write: server/",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-955"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-985",
+  "kind": "task",
+  "title": "Job runtime stores go through data/",
+  "dod": "jobs/runtime/d1-stores.ts holds no SQL; job records, job state, ceilings and model usage use data/ repositories through the gate; ops/checks refuses SQL in jobs/ (§data.gate). Slice write: jobs/runtime",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-955"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-986",
+  "kind": "task",
+  "title": "Practice job output is the stored set item",
+  "dod": "The practice job's output schema is derived from the domain set-item row (id, sourceRef pattern and all); its items land through the gate; a model reply that fails the shape is repaired once or refused with a reason (§model.output, §data.gate). Slice write: jobs/practice",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-955",
+   "B-980"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-987",
+  "kind": "task",
+  "title": "Study plan output lands as plans and plan_items",
+  "dod": "The study plan job's output goes through domain/plan into plans and plan_items; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/plan, domain/plan",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-955",
+   "B-980"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-988",
+  "kind": "task",
+  "title": "Model output uses the SDK's Zod helper",
+  "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/model",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-980"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-989",
+  "kind": "task",
+  "title": "Today, Activity and Sessions read typed rows",
+  "dod": "These areas read parsed rows from the commands client only, with paging where they list; no PUT /docs from an area (§data.gate). Slice write: areas/today, areas/activity, areas/sessions",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-984"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-990",
+  "kind": "task",
+  "title": "Library and Ask read typed rows",
+  "dod": "Library and Ask read parsed rows from the commands client only, with paging where they list; weak spots get their attempts from the attempts table; no PUT /docs from an area (§data.gate). Slice write: areas/library, areas/ask",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-984"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-991",
+  "kind": "task",
+  "title": "Notes and collections read typed rows",
+  "dod": "Notes and collection pages read parsed rows from the commands client only, with paging where they list; search uses the plain-text columns; no PUT /docs from an area (§data.gate, §data.search). Slice write: areas/notes, areas/collection",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-984"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-992",
+  "kind": "task",
+  "title": "Re-seed staging with synthetic v5 rows through the gate",
+  "dod": "Staging's D1 is rebuilt from the baseline and filled with synthetic v5 rows written through the gate; no real data; the Gate 5 journeys pass on it (§sec.staging-data, §data.gate). Slice write: data/staging",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-955",
+   "B-981"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+ },
+ {
+  "id": "B-993",
+  "kind": "task",
+  "title": "Import rehearsal on a scratch copy of ev4's export",
+  "dod": "On Matt's OK, the import runs on a scratch copy of ev4's export; the report gives counts and error kinds only, and the rows to write fit the daily write limit or are split across days (§data.import, §sec.staging-data). Replaces rehearsal 2 (B-758)",
+  "milestone": "v5 P6",
+  "status": "declined",
+  "depends": [
+   "B-983",
+   "B-992"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "triage": {
+   "outcome": "declined",
+   "reason": "There is no import to rehearse: Matt chose an empty start on 2026-11-05.",
+   "at": "2026-11-05T15:56:00.991Z"
+  }
+ },
+ {
+  "id": "B-994",
+  "kind": "task",
+  "title": "Retire ev4-only code",
+  "dod": "data/compat, ajv, the course-name fallback, item_props and dayedits, copy-on-first-edit sets, json_extract deletion joins and the ev4 outbox import on first boot (shell/outbox/ev4-import.ts) are deleted; knip and the checks pass (§data.own-db, §data.ev4-routes)",
+  "milestone": "v5 P6",
+  "status": "open",
+  "depends": [
+   "B-984",
+   "B-985",
+   "B-989",
+   "B-990",
+   "B-991"
+  ],
+  "notes": "",
+  "commit": null,
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
  }
 ]

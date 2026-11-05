@@ -65,13 +65,12 @@ interface: none | <folder> (then expand → migrate → contract, PLAN §11)
 - One task changes one slice, reaches a green PR, and stays under about 400 changed lines. Split anything bigger along the layers: domain → data → commands → jobs → areas.
 - **A new entity** is ordered tasks:
   1. `domain/<entity>` (schema and rules);
-  2. `data` repository plus compat fixture;
+  2. `data` repository, writing through the gate (§data.gate);
   3. commands;
   4. the area part.
 
   Each later task reads the earlier ones' generated interface only.
 - UI tasks name the mock-up screen they implement. A look the mock-up lacks starts as a kit task, never in a view (§ui.kit-leads).
-- Every task that writes to an existing ev4 collection lists its compat fixture in "proof".
 
 ### 4.3 Seed tasks
 The first run files these into the Chart, then the loop takes them in order. Ids are assigned when they are filed.
@@ -82,7 +81,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-03 File the seed tasks (this list) through `ops/record`.
 - S-04 Record Matt's confirmations (PLAN §15) as decisions. Any unanswered item keeps its default, marked "default".
 - S-05 Sweep the 322 accepted decisions plus PLAN §2–§12 into CONTRACT.md, giving every rule a `§id`, and list the ended rules. Done when the hard-limits section is marked for Matt's yes (the only CONTRACT question he gets).
-- S-06 `data/compat`: frozen ev4 schemas, protocol tests (`v`, `at`, canonical JSON, 409, no delete), and ev4's route list.
+- S-06 `data/compat`: frozen ev4 schemas, protocol tests (`v`, `at`, canonical JSON, 409, no delete), and ev4's route list. *(Ended 2026-11-05: v5 has its own database, §data.own-db.)*
 - S-07 Spike Workflows (PLAN §13 Phase 0 list) on the current plan tier. Report pass/fail per item and the recommendation.
 - S-08 Spike the notes editor round trip (ProseMirror/Tiptap ⇄ ev4 blocks) against synthetic notes and the ev4 notes-harness behaviours.
 - S-09 *(ev4 repo, bug fix)* Remove the Mac path and Canvas host from ev4's public spec. This is an ev4 task, and it ships through ev4's process.
@@ -96,7 +95,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-14 Guard-failure fixtures: a PR per guard that goes red, recorded.
 - S-15 CI: branch protection, auto-merge, the staging deploy on merge (Cloudflare credentials only in GitHub), the live workflow behind Matt's approval.
 - S-16 The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record.
-- S-17 The rollback runbook in `ops/`, plus rehearsal 1 on a throwaway Worker+D1 pair.
+- S-17 The rollback runbook and rehearsal 1. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
 - **Gate 1.**
 
 **Phase 2: Kit (parallel with Phase 3)**
@@ -134,7 +133,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-74 Ask E.V.
 - S-75 The notes editor.
 - S-76 Study sessions and read-along.
-- S-77 The offline outbox, and the ev4-outbox import.
+- S-77 The offline outbox. *(Its ev4-outbox import ended 2026-11-05: v5 starts empty, §data.own-db.)*
 - S-78 The e2e journeys from Gate 5.
 - **Gate 5.**
 
@@ -143,7 +142,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-81 The Mac executor for Canvas (needs Matt present to create it).
 - S-82 The push task (C7).
 - S-83 Restore drills, including a Time Travel restore on staging.
-- S-84 Rehearsal 2.
+- S-84 Rehearsal 2. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
 - S-85 One end-to-end run.
 - **Gate 6.**
 

@@ -230,3 +230,16 @@ Swept on 2026-11-02 from ev4's `chart/decisions.json`: 322 accepted decisions. 1
 | R-04 | A live deploy needs Matt's explicit OK: his words in the chat (--matt-ok), or his Ship it tap on the page (D-198): a ship job naming the… | carried in a new form: §hard.live-on-matts-word (the approval-gated live environment) |
 | R-05 | A live deploy waits out the live watchdog windows: from 10 minutes before to 10 minutes after each live watchdog run (:45 to :05 around 1… | ended in ev4: D-262: Matt retired it on Oct 23 (never refused a deploy in 18; worst case one wrong health line) |
 | R-06 | A live deploy takes only a commit the full check passed: a full npm run check GREEN here at the build's commit (dist/check-full.json) or… | ended in ev4: D-366: the full check runs nightly only; a red nightly is a filed bug and never gates a live release (Oct 28) |
+
+## v5 rules that ended
+
+Ended 2026-11-05 (D-484): Matt does not need to go back to ev4 after the switch, so v5 keeps its own database, which starts empty (Matt chose "Start empty"), and ev4's stays untouched as an archive.
+
+| id | rule | why it ended |
+|---|---|---|
+| §data.docs-table | v5 keeps ev4's `docs(c, id, data, at, v)` table and five small tables and reads every ev4 document without migration | v5 has its own database, one table per kind, which starts empty (§data.own-db) |
+| §data.compat | CI validates every v5 write to an existing collection against the frozen ev4 schemas in `data/compat` | v5 never reads or writes ev4's collections (§data.own-db) |
+| §data.writers | v5 writes an ev4 field only as the writer that owns it, with `source` naming v5 | it kept ev4 able to read v5's writes after a rollback; there is no rollback to ev4 |
+| §data.ev4-sets | ev4 sets are immutable and copied on first edit | set items carry a version instead (§data.item-versions) |
+| §data.new-tables | the mock-up's new things live only in nine named side tables | the side tables existed because ev4's collections were frozen; replaced by §data.tables |
+| §deliver.window | while the rollback window is open, v5 keeps a `PlanJob` stub, ships no Durable Object deletion and rolls back by the `ops/` runbook | there is no rollback to ev4; the `PlanJob` stub stays for ev4's stored state (§data.same-worker) |
