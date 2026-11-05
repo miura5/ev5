@@ -29,6 +29,8 @@ import { commandsFor } from "./commandsFor.ts";
 import { useTheme } from "./theme.ts";
 import { DetailSlot } from "./DetailSlot.tsx";
 import { useOpenedDetail } from "./useOpenedDetail.ts";
+import { ToastHost } from "./ToastHost.tsx";
+import { useToasts } from "./useToasts.ts";
 import "./shell.css";
 
 export interface Pin {
@@ -116,6 +118,7 @@ export function Shell({
   }, []);
   const View = current?.view;
   const [opened, setOpened, clearDetail] = useOpenedDetail(bare, palette);
+  const { toasts, show: showToast, drop: dropToast } = useToasts();
   // What Matt types in ⌘K comes from the palette's onQuery; the record is read once each time the palette opens.
   const [typed, setTyped] = useState("");
   const [record, setRecord] = useState<Record_>({});
@@ -275,11 +278,13 @@ export function Shell({
               onNavigate={onNavigate}
               path={bare}
               onDetail={setOpened}
+              onToast={showToast}
             />
           ) : null}
         </div>
       </main>
       <DetailSlot opened={opened} onClear={clearDetail} legacy={detail} />
+      <ToastHost toasts={toasts} onDrop={dropToast} hidden={palette} />
       {palette ? (
         <Palette
           groups={groups}

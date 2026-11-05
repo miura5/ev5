@@ -1,27 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { call, failureSentence, readToken } from "../../commands/client.ts";
 import { centralDate, type Block } from "../../domain/index.ts";
-import { Toast, type DetailProps } from "../../kit/index.ts";
+import type { DetailProps } from "../../kit/index.ts";
 import { NotePageView } from "./NotePage.view.tsx";
 import { NoteEditor } from "./parts/NoteEditor.tsx";
 import { NotesView } from "./Notes.view.tsx";
 import { toPage, toSummary } from "./map.ts";
 import { useNotes, type NotesServices } from "./useNotes.ts";
-import {
-  SHORTCUTS,
-  SHORTCUTS_EVENT,
-  onMac,
-} from "./parts/shortcuts.ts";
+import { SHORTCUTS, SHORTCUTS_EVENT, onMac } from "./parts/shortcuts.ts";
 
 /** The mounted view: notes from the document routes; the title is the note's first heading, edited in place in the editor, and saves through the outbox, so it works offline. */
 export function NotesScreen({
   services,
   onNavigate,
   onDetail,
+  onToast,
 }: {
   services?: NotesServices;
   onNavigate?: (path: string) => void;
   onDetail?: (detail: DetailProps | null) => void;
+  onToast?: (message: string, onUndo?: () => void) => void;
 }) {
   const {
     notes,
@@ -55,40 +53,41 @@ export function NotesScreen({
   const [open, setOpen] = useState<string | undefined>(
     () => new URLSearchParams(window.location.search).get("open") || undefined,
   );
-  const [startError, setStartError] = useState<string>();
+  const setStartError = (message?: string) => {
+    if (message) onToast?.(message);
+  };
+  useEffect(() => {
+    if (error) onToast?.(error);
+  }, [error, onToast]);
   // Set by New note: the page opens with its title selected, ready to type.
   const [fresh, setFresh] = useState<string>();
-  // Set after a delete (here, or on a collection page that sent us with ?deleted=): Undo restores it.
-  const [undo, setUndo] = useState<{ id: string; message: string } | undefined>(
-    () => {
-      const q = new URLSearchParams(window.location.search);
-      const id = q.get("deleted");
-      if (!id) return undefined;
-      return {
+  // A delete (here, or on a collection page): Undo restores it.
+  const undoToast = (u: { id: string; message: string }) =>
+    onToast?.(
+      u.message,
+      () =>
+        void call("item.restore", { id: u.id }, readToken()).then((r) => {
+          if (r.ok) reload();
+          else setStartError(r.reason);
+        }),
+    );
+  // Set after a delete on a collection page that sent us with ?deleted=: Undo restores it.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const id = q.get("deleted");
+    if (id)
+      undoToast({
         id,
         message:
           q.get("what") === "collection" ? "Collection deleted" : "Deleted",
-      };
-    },
-  );
-  const undoToast = undo ? (
-    <Toast
-      message={undo.message}
-      onDone={() => setUndo(undefined)}
-      onUndo={() =>
-        void call("item.restore", { id: undo.id }, readToken()).then((r) => {
-          setUndo(undefined);
-          if (r.ok) reload();
-          else setStartError(r.reason);
-        })
-      }
-    />
-  ) : null;
+      });
+    // Once, on arrival.
+  }, []);
   const del = (id: string, what: string) =>
     void call("item.delete", { id }, readToken()).then((r) => {
       if (!r.ok) return setStartError(r.reason);
       setOpen(undefined);
-      setUndo({ id, message: what });
+      undoToast({ id, message: what });
       reload();
     });
   const move = (id: string, collection: string) =>
@@ -102,10 +101,6 @@ export function NotesScreen({
   if (!cur)
     return (
       <>
-        {error || startError ? (
-          <Toast message={(error ?? startError)!} />
-        ) : null}
-        {undoToast}
         <NotesView
           notes={[...notes]
             .sort((a, b) =>
@@ -168,8 +163,6 @@ export function NotesScreen({
   const titled = cur.note.blocks[0]?.type === "h1";
   return (
     <>
-      {startError ? <Toast message={startError} /> : null}
-      {undoToast}
       <NotePageView
         note={{
           ...toPage(cur.id, cur.note, saveState, today),
@@ -180,6 +173,7 @@ export function NotesScreen({
         }}
         editor={
           <NoteEditor
+            onToast={onToast}
             blocks={titled ? cur.note.blocks.slice(1) : cur.note.blocks}
             onChange={(b) =>
               void saveBlocks(

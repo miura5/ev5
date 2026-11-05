@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Empty, Page, Toast, type DetailProps } from "../../kit/index.ts";
+import { Empty, Page, type DetailProps } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
 import { examPlanDetail } from "./ExamPlan.detail.tsx";
@@ -28,14 +28,19 @@ const PLAN_TEXT = {
 export function LibraryScreen({
   services,
   onDetail,
+  onToast,
 }: {
   services?: LibraryServices;
   onDetail?: (detail: DetailProps | null) => void;
+  onToast?: (message: string) => void;
 }) {
   const { data, token, refused, error, runPlan, answerPlan } = useLibrary(
     services?.readCopy,
   );
-  const [planNote, setPlanNote] = useState<string>();
+  const setPlanNote = (message: string) => onToast?.(message);
+  useEffect(() => {
+    if (error && token && !refused) onToast?.(error);
+  }, [error, token, refused, onToast]);
   const [open, setOpen] = useState<string | undefined>(openFromUrl);
   // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
   const [openKey, setOpenKey] = useState(0);
@@ -157,7 +162,6 @@ export function LibraryScreen({
     );
   return (
     <>
-      {error || planNote ? <Toast message={planNote ?? error ?? ""} onDone={() => setPlanNote(undefined)} /> : null}
       <LibraryView
         practice={null}
         weakSpots={data?.weakSpots ?? []}

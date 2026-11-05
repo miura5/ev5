@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Detail, type DetailProps } from "../../kit/index.ts";
-import { LibraryScreen } from "./Library.screen.tsx";
+import { LibraryScreen as RawLibraryScreen } from "./Library.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
+
+const LibraryScreen = withToasts(RawLibraryScreen);
 import {
   examPlanDetail,
   type ExamPlanDetailProps,

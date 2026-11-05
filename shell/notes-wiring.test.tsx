@@ -1,3 +1,4 @@
+import { Shell } from "./Shell.tsx";
 import {
   cleanup,
   fireEvent,
@@ -11,6 +12,16 @@ import { createOutbox, docsHttp, memoryStore } from "./outbox/index.ts";
 import type { Services } from "./services.ts";
 
 const NotesScreen = notesArea.view;
+
+// The shell mounts the area and draws its toasts, as in the app.
+const NotesInShell = ({ services }: { services?: Services }) => (
+  <Shell
+    path={notesArea.route}
+    onNavigate={() => undefined}
+    areas={[notesArea]}
+    services={services}
+  />
+);
 
 afterEach(cleanup);
 
@@ -118,7 +129,7 @@ test("a refused token shows a plain sentence and no notes", async () => {
     store: memoryStore(),
     transport: http.transport,
   });
-  render(<NotesScreen services={{ docs: http, outbox }} />);
+  render(<NotesInShell services={{ docs: http, outbox }} />);
   expect(
     await screen.findByText(/E\.V\. did not accept this token/),
   ).toBeTruthy();
