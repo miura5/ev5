@@ -210,6 +210,8 @@ export function Shell({
       if (a) onNavigate(`${a.route}?open=${encodeURIComponent(docId)}`);
     } else if (kind === "pin") onOpenPin?.(id);
     else if (kind === "cmd" && id === "theme.toggle") toggleTheme();
+    else if (kind === "cmd" && id === "notes.shortcuts")
+      window.dispatchEvent(new Event("ev5:note-shortcuts"));
     else if (kind === "cmd")
       void call(id as Parameters<typeof call>[0], {}, storedToken());
   };
