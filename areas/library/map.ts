@@ -8,7 +8,7 @@ import {
   parseWeakSpot,
   plainDay,
 } from "../../domain/index.ts";
-import { accuracyLine, dueCounts } from "./tally.ts";
+import { accuracyLine, dueCounts } from "../../domain/index.ts";
 import type {
   Accuracy,
   LibraryExam,

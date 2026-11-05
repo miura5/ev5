@@ -23,6 +23,7 @@ export {
   type Run,
   type Note,
 } from "./note/index.ts";
+export { accuracyLine, dueCounts } from "./answers/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";
 export { addDays, centralDate, centralParts, isDue, plainDay, inDays, weekday } from "./time/index.ts";
