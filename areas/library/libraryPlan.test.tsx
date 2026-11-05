@@ -100,9 +100,12 @@ test("a draft plan can be put away", async () => {
 
 test("changes go with his note, and need one", async () => {
   const sent = boot(exam({ planId: "plan-j1" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Ask for changes" }),
+  );
   const send = await screen.findByText("Send changes");
   expect((send as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.change(screen.getByLabelText("Ask for changes"), {
+  fireEvent.change(screen.getByLabelText("What should change?"), {
     target: { value: " fewer evenings " },
   });
   fireEvent.click(send);

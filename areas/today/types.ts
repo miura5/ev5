@@ -28,6 +28,8 @@ export interface UpcomingDate {
   readiness: Readiness;
   /** "Thursday, Nov 5", for the Detail panel. */
   whenFull?: string;
+  /** The date and days left for the Detail, worded as Library words it: "Thu, Nov 12 · in 8 days". */
+  dateLine?: string;
   course?: string;
   /** The study plan for this exam: waiting for his answer, or approved and in force. */
   plan?: "waiting" | "approved";

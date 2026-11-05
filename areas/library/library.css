@@ -185,9 +185,23 @@
 
 .ev-library-detail {
   position: fixed;
+  width: calc(var(--sp-14) * 7 + var(--sp-8));
+  max-width: 100vw;
   top: 0;
   right: 0;
   bottom: 0;
   overflow-y: auto;
   background: var(--bg);
+}
+
+.ev-library-day {
+  width: var(--sp-8);
+  flex: none;
+}
+
+.ev-library-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  white-space: nowrap;
 }

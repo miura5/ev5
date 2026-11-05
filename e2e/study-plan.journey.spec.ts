@@ -124,8 +124,9 @@ test("Study plan: plan with E.V., ask for a change, approve, it stays after a re
   await expect(page.getByRole("button", { name: "Put away" })).toBeVisible();
 
   // One change round: the same job runs again and comes back waiting with a changed draft.
+  await page.getByRole("button", { name: "Ask for changes" }).click();
   await page
-    .getByLabel("Ask for changes")
+    .getByLabel("What should change?")
     .fill("Make the first study day lighter.");
   const asked = page.waitForResponse(
     (r) =>

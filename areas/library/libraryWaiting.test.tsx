@@ -108,7 +108,10 @@ test("Put away on a waiting plan answers the job", async () => {
 
 test("Asking for changes sends the job id to studyplan.ask_changes", async () => {
   const sent = boot();
-  fireEvent.change(await screen.findByLabelText("Ask for changes"), {
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Ask for changes" }),
+  );
+  fireEvent.change(screen.getByLabelText("What should change?"), {
     target: { value: "fewer evenings" },
   });
   fireEvent.click(screen.getByText("Send changes"));
@@ -153,7 +156,8 @@ test("Approve and Send changes each give a sign", async () => {
   boot();
   fireEvent.click(await screen.findByText("Approve"));
   await screen.findByText("Plan approved");
-  fireEvent.change(screen.getByLabelText("Ask for changes"), {
+  fireEvent.click(screen.getByRole("button", { name: "Ask for changes" }));
+  fireEvent.change(screen.getByLabelText("What should change?"), {
     target: { value: "fewer evenings" },
   });
   fireEvent.click(screen.getByText("Send changes"));

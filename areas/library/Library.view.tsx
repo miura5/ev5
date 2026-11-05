@@ -32,9 +32,23 @@ export interface LibraryViewProps {
   onOpenExam?: (id: string) => void;
   onOpenSet?: (id: string) => void;
   onOpenAccuracy?: () => void;
+  /** The tab to light first (an exam opened by a link lights Exams); else the one he left on. */
+  initialTab?: Tab;
 }
 
-type Tab = "practice" | "weak" | "exams" | "sets";
+export type Tab = "practice" | "weak" | "exams" | "sets";
+
+const TAB_KEY = "ev5.library.tab";
+const TABS: readonly Tab[] = ["practice", "weak", "exams", "sets"];
+
+function savedTab(): Tab {
+  try {
+    const t = localStorage.getItem(TAB_KEY);
+    return TABS.find((x) => x === t) ?? "practice";
+  } catch {
+    return "practice";
+  }
+}
 
 /** Library home, first slice: practice, weak spots and exams. Sets, the accuracy line and exam plans follow. */
 export function LibraryView({
@@ -49,8 +63,9 @@ export function LibraryView({
   onOpenExam,
   onOpenSet,
   onOpenAccuracy,
+  initialTab,
 }: LibraryViewProps) {
-  const [tab, setTab] = useState<Tab>("practice");
+  const [tab, setTab] = useState<Tab>(() => initialTab ?? savedTab());
   const tabs: { id: Tab; label: string; n?: number }[] = [
     { id: "practice", label: "Practice" },
     { id: "weak", label: "Weak spots", n: weakSpots.length },
@@ -80,7 +95,14 @@ export function LibraryView({
             kind="text"
             role="tab"
             aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => {
+              setTab(t.id);
+              try {
+                localStorage.setItem(TAB_KEY, t.id);
+              } catch {
+                /* the tab is a convenience; not saving it is fine */
+              }
+            }}
           >
             {t.label}
             {t.n !== undefined ? (

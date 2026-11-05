@@ -42,6 +42,7 @@ export function ExamPlanDetail({
   startOpen,
 }: ExamPlanDetailProps) {
   const [note, setNote] = useState("");
+  const [asking, setAsking] = useState(false);
   const [review, setReview] = useState(
     !!startOpen || exam.planState === "approved",
   );
@@ -83,7 +84,7 @@ export function ExamPlanDetail({
           {exam.sessions?.length ? (
             exam.sessions.map((s, i) => (
               <div key={`${s.date}-${i}`} className="ev-library-session">
-                <span>{dayOf(s.date)}</span>
+                <span className="ev-library-day">{dayOf(s.date)}</span>
                 <span>{s.title}</span>
                 <span>{s.minutes}m</span>
               </div>
@@ -98,27 +99,37 @@ export function ExamPlanDetail({
       ) : null}
       {draft ? (
         <div className="ev-library-panel">
-          <Button kind="primary" onClick={() => onApprove?.(planId)}>
-            Approve
-          </Button>
-          <TextArea
-            label="Ask for changes"
-            placeholder="What should change?"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <Button
-            disabled={!note.trim()}
-            onClick={() => {
-              onAskChanges?.(planId, note.trim());
-              setNote("");
-            }}
-          >
-            Send changes
-          </Button>
-          <Button kind="text" onClick={() => onPutAway?.(planId)}>
-            Put away
-          </Button>
+          <div className="ev-library-actions">
+            <Button kind="primary" onClick={() => onApprove?.(planId)}>
+              Approve
+            </Button>
+            <Button kind="secondary" onClick={() => setAsking((a) => !a)}>
+              Ask for changes
+            </Button>
+            <Button kind="text" onClick={() => onPutAway?.(planId)}>
+              Put away
+            </Button>
+          </div>
+          {asking ? (
+            <>
+              <TextArea
+                label="What should change?"
+                placeholder="What should change?"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+              <Button
+                disabled={!note.trim()}
+                onClick={() => {
+                  onAskChanges?.(planId, note.trim());
+                  setNote("");
+                  setAsking(false);
+                }}
+              >
+                Send changes
+              </Button>
+            </>
+          ) : null}
         </div>
       ) : null}
       {!draft && exam.proposals.length === 0 ? (

@@ -71,7 +71,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
     fns.forEach((f) => f());
   });
   await waitFor(() => expect(screen.getByText("Approve")).toBeTruthy());
-  expect(screen.getByText("Send changes")).toBeTruthy();
+  expect(screen.getByText("Ask for changes")).toBeTruthy();
   expect(screen.getByText("Put away")).toBeTruthy();
 });
 
