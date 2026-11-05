@@ -174,6 +174,8 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         id,
         title: v.title,
         meta: [v.course, when].filter(Boolean).join(" · "),
+        when,
+        course: v.course ?? "",
         mastery: {
           right: share(ready, mine.length),
           shaky: share(shaky, mine.length),
