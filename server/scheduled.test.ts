@@ -185,3 +185,20 @@ test("with no exporter given, the export runs data's real export and stores a pa
   assert.equal(saved.kind, "ev-d1-export");
   assert.ok(saved.tables.docs);
 });
+
+test("a put that loses a race (key appears after the head check) is not an overwrite", async () => {
+  const IMAGES = fakeBucket();
+  const key = exportKey("2026-11-05");
+  const racy = {
+    head: async () => null,
+    put: async (k: string, v: string) => {
+      IMAGES.objects.set(key, "other");
+      return IMAGES.put(k, v);
+    },
+  };
+  await assert.rejects(
+    writeNightlyExport(racy, fakeExport, T0030),
+    /not overwritten/,
+  );
+  assert.equal(IMAGES.objects.get(key), "other");
+});
