@@ -89,9 +89,13 @@ export function useShellStatus(
     };
     void load();
     const t = setInterval(() => void load(), every);
+    // An area that changed a job (a plan put away) says so, so the sidebar count drops at once (areas/library/useLibrary.ts).
+    const again = () => void load();
+    window.addEventListener("ev5:jobs-changed", again);
     return () => {
       live = false;
       clearInterval(t);
+      window.removeEventListener("ev5:jobs-changed", again);
     };
   }, [every]);
   return status;
