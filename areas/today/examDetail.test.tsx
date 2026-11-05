@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { centralDate } from "../../domain/index.ts";
 import { afterEach, expect, test, vi } from "vitest";
-import { TodayScreen } from "./Today.screen.tsx";
+import { TodayHosted } from "./testHost.tsx";
 
 afterEach(() => {
   cleanup();
@@ -54,7 +54,7 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
     ),
   );
   const onNavigate = vi.fn();
-  render(<TodayScreen onNavigate={onNavigate} />);
+  render(<TodayHosted onNavigate={onNavigate} />);
   const row = await screen.findByText(/study plan waiting for you/);
   expect(document.querySelector("[data-ui='detail']")).toBeNull();
   fireEvent.click(row);
@@ -105,7 +105,7 @@ test("a waiting plan shows only on the exam its job names", async () => {
       },
     ]),
   );
-  render(<TodayScreen />);
+  render(<TodayHosted />);
   await screen.findByText(/study plan waiting for you/);
   expect(screen.getAllByText(/study plan waiting for you/)).toHaveLength(1);
   fireEvent.click(screen.getByText(/study plan waiting for you/));
@@ -123,7 +123,7 @@ test("an exam whose plan is in force reads approved", async () => {
       planedits: [{ id: "e3", data: { plan: "p1" } }],
     }),
   );
-  render(<TodayScreen />);
+  render(<TodayHosted />);
   await screen.findByText(/study plan approved/);
   expect(screen.getAllByText(/study plan approved/)).toHaveLength(1);
   expect(screen.queryByText(/waiting for you/)).toBeNull();
@@ -132,7 +132,7 @@ test("an exam whose plan is in force reads approved", async () => {
 test("Today's exam Detail uses Library's words: date with days left, readiness, plan", async () => {
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal("fetch", feed([]));
-  render(<TodayScreen onNavigate={vi.fn()} />);
+  render(<TodayHosted onNavigate={vi.fn()} />);
   fireEvent.click((await screen.findAllByText("Exam 3"))[0]!);
   const detail = await waitFor(() => {
     const d = document.querySelector("[data-ui='detail']");
@@ -173,7 +173,7 @@ test("an approved plan's session dated today lists on Today's Plan, and Start ne
                 : json({ docs: [] }),
     ),
   );
-  render(<TodayScreen />);
+  render(<TodayHosted />);
   await screen.findByText("Gather notes and make a review list");
   expect(screen.getByText("30m")).toBeTruthy();
   expect(screen.queryByText("Later")).toBeNull();

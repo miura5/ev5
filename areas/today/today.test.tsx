@@ -70,9 +70,8 @@ test("today shows its sections and counts what is left", () => {
     expect(screen.getByRole("region", { name })).toBeTruthy();
   expect(screen.getByText("Exam 3 is Thursday.")).toBeTruthy();
   expect(
-    screen
-      .getByRole("region", { name: "Plan" })
-      .querySelector(".ev-today-sec-head .ev-today-meta")?.textContent,
+    screen.getByRole("region", { name: "Plan" }).querySelector(".kit-sec-count")
+      ?.textContent,
   ).toBe("1");
 });
 
@@ -131,7 +130,7 @@ test("the tick on a plan item asks for the opposite state", () => {
   expect(p.onTick).toHaveBeenNthCalledWith(2, "p2", false);
 });
 
-test("an exam with no readiness yet shows one neutral bar", () => {
+test("an exam with no readiness yet shows an empty bar named none yet", () => {
   const base = props().upcoming[0]!;
   const { container } = render(
     <TodayView
@@ -140,6 +139,7 @@ test("an exam with no readiness yet shows one neutral bar", () => {
       })}
     />,
   );
-  expect(container.querySelectorAll(".ev-today-band-none")).toHaveLength(1);
-  expect(container.querySelectorAll(".ev-today-band-ok")).toHaveLength(0);
+  const meter = container.querySelector("[data-ui='meter']");
+  expect(meter?.getAttribute("aria-label")).toBe("Readiness: none yet");
+  expect(meter?.children).toHaveLength(0);
 });
