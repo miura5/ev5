@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { accuracyLine } from "../../domain/index.ts";
 import {
   dailyMinutes,
@@ -11,6 +11,7 @@ import {
   failureSentence,
   readJson,
   readToken,
+  savedFirst,
   type ReadCopyLike,
 } from "../../commands/client.ts";
 
@@ -81,33 +82,32 @@ export function useProgress(copy?: ReadCopyLike): ProgressState {
   const [data, setData] = useState<ProgressData>();
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
+  const warm = useRef(true);
   useEffect(() => {
     if (!token) return;
     let live = true;
-    const docs = (collection: string) =>
+    const docs = (collection: string, c: ReadCopyLike | undefined) =>
       readJson<WireDoc[]>(
         `docs?collection=${collection}`,
         token,
         `progress:${collection}`,
-        copy,
+        c,
         (b) => (b as { docs: WireDoc[] }).docs,
       );
-    void (async () => {
-      try {
-        const [answers, sessions] = await Promise.all([
-          docs("answers"),
-          docs("sessions"),
-        ]);
-        if (live) {
-          setData(mapProgress(answers, sessions, Date.now()));
-          setError(undefined);
-        }
-      } catch (e) {
-        if (!live) return;
-        setRefused(failureKind(e) === "refused");
-        setError(failureSentence(e));
-      }
-    })();
+    const load = (c: ReadCopyLike | undefined) =>
+      Promise.all([docs("answers", c), docs("sessions", c)]);
+    const first = warm.current;
+    warm.current = false;
+    // The screen opens on the last answer kept, then the server's (§ui.instant).
+    savedFirst(copy, first, load, ([answers, sessions]) => {
+      if (!live) return;
+      setData(mapProgress(answers, sessions, Date.now()));
+      setError(undefined);
+    }, () => setData(undefined)).catch((e: unknown) => {
+      if (!live) return;
+      setRefused(failureKind(e) === "refused");
+      setError(failureSentence(e));
+    });
     return () => {
       live = false;
     };
