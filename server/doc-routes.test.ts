@@ -9,6 +9,9 @@ async function setup() {
   await DB.prepare(
     "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
   ).run();
+  await DB.prepare(
+    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
   const env = {
     DB,
     TOKEN_APP: "app-t",
@@ -213,6 +216,9 @@ test("size budget: a single put over 90% is refused too", async () => {
   const DB = sqliteD1();
   await DB.prepare(
     "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  await DB.prepare(
+    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
   ).run();
   const logged: string[] = [];
   const repo = docsRepo(DB, {

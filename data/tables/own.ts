@@ -5,6 +5,7 @@ import {
   parseOwnSetItem,
 } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
+import { gateRow } from "./gate.ts";
 import {
   core,
   iso,
@@ -107,7 +108,9 @@ export function ownRepo(db: D1Like, opts: TablesOptions) {
       /** Append only: a second write of the same (set, item, key, at) is refused. */
       append: async (a: Omit<OwnAttempt, "at">): Promise<Saved<OwnAttempt>> => {
         const at = opts.clock();
-        const row = parseOwnAttempt({ ...a, at: iso(at) });
+        const row = gateRow("own_attempts", () =>
+          parseOwnAttempt({ ...a, at: iso(at) }),
+        );
         try {
           await db
             .prepare(
