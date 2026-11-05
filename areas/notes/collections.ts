@@ -27,6 +27,20 @@ async function get(
 const list = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? (v as Record<string, unknown>[]) : [];
 
+/** Ids of notes in Recently deleted. Tolerant: if the list cannot be read, nothing is hidden. */
+export async function readDeletedNoteIds(
+  copy?: ReadCopyLike,
+): Promise<Set<string>> {
+  try {
+    const ids = list((await get("deletions", copy)).deletions)
+      .filter((d) => d.collection === "notes" && typeof d.id === "string")
+      .map((d) => d.id as string);
+    return new Set(ids);
+  } catch {
+    return new Set();
+  }
+}
+
 /** Collections and which notes they hold. Tolerant: a missing table, a refusal or no network reads as none. */
 export async function readCollections(
   copy?: ReadCopyLike,

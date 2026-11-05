@@ -28,6 +28,10 @@ export interface TodayDocs {
   weakspots: WireDoc[];
   /** The dayedits document for today, when there is one. */
   dayedit?: WireDoc;
+  /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
+  jobs?: readonly WireJobLine[];
+  /** Which study plan is in force per exam; absent reads as none. */
+  planedits?: WireDoc[];
 }
 
 export type TodayData = Pick<
@@ -40,6 +44,35 @@ export interface WireJobLine {
   kind: string;
   state: string;
   summary: string;
+  /** The exam a study plan job is for (GET /jobs names it). */
+  examId?: string;
+}
+
+/** The exam's plan line: waiting when a study plan job names this exam, approved when its plan is in force. */
+function planOf(
+  id: string,
+  docs: TodayDocs,
+): "waiting" | "approved" | undefined {
+  const waits = (docs.jobs ?? []).some(
+    (j) =>
+      j.kind.replace(/_/g, "-") === "study-plan" &&
+      j.state === "needs-you" &&
+      j.examId === id,
+  );
+  if (waits) return "waiting";
+  const planId = (
+    docs.exams.find((d) => d.id === id)?.data as
+      | { planId?: unknown }
+      | undefined
+  )?.planId;
+  const inForce = (
+    docs.planedits?.find((d) => d.id === id)?.data as
+      | { plan?: unknown }
+      | undefined
+  )?.plan;
+  return typeof planId === "string" && planId && inForce === planId
+    ? "approved"
+    : undefined;
 }
 
 /** A needs-you study-plan job means a plan waits for Matt. */
@@ -157,10 +190,14 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
     const shaky = mine.filter(
       (s) => s.d.status === "open" && s.d.streak > 0,
     ).length;
+    const planLine = planOf(id, docs);
     return {
       id,
       title: exam.title,
-      meta: inDays(left),
+      meta: planLine
+        ? `${inDays(left)} · study plan ${planLine === "waiting" ? "waiting for you" : "approved"}`
+        : inDays(left),
+      ...(planLine ? { plan: planLine } : {}),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
       whenFull: new Date(`${exam.date}T00:00:00Z`).toLocaleDateString("en-US", {
