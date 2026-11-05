@@ -12,6 +12,7 @@ import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
 import { checkSecrets } from './secrets.ts';
 import { checkServerWrites } from './serverwrites.ts';
+import { checkStack } from './stack.ts';
 import { branchCommits, checkTrailers } from './trailer.ts';
 
 const arg = (name: string): string | undefined => {
@@ -32,6 +33,7 @@ const findings = [
   ...checkRules(root, files),
   ...checkSecrets(root, files),
   ...checkServerWrites(root, files),
+  ...checkStack(root, files),
   ...checkTrailers(branchCommits(root, base)),
 ];
 for (const w of checkModelsAge(root)) console.log(`warning: ${w}`);

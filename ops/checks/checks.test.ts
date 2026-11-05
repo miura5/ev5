@@ -14,6 +14,7 @@ import { checkRules } from './rules.ts';
 import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
 import { checkServerWrites } from './serverwrites.ts';
+import { checkStack } from './stack.ts';
 import { checkTrailers } from './trailer.ts';
 
 // A temp repo from {path: text}; the returned root holds the files and listFiles walks it.
@@ -140,4 +141,21 @@ test('server-writes: a raw INSERT, UPDATE or DELETE in server/ fails; reads, tes
     'server/a.test.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
     'data/tables/x.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")' });
   assert.deepEqual(checkServerWrites(r.root, r.files).map(f => f.file).sort(), ['server/a.ts', 'server/b.ts', 'server/c.ts']);
+});
+
+test('rules: the repo README.md has its own longer cap and the same rule words', () => {
+  const r = repo({ 'CONTRACT.md': CONTRACT, 'README.md': '# E.V.\nOnly you decide.\n' + '\n'.repeat(60), 'x/README.md': '# x\n' + '\n'.repeat(60) });
+  assert.equal(details(checkRules(r.root, r.files).filter(f => f.file === 'README.md')), 'states a rule without a §id: Only you decide.');
+  assert.match(details(checkRules(r.root, r.files).filter(f => f.file === 'x/README.md')), /lines, over 20/);
+});
+
+test('stack: the README stack table names installed packages and every runtime dependency', () => {
+  const pkg = JSON.stringify({ dependencies: { zod: '1', 'prosemirror-model': '1', cmdk: '1' }, devDependencies: { vite: '1' } });
+  const table = (rows: string): string => `# x\n<!-- stack:start -->\n| Part | Packages | Why |\n|---|---|---|\n${rows}<!-- stack:end -->\n`;
+  const ok = repo({ 'package.json': pkg, 'README.md': table('| A | `zod`, `cmdk` | a `thing` here is not read |\n| B | `prosemirror-*` | b |\n| C | `vite` | c |\n| D | none | d |\n') });
+  assert.equal(details(checkStack(ok.root, ok.files)), '');
+  const bad = repo({ 'package.json': pkg, 'README.md': table('| A | `zod`, `wouter` | a |\n| B | `react-*` | b |\n') });
+  assert.equal(details(checkStack(bad.root, bad.files)), 'names wouter, which package.json does not install|names react-*, which package.json does not install|has no row for the dependency prosemirror-model|has no row for the dependency cmdk');
+  const none = repo({ 'package.json': pkg, 'README.md': '# x\n' });
+  assert.match(details(checkStack(none.root, none.files)), /^no <!-- stack:start -->/);
 });
