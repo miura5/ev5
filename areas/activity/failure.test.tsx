@@ -1,6 +1,9 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { ActivityScreen } from "./Activity.screen.tsx";
+import { ActivityScreen as RawActivityScreen } from "./Activity.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
+
+const ActivityScreen = withToasts(RawActivityScreen);
 
 afterEach(() => {
   cleanup();

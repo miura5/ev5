@@ -1,8 +1,12 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { failureSentence } from "../../commands/client.ts";
-import { LibraryScreen } from "../library/Library.screen.tsx";
-import { TodayScreen } from "./Today.screen.tsx";
+import { LibraryScreen as RawLibrary } from "../library/Library.screen.tsx";
+import { TodayScreen as RawToday } from "./Today.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
+
+const TodayScreen = withToasts(RawToday);
+const LibraryScreen = withToasts(RawLibrary);
 
 afterEach(() => {
   cleanup();

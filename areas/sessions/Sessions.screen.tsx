@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Empty, Page, Toast } from "../../kit/index.ts";
+import { Empty, Page } from "../../kit/index.ts";
 import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
@@ -12,12 +12,17 @@ const rand = () => Math.random().toString(36).slice(2, 6).padEnd(4, "0");
 /** The mounted view: the running (else latest) session from /api/v1/docs; pause and End act on this screen only. */
 export function SessionsScreen({
   services,
+  onToast,
 }: {
   services?: { readCopy?: ReadCopyLike };
+  onToast?: (message: string) => void;
 }) {
   const { data, token, refused, error, note, toggleTodo, save } = useSessions(
     services?.readCopy,
   );
+  useEffect(() => {
+    if (error && token && !refused) onToast?.(error);
+  }, [error, token, refused, onToast]);
   const root = useRef<HTMLElement | null>(null);
   const [extra, setExtra] = useState(0);
   const [closed, setClosed] = useState(false);
@@ -78,7 +83,6 @@ export function SessionsScreen({
   if (!token || refused) return null;
   return (
     <>
-      {error ? <Toast message={error} /> : null}
       {saved ? <p className="ev-session-meta">Saved to Progress.</p> : null}
       {closed ? (
         <p className="ev-session-meta">

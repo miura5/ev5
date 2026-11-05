@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Detail, type DetailProps } from "../../kit/index.ts";
-import { TodayScreen } from "./Today.screen.tsx";
+import { TodayScreen as RawTodayScreen } from "./Today.screen.tsx";
+import { withToasts } from "../testToasts.tsx";
+
+const TodayScreen = withToasts(RawTodayScreen);
 
 /** Stands in for the shell in tests: holds the Detail the screen opens, closes it on Esc like the shell's host. */
 export function TodayHosted(props: Parameters<typeof TodayScreen>[0]) {

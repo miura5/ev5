@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Toast } from "../../kit/index.ts";
+import { useEffect } from "react";
 import { call } from "../../commands/client.ts";
 import { CollectionView, type NewKind } from "./Collection.view.tsx";
 import { useCollection, type ReadCopyLike } from "./useCollection.ts";
@@ -13,19 +12,32 @@ const idOf = (path?: string) => {
 export function CollectionScreen({
   path,
   onNavigate,
+  onToast,
   services,
 }: {
   services?: { readCopy?: ReadCopyLike };
   path?: string;
   onNavigate?: (path: string) => void;
+  onToast?: (message: string, onUndo?: () => void) => void;
 }) {
   const { data, pins, token, refused, error, reload } = useCollection(
     idOf(path),
     services?.readCopy,
   );
-  const [failed, setFailed] = useState<string>();
+  const setFailed = (message?: string) => {
+    if (message) onToast?.(message);
+  };
+  useEffect(() => {
+    if (error && token && !refused) onToast?.(error);
+  }, [error, token, refused, onToast]);
   // A row just deleted: Undo restores it from Recently deleted (item.restore).
-  const [undo, setUndo] = useState<{ id: string; message: string }>();
+  const setUndo = (u: { id: string; message: string }) =>
+    onToast?.(u.message, () =>
+      void call("item.restore", { id: u.id }, token).then((r) => {
+        setFailed(r.ok ? undefined : r.reason);
+        if (r.ok) reload();
+      }),
+    );
   // A collection just made from Notes arrives with ?new=1: its title is ready to type.
   const fresh = new URLSearchParams(window.location.search).has("new");
   // New here: a note opens in Notes, a collection opens with its title ready; a set or a date shows in the list.
@@ -62,20 +74,6 @@ export function CollectionScreen({
     return <p className="ev-coll-empty">Opening the collection…</p>;
   return (
     <>
-      {error || failed ? <Toast message={(error ?? failed)!} /> : null}
-      {undo ? (
-        <Toast
-          message={undo.message}
-          onDone={() => setUndo(undefined)}
-          onUndo={() =>
-            void call("item.restore", { id: undo.id }, token).then((r) => {
-              setFailed(r.ok ? undefined : r.reason);
-              setUndo(undefined);
-              if (r.ok) reload();
-            })
-          }
-        />
-      ) : null}
       <CollectionView
         title={data?.title ?? ""}
         parent={data?.parent}

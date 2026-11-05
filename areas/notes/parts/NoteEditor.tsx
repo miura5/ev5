@@ -10,12 +10,13 @@ import { limitPlugin, unwrapPlugin } from "./editorLimits.ts";
 import { blocksFromHtml, pasteBlocks } from "./editorPaste.ts";
 import { N, schema } from "./editorSchema.ts";
 import { isPicture, pictureUrl, uploadPicture } from "./notePictures.ts";
-import { Toast } from "../../../kit/index.ts";
 
 export interface NoteEditorProps {
   blocks: readonly Block[];
   /** The whole block list after an edit; the caller saves it through the outbox. */
   onChange: (blocks: Block[]) => void;
+  /** Where a failed picture upload says so: the shell's one toast host. */
+  onToast?: (message: string) => void;
 }
 
 const SAVE_AFTER_MS = 600;
@@ -27,7 +28,13 @@ const picturesIn = (list: FileList | null | undefined) =>
 const start = (blocks: readonly Block[]) =>
   EditorState.create({
     doc: blocksToDoc(blocks),
-    plugins: [history(), limitPlugin(), unwrapPlugin(), emptyPlugin(), ...editorPlugins()],
+    plugins: [
+      history(),
+      limitPlugin(),
+      unwrapPlugin(),
+      emptyPlugin(),
+      ...editorPlugins(),
+    ],
   });
 
 /**
@@ -35,12 +42,13 @@ const start = (blocks: readonly Block[]) =>
  * out through it, so a note that is opened and not changed saves byte-identical. Edits are sent after a short pause,
  * and at once when the editor loses focus or goes away.
  */
-export function NoteEditor({ blocks, onChange }: NoteEditorProps) {
+export function NoteEditor({ blocks, onChange, onToast }: NoteEditorProps) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const pending = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sent = useRef(json(blocks));
-  const [notice, setNotice] = useState("");
+  const toast = useRef(onToast);
+  toast.current = onToast;
   const emit = useRef(onChange);
   emit.current = onChange;
 
@@ -59,9 +67,8 @@ export function NoteEditor({ blocks, onChange }: NoteEditorProps) {
     for (const f of files) {
       const up = await uploadPicture(f);
       const v = view.current;
-      if (!up.ok) return setNotice(up.message);
+      if (!up.ok) return toast.current?.(up.message);
       if (!v) return;
-      setNotice("");
       const pos = Math.min(
         at ?? v.state.selection.to,
         v.state.doc.content.size,
@@ -196,9 +203,6 @@ export function NoteEditor({ blocks, onChange }: NoteEditorProps) {
         data-ui="note-editor"
         ref={host}
       />
-      {notice && (
-<Toast message={notice} />
-      )}
     </>
   );
 }
