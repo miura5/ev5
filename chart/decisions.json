@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-482",
+  "date": "Nov 5",
+  "title": "The kit leads every screen: Row variants, Page, Section and Empty patterns, Dot and Meter, and the shell's Detail host; each area's own copy is deleted when it moves",
+  "why": "Audit finding 7 (checked): area CSS (1,102 lines) is as big as the kit's (1,152); six areas rebuild 'row plus action' because kit Row has only glyph, title, meta and value; row actions are always visible against §ui.lists; there is no page head, section or empty pattern, so section gaps are 48, 24 or 0 px against §ui.grid; the shell's Detail host is never fed, so Today and Library overlay their own Detail; Segmented is built but not exported; StudyCard is used nowhere. Plan: (1) kit/components: Dot (status tones from tokens, §ui.status), Meter (the mock-up's segmented 4 px bar), Segmented exported. (2) Row gains an actions slot shown only on hover, focus or right-click, onMenu for the kit Menu, a status dot, a done state, a folding variant (chevron, level, arrow keys) and a two-cell editor row; its current props stay, so nothing breaks while areas move. (3) kit/patterns: Page (title, meta, crumb, actions), Section (label head, quiet add action on hover, 48 px between sections) and Empty (quiet line plus one action), each with its /kit story and test, matching design/mockup.html. (4) The shell renders the one Detail panel beside the column from a new area-view prop; areas stop drawing Detail. (5) One task per area moves onto these parts and deletes its own row, head, section, empty and Detail CSS and markup in the same PR, so no second way survives; Today also drops its glyph colours (§ui.glyphs) and sessions move onto StudyCard. (6) A check then refuses area CSS that redraws a kit part. No CONTRACT rule changes: §ui.kit-leads, §ui.lists, §ui.grid, §ui.status and §ui.first-set ('added when an area needs it') already ask for this. No new dependency. Second way considered: per-area wrappers over kit Row; rejected, because it keeps the copies the audit counted. Drift risk: an area keeps a local look during its move; the per-area task deletes the copy and the guard check stops new ones. Cost: about 15 tasks, each under 400 lines; it runs after the audit's small fixes (B-958 tokens first) and before the post-cutover features, which are mostly lists and pages. Left out on purpose: the shared exam Detail content between Today and Library (proposal H, finding 10) and the two extra note renderers (editor work). Build manager decision on Matt's go-ahead.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Full audit 2026-11-05, finding 7 and proposal F; Matt's go-ahead in ev-build 2026-11-05"
+ },
+ {
   "id": "D-481",
   "date": "Nov 5",
   "title": "Gate 5 (B-753) closes on playtest 6: the study plan journey works without a reload; cutover steps B-822, B-823 and rehearsal 2 B-758 are next",
