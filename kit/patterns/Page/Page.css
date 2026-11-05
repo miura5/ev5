@@ -52,3 +52,40 @@
   font-size: var(--fs-meta);
   color: var(--faint);
 }
+
+.kit-head-glyph {
+  display: inline-flex;
+  flex: none;
+  align-self: flex-start;
+  margin-top: var(--sp-2);
+}
+
+.kit-head-title:has(.kit-head-input) {
+  flex: 1;
+  min-width: 0;
+}
+
+.kit-head-input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  font: inherit;
+  letter-spacing: var(--track-title);
+  color: var(--text);
+  outline: none;
+  text-overflow: ellipsis;
+}
+
+.kit-head-input:hover,
+.kit-head-input:focus {
+  background: var(--hover);
+  box-shadow: 0 0 0 var(--sp-1) var(--hover);
+}
+
+.kit-head-input::placeholder {
+  color: var(--faint);
+}

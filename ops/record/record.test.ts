@@ -17,13 +17,24 @@ const CARRIED = path.join(HERE, 'fixtures-ev4');
 /** A scratch repo holding a copy of the carried Chart and its renders. */
 function scratch(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ev5-record-'));
-  fs.cpSync(path.join(CARRIED, 'chart'), path.join(dir, 'chart'), { recursive: true });
-  main(['render', '--root', dir, '--now', NOW], () => {}, () => {});
+  fs.cpSync(path.join(CARRIED, 'chart'), path.join(dir, 'chart'), {
+    recursive: true,
+  });
+  main(
+    ['render', '--root', dir, '--now', NOW],
+    () => {},
+    () => {},
+  );
   return dir;
 }
 function run(dir: string, ...argv: string[]): { code: number; out: string } {
   const lines: string[] = [];
-  const code = main([...argv, '--root', dir, '--now', NOW], s => lines.push(s), s => lines.push(s));
+  const code = main(
+    [...argv, '--root', dir, '--now', NOW],
+    s => lines.push(s),
+    s => lines.push(s),
+    () => true,
+  );
   return { code, out: lines.join('\n') };
 }
 const read = (dir: string, f: string): string => fs.readFileSync(path.join(dir, f), 'utf8');
@@ -34,7 +45,7 @@ test("load then save leaves every carried file byte-identical (ev4's indent 1, n
   saveChart(dir, loadChart(dir));
   assert.deepEqual(
     fs.readdirSync(path.join(dir, 'chart')).map(f => read(dir, 'chart/' + f)),
-    before
+    before,
   );
   assert.ok(!read(dir, 'chart/tasks.json').endsWith('\n'));
   assert.equal(serialize({ a: [1] }), '{\n "a": [\n  1\n ]\n}');
@@ -99,13 +110,28 @@ test('task set: done needs a commit, declined needs a reason, notes land', () =>
 
 test('decision add takes the next D- id, newest first; supersedes marks the old one', () => {
   const dir = scratch();
-  const r = run(dir, 'decision', 'add', '--title', 'New', '--why', 'Because', '--status', 'accepted', '--supersedes', 'D-425');
+  const r = run(
+    dir,
+    'decision',
+    'add',
+    '--title',
+    'New',
+    '--why',
+    'Because',
+    '--status',
+    'accepted',
+    '--supersedes',
+    'D-425',
+  );
   assert.equal(r.code, 0, r.out);
   const rec = loadChart(dir);
   assert.equal(rec.decisions[0]?.id, 'D-426');
   assert.equal(rec.decisions[0]?.date, 'Nov 3');
   assert.equal(rec.decisions.find(d => d.id === 'D-425')?.status, 'superseded');
-  assert.match(read(dir, 'docs/record/DECISIONS.md'), /\| D-426 \| Nov 3 \| New \| Because \| accepted \| supersedes D-425 \|/);
+  assert.match(
+    read(dir, 'docs/record/DECISIONS.md'),
+    /\| D-426 \| Nov 3 \| New \| Because \| accepted \| supersedes D-425 \|/,
+  );
   assert.equal(run(dir, 'decision', 'add', '--title', 'x', '--amends', 'D-9999').code, 1);
   assert.equal(run(dir, 'decision', 'add', '--title', 'x', '--status', 'maybe').code, 1);
   assert.equal(run(dir, 'decision', 'set', 'D-426', '--why', 'Restated').code, 0);
@@ -121,7 +147,10 @@ test('release add writes releases.json, never deploys.json; live needs Matt', ()
   assert.equal(run(dir, ...args, '--target', 'staging').code, 1, 'no duplicate');
   assert.equal(read(dir, 'chart/deploys.json'), deploys);
   assert.equal(loadChart(dir).releases[0]?.version, 'v5.0.0');
-  assert.match(read(dir, 'docs/record/CHANGELOG.md'), /\| Nov 3 \| v5\.0\.0 staging at abcdef1 \(09:00 CT\): First\. \|/);
+  assert.match(
+    read(dir, 'docs/record/CHANGELOG.md'),
+    /\| Nov 3 \| v5\.0\.0 staging at abcdef1 \(09:00 CT\): First\. \|/,
+  );
 });
 
 test('saveChart refuses any change to the frozen v4 deploys', () => {
@@ -146,11 +175,24 @@ test('lint reports dangling links in depends, supersedes, amends and rules', () 
   (rec.tasks[0] as { depends: string[] }).depends.push('B-9998');
   rec.decisions[0]?.supersedes.push('D-9997');
   rec.decisions[1]?.amends.push('D-9996');
-  rec.rules.push({ id: 'R-99', rule: 'r', decision: 'D-9995', task: 'B-9994', command: 'c', check: 'f' });
+  rec.rules.push({
+    id: 'R-99',
+    rule: 'r',
+    decision: 'D-9995',
+    task: 'B-9994',
+    command: 'c',
+    check: 'f',
+  });
   const got = lintChart(rec).map(f => `${f.check} ${f.detail}`);
   for (const id of ['B-9998', 'D-9997', 'D-9996', 'D-9995', 'B-9994'])
-    assert.ok(got.some(g => g.includes(id)), `${id} reported`);
-  assert.equal(main(['lint', '--root', ROOT], () => {}), 0);
+    assert.ok(
+      got.some(g => g.includes(id)),
+      `${id} reported`,
+    );
+  assert.equal(
+    main(['lint', '--root', ROOT], () => {}),
+    0,
+  );
 });
 
 test('no decision or task ids as reasons in code comments', () => {
@@ -163,4 +205,93 @@ test('no decision or task ids as reasons in code comments', () => {
         if (comment && /\b[BD]-\d{2,3}\b/.test(comment[1] as string)) offenders.push(`${f}:${i + 1}`);
       });
   assert.deepEqual(offenders, []);
+});
+
+/** A run as another session: no lock, its own id. */
+function as(dir: string, session: string, lock: boolean, ...argv: string[]): { code: number; out: string } {
+  const lines: string[] = [];
+  const push = (s: string): void => void lines.push(s);
+  const code = main([...argv, '--root', dir, '--now', NOW, '--session', session], push, push, () => lock);
+  return { code, out: lines.join('\n') };
+}
+const inboxFiles = (dir: string): string[] =>
+  fs.existsSync(path.join(dir, 'chart/inbox')) ? fs.readdirSync(path.join(dir, 'chart/inbox')) : [];
+
+test('without the lock task add and decision add are refused, and inbox add works', () => {
+  const dir = scratch();
+  const before = read(dir, 'chart/tasks.json');
+  assert.equal(as(dir, 's1', false, 'task', 'add', '--title', 'x', '--milestone', 'm').code, 1);
+  assert.equal(as(dir, 's1', false, 'decision', 'add', '--title', 'x').code, 1);
+  assert.equal(as(dir, 's1', false, 'inbox', 'file').code, 1);
+  assert.equal(read(dir, 'chart/tasks.json'), before);
+  const r = as(dir, 's1', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm');
+  assert.match(r.out, /^P-1: /);
+  assert.equal(read(dir, 'chart/tasks.json'), before, 'the Chart itself is untouched');
+});
+
+test('two sessions inboxes filed together get distinct real ids, P- depends rewritten, files deleted', () => {
+  const dir = scratch();
+  const a = (...x: string[]): void => void assert.equal(as(dir, 'sess-a', false, ...x).code, 0);
+  const b = (...x: string[]): void => void assert.equal(as(dir, 'sess-b', false, ...x).code, 0);
+  a('inbox', 'add', 'task', '--title', 'A1', '--milestone', 'm', '--depends', 'B-690');
+  a('inbox', 'add', 'task', '--title', 'A2', '--milestone', 'm', '--depends', 'P-1,B-690');
+  a('inbox', 'add', 'decision', '--title', 'DA');
+  b('inbox', 'add', 'task', '--title', 'B1', '--milestone', 'm');
+  b('inbox', 'add', 'decision', '--title', 'DB');
+  b('inbox', 'add', 'decision', '--title', 'DB2', '--supersedes', 'P-2');
+  b('inbox', 'add', 'task', '--title', 'B2', '--milestone', 'm', '--depends', 'P-1');
+  assert.deepEqual(inboxFiles(dir), ['sess-a.json', 'sess-b.json']);
+  assert.equal(as(dir, 'x', false, 'task', 'add', '--title', 'y', '--milestone', 'm').code, 1);
+  const f = as(dir, 'x', true, 'inbox', 'file');
+  assert.equal(f.code, 0, f.out);
+  const rec = loadChart(dir);
+  const t = (title: string) => rec.tasks.find(x => x.title === title);
+  assert.deepEqual(
+    ['A1', 'A2', 'B1', 'B2'].map(n => t(n)?.id),
+    ['B-691', 'B-692', 'B-693', 'B-694'],
+  );
+  assert.deepEqual(t('A2')?.depends, ['B-691', 'B-690']);
+  assert.deepEqual(t('B2')?.depends, ['B-693']);
+  const d = (title: string) => rec.decisions.find(x => x.title === title);
+  assert.equal(d('DA')?.id !== d('DB')?.id, true);
+  assert.deepEqual(d('DB2')?.supersedes, [d('DB')?.id]);
+  assert.deepEqual(inboxFiles(dir), []);
+  assert.equal(lintChart(rec).filter(x => x.level === 'error').length, 0);
+  assert.equal(run(dir, 'render', '--check').code, 0);
+});
+
+test('inbox add refuses a depends that does not resolve', () => {
+  const dir = scratch();
+  assert.equal(
+    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm', '--depends', 'P-1').code,
+    1,
+  );
+  assert.equal(
+    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm', '--depends', 'B-9999').code,
+    1,
+  );
+  assert.deepEqual(inboxFiles(dir), []);
+});
+
+test('lint fails a P- id outside chart/inbox and an inbox entry with a broken depends', () => {
+  const rec = loadChart(scratch());
+  const t = {
+    ...(rec.tasks[0] as (typeof rec.tasks)[0]),
+    id: 'P-1',
+    depends: ['P-2'],
+  };
+  rec.tasks.push(t);
+  rec.inbox = [
+    {
+      file: 'z.json',
+      session: 'z',
+      entries: [
+        { id: 'P-1', type: 'task', flags: { title: 'a', depends: 'P-2' } },
+        { id: 'P-2', type: 'task', flags: { title: 'b', depends: 'B-9999' } },
+      ],
+    },
+  ];
+  const got = lintChart(rec).map(f => f.check);
+  assert.equal(got.filter(c => c === 'provisional-id').length, 2);
+  assert.equal(got.filter(c => c === 'broken-inbox-depends').length, 2);
 });

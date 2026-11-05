@@ -42,6 +42,7 @@ import { Story as RowStory } from "./components/Row/Row.story";
 import "./components/Suggestion/Suggestion.css";
 import "./components/TextOptions/TextOptions.css";
 import "./components/Menu/Menu.css";
+import { Story as MovePickerStory } from "./components/MovePicker/MovePicker.story";
 import "./patterns/Page/Page.css";
 import "./patterns/Section/Section.css";
 import "./patterns/Empty/Empty.css";
@@ -73,6 +74,7 @@ export const STORIES = [
   { name: "Suggestion", Story: SuggestionStory },
   { name: "Text options", Story: TextOptionsStory },
   { name: "Menu", Story: MenuStory },
+  { name: "Move picker", Story: MovePickerStory },
   { name: "Glyph", Story: GlyphStory },
   { name: "E.V. line", Story: EvLineStory },
   { name: "Study card", Story: StudyCardStory },
@@ -116,6 +118,12 @@ export { WorkspaceLine } from "./components/WorkspaceLine/WorkspaceLine";
 export { ThemeButton } from "./components/ThemeButton/ThemeButton";
 export { Toast } from "./components/Toast/Toast";
 export { Menu, type MenuItem } from "./components/Menu/Menu";
+/** @public */
+export {
+  MovePicker,
+  moveItems,
+  type MoveTarget,
+} from "./components/MovePicker/MovePicker";
 /** @public Page patterns wait for the areas to take them up. */
 export { Page } from "./patterns/Page/Page";
 /** @public */

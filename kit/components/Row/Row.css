@@ -86,6 +86,14 @@
   padding-left: var(--sp-8);
 }
 
+.kit-row-lv2 {
+  padding-left: var(--sp-14);
+}
+
+.kit-row-acts-on .kit-row-act {
+  visibility: visible;
+}
+
 .kit-chev-hit {
   display: inline-flex;
   cursor: pointer;

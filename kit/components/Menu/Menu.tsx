@@ -10,6 +10,8 @@ export interface MenuItem {
   /** A picker's current choice. */
   checked?: boolean;
   danger?: boolean;
+  /** A picker's nesting depth, 0 or 1; the label steps in. */
+  indent?: 0 | 1;
 }
 
 export interface MenuProps {
@@ -47,7 +49,7 @@ export function Menu({
 }: MenuProps) {
   const M = on === "contextmenu" ? ContextMenu : DropdownMenu;
   const row = (it: MenuItem) => {
-    const cls = `kit-menu-item${it.danger ? " kit-menu-bad" : ""}`;
+    const cls = `kit-menu-item${it.danger ? " kit-menu-bad" : ""}${it.indent ? " kit-menu-in1" : ""}`;
     const body = (
       <>
         <span className="kit-menu-check" aria-hidden="true">
