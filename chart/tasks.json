@@ -14085,12 +14085,12 @@
   "title": "S-73: Library: practice, weak spots, exams with their plan, sets and set page with Edit mode, the accuracy line",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
-  "notes": "Slice 1 merged (#150): Library home with practice, weak spots, exams. Left: sets tab, accuracy line, set page, Edit mode, exam plan Detail (needs a dashed proposal row in the kit), study mode, practice hint.",
-  "commit": null,
+  "notes": "Closed for Gate 5 in run 60: slices merged (#150, #382, #395, #396, #398 exam plan, accuracy line, set counts). Leftovers (practice session, Edit/Study hookups) go after the gate.",
+  "commit": "645c043",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b746",
   "claimedAt": "2026-11-03T22:25:32.468Z"
@@ -14133,12 +14133,12 @@
   "title": "S-76: Study sessions and read-along",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
-  "notes": "Merged #165, #173, #287, #359 (Start session button on the note page), #361 (session.start takes noteId and stores it). Left: save to Progress if still open; AI check question needs a check-event job.",
-  "commit": null,
+  "notes": "Closed for Gate 5 in run 60: merged #165, #173, #287, #359, #361. Leftover: AI check question needs a check-event job.",
+  "commit": "645c043",
   "source": "AGENTS.md §4.3",
   "claimedBy": "claude/B-749-sessions",
   "claimedAt": "2026-11-03T22:25:02.693Z"
@@ -14149,12 +14149,12 @@
   "title": "S-76a: Collection page, Recently deleted, pins",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-742"
   ],
-  "notes": "Run 55 #381: Restore in Recently deleted via item.restore. Left: pins on the collection page need a server read route for pins (server slice) first; saved-view page, item menu.",
-  "commit": null,
+  "notes": "Closed for Gate 5 in run 60: merged #275, #381, #385-#387. Leftovers: saved-view page, item move/rename with a collection picker.",
+  "commit": "645c043",
   "source": "AGENTS.md §4.3",
   "claimedBy": "builder-b750",
   "claimedAt": "2026-11-03T22:24:52.421Z"
@@ -14197,7 +14197,7 @@
   "title": "G-5: Gate 5: shell and areas",
   "dod": "e2e journeys pass",
   "milestone": "v5 P5",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-743",
    "B-744",
@@ -14214,8 +14214,8 @@
    "B-789",
    "B-790"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Gate 5 closed run 60; proof in the Gate 5 decision.",
+  "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -14228,8 +14228,8 @@
   "depends": [
    "B-753"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry.",
+  "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
  {
@@ -14565,12 +14565,12 @@
   "title": "Library remaining: sets tab, accuracy line, set page, Edit mode, exam plan Detail, study mode (B-746 slices 2 to 6)",
   "dod": "Matches the mock-up",
   "milestone": "v5 P5",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-746"
   ],
-  "notes": "Run 55 #382: accuracy line (first-try, 14 days vs previous 14) and set due counts (latest answer wrong or tell-me) from areas/library/tally.ts. Left: practice session, Edit/Study hookups.",
-  "commit": null,
+  "notes": "Closed in run 60 with B-746; leftovers: practice session, Edit/Study hookups.",
+  "commit": "645c043",
   "source": "ops/record",
   "claimedBy": "builder",
   "claimedAt": "2026-11-03T23:25:26.257Z"
@@ -15190,12 +15190,12 @@
   "title": "Retire ev4's page cleanly at cutover",
   "dod": "ev4 routes answer 410 with the text 'E.V. updated, reload' and a test asserts the body; v5 serves a /sw.js (or its PWA worker) that replaces ev4's cached service worker; rehearsal 2 installs ev4's worker in a browser, deploys v5, reloads and lands on v5's page (CONTRACT §data.ev4-routes)",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-817"
   ],
-  "notes": "Audit (review F1): server/index.ts answers {error:'gone'} with no reload text; nothing replaces ev4's service worker. Whether ev4's worker would stay installed is unconfirmed: rehearsal 2 settles it.",
-  "commit": null,
+  "notes": "Run 60 #401: ev4 boot files answer 410 'E.V. has moved, reload' (CONTRACT §data.ev4-routes says 'E.V. updated, reload': align via a decision), v5 sw imports public/retire-ev4.js which deletes ev4 caches and reloads once. Not tried against a real ev4 service worker: rehearsal 2 must.",
+  "commit": "645c043",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15209,8 +15209,8 @@
    "B-754",
    "B-797"
   ],
-  "notes": "Audit (review F3): the export command is registered daily, but server/worker.ts has no scheduled handler and wrangler.jsonc no R2 binding; at cutover v5 replaces the Worker whose cron runs ev4's nightly export. B-754 names only morning, evening and weekly.",
-  "commit": null,
+  "notes": "Run 60 #405 and #407: nightly export at 00:30 Central into exports/ev-export-<Central date>.json in the IMAGES bucket, never overwritten, counts only, exportAll exported from data. Left: staging proof of one run (check the R2 key), token write under exports/ unchecked, copy to Matt's Mac backups folder, no job record.",
+  "commit": "645c043",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -15233,13 +15233,13 @@
   "title": "Scratch-copy check round-trips every note through the editor (counts only)",
   "dod": "data/scratch-check runs every note through the ProseMirror adapter and back and reports lossless count = note count, counts only (CONTRACT §data.notes, §sec.staging-data)",
   "milestone": "v5 P7",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-793",
    "B-732"
   ],
-  "notes": "Audit (review F22): scratch-check runs parseNote only; B-793 proves the round trip on S-08 fixtures only.",
-  "commit": null,
+  "notes": "Run 60 #404: areas/notes/roundTrip.script.ts (counts only) + vitest; data/scratch-check stays parse-only because areas and data cannot import each other. Running it on a real scratch copy needs Matt's OK (B-732).",
+  "commit": "645c043",
   "source": "plan audit (ev-build), 2026-11-04"
  },
  {
@@ -16229,10 +16229,10 @@
   "title": "Ask E.V. stops calling itself a nursing-school study partner on every course",
   "dod": "server/ask-chat.ts:33 ASK_SYSTEM says \"Matt's study partner for nursing school\" on every chat. Frame it through domain/course (examFrame/chatCourse in domain/course/frame.ts), like the other prompts: a course flagged nursing keeps the nursing wording, another course gets its own exams, no known course gets neutral wording. A server test pins all three. Slice: write server; read domain/course.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Run 60 #403 (with B-901, B-902): prompts take {{student}} via server/frame-prompt.ts; course table from system_docs spec. Risk: Matt's nursing wording needs nursing:true on NUR 112 in the spec doc on the target; check on staging.",
+  "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -16241,10 +16241,10 @@
   "title": "Study plan prompts stop saying \"one nursing student\" for every course",
   "dod": "jobs/study-plan/prompt.md:1 (\"one nursing student's exam\") and jobs/study-plan/changes-prompt.md:1 (\"one nursing student\") are framed by the plan's course through domain/course/frame.ts (both loaded in server/job-workflow.ts:7-8): nursing wording only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/study-plan, server; read domain/course.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Run 60 #403",
+  "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -16253,10 +16253,10 @@
   "title": "Practice set prompt stops naming NUR 112 and BIO 201 and asking for NCLEX-style questions on every course",
   "dod": "jobs/practice-set/prompt.md:1 names two courses (\"first-semester ADN nursing student (NUR 112 and BIO 201)\"), against §data.course-facts (no course is named in code), and :7 asks for NCLEX-style questions on every set. The prompt names no course and is framed by the set's course through domain/course/frame.ts (frameText already reframes NCLEX-style): NCLEX only for a course flagged nursing. A test pins a nursing and a non-nursing course. Slice: write jobs/practice-set, server; read domain/course.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Run 60 #403",
+  "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -16265,10 +16265,10 @@
   "title": "Short-answer grading stops calling every student a nursing student",
   "dod": "domain/item/open.ts:65 gradePrompt says \"a nursing student\" for every short answer. The grader names no subject, or takes it from the item's course through domain/course framing. A test pins that a non-nursing item's grade prompt has no nursing wording. Slice: write domain/item; read domain/course.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Run 60 #406: gradePrompt takes {nursing}. No caller passes the course yet (default stays nursing): jobs/ and server/ grading must pass examFrame(table, course).nursing.",
+  "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -16277,10 +16277,10 @@
   "title": "Questions outside a nursing course stop warning about a missing clinical-judgment step",
   "dod": "domain/item/validate.ts:81-82 warns (an error in strict mode) on every question with no cjStep, and domain/item/reply.ts:119-120 keeps cjSteps on any course. Only an item in a course flagged nursing needs or keeps a clinical-judgment step; other courses get no warning and no step. A test pins both. Related ev4 bug: B-679 (BIO 201 mock exam shows clinical-judgment steps, v4); this is the v5 side. Slice: write domain/item; read domain/course.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks.",
-  "commit": null,
+  "notes": "Run 60 #406: validateItem, validItems, normalizeItem, tagItems take nursing; own-set/parse.ts and job paths do not pass the course yet.",
+  "commit": "645c043",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
