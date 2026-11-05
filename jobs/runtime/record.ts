@@ -1,31 +1,14 @@
 // The job record (CONTRACT §job.record): queued → running → needs you → done | failed, with the reason in plain words,
 // the cost and where the output went. Pure functions over a plain object; storage sits behind JobStore.
-export const JOB_STATES = ['queued', 'running', 'needs-you', 'done', 'failed'] as const;
-export type JobState = (typeof JOB_STATES)[number];
+import type { JobRecordRow } from '../../domain/index.ts';
+
+export type JobState = JobRecordRow['state'];
 
 /** Where a finished job's output went: an area's home and the id of what it wrote there. */
-export type OutputLocation = {
-  home: 'library' | 'today' | 'notes' | 'activity';
-  id: string;
-};
+export type OutputLocation = NonNullable<JobRecordRow['output']>;
 
-export type JobRecord = {
-  id: string;
-  kind: string;
-  title: string;
-  state: JobState;
-  /** Plain-words reason; required on failed, and on needs-you it says what Matt must do. */
-  reason?: string;
-  /** The step a needs-you job is waiting at; Matt's answer continues it as `jobId-step-round`. */
-  step?: string;
-  costCents: number;
-  output?: OutputLocation;
-  createdAt: string;
-  updatedAt: string;
-  needsYouAt?: string;
-  /** Row version for the store's compare-and-set (a stale write is refused). */
-  v: number;
-};
+/** The stored job record: one shape, owned by domain/job-record (§data.gate). */
+export type JobRecord = JobRecordRow;
 
 /** Storage seam: D1 in production, a Map in tests. put succeeds only when rec.v is one past the stored version. */
 export interface JobStore {

@@ -5,16 +5,17 @@ import { parseJobRecord } from './job-record/index.ts';
 import { parseCeilingHold, parseCeilingUsage, parseCeilingUse } from './ceiling/index.ts';
 
 const T = '2026-11-05T00:00:00Z';
+const N = 1_762_300_800_000;
 
 test('a deletions row parses and refuses extras', () => {
-  expect(parseDeletion({ c: 'notes', id: 'note-1', at: T }).id).toBe('note-1');
-  expect(() => parseDeletion({ c: 'notes', id: '', at: T })).toThrow();
-  expect(() => parseDeletion({ c: 'notes', id: 'a', at: T, v: 1 })).toThrow();
+  expect(parseDeletion({ c: 'notes', id: 'note-1', at: N }).id).toBe('note-1');
+  expect(() => parseDeletion({ c: 'notes', id: '', at: N })).toThrow();
+  expect(() => parseDeletion({ c: 'notes', id: 'a', at: N, v: 1 })).toThrow();
 });
 
 test('a job_plans row keeps any body', () => {
-  expect(parseJobPlanRow({ jobId: 'j', kind: 'plan', body: { a: 1 }, at: T }).kind).toBe('plan');
-  expect(() => parseJobPlanRow({ jobId: 'j', kind: '', body: 1, at: T })).toThrow();
+  expect(parseJobPlanRow({ jobId: 'j', kind: 'plan', body: { a: 1 }, at: N }).kind).toBe('plan');
+  expect(() => parseJobPlanRow({ jobId: 'j', kind: '', body: 1, at: N })).toThrow();
 });
 
 test('a job record parses, and a bad state is refused', () => {

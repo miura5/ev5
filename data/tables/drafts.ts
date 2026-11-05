@@ -1,11 +1,14 @@
 // Repositories for E.V.'s set-item drafts and the soft-delete list (CONTRACT data.drafts, delete.soft). Every write takes
 // its `at` from the Worker clock and a draft change is pinned to the version read, so a stale write changes nothing.
+import { parseDeletion } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
 
 export type PendingDraft = { id: string; targetId: string; v: number };
 
 export function draftsRepo(db: D1Like, opts: TablesOptions) {
+  const del = (c: string, id: string) =>
+    parseDeletion({ c, id, at: opts.clock() });
   const pending = async (
     where: string,
     arg: string,
@@ -124,20 +127,22 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
     deletions: {
       /** Soft delete of a set item by its `<set>/<item>` key; the latest delete time wins and no row is removed. */
       markOwnSetItem: async (setId: string, itemId: string): Promise<void> => {
+        const row = del("own_set_items", `${setId}/${itemId}`);
         await db
           .prepare(
             "INSERT INTO deletions (c, id, at) VALUES ('own_set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
           )
-          .bind(`${setId}/${itemId}`, opts.clock())
+          .bind(row.id, row.at)
           .run();
       },
       /** Soft delete of a collection; its items are not touched and show ungrouped until it is restored. */
       markCollection: async (id: string): Promise<void> => {
+        const row = del("collections", id);
         await db
           .prepare(
             "INSERT INTO deletions (c, id, at) VALUES ('collections', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
           )
-          .bind(id, opts.clock())
+          .bind(row.id, row.at)
           .run();
       },
       /** Takes an id back out of Recently deleted; the number of rows cleared. */
