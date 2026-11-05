@@ -1,27 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { registerProtocolSuite } from "../compat/index.ts";
-import { checkedDocsRepo } from "./checked.ts";
+import { goodNote, registerProtocolSuite } from "../protocol/protocol-suite.ts";
+import type { WriteProblem } from "../protocol/protocol.ts";
 import { docsRepo } from "./repo.ts";
-import { parsingProblem, type ParserRegistry } from "./registry.ts";
 import { fakeD1 } from "./fake-d1.ts";
 
-// The same suite the in-memory reference passes, run over the D1 repository (with only ev4's Worker check, as there).
-registerProtocolSuite(
-  "d1 repository",
-  (clock) => checkedDocsRepo(fakeD1(), { clock }),
-  test,
-);
+// The same suite the in-memory reference passes, run over the D1 repository and its gate.
+registerProtocolSuite("d1 repository", (clock) => docsRepo(fakeD1(), { clock }), test);
 
-// Stand-ins for domain/exam's and domain/weak-spot's parsers (data may not import them until domain has an index).
-const strict = (keys: string[]) => (raw: unknown) => {
-  for (const k of Object.keys(raw as object))
-    if (!keys.includes(k)) throw new Error(`unexpected field ${k}`);
-};
-const parsers: ParserRegistry = {
-  exams: strict(["schema", "writer", "at", "source", "title", "kind"]),
-  weakspots: strict(["schema", "writer", "at", "source"]),
-};
+// An extra write check on a kind with no domain parser, refusing any field it does not list.
+const strict =
+  (c: string, keys: string[]): WriteProblem =>
+  (kind, _id, doc) => {
+    if (kind !== c) return null;
+    const extra = Object.keys(doc as object).find((k) => !keys.includes(k));
+    return extra ? `unexpected field ${extra}` : null;
+  };
 
 const exam = {
   schema: 2,
@@ -38,40 +32,41 @@ const spot = {
   source: "v5/test",
 };
 
-test("collections in the parser registry are parsed before a write", async () => {
-  const repo = checkedDocsRepo(fakeD1(), {
+test("an extra write check runs on both write paths, and a refused batch writes nothing", async () => {
+  const repo = docsRepo(fakeD1(), {
     clock: () => 1_800_000_000_000,
-    parsers,
+    problem: strict("scratch", ["n"]),
   });
-  assert.ok((await repo.save("exams", "e1", JSON.stringify(exam), null)).ok);
-  const bad = await repo.save(
-    "exams",
-    "e2",
-    JSON.stringify({ ...exam, score: 90 }),
-    null,
-  );
+  assert.ok((await repo.save("scratch", "s1", '{"n":1}', null)).ok);
+  const bad = await repo.save("scratch", "s2", '{"n":1,"x":2}', null);
   assert.equal(!bad.ok && bad.status, 400);
-  assert.equal(await repo.get("exams", "e2"), null);
+  assert.equal(await repo.get("scratch", "s2"), null);
   const batch = await repo.batch([
     { op: "set", collection: "exams", doc_id: "e3", data: exam },
-    {
-      op: "set",
-      collection: "weakspots",
-      doc_id: "w1",
-      data: { ...spot, nonsense: true },
-    },
+    { op: "set", collection: "scratch", doc_id: "s3", data: { nonsense: true } },
   ]);
   assert.equal(!batch.ok && batch.status, 400);
   assert.equal(await repo.get("exams", "e3"), null, "all or nothing");
 });
 
-test("a collection without a parser passes the registry untouched", () => {
-  assert.equal(parsingProblem({})("exams", "x", { anything: 1 }, null), null);
+test("the gate parses notes with the domain parser and keeps a note's identity write-once", async () => {
+  const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
+  const note = goodNote();
+  assert.ok((await repo.save("notes", "n-a", JSON.stringify(note), null)).ok);
+  const extra = await repo.save("notes", "n-b", JSON.stringify({ ...note, html: "<b>x</b>" }), null);
+  assert.match(!extra.ok ? extra.error : "", /^notes\/n-b does not parse/);
+  const moved = await repo.save(
+    "notes",
+    "n-a",
+    JSON.stringify({ ...note, createdAt: "2026-11-03T00:00:00Z" }),
+    1,
+  );
+  assert.match(!moved.ok ? moved.error : "", /createdAt is written once/);
 });
 
 test("a write landing between the read and the batch is a 409 and nothing is written", async () => {
   const db = fakeD1();
-  const repo = checkedDocsRepo(db, { clock: () => 1_800_000_000_000 });
+  const repo = docsRepo(db, { clock: () => 1_800_000_000_000 });
   await repo.save("scratch", "a", '{"n":1}', null);
   await repo.save("scratch", "b", '{"n":1}', null);
   db.beforeBatch = () => void db.docs.get("scratch\nb")!.v++;
@@ -102,7 +97,7 @@ test("a write landing between the read and the batch is a 409 and nothing is wri
 test("markDeleted writes a deletions row and leaves the document where it is", async () => {
   const db = fakeD1();
   let now = 1_800_000_000_000;
-  const repo = checkedDocsRepo(db, { clock: () => now, includeDeleted: true });
+  const repo = docsRepo(db, { clock: () => now, includeDeleted: true });
   await repo.save("scratch", "gone", '{"n":1}', null);
   assert.equal(await repo.markDeleted("scratch", "nope"), false);
   assert.equal(await repo.markDeleted("scratch", "gone"), true);

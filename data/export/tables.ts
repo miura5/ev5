@@ -12,8 +12,8 @@ const t = (name: string, columns: string[], orderBy: string[]): TableSpec => ({
   orderBy,
 });
 
-/** ev4's tables (data/migrations/0000_baseline.sql) and the deletions table. `docs` is also grouped per collection. */
-export const EV4_TABLES: TableSpec[] = [
+/** The baseline's tables (data/migrations/0000_baseline.sql) and the deletions table. `docs` is also grouped per kind. */
+export const BASE_TABLES: TableSpec[] = [
   t("docs", ["c", "id", "data", "at", "v"], ["c", "id"]),
   t("deletions", ["c", "id", "at"], ["c", "id"]),
   t("claude_usage", ["hour", "day", "tokens", "calls"], ["hour"]),
@@ -23,7 +23,7 @@ export const EV4_TABLES: TableSpec[] = [
   t("system_docs", ["name", "data", "at"], ["name"]),
 ];
 
-/** The tables PLAN §5.10 adds. A table whose migration has not landed yet exports as empty. */
+/** The tables PLAN §5.10 adds. */
 export const NEW_TABLES: TableSpec[] = [
   t("collections", ["id", "title", "parent_id", "pos", "at", "v"], ["id"]),
   t(
@@ -32,7 +32,6 @@ export const NEW_TABLES: TableSpec[] = [
     ["item_c", "item_id"],
   ),
   t("pins", ["target_c", "target_id", "pos", "at"], ["target_c", "target_id"]),
-  t("views", ["id", "title", "query", "at", "v"], ["id"]),
   t(
     "item_props",
     [
@@ -90,19 +89,7 @@ export const JOB_TABLES: TableSpec[] = [
 ];
 
 export const ALL_TABLES: TableSpec[] = [
-  ...EV4_TABLES,
+  ...BASE_TABLES,
   ...NEW_TABLES,
   ...JOB_TABLES,
-];
-
-/** The per-target system documents an export leaves out (a Worker's token is never kept in its own backup). */
-export const SYSTEM_PER_TARGET = [
-  "worker",
-  "manifest",
-  "spec",
-  "environments",
-  "yourturn",
-  "seed",
-  "config",
-  "code",
 ];

@@ -1,29 +1,68 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { registerProtocolSuite } from "../compat/index.ts";
-import { SAMPLES } from "../compat/samples/writes.ts";
 import { DOMAIN_PARSERS } from "./parsers.ts";
-import { checkedDocsRepo } from "./checked.ts";
+import { docsRepo } from "./repo.ts";
 import { fakeD1 } from "./fake-d1.ts";
 
-// The protocol suite, over the D1 repository with every domain parser wired.
-registerProtocolSuite(
-  "d1 repository with domain parsers",
-  (clock) => checkedDocsRepo(fakeD1(), { clock, parsers: DOMAIN_PARSERS }),
-  test,
-);
+const AT = "2026-11-02T15:00:00Z";
+// Small synthetic documents, one per kind, each valid under its domain parser.
+const FIXTURES: Record<string, unknown> = {
+  notes: {
+    schema: 1,
+    writer: "page",
+    at: AT,
+    source: "v5/notes",
+    createdAt: AT,
+    title: "Preload",
+    course: null,
+    blocks: [{ type: "p", runs: [{ text: "Stretch before ", b: true }, { text: "contraction." }] }],
+  },
+  sets: {
+    schema: 3,
+    writer: "page",
+    at: AT,
+    source: "v5/test",
+    kind: "drill",
+    date: "2026-11-02",
+    exam: null,
+    items: [{ id: "q1", type: "single", stem: "Which one is larger?", options: ["Two", "One"], correct: [0] }],
+    createdAt: AT,
+  },
+  weakspots: {
+    schema: 2,
+    writer: "page",
+    at: AT,
+    source: "v5/test",
+    topic: "Ratios",
+    objective: "o-1",
+    kind: "concept",
+    initial: {},
+    events: { "page-20261102-150000": { type: "seen", by: "owner", at: AT } },
+  },
+};
 
-for (const c of Object.keys(DOMAIN_PARSERS)) {
-  const samples = SAMPLES[c];
-  if (!samples) continue;
-  for (const s of samples.valid) {
-    test(`${c}: valid sample "${s.name}" parses`, () => {
-      assert.doesNotThrow(() => DOMAIN_PARSERS[c]!(s.doc));
-    });
-    test(`${c}: valid sample "${s.name}" saves`, async () => {
-      const repo = checkedDocsRepo(fakeD1(), { clock: () => 1_800_000_000_000, parsers: DOMAIN_PARSERS });
-      const r = await repo.save(c, s.id ?? "d1", JSON.stringify(s.doc), null);
-      assert.ok(r.ok, JSON.stringify(r));
-    });
-  }
+test("the registry names a domain parser for each docs kind with a domain entity", () => {
+  assert.deepEqual(Object.keys(DOMAIN_PARSERS).sort(), [
+    "exams",
+    "notes",
+    "objectives",
+    "sessions",
+    "sets",
+    "weakspots",
+  ]);
+});
+
+for (const [c, doc] of Object.entries(FIXTURES)) {
+  test(`${c}: a valid document parses and saves through the gate`, async () => {
+    assert.doesNotThrow(() => DOMAIN_PARSERS[c]!(doc));
+    const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
+    const r = await repo.save(c, "d1", JSON.stringify(doc), null);
+    assert.ok(r.ok, JSON.stringify(r));
+  });
+  test(`${c}: a document its parser refuses is not written`, async () => {
+    const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
+    const r = await repo.save(c, "d1", JSON.stringify({ ...(doc as object), schema: 99 }), null);
+    assert.equal(!r.ok && r.status, 400);
+    assert.equal(await repo.get(c, "d1"), null);
+  });
 }

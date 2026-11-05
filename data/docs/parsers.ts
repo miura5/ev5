@@ -1,7 +1,6 @@
-// The wired registry: each ev4 collection that has a domain entity, mapped to its domain parser (hand validators; no
-// zod). A write to one of these collections is parsed after ev4's Worker check (see registry.ts). Collections not
-// listed here (and the ones with no domain entity yet, such as courses, collections and pins) are checked by ev4's
-// Worker check and the frozen schemas only.
+// The wired registry: each docs kind that has a domain entity, mapped to its domain parser. The gate (gate.ts) parses
+// a write to one of these kinds, and every read of it. A kind not listed here has no domain entity yet and is not
+// parsed.
 import {
   parseExam,
   parseNote,

@@ -1,11 +1,11 @@
-// The write and read gate for the docs table (§data.gate): what a stored document must pass on the way in (the Worker's
-// note check, then the kind's domain parser, then the title rule) and on the way out (parsed again; a bad row is
+// The write and read gate for the docs table (§data.gate): what a stored document must pass on the way in (the kind's
+// domain parser, then the kind's own write rules, then the title rule) and on the way out (parsed again; a bad row is
 // reported and left out). Worker-safe: no node:fs. The size budget and the protocol (v, at, if_version) are in repo.ts.
-import type { Json } from "../compat/canonical.ts";
-import type { StoredDoc, WriteProblem } from "../compat/protocol.ts";
+import { noteWriteProblem, type Note } from "../../domain/index.ts";
+import type { Json } from "../protocol/canonical.ts";
+import type { StoredDoc, WriteProblem } from "../protocol/protocol.ts";
 import type { D1Like } from "./d1.ts";
 import { DOMAIN_PARSERS } from "./parsers.ts";
-import { workerNoteProblem } from "./worker-check.ts";
 
 /** The kinds whose documents carry a `title` a rename may change; every other kind refuses one. */
 export const TITLED: readonly string[] = ["exams", "notes", "sets"];
@@ -36,10 +36,18 @@ export function titleProblem(c: string, id: string): string | null {
   return TITLED.includes(c) ? null : `${c}/${id} has no title to change`;
 }
 
-/** The write rules of every docs write: the note check, the kind's parser, and no title on a kind without one. */
+/** Each kind's write rules beyond its shape, from its domain folder: a note's size cap and write-once identity. */
+const KIND_RULES: Readonly<Record<string, WriteProblem>> = {
+  notes: (_c, id, doc, prev) => {
+    const why = noteWriteProblem(doc, prev as Note | null);
+    return why ? `notes/${id}: ${why}` : null;
+  },
+};
+
+/** The write rules of every docs write: the kind's parser, its write rules, and no title on a kind without one. */
 export const gateProblem: WriteProblem = (c, id, doc: Json, prev) =>
-  workerNoteProblem(c, id, doc, prev) ??
   parseProblem(c, id, doc) ??
+  (Object.hasOwn(KIND_RULES, c) ? KIND_RULES[c]!(c, id, doc, prev) : null) ??
   (Object.hasOwn(DOMAIN_PARSERS, c) && isObj(doc) && "title" in doc
     ? titleProblem(c, id)
     : null);

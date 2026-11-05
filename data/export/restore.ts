@@ -3,6 +3,7 @@
 import type { D1Like } from "../docs/d1.ts";
 import { ALL_TABLES } from "./tables.ts";
 import {
+  EXPORT_KIND,
   exportAll,
   manifestDiffs,
   manifestOf,
@@ -22,10 +23,10 @@ export interface RestoreReport {
   problems: string[];
 }
 
-/** The export file must agree with its own manifest before anything is written. */
+/** The export file must be v5's own and agree with its own manifest before anything is written. */
 export async function checkExport(x: Export): Promise<string[]> {
-  if (x.kind !== "ev-d1-export" || x.schema !== 1)
-    return ["not an ev-d1-export file"];
+  if (x.kind !== EXPORT_KIND || x.schema !== 1)
+    return [`not an ${EXPORT_KIND} file: only v5's own export is restored`];
   const own = await manifestOf(x.rows);
   return [
     ...manifestDiffs(own.tables, x.tables),

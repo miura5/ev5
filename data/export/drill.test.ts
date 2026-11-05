@@ -33,12 +33,12 @@ function canon(v: unknown): string {
 }
 
 /** Synthetic rows for one table, typed from the migrated schema; JSON columns get unicode and nesting. */
-function seed(db: DatabaseSync, spec: TableSpec, keepSystem = false): boolean {
+function seed(db: DatabaseSync, spec: TableSpec): boolean {
   const info = db.prepare(`PRAGMA table_info(${spec.name})`).all() as {
     name: string;
     type: string;
   }[];
-  if (!info.length) return false; // not migrated yet (`views`, left for after cutover): exports as empty
+  if (!info.length) return false; // a table no migration creates exports as empty
   const types = new Map(info.map((c) => [c.name, c.type.toUpperCase()]));
   for (let n = 1; n <= ROWS_PER_TABLE; n++) {
     const vals = spec.columns.map((c) => {
@@ -52,10 +52,6 @@ function seed(db: DatabaseSync, spec: TableSpec, keepSystem = false): boolean {
       `INSERT INTO ${spec.name} (${spec.columns.join(",")}) VALUES (${vals.map(() => "?").join(",")})`,
     ).run(...vals);
   }
-  if (keepSystem && spec.name === "docs")
-    db.prepare(
-      "INSERT INTO docs (c,id,data,at,v) VALUES ('system','worker','{\"token\":\"x\"}',1,1)",
-    ).run();
   return true;
 }
 
@@ -97,16 +93,10 @@ for (const spec of ALL_TABLES) {
 
 test("drill: one record holding every table restores as written, collection by collection", async () => {
   const src = migratedDb();
-  for (const spec of ALL_TABLES) seed(src, spec, true);
+  for (const spec of ALL_TABLES) seed(src, spec);
   const x = await exportAll(sqliteD1(src));
-  assert.equal(
-    x.tables.docs!.count,
-    ROWS_PER_TABLE,
-    "the system worker document is never exported",
-  );
   for (const spec of ALL_TABLES)
-    if (spec.name !== "views")
-      assert.ok(x.tables[spec.name]!.count > 0, spec.name);
+    assert.ok(x.tables[spec.name]!.count > 0, spec.name);
 
   const scratch = migratedDb();
   const report = await restoreInto(
@@ -157,7 +147,7 @@ test("drill: each table's listed columns and key order are the migrated schema's
       name: string;
       pk: number;
     }[];
-    if (!info.length) continue; // `views`: no migration yet
+    assert.ok(info.length, `${spec.name}: no migration creates it`);
     assert.deepEqual(
       [...info.map((c) => c.name)].sort(),
       [...spec.columns].sort(),

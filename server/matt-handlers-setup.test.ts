@@ -1,8 +1,6 @@
-import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { validateWrite } from "../data/compat-test.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 export async function setup() {
@@ -46,6 +44,3 @@ export async function setup() {
       .run();
   return { DB, call, doc, put };
 }
-
-export const ok = (c: string, d: unknown, prev?: unknown) =>
-  assert.deepEqual(validateWrite(c, d, prev ? { prev } : {}), { ok: true });

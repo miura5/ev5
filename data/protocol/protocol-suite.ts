@@ -14,7 +14,7 @@ export const testClock = (start = 1_800_000_000_000): TestClock => {
   return c;
 };
 
-/** Makes a fresh, empty adapter on the given clock, with ev4's Worker write check for notes. */
+/** Makes a fresh, empty adapter on the given clock, with the gate's write rules (the note case needs them). */
 export type MakeAdapter = (clock: () => number) => ProtocolAdapter | Promise<ProtocolAdapter>;
 export interface ProtocolCase {
   name: string;
@@ -27,7 +27,7 @@ const set = (doc_id: string, data: unknown, if_version?: number | null, collecti
 });
 const upd = (doc_id: string, data: unknown, if_version?: number | null) => ({ ...set(doc_id, data, if_version), op: 'update' });
 
-/** A note ev4's Worker accepts (synthetic). */
+/** A note the gate accepts (synthetic). */
 export const goodNote = (title = 'Cardiac output') => ({
   schema: 1, writer: 'page', at: '2026-11-02T15:00:00Z', source: 'v5/test', createdAt: '2026-11-02T15:00:00Z',
   title, blocks: [{ type: 'p', runs: [{ text: 'Stroke volume times heart rate.' }] }],
@@ -236,7 +236,7 @@ export const PROTOCOL_CASES: ProtocolCase[] = [
     },
   },
   {
-    name: "a note ev4's Worker would refuse is 400 on both paths, and its identity is write-once",
+    name: 'a note the gate refuses is 400 on both paths, and its identity is write-once',
     async run(a) {
       const bad = { ...goodNote(), html: '<b>x</b>' };
       assert.equal(((await a.save('notes', 'n-a', JSON.stringify(bad), null)) as { status?: number }).status, 400);

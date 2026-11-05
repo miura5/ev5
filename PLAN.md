@@ -99,7 +99,7 @@ ev5/
 │  └─ runtime/        Workflows wrapper, job record, executors, budgets, models.ts
 ├─ domain/            pure rules, no IO: <entity>/ · search/ · time/
 ├─ data/              IO only: D1 repositories, migrations, export, restore
-│  └─ compat/         frozen ev4 schemas and protocol tests
+│  └─ protocol/       the write protocol (§5.3) and its test suite (`compat/` ended with the fresh-database decision, D-484)
 ├─ server/            the Worker (Hono): routes → commands → domain / jobs / data
 ├─ ops/               release, the record writer, scheduled commands, rollback runbook
 ├─ e2e/               Playwright journeys, one file per journey
@@ -136,12 +136,12 @@ D1 holds one generic table, `docs(c, id, data JSON, at, v)`, plus five small tab
 - Saves are pinned to a version (`if_version`, 409 when stale).
 - Batches are all-or-nothing.
 - No delete path for runs or agents.
-- `data/compat` holds frozen copies of ev4's schemas. CI validates every v5 write to an existing collection against them.
+- ~~`data/compat` holds frozen copies of ev4's schemas. CI validates every v5 write to an existing collection against them.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - **[Mock-up: added]** v5 writes to an existing collection use only that collection's existing `writer` values (for example `page` for Matt's own edits) and existing enum values. `source` names v5. A new `writer` value would be a new enum value (§5.2).
 - **[Mock-up: added]** ev4 sets are immutable once written, and `answers` are keyed by their item ids. v5 never edits an ev4 set's items in place (see §5.10 and escalation E-1).
 
 ### 5.4 Backups
-- The export covers **every non-virtual table**, with the `docs` section kept in ev4's manifest shape (per-collection counts and SHA-256).
+- The export covers **every non-virtual table**, with the `docs` section's per-collection counts and SHA-256 ~~kept in ev4's manifest shape~~ *(ev4's shape ended: replaced by the fresh-database decision, D-484)*.
 - **No new table goes live before the export and the restore drill cover it.**
 - Exports are never overwritten.
 - A Time Travel bookmark is noted before every live migration.
@@ -357,7 +357,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 - **Interface changes:**
   1. A folder's interface is its `index.ts` exports, its schemas, command names, job kinds and owned tables, listed in its generated README.
   2. A commit that changes that listing carries an `Interface: <folder>` trailer, or CI fails.
-  3. Changes go expand → migrate → contract. Nothing in `data/compat` is removed inside the rollback window.
+  3. Changes go expand → migrate → contract. ~~Nothing in `data/compat` is removed inside the rollback window.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - **Size:** files at most 300 lines (ESLint). Changes of about 400 lines or less is a review guideline.
 - **Checks on every pull request** (GitHub branch protection makes them unskippable):
   - types;
@@ -366,7 +366,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
   - Stylelint (tokens only);
   - knip;
   - the secrets scan **[Matt: changed]**;
-  - compat: v5 write fixtures validate against `data/compat`;
+  - ~~compat: v5 write fixtures validate against `data/compat`;~~ *(Ended: replaced by the fresh-database decision, D-484.)*
   - registry: no tool, button or schedule entry outside `commands/`;
   - presence: every component has a story and a test, every job and command a test;
   - Vitest;
@@ -384,7 +384,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 | Need | Decision |
 |---|---|
 | Schemas, validation, tool schemas | Import `zod` |
-| ev4 compatibility tests | Import `ajv` (dev only) |
+| ~~ev4 compatibility tests~~ | ~~Import `ajv` (dev only)~~ *(Ended: replaced by the fresh-database decision, D-484.)* |
 | Worker routing | Import `hono` |
 | Job durability | Cloudflare Workflows (pending the Phase 0 spike) |
 | Claude calls | Import `@anthropic-ai/sdk` **[verify on Workers]** |
@@ -445,7 +445,7 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
 - `domain/search` with the retrieval test set.
 - **Gate:**
   - domain tests pass;
-  - every write fixture passes `data/compat`;
+  - ~~every write fixture passes `data/compat`;~~ *(Ended: replaced by the fresh-database decision, D-484.)*
   - the repositories parse every synthetic document;
   - one read-only, counts-only parse of a restricted scratch copy of live finds zero errors (run with Matt's OK).
 

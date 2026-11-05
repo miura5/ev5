@@ -31,15 +31,8 @@ module.exports = {
       to: {
         path: `^(${FOLDERS})/`,
         // $1 is the importing folder: imports inside it are free
-        pathNot: ["^$1/", "^[^/]+/index\\.ts$", "^commands/client\\.ts$", "^data/compat-test\\.ts$", "^areas/registry\\.generated\\.ts$", "^areas/[^/]+/(area\\.ts|[^/]+\\.view\\.tsx)$", "^jobs/[^/]+/[a-z-]*prompt\\.md$"],
+        pathNot: ["^$1/", "^[^/]+/index\\.ts$", "^commands/client\\.ts$", "^areas/registry\\.generated\\.ts$", "^areas/[^/]+/(area\\.ts|[^/]+\\.view\\.tsx)$", "^jobs/[^/]+/[a-z-]*prompt\\.md$"],
       },
-    },
-    {
-      name: "compat-test-tests-only",
-      comment: "data/compat-test.ts pulls node:fs; only test files may import it",
-      severity: "error",
-      from: { pathNot: [TESTS, "^data/compat-test\\.ts$"] },
-      to: { path: "^data/compat-test\\.ts$" },
     },
     only("areas", ["^kit/", "^domain/", "^commands/client\\.ts$"]),
     only("shell", ["^kit/", "^domain/", "^commands/client\\.ts$", "^areas/"]),
@@ -50,7 +43,7 @@ module.exports = {
     only("server", ["^commands/", "^jobs/", "^data/", "^domain/"]),
     only("kit", []),
     externals("domain", ["zod", "ts-fsrs"]),
-    externals("data", ["zod", "ajv"]),
+    externals("data", ["zod"]),
     externals("kit", ["react", "react-dom", "@radix-ui", "cmdk"]),
   ],
   options: {

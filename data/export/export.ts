@@ -1,10 +1,10 @@
-// The export of every table in ev4's manifest shape (pwa/backup.js): `collections` is ev4's per-collection
-// { count, sha256 } over `docs`, `docs` keeps ev4's row list, and `tables` adds the same { count, sha256 } for every
-// table (PLAN §5.10 included). Read-only: it only SELECTs.
+// The export of every table (§data.export): `tables` is { count, sha256 } over each table's canonical rows,
+// `collections` the same per kind over `docs`, and `rows` every row as written. The kind names v5's own file, so a
+// restore refuses any other export (an ev4 backup included). Read-only: it only SELECTs.
 import type { D1Like } from "../docs/d1.ts";
-import { ALL_TABLES, SYSTEM_PER_TARGET, type TableSpec } from "./tables.ts";
+import { ALL_TABLES, type TableSpec } from "./tables.ts";
 
-export const EXPORT_KIND = "ev-d1-export";
+export const EXPORT_KIND = "ev5-export";
 export type Cell = string | number | null;
 export type Row = Record<string, Cell>;
 export interface Entry {
@@ -32,7 +32,7 @@ const entry = async (lines: string[]): Promise<Entry> => ({
   sha256: await sha256(lines.join("\n")),
 });
 
-/** ev4's per-collection manifest: documents in id order, each as [id, data]. */
+/** The per-kind manifest over `docs`: documents in id order, each as [id, data]. */
 export async function collectionsOf(docs: Row[]): Promise<Manifest> {
   const by = new Map<string, Row[]>();
   for (const r of docs)
@@ -61,20 +61,12 @@ export async function manifestOf(
   return { collections: await collectionsOf(rows.docs ?? []), tables };
 }
 
-export const keptRow = (table: string, r: Row): boolean =>
-  !(
-    (table === "system_docs" && SYSTEM_PER_TARGET.includes(r.name as string)) ||
-    (table === "docs" &&
-      r.c === "system" &&
-      SYSTEM_PER_TARGET.includes(r.id as string))
-  );
-
 /** Reads one table in key order; a table whose migration has not landed reads as empty. */
 export async function readTable(db: D1Like, spec: TableSpec): Promise<Row[]> {
   try {
     const sql = `SELECT ${spec.columns.join(", ")} FROM ${spec.name} ORDER BY ${spec.orderBy.join(", ")}`;
     const { results } = await db.prepare(sql).all<Row>();
-    return results.filter((r) => keptRow(spec.name, r));
+    return results;
   } catch (e) {
     if (/no such table/i.test(String(e))) return [];
     throw e;

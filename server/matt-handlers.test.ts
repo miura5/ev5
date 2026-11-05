@@ -1,16 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ok, setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.test.ts";
 
-test("a note is made, saved, moved, and each write passes ev4's check", async () => {
+test("a note is made, saved and moved", async () => {
   const { call, doc } = await setup();
   const col = await call("collection.create", { title: "BIO" });
   const cid = col.body.result.collection.id as string;
   const made = await call("note.create", { collection: cid });
   assert.equal(made.status, 200);
   const id = made.body.result.id as string;
-  const fresh = await doc("notes", id);
-  ok("notes", fresh);
+  assert.ok(await doc("notes", id));
   const saved = await call("note.save", {
     id,
     body: "Fluids\nSodium is 135-145",
@@ -18,7 +17,6 @@ test("a note is made, saved, moved, and each write passes ev4's check", async ()
   assert.equal(saved.status, 200);
   const after = await doc("notes", id);
   assert.equal(after?.blocks.length, 2);
-  ok("notes", after, fresh);
   const col2 = await call("collection.create", { title: "NUR" });
   const moved = await call("note.move", {
     id,
@@ -66,13 +64,12 @@ test("new here makes a note, a set, a date and a collection", async () => {
   );
 });
 
-test("a session starts, pauses, answers a check, and ends; each write passes ev4's check", async () => {
+test("a session starts, pauses, answers a check, and ends", async () => {
   const { call, doc, DB } = await setup();
   const a = (await call("session.start", { noteId: "n-1" })).body.result
     .id as string;
   const s1 = await doc("sessions", a);
   assert.equal(s1?.noteId, "n-1");
-  ok("sessions", s1);
   const p = await call("session.pause", { id: a });
   assert.equal(p.body.result.paused, true);
   assert.equal(
@@ -84,19 +81,16 @@ test("a session starts, pauses, answers a check, and ends; each write passes ev4
     200,
   );
   assert.equal((await call("check.just_tell_me", { id: a })).status, 200);
-  const mid = await doc("sessions", a);
-  ok("sessions", mid, s1);
+  assert.ok(await doc("sessions", a));
   // a second session ends the first
   const b = (await call("session.start", {})).body.result.id as string;
   assert.equal((await doc("sessions", a))?.status, "ended");
-  ok("sessions", await doc("sessions", a), mid);
   assert.equal((await call("session.end", { id: b })).status, 200);
   assert.equal((await call("session.end", { id: b })).status, 409);
   assert.equal((await call("session.pause", { id: "nope" })).status, 404);
   const talk = await DB.prepare("SELECT id FROM docs WHERE c = 'talk'").first<{
     id: string;
   }>();
-  ok("talk", await doc("talk", (talk as { id: string }).id));
 });
 
 test("a weak spot is confirmed, declined, learned; a spot that is not proposed cannot be confirmed", async () => {
@@ -129,8 +123,6 @@ test("a weak spot is confirmed, declined, learned; a spot that is not proposed c
     Object.values(w1?.events).map((e: any) => e.type),
     ["accept"],
   );
-  ok("weakspots", w1, { ...base, proposed: true });
-  ok("weakspots", await doc("weakspots", "w3"), base);
 });
 
 test("ask just tell me is logged in today's talk document", async () => {
@@ -143,5 +135,4 @@ test("ask just tell me is logged in today's talk document", async () => {
   assert.equal(r.results.length, 1);
   const t = await doc("talk", (r.results[0] as { id: string }).id);
   assert.equal(Object.keys(t?.messages).length, 2);
-  ok("talk", t);
 });

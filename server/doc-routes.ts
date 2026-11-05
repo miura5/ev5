@@ -1,5 +1,5 @@
-// /api/v1/docs: read and write documents over the ev4 write protocol (CONTRACT §data.protocol). Auth is applied by
-// index.ts. Collections can nest, so the collection and id travel in the query, as in ev4's run API.
+// /api/v1/docs: read and write documents under the write protocol (CONTRACT §data.protocol), through data's gate
+// (§data.gate). Auth is applied by index.ts. The collection and id travel in the query.
 //   GET    /docs?collection=c            one collection, ordered by id
 //   GET    /docs?collection=c&id=x       one document, or 404
 //   GET    /docs?since=<ms>              every document changed after since, and the next since
@@ -7,12 +7,7 @@
 //   POST   /docs/batch                   {writes:[{op,collection,doc_id,data,if_version}]}, all or nothing
 //   DELETE /docs                         refused with 403 (§delete.who): the Worker has no delete path
 import { Hono } from "hono";
-import {
-  docsRepo,
-  MAX_BODY,
-  NO_DELETE,
-  workerNoteProblem,
-} from "../data/index.ts";
+import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 
@@ -26,8 +21,7 @@ type Ctx = {
 };
 export const docRoutes = new Hono<Ctx>();
 
-const repo = (db: DocsD1) =>
-  docsRepo(db, { clock: () => Date.now(), problem: workerNoteProblem });
+const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
 const shape = (d: {
   c: string;
   id: string;
