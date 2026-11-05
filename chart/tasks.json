@@ -17186,9 +17186,9 @@
    "B-966",
    "B-967",
    "B-968",
-   "B-1018"
+   "B-1020"
   ],
-  "notes": "Notes home done in PR 503 (run 80). The note page still uses its own column, doc-title, docmeta and session-bar CSS: waits on B-1018 (editable Page title).",
+  "notes": "Notes home done in PR 503 (run 80, merged 2026-11-05). The note page still uses its own column, doc-title, docmeta and session-bar CSS: waits on B-1020 (editable Page title). Not yet seen on staging.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17203,9 +17203,9 @@
    "B-966",
    "B-967",
    "B-968",
-   "B-1018"
+   "B-1020"
   ],
-  "notes": "Slice: write areas/collection/; read kit/, shell's area-view props.",
+  "notes": "Slice: write areas/collection/; read kit/, shell's area-view props. Unclaimed: run 80 was stopped before any work; its branch claude/B-973-collection-kit holds no commits and may be reused or ignored. Waits on B-1020.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17221,7 +17221,7 @@
    "B-967",
    "B-968"
   ],
-  "notes": "Slice: write areas/deleted/; read kit/.",
+  "notes": "Merged in PR 501 (run 80, 2026-11-05); not yet seen on staging, so not done.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17237,7 +17237,7 @@
    "B-967",
    "B-968"
   ],
-  "notes": "Slice: write areas/activity/; read kit/, shell's area-view props.",
+  "notes": "Merged in PR 500 (run 80, 2026-11-05); not yet seen on staging, so not done. Got it on the spend alert is hover-only until B-1020's always-visible Row actions.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17835,14 +17835,26 @@
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
  {
-  "id": "B-1018",
+  "id": "B-1019",
+  "kind": "task",
+  "title": "A kit or shell change cannot leave the /kit screenshot check red",
+  "dod": "The visual job is one of the jobs the required checks job waits for, so a PR that moves the /kit gallery cannot merge until its baselines match; the visual-baselines workflow run on a PR branch is followed by a CI run on its commit (a GITHUB_TOKEN push starts no CI); a PR that leaves the gallery alone is not slowed (§drift.checks, §ui.gallery)",
+  "milestone": "Ops",
+  "status": "open",
+  "depends": [],
+  "notes": "Main was red from #482 (B-949) to #494: B-949, B-966, B-968, B-963 and B-967 merged with visual red, because visual is not in checks' needs. Smallest fix: add visual to needs in .github/workflows/ci.yml and make the baselines workflow trigger CI after its commit. Builders have no Docker: they dispatch visual-baselines on their branch.",
+  "commit": null,
+  "source": "main red 15:35-17:10Z 2026-11-05 (PR #494)"
+ },
+ {
+  "id": "B-1020",
   "kind": "task",
   "title": "Kit Page takes an editable title and a leading glyph, and the kit has a Move picker",
   "dod": "kit Page (or a kit EditableTitle) renames on blur, Enter commits, Escape reverts, can focus and select its title when just made, shows a placeholder, and takes an optional leading glyph (design/mockup.html line 350); a kit Move picker (or Menu items) lists collections by name with the current one ticked; kit Row gets an always-visible actions option so a row's button is reachable by keyboard and touch (Activity's Got it button on the monthly spend alert, moved into Row actions by B-975, is hover-only until then); stories and tests for each; both themes match design/mockup.html",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page, stopped with no PR), B-972 (Notes home merged as PR 503; the note page waits on this) and B-975. Also needed: Row level 2 (notes inside a sub-collection), and a Row option for the ⋯ menu button and Move picker (areas/notes RowActions and e2e/notes-offline.journey.spec.ts selects .ev-notes-line). B-972 stays open for the note page; B-973 depends on this.",
+  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page, stopped with no PR), B-972 (Notes home merged as PR 503; the note page waits on this) and B-975. Also needed: Row level 2 (notes inside a sub-collection), and a Row option for the ⋯ menu button and Move picker (areas/notes RowActions and e2e/notes-offline.journey.spec.ts selects .ev-notes-line). B-972 stays open for the note page; B-973 depends on this. Filed by run 80 as B-1018 in PR 499; renumbered because B-1018/B-1019 were taken on main.",
   "commit": null,
   "source": "B-973 builder report, run 80"
  }

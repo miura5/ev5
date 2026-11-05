@@ -1,3 +1,6 @@
+/* Only what no kit part draws is kept here; each rule says why. */
+
+/* The note page column (kit Page needs an editable title, which it lacks). */
 .ev-notes {
   display: flex;
   flex-direction: column;
@@ -8,8 +11,6 @@
   color: var(--text);
 }
 
-.ev-notes-head,
-.ev-notes-sec-head,
 .ev-notes-docmeta,
 .ev-notes-session {
   display: flex;
@@ -21,7 +22,6 @@
   flex: 1;
 }
 
-.ev-notes-title,
 .ev-notes-doctitle {
   margin: 0;
   font-size: var(--fs-title);
@@ -30,54 +30,11 @@
   letter-spacing: var(--track-title);
 }
 
-.ev-notes-sec {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-}
-
-.ev-notes-label {
-  margin: 0;
-  font-size: var(--fs-meta);
-  font-weight: var(--fw-medium);
-  color: var(--quiet);
-}
-
+/* The note page meta line and the session bar; no kit part draws them. */
 .ev-notes-meta,
 .ev-notes-docmeta {
   font-size: var(--fs-meta);
   color: var(--faint);
-}
-
-.ev-notes-fold {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-}
-
-.ev-notes-fold-btn {
-  all: unset;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  height: 40px;
-  cursor: pointer;
-  font-size: var(--fs-body);
-}
-
-.ev-notes-fold-title {
-  flex: 1;
-}
-
-.ev-notes-chev {
-  width: var(--sp-3);
-  color: var(--faint);
-  transition: transform var(--dur-1);
-}
-
-.ev-notes-chev[data-open="true"] {
-  transform: rotate(90deg);
 }
 
 .ev-notes-pagecol {
@@ -101,18 +58,6 @@
 
 .ev-notes-dot[data-state="running"] {
   background: var(--info);
-}
-
-.ev-notes-crumb,
-.ev-notes-pick {
-  all: unset;
-  cursor: pointer;
-  color: var(--quiet);
-  font-size: var(--fs-meta);
-}
-
-.ev-notes-pick {
-  border-bottom: 1px dashed var(--line2);
 }
 
 .ev-notes-save {
@@ -218,6 +163,7 @@
   text-decoration: line-through;
 }
 
+/* Beside a kit Row: its menu button, which Row does not draw. */
 .ev-notes-line {
   display: flex;
   align-items: center;

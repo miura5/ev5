@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Glyph, Row } from "../../kit/index.ts";
+import { Button, Empty, Glyph, Page, Row, Section } from "../../kit/index.ts";
 import { RowActions, type RowAction } from "./parts/RowActions.tsx";
 import { CollectionTree } from "./parts/CollectionTree.tsx";
 import type { NoteCollection, NoteSummary } from "./types.ts";
@@ -47,27 +47,26 @@ export function NotesView({
       return next;
     });
   return (
-    <section className="ev-notes" aria-label="Notes" data-area="notes">
-      <div className="ev-notes-head">
-        <h1 className="ev-notes-title">Notes</h1>
-        <span className="ev-notes-meta">what you write</span>
-        <span className="ev-notes-grow" />
-        <Button kind="text" onClick={onNewCollection}>
-          New collection
-        </Button>
-        <Button kind="primary" hint="C" onClick={() => onNewNote?.()}>
-          New note
-        </Button>
-      </div>
-      <section className="ev-notes-sec" aria-label="Recent">
-        <h2 className="ev-notes-label">Recent</h2>
+    <Page
+      title="Notes"
+      meta="what you write"
+      actions={
+        <>
+          <Button kind="text" onClick={onNewCollection}>
+            New collection
+          </Button>
+          <Button kind="primary" hint="C" onClick={() => onNewNote?.()}>
+            New note
+          </Button>
+        </>
+      }
+    >
+      <Section label="Recent">
         {notes.length === 0 && loading && !failed ? (
-          <span className="ev-notes-meta">Loading…</span>
+          <Empty line="Loading…" />
         ) : null}
         {notes.length === 0 && !loading && !failed ? (
-          <span className="ev-notes-meta">
-            No notes yet. Press C to write one.
-          </span>
+          <Empty line="No notes yet. Press C to write one." />
         ) : null}
         {notes.slice(0, 3).map((n) => (
           <RowActions
@@ -87,13 +86,8 @@ export function NotesView({
             />
           </RowActions>
         ))}
-      </section>
-      <section className="ev-notes-sec" aria-label="By collection">
-        <div className="ev-notes-sec-head">
-          <h2 className="ev-notes-label">By collection</h2>
-          <span className="ev-notes-grow" />
-          <span className="ev-notes-meta">← → fold</span>
-        </div>
+      </Section>
+      <Section label="By collection" count="← → fold">
         <CollectionTree
           collections={collections}
           notes={notes}
@@ -104,7 +98,7 @@ export function NotesView({
           onRowAction={onRowAction}
           onMove={onMove}
         />
-      </section>
-    </section>
+      </Section>
+    </Page>
   );
 }

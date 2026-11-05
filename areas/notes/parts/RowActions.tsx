@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Button, Menu, Palette, type MenuItem } from "../../../kit/index.ts";
 
 export type RowAction = "open" | "pin" | "delete";
@@ -51,7 +51,6 @@ export interface RowActionsProps {
   /** The collection the item is in now, shown checked in the picker. */
   current?: string | null;
   onMove?: (collectionId: string) => void;
-  style?: CSSProperties;
   className?: string;
 }
 
@@ -63,7 +62,6 @@ export function RowActions({
   targets = [],
   current = null,
   onMove,
-  style,
   className = "ev-notes-line",
 }: RowActionsProps) {
   const [moving, setMoving] = useState(false);
@@ -102,7 +100,6 @@ export function RowActions({
           <div
             ref={box}
             className={className}
-            style={style}
             onKeyDown={(e) => {
               const t = e.target as HTMLElement;
               if (e.key !== "." || e.metaKey || e.ctrlKey || e.altKey) return;
