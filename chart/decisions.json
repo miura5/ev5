@@ -1,5 +1,18 @@
 [
  {
+  "id": "D-481",
+  "date": "Nov 5",
+  "title": "Gate 5 (B-753) closes on playtest 6: the study plan journey works without a reload; cutover steps B-822, B-823 and rehearsal 2 B-758 are next",
+  "why": "Playtest 6 (2026-11-05 12:40-13:15Z) in Matt's Chrome on staging saw every Gate 5 item work: new and revised drafts show with Approve without a reload (B-918), approved sessions stay listed (B-921), first and revised drafts start today (B-920), toasts close (B-919), Done today lists approve and session end (B-922), Progress matches Library (B-927), one exam Detail look with the Exams tab lit (B-924, B-925), and a collection deletes and restores (B-928). Gaps filed as follow-ups that do not hold the gate: B-936 to B-942. Build manager decision relayed by the supervisor.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-475",
+   "D-476"
+  ],
+  "source": "Playtest 6, 2026-11-05"
+ },
+ {
   "id": "D-480",
   "date": "Nov 4",
   "title": "Open ev4-era tasks move to after cutover; none is deleted",
