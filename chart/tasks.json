@@ -16804,5 +16804,49 @@
   "reportedAt": "2026-11-05T14:07:09.119Z",
   "claimedBy": "ev-build thread",
   "claimedAt": "2026-11-05T14:07:09.452Z"
+ },
+ {
+  "id": "B-944",
+  "kind": "request",
+  "title": "A note page says what to do: an empty note shows a quiet start line, and Make cards and Start session say what they do when you point at them",
+  "dod": "When a note's body is empty, areas/notes/parts/NoteEditor.tsx shows a quiet placeholder line such as 'Start writing, or type # for a heading' in the muted text token; it goes away at the first character and is never saved into the note. On the note page, Make cards has the tooltip 'Start a set from this note; E.V. drafts, you keep or drop' and Start session has 'Start a study session', as the titles in design/mockup.html (renderDocMeta), through the kit's tooltip, with the key hint if the action has one (§ui.keys). Both themes; tests; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Polish inside the existing structure (§ui.kit-leads): no new buttons. Make cards drafts a flashcard set from the note; Start session runs a timed study session with read-along. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T14:39:02.317Z"
+ },
+ {
+  "id": "B-945",
+  "kind": "request",
+  "title": "You can find the note editor's shortcuts from the note page and from ⌘K",
+  "dod": "The editor's keys from areas/notes/parts/editorKeys.ts (# ## ### headings, - or * and 1. lists, [] checklist, Tab and Shift-Tab indent, Mod-B, Mod-I, Mod-U bold italic underline, Shift-Mod-X strike, Mod-Z undo, Shift-Mod-Z or Mod-Y redo) are listed as quiet hints that a note page can open and that ⌘K finds (for example 'Note shortcuts'), per §ui.keys, built from kit parts only (a missing look starts as a kit task, §ui.kit-leads); the list is generated from or tested against editorKeys.ts so the two cannot drift; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "No toolbar. If Matt picks the line style indicator (B-946), it may replace this hint, so keep this small. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T14:39:02.492Z"
+ },
+ {
+  "id": "B-946",
+  "kind": "request",
+  "title": "Decide with Matt: how a note shows and sets line styles, links and pictures (lead proposal: a line style indicator beside the active line)",
+  "dod": "Matt has chosen one: (1) lead proposal, a line style indicator in the note page's right margin, as in his Quip screenshots, showing the active line's block style (H1, H2, H3, paragraph, list) and opening a kit Menu of styles with each key beside it on click; a new kit part with its story first (§ui.kit-leads); it may replace B-945's separate hint; (2) a formatting toolbar; (3) a menu on selected text; (4) neither. He also says whether links and pictures get a control (ev4's note editor has a toolbar with link and image). The choice is a Chart decision; build tasks are filed from it.",
+  "milestone": "after-cutover",
+  "status": "blocked",
+  "depends": [],
+  "notes": "Matt's decision. Do not build without his word. Not before cutover. Matt 13:47Z: not opposed to no toolbar.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z and 13:47Z (Quip reference screenshots)",
+  "words": "Okay I'm actually not opposed to the no toolbar choice. And I can intuitively work with that and spinoff that idea with this UI/UX proposal: I've attached 2 reference screenshots from Quip which shows this little tooltip that displays besides the note on the active line with an indicator of the paragraph style. I think that would work perfectly for this approach",
+  "reportedAt": "2026-11-05T14:39:02.638Z",
+  "waitingOn": "Matt",
+  "waitingWhere": "decision"
  }
 ]
