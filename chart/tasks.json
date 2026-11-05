@@ -16537,11 +16537,13 @@
   "title": "Today's and Library's exam Detail say different things for the same exam, and Library lights the wrong tab",
   "dod": "One exam Detail for Today and Library: the same date line (date and days left), readiness words and plan words, and the same plan actions; opening an exam from Today's Review the study plan lights Library's Exams tab; Library keeps its tab on reload; screen test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 14, 15. Today: Date Thursday, Nov 12; Readiness 0 ready, 0 shaky, 0 weak; Plan waiting for you. Library: Nov 12, in 8 days; none yet; draft waiting for you. Review from Today opens /library?open=e2e-plan-exam with the plan shown but the Practice tab lit. A reload of /library goes back to Practice.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:27:34.728Z"
  },
  {
   "id": "B-925",
@@ -16549,11 +16551,13 @@
   "title": "Study plan Detail look: the day names are not in a column so the session titles are ragged, the Detail changes width with its content, and a collection says 1 items",
   "dod": "Proposed sessions put the day in a fixed-width column, as in design/mockup.html (PLAN_PROPOSAL: 32 px), so titles line up; the Detail panel keeps one width; the collection count says 1 item; checked against the mock-up at 1280 in both themes.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 06, 05, 12, 04. Detail was about 250 px wide for e2e plan exam and about 380 px for Synthetic unit exam. Collection e2e 1793776216740 B: 'Collection · 1 items'. Mock-up also puts Approve, Ask for changes and Put away on one line with Ask for changes secondary.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:27:34.939Z"
  },
  {
   "id": "B-926",
@@ -16561,13 +16565,15 @@
   "title": "Move the answers tally (accuracyLine, dueCounts, attemptsByItem) from areas/library/tally.ts into domain/answers so Progress can share it",
   "dod": "domain/answers exports the three functions via domain/index.ts with the moved tests; Library imports them from domain; no behaviour change",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-923"
   ],
   "notes": "Split from B-923 by builder refusal (areas cannot import areas/library).",
   "commit": null,
-  "source": "run63 build manager"
+  "source": "run63 build manager",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:31:09.255Z"
  },
  {
   "id": "B-927",
@@ -16575,10 +16581,12 @@
   "title": "Progress shows the same accuracy line as Library and ended-session minutes",
   "dod": "areas/progress fetches answers and sessions through commands/client and shows domain/answers accuracy plus ended-session minutes; test; seen on staging; B-923 closes",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "B-923b. Depends on the domain/answers task.",
   "commit": null,
-  "source": "run63 build manager"
+  "source": "run63 build manager",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:31:09.109Z"
  }
 ]
