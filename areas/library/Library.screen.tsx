@@ -87,54 +87,6 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
   const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
   return (
     <>
-      {exam ? (
-        <ExamPlanDetail
-          exam={{
-            id: exam.id,
-            title: exam.title,
-            when: exam.meta,
-            course: "",
-            readiness: exam.readiness || "none yet",
-            plan: PLAN_TEXT[exam.planState ?? "none"],
-            planState: exam.planState,
-            planId: exam.planId,
-            proposals: [],
-            sessions: exam.sessions,
-          }}
-          startOpen={openedByLink}
-          onPlanWithEv={() =>
-            plan(
-              "date.plan_with_ev",
-              { id: exam.id },
-              "E.V. is drafting a plan",
-            )
-          }
-          onApprove={(id) =>
-            exam.waiting
-              ? answer(id, "approve")
-              : plan("studyplan.approve", { id }, "Plan approved")
-          }
-          onAskChanges={(id, note) =>
-            plan("studyplan.ask_changes", { id, note }, "Changes sent")
-          }
-          onPutAway={(id) =>
-            exam.waiting
-              ? answer(id, "put_away")
-              : plan("studyplan.put_away", { id }, "Plan put away")
-          }
-          onClose={() => setOpen(undefined)}
-        />
-      ) : null}
-      {spot ? (
-        <Detail
-          title={spot.title}
-          onClose={() => setOpen(undefined)}
-          properties={[
-            { label: "Course", value: spot.meta },
-            { label: "Next", value: spot.due },
-          ]}
-        />
-      ) : null}
       {error || planNote ? <Toast message={planNote ?? error ?? ""} /> : null}
       <LibraryView
         practice={null}
@@ -146,6 +98,58 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         onOpenExam={setOpen}
         onDrill={setOpen}
       />
+      {exam ? (
+        <div className="ev-library-detail">
+          <ExamPlanDetail
+            exam={{
+              id: exam.id,
+              title: exam.title,
+              when: exam.when,
+              course: exam.course,
+              readiness: exam.readiness || "none yet",
+              plan: PLAN_TEXT[exam.planState ?? "none"],
+              planState: exam.planState,
+              planId: exam.planId,
+              proposals: [],
+              sessions: exam.sessions,
+            }}
+            startOpen={openedByLink}
+            onPlanWithEv={() =>
+              plan(
+                "date.plan_with_ev",
+                { id: exam.id },
+                "E.V. is drafting a plan",
+              )
+            }
+            onApprove={(id) =>
+              exam.waiting
+                ? answer(id, "approve")
+                : plan("studyplan.approve", { id }, "Plan approved")
+            }
+            onAskChanges={(id, note) =>
+              plan("studyplan.ask_changes", { id, note }, "Changes sent")
+            }
+            onPutAway={(id) =>
+              exam.waiting
+                ? answer(id, "put_away")
+                : plan("studyplan.put_away", { id }, "Plan put away")
+            }
+            onClose={() => setOpen(undefined)}
+          />
+        </div>
+      ) : null}
+      {spot ? (
+        <div className="ev-library-detail">
+          <Detail
+            title={spot.title}
+            onClose={() => setOpen(undefined)}
+            properties={[
+              { label: "Course", value: spot.meta },
+              { label: "Next", value: spot.due },
+            ]}
+          />
+        </div>
+      ) : null}
     </>
   );
 }

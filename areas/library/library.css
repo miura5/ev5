@@ -182,3 +182,12 @@
   gap: var(--sp-3);
   padding: var(--sp-1) 0;
 }
+
+.ev-library-detail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background: var(--bg);
+}
