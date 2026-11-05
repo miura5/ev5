@@ -30,8 +30,6 @@ import type {
   StepRunner,
 } from "../jobs/index.ts";
 
-import { framed } from "./frame-prompt.ts";
-
 export type JobRunEnv = {
   db: D1Like;
   call: ModelCall;
@@ -41,7 +39,7 @@ export type JobRunEnv = {
     study_plan: string;
     study_plan_changes: string;
   };
-  /** Where the study plan reads its exam and approves its tasks (ev4 docs; server/plan-home.ts). */
+  /** Where the study plan reads its exam and approves its tasks (server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
     apply: (jobId: string, plan: Plan) => Promise<string>;
@@ -145,7 +143,6 @@ export function jobKinds(
         store: d1PracticeStore(env.db, clock),
         call: env.call,
         system: env.prompts.practice_set,
-        frame: framed(env.db),
       }),
     },
     [studyPlanJob.kind]: {
@@ -155,7 +152,6 @@ export function jobKinds(
         call: env.call,
         system: env.prompts.study_plan,
         changesSystem: env.prompts.study_plan_changes,
-        frame: framed(env.db),
         askChanges,
       }),
     },

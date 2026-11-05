@@ -168,8 +168,6 @@ export type Deps = {
   call: ModelCall;
   system: string;
   changesSystem?: string;
-  /** Frames a prompt for the exam's course (server/frame-prompt.ts). */
-  frame?: (text: string, course?: string | null) => Promise<string>;
   /** studyplan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
   askChanges?: (
     d: { call: ModelCall; system: string },
@@ -177,7 +175,7 @@ export type Deps = {
   ) => Promise<{ ok: true; plan: Plan; costCents: number } | { ok: false; reason: string; costCents: number }>;
 };
 
-export function studyPlanHandlers({ store, call, system, changesSystem, frame, askChanges }: Deps): StepHandlers {
+export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
   const revise: StepHandlers[string] = async (c) => {
     const a = parseAnswer(c.input);
     if (a.decision !== 'change') return { ids: [] };
@@ -192,7 +190,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, frame, a
     await c.reserve(COST_CAP_CENTS);
     const r = await billedOnThrow(c.spend, async () =>
       askChanges(
-        { call, system: frame ? await frame(changesSystem, ctx.exam.course) : changesSystem },
+        { call, system: changesSystem },
         { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
       ),
     );
@@ -222,7 +220,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, frame, a
         runStructured({
           call,
           model: MODEL,
-          system: frame ? await frame(system, ctx.exam.course) : system,
+          system,
           prompt: JSON.stringify(ctx),
           maxTokens: MAX_TOKENS,
           schema: outputSchema(PlanSchema),

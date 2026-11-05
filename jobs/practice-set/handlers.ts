@@ -21,14 +21,12 @@ export type PracticeDeps = {
   store: PracticeStore;
   call: ModelCall;
   system: string;
-  frame?: (text: string, course?: string | null) => Promise<string>;
 };
 
 export function practiceSetHandlers({
   store,
   call,
   system,
-  frame,
 }: PracticeDeps): StepHandlers {
   return {
     plan: async (c) => ({ ids: [parseInput(c.input).targetId] }),
@@ -37,7 +35,7 @@ export function practiceSetHandlers({
       if (earlier) throw new Error(earlier);
       await c.reserve(practiceSet.costCapCents);
       const r = await billedOnThrow(c.spend, () =>
-        writePracticeSet(c.jobId, c.input, { call, system, frame }),
+        writePracticeSet(c.jobId, c.input, { call, system }),
       );
       await c.spend(r.costCents);
       if (!r.ok) {

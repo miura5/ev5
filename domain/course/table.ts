@@ -39,7 +39,7 @@ function ruleProblems(n: string, c: Record<string, unknown>): string[] {
   return out;
 }
 
-/** Reads a spec.courses object (keys starting with "_" are notes) into a table; throws naming every problem. */
+/** Reads a course table object (keys starting with "_" are notes) into a table; throws naming every problem. */
 export function parseCourseTable(raw: unknown): CourseTable {
   if (!isObj(raw)) throw new Error('courses: missing');
   const names = Object.keys(raw).filter((k) => !k.startsWith('_'));
@@ -53,43 +53,4 @@ export function parseCourseTable(raw: unknown): CourseTable {
     problems.push('courses: needs exactly one default course');
   if (problems.length) throw new Error(problems.join('; '));
   return names.map((name) => ({ name, ...(raw[name] as object) }) as CourseRule);
-}
-
-/** The course a document without one belongs to: the default, else the first; null for an empty table. */
-export function defaultCourse(table: CourseTable): string | null {
-  return (table.find((c) => c.default) ?? table[0])?.name ?? null;
-}
-
-/** Courses still being studied; a done course leaves search and the morning's passages unless he names it. */
-export function activeCourses(table: CourseTable): string[] {
-  return table.filter((c) => c.status !== 'done').map((c) => c.name);
-}
-
-/** A course name as the record writes it, to its table name (by its aliases); anything else as it came. */
-export function normCourse(table: CourseTable, c: string | null | undefined): string | null {
-  const t = String(c ?? '').trim();
-  const hit = table.find((r) => r.name === t || (r.aliases && new RegExp(r.aliases, 'i').test(t)));
-  return hit ? hit.name : c || null;
-}
-
-/** A document's course, normalised, else the default course. */
-export function courseOf(table: CourseTable, x: { course?: string | null } | null | undefined): string | null {
-  return normCourse(table, x?.course) ?? defaultCourse(table);
-}
-
-/** The course whose guess words the text holds, or null when none does. */
-export function nameCourse(table: CourseTable, s: string): string | null {
-  return table.find((r) => r.guess && new RegExp(r.guess, 'i').test(String(s ?? '')))?.name ?? null;
-}
-
-/** The course an attached file belongs to: the first whose guess words it holds, else the default course. */
-export function guessCourse(table: CourseTable, s: string): string | null {
-  return nameCourse(table, s) ?? defaultCourse(table);
-}
-
-type KindList = 'reviewKinds' | 'examDayKinds' | 'scoredKinds';
-/** Whether an exam's kind is one of its course's <which> kinds. */
-export function examIs(table: CourseTable, e: { course?: string | null; kind?: string }, which: KindList): boolean {
-  const rule = table.find((c) => c.name === courseOf(table, e));
-  return !!e.kind && !!rule?.[which].includes(e.kind);
 }

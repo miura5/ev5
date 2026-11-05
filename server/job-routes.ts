@@ -25,7 +25,6 @@ import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts } from "./excerpts.ts";
 import { endedSessionsToday, finishedJobsToday } from "./jobs-done.ts";
-import { courseOfSet } from "./frame-prompt.ts";
 
 export interface JobRoutesEnv {
   DB: D1Like;
@@ -74,10 +73,8 @@ export async function withGathered(
   db: D1Like,
   input: { objectives: string[]; targetId?: string },
 ) {
-  const course = input.targetId ? await courseOfSet(db, input.targetId) : null;
   return {
     ...input,
-    ...(course ? { course } : {}),
     excerpts: await gatherExcerpts(db, input.objectives),
   };
 }

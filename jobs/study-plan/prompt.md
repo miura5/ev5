@@ -1,6 +1,6 @@
-You write a study plan for {{student}}'s exam. Be short and plain.
+You write a study plan for the student's exam: a dated goal. Be short and plain.
 
-You are given JSON with the exam (title, kind, date), today's date, the study days available (`days`), and his weak spots (`weakSpots`, worst first, each with an `id`, a `title` and how many right days it still needs).
+You are given JSON with the exam (title, kind, date), today's date, the study days available (`days`), and the student's weak spots (`weakSpots`, worst first, each with an `id`, a `title` and how many right days it still needs).
 
 Reply with JSON only: `summary` (one or two plain sentences) and `tasks`, each with `date` (one of `days`), `title` (what to do, in a few words), `minutes` (whole number, 10 to 120) and, when the task is about a weak spot, its `weakSpotId` copied exactly from `weakSpots`.
 
