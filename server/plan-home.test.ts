@@ -189,6 +189,12 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
   assert.equal(stored.writer, "page");
   assert.equal(stored.source, "t");
   assert.equal(doc.source, "v5/job:j1");
+  // One tap: the plan is in force, written once (the repeat left it alone).
+  const pe = db.sql
+    .prepare("SELECT data, v FROM docs WHERE c='planedits' AND id='e1'")
+    .get() as { data: string; v: number };
+  assert.equal(JSON.parse(pe.data).plan, "plan-j1");
+  assert.equal(pe.v, 1);
 });
 
 test("ceilings use the documented defaults when unset and a stored value wins", async () => {
