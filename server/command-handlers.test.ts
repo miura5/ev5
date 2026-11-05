@@ -13,6 +13,7 @@ async function setup() {
     "0000_baseline",
     "0001_deletions",
     "0003_collections_pins_own",
+    "0004_ceiling_usage",
   ]) {
     const text = readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
