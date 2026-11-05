@@ -1,4 +1,4 @@
-import { Button, Glyph, Row, Source } from "../../../kit/index.ts";
+import { Button, EvLine, Glyph, Row, Source } from "../../../kit/index.ts";
 import type { AskMessage } from "../types.ts";
 
 export interface MessageProps {
@@ -27,9 +27,10 @@ export function Message({ message, latest, onJustTell, onOpenSource, onOpenJob }
   const { id, text, source, asksTry, job } = message;
   return (
     <div className="ask-msg" data-ui="ask-message" data-from="ev">
-      <span className={latest ? "ask-mark" : "ask-mark ask-mark-quiet"} aria-hidden="true" />
+      <div className="ask-ev">
+        <EvLine quiet={!latest}>{text}</EvLine>
+      </div>
       <div className="ask-say">
-        <div>{text}</div>
         {asksTry ? (
           <div className="ask-try">
             <Button kind="text" hint="⌥↵" onClick={() => onJustTell?.(id)}>
