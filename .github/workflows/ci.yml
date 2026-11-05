@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+  # The visual-baselines workflow starts CI this way after it commits (a GITHUB_TOKEN push starts no CI).
+  workflow_dispatch:
   push:
     branches: [main]
 
@@ -72,7 +74,7 @@ jobs:
 
   checks:
     name: checks
-    needs: [node-tests, unit, static]
+    needs: [node-tests, unit, static, visual]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -89,8 +91,24 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # A pull request that only touches records, docs, ops tooling or workflows cannot move the gallery: the
+      # job still reports success (checks waits for it) but skips the Docker run. Anything else runs it.
+      - name: Can this change move the gallery?
+        id: scope
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          run=true
+          if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then
+            if ! git diff --name-only "$BASE" HEAD | grep -qvE '^(chart/|docs/|ops/|\.github/|design/|[^/]+\.md$)'; then run=false; fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "visual run: $run"
       - name: Baselines present?
         id: baselines
+        if: steps.scope.outputs.run == 'true'
         run: |
           if ls e2e/baselines/*.png >/dev/null 2>&1; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::warning::No /kit baselines committed yet; run the visual-baselines workflow on this branch."; fi
       - if: steps.baselines.outputs.present == 'true'
