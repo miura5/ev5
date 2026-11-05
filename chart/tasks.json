@@ -16759,13 +16759,15 @@
   "title": "Deleting is risky and hard to find: a collection's Delete has no Undo and lands you on the next collection with Delete under the pointer, and a note can only be deleted from a collection page",
   "dod": "Delete on a collection, a note or a row shows a toast with Undo, as in design/mockup.html (toast with undo); after deleting a collection the page goes to Notes, not to another collection; the row menu (right-click, the dots or the . key) on Notes and on a note page has Open, Pin, Move and Delete; test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 20, 26. Delete on e2e 1793776216740 A deleted it at once (no toast, no Undo) and the page showed e2e 1793776216740 B with its Delete button under the pointer: a second click deletes B. Notes rows and the note page have no menu, right-click or Delete key; the collection row menu has Open, Pin, Delete and no Move. Restore from Recently deleted works for both (B-928 holds).",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
-  "reportedAt": "2026-11-05T12:52:59.458Z"
+  "reportedAt": "2026-11-05T12:52:59.458Z",
+  "claimedBy": "cse_01JjJLDZKqWwaceFbkhcisHJ",
+  "claimedAt": "2026-11-05T13:36:02.494Z"
  },
  {
   "id": "B-941",
@@ -16773,13 +16775,15 @@
   "title": "Dates and small labels: plan sessions show only a weekday, Recently deleted says 30 or 29 days left for the same day, a deleted collection shows a note icon",
   "dod": "Plan session rows show the weekday and the date (an 8-day plan no longer shows Wed twice); Recently deleted gives every item deleted on the same day the same days left, through domain/time; a collection shows the folder icon there; Today's exam Detail lists the plan's sessions and Plan with E.V. like Library's; Progress says 3m, not 3 m; test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 01, 12, 21. Approved plan 748febb1 listed Wed Skim notes (Nov 4) and Wed Light review (Nov 11). Recently deleted: three items deleted Nov 4 show 30 days left, two show 29. Today's exam Detail shows only Date, Course, Readiness, Plan and Review the study plan (B-924 partly holds).",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
-  "reportedAt": "2026-11-05T12:52:59.601Z"
+  "reportedAt": "2026-11-05T12:52:59.601Z",
+  "claimedBy": "cse_01JjJLDZKqWwaceFbkhcisHJ",
+  "claimedAt": "2026-11-05T13:36:02.669Z"
  },
  {
   "id": "B-942",
@@ -16787,12 +16791,14 @@
   "title": "Today and Progress don't follow the mock-up: Today lacks This week, readiness bars and Courses; Progress is two plain lines",
   "dod": "Today matches design/mockup.html (#today) and design/screens/today.png: section Upcoming with course dot, readiness bar and plan state, a This week section, Courses in the sidebar, Start next as the primary button. Progress matches #progress and design/screens/progress.png: Retrieval accuracy and Study minutes sections, each with its big number, its line and its weekly bars; both themes; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 27, 28 against design/screens/today-light.png and progress.png. Design system pass of playtest 6. Readiness reads none yet on staging, so the bars may need data; the layout should still show the empty state.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
-  "reportedAt": "2026-11-05T12:52:59.731Z"
+  "reportedAt": "2026-11-05T12:52:59.731Z",
+  "claimedBy": "cse_01JjJLDZKqWwaceFbkhcisHJ",
+  "claimedAt": "2026-11-05T13:36:02.884Z"
  }
 ]
