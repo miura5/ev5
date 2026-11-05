@@ -107,7 +107,7 @@
 .ev-today-bar {
   position: absolute;
   top: 50%;
-  right: calc(var(--sp-12) + var(--sp-6));
+  right: calc(var(--sp-12) * 2 + var(--sp-6));
   display: flex;
   gap: var(--sp-1);
   width: calc(var(--sp-12) * 2);
@@ -188,6 +188,7 @@
 }
 
 .ev-today-day {
-  width: calc(var(--sp-8) * 2);
+  width: calc(var(--sp-12) * 2);
   flex: none;
+  white-space: nowrap;
 }
