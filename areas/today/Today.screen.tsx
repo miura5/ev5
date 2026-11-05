@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { longDay } from "../../domain/index.ts";
-import { Toast } from "../../kit/index.ts";
-import { ExamDetail } from "./ExamDetail.tsx";
+import { Empty, Page, Toast, type DetailProps } from "../../kit/index.ts";
+import { examDetail } from "./ExamDetail.tsx";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
 
@@ -21,9 +21,11 @@ const EMPTY = {
 export function TodayScreen({
   services,
   onNavigate,
+  onDetail,
 }: {
   services?: { readCopy?: ReadCopyLike };
   onNavigate?: (path: string) => void;
+  onDetail?: (detail: DetailProps | null) => void;
 }) {
   const {
     data,
@@ -38,34 +40,43 @@ export function TodayScreen({
   } = useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
   const [openId, setOpenId] = useState<string>();
+  // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
+  const [openKey, setOpenKey] = useState(0);
   const [started, setStarted] = useState<string>();
-  // Esc closes the Detail panel.
+  const opened = data?.upcoming.find((d) => d.id === openId);
+  // The exam's Detail lives in the shell's host; the shell closes it on Esc and when Matt leaves the screen.
+  const last = useRef({ onNavigate, planWithEv });
+  last.current = { onNavigate, planWithEv };
   useEffect(() => {
-    if (!openId) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenId(undefined);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [openId]);
+    if (!onDetail) return;
+    if (!opened) return onDetail(null);
+    const go = last.current.onNavigate;
+    onDetail(
+      examDetail(opened, {
+        onReviewPlan: go
+          ? () => go(`/library?open=${encodeURIComponent(opened.id)}`)
+          : undefined,
+        onPlanWithEv: () =>
+          void last.current
+            .planWithEv(opened.id)
+            .then((ok) =>
+              ok ? setStarted("E.V. is drafting a plan") : setNotSaved(true),
+            ),
+        onClose: () => setOpenId(undefined),
+      }),
+    );
+  }, [opened, openKey, onDetail]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty day.
   if (!token || refused) return null;
   // First data still on its way: the heading and a loading line, never an empty pane.
   if (!data && !error)
     return (
-      <div className="ev-today" data-area="today">
-        <header className="ev-today-top">
-          <div className="ev-today-head">
-            <h1 className="ev-today-title">Today</h1>
-            <span className="ev-today-meta">{dateLabel()}</span>
-          </div>
-          <span className="ev-today-meta">Loading…</span>
-        </header>
-      </div>
+      <Page title="Today" meta={dateLabel()}>
+        <Empty line="Loading…" />
+      </Page>
     );
   const view = data ?? EMPTY;
   const upcoming = view.upcoming;
-  const opened = upcoming.find((d) => d.id === openId);
   return (
     <>
       {error ? <Toast message={error} /> : null}
@@ -83,11 +94,11 @@ export function TodayScreen({
             first ? `Started · ${first.title}` : "Nothing left on today's plan",
           );
         }}
-        onOpen={(id) =>
-          setOpenId((cur) =>
-            upcoming.some((d) => d.id === id) && cur !== id ? id : undefined,
-          )
-        }
+        onOpen={(id) => {
+          if (!upcoming.some((d) => d.id === id)) return setOpenId(undefined);
+          setOpenId(id);
+          setOpenKey((k) => k + 1);
+        }}
         onTick={(id, done) =>
           void tick(id, done).then((ok) => setNotSaved(!ok))
         }
@@ -107,23 +118,6 @@ export function TodayScreen({
         onEdit={none}
         onDismiss={none}
       />
-      {opened ? (
-        <ExamDetail
-          exam={opened}
-          onReviewPlan={
-            onNavigate
-              ? () =>
-                  onNavigate(`/library?open=${encodeURIComponent(opened.id)}`)
-              : undefined
-          }
-          onPlanWithEv={() =>
-            void planWithEv(opened.id).then((ok) =>
-              ok ? setStarted("E.V. is drafting a plan") : setNotSaved(true),
-            )
-          }
-          onClose={() => setOpenId(undefined)}
-        />
-      ) : null}
     </>
   );
 }

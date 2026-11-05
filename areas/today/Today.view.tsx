@@ -1,35 +1,23 @@
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
-import { Button, EvLine, Glyph, Row, Suggestion } from "../../kit/index.ts";
+import {
+  Button,
+  Empty,
+  EvLine,
+  Glyph,
+  Meter,
+  Page,
+  Row,
+  Section,
+  Suggestion,
+} from "../../kit/index.ts";
 import { AddLine } from "./parts/AddLine.tsx";
-import { ReadyBar } from "./parts/ReadyBar.tsx";
-import type { TodayProps } from "./types.ts";
+import type { Readiness, TodayProps } from "./types.ts";
 import "./today.css";
 
-function Section({
-  title,
-  count,
-  action,
-  children,
-}: {
-  title: string;
-  count?: number;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section className="ev-today-sec" aria-label={title}>
-      <div className="ev-today-sec-head">
-        <h2 className="ev-today-label">{title}</h2>
-        {count === undefined ? null : (
-          <span className="ev-today-meta">{count}</span>
-        )}
-        <span className="ev-today-grow" />
-        {action}
-      </div>
-      {children}
-    </section>
-  );
+function readyLabel({ ready, shaky, weak }: Readiness) {
+  return ready + shaky + weak === 0
+    ? "Readiness: none yet"
+    : `Readiness: ${ready}% ready, ${shaky}% shaky, ${weak}% weak`;
 }
 
 /** Today: the plan list, E.V.'s suggestion, the dates coming up and the week. */
@@ -50,41 +38,35 @@ export function TodayView(p: TodayProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   return (
-    <div className="ev-today" data-area="today">
-      <header className="ev-today-top">
-        <div className="ev-today-head">
-          <h1 className="ev-today-title">Today</h1>
-          <span className="ev-today-meta">{p.dateLabel}</span>
-          <span className="ev-today-grow" />
-          <Button
-            kind="primary"
-            hint="S"
-            onClick={p.onStartNext}
-            disabled={open === 0}
-          >
-            Start next
-          </Button>
-        </div>
-        <EvLine quiet>
-          <b>{p.say.lead}</b> {p.say.rest}
-          {p.say.source ? (
-            <span className="ev-today-cite"> {p.say.source}</span>
-          ) : null}
-        </EvLine>
-      </header>
+    <Page
+      title="Today"
+      meta={p.dateLabel}
+      actions={
+        <Button
+          kind="primary"
+          hint="S"
+          onClick={p.onStartNext}
+          disabled={open === 0}
+        >
+          Start next
+        </Button>
+      }
+    >
+      <EvLine quiet>
+        <b>{p.say.lead}</b> {p.say.rest}
+        {p.say.source ? (
+          <span className="ev-today-cite"> {p.say.source}</span>
+        ) : null}
+      </EvLine>
       {p.alert ? (
         <EvLine>
           <b>Spend:</b> {p.alert}
         </EvLine>
       ) : null}
       <Section
-        title="Plan"
-        count={open}
-        action={
-          <Button kind="text" hint="C" onClick={() => setAdding("plan")}>
-            Add
-          </Button>
-        }
+        label="Plan"
+        count={String(open)}
+        onAdd={() => setAdding("plan")}
       >
         {adding === "plan" ? (
           <AddLine
@@ -94,26 +76,32 @@ export function TodayView(p: TodayProps) {
           />
         ) : null}
         {p.plan.length === 0 ? (
-          <span className="ev-today-meta">Nothing planned for today.</span>
+          <Empty line="Nothing planned for today." />
         ) : null}
         {p.plan.map((i) => (
-          <div className="ev-today-line" key={i.id} data-tone={i.tone}>
-            <Button
-              kind="icon"
-              aria-label={`${i.done ? "Mark not done" : "Mark done"}: ${i.title}`}
-              aria-pressed={i.done}
-              onClick={() => p.onTick(i.id, !i.done)}
-            >
-              <Glyph type="plan" done={i.done} />
-            </Button>
-            <Row
-              title={i.title}
-              meta={i.meta}
-              value={i.est}
-              selected={p.selectedId === i.id}
-              onOpen={() => p.onOpen(i.id)}
-            />
-          </div>
+          <Row
+            key={i.id}
+            title={i.title}
+            meta={i.meta}
+            value={i.est}
+            done={i.done}
+            status={{ tone: i.tone }}
+            selected={p.selectedId === i.id}
+            onOpen={() => p.onOpen(i.id)}
+            glyph={
+              <Button
+                kind="icon"
+                aria-label={`${i.done ? "Mark not done" : "Mark done"}: ${i.title}`}
+                aria-pressed={i.done}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  p.onTick(i.id, !i.done);
+                }}
+              >
+                <Glyph type="plan" done={i.done} />
+              </Button>
+            }
+          />
         ))}
         {p.proposal ? (
           <Suggestion
@@ -125,12 +113,9 @@ export function TodayView(p: TodayProps) {
         ) : null}
       </Section>
       <Section
-        title="Upcoming"
-        action={
-          <Button kind="text" onClick={() => setAdding("date")}>
-            Add date
-          </Button>
-        }
+        label="Upcoming"
+        addLabel="Add date"
+        onAdd={() => setAdding("date")}
       >
         {adding === "date" ? (
           <AddLine
@@ -140,30 +125,34 @@ export function TodayView(p: TodayProps) {
             onCancel={() => setAdding(null)}
           />
         ) : null}
-        {p.upcoming.length === 0 ? (
-          <span className="ev-today-meta">No dates coming up.</span>
-        ) : null}
+        {p.upcoming.length === 0 ? <Empty line="No dates coming up." /> : null}
         {p.upcoming.map((d) => (
-          <div
-            className="ev-today-line ev-today-date"
-            key={d.id}
-            data-tone={d.tone}
-          >
+          <div className="ev-today-date" key={d.id}>
             <Row
               title={d.title}
               meta={d.meta}
               value={d.when}
+              status={{ tone: d.tone }}
               glyph={<Glyph type="date" />}
               selected={p.selectedId === d.id}
               onOpen={() => p.onOpen(d.id)}
             />
-            <ReadyBar {...d.readiness} />
+            <span className="ev-today-bar">
+              <Meter
+                label={readyLabel(d.readiness)}
+                parts={[
+                  { tone: "ok", count: d.readiness.ready },
+                  { tone: "warn", count: d.readiness.shaky },
+                  { tone: "bad", count: d.readiness.weak },
+                ]}
+              />
+            </span>
           </div>
         ))}
       </Section>
-      <Section title="This week">
+      <Section label="This week">
         {p.thisWeek.length === 0 ? (
-          <span className="ev-today-meta">Nothing else this week.</span>
+          <Empty line="Nothing else this week." />
         ) : null}
         {p.thisWeek.map((w) => (
           <Row
@@ -176,6 +165,6 @@ export function TodayView(p: TodayProps) {
           />
         ))}
       </Section>
-    </div>
+    </Page>
   );
 }

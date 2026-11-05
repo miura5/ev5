@@ -1,81 +1,77 @@
 import { plainDay, weekdayShort } from "../../domain/index.ts";
-import { Button, Detail } from "../../kit/index.ts";
+import { Button, Row, Section, type DetailProps } from "../../kit/index.ts";
 import type { UpcomingDate } from "./types.ts";
 
-export interface ExamDetailProps {
-  exam: UpcomingDate;
+export interface ExamDetailHandlers {
   onReviewPlan?: () => void;
   /** "Plan with E.V.": asks E.V. to draft a study plan for this exam. */
   onPlanWithEv?: () => void;
   onClose: () => void;
 }
 
-/** Detail for a Coming up exam: its date, course and readiness, and its study plan line, and the way to review it. */
-export function ExamDetail({
-  exam,
-  onReviewPlan,
-  onPlanWithEv,
-  onClose,
-}: ExamDetailProps) {
+/** The shell Detail for a Coming up exam: its date, course and readiness, its study plan line, and the way to review it. */
+export function examDetail(
+  exam: UpcomingDate,
+  { onReviewPlan, onPlanWithEv, onClose }: ExamDetailHandlers,
+): DetailProps {
   const { ready, shaky, weak } = exam.readiness;
   const total = ready + shaky + weak;
-  return (
-    <div className="ev-today-detail">
-      <Detail
-        title={exam.title}
-        onClose={onClose}
-        // The same words as Library's exam Detail (areas cannot share code, so the wording is restated).
-        properties={[
-          { label: "Date", value: exam.dateLine ?? exam.whenFull ?? exam.when },
-          { label: "Course", value: exam.course ?? "" },
-          {
-            label: "Readiness",
-            value: total ? `${Math.round((ready / total) * 100)}%` : "none yet",
-          },
-          {
-            label: "Plan",
-            value:
-              exam.plan === "waiting"
-                ? "draft waiting for you"
-                : exam.plan === "working"
-                  ? "E.V. is saving the plan"
-                  : exam.plan === "approved"
-                    ? "in force"
-                    : "no plan yet",
-          },
-        ]}
-      >
+  return {
+    title: exam.title,
+    onClose,
+    // The same words as Library's exam Detail (areas cannot share code, so the wording is restated).
+    properties: [
+      { label: "Date", value: exam.dateLine ?? exam.whenFull ?? exam.when },
+      { label: "Course", value: exam.course ?? "" },
+      {
+        label: "Readiness",
+        value: total ? `${Math.round((ready / total) * 100)}%` : "none yet",
+      },
+      {
+        label: "Plan",
+        value:
+          exam.plan === "waiting"
+            ? "draft waiting for you"
+            : exam.plan === "working"
+              ? "E.V. is saving the plan"
+              : exam.plan === "approved"
+                ? "in force"
+                : "no plan yet",
+      },
+    ],
+    children: (
+      <>
         {onReviewPlan ? (
           <Button onClick={onReviewPlan}>Review the study plan</Button>
         ) : null}
         {exam.plan === "waiting" || exam.plan === "approved" ? (
-          <div className="ev-today-sessions" data-part="sessions">
-            <h3 className="ev-today-label">
-              {exam.plan === "approved"
+          <Section
+            label={
+              exam.plan === "approved"
                 ? "Sessions in your plan"
-                : "Proposed sessions"}
-            </h3>
+                : "Proposed sessions"
+            }
+          >
             {exam.sessions?.length ? (
               exam.sessions.map((s, i) => (
-                <div key={`${s.date}-${i}`} className="ev-today-session">
-                  <span className="ev-today-day">
-                    {weekdayShort(s.date)} {plainDay(s.date, s.date)}
-                  </span>
-                  <span>{s.title}</span>
-                  <span>{s.minutes}m</span>
-                </div>
+                <Row
+                  key={`${s.date}-${i}`}
+                  title={s.title}
+                  meta={`${weekdayShort(s.date)} ${plainDay(s.date, s.date)}`}
+                  value={`${s.minutes}m`}
+                />
               ))
             ) : (
               <span>The sessions are not shown here yet.</span>
             )}
-          </div>
+          </Section>
         ) : null}
         {!exam.plan && onPlanWithEv ? (
           <Button kind="text" onClick={onPlanWithEv}>
             Plan with E.V.
           </Button>
         ) : null}
-      </Detail>
-    </div>
-  );
+      </>
+    ),
+  };
 }
