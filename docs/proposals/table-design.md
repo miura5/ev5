@@ -1,8 +1,8 @@
-# Proposal: one table per stored kind (B-1035)
+# Proposal: one table per stored kind
 
-Status: proposed, 2026-11-05. The build manager reviews this file and records a Chart decision before B-1022, B-998 and the kind tasks start. This file is reference text, never a rule (CONTRACT §drift.one-file). It builds on `fresh-database.md` (v5's own D1, starts empty) and fills in what that file left as a list: columns, ids, pointers, indexes, the migration, the export, and the order of work.
+Status: proposed, 2026-11-05. The build manager reviews this file and records a Chart decision before the row-shapes task, the migration task and the kind tasks start. This file is reference text, never a rule (CONTRACT §drift.one-file). It builds on `fresh-database.md` (v5's own D1, starts empty) and fills in what that file left as a list: columns, ids, pointers, indexes, the migration, the export, and the order of work.
 
-Ported ev4 document shapes are reference only (D-494). Where a row below differs from today's `domain/` document schema, the row wins and the document schema goes when its kind moves.
+Ported ev4 document shapes are reference only (the earlier decision on ported shapes). Where a row below differs from today's `domain/` document schema, the row wins and the document schema goes when its kind moves.
 
 ## 1. Conventions for every table (§data.tables, §data.protocol)
 
@@ -58,7 +58,7 @@ No exam id, and the id never encodes an exam (today's `split('-')` goes). Which 
 ### 2.6 weak_spots, del; weak_spot_events (append-only)
 
 `weak_spots`: `id ws_`, `collection_id T?`, `objective_id T?` -> objectives, `topic T`, `kind T` (the existing `WEAK_SPOT_KINDS`), `words T?`, `source_line T` (where it came from), `duplicate_of T?` -> weak*spots, `proposed I` (0/1), `created_by T`, `pre_read I`, `reading_due T?`, and the old `initial` block as columns `init_streak I?`, `init_next_due T?`, `init_recurrence I?`, `init_misses I?` (they feed the fixed-interval scheduler, §data.study-logic). No exam or course pointer: the goal is reached through the objective's links. Indexes `(objective_id)`, `(collection_id)`, `(duplicate_of)`.
-`weak_spot_events`: `id wse*`, `weak_spot_id T`, `type T`(proposed, confirmed, declined, solid, drilled, snooze, ...: today's`EVENT_TYPES`), `by T`, `note T?`, `objective_id T?`, `until T?`(snooze date; required for`snooze`), `at`, `v`. Index `(weak_spot_id, at)`. Two quick taps are two inserts; there is no whole-document write to race. State is `domain/weak-spot` over events plus attempts (B-1044).
+`weak_spot_events`: `id wse*`, `weak_spot_id T`, `type T`(proposed, confirmed, declined, solid, drilled, snooze, ...: today's`EVENT_TYPES`), `by T`, `note T?`, `objective_id T?`, `until T?`(snooze date; required for`snooze`), `at`, `v`. Index `(weak_spot_id, at)`. Two quick taps are two inserts; there is no whole-document write to race. State is `domain/weak-spot` over events plus attempts (the due-read task).
 
 ### 2.7 sets and set_items, del; set_item_versions (append-only)
 
@@ -84,9 +84,9 @@ No exam id, and the id never encodes an exam (today's `split('-')` goes). Which 
 ### 2.11 talk (append-only)
 
 `id talk_`, `chat_id T` (the Ask E.V. conversation, or the session id for check-in lines), `scope T` (`ask` | `session`), `session_id T?`, `context_kind T?`, `context_id T?` (the note or set Matt was on), `role T` (`matt` | `ev`), `text T`, `cites J?`, `job_id T?`. No update, no delete column; the purge removes a chat's rows only with the session it belongs to. Indexes `(chat_id, at)`, `(session_id)`.
-A reload reads the chat by `chat_id`; Ask E.V. sends the stored rows up to a cap by count or tokens, no summarising (B-1043). A new Ask chat is a new `chat_id` (open choice 3).
+A reload reads the chat by `chat_id`; Ask E.V. sends the stored rows up to a cap by count or tokens, no summarising (the talk move). A new Ask chat is a new `chat_id` (open choice 3).
 
-### 2.12 files (note pictures only, B-1045), del
+### 2.12 files (note pictures only, the note-pictures task), del
 
 `id file_`, `kind T` (`note_image`), `type T` (MIME), `size I`, `sha256 T`, `r2_key T`, `owner_kind T`, `owner_id T` (the note). Unique `r2_key`; index `(owner_kind, owner_id)`. Nothing for PDFs, slides or pages yet.
 
@@ -96,26 +96,26 @@ A reload reads the chat by `chat_id`; Ask E.V. sends the stored rows up to a cap
 
 ### 2.14 Kept as they are (an id-prefix and `v` pass only)
 
-`pins` (`pin_`, `target_kind`, `target_id`, `pos`, `v`; del), `drafts` (exists; `target_c` becomes `target_kind`), `job_records` and `job_plans` (the job record and its interim content), `ceiling_use`, `ceiling_holds`, `ceiling_usage`, and a new `model_usage` if B-1022 finds the ceilings still need one. `settings` (`key T PRIMARY KEY`, `value I`, `at`, `v`) replaces `claude_settings` and gains `v`.
+`pins` (`pin_`, `target_kind`, `target_id`, `pos`, `v`; del), `drafts` (exists; `target_c` becomes `target_kind`), `job_records` and `job_plans` (the job record and its interim content), `ceiling_use`, `ceiling_holds`, `ceiling_usage`, and a new `model_usage` if the row-shapes task finds the ceilings still need one. `settings` (`key T PRIMARY KEY`, `value I`, `at`, `v`) replaces `claude_settings` and gains `v`.
 
 ### 2.15 Left out of v5
 
 `docs`, `deletions`, `memberships`, `item_props`, `own_sets`, `own_set_items`, `own_attempts`, `system_docs` (ev4's per-target system documents), and ev4's `claude_usage`, `claude_reads`, `claude_plan_asks`. Nothing reads them after the last kind moves. The override documents `dateedits`, `examedits`, `planedits`, `dayedits` go as described in 2.2, 2.9. `answers` documents go to `attempts`.
 
-## 3. The migration (B-998)
+## 3. The migration (the migration task)
 
 v5's live database does not exist yet and staging holds synthetic rows only, so no row is copied (§data.own-db). The rule "added, never rewritten" (§data.migrations) still holds, so the shape is expand then contract, not an edit of 0000:
 
 1. **0006 expand:** one migration, all `CREATE TABLE IF NOT EXISTS` for the tables above plus `ALTER TABLE ... ADD COLUMN` for `collections`, `pins` and `drafts` (allowed by §data.additive; the ALTER ban in `migrations.test.ts` goes). Every new table has its id `CHECK`, its indexes and its partial unique indexes. Nothing is dropped.
 2. **Migrate:** there is nothing to copy. Staging is reseeded through the gate by `data/staging/seed.ts` once the last kind has moved.
 3. **0007 contract:** drops `docs`, `deletions`, `memberships`, `item_props`, `own_*`, `system_docs`, `claude_usage`, `claude_reads`, `claude_plan_asks`, `claude_settings`. It lands only after the last reader and writer has moved (the cleanup task in section 6) and a Time Travel bookmark is noted before it runs on any live database.
-   The PRAGMA test (B-998) compares `PRAGMA table_info` and `PRAGMA index_list` with each table's row schema keys and declared indexes; a table without a kind-prefixed id, `at`, `v`, or `deleted_at` where deletable fails it (also B-1036 check 3).
+   The PRAGMA test (the migration task) compares `PRAGMA table_info` and `PRAGMA index_list` with each table's row schema keys and declared indexes; a table without a kind-prefixed id, `at`, `v`, or `deleted_at` where deletable fails it (also the docs-kind check task check 3).
 
 ## 4. Export and restore (§data.export)
 
 - **File kind:** `ev5-export`, `schema: 2`. The manifest has one entry per v5 table: `{count, sha256, columns}`, the hash over canonical rows ordered by primary key. The table list in `data/export/tables.ts` is generated from the row schemas; a test fails if a migrated table is missing from it, and a table appears in no other list.
 - **Files:** the export lists each `files` row with its SHA-256 and copies the bytes into the bundle (note pictures are small); the drill recomputes the hashes.
-- **Restore refuses** (with a reason, writing nothing): any file whose `kind` is not `ev5-export` (an ev4 backup is a different shape and has none), `schema` below 2, a manifest that lacks a v5 table or names a table v5 does not have, or rows that do not match their own manifest. B-1036 check 7 pins this.
+- **Restore refuses** (with a reason, writing nothing): any file whose `kind` is not `ev5-export` (an ev4 backup is a different shape and has none), `schema` below 2, a manifest that lacks a v5 table or names a table v5 does not have, or rows that do not match their own manifest. the docs-kind check task check 7 pins this.
 - **Drill:** restore as written into an empty scratch D1 with migrations applied, compare the scratch's manifest with the file's, then migrate; then report orphans (links, `(kind, id)` pointers, `files` without bytes, bytes without a `files` row) and fail on any in an export from staging. Every table above is in both the export and the drill, including append-only tables and `settings`.
 - The nightly backup and the Sunday Markdown mirror keep their current destinations; the mirror reads `notes.text` and the note body, not `docs`.
 
@@ -123,25 +123,25 @@ v5's live database does not exist yet and staging holds synthetic rows only, so 
 
 Today `PUT /docs` and `/docs/batch` accept any kind and check only notes. The end is staged so nothing breaks:
 
-1. **Per kind:** when a kind's table, command and reads land, its collection name is refused by `PUT /docs` with "use the command" (the list of kinds still allowed shrinks; B-1036 check 2 fails a PR that writes a kind off that list).
-2. **Outbox:** note saves post to `note.save` (B-1042) and answers to `study.attempt` (B-1037), which write through the gate. The outbox never calls `/docs`. Its offline queue stays notes and answers only (§data.offline).
+1. **Per kind:** when a kind's table, command and reads land, its collection name is refused by `PUT /docs` with "use the command" (the list of kinds still allowed shrinks; the docs-kind check task check 2 fails a PR that writes a kind off that list).
+2. **Outbox:** note saves post to `note.save` (the notes move) and answers to `study.attempt` (the attempts move), which write through the gate. The outbox never calls `/docs`. Its offline queue stays notes and answers only (§data.offline).
 3. **Reads:** the since-sync (`GET /docs?since`) and collection reads are replaced by per-screen paged reads from the generated client, with deleted rows left out.
-4. **Last step:** the routes, `docsRepo`, `data/docs/*`, `domain/doc-row` and `server/doc-routes.ts` are removed in the cleanup task, which also lands migration 0007. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (B-1036 check 8).
+4. **Last step:** the routes, `docsRepo`, `data/docs/*`, `domain/doc-row` and `server/doc-routes.ts` are removed in the cleanup task, which also lands migration 0007. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (the docs-kind check task check 8).
 
 ## 6. Order of follow-on work
 
 Dependencies run top to bottom; items on one line can run in parallel.
 
 0. **Decision.** The build manager records this design (and the three open choices) before anything starts.
-1. **B-1022** (re-scoped): the `domain/` row schemas for every table in section 2, plus `WireDoc` removal planning. Changes: `domain/<kind>` row shapes replace `docRowSchema`; `data/tables`, `jobs/runtime` and ceilings import them; `commands/` and `jobs/` drop their own plan shapes. No behaviour change yet. Needs this design only.
-2. **B-998**: migration 0006 and the PRAGMA test against B-1022's shapes; `data/export/tables.ts`, the `ev5-export` v2 manifest and the drill cover every table. A generated typed repository per table over the existing `data/tables/gate.ts` is part of this task or a split-off task the build manager files ("tables gate", proposed). Changes: `data/migrations`, `data/export`.
-3. **B-1036** (checks), in parallel with step 4: the guards of section 5 and 3. Lands early so each kind task is held to it.
-4. **B-1038** goals, objectives and links (everything else points at goal and objective ids): `domain/goal`, `domain/link`, `data`, `date.create`, Today and Library readers; `dateedits` and `examedits` gone. Also moves `collections`/`materials` to the new columns.
-5. **B-1042** notes (independent; the outbox note kind moves) and **B-1040** sets and items (after B-1038 for links). B-1045 files follows B-1042.
-6. **B-1037** attempts (needs items): one `study.attempt` command, the outbox answer kind, `own_attempts` and answers documents stop being written.
-7. **B-1039** weak spots and events (needs objectives), then **B-1044** the one derived read over attempts, events and objectives.
-8. **B-1041** sessions and events, then **B-1043** talk rows (needs sessions and attempts' `adhoc` sets for "just tell me").
-9. **B-1033** (plans and plan_items tables, repository; needs goals; includes `repeats`), **B-1004** (study plan job output through `domain/plan`), **B-1034** (`d1PlanStore` approve and put-away use the repository). `planedits` and `dayedits` end here.
+1. **the row-shapes task** (re-scoped): the `domain/` row schemas for every table in section 2, plus `WireDoc` removal planning. Changes: `domain/<kind>` row shapes replace `docRowSchema`; `data/tables`, `jobs/runtime` and ceilings import them; `commands/` and `jobs/` drop their own plan shapes. No behaviour change yet. Needs this design only.
+2. **the migration task**: migration 0006 and the PRAGMA test against the row-shapes task's shapes; `data/export/tables.ts`, the `ev5-export` v2 manifest and the drill cover every table. A generated typed repository per table over the existing `data/tables/gate.ts` is part of this task or a split-off task the build manager files ("tables gate", proposed). Changes: `data/migrations`, `data/export`.
+3. **the docs-kind check task** (checks), in parallel with step 4: the guards of section 5 and 3. Lands early so each kind task is held to it.
+4. **the goals-and-objectives move** goals, objectives and links (everything else points at goal and objective ids): `domain/goal`, `domain/link`, `data`, `date.create`, Today and Library readers; `dateedits` and `examedits` gone. Also moves `collections`/`materials` to the new columns.
+5. **the notes move** notes (independent; the outbox note kind moves) and **the sets move** sets and items (after the goals-and-objectives move for links). the note-pictures task files follows the notes move.
+6. **the attempts move** attempts (needs items): one `study.attempt` command, the outbox answer kind, `own_attempts` and answers documents stop being written.
+7. **the weak-spots move** weak spots and events (needs objectives), then **the due-read task** the one derived read over attempts, events and objectives.
+8. **the sessions move** sessions and events, then **the talk move** talk rows (needs sessions and attempts' `adhoc` sets for "just tell me").
+9. **the first plan task** (plans and plan_items tables, repository; needs goals; includes `repeats`), **the second plan task** (study plan job output through `domain/plan`), **B-1034** (`d1PlanStore` approve and put-away use the repository). `planedits` and `dayedits` end here.
 10. **Cleanup (to be filed by the build manager):** refuse and remove `/docs` routes and `data/docs`, migration 0007, re-seed staging through the gate, rerun the export and restore drill on staging, confirm every table is in both.
     Gates 3 to 6 rerun after step 10, as in `fresh-database.md`.
 
