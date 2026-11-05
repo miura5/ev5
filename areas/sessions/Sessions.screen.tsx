@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Empty, Page } from "../../kit/index.ts";
+import { Empty, NoteBlocks, Page } from "../../kit/index.ts";
 import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
-import { NoteBlocks } from "./NoteBlocks.tsx";
+import { Picture } from "./Picture.tsx";
 import { SessionView } from "./Sessions.view.tsx";
 import { useSessions, type ReadCopyLike } from "./useSessions.ts";
 
@@ -113,6 +113,7 @@ export function SessionsScreen({
               blocks={note.blocks}
               title={note.title}
               onToggle={(i) => void toggleTodo(i)}
+              renderImage={(b) => <Picture k={b.key} alt={b.alt} />}
             />
           ) : null}
         </SessionView>

@@ -81,12 +81,8 @@ const page: NotePageData = {
     { type: "p", runs: [{ text: "CO = HR × SV", b: true }] },
     { type: "ul", indent: 0, runs: [{ text: "Heart rate" }] },
     { type: "todo", checked: true, runs: [{ text: "Read pp. 212" }] },
-    {
-      type: "row",
-      id: "r1",
-      left: [{ type: "img", alt: "curve" }],
-      right: [{ type: "p", runs: [{ text: "Stretch" }] }],
-    },
+    { type: "img", runs: [], alt: "curve", row: "r1", col: 0 },
+    { type: "p", runs: [{ text: "Stretch" }], row: "r1", col: 1 },
   ],
 };
 

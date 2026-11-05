@@ -20,6 +20,7 @@ import "./components/StudyCard/StudyCard.css";
 import "./components/PracticeCard/PracticeCard.css";
 import "./components/Detail/Detail.css";
 import "./components/Doc/Doc.css";
+import "./components/NoteBlocks/NoteBlocks.css";
 import "./components/SessionBar/SessionBar.css";
 import "./components/Palette/Palette.css";
 import "./components/AreaIcon/AreaIcon.css";
@@ -60,6 +61,7 @@ import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story"
 import { Story as PracticeCardStory } from "./components/PracticeCard/PracticeCard.story";
 import { Story as DetailStory } from "./components/Detail/Detail.story";
 import { Story as DocStory } from "./components/Doc/Doc.story";
+import { Story as NoteBlocksStory } from "./components/NoteBlocks/NoteBlocks.story";
 import { Story as SessionBarStory } from "./components/SessionBar/SessionBar.story";
 import { Story as DotStory } from "./components/Dot/Dot.story";
 import { Story as MeterStory } from "./components/Meter/Meter.story";
@@ -85,6 +87,7 @@ export const STORIES = [
   { name: "Practice card", Story: PracticeCardStory },
   { name: "Detail", Story: DetailStory },
   { name: "Doc", Story: DocStory },
+  { name: "Note blocks", Story: NoteBlocksStory },
   { name: "Session bar", Story: SessionBarStory },
   { name: "Palette", Story: PaletteStory },
   { name: "Area icon", Story: AreaIconStory },
@@ -109,6 +112,7 @@ export { Palette, type PaletteGroup } from "./components/Palette/Palette";
 export { Button } from "./components/Button/Button";
 export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
+export { NoteBlocks } from "./components/NoteBlocks/NoteBlocks";
 /** @public Waits for the sessions area to take it up. */
 export { SessionBar } from "./components/SessionBar/SessionBar";
 /** @public Waits for the areas to take it up. */

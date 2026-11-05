@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import { Button, Dot, Page } from "../../kit/index.ts";
+import { Button, Dot, NoteBlocks, Page } from "../../kit/index.ts";
 import { RowActions } from "./parts/RowActions.tsx";
-import { NoteBlocks } from "./parts/NoteBlocks.tsx";
 import type {
   NoteCollection,
   NotePageData,
@@ -64,8 +63,6 @@ export function NotePageView({
       : note.saveState === "saving"
         ? "info"
         : "warn";
-  const body =
-    !onRename && note.body[0]?.type === "h1" ? note.body.slice(1) : note.body;
   return (
     <section className="ev-notes" aria-label="Note" data-area="note">
       {session ? (
@@ -152,7 +149,12 @@ export function NotePageView({
           }
         />
       </RowActions>
-      {editor ?? <NoteBlocks body={body} />}
+      {editor ?? (
+        <NoteBlocks
+          blocks={note.body}
+          title={onRename ? undefined : note.title}
+        />
+      )}
     </section>
   );
 }
