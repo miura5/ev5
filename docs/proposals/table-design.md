@@ -141,7 +141,7 @@ Dependencies run top to bottom; items on one line can run in parallel.
 6. **the attempts move** attempts (needs items): one `study.attempt` command, the outbox answer kind, `own_attempts` and answers documents stop being written.
 7. **the weak-spots move** weak spots and events (needs objectives), then **the due-read task** the one derived read over attempts, events and objectives.
 8. **the sessions move** sessions and events, then **the talk move** talk rows (needs sessions and attempts' `adhoc` sets for "just tell me").
-9. **the first plan task** (plans and plan_items tables, repository; needs goals; includes `repeats`), **the second plan task** (study plan job output through `domain/plan`), **B-1034** (`d1PlanStore` approve and put-away use the repository). `planedits` and `dayedits` end here.
+9. **the first plan task** (plans and plan_items tables, repository; needs goals; includes `repeats`), **the second plan task** (study plan job output through `domain/plan`), **the third plan task** (`d1PlanStore` approve and put-away use the repository). `planedits` and `dayedits` end here.
 10. **Cleanup (to be filed by the build manager):** refuse and remove `/docs` routes and `data/docs`, migration 0007, re-seed staging through the gate, rerun the export and restore drill on staging, confirm every table is in both.
     Gates 3 to 6 rerun after step 10, as in `fresh-database.md`.
 
