@@ -54,6 +54,8 @@ export interface NotesState {
   saveBlocks: (id: string, blocks: Block[]) => Promise<void>;
   /** Saves a new first-heading text through the outbox: it works offline and replays when the connection returns. */
   saveTitle: (id: string, title: string) => Promise<void>;
+  /** Reads everything again (after a delete or an undo). */
+  reload: () => Promise<void>;
 }
 
 /** Who a note save names in `source`: starts with "v5", as ev4's record requires of v5's writes (validateWrite). */
@@ -181,5 +183,6 @@ export function useNotes(services?: NotesServices): NotesState {
     createNote,
     saveBlocks,
     saveTitle,
+    reload: load,
   };
 }
