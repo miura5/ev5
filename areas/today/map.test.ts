@@ -66,6 +66,9 @@ test("exams, weak spots and today's plan map to the view's props", () => {
     ["e5", "Nov 20", "info"],
   ]);
   expect(d.upcoming[0]!.readiness).toEqual({ ready: 0, shaky: 0, weak: 1 });
+  // e4 has one open weak spot and none reviewed; e5 has none yet: "none yet", not 0%.
+  expect(d.upcoming[0]!.meta).toMatch(/· 0% ready/);
+  expect(d.upcoming[1]!.meta).toMatch(/· readiness none yet/);
   expect(d.thisWeek.map((w) => w.id)).toEqual(["w-e4"]);
   expect(d.plan).toEqual([
     {

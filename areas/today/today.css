@@ -128,6 +128,10 @@
   background: var(--warn);
 }
 
+.ev-today-band-none {
+  background: var(--line2);
+}
+
 .ev-today-band-bad {
   background: var(--bad);
 }

@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { accuracyLine } from "../../domain/index.ts";
 import {
+  dailyMinutes,
+  windowTotals,
+  weeklyAccuracy,
+  type Point,
+} from "./series.ts";
+import {
   failureKind,
   failureSentence,
   readJson,
@@ -22,6 +28,12 @@ export interface ProgressData {
   minutes: number;
   /** Ended sessions that carry minutes. */
   sessions: number;
+  /** First-try accuracy per week, 8 weeks, oldest first. */
+  weeks: Point[];
+  /** Minutes and ended sessions in the last 7 days. */
+  week: { minutes: number; sessions: number };
+  /** Study minutes per day, last 7 days. */
+  days: Point[];
 }
 
 /** Ended-session minutes: sessions with status "ended" and a number of minutes (what End saves, §sessions). */
@@ -50,6 +62,9 @@ export function mapProgress(
     accuracy: accuracyLine(answers, now)?.text ?? null,
     hasAnswers: answers.length > 0,
     ...endedMinutes(sessions),
+    weeks: weeklyAccuracy(answers, now),
+    week: windowTotals(sessions, now),
+    days: dailyMinutes(sessions, now),
   };
 }
 

@@ -30,3 +30,29 @@
   font-size: var(--fs-body);
   color: var(--quiet);
 }
+
+.ev-progress-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.ev-progress-label {
+  margin: 0;
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--faint);
+}
+
+.ev-progress-big {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.ev-progress-num {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--track-title);
+}

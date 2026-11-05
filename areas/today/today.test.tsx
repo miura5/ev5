@@ -66,7 +66,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
 test("today shows its sections and counts what is left", () => {
   render(<TodayView {...props()} />);
   expect(todayArea.route).toBe("/today");
-  for (const name of ["Plan", "Coming up", "This week"])
+  for (const name of ["Plan", "Upcoming", "This week"])
     expect(screen.getByRole("region", { name })).toBeTruthy();
   expect(screen.getByText("Exam 3 is Thursday.")).toBeTruthy();
   expect(
@@ -99,7 +99,8 @@ test("empty states, no suggestion, Start next disabled when all done", () => {
   );
   expect(screen.getByText("Nothing planned for today.")).toBeTruthy();
   expect(screen.getByText("No dates coming up.")).toBeTruthy();
-  expect(screen.queryByRole("region", { name: "This week" })).toBeNull();
+  expect(screen.getByRole("region", { name: "This week" })).toBeTruthy();
+  expect(screen.getByText("Nothing else this week.")).toBeTruthy();
   expect(
     (screen.getByRole("button", { name: /Start next/ }) as HTMLButtonElement)
       .disabled,
@@ -128,4 +129,17 @@ test("the tick on a plan item asks for the opposite state", () => {
   );
   expect(p.onTick).toHaveBeenNthCalledWith(1, "p1", true);
   expect(p.onTick).toHaveBeenNthCalledWith(2, "p2", false);
+});
+
+test("an exam with no readiness yet shows one neutral bar", () => {
+  const base = props().upcoming[0]!;
+  const { container } = render(
+    <TodayView
+      {...props({
+        upcoming: [{ ...base, readiness: { ready: 0, shaky: 0, weak: 0 } }],
+      })}
+    />,
+  );
+  expect(container.querySelectorAll(".ev-today-band-none")).toHaveLength(1);
+  expect(container.querySelectorAll(".ev-today-band-ok")).toHaveLength(0);
 });
