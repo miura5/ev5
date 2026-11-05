@@ -4,6 +4,7 @@ import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import type { Block } from "../../../domain/index.ts";
 import { blocksToDoc, docToBlocks } from "./editorDoc.ts";
+import { emptyPlugin } from "./editorEmpty.ts";
 import { editorPlugins, pastePlain } from "./editorKeys.ts";
 import { limitPlugin, unwrapPlugin } from "./editorLimits.ts";
 import { blocksFromHtml, pasteBlocks } from "./editorPaste.ts";
@@ -26,7 +27,7 @@ const picturesIn = (list: FileList | null | undefined) =>
 const start = (blocks: readonly Block[]) =>
   EditorState.create({
     doc: blocksToDoc(blocks),
-    plugins: [history(), limitPlugin(), unwrapPlugin(), ...editorPlugins()],
+    plugins: [history(), limitPlugin(), unwrapPlugin(), emptyPlugin(), ...editorPlugins()],
   });
 
 /**
