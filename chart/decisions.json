@@ -1,10 +1,22 @@
 [
  {
+  "id": "D-475",
+  "date": "Nov 4",
+  "title": "Gate 5 reopened: the study plan journey is broken for Matt, so B-753 waits on B-908, B-909 and B-910; cutover steps (B-822, B-823, rehearsal 2 B-758) stay behind it",
+  "why": "Playtest 4 (2026-11-05) in Matt's Chrome: the plan can't be seen before Approve, and Approve and Send changes give no sign they worked. The gate5-e2e pass checks the API path, not what Matt sees. Build manager decision relayed by the supervisor.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-474"
+  ],
+  "source": "Playtest 4, 2026-11-05"
+ },
+ {
   "id": "D-474",
   "date": "Nov 4",
   "title": "Gate 5 passed: all shell and area tasks done, 16 gate5-e2e journeys pass on staging (run 41940764495 at adeedcf)",
   "why": "B-743..B-752, B-787..B-790 done; B-746, B-749, B-750 closed in run 60 with their leftovers listed in the task notes.",
-  "status": "accepted",
+  "status": "revisit",
   "supersedes": [],
   "amends": [],
   "source": "AGENTS.md §3 step 8"
