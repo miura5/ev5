@@ -6,7 +6,7 @@ import type { D1Like, D1Statement } from "../docs/d1.ts";
 import { tablesRepo } from "./tables.ts";
 
 const dir = new URL("../migrations/", import.meta.url);
-function setup() {
+function make(onBad?: (b: { table: string; reason: string }) => void) {
   const db = new DatabaseSync(":memory:");
   db.exec(readFileSync(new URL("ev4-schema.fixture.sql", dir), "utf8"));
   for (const f of readdirSync(dir)
@@ -32,8 +32,12 @@ function setup() {
     },
   };
   let now = 1_000;
-  return tablesRepo(d1, { clock: () => (now += 1000) });
+  return {
+    db,
+    repo: tablesRepo(d1, { clock: () => (now += 1000), onBad }),
+  };
 }
+const setup = () => make().repo;
 
 test("collections and memberships: create, versioned change, stale write refused", async () => {
   const r = setup();
@@ -173,9 +177,51 @@ test("drafts: a change is pinned to the version read; plans and settings replace
   assert.equal(await t.drafts.reopen("d1", 2), false);
   assert.equal(await t.drafts.reopen("d1", 3), true);
   await t.deletions.markCollection("c1");
-  assert.equal(await t.deletions.restore("c1"), 1);
+  assert.equal(await t.deletions.restore("collections", "c1"), 1);
   await t.jobPlans.put("j", "scope", { a: 1 });
   await t.jobPlans.put("j", "scope", { a: 2 });
   await t.settings.putNumbers({ k: 1 });
   await t.settings.putNumbers({ k: 2 });
+});
+
+test("a row the domain refuses is not written, and a bad stored row is skipped and reported", async () => {
+  const bad: { table: string; reason: string }[] = [];
+  const { db, repo } = make((b) => bad.push(b));
+  // refused before the write: nothing reaches the table
+  await assert.rejects(
+    repo.collections.save({ id: "", title: "", parentId: null, pos: 0 }, null),
+  );
+  assert.equal(
+    (db.prepare("SELECT COUNT(*) AS n FROM collections").get() as { n: number })
+      .n,
+    0,
+  );
+  assert.ok((await repo.collections.save(good("c1"), null)).ok);
+  // a row written around the repository (a hand edit) fails to parse
+  db.prepare(
+    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('c2', '', NULL, 1, 5000, 1)",
+  ).run();
+  const list = await repo.collections.list();
+  assert.deepEqual(
+    list.map((c) => c.id),
+    ["c1"],
+  );
+  assert.equal(bad.length, 1);
+  assert.equal(bad[0]?.table, "collections");
+});
+
+test("restore clears only the named collection's row", async () => {
+  const r = setup();
+  await r.deletions.markCollection("x");
+  await r.deletions.markOwnSetItem("s", "x");
+  assert.equal(await r.deletions.restore("collections", "x"), 1);
+  assert.equal(await r.deletions.restore("collections", "x"), 0);
+  assert.equal(await r.deletions.restore("own_set_items", "s/x"), 1);
+});
+
+const good = (id: string) => ({
+  id,
+  title: "Unit 1",
+  parentId: null,
+  pos: 0,
 });

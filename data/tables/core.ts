@@ -17,9 +17,32 @@ export const text = (v: unknown): Val =>
 export interface TablesOptions {
   /** The Worker clock, in ms. */
   clock: () => number;
+  /** Told about each stored row a list left out because it did not parse (default: dropped silently). */
+  onBad?: (b: { table: string; reason: string }) => void;
 }
 
 export type Input<T> = Omit<T, "at" | "v">;
+
+/** Parses each stored row; a bad one is reported through `onBad` and left out, so one bad row cannot break a list. */
+export function readRows<T>(
+  table: string,
+  rows: Raw[],
+  parse: (r: Raw) => T,
+  opts: TablesOptions,
+): T[] {
+  const out: T[] = [];
+  for (const r of rows) {
+    try {
+      out.push(parse(r));
+    } catch (e) {
+      opts.onBad?.({
+        table,
+        reason: e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+  return out;
+}
 
 export function core(db: D1Like, opts: TablesOptions) {
   const all = async (sql: string, ...args: Val[]): Promise<Raw[]> =>
@@ -53,6 +76,8 @@ export function core(db: D1Like, opts: TablesOptions) {
     );
     const current = cur ? (cur.v as number) : null;
     if (current !== ifVersion) return { ok: false, conflict: true, current };
+    // Parse the row before anything is written: a row its domain rule refuses throws here and never reaches the table.
+    const row = result((current ?? 0) + 1, at);
     if (current === null) {
       const names = [...keyCols, ...cols, "at", "v"];
       try {
@@ -65,7 +90,7 @@ export function core(db: D1Like, opts: TablesOptions) {
       } catch {
         return { ok: false, conflict: true, current: null }; // lost a race to another insert
       }
-      return { ok: true, row: result(1, at) };
+      return { ok: true, row };
     }
     const set = [...cols, "at", "v"].map((k) => `${k} = ?`).join(", ");
     const r = await db
@@ -73,7 +98,7 @@ export function core(db: D1Like, opts: TablesOptions) {
       .bind(...vals, at, current + 1, ...keyVals, current)
       .run();
     if (r.meta.changes === 0) return { ok: false, conflict: true, current };
-    return { ok: true, row: result(current + 1, at) };
+    return { ok: true, row };
   }
 
   return { db, opts, all, first, putVersioned };

@@ -145,10 +145,14 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .bind(row.id, row.at)
           .run();
       },
-      /** Takes an id back out of Recently deleted; the number of rows cleared. */
-      restore: async (id: string): Promise<number> =>
-        (await db.prepare("DELETE FROM deletions WHERE id = ?").bind(id).run())
-          .meta.changes,
+      /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
+      restore: async (c: string, id: string): Promise<number> =>
+        (
+          await db
+            .prepare("DELETE FROM deletions WHERE c = ? AND id = ?")
+            .bind(c, id)
+            .run()
+        ).meta.changes,
     },
   };
 }
