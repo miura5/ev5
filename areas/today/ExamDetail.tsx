@@ -29,9 +29,11 @@ export function ExamDetail({ exam, onReviewPlan, onClose }: ExamDetailProps) {
             value:
               exam.plan === "waiting"
                 ? "draft waiting for you"
-                : exam.plan === "approved"
-                  ? "in force"
-                  : "no plan yet",
+                : exam.plan === "working"
+                  ? "E.V. is saving the plan"
+                  : exam.plan === "approved"
+                    ? "in force"
+                    : "no plan yet",
           },
         ]}
       >

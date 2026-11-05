@@ -32,7 +32,7 @@ export interface UpcomingDate {
   dateLine?: string;
   course?: string;
   /** The study plan for this exam: waiting for his answer, or approved and in force. */
-  plan?: "waiting" | "approved";
+  plan?: "waiting" | "approved" | "working";
 }
 
 export interface ThisWeekItem {

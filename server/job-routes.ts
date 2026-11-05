@@ -219,7 +219,7 @@ export async function draftTasksOfPlans(
   return out;
 }
 
-/** A waiting study plan names its exam and carries its proposed sessions, so Library can match and show it. */
+/** A live study plan names its exam (waiting or running: right after Matt answers it is still being put in force); a waiting one also carries its sessions. */
 async function withExams<T extends { id: string; kind: string; state: string }>(
   db: D1Like,
   jobs: T[],
@@ -229,13 +229,18 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
     tasks?: { date: string; title: string; minutes: number }[];
   })[]
 > {
-  const waiting = jobs.filter(
-    (j) => j.kind === studyPlanJob.kind && j.state === "needs-you",
+  const named = jobs.filter(
+    (j) =>
+      j.kind === studyPlanJob.kind &&
+      (j.state === "needs-you" || j.state === "running"),
   );
-  if (!waiting.length) return jobs;
-  const ids = waiting.map((j) => j.id);
+  if (!named.length) return jobs;
+  const ids = named.map((j) => j.id);
   const exam = await examsOfPlans(db, ids);
-  const tasks = await draftTasksOfPlans(db, ids);
+  const tasks = await draftTasksOfPlans(
+    db,
+    named.filter((j) => j.state === "needs-you").map((j) => j.id),
+  );
   return jobs.map((j) => ({
     ...j,
     ...(exam.has(j.id) ? { examId: exam.get(j.id) } : {}),

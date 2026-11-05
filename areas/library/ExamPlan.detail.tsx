@@ -66,6 +66,11 @@ export function ExamPlanDetail({
       >
         Review the study plan
       </Button>
+      {exam.planState === "working" ? (
+        <span className="ev-library-meta" data-part="working">
+          E.V. is saving the plan…
+        </span>
+      ) : null}
       {approved ? (
         <span className="ev-library-meta" data-part="approved">
           {count

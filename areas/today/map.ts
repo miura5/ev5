@@ -53,7 +53,7 @@ export interface WireJobLine {
 function planOf(
   id: string,
   docs: TodayDocs,
-): "waiting" | "approved" | undefined {
+): "waiting" | "approved" | "working" | undefined {
   const waits = (docs.jobs ?? []).some(
     (j) =>
       j.kind.replace(/_/g, "-") === "study-plan" &&
@@ -61,6 +61,14 @@ function planOf(
       j.examId === id,
   );
   if (waits) return "waiting";
+  // Right after Matt's answer the job still runs: the exam may point at an earlier plan until it lands.
+  const working = (docs.jobs ?? []).some(
+    (j) =>
+      j.kind.replace(/_/g, "-") === "study-plan" &&
+      j.state === "running" &&
+      j.examId === id,
+  );
+  if (working) return "working";
   const planId = (
     docs.exams.find((d) => d.id === id)?.data as
       | { planId?: unknown }
@@ -196,7 +204,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       id,
       title: exam.title,
       meta: planLine
-        ? `${inDays(left)} · study plan ${planLine === "waiting" ? "waiting for you" : "approved"}`
+        ? `${inDays(left)} · study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`
         : inDays(left),
       ...(planLine ? { plan: planLine } : {}),
       when: whenLabel(exam.date as string, left, today),

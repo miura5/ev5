@@ -57,7 +57,8 @@ export interface PlanSession {
   minutes: number;
 }
 
-export type PlanState = "none" | "draft" | "approved" | "away";
+/** "working": E.V. is still drafting or putting an answered plan in force, so no earlier plan is shown meanwhile. */
+export type PlanState = "none" | "draft" | "approved" | "away" | "working";
 
 export type SetKind = "cards" | "questions" | "steps";
 
