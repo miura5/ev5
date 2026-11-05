@@ -66,8 +66,6 @@ export {
   search,
   likePatterns,
 } from "./search/index.ts";
-export { parseCourseTable, examFrame, chatCourse } from "./course/index.ts";
-export type { CourseTable } from "./course/types.ts";
 /** @public Row shapes for the side tables; the data gate and the job runtime import them (wired by follow-up tasks). */
 export { parseDeletion } from "./deletion/index.ts";
 /** @public */
@@ -109,8 +107,6 @@ export { parseSetRow, type SetRow } from "./set/row.ts";
 export { parseSessionRow, type SessionRow } from "./session/row.ts";
 /** @public */
 export { parseNoteRow, type NoteRow } from "./note/row.ts";
-/** @public */
-export { parseCourseRow, type CourseRow } from "./course/row.ts";
 /** @public Study plan rows and their approve and put-away paths; the study plan job and the data gate import them. */
 export {
   parsePlanRow,

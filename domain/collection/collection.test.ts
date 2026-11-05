@@ -37,7 +37,7 @@ test('nesting is one level', () => {
   expect(canNest(rows, 'course:BIO')).toBe(false);
 });
 
-test('ev4 courses are virtual read-only collections', () => {
+test('courses are virtual read-only collections', () => {
   const table = parseCourseTable({
     BIO: {
       status: 'active',
@@ -72,7 +72,7 @@ test('a deleted collection ungroups its items, and restoring regroups them', () 
 
 test('moves write a row, the course, or ungroup', () => {
   expect(moveWrite('a', live)).toEqual({ kind: 'row', collectionId: 'a' });
-  expect(moveWrite('course:NUR 112', live)).toEqual({ kind: 'course', course: 'NUR 112', removeRow: true });
+  expect(moveWrite('course:LAND 200', live)).toEqual({ kind: 'course', course: 'LAND 200', removeRow: true });
   expect(moveWrite(null, live)).toEqual({ kind: 'ungroup', removeRow: true });
   expect(() => moveWrite('zz', live)).toThrow();
 });
