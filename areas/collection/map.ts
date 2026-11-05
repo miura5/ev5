@@ -46,11 +46,9 @@ export function mapPins(
   return pins.map((p) => ({
     id: p.id,
     type: TYPES[p.collection] ?? "note",
-    title: docTitle(
-      docs[p.collection]?.find((d) => d.id === p.id),
-      p.id,
-    ),
-    meta: p.collection,
+    title: docTitle(docs[p.collection]?.find((d) => d.id === p.id)),
+    meta: KINDS[p.collection] ?? p.collection,
+    to: openPath(p.collection, p.id),
   }));
 }
 
@@ -64,18 +62,42 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
   goals: "date",
 };
 
+/** The kind in words, for the row's second line. */
+const KINDS: Record<string, string> = {
+  notes: "Note",
+  cards: "Cards",
+  questions: "Questions",
+  steps: "Steps",
+  plans: "Plan",
+  jobs: "Job",
+  goals: "Date",
+  exams: "Exam",
+  sets: "Set",
+  weakspots: "Weak spot",
+};
+
+/** Where Open goes: the area that holds the kind, naming the item (?open=), as the palette does. */
+export function openPath(kind: string, id: string): string | undefined {
+  const q = encodeURIComponent(id);
+  if (kind === "notes") return `/notes?open=${q}`;
+  if (kind === "sets" || kind === "exams" || kind === "weakspots")
+    return `/library?open=${q}`;
+  if (kind === "goals") return "/today";
+  return undefined;
+}
+
 const field = (d: unknown, k: string): string | undefined => {
   const v =
     d && typeof d === "object" ? (d as Record<string, unknown>)[k] : undefined;
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
 };
 
-/** The item's own name: title, else name, else text; the id only when the item is gone or unnamed. */
-export const docTitle = (d: WireDoc | undefined, fallback: string): string =>
+/** The item's own name: title, else name, else text; "Untitled" when it has none (never its id). */
+export const docTitle = (d: WireDoc | undefined): string =>
   field(d?.data, "title") ??
   field(d?.data, "name") ??
   field(d?.data, "text") ??
-  fallback;
+  "Untitled";
 
 /** "Nov 3", Central time (§time), from epoch ms. */
 export const shortDate = (ms: number): string =>
@@ -118,8 +140,9 @@ export function mapCollection(
         return {
           id: m.id,
           type: TYPES[m.collection] ?? "note",
-          title: docTitle(doc, m.id),
-          meta: `${m.collection} · ${shortDate(doc?.at ?? m.at)}`,
+          title: docTitle(doc),
+          meta: `${KINDS[m.collection] ?? m.collection} · ${shortDate(doc?.at ?? m.at)}`,
+          to: openPath(m.collection, m.id),
         };
       }),
   };

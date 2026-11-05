@@ -15,6 +15,8 @@ export interface CollectionEntry {
   title: string;
   meta?: string;
   value?: string;
+  /** Where Open goes, when the item lives in another area. */
+  to?: string;
 }
 
 export interface CollectionViewProps {

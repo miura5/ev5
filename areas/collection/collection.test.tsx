@@ -186,3 +186,47 @@ test("no menu without an action handler", () => {
   render(<CollectionView {...base} />);
   expect(screen.queryByLabelText("Actions for Labs")).toBeNull();
 });
+
+test("a note row opens the note, and the collection shows its name and notes", async () => {
+  const body = (path: string) =>
+    path.startsWith("docs")
+      ? { docs: [{ id: "n1", data: {} }] }
+      : path.includes("pins")
+        ? { pins: [] }
+        : path.includes("memberships")
+          ? {
+              memberships: [
+                { collection: "notes", id: "n1", collectionId: "b", at: 1 },
+              ],
+            }
+          : {
+              collections: [{ id: "b", title: "Labs", parentId: null, pos: 0 }],
+            };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((url: string) =>
+      Promise.resolve(
+        new Response(JSON.stringify(body(url.replace("/api/v1/", ""))), {
+          status: 200,
+        }),
+      ),
+    ),
+  );
+  localStorage.setItem("ev5.token", "t");
+  vi.resetModules();
+  const { CollectionScreen } = await import("./Collection.screen.tsx");
+  const onNavigate = vi.fn();
+  render(<CollectionScreen path="/collection/b" onNavigate={onNavigate} />);
+  expect(await screen.findByText("Labs")).toBeTruthy();
+  expect(screen.getByText("Untitled")).toBeTruthy();
+  expect(screen.getByText(/^Note · /)).toBeTruthy();
+  expect(screen.queryByText("n1")).toBeNull();
+  fireEvent.click(screen.getByText("Untitled"));
+  expect(onNavigate).toHaveBeenLastCalledWith("/notes?open=n1");
+  onNavigate.mockClear();
+  await openMenu("Actions for Untitled");
+  fireEvent.click(screen.getByText("Open"));
+  expect(onNavigate).toHaveBeenCalledWith("/notes?open=n1");
+  localStorage.clear();
+  vi.unstubAllGlobals();
+});

@@ -26,10 +26,15 @@ export function CollectionScreen({
   const [failed, setFailed] = useState<string>();
   const open = (eid: string) => {
     if (data?.nested.some((n) => n.id === eid))
-      onNavigate?.(`/collection/${encodeURIComponent(eid)}`);
+      return onNavigate?.(`/collection/${encodeURIComponent(eid)}`);
+    const to = [...(data?.items ?? []), ...pins].find((x) => x.id === eid)?.to;
+    if (to) onNavigate?.(to);
   };
   // No token, or one the server refused: no data and no "nothing here"; the shell's token screen asks for it.
   if (!token || refused) return null;
+  // First read still on its way: a loading line, never "Untitled collection, 0 items".
+  if (!data && !error)
+    return <p className="ev-coll-empty">Opening the collection…</p>;
   return (
     <>
       {error || failed ? <Toast message={(error ?? failed)!} /> : null}
