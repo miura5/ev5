@@ -61,8 +61,10 @@ function fakeServer() {
 
 /** Types in the page's title field, the way Matt would, and leaves it. */
 function retitle(title: string) {
-  const field = screen.getByRole("textbox", { name: "Title" });
-  field.textContent = title;
+  const field = screen.getByRole<HTMLInputElement>("textbox", {
+    name: "Title",
+  });
+  fireEvent.change(field, { target: { value: title } });
   fireEvent.blur(field);
 }
 
@@ -82,7 +84,9 @@ test("notes load from the docs routes and a title edit saves, pinned to the vers
   expect(s.puts).toEqual(["?collection=notes&id=n-1&if_version=1"]);
   expect((s.data as { title: string }).title).toBe("Fluids and electrolytes");
   await waitFor(() => expect(screen.getByText("saved")).toBeTruthy());
-  expect(screen.getAllByText("Fluids and electrolytes")).toHaveLength(1);
+  expect(screen.getAllByDisplayValue("Fluids and electrolytes")).toHaveLength(
+    1,
+  );
 });
 
 test("offline, the edit shows not saved and waits in the outbox; it sends when the connection returns", async () => {
@@ -95,7 +99,7 @@ test("offline, the edit shows not saved and waits in the outbox; it sends when t
   s.online = false;
   retitle("Fluids, offline");
   await waitFor(() => expect(screen.getByText("not saved")).toBeTruthy());
-  expect(screen.getAllByText("Fluids, offline")).toHaveLength(1);
+  expect(screen.getAllByDisplayValue("Fluids, offline")).toHaveLength(1);
   expect(await services.outbox.count()).toBe(1);
   expect(s.v).toBe(1);
   s.online = true;

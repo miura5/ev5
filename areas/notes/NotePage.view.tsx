@@ -116,7 +116,8 @@ export function NotePageView({
               <Button kind="text" onClick={onPickCollection}>
                 {note.collectionName ?? "no collection"}
               </Button>
-              <Dot tone={tone} label={note.saveState} />
+              <Dot tone={tone} />
+              <span>{note.saveState}</span>
               {session || !onShortcuts ? null : (
                 <Button
                   kind="text"
