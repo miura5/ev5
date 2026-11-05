@@ -9,6 +9,7 @@ import {
   type ModelCall,
 } from "../runtime/index.ts";
 import { parseWith } from "../runtime/define.ts";
+import { parseSet } from "../../domain/index.ts";
 import { outputSchema } from "../runtime/model-call.ts";
 
 export const VARIANTS = ["practice", "mock_exam"] as const;
@@ -92,23 +93,64 @@ export const OutputSchema = z.object(
 export type PracticeInput = z.infer<typeof InputSchema>;
 export type PracticeItem = z.infer<typeof ItemSchema>;
 export type PracticeOutput = z.infer<typeof OutputSchema>;
+/** An item as it is stored: the domain set-item shape (an id, and a sourceRef starting materials/ or note/). */
+export type StoredItem = PracticeItem & { id: string };
 export type DraftRow = {
   jobId: string;
   kind: "set-item";
   targetC: string;
   targetId: string;
-  body: PracticeItem;
+  body: StoredItem;
 };
 export type PracticeResult =
   | {
       ok: true;
-      items: PracticeItem[];
+      items: StoredItem[];
       drafts: DraftRow[];
       needsYou: boolean;
       costCents: number;
       repaired: boolean;
     }
   | { ok: false; reason: string; costCents: number };
+
+const STORED_REF = /^(materials|note)\//;
+/** The stored sourceRef for an id the model cited: the server's excerpts are notes, so a bare id is `note/<id>`. */
+export const storedRef = (cited: string | null): string | null =>
+  cited === null || STORED_REF.test(cited) ? cited : `note/${cited}`;
+
+const asStored = (q: PracticeItem, id: string) => ({
+  ...q,
+  id,
+  sourceRef: storedRef(q.sourceRef),
+});
+
+/**
+ * The write gate for items (§data.gate, §model.output): each item becomes a domain set item and the lot must parse as a
+ * sets document, so what lands is exactly what the domain accepts. Returns problems in plain words.
+ */
+export function checkStored(items: PracticeItem[]): string[] {
+  try {
+    parseSet({
+      schema: 3,
+      writer: "worker",
+      at: "2000-01-01T00:00:00.000Z",
+      source: "practice_set",
+      kind: "job",
+      items: items.map((q, n) => asStored(q, `i${n}`)),
+    });
+    return [];
+  } catch (e) {
+    const issues = (
+      e as { issues?: { path: PropertyKey[]; message: string }[] }
+    ).issues;
+    return issues
+      ? issues.map(
+          (i) =>
+            `Item ${typeof i.path[1] === "number" ? i.path[1] + 1 : "?"} ${i.path.slice(2).join(".") || "shape"}: ${i.message}`,
+        )
+      : ["The items do not fit the stored set shape."];
+  }
+}
 
 export const parseInput = parseWith(InputSchema);
 export const parsePublicInput = parseWith(PublicInputSchema);
@@ -186,13 +228,16 @@ export async function writePracticeSet(
   const r = await runStructured<PracticeOutput>({
     call: deps.call,
     model: practiceSet.model,
-    system: deps.frame ? await deps.frame(deps.system, input.course) : deps.system,
+    system: deps.frame
+      ? await deps.frame(deps.system, input.course)
+      : deps.system,
     prompt: buildPrompt(input),
     maxTokens: practiceSet.maxTokens,
     schema: outputSchema(OutputSchema),
     parse: practiceSet.output,
     check: (v) => [
       ...checkItems(v, input.count),
+      ...checkStored(v.items),
       ...checkCitations(
         v.items.flatMap((q) => (q.sourceRef === null ? [] : [q.sourceRef])),
         input.excerpts.map((e) => e.id),
@@ -200,19 +245,22 @@ export async function writePracticeSet(
     ],
   });
   if (!r.ok) return r;
-  const toDraft = (q: PracticeItem): DraftRow => ({
+  const sourced = r.value.items.filter((q) => q.sourceRef !== null);
+  const unsourced = r.value.items.filter((q) => q.sourceRef === null);
+  const toDrafts = input.drafts ? r.value.items : unsourced;
+  // ids match the save step's: items `<job>:i<n>`, drafts `<job>:d<n>`
+  const toDraft = (q: PracticeItem, n: number): DraftRow => ({
     jobId,
     kind: "set-item",
     targetC: input.drafts ? "own_sets" : "sets",
     targetId: input.targetId,
-    body: q,
+    body: asStored(q, `${jobId}:d${n}`),
   });
-  const sourced = r.value.items.filter((q) => q.sourceRef !== null);
-  const unsourced = r.value.items.filter((q) => q.sourceRef === null);
-  const toDrafts = input.drafts ? r.value.items : unsourced;
   return {
     ok: true,
-    items: input.drafts ? [] : sourced,
+    items: input.drafts
+      ? []
+      : sourced.map((q, n) => asStored(q, `${jobId}:i${n}`)),
     drafts: toDrafts.map(toDraft),
     needsYou: toDrafts.length > 0,
     costCents: r.costCents,
