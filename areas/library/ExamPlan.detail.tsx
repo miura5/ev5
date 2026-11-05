@@ -42,9 +42,13 @@ export function ExamPlanDetail({
   startOpen,
 }: ExamPlanDetailProps) {
   const [note, setNote] = useState("");
-  const [review, setReview] = useState(!!startOpen);
+  const [review, setReview] = useState(
+    !!startOpen || exam.planState === "approved",
+  );
   const draft = exam.planState === "draft" && exam.planId;
   const planId = exam.planId ?? "";
+  const approved = exam.planState === "approved";
+  const count = exam.sessions?.length ?? 0;
   return (
     <Detail
       title={exam.title}
@@ -64,9 +68,18 @@ export function ExamPlanDetail({
       >
         Review the study plan
       </Button>
+      {approved ? (
+        <span className="ev-library-meta" data-part="approved">
+          {count
+            ? `Approved, ${count} ${count === 1 ? "session" : "sessions"} added to your plan`
+            : "Approved"}
+        </span>
+      ) : null}
       {review ? (
         <div className="ev-library-panel" data-part="proposal">
-          <h3 className="ev-library-label">Proposed sessions</h3>
+          <h3 className="ev-library-label">
+            {approved ? "Sessions in your plan" : "Proposed sessions"}
+          </h3>
           {exam.sessions?.length ? (
             exam.sessions.map((s, i) => (
               <div key={`${s.date}-${i}`} className="ev-library-session">

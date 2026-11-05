@@ -4,6 +4,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { useToday } from "./useToday.ts";
 
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
   localStorage.clear();
 });
@@ -141,4 +142,53 @@ test("a 401 shows no data and no sentence, and tells the shell", async () => {
   window.removeEventListener("ev5:unauthorized", seen);
   expect(result.current.error).toBeUndefined();
   expect(result.current.data).toBeUndefined();
+});
+
+/** Catches the poll's timer so a test fires it at once (waitFor needs the real clock). */
+function pollTicks() {
+  const fns: (() => void)[] = [];
+  const real = globalThis.setInterval;
+  vi.spyOn(globalThis, "setInterval").mockImplementation(((
+    f: () => void,
+    ms?: number,
+  ) => {
+    if (ms === 10_000) {
+      fns.push(f);
+      return 0 as never;
+    }
+    return real(f, ms);
+  }) as never);
+  return { fire: () => fns.forEach((f) => f()) };
+}
+
+test("Today follows a plan job that changes while it is open", async () => {
+  const ticks = pollTicks();
+  localStorage.setItem("ev5.token", "t");
+  let jobs: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("jobs")
+        ? json({ jobs })
+        : url.includes("dayedits")
+          ? json({}, 404)
+          : json({ docs: [] }),
+    ),
+  );
+  const { result } = renderHook(() => useToday());
+  await waitFor(() => expect(result.current.data).toBeTruthy());
+  expect(result.current.planWaiting).toBe(false);
+  jobs = [
+    {
+      id: "j1",
+      kind: "study-plan",
+      state: "needs-you",
+      examId: "x1",
+      summary: "",
+    },
+  ];
+  await act(async () => {
+    ticks.fire();
+  });
+  await waitFor(() => expect(result.current.planWaiting).toBe(true));
 });
