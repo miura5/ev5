@@ -1,55 +1,26 @@
-.ev-progress {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-6);
-  font-family: var(--sans);
-  color: var(--text);
-}
+/* The kit's Page, Section and Empty draw the head, labels and notes; only the big-number line is left. */
 
-.ev-progress-head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-3);
-}
-
-.ev-progress-title {
-  margin: 0;
-  font-size: var(--fs-title);
-  font-weight: var(--fw-title);
-  line-height: var(--lh-title);
-  letter-spacing: var(--track-title);
-}
-
-.ev-progress-meta {
-  font-size: var(--fs-meta);
-  color: var(--faint);
-}
-
-.ev-progress-line {
-  margin: 0;
-  font-size: var(--fs-body);
-  color: var(--quiet);
-}
-
-.ev-progress-sec {
+/* Space between a section's big number and its bars: the kit Section lays out only its head. */
+.ev-progress-body {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
 }
 
-.ev-progress-label {
-  margin: 0;
-  font-size: var(--fs-meta);
-  font-weight: var(--fw-medium);
-  color: var(--faint);
-}
-
+/* The big number beside its one quiet line: no kit part pairs them yet. */
 .ev-progress-big {
   display: flex;
   align-items: baseline;
   gap: var(--sp-3);
 }
 
+/* The quiet line beside the number: the kit's meta size and tone, as Page's meta draws it. */
+.ev-progress-meta {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+/* The big number is the title size: the mock-up's t-title on the figure. */
 .ev-progress-num {
   font-size: var(--fs-title);
   font-weight: var(--fw-title);
