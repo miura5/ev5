@@ -1,5 +1,17 @@
 [
  {
+  "id": "D-489",
+  "date": "Nov 5",
+  "title": "Build order amended 2026-11-05: drift fixes (record, then kit) come before new building",
+  "why": "Matt, ev-build channel 2026-11-05 17:33Z: prioritize the tasks that fix the pattern of drift, kit fixes included, before building on. The kit is drift too: the plan says every screen uses the kit (§ui.kit-leads), but screens drew their own rows and heads. New groups: (1) audit fixes B-952, B-953, B-954; (2) record drift B-995, B-994, B-993, B-996, then B-1017; (3) kit drift B-1019, B-1020, B-970 to B-978 (B-972's note page and B-973 after B-1020; B-940 with B-973, B-942 with B-970 and B-976), then B-979, with Back B-1012 and B-1013; (4) data layer B-997 to B-1011, whose domain/, data/, server/ and jobs/ half (B-997 to B-1005, B-1009, with B-955, B-959, B-961) may run alongside group 3 because it writes other folders, while B-1006, B-1007, B-1008 and B-1011 wait for group 3; (5) cutover steps B-822, B-754, B-757 with B-999, B-756, B-759, B-823; (6) Gate 6 B-760 and Phase 7; then leftovers and the other stack fixes.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-487"
+  ],
+  "source": "Matt, ev-build channel 2026-11-05"
+ },
+ {
   "id": "D-488",
   "date": "Nov 5",
   "title": "One README page for E.V.: the repo README.md is the overview (stack, folders, where things live, setup, the owner's part) and MATT.md is retired",
