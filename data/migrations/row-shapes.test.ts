@@ -11,6 +11,7 @@ import {
   parseOwnSetItem,
   parseOwnAttempt,
   parseDeletion,
+  parseDraft,
   parseJobPlanRow,
   parseJobRecord,
   parseCeilingUse,
@@ -36,7 +37,7 @@ const item = { id: 'q1', stem: 'Which finding needs action first?', options: ['a
 // `at` and `v` on every table under §data.protocol). The shape's keys are read from the parser's output (every shape is
 // a strict object), and a key is required when the parser refuses it as null. `expand` splits a key into several
 // columns; `stored` keys live inside a JSON column, so that row has `data` instead.
-// Gaps: `drafts` has no entry (parseDraft is not in the domain barrel yet), and exam, objective, weak spot, set,
+// Gap: exam, objective, weak spot, set,
 // session and note have no row shape for a table of their own yet; they stay in `docs` for now.
 type Entry = {
   table: string;
@@ -62,8 +63,13 @@ const tables: Entry[] = [
   },
   { table: 'own_set_items', parse: parseOwnSetItem, sample: { setId: 's1', itemId: 'q1', pos: 0, body: item, at: T, v: 1 } },
   { table: 'own_attempts', parse: parseOwnAttempt, sample: { setId: 's1', itemId: 'q1', key: 'k', at: T, body: { chosen: [0] } } },
-  { table: 'deletions', parse: parseDeletion, sample: { c: 'notes', id: 'n1', at: T } },
-  { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: T } },
+  {
+    table: 'drafts',
+    parse: parseDraft,
+    sample: { id: 'd1', jobId: 'j', kind: 'set-item', targetC: 'own_sets', targetId: 's1', body: {}, state: 'pending', at: T, v: 1 },
+  },
+  { table: 'deletions', parse: parseDeletion, sample: { c: 'notes', id: 'n1', at: 1 } },
+  { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: 1 } },
   { table: 'ceiling_use', parse: parseCeilingUse, sample: { w: 'day', k: 'k', used: 0 } },
   { table: 'ceiling_holds', parse: parseCeilingHold, sample: { id: 'h', amount: 0, limits: [], open: true } },
   { table: 'ceiling_usage', parse: parseCeilingUsage, sample: { key: 'k', holdId: 'h' } },
