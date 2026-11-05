@@ -110,3 +110,32 @@ test("the story renders", () => {
   render(createElement(Story));
   expect(screen.getAllByRole("combobox").length).toBe(1);
 });
+
+test("as a picker (ask off): no Ask row, no Tab, nested rows and the current one marked", () => {
+  const onAsk = vi.fn();
+  render(
+    createElement(Palette, {
+      groups: [
+        {
+          name: "Move to",
+          items: [
+            { key: "p", label: "NUR 112", current: true },
+            { key: "c", label: "Pharm", indent: 1 },
+          ],
+        },
+      ],
+      onRun: vi.fn(),
+      onAsk,
+      onClose: vi.fn(),
+      ask: false,
+      label: "Move to",
+    }),
+  );
+  const input = screen.getByRole("combobox");
+  fireEvent.change(input, { target: { value: "ph" } });
+  expect(screen.getAllByRole("option").length).toBe(1);
+  fireEvent.keyDown(input, { key: "Tab" });
+  expect(onAsk).not.toHaveBeenCalled();
+  fireEvent.change(input, { target: { value: "" } });
+  expect(screen.getAllByRole("option")[0]!.textContent).toContain("✓");
+});
