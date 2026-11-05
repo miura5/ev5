@@ -15,7 +15,7 @@ import {
   type PaletteGroup,
 } from "../kit/index.ts";
 import { call, paletteEntries, type PaletteEntry } from "../commands/client.ts";
-import { FOUND, findInRecord, type Record_ } from "./findings.ts";
+import { FOUND, findInRecord, readDeletedKeys, type Record_ } from "./findings.ts";
 import { Ev4Offer } from "./Ev4Offer.tsx";
 import { SavedCopyNotice } from "./SavedCopyNotice.tsx";
 import { storedToken } from "./outbox/index.ts";
@@ -133,16 +133,25 @@ export function Shell({
     let live = true;
     const docs = services?.docs;
     if (docs)
-      void Promise.all(
-        FOUND.map(
+      void Promise.all([
+        readDeletedKeys(),
+        ...FOUND.map(
           async (f) =>
             [
               f.collection,
               await docs.list(f.collection).catch(() => []),
             ] as const,
         ),
-      ).then((all) => {
-        if (live) setRecord(Object.fromEntries(all));
+      ]).then(([gone, ...all]) => {
+        if (live)
+          setRecord(
+            Object.fromEntries(
+              all.map(([c, rows]) => [
+                c,
+                rows.filter((r) => !gone.has(`${c}/${r.id}`)),
+              ]),
+            ),
+          );
       });
     return () => {
       live = false;
