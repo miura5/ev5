@@ -104,7 +104,7 @@ test("the timer counts up each second while running and holds while paused", asy
     render(<SessionsScreen />);
     await screen.findByText("Heart");
     const timer = () =>
-      document.querySelector('[data-ui="timer"]')?.textContent;
+      document.querySelector('[data-ui="session-timer"]')?.textContent;
     expect(timer()).toBe("0:00");
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(timer()).toBe("0:01");
@@ -171,9 +171,11 @@ test("End on a paused session ends it, and the pause survives a reload", async (
   cleanup();
   render(<SessionsScreen />);
   await screen.findByText("Resume");
-  const held = document.querySelector('[data-ui="timer"]')?.textContent;
+  const held = document.querySelector('[data-ui="session-timer"]')?.textContent;
   await new Promise((r) => setTimeout(r, 1100));
-  expect(document.querySelector('[data-ui="timer"]')?.textContent).toBe(held);
+  expect(document.querySelector('[data-ui="session-timer"]')?.textContent).toBe(
+    held,
+  );
   fireEvent.click(screen.getByText("End"));
   await waitFor(() => expect(puts).toHaveLength(2));
   const last = puts[1] as { status: string; endedAt: string; minutes: number };
@@ -194,7 +196,7 @@ test("with no active session there is no session bar, Pause or End", async () =>
     })),
   );
   render(<SessionsScreen />);
-  await screen.findByText("no session yet");
+  await screen.findByText("No session yet.");
   expect(screen.queryByText("Pause")).toBeNull();
   expect(screen.queryByText("End")).toBeNull();
   expect(document.querySelector('[data-ui="session-bar"]')).toBeNull();

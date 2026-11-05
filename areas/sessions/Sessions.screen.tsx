@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Doc, Toast } from "../../kit/index.ts";
+import { Empty, Page, Toast } from "../../kit/index.ts";
 import { sessionState, parseSession } from "../../domain/index.ts";
 import { withEnd, withPause, withTellMe } from "./events.ts";
 import { NoteBlocks } from "./NoteBlocks.tsx";
@@ -86,7 +86,9 @@ export function SessionsScreen({
         </p>
       ) : !data ? (
         // No running session: the empty line only, no bar, Pause or End (design/mockup.html).
-        <Doc title="Study session" meta="no session yet" />
+        <Page title="Study session">
+          <Empty line="No session yet." />
+        </Page>
       ) : (
         <SessionView
           // A session over a note is that note's page: its own title once, no session heading or date above it.
