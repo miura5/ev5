@@ -1,9 +1,9 @@
-// Set document (ev4 sets schema 3, frozen in data/compat/schemas/sets.schema.json). Items never change once written;
-// answers live in their own collection keyed by set id and item id, so a set holds no answers.
+// Set document: a list of practice questions. Items never change once written; answers live in their own collection
+// keyed by set id and item id, so a set holds no answers. The item formats are domain/item's.
 import { z } from 'zod';
+import { ITEM_TYPES } from '../item/index.ts';
 
 export const SET_KINDS = ['review', 'drill', 'sim', 'more', 'job', 'check'] as const;
-export const ITEM_TYPES = ['single', 'sata', 'matrix', 'numeric', 'open'] as const;
 export const SET_WRITERS = ['morning', 'worker', 'page'] as const;
 
 const text = z.string().min(1);
@@ -44,7 +44,6 @@ const setItemSchema = z.strictObject({
   weakspotId: z.string().optional(),
   objective: z.string().optional(),
   topic: z.string().optional(),
-  cjStep: z.string().optional(),
   verify: z.boolean().optional(),
   sourceRef: z
     .string()
@@ -80,9 +79,6 @@ export const studySetSchema = z.strictObject({
   createdAt: z.string().optional(),
 });
 export type StudySet = z.infer<typeof studySetSchema>;
-
-/** One answer to an item: the options chosen (single, sata), or one column per row (matrix). */
-export type Chosen = number[];
 
 /** An answers document's `answers` map: item id -> attempt key -> attempt. */
 export type SetAnswers = Record<string, Record<string, { at: string; correct?: boolean }>>;

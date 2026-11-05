@@ -1,4 +1,5 @@
-import { itemType, scoreAnswer, type SetAnswers, type SetItem, type StudySet } from '../set/index.ts';
+import { itemType, scoreAnswer } from '../item/index.ts';
+import type { SetAnswers, SetItem, StudySet } from '../set/index.ts';
 import { itemBodyErrors } from './parse.ts';
 import type { AttemptBody, HiddenOriginal, OwnAttempt, OwnSet, OwnSetItem } from './types.ts';
 
@@ -76,7 +77,7 @@ export function appendAttempt(attempts: OwnAttempt[], next: OwnAttempt): OwnAtte
   return [...attempts, next];
 }
 
-/** Own attempts in the shape of ev4's answers (item id -> key -> attempt), so weak-spot derivation reads both. */
+/** Own attempts in the shape of the answers collection (item id -> key -> attempt), so weak-spot derivation reads both. */
 export function attemptsAsAnswers(attempts: OwnAttempt[], setId: string): SetAnswers {
   const out: SetAnswers = {};
   for (const a of attempts) {

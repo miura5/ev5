@@ -1,9 +1,8 @@
 import { z } from 'zod';
 import { daysBetween } from '../time/index.ts';
 
-// Exam document (ev4 exams schema 2, frozen in data/compat/schemas/exams.schema.json).
-// The score lives in examedits and the prediction in predictions; neither is stored here.
-export const EXAM_KINDS = ['unit', 'dosage', 'final', 'ati', 'lab'] as const;
+// Exam document: a dated goal. Its kind is a short free-text label ("midterm", "quiz"), not a fixed list, because what
+// an exam is depends on the course (§data.course-facts). The score and the prediction are stored elsewhere, not here.
 
 export const examSchema = z.strictObject({
   schema: z.literal(2),
@@ -11,7 +10,7 @@ export const examSchema = z.strictObject({
   at: z.string().min(1),
   source: z.string().min(1),
   title: z.string().min(1),
-  kind: z.enum(EXAM_KINDS),
+  kind: z.string().regex(/\S/, 'kind must not be empty').max(40),
   course: z.string().optional(),
   date: z.string().nullable().optional(),
   status: z.enum(['upcoming', 'done']).optional(),
@@ -19,7 +18,7 @@ export const examSchema = z.strictObject({
 });
 export type Exam = z.infer<typeof examSchema>;
 
-/** Validates an exam document; throws on anything outside the frozen ev4 schema 2. */
+/** Validates an exam document; throws on anything outside its schema. */
 export function parseExam(raw: unknown): Exam {
   return examSchema.parse(raw);
 }

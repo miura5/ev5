@@ -1,9 +1,7 @@
-import type { Chosen, SetAnswers, SetItem, StudySet } from './types.ts';
+import type { SetAnswers, SetItem, StudySet } from './types.ts';
 export {
   /** @public */
   SET_KINDS,
-  /** @public */
-  ITEM_TYPES,
   /** @public */
   SET_WRITERS,
   /** @public */
@@ -12,40 +10,9 @@ export {
   type KeyPoint,
   type SetItem,
   type StudySet,
-  type Chosen,
   type SetAnswers,
 } from './types.ts';
 export { parseSet } from './parse.ts';
-
-/** The shape of an item: its own type, else select-all when more than one answer is right, else single. */
-export function itemType(q: SetItem): NonNullable<SetItem['type']> {
-  if (q.type) return q.type;
-  return Array.isArray(q.correct) && q.correct.length > 1 ? 'sata' : 'single';
-}
-
-/**
- * Scores a single, select-all or matrix answer (ev4 scoreAnswer). Select-all is plus/minus scored, floored at 0.
- * Numeric and open items are graded by their own rules, not here.
- */
-export function scoreAnswer(q: SetItem, chosen: Chosen): { correct: boolean; score: number } {
-  if (itemType(q) === 'matrix') {
-    const rows = q.matrix?.rows ?? [];
-    const right = rows.filter((r, i) => chosen[i] === r.correct).length;
-    return {
-      correct: rows.length > 0 && right === rows.length,
-      score: rows.length ? right / rows.length : 0,
-    };
-  }
-  const key = [...(q.correct ?? [])].sort((a, b) => a - b);
-  const got = [...new Set(chosen)].sort((a, b) => a - b);
-  const correct = key.length === got.length && key.every((v, i) => v === got[i]);
-  if (itemType(q) === 'single') return { correct, score: correct ? 1 : 0 };
-  const hits = got.filter((i) => key.includes(i)).length;
-  return {
-    correct,
-    score: key.length ? Math.max(0, hits - (got.length - hits)) / key.length : 0,
-  };
-}
 
 /** Ids of the items with at least one attempt. */
 export function answeredItems(set: StudySet, answers: SetAnswers): string[] {

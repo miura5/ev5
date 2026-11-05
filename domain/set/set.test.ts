@@ -1,17 +1,8 @@
 import { expect, test } from 'vitest';
-import {
-  answeredItems,
-  editSet,
-  itemType,
-  parseSet,
-  scoreAnswer,
-  setDone,
-  setShortfall,
-  type SetItem,
-} from './index.ts';
+import { itemType, scoreAnswer } from '../item/index.ts';
+import { answeredItems, editSet, parseSet, setDone, setShortfall, type SetItem } from './index.ts';
 
-// Ported from ev4 test/core.test.mjs (a plan drill is done once fully answered) and test/answer-key.test.mjs
-// (set shortfall); all data is made up.
+// All data is made up.
 const single: SetItem = {
   id: 'd1',
   stem: 'Which finding needs action first?',
@@ -49,7 +40,7 @@ const attempt = (date: string) => ({
   k: { at: `${date}T15:00:00Z`, correct: true },
 });
 
-test('parseSet accepts an ev4 schema 3 set and refuses stored answers and unknown fields', () => {
+test('parseSet accepts a schema 3 set and refuses stored answers and unknown fields', () => {
   expect(parseSet(base).items).toHaveLength(2);
   expect(() => parseSet({ ...base, answers: {} })).toThrow(/answers/);
   expect(() => parseSet({ ...base, extra: 1 })).toThrow(/extra/);
@@ -67,7 +58,7 @@ test('parseSet accepts an ev4 schema 3 set and refuses stored answers and unknow
   expect(parseSet({ ...base, items: [matrix], asked: 3 }).asked).toBe(3);
 });
 
-test('scoring: single, select-all (plus/minus, floored at 0) and matrix', () => {
+test('a set item scores with the item scorer: single, select-all (plus/minus, floored at 0) and matrix', () => {
   expect(itemType(sata)).toBe('sata');
   expect(scoreAnswer(single, [1])).toEqual({ correct: true, score: 1 });
   expect(scoreAnswer(single, [0])).toEqual({ correct: false, score: 0 });

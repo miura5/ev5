@@ -2,7 +2,7 @@
 // there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
 // set's attempt is an append-only `own_attempts` row; an ev4 set's is a new `answers` document (its set is never touched).
 // Choice items are graded here; numeric items against their tolerance; an open answer is recorded for grading later.
-import { parseSet, scoreAnswer, itemType } from "../domain/index.ts";
+import { parseSet, scoreAnswer, itemType, numberAnswer } from "../domain/index.ts";
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -56,7 +56,7 @@ async function attempts(x: HandlerCtx, f: Found): Promise<number> {
   }).length;
 }
 
-/** The answer as indexes ("0" or "0,2"), or the number a numeric item asks for. */
+/** The answer as indexes ("0" or "0,2"), or the number (and unit, if any) a number answer asks for. */
 function grade(
   q: Item,
   answer: string,
@@ -64,10 +64,10 @@ function grade(
   const t = itemType(q);
   if (t === "open") return {};
   if (t === "numeric") {
-    const value = Number(answer.trim());
-    if (!Number.isFinite(value) || q.answer === undefined)
+    const given = numberAnswer(answer);
+    if (!given || q.answer === undefined)
       throw new CommandError(400, "this item takes a number");
-    return { value, correct: Math.abs(value - q.answer) <= (q.tolerance ?? 0) };
+    return { value: given.value, correct: scoreAnswer(q, given).correct };
   }
   const chosen = answer
     .split(/[,\s]+/)

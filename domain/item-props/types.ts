@@ -26,7 +26,7 @@ const linkedSchema = z.strictObject({ c: text, id: text });
 /** @public */
 export type Linked = z.infer<typeof linkedSchema>;
 
-/** Overrides for a morning-made item (ev4 has no override field): flat JSON scalars by field name. */
+/** Overrides for a morning-made item: flat JSON scalars by field name. */
 const overridesSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]));
 /** @public */
 export type Overrides = z.infer<typeof overridesSchema>;
@@ -48,19 +48,10 @@ export const itemPropsSchema = z.strictObject({
 });
 export type ItemProps = z.infer<typeof itemPropsSchema>;
 
-/** The ev4 kinds an added plan item may have (dayedits schema 1). */
-export type AddedKind =
-  | 'todo'
-  | 'reading'
-  | 'learn'
-  | 'practice'
-  | 'review'
-  | 'notes'
-  | 'graded'
-  | 'skills-prep'
-  | 'clinical-prep';
+/** The kinds an added plan item may have; general study work, no subject built in ('graded' is graded coursework). */
+export type AddedKind = 'todo' | 'reading' | 'learn' | 'practice' | 'review' | 'notes' | 'graded';
 
-/** What a repeating plan item looks like each day: ev4's `added` entry minus `at` and `by`. */
+/** What a repeating plan item looks like each day: a day's `added` entry minus `at` and `by`. */
 export type PlanTemplate = {
   text: string;
   kind: AddedKind;
@@ -69,7 +60,7 @@ export type PlanTemplate = {
   tag?: string | null;
 };
 
-/** One entry of ev4's dayedits `added` map (by is always Matt: a repeat is his own plan item). */
+/** One entry of a day's `added` map (by is always Matt: a repeat is his own plan item). */
 export type AddedEntry = PlanTemplate & { at: string; by: 'Matt' };
 
 /** One day's occurrence ready to be written under `rep-<id>-<date>`. */

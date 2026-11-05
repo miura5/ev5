@@ -13,7 +13,7 @@ export function parseOwnSet(raw: unknown): OwnSet {
   return ownSetSchema.parse(raw);
 }
 
-/** Errors that make an item body unusable (an ev4 set item); a missing rationale is only a warning, so Matt's drafts pass. */
+/** Errors that make an item body unusable (a set item); a missing rationale is only a warning, so Matt's drafts pass. */
 export function itemBodyErrors(body: unknown): string[] {
   return validateItem(body).errors;
 }
