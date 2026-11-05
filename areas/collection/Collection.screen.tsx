@@ -53,6 +53,18 @@ export function CollectionScreen({
                 )
             : undefined
         }
+        onDelete={
+          data
+            ? () =>
+                void call("item.delete", { id: data.id }, token).then((r) => {
+                  setFailed(r.ok ? undefined : r.reason);
+                  if (r.ok) {
+                    onNavigate?.("/collection");
+                    reload();
+                  }
+                })
+            : undefined
+        }
         onOpen={open}
         onItemAction={(eid, action) => {
           if (action === "open") return open(eid);

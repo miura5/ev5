@@ -90,8 +90,28 @@ export const commandHandlers: Record<string, CommandHandler> = {
     if (!r.ok) throw new CommandError(409, "that item changed; try again");
     return { membership: r.row };
   },
+  // A collection lives in its own table: deleting it writes one deletions row for it and no row for its items, which
+  // show ungrouped until it is restored (§delete.collection).
   "item.delete": async (i: Ref, _c, x) => {
     const repo = docsRepo(x.db, { clock: x.clock });
+    const inDocs = await x.db
+      .prepare("SELECT 1 AS n FROM docs WHERE id = ? LIMIT 1")
+      .bind(i.id)
+      .all<{ n: number }>();
+    if (!inDocs.results.length) {
+      const coll = await tablesRepo(x.db, { clock: x.clock }).collections.get(
+        i.id,
+      );
+      if (coll) {
+        await x.db
+          .prepare(
+            "INSERT INTO deletions (c, id, at) VALUES ('collections', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+          )
+          .bind(i.id, x.clock())
+          .run();
+        return { deleted: true, collection: i.id };
+      }
+    }
     return {
       deleted: await repo.markDeleted(await collectionOf(x.db, i.id), i.id),
     };

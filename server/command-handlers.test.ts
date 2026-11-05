@@ -25,7 +25,7 @@ async function setup() {
     "INSERT INTO docs (c, id, data, at, v) VALUES ('sets', 's1', '{\"title\":\"Old\"}', 1, 1)",
   ).run();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
-  return (name: string, input: unknown) =>
+  const call = (name: string, input: unknown) =>
     app.request(
       `/api/v1/commands/${name}`,
       {
@@ -35,6 +35,15 @@ async function setup() {
       },
       env,
     );
+  return Object.assign(call, {
+    db: DB,
+    get: (path: string) =>
+      app.request(
+        `/api/v1${path}`,
+        { headers: { authorization: "Bearer app-t" } },
+        env,
+      ),
+  });
 }
 
 test("every handler belongs to a registry command Matt calls directly", () => {
@@ -114,5 +123,46 @@ test("a screen-side command is acknowledged and the registry lists are served", 
   assert.ok(
     ((await (await get("tools")).json()) as { tools: unknown[] }).tools.length >
       0,
+  );
+});
+
+test("deleting a collection writes one row for it; its items show ungrouped until it is restored", async () => {
+  const call = await setup();
+  const made = (await (
+    await call("collection.create", { title: "BIO" })
+  ).json()) as { result: { collection: { id: string } } };
+  const cid = made.result.collection.id;
+  await call("item.move", { id: "s1", collection: cid });
+  const ids = async (path: string, key: string) =>
+    ((await (await call.get(path)).json()) as Record<string, { id: string }[]>)[
+      key
+    ]!.map((r) => r.id);
+
+  assert.equal((await call("item.delete", { id: cid })).status, 200);
+  const rows = await call.db
+    .prepare("SELECT c, id FROM deletions")
+    .all<{ c: string; id: string }>();
+  assert.deepEqual(
+    rows.results.map((r) => ({ c: r.c, id: r.id })),
+    [{ c: "collections", id: cid }],
+  );
+  assert.deepEqual(await ids("/collections", "collections"), []);
+  assert.deepEqual(
+    await ids(`/memberships?collection_id=${cid}`, "memberships"),
+    [],
+  );
+  const listed = (await (await call.get("/deletions")).json()) as {
+    deletions: { collection: string; title: string | null }[];
+  };
+  assert.deepEqual(
+    listed.deletions.map((d) => [d.collection, d.title]),
+    [["collections", "BIO"]],
+  );
+
+  assert.equal((await call("item.restore", { id: cid })).status, 200);
+  assert.deepEqual(await ids("/collections", "collections"), [cid]);
+  assert.deepEqual(
+    await ids(`/memberships?collection_id=${cid}`, "memberships"),
+    ["s1"],
   );
 });

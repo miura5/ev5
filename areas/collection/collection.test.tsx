@@ -230,3 +230,18 @@ test("a note row opens the note, and the collection shows its name and notes", a
   localStorage.clear();
   vi.unstubAllGlobals();
 });
+
+test("the collection page offers Delete for the collection itself", () => {
+  const onDelete = vi.fn();
+  render(
+    <CollectionView
+      title="BIO 201"
+      dates={[]}
+      nested={[]}
+      items={[]}
+      onDelete={onDelete}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+  expect(onDelete).toHaveBeenCalledTimes(1);
+});
