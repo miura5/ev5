@@ -16369,10 +16369,10 @@
   "title": "Library's exam Detail opens above the Library page instead of beside it, with the course in the Date row and Course empty",
   "dod": "The exam Detail in Library opens as the side panel, as on Today and in design/mockup.html; Date shows the date and days left, Course shows the course; screen test; seen on staging at 1280.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Screenshot 03. Library.screen.tsx renders ExamPlanDetail before LibraryView and passes when: exam.meta and course: empty.",
-  "commit": null,
+  "notes": "Run 62: PR #422. Exam Detail is a right-hand panel; Date shows day and days left, Course shows the course; weak-spot Detail uses the same panel. CHECK ON STAGING at 1280.",
+  "commit": "2545533",
   "source": "Visual playtest 4 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run4)"
  },
  {
@@ -16441,10 +16441,10 @@
   "title": "Palette still lists deleted notes",
   "dod": "A note in Recently deleted does not show in the palette (shell/); Restore brings it back; test.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Left over from B-912 (areas only).",
-  "commit": null,
+  "notes": "Run 62: PR #421. Palette hides records listed in GET /deletions (notes, exams, sets, weak spots); restoring shows them after reopening. Test lives in shell/paletteDeleted.test.tsx.",
+  "commit": "97fbf2d",
   "source": "run 61"
  },
  {
