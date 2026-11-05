@@ -1,7 +1,7 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next). Rehearsal 2 (B-758) and the scratch-copy check (B-732) are declined (D-484).
 ## Running    nothing. Run 86 merged B-1003, B-961, B-1002, B-1032 and B-1004 part 1 (#538 to #543). The hourly routine is off; a separate thread runs the ev4 and subject-code removal sweep (B-900 to B-906, B-1011 removals) and files its own Chart edits.
 Builders use their own git worktree; never commit node_modules. Run lock: ops/build-lock.sh.
-Local `npm test` fails on directory entries in this sandbox (environmental): run the other checks by hand, CI judges. Do not import data/compat from Worker-side data code.
+Local `npm test` fails on directory entries in this sandbox (environmental): run the other checks by hand, CI judges.
 The sandbox cannot reach developers.cloudflare.com: B-1025 Wrangler facts came from memory (staging run 461 green; live.yml unproven).
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). When you rewrite this, keep the groups and their order: drop done tasks, put new tasks in their group. Work the groups in order; inside a group, in the order listed.
