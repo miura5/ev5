@@ -21,7 +21,6 @@ import {
   readDeletedKeys,
   type Record_,
 } from "./findings.ts";
-import { Ev4Offer } from "./Ev4Offer.tsx";
 import { SavedCopyNotice } from "./SavedCopyNotice.tsx";
 import { storedToken } from "./outbox/index.ts";
 import type { Services } from "./services.ts";
@@ -269,7 +268,6 @@ export function Shell({
       </nav>
       <main className="shell-main">
         <div className="shell-col">
-          <Ev4Offer ev4={services?.ev4} />
           <SavedCopyNotice copy={services?.readCopy} />
           {View ? (
             <View
