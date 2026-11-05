@@ -236,3 +236,12 @@
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-4);
 }
+
+.ev-notes-doctitle[contenteditable] {
+  outline: none;
+}
+
+.ev-notes-doctitle:empty::before {
+  content: attr(data-placeholder);
+  color: var(--faint);
+}

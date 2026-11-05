@@ -59,15 +59,11 @@ function fakeServer() {
   return { s, services };
 }
 
-/** Edits the note's first heading in the editor, the way typing in it would, and leaves the field. */
+/** Types in the page's title field, the way Matt would, and leaves it. */
 function retitle(title: string) {
-  const editor = document.querySelector(".ProseMirror")!;
-  const head = editor.querySelector('[data-block="h1"]')!;
-  const text = document
-    .createTreeWalker(head, NodeFilter.SHOW_TEXT)
-    .nextNode()!;
-  text.nodeValue = title;
-  fireEvent.blur(editor);
+  const field = screen.getByRole("textbox", { name: "Title" });
+  field.textContent = title;
+  fireEvent.blur(field);
 }
 
 async function openAndRename(services: Services, title: string) {
@@ -133,7 +129,7 @@ test("a block edit saves through the outbox, and New note queues a create", asyn
     if (!el) throw new Error("no editor");
     return el;
   });
-  const para = editor.querySelectorAll("[data-block]")[1]!;
+  const para = editor.querySelectorAll("[data-block]")[0]!;
   const textNode = document
     .createTreeWalker(para, NodeFilter.SHOW_TEXT)
     .nextNode()!;

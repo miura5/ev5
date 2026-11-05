@@ -241,3 +241,24 @@ test("the collection page offers Delete for the collection itself", () => {
   fireEvent.click(screen.getByRole("button", { name: "Delete" }));
   expect(onDelete).toHaveBeenCalledTimes(1);
 });
+
+test("the collection title saves on Enter and Esc puts the old words back", () => {
+  const onRename = vi.fn();
+  render(
+    <CollectionView
+      title="Untitled collection"
+      dates={[]}
+      nested={[]}
+      items={[]}
+      onRename={onRename}
+    />,
+  );
+  const h = screen.getByRole("heading", { level: 1 });
+  h.textContent = "BIO 201";
+  fireEvent.keyDown(h, { key: "Enter" });
+  fireEvent.blur(h);
+  expect(onRename).toHaveBeenCalledWith("BIO 201");
+  h.textContent = "x";
+  fireEvent.keyDown(h, { key: "Escape" });
+  expect(h.textContent).toBe("Untitled collection");
+});
