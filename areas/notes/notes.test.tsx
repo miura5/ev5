@@ -128,3 +128,11 @@ test("a titled note shows its title once; an untitled one shows Untitled once", 
   rerender(<NotePageView note={{ ...page, title: "Untitled" }} />);
   expect(screen.getAllByText("Untitled")).toHaveLength(1);
 });
+
+test("while the first read is in flight it says Loading, never the empty words", () => {
+  const { container } = render(
+    <NotesView notes={[]} collections={[]} loading />,
+  );
+  expect(container.textContent).toContain("Loading…");
+  expect(container.textContent).not.toContain("No notes yet");
+});

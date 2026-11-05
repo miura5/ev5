@@ -15,6 +15,8 @@ export interface NotesViewProps {
   initialOpen?: readonly string[];
   /** The read failed: the list is unknown, so it does not say "No notes yet". */
   failed?: boolean;
+  /** The first read is still in flight: the list is unknown, so it says "Loading…", never "No notes yet". */
+  loading?: boolean;
   onOpenNote?: (id: string) => void;
   onNewNote?: (collectionId?: string) => void;
   onNewCollection?: () => void;
@@ -30,6 +32,7 @@ export function NotesView({
   collections,
   initialOpen = [],
   failed = false,
+  loading = false,
   onOpenNote,
   onNewNote,
   onNewCollection,
@@ -58,7 +61,10 @@ export function NotesView({
       </div>
       <section className="ev-notes-sec" aria-label="Recent">
         <h2 className="ev-notes-label">Recent</h2>
-        {notes.length === 0 && !failed ? (
+        {notes.length === 0 && loading && !failed ? (
+          <span className="ev-notes-meta">Loading…</span>
+        ) : null}
+        {notes.length === 0 && !loading && !failed ? (
           <span className="ev-notes-meta">
             No notes yet. Press C to write one.
           </span>
