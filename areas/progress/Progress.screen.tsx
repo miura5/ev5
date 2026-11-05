@@ -1,6 +1,6 @@
 import { Bars } from "../../kit/index.ts";
 import "./progress.css";
-import { endedMinutesText, minutesText } from "./text.ts";
+import { endedMinutesText, minutesText, trendText } from "./text.ts";
 import { useProgress } from "./useProgress.ts";
 import type { ReadCopyLike } from "../../commands/client.ts";
 
@@ -30,7 +30,10 @@ export function ProgressScreen({
           <div className="ev-progress-big">
             <span className="ev-progress-num">{percent}</span>
             <span className="ev-progress-meta">
-              {["first try, from memory", ...trend].join(" · ")}
+              {[
+                "first try, from memory",
+                ...trend.map((t) => trendText(percent ?? "", t)),
+              ].join(" · ")}
             </span>
           </div>
           <Bars
