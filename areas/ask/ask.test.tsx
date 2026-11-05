@@ -25,6 +25,12 @@ test("the chat shows turns, a source, a job row and the try-first button", () =>
   expect(askArea.route).toBe("/ask");
 });
 
+test("an empty chat shows the kit empty line under the kit page head", () => {
+  const { container } = render(<AskView messages={[]} onSend={() => {}} />);
+  expect(container.querySelector('[data-ui="page"] [data-ui="empty"]')).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Ask E.V." })).toBeTruthy();
+});
+
 test("Enter sends the trimmed text and clears the box; Shift+Enter and empty do not send", () => {
   const onSend = vi.fn();
   render(<AskView messages={[]} onSend={onSend} />);
