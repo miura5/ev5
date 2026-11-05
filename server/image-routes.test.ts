@@ -72,3 +72,43 @@ test("a malformed key is 400, an empty or huge body is refused", async () => {
     413,
   );
 });
+
+test("no picture route can write or overwrite a key under exports/", async () => {
+  const store = new Map<string, ArrayBuffer>();
+  const IMAGES = {
+    async put(k: string, v: ArrayBuffer) {
+      store.set(k, v);
+    },
+    async get() {
+      return null;
+    },
+  };
+  const env = { IMAGES, TOKEN_APP: "app-t", TOKEN_SCHEDULE: "sch-t" } as unknown as Env;
+  const body = new Uint8Array([1, 2, 3]);
+  for (const name of [
+    "..%2Fexports%2Fev-export-2026-11-05.json",
+    "../exports/ev-export-2026-11-05.json",
+    "%2e%2e%2fexports%2fev-export-2026-11-05.json",
+    "exports%2Fev-export-2026-11-05.json",
+    "abcdEFGH12345678.png%2F..%2F..%2Fexports%2Fx.json",
+  ]) {
+    for (const token of ["app-t", "sch-t"]) {
+      const r = await app.request(
+        "/api/v1/note-images/" + name,
+        { method: "PUT", headers: { authorization: `Bearer ${token}` }, body },
+        env,
+      );
+      assert.ok(r.status >= 400, `${name} with ${token} got ${r.status}`);
+    }
+  }
+  assert.equal(store.size, 0);
+  for (const path of ["/api/v1/exports/ev-export-2026-11-05.json", "/api/v1/note-images/exports/x.png"]) {
+    const r = await app.request(
+      path,
+      { method: "PUT", headers: { authorization: "Bearer app-t" }, body },
+      env,
+    );
+    assert.ok(r.status >= 400);
+  }
+  assert.equal(store.size, 0);
+});
