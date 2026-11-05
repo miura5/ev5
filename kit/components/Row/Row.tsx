@@ -23,6 +23,8 @@ export interface RowProps {
   meta?: string;
   /** The one right-aligned value. */
   value?: string;
+  /** An always-visible meter between the text and the value, such as a `Meter`. */
+  bar?: ReactNode;
   /** The type glyph, drawn by the caller. */
   glyph?: ReactNode;
   selected?: boolean;
@@ -48,6 +50,7 @@ export function Row({
   title,
   meta,
   value,
+  bar,
   glyph,
   selected,
   onOpen,
@@ -123,6 +126,7 @@ export function Row({
         <div className="kit-row-title">{title}</div>
         {meta ? <span className="kit-row-meta">{meta}</span> : null}
       </div>
+      {bar ? <span className="kit-row-bar">{bar}</span> : null}
       {actions || menu?.button ? (
         <span className="kit-row-act">
           {actions}
@@ -173,16 +177,19 @@ export interface EditorCell {
 }
 
 export interface EditorRowProps {
-  /** Two cells: the term and its meaning, or a step and its detail. */
-  cells: [EditorCell, EditorCell];
+  /** Two cells (a term and its meaning), or one (a step). */
+  cells: [EditorCell] | [EditorCell, EditorCell];
   /** Buttons that show on hover or focus. */
   actions?: ReactNode;
 }
 
-/** A set editor line: two borderless cells that edit in place. */
+/** A set editor line: one or two borderless cells that edit in place. */
 export function EditorRow({ cells, actions }: EditorRowProps) {
   return (
-    <div className="kit-erow" data-ui="editor-row">
+    <div
+      className={cells.length === 1 ? "kit-erow kit-erow-one" : "kit-erow"}
+      data-ui="editor-row"
+    >
       {cells.map((c) => (
         <input
           key={c.label}

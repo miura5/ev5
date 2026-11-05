@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Glyph } from "../Glyph/Glyph";
 import { Button } from "../Button/Button";
+import { Meter } from "../Meter/Meter";
 import { EditorRow, Row } from "./Row";
 
 const MENU = [
@@ -12,6 +13,7 @@ export function Story() {
   const [open, setOpen] = useState(true);
   const [term, setTerm] = useState("Heparin");
   const [meaning, setMeaning] = useState("Anticoagulant; watch aPTT");
+  const [step, setStep] = useState("Check the order");
   return (
     <div data-ui="story-row">
       <Row
@@ -66,6 +68,29 @@ export function Story() {
         ]}
         actions={
           <Button kind="icon" aria-label="Remove line">
+            ×
+          </Button>
+        }
+      />
+      <Row
+        title="Heart failure"
+        meta="Due Friday"
+        value="Tomorrow"
+        bar={
+          <Meter
+            label="Right 60%, shaky 30%, wrong 10%"
+            parts={[
+              { tone: "ok", count: 6 },
+              { tone: "warn", count: 3 },
+              { tone: "bad", count: 1 },
+            ]}
+          />
+        }
+      />
+      <EditorRow
+        cells={[{ label: "Step", value: step, onChange: setStep }]}
+        actions={
+          <Button kind="icon" aria-label="Remove step">
             ×
           </Button>
         }
