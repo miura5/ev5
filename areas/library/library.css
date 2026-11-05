@@ -58,6 +58,29 @@
   min-width: 0;
 }
 
+.ev-library-session {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ev-library-session > :nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-library-session > :first-child,
+.ev-library-session > :last-child {
+  color: var(--text-quiet, var(--text));
+  font-size: var(--fs-meta);
+}
+
+.ev-library-label {
+  margin: 0;
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+}
+
 .ev-library-bar {
   display: flex;
   width: 96px;
