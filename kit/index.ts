@@ -19,6 +19,7 @@ import "./components/EvLine/EvLine.css";
 import "./components/StudyCard/StudyCard.css";
 import "./components/Detail/Detail.css";
 import "./components/Doc/Doc.css";
+import "./components/SessionBar/SessionBar.css";
 import "./components/Palette/Palette.css";
 import "./components/AreaIcon/AreaIcon.css";
 import "./components/NavItem/NavItem.css";
@@ -57,6 +58,7 @@ import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
 import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story";
 import { Story as DetailStory } from "./components/Detail/Detail.story";
 import { Story as DocStory } from "./components/Doc/Doc.story";
+import { Story as SessionBarStory } from "./components/SessionBar/SessionBar.story";
 import { Story as DotStory } from "./components/Dot/Dot.story";
 import { Story as MeterStory } from "./components/Meter/Meter.story";
 import { Story as TabsStory } from "./components/Tabs/Tabs.story";
@@ -80,6 +82,7 @@ export const STORIES = [
   { name: "Study card", Story: StudyCardStory },
   { name: "Detail", Story: DetailStory },
   { name: "Doc", Story: DocStory },
+  { name: "Session bar", Story: SessionBarStory },
   { name: "Palette", Story: PaletteStory },
   { name: "Area icon", Story: AreaIconStory },
   { name: "Nav item", Story: NavItemStory },
@@ -103,6 +106,10 @@ export { Palette, type PaletteGroup } from "./components/Palette/Palette";
 export { Button } from "./components/Button/Button";
 export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
+/** @public Waits for the sessions area to take it up. */
+export { SessionBar } from "./components/SessionBar/SessionBar";
+/** @public Waits for the areas to take it up. */
+export { StudyCard } from "./components/StudyCard/StudyCard";
 export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Bars } from "./components/Bars/Bars";

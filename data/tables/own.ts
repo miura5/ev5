@@ -9,6 +9,7 @@ import {
   core,
   iso,
   json,
+  readRows,
   type Input,
   type Raw,
   type Saved,
@@ -44,7 +45,12 @@ export function ownRepo(db: D1Like, opts: TablesOptions) {
   return {
     ownSets: {
       list: async (): Promise<OwnSet[]> =>
-        (await all("SELECT * FROM own_sets ORDER BY id")).map(toSet),
+        readRows(
+          "own_sets",
+          await all("SELECT * FROM own_sets ORDER BY id"),
+          toSet,
+          opts,
+        ),
       get: async (id: string): Promise<OwnSet | null> => {
         const r = await first("SELECT * FROM own_sets WHERE id = ?", id);
         return r ? toSet(r) : null;
@@ -69,12 +75,15 @@ export function ownRepo(db: D1Like, opts: TablesOptions) {
             }),
         ),
       items: async (setId: string): Promise<OwnSetItem[]> =>
-        (
+        readRows(
+          "own_set_items",
           await all(
             "SELECT * FROM own_set_items WHERE set_id = ? ORDER BY pos, item_id",
             setId,
-          )
-        ).map(toItem),
+          ),
+          toItem,
+          opts,
+        ),
       saveItem: (i: Input<OwnSetItem>, ifVersion: number | null) =>
         putVersioned(
           "own_set_items",
@@ -112,19 +121,21 @@ export function ownRepo(db: D1Like, opts: TablesOptions) {
         return { ok: true, row };
       },
       list: async (setId: string): Promise<OwnAttempt[]> =>
-        (
+        readRows(
+          "own_attempts",
           await all(
             "SELECT * FROM own_attempts WHERE set_id = ? ORDER BY at, item_id, key",
             setId,
-          )
-        ).map((r) =>
-          parseOwnAttempt({
-            setId: r.set_id,
-            itemId: r.item_id,
-            key: r.key,
-            at: iso(r.at as number),
-            body: json(r.body),
-          }),
+          ),
+          (r) =>
+            parseOwnAttempt({
+              setId: r.set_id,
+              itemId: r.item_id,
+              key: r.key,
+              at: iso(r.at as number),
+              body: json(r.body),
+            }),
+          opts,
         ),
     },
   };

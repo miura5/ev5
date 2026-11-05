@@ -8,6 +8,7 @@ import {
   core,
   iso,
   json,
+  readRows,
   text,
   type Input,
   type Raw,
@@ -56,8 +57,11 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
   return {
     collections: {
       list: async (): Promise<Collection[]> =>
-        (await all("SELECT * FROM collections ORDER BY pos, id")).map(
+        readRows(
+          "collections",
+          await all("SELECT * FROM collections ORDER BY pos, id"),
           toCollection,
+          opts,
         ),
       get: async (id: string): Promise<Collection | null> => {
         const r = await first("SELECT * FROM collections WHERE id = ?", id);
@@ -84,15 +88,19 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     },
     memberships: {
       list: async (collectionId?: string): Promise<Membership[]> =>
-        (collectionId === undefined
-          ? await all(
-              "SELECT * FROM memberships ORDER BY at DESC, item_c, item_id",
-            )
-          : await all(
-              "SELECT * FROM memberships WHERE collection_id = ? ORDER BY at DESC, item_c, item_id",
-              collectionId,
-            )
-        ).map(toMembership),
+        readRows(
+          "memberships",
+          collectionId === undefined
+            ? await all(
+                "SELECT * FROM memberships ORDER BY at DESC, item_c, item_id",
+              )
+            : await all(
+                "SELECT * FROM memberships WHERE collection_id = ? ORDER BY at DESC, item_c, item_id",
+                collectionId,
+              ),
+          toMembership,
+          opts,
+        ),
       get: async (
         itemC: string,
         itemId: string,
@@ -132,7 +140,9 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     },
     pins: {
       list: async (): Promise<Pin[]> =>
-        (await all("SELECT * FROM pins ORDER BY pos, target_c, target_id")).map(
+        readRows(
+          "pins",
+          await all("SELECT * FROM pins ORDER BY pos, target_c, target_id"),
           (r) =>
             parsePin({
               targetC: r.target_c,
@@ -140,6 +150,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
               pos: r.pos,
               at: iso(r.at as number),
             }),
+          opts,
         ),
       /** Pins have no version: a pin is set or moved by writing its position (the latest write wins). */
       set: async (
@@ -174,7 +185,12 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
         return r ? toProps(r) : null;
       },
       list: async (): Promise<ItemProps[]> =>
-        (await all("SELECT * FROM item_props ORDER BY c, id")).map(toProps),
+        readRows(
+          "item_props",
+          await all("SELECT * FROM item_props ORDER BY c, id"),
+          toProps,
+          opts,
+        ),
       save: (p: Input<ItemProps>, ifVersion: number | null) =>
         putVersioned(
           "item_props",
