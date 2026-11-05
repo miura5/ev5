@@ -255,3 +255,24 @@ test("a repeat is a Suggestion until Matt accepts it", async () => {
   assert.equal((await call("proposal.accept", { id: s.body.suggestion.id })).status, 200);
   assert.ok(await doc("dayedits", "2026-11-06"));
 });
+
+test("a Suggestion whose command fails goes back to pending with a new version and time", async () => {
+  const { call, DB } = await setup();
+  const id = (
+    await call("plan.create", { title: "A", date: "2026-11-08" }, "ev")
+  ).body.suggestion.id as string;
+  const row = () =>
+    DB.prepare("SELECT state, at, v FROM drafts WHERE id = ?")
+      .bind(id)
+      .first<{ state: string; at: string; v: number }>();
+  const before = (await row())!;
+  await DB.prepare("UPDATE drafts SET body = ? WHERE id = ?")
+    .bind(JSON.stringify({ title: "A", date: "not-a-date" }), id)
+    .run();
+  const failed = await call("proposal.accept", { id });
+  assert.notEqual(failed.status, 200);
+  const after = (await row())!;
+  assert.equal(after.state, "pending");
+  assert.equal(after.v, before.v + 2); // claimed, then handed back
+  assert.ok(after.at);
+});

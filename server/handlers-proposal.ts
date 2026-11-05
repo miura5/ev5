@@ -68,10 +68,15 @@ export const proposalHandlers = (
         result: await run(JSON.parse(r.body) as never, caller, x),
       };
     } catch (e) {
-      await x.db
-        .prepare("UPDATE drafts SET state = 'pending', v = v + 1 WHERE id = ?")
-        .bind(r.id)
+      // The claim left the row at r.v + 1; hand it back only if nobody moved it since (the version pin).
+      const back = await x.db
+        .prepare(
+          "UPDATE drafts SET state = 'pending', at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'kept'",
+        )
+        .bind(x.clock(), r.id, r.v + 1)
         .run();
+      if (!back.meta.changes)
+        throw new CommandError(409, "that Suggestion already changed");
       throw e;
     }
   },
