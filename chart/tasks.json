@@ -15218,7 +15218,7 @@
    "B-797",
    "B-753"
   ],
-  "notes": "Run 60 #405 and #407: nightly export at 00:30 Central into exports/ev-export-<Central date>.json in the IMAGES bucket, never overwritten, counts only, exportAll exported from data. Left: staging proof of one run (check the R2 key), token write under exports/ unchecked, copy to Matt's Mac backups folder, no job record.",
+  "notes": "Run 60 #405/#407 nightly export. Run 75 #471: tests that no picture route can write under exports/ and a lost put race throws. Left: staging proof of one run (R2 key), Cloudflare-level token check, Mac copy, no job record (needs a Chart decision on job kinds, §job.kinds).",
   "commit": "645c043",
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -15233,7 +15233,7 @@
    "B-760",
    "B-753"
   ],
-  "notes": "Audit (review F1, F6): D-457 moved the scratch-copy check to 'the cutover checklist', which does not exist; no task holds the §deliver.cutover steps.",
+  "notes": "Run 75 #470: ops/CUTOVER.md (12 steps, who, Matt's word, proof, blank run record). Open: the checklist is not rehearsed; Gate 6 (B-760) must close first.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
