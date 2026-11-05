@@ -5412,10 +5412,10 @@
   "title": "ev4's finished tasks and its decisions move out of the live Chart into frozen history",
   "dod": "ev4-era tasks that are done or declined, and decisions up to D-439, move to chart/history/ (read-only like deploys.json: the writer refuses to change them, and lint still resolves links into them); chart/rules.json and chart/views.json (ev4's ship rules and retired Docs views) are deleted; chart/releases.json and the v4-only CHANGELOG render are dropped, the release card being the release record; the id sequence continues unchanged; BACKLOG.md keeps its table format for open tasks; render and lint green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write chart/, ops/record/, docs/record/; read none. Today about 700 of 977 tasks and 395 of 439 decisions are ev4's, loaded by every session that opens the Chart. The ev4-era tasks still open (moved to after cutover) stay in the live file. The playtest refresh script outside the repo reads BACKLOG.md through its raw URL, so keep that file and its open-task rows.",
-  "commit": null,
+  "notes": "PR 515: chart/history frozen (636 tasks, 396 decisions); live 383 tasks, 50 decisions; rules, views, releases, CHANGELOG render dropped.",
+  "commit": "9a46e8a",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -5436,12 +5436,12 @@
   "title": "The Chart's milestones have one spelling, no task stays in progress after its work merged, and gates are tracked as tasks",
   "dod": "lint fails a live task whose milestone is outside Phase 0 to Phase 7, after-cutover or Inbox, and the existing '5', 'v5 P5' and similar spellings are rewritten to Phase n; B-665, B-817, B-818, B-849, B-851, B-923 and B-943 are closed with their commit or set back to open from what their PRs show; lint warns on a new decision whose title only opens or closes a gate, since a gate's state is its task's status and notes",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-994"
   ],
-  "notes": "Slice: write ops/record/, chart/; read none. Gate 5 was opened and closed through four decisions, while two decisions that contradict CONTRACT lines were never ended.",
-  "commit": null,
+  "notes": "PR 517: 250 milestones rewritten; lint refuses others and warns on gate-only decisions; B-943 closed.",
+  "commit": "c8ff236",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -5462,12 +5462,12 @@
   "title": "Migrations baseline for v5's own tables, held to the row shapes",
   "dod": "One empty-database baseline migration creates every table with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Slice write: data/migrations",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-997"
   ],
-  "notes": "",
-  "commit": null,
+  "notes": "PR 516: migration 0005 pointer indexes; PRAGMA table_info test against 14 domain row shapes; ADD COLUMN allowed. exam, objective, weak spot, set, session, note have no row shape yet.",
+  "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
@@ -5741,12 +5741,12 @@
   "title": "The Chart tools record the owner as a role, not a name",
   "dod": "ops/record writes 'owner' for --waiting-on and --ok, and a live release needs --ok owner; the live Chart's existing values are rewritten; chart/history keeps its words; the renders say the owner; lint and render green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-994"
   ],
-  "notes": "Slice: write ops/record/, chart/, docs/record/; read none. Decision: D-486. After B-994, so ev4's history is frozen first and only the live files change. The playtest refresh script outside the repo reads BACKLOG.md: keep its table format.",
-  "commit": null,
+  "notes": "PR 519: --waiting-on takes owner or none; 10 live values rewritten; history and deploys.json left frozen.",
+  "commit": "99554f5",
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
  {
@@ -5781,7 +5781,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Seen on PR 509: baselines succeeded, a dispatched CI run passed, but the pull_request run on the same sha stayed action_required and the PR stayed blocked until main moved and update-branch started CI. Slice: write .github/.",
+  "notes": "PR 514 merged: visual-baselines deletes the stuck action_required pull_request run after dispatching CI. UNPROVEN on a real kit PR; if the PR still blocks, the options are a PAT/App token for the push or the repo setting for bot workflow approval (both need Matt).",
   "commit": null,
   "source": "run 82 B-1020/B-1019"
  },
@@ -5795,8 +5795,20 @@
   "depends": [
    "B-997"
   ],
-  "notes": "Split from B-997 (part one merged). Order: domain row shapes, then data/jobs/commands callers, then an areas task for WireDoc.",
+  "notes": "Part one merged (PR 518): domain/claude, domain/system-doc, parseDraft exported; data, jobs/runtime, ceilings parse through domain shapes; deletion and job-plan at is an integer. Remains: Zod shapes for exam..course (hand validators today), a domain plan-body shape so commands/ and jobs/ drop PlanSchema, server/ SQL for claude_settings and job_plans via the domain, areas WireDoc removal.",
   "commit": null,
   "source": "run 82 B-997 report"
+ },
+ {
+  "id": "B-1023",
+  "kind": "task",
+  "title": "README and AGENTS no longer mention the dropped CHANGELOG render",
+  "dod": "README.md and AGENTS.md S-02 stop naming CHANGELOG.md and ev4's rules/views/releases files; checks green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Left over from B-994 (outside its slice). Slice: write README.md, AGENTS.md.",
+  "commit": null,
+  "source": "run 83 B-994 report"
  }
 ]
