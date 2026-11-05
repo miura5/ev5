@@ -14,6 +14,8 @@ import {
   sweepStale,
   workflowExecutor,
 } from "../jobs/index.ts";
+import { tablesRepo } from "../data/index.ts";
+import type { DocsD1 } from "../data/index.ts";
 import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
@@ -57,13 +59,11 @@ export async function saveScope(
   scope: unknown,
   at: number,
 ) {
-  await db
-    .prepare(
-      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'scope', ?, ?) " +
-        "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
-    )
-    .bind(jobId, JSON.stringify(scope), at)
-    .run();
+  await tablesRepo(db as DocsD1, { clock: () => at }).jobPlans.put(
+    jobId,
+    "scope",
+    scope,
+  );
 }
 
 export async function withGathered(

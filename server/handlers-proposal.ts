@@ -2,6 +2,7 @@
 // Matt accepts it (it then runs as his own direct call and the row is marked kept), edits its input, or dismisses it.
 import { byName } from "../commands/index.ts";
 import type { suggest } from "../commands/index.ts";
+import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 
@@ -16,14 +17,19 @@ export async function saveSuggestion(
   s: Suggestion,
 ): Promise<Suggestion & { id: string }> {
   const id = x.newId();
-  await x.db
-    .prepare(
-      "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, ?, ?, 'commands', ?, ?, 'pending', ?, 1)",
-    )
-    .bind(id, PROPOSER, KIND, s.command, JSON.stringify(s.input), x.clock())
-    .run();
+  await repo(x).create({
+    id,
+    jobId: PROPOSER,
+    kind: KIND,
+    targetC: "commands",
+    targetId: s.command,
+    body: JSON.stringify(s.input),
+  });
   return { ...s, id };
 }
+
+const repo = (x: Pick<HandlerCtx, "db" | "clock">) =>
+  tablesRepo(x.db, { clock: x.clock }).drafts;
 
 async function pending(x: HandlerCtx, id: string): Promise<Row> {
   const r = await x.db
@@ -43,13 +49,7 @@ async function settle(
   state: "kept" | "dropped",
   body = r.body,
 ) {
-  const done = await x.db
-    .prepare(
-      "UPDATE drafts SET state = ?, body = ?, at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'pending'",
-    )
-    .bind(state, body, x.clock(), r.id, r.v)
-    .run();
-  if (!done.meta.changes)
+  if (!(await repo(x).claim(r.id, r.v, state, body)))
     throw new CommandError(409, "that Suggestion already changed");
 }
 
@@ -69,13 +69,7 @@ export const proposalHandlers = (
       };
     } catch (e) {
       // The claim left the row at r.v + 1; hand it back only if nobody moved it since (the version pin).
-      const back = await x.db
-        .prepare(
-          "UPDATE drafts SET state = 'pending', at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'kept'",
-        )
-        .bind(x.clock(), r.id, r.v + 1)
-        .run();
-      if (!back.meta.changes)
+      if (!(await repo(x).reopen(r.id, r.v + 1)))
         throw new CommandError(409, "that Suggestion already changed");
       throw e;
     }
@@ -91,13 +85,7 @@ export const proposalHandlers = (
     const next = cmd?.input.safeParse({ ...JSON.parse(r.body), ...i.input });
     if (!next?.success)
       throw new CommandError(400, "that edit does not fit the command");
-    const done = await x.db
-      .prepare(
-        "UPDATE drafts SET body = ?, at = ?, v = v + 1 WHERE id = ? AND v = ? AND state = 'pending'",
-      )
-      .bind(JSON.stringify(next.data), x.clock(), r.id, r.v)
-      .run();
-    if (!done.meta.changes)
+    if (!(await repo(x).edit(r.id, r.v, JSON.stringify(next.data))))
       throw new CommandError(409, "that Suggestion already changed");
     return { id: r.id, command: r.target_id, input: next.data };
   },
