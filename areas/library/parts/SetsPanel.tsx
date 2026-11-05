@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Glyph, TextOptions, Tile } from "../../../kit/index.ts";
+import { Empty, Glyph, TextOptions, Tile } from "../../../kit/index.ts";
 import type { LibrarySet, SetKind } from "../types.ts";
 
 type Filter = "all" | SetKind;
@@ -32,9 +32,7 @@ export function SetsPanel({
         options={OPTIONS.map((o) => ({ ...o, count: count(o.value) }))}
       />
       {shown.length === 0 ? (
-        <span className="ev-library-meta">
-          No {filter === "all" ? "" : `${filter} `}sets yet.
-        </span>
+        <Empty line={`No ${filter === "all" ? "" : `${filter} `}sets yet.`} />
       ) : (
         <div className="ev-library-tiles">
           {shown.map((s) => (

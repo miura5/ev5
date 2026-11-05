@@ -1,6 +1,5 @@
-import { Button, Glyph } from "../../kit/index.ts";
+import { Button, Empty, Glyph, Page, Row, Section } from "../../kit/index.ts";
 import type { SetPageData } from "./types.ts";
-import "./library.css";
 
 export interface SetPageViewProps {
   set: SetPageData;
@@ -11,35 +10,32 @@ export interface SetPageViewProps {
 /** A set's page in view mode: title, Study, then its items with answers (browsing his own set shows them). */
 export function SetPageView({ set, onStudy, onBack }: SetPageViewProps) {
   return (
-    <section className="ev-library" aria-label="Set">
-      <div className="ev-library-head">
-        <Glyph type={set.kind} />
-        <h1 className="ev-library-title">{set.title}</h1>
-        <span className="ev-library-meta">{set.meta}</span>
-        <span className="ev-library-grow" />
-        {onBack ? (
+    <Page
+      title={set.title}
+      meta={set.meta}
+      glyph={<Glyph type={set.kind} />}
+      crumb={
+        onBack ? (
           <Button kind="text" onClick={onBack}>
-            Library
+            ← Library
           </Button>
-        ) : null}
+        ) : undefined
+      }
+      actions={
         <Button kind="primary" onClick={onStudy}>
           Study
         </Button>
-      </div>
-      {set.items.length === 0 ? (
-        <span className="ev-library-meta">No items yet.</span>
-      ) : (
-        <ol className="ev-library-items">
-          {set.items.map((it) => (
-            <li key={it.id} className="ev-library-item">
-              <span>{it.front}</span>
-              {it.back ? (
-                <span className="ev-library-meta">{it.back}</span>
-              ) : null}
-            </li>
-          ))}
-        </ol>
-      )}
-    </section>
+      }
+    >
+      <Section label="Items">
+        {set.items.length === 0 ? (
+          <Empty line="No items yet." />
+        ) : (
+          set.items.map((it) => (
+            <Row key={it.id} title={it.front} meta={it.back || undefined} />
+          ))
+        )}
+      </Section>
+    </Page>
   );
 }
