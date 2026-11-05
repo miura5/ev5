@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { LibraryView } from "./Library.view.tsx";
 import { SetEditView } from "./SetEdit.view.tsx";
-import { ExamPlanDetail } from "./ExamPlan.detail.tsx";
+import { ExamPlanDetail } from "./testHost.tsx";
 import { StudyView } from "./Study.view.tsx";
 
 afterEach(cleanup);
@@ -28,7 +28,9 @@ test("edit mode changes title, rows, kind, adds and deletes, and finishes", () =
       {...h}
     />,
   );
-  fireEvent.change(screen.getByLabelText("Title"), { target: { value: "H" } });
+  const title = screen.getByLabelText("Title");
+  fireEvent.change(title, { target: { value: "H" } });
+  fireEvent.blur(title);
   expect(h.onTitle).toHaveBeenCalledWith("H");
   fireEvent.change(screen.getByLabelText("Definition 1"), {
     target: { value: "x" },
@@ -115,7 +117,8 @@ test("study asks for the attempt first, reveals with source, rates, and ends", (
     />,
   );
   expect(screen.queryByText("Stretch")).toBeNull();
-  expect(screen.getByText("Turn over").closest("button")?.disabled).toBe(true);
+  fireEvent.click(screen.getByText("Turn over"));
+  expect(screen.queryByText("Stretch")).toBeNull();
   fireEvent.change(screen.getByLabelText("Your answer"), {
     target: { value: "filling" },
   });

@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Detail, Toast } from "../../kit/index.ts";
+import { useEffect, useRef, useState } from "react";
+import { Empty, Page, Toast, type DetailProps } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
-import { ExamPlanDetail } from "./ExamPlan.detail.tsx";
+import { examPlanDetail } from "./ExamPlan.detail.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
 import { useStudy, useTellMe, type LibraryServices } from "./useStudy.ts";
@@ -25,29 +25,29 @@ const PLAN_TEXT = {
 } as const;
 
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
-export function LibraryScreen({ services }: { services?: LibraryServices }) {
+export function LibraryScreen({
+  services,
+  onDetail,
+}: {
+  services?: LibraryServices;
+  onDetail?: (detail: DetailProps | null) => void;
+}) {
   const { data, token, refused, error, runPlan, answerPlan } = useLibrary(
     services?.readCopy,
   );
   const [planNote, setPlanNote] = useState<string>();
   const [open, setOpen] = useState<string | undefined>(openFromUrl);
+  // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
+  const [openKey, setOpenKey] = useState(0);
+  const openIt = (id: string) => {
+    setOpen(id);
+    setOpenKey((k) => k + 1);
+  };
   // An exam opened by a link (Today's Review the study plan) shows its proposal at once.
   const [openedByLink] = useState(() => !!openFromUrl());
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
-  // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty library.
-  if (!token || refused) return null;
-  // First data still on its way: the heading and a loading line, never an empty pane.
-  if (!data && !error)
-    return (
-      <section className="ev-library" aria-label="Library">
-        <div className="ev-library-head">
-          <h1 className="ev-library-title">Library</h1>
-          <span className="ev-library-meta">Loading…</span>
-        </div>
-      </section>
-    );
   // A plan answer that went through says so; one that did not says why.
   const plan = async (
     name: Parameters<typeof runPlan>[0],
@@ -60,7 +60,78 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
       (await answerPlan(id, decision)) ??
         (decision === "approve" ? "Plan approved" : "Plan put away"),
     );
+  const last = useRef({ plan, answer });
+  last.current = { plan, answer };
   const page = open ? data?.pages[open] : undefined;
+  const exam = open ? data?.exams.find((x) => x.id === open) : undefined;
+  const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
+  // The exam's or weak spot's Detail lives in the shell's host; the shell closes it on Esc and when Matt leaves the screen.
+  useEffect(() => {
+    if (!onDetail) return;
+    const close = () => setOpen(undefined);
+    if (page || (!exam && !spot)) return onDetail(null);
+    if (exam)
+      return onDetail(
+        examPlanDetail({
+          exam: {
+            id: exam.id,
+            title: exam.title,
+            when: exam.when,
+            course: exam.course,
+            readiness: exam.readiness || "none yet",
+            plan: PLAN_TEXT[exam.planState ?? "none"],
+            planState: exam.planState,
+            planId: exam.planId,
+            proposals: [],
+            sessions: exam.sessions,
+          },
+          startOpen: openedByLink,
+          onPlanWithEv: () =>
+            void last.current.plan(
+              "date.plan_with_ev",
+              { id: exam.id },
+              "E.V. is drafting a plan",
+            ),
+          onApprove: (id) =>
+            void (exam.waiting
+              ? last.current.answer(id, "approve")
+              : last.current.plan("studyplan.approve", { id }, "Plan approved")),
+          onAskChanges: (id, note) =>
+            void last.current.plan(
+              "studyplan.ask_changes",
+              { id, note },
+              "Changes sent",
+            ),
+          onPutAway: (id) =>
+            void (exam.waiting
+              ? last.current.answer(id, "put_away")
+              : last.current.plan(
+                  "studyplan.put_away",
+                  { id },
+                  "Plan put away",
+                )),
+          onClose: close,
+        }),
+      );
+    if (spot)
+      onDetail({
+        title: spot.title,
+        onClose: close,
+        properties: [
+          { label: "Course", value: spot.meta },
+          { label: "Next", value: spot.due },
+        ],
+      });
+  }, [page, exam, spot, openedByLink, openKey, onDetail]);
+  // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty library.
+  if (!token || refused) return null;
+  // First data still on its way: the heading and a loading line, never an empty pane.
+  if (!data && !error)
+    return (
+      <Page title="Library">
+        <Empty line="Loading…" />
+      </Page>
+    );
   if (page && studying)
     return (
       <StudyView
@@ -84,8 +155,6 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         onBack={() => setOpen(undefined)}
       />
     );
-  const exam = open ? data?.exams.find((x) => x.id === open) : undefined;
-  const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
   return (
     <>
       {error || planNote ? <Toast message={planNote ?? error ?? ""} onDone={() => setPlanNote(undefined)} /> : null}
@@ -95,64 +164,11 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         exams={data?.exams ?? []}
         sets={data?.sets ?? []}
         accuracy={data?.accuracy ?? null}
-        onOpenSet={setOpen}
-        onOpenExam={setOpen}
-        onDrill={setOpen}
+        onOpenSet={openIt}
+        onOpenExam={openIt}
+        onDrill={openIt}
         initialTab={openedByLink && exam ? "exams" : undefined}
       />
-      {exam ? (
-        <div className="ev-library-detail">
-          <ExamPlanDetail
-            key={`${exam.id}:${exam.planState}`}
-            exam={{
-              id: exam.id,
-              title: exam.title,
-              when: exam.when,
-              course: exam.course,
-              readiness: exam.readiness || "none yet",
-              plan: PLAN_TEXT[exam.planState ?? "none"],
-              planState: exam.planState,
-              planId: exam.planId,
-              proposals: [],
-              sessions: exam.sessions,
-            }}
-            startOpen={openedByLink}
-            onPlanWithEv={() =>
-              plan(
-                "date.plan_with_ev",
-                { id: exam.id },
-                "E.V. is drafting a plan",
-              )
-            }
-            onApprove={(id) =>
-              exam.waiting
-                ? answer(id, "approve")
-                : plan("studyplan.approve", { id }, "Plan approved")
-            }
-            onAskChanges={(id, note) =>
-              plan("studyplan.ask_changes", { id, note }, "Changes sent")
-            }
-            onPutAway={(id) =>
-              exam.waiting
-                ? answer(id, "put_away")
-                : plan("studyplan.put_away", { id }, "Plan put away")
-            }
-            onClose={() => setOpen(undefined)}
-          />
-        </div>
-      ) : null}
-      {spot ? (
-        <div className="ev-library-detail">
-          <Detail
-            title={spot.title}
-            onClose={() => setOpen(undefined)}
-            properties={[
-              { label: "Course", value: spot.meta },
-              { label: "Next", value: spot.due },
-            ]}
-          />
-        </div>
-      ) : null}
     </>
   );
 }

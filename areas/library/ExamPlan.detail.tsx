@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { plainDay, weekdayShort } from "../../domain/index.ts";
-import { Button, Detail, Suggestion, TextArea } from "../../kit/index.ts";
+import {
+  Button,
+  Empty,
+  Row,
+  Section,
+  Suggestion,
+  TextArea,
+  type DetailProps,
+} from "../../kit/index.ts";
 import type { ExamPlanData } from "./types.ts";
 import "./library.css";
 
@@ -21,17 +29,30 @@ export interface ExamPlanDetailProps {
   startOpen?: boolean;
 }
 
-/** "Tue" for a Central date. */
-const dayOf = weekdayShort;
+/** The shell Detail for an exam date: its properties, then the study plan's actions and E.V.'s session proposals. */
+export function examPlanDetail(p: ExamPlanDetailProps): DetailProps {
+  const { exam } = p;
+  return {
+    title: exam.title,
+    onClose: p.onClose,
+    properties: [
+      { label: "Date", value: exam.when },
+      { label: "Course", value: exam.course },
+      { label: "Readiness", value: exam.readiness },
+      { label: "Plan", value: exam.plan },
+    ],
+    // Keyed on the plan's state, so a new state starts the body fresh.
+    children: <ExamPlanBody key={`${exam.id}:${exam.planState}`} {...p} />,
+  };
+}
 
-/** Detail for an exam date: its properties, the study plan's actions, and E.V.'s dashed session proposals. */
-export function ExamPlanDetail({
+/** What sits under the properties; it keeps its own open and asking state while the shell holds the panel. */
+function ExamPlanBody({
   exam,
   onReviewPlan,
   onAccept,
   onEdit,
   onDismiss,
-  onClose,
   onPlanWithEv,
   onApprove,
   onAskChanges,
@@ -48,16 +69,7 @@ export function ExamPlanDetail({
   const approved = exam.planState === "approved";
   const count = exam.sessions?.length ?? 0;
   return (
-    <Detail
-      title={exam.title}
-      onClose={onClose}
-      properties={[
-        { label: "Date", value: exam.when },
-        { label: "Course", value: exam.course },
-        { label: "Readiness", value: exam.readiness },
-        { label: "Plan", value: exam.plan },
-      ]}
-    >
+    <>
       <Button
         onClick={() => {
           setReview((r) => !r);
@@ -67,40 +79,42 @@ export function ExamPlanDetail({
         Review the study plan
       </Button>
       {exam.planState === "working" ? (
-        <span className="ev-library-meta" data-part="working">
-          E.V. is saving the plan…
-        </span>
+        <div data-part="working">
+          <Empty line="E.V. is saving the plan…" />
+        </div>
       ) : null}
       {approved ? (
-        <span className="ev-library-meta" data-part="approved">
-          {count
-            ? `Approved, ${count} ${count === 1 ? "session" : "sessions"} added to your plan`
-            : "Approved"}
-        </span>
+        <div data-part="approved">
+          <Empty
+            line={
+              count
+                ? `Approved, ${count} ${count === 1 ? "session" : "sessions"} added to your plan`
+                : "Approved"
+            }
+          />
+        </div>
       ) : null}
       {review ? (
-        <div className="ev-library-panel" data-part="proposal">
-          <h3 className="ev-library-label">
-            {approved ? "Sessions in your plan" : "Proposed sessions"}
-          </h3>
-          {exam.sessions?.length ? (
-            exam.sessions.map((s, i) => (
-              <div key={`${s.date}-${i}`} className="ev-library-session">
-                <span className="ev-library-day">{dayOf(s.date)} {plainDay(s.date, s.date)}</span>
-                <span>{s.title}</span>
-                <span>{s.minutes}m</span>
-              </div>
-            ))
-          ) : (
-            <span>The sessions are not shown here yet.</span>
-          )}
-          <span>
-            Built from: this exam&apos;s date and your weak spots for it
-          </span>
+        <div data-part="proposal">
+          <Section label={approved ? "Sessions in your plan" : "Proposed sessions"}>
+            {exam.sessions?.length ? (
+              exam.sessions.map((s, i) => (
+                <Row
+                  key={`${s.date}-${i}`}
+                  title={s.title}
+                  meta={`${weekdayShort(s.date)} ${plainDay(s.date, s.date)}`}
+                  value={`${s.minutes}m`}
+                />
+              ))
+            ) : (
+              <Empty line="The sessions are not shown here yet." />
+            )}
+            <Empty line="Built from: this exam's date and your weak spots for it" />
+          </Section>
         </div>
       ) : null}
       {draft ? (
-        <div className="ev-library-panel">
+        <>
           <div className="ev-library-actions">
             <Button kind="primary" onClick={() => onApprove?.(planId)}>
               Approve
@@ -132,7 +146,7 @@ export function ExamPlanDetail({
               </Button>
             </>
           ) : null}
-        </div>
+        </>
       ) : null}
       {!draft && exam.proposals.length === 0 ? (
         <Button kind="text" onClick={() => onPlanWithEv?.()}>
@@ -140,7 +154,7 @@ export function ExamPlanDetail({
         </Button>
       ) : null}
       {exam.proposals.length > 0 ? (
-        <div className="ev-library-panel">
+        <Section label="E.V. suggests">
           {exam.proposals.map((s) => (
             <Suggestion
               key={s.id}
@@ -150,8 +164,8 @@ export function ExamPlanDetail({
               onDismiss={() => onDismiss?.(s.id)}
             />
           ))}
-        </div>
+        </Section>
       ) : null}
-    </Detail>
+    </>
   );
 }
