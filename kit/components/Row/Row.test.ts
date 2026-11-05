@@ -146,3 +146,61 @@ test("the story renders", () => {
   render(createElement(Story));
   expect(screen.getByText("Fluid balance")).toBeTruthy();
 });
+
+test("level 2 nests a row two steps in", () => {
+  render(
+    createElement(Row, { title: "Deep", level: 2, onOpen: () => undefined }),
+  );
+  const row = screen.getByRole("button", { name: "Deep" });
+  expect(row.classList.contains("kit-row-lv2")).toBe(true);
+  expect(row.classList.contains("kit-row-lv1")).toBe(false);
+});
+
+test("actionsShown keeps the actions visible and reachable", () => {
+  const onGot = vi.fn();
+  render(
+    createElement(Row, {
+      title: "Spend alert",
+      actionsShown: true,
+      actions: createElement("button", { onClick: onGot }, "Got it"),
+    }),
+  );
+  expect(document.querySelector(".kit-row-acts-on")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Got it" }));
+  expect(onGot).toHaveBeenCalledTimes(1);
+  cleanup();
+  render(createElement(Row, { title: "Plain", actions: "x" }));
+  expect(document.querySelector(".kit-row-acts-on")).toBeNull();
+});
+
+test("a menu button opens the item menu without opening the row", async () => {
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+  Element.prototype.scrollIntoView ??= () => {};
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  const onOpen = vi.fn();
+  const onPick = vi.fn();
+  render(
+    createElement(Row, {
+      title: "Lab values",
+      onOpen,
+      menu: {
+        items: [{ key: "pin", label: "Pin" }],
+        onPick,
+        label: "Actions for Lab values",
+        button: true,
+      },
+    }),
+  );
+  const dots = screen.getByRole("button", { name: "Actions for Lab values" });
+  fireEvent.click(dots);
+  expect(onOpen).not.toHaveBeenCalled();
+  fireEvent.keyDown(dots, { key: "Enter" });
+  const item = await screen.findByRole("menuitem", { name: "Pin" });
+  fireEvent.click(item);
+  expect(onPick).toHaveBeenCalledWith("pin");
+});

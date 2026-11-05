@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import { Button } from "../Button/Button";
 import { Dot, type DotTone } from "../Dot/Dot";
 import { Menu, type MenuItem } from "../Menu/Menu";
 
@@ -7,6 +8,8 @@ export interface RowMenu {
   items: MenuItem[];
   onPick: (key: string) => void;
   label: string;
+  /** Also shows a ⋯ button, named by `label`, that opens the same menu (reachable by keyboard and touch). */
+  button?: boolean;
 }
 
 export interface RowFold {
@@ -34,8 +37,10 @@ export interface RowProps {
   done?: boolean;
   /** Makes the row fold: a chevron, `aria-expanded`, and arrow keys. */
   fold?: RowFold;
-  /** Nesting depth of a folding tree, 0 or 1 (24 px in). */
-  level?: 0 | 1;
+  /** Nesting depth of a folding tree, 0 to 2 (24 px in each). */
+  level?: 0 | 1 | 2;
+  /** Keeps `actions` and the ⋯ button visible, not only on hover, focus or selection. */
+  actionsShown?: boolean;
 }
 
 /** One line of a list: glyph, title, one meta, one value; actions appear on hover. */
@@ -52,6 +57,7 @@ export function Row({
   done,
   fold,
   level = 0,
+  actionsShown,
 }: RowProps) {
   const ref = useRef<HTMLDivElement>(null);
   const interactive = Boolean(onOpen || fold);
@@ -88,7 +94,8 @@ export function Row({
   if (selected) classes.push("kit-row-sel");
   if (done) classes.push("kit-row-done");
   if (fold || level) classes.push("kit-row-tree");
-  if (level) classes.push("kit-row-lv1");
+  if (level) classes.push(`kit-row-lv${level}`);
+  if (actionsShown) classes.push("kit-row-acts-on");
   const row = (
     <div
       ref={ref}
@@ -116,7 +123,27 @@ export function Row({
         <div className="kit-row-title">{title}</div>
         {meta ? <span className="kit-row-meta">{meta}</span> : null}
       </div>
-      {actions ? <span className="kit-row-act">{actions}</span> : null}
+      {actions || menu?.button ? (
+        <span className="kit-row-act">
+          {actions}
+          {menu?.button ? (
+            <Menu
+              label={menu.label}
+              items={menu.items}
+              onPick={menu.onPick}
+              trigger={
+                <Button
+                  kind="icon"
+                  aria-label={menu.label}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  ⋯
+                </Button>
+              }
+            />
+          ) : null}
+        </span>
+      ) : null}
       {status || value ? (
         <span className="kit-row-value">
           {status ? <Dot tone={status.tone} label={status.label} /> : null}
