@@ -63,8 +63,12 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
         { decision: "change", note },
       );
       return { job };
-    } catch {
-      throw new CommandError(409, "that plan changed; try again");
+    } catch (e) {
+      // The runtime's own sentence says what refused (a state race, or the Workflow could not take the answer).
+      throw new CommandError(
+        409,
+        `that plan changed; try again (${(e as Error).message})`,
+      );
     }
   },
 };
