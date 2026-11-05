@@ -21,18 +21,18 @@ test('an unknown /api path stays 404 and health stays up', async () => {
   assert.equal((await app.request('/api/health', {}, env)).status, 200);
 });
 
-test('ev4 page files answer a plain "E.V. has moved, reload" and are never cached', async () => {
+test('ev4 page files answer a plain "E.V. updated, reload" and are never cached', async () => {
   for (const p of ['/bridge.js', '/app.js', '/core.js', '/spec.json', '/styles.css']) {
     const res = await app.request(p, {}, env);
     assert.equal(res.status, 410, p);
-    assert.equal(await res.text(), 'E.V. has moved, reload');
+    assert.equal(await res.text(), 'E.V. updated, reload');
     assert.equal(res.headers.get('cache-control'), 'no-store');
   }
 });
 
 test('ev4 api answers carry the reload text; v5 files still reach the assets', async () => {
   const res = await app.request('/api/db', {}, env);
-  assert.deepEqual(await res.json(), { error: 'gone', message: 'E.V. has moved, reload' });
+  assert.deepEqual(await res.json(), { error: 'gone', message: 'E.V. updated, reload' });
   for (const p of ['/', '/sw.js', '/manifest.webmanifest', '/assets/x.js']) {
     assert.equal(await (await app.request(p, {}, env)).text(), 'x', p);
   }

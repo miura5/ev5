@@ -135,7 +135,7 @@ export function checkPlan(plan: Plan, ctx: PlanContext): string[] {
   ];
 }
 
-/** Change rounds on one draft. Each round is its own step so its continuation id (`jobId:step`) is new (§job.needs-you). */
+/** Change rounds on one draft. Each round is its own step so its continuation id (`jobId-step-round`) is new (§job.needs-you). */
 export const MAX_CHANGE_ROUNDS = 5;
 export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
   i === 0 ? 'revise' : `revise_${i + 1}`,
