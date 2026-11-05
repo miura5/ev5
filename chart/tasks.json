@@ -17154,9 +17154,10 @@
   "depends": [
    "B-966",
    "B-967",
-   "B-968"
+   "B-968",
+   "B-1018"
   ],
-  "notes": "Slice: write areas/notes/; read kit/, shell's area-view props. Open note fixes in PR 461 and PR 474 (title typing, loading lines) touch the same files: land those first. The note editor's two extra renderers are not part of this task.",
+  "notes": "Notes home done in PR 503 (run 80). The note page still uses its own column, doc-title, docmeta and session-bar CSS: waits on B-1018 (editable Page title).",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -17810,7 +17811,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page), which stopped with no PR because the kit lacks these. B-973 depends on this.",
+  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page, stopped with no PR), B-972 (Notes home merged as PR 503; the note page waits on this) and B-975. Also needed: Row level 2 (notes inside a sub-collection), and a Row option for the ⋯ menu button and Move picker (areas/notes RowActions and e2e/notes-offline.journey.spec.ts selects .ev-notes-line). B-972 stays open for the note page; B-973 depends on this.",
   "commit": null,
   "source": "B-973 builder report, run 80"
  }
