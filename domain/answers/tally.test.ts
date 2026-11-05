@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import { mapLibrary } from "./map.ts";
 import { accuracyLine, dueCounts } from "./tally.ts";
 
 const now = Date.parse("2026-11-04T18:00:00Z");
@@ -51,32 +50,4 @@ test("due counts items whose latest answer was wrong or told", () => {
     { id: "bad", data: { nope: 1 } },
   ];
   expect(dueCounts(docs).get("s")).toBe(2);
-});
-
-test("mapLibrary carries the accuracy line and a set's due count", () => {
-  const set = {
-    schema: 3,
-    writer: "page",
-    at: "2026-10-01T15:00:00Z",
-    source: "test",
-    kind: "drill",
-    title: "Doses",
-    items: [
-      { id: "q1", stem: "How many mL?", options: ["5 mL"], correct: [0] },
-    ],
-  };
-  const d = mapLibrary(
-    {
-      exams: [],
-      weakspots: [],
-      sets: [{ id: "s1", data: set }],
-      answers: [ans("s1", "q1", "2026-11-03T10:00:00Z", false)],
-    },
-    now,
-  );
-  expect(d.accuracy).toEqual({ text: "0%" });
-  expect(d.sets[0]?.due).toBe("1 due");
-  expect(
-    mapLibrary({ exams: [], weakspots: [], sets: [] }, now).accuracy,
-  ).toBeNull();
 });

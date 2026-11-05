@@ -1,4 +1,14 @@
-import type { Accuracy, WireDoc } from "./types.ts";
+// domain/answers: what Matt's recorded answers (ev4 schema 2) say: due counts and the first-try accuracy line.
+/** One stored document, as the wire carries it (restated: domain imports nothing outside its folder). */
+interface AnswerDoc {
+  id: string;
+  data: unknown;
+}
+
+/** The first-try accuracy line, e.g. "72%, up from 66%". */
+interface Accuracy {
+  text: string;
+}
 
 const DAY = 86_400_000;
 const WINDOW = 14 * DAY;
@@ -11,7 +21,7 @@ interface Try {
 
 /** Every attempt in the `answers` documents (ev4 schema 2), by set then item; anything malformed is skipped. */
 function attemptsByItem(
-  docs: readonly WireDoc[],
+  docs: readonly AnswerDoc[],
 ): Map<string, Map<string, Try[]>> {
   const out = new Map<string, Map<string, Try[]>>();
   for (const d of docs) {
@@ -39,7 +49,7 @@ function attemptsByItem(
 }
 
 /** How many of a set's items are due: the latest answer was wrong or a "just tell me". Unanswered items are not due. */
-export function dueCounts(docs: readonly WireDoc[]): Map<string, number> {
+export function dueCounts(docs: readonly AnswerDoc[]): Map<string, number> {
   const due = new Map<string, number>();
   for (const [setId, items] of attemptsByItem(docs)) {
     let n = 0;
@@ -54,7 +64,7 @@ export function dueCounts(docs: readonly WireDoc[]): Map<string, number> {
 
 /** First-try accuracy over the last 14 days, against the 14 before: only each item's first answer counts. */
 export function accuracyLine(
-  docs: readonly WireDoc[],
+  docs: readonly AnswerDoc[],
   now: number,
 ): Accuracy | null {
   const firsts: Try[] = [];
