@@ -69,7 +69,7 @@ interface DeletionRow {
 collectionRoutes.get("/collections", async (c) => {
   const out = await rows<CollectionRow>(
     c.env.DB,
-    `SELECT id, title, parent_id, pos, at, v FROM collections ORDER BY pos, id LIMIT ${LIMIT}`,
+    `SELECT id, title, parent_id, pos, at, v FROM collections WHERE NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = 'collections' AND d.id = collections.id) ORDER BY pos, id LIMIT ${LIMIT}`,
     [],
   );
   return c.json({
@@ -88,7 +88,7 @@ collectionRoutes.get("/memberships", async (c) => {
   const id = c.req.query("collection_id");
   const out = await rows<MembershipRow>(
     c.env.DB,
-    `SELECT item_c, item_id, collection_id, at, v FROM memberships${id === undefined ? "" : " WHERE collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
+    `SELECT item_c, item_id, collection_id, at, v FROM memberships WHERE NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = 'collections' AND d.id = memberships.collection_id)${id === undefined ? "" : " AND collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
     id === undefined ? [] : [id],
   );
   return c.json({
@@ -138,7 +138,12 @@ collectionRoutes.get("/deletions", async (c) => {
     "SELECT d.c || '/' || d.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN own_set_items i ON d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.item_id",
     [],
   );
-  for (const r of [...named, ...items]) {
+  const colls = await rows<{ k: string; t: string | null }>(
+    c.env.DB,
+    "SELECT 'collections/' || d.id AS k, x.title AS t FROM deletions d JOIN collections x ON d.c = 'collections' AND x.id = d.id",
+    [],
+  );
+  for (const r of [...named, ...items, ...colls]) {
     if (typeof r.t === "string" && r.t.trim()) titles.set(r.k, r.t.trim());
   }
   return c.json({

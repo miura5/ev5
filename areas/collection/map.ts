@@ -31,6 +31,7 @@ export interface WireDoc {
 export type DocsByCollection = Record<string, readonly WireDoc[]>;
 
 export interface CollectionData {
+  id: string;
   title: string;
   parent?: string;
   parentId?: string;
@@ -126,6 +127,7 @@ export function mapCollection(
     ? byPos.find((c) => c.id === pick.parentId)?.title
     : undefined;
   return {
+    id: pick.id,
     title: pick.title,
     parent,
     parentId: pick.parentId ?? undefined,

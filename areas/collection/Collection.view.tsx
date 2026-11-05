@@ -41,6 +41,8 @@ export interface CollectionViewProps {
   onTogglePin?: () => void;
   onBack?: () => void;
   onRename?: (title: string) => void;
+  /** Delete this collection: its items show ungrouped and Restore (Recently deleted) regroups them. */
+  onDelete?: () => void;
 }
 
 function EntryRow({
@@ -134,6 +136,11 @@ export function CollectionView(p: CollectionViewProps) {
         <Button kind="text" hint="C" onClick={p.onNew}>
           New
         </Button>
+        {p.onDelete ? (
+          <Button kind="text" onClick={p.onDelete}>
+            Delete
+          </Button>
+        ) : null}
       </div>
       {p.pinnedItems && p.pinnedItems.length > 0 ? (
         <div className="ev-coll-sec" data-section="Pinned">
