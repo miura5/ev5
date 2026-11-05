@@ -53,7 +53,7 @@ export function startSession(i: StartInput): SessionWrite {
   };
 }
 
-/** The protocol fields every write carries (§data.writers): who wrote it, when, and from where. */
+/** The protocol fields every write carries (§data.protocol): who wrote it, when, and from where. */
 const stamp = (at: string) => ({ writer: 'page', at: isoOf(at), source: 'E.V. Home' });
 
 type Last = [string, SessionEvent] | [];

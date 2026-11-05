@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Time Travel restore drill on STAGING D1 only (§data.export, §hard.live-on-matts-word, §deliver.window).
+# Time Travel restore drill on STAGING D1 only (§data.export, §hard.live-on-matts-word).
 # Needs Cloudflare credentials, so it runs only from a GitHub workflow (staging token), never from a builder.
 # Usage: time-travel.sh <staging-db-name> <export-dir>
 #   1. exports every table (the manifest before),

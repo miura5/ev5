@@ -59,14 +59,11 @@ That's it. It runs in the cloud with your laptop closed and uses your Claude pla
 | When | What |
 |---|---|
 | Phase 0 | Say yes to the hard-limits section of CONTRACT.md (one message) |
-| Phase 3 | OK one read-only check of a scratch copy of your data. It reports counts only and shows no content to anyone |
 | Phase 6 | Be at your Mac once, while the agent creates the new Canvas sync task |
 | Phase 7 | Test v5 on staging like a normal study day |
 | Cutover | Say **"go live"**, approve the deploy in GitHub, and keep your devices online so no unsent notes are left behind |
-| Any time after | Say **"go back"** to return to ev4. The agents run the rollback |
-| End of the safety window | After one exam on v5, say **"keep v5"** to close the rollback window |
 
 ## What stays the same for you
 - The **same app address** and the same phone icon.
-- **Your data stays where it is.** Nothing is copied to staging, and nothing is deleted.
+- **Your ev4 data stays put.** v5 starts empty, as you chose: nothing is copied from ev4. ev4's copy stays untouched as an archive, and nothing is deleted. There is no switching back to ev4 after cutover.
 - E.V. still asks you to try first, and cites your notes. The goal is that you learn, not that she answers.

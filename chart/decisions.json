@@ -1,5 +1,29 @@
 [
  {
+  "id": "D-484",
+  "date": "Nov 5",
+  "title": "Fresh v5 database that starts empty, no rollback to ev4: ev4's data stays untouched as an archive",
+  "why": "Matt, 2026-11-05: 'No, I don't need it' (to going straight back to v4 after the switch), 'we don't need that ev4 influence extending elsewhere', and 'Start empty' (to whether v5 starts with his ev4 notes, sets and weak spots copied in once). So nothing is copied from ev4; a notes-only import can be its own decision later, only if Matt asks. Keeping ev4's docs table cost v5 LIKE over JSON, bare-id lookups, append maps rewritten in one document, one index, no paging, a ban on ALTER, two delete markers, split('-') ids, course names matched by regex and copy-on-first-edit sets. Ended in CONTRACT: §data.docs-table, §data.compat, §data.writers, §data.ev4-sets, §data.new-tables, §deliver.window (reasons in docs/contract/ended.md). Added: §data.own-db (starts empty), §data.tables, §data.gate, §data.item-versions. Reworded: §hard.data-never-lost (v5 never reads or writes ev4's database, buckets or Durable Objects), §hard.ev4-own-process (no window clause), §data.additive, §data.same-worker, §data.membership, §data.repeat, §data.migrations, §data.export, §data.search, §data.course-facts, §delete.soft, §delete.purge, §deliver.cutover (no import), §model.output, §sec.staging-data (synthetic only), §what.framing, §data.ev4-routes (the ev4 outbox import ends). Removed from the repo: ops/ROLLBACK.md, ops/rollback/verify.sh, the rehearsal workflow; ops/CUTOVER.md rewritten (v5 starts empty, no import, no rollback); MATT.md loses 'go back' and the safety window. Kept: ev4's PlanJob stub on the ev-live Worker, because removing the class deletes ev4's stored Durable Object state; §hard.ev4-own-process. Cost: a new D1 database and R2 buckets fit the Free plan at no cost (7 of 10 databases used; D1 blocks rather than bills). Proposed until Matt sees the new hard-limit lines; the PR merges on his word.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-451",
+   "D-297"
+  ],
+  "source": "D-483/D-484 (data-layer study 2026-11-05, audits/2026-11-05-data-v2/report.md in the ev-build project folder)",
+  "restated": "Nov 5"
+ },
+ {
+  "id": "D-483",
+  "date": "Nov 5",
+  "title": "Data layer: one Zod shape per kind in domain/, one write gate in data/, job output from the stored shape, no new data library",
+  "why": "ev4's failures ('/plan: expected object, got string', 'malformed, so I binned it') came from shapes defined in seven places, no structured output on the plan job and a second practice generator that parsed plain text. v5 already sends a schema to the model, but the practice job's item shape has no id and a free sourceRef while domain/set requires both, plans have four shapes, jobs/runtime/d1-stores.ts holds its own SQL and writes are checked only in tests. So: each stored kind has one Zod row shape in domain/; data/ holds the only SQL and one gate that parses, applies domain rules, checks size and the protocol, and refuses with a reason (409 only when stale); reads are parsed and bad rows are reported, not shown; a job's output schema is derived from the domain row shape and sent through the Anthropic SDK's zodOutputFormat helper, replacing the hand-rolled strip(). No ORM: Drizzle 1.0 is still a release candidate and its transaction() fails on D1, Prisma's D1 support is Preview, kysely-d1 has no batch. Revisit Drizzle after a stable 1.0, as its own decision. A PRAGMA table_info test holds migrations and row shapes together.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "D-483/D-484 (data-layer study 2026-11-05, audits/2026-11-05-data-v2/report.md in the ev-build project folder)"
+ },
+ {
   "id": "D-482",
   "date": "Nov 5",
   "title": "The kit leads every screen: Row variants, Page, Section and Empty patterns, Dot and Meter, and the shell's Detail host; each area's own copy is deleted when it moves",

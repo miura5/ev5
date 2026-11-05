@@ -1,6 +1,6 @@
 # Restore drills
 
-Rules: §data.export, §data.new-tables, §hard.data-never-lost, §hard.live-on-matts-word, §sec.live-data.
+Rules: §data.export, §data.tables, §hard.data-never-lost, §hard.live-on-matts-word, §sec.live-data.
 
 ## Automated, every CI run (local, synthetic data only)
 
