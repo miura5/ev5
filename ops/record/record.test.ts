@@ -108,6 +108,8 @@ test('task set: done needs a commit, declined needs a reason, notes land', () =>
   const t = loadChart(dir).tasks.at(-1);
   assert.equal(t?.commit, 'abcdef1');
   assert.equal(t?.notes, 'ok');
+  assert.equal(run(dir, 'task', 'set', 'B-691', '--waiting-on', 'someone').code, 1);
+  assert.equal(run(dir, 'task', 'set', 'B-691', '--waiting-on', 'owner').code, 0);
   assert.equal(errorCount(loadChart(dir)), 0);
 });
 

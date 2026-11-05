@@ -139,7 +139,7 @@ Closed (done and declined) tasks are in chart/tasks.json; ev4's are frozen in ch
 
 ## Your turn
 
-What waits on Matt, by where it happens.
+What waits on the owner, by where it happens.
 
 ### A decision (a reply in a build chat)
 

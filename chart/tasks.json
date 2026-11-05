@@ -65,7 +65,7 @@
   "notes": "Oct 23: the shadow is live in v4.5.0; from tomorrow's 4:25 run each live day carries days/<date>.aim, and the weekly writes weeks/<date>.study.aim. A week from now Matt reads it and says flip or not. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone v4.3 study).",
   "commit": null,
   "source": "B-72 split (D-190)",
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-266",
@@ -89,7 +89,7 @@
    "outcome": "task",
    "at": "2026-10-23T23:58:35.523Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-268",
@@ -165,7 +165,7 @@
   "notes": "Waiting on Matt to scope it: its definition of done is written with him when he does (hand-off 3). ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone app (data, pipelines, ops)).",
   "commit": null,
   "source": "plan 1eW5FgG9VNzhCySbL1uWuo",
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-413",
@@ -884,7 +884,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:04:58.074Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-615",
@@ -908,7 +908,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:00.423Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-616",
@@ -930,7 +930,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:02.763Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-617",
@@ -954,7 +954,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:05.180Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-618",
@@ -976,7 +976,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:07.549Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-619",
@@ -1002,7 +1002,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:09.852Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-620",
@@ -5003,7 +5003,7 @@
   "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
   "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
   "reportedAt": "2026-11-05T13:40:11.713Z",
-  "waitingOn": "Matt",
+  "waitingOn": "owner",
   "waitingWhere": "decision"
  },
  {

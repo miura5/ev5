@@ -154,3 +154,6 @@ export const ctDate = (iso: string): string => {
   const p = parts(new Date(iso), { month: 'short', day: 'numeric' });
   return `${p.month} ${p.day}`;
 };
+
+/** The one value the Chart stores for who a task or decision waits on: a role, never a person's name. */
+export const OWNER = 'owner';

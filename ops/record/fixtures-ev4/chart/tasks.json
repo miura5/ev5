@@ -3057,7 +3057,7 @@
   "notes": "Oct 23: the shadow is live in v4.5.0; from tomorrow's 4:25 run each live day carries days/<date>.aim, and the weekly writes weeks/<date>.study.aim. A week from now Matt reads it and says flip or not.",
   "commit": null,
   "source": "B-72 split (D-190)",
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-171",
@@ -4837,7 +4837,7 @@
    "outcome": "task",
    "at": "2026-10-23T23:58:35.523Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-267",
@@ -5779,7 +5779,7 @@
   "notes": "Waiting on Matt to scope it: its definition of done is written with him when he does (hand-off 3).",
   "commit": null,
   "source": "plan 1eW5FgG9VNzhCySbL1uWuo",
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-324",
@@ -11558,7 +11558,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:04:58.074Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-615",
@@ -11582,7 +11582,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:00.423Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-616",
@@ -11604,7 +11604,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:02.763Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-617",
@@ -11628,7 +11628,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:05.180Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-618",
@@ -11650,7 +11650,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:07.549Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-619",
@@ -11676,7 +11676,7 @@
    "outcome": "task",
    "at": "2026-10-31T01:05:09.852Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-620",
@@ -13102,7 +13102,7 @@
    "outcome": "task",
    "at": "2026-11-02T03:05:24.569Z"
   },
-  "waitingOn": "Matt"
+  "waitingOn": "owner"
  },
  {
   "id": "B-687",
