@@ -1,11 +1,13 @@
 // The Chart's only write path: node ops/record/cli.ts <command> [flags]. Flags: --root <repo> (default: this repo),
 // --now <ISO time> (default: the clock). Exit 0 on success, 1 on a refusal, a red lint or renders out of step.
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadChart, saveChart } from './chart.ts';
 import type { Chart } from './chart.ts';
 import { decisionAdd, decisionSet, releaseAdd } from './decisions.ts';
+import { clearInbox, inboxAdd, inboxFile } from './inbox.ts';
 import { formatLint, lintChart } from './lint.ts';
 import { generatedFiles } from './render.ts';
 import { taskAdd, taskClaim, taskSet } from './tasks.ts';
@@ -22,6 +24,8 @@ export const USAGE = `node ops/record/cli.ts <command>
   decision set <D-id> [same flags as add]
   release add --version v5.x.y --target staging|live --commit <sha> --summary <s> [--tasks <ids>] [--decisions <ids>]
            [--ok Matt] [--time <ISO>]
+  inbox add task|decision --title <t> ...   (any session: queues P-1, P-2 ... in chart/inbox/<session>.json)
+  inbox file                                (lock holder: real ids, then deletes the inbox files)
   render [--check]
   lint`;
 
@@ -49,6 +53,19 @@ const WRITES: Record<string, Write> = {
   'release add': releaseAdd,
 };
 
+const REPO = path.resolve(fileURLToPath(import.meta.url), '../../..');
+const SESSION = (): string => process.env.CLAUDE_CODE_REMOTE_SESSION_ID || process.env.BUILD_RUN_ID || '';
+
+/** True when ops/build-lock.sh status shows this session holds the build lock. */
+export function holdsBuildLock(): boolean {
+  const me = SESSION();
+  if (!me) return false;
+  const r = spawnSync('bash', [path.join(REPO, 'ops', 'build-lock.sh'), 'status'], { cwd: REPO, encoding: 'utf8' });
+  return r.status === 0 && r.stdout.includes(`LOCK: held by ${me} `);
+}
+// Commands that take a real id, and so need the lock.
+const NEEDS_LOCK = new Set(['task add', 'decision add', 'inbox file']);
+
 const recordDir = (root: string): string => path.join(root, 'docs', 'record');
 
 function render(root: string, rec: Chart, check: boolean, log: (s: string) => void): number {
@@ -69,9 +86,15 @@ function render(root: string, rec: Chart, check: boolean, log: (s: string) => vo
 }
 
 /** Runs one command; returns the exit code. Every write saves the Chart and re-renders, so they never drift. */
-export function main(argv: string[], log: (s: string) => void = console.log, err = console.error): number {
+export function main(
+  argv: string[],
+  log: (s: string) => void = console.log,
+  err = console.error,
+  holdsLock: () => boolean = holdsBuildLock,
+): number {
   const o = parseArgs(argv);
-  const root = typeof o.root === 'string' ? path.resolve(o.root) : path.resolve(fileURLToPath(import.meta.url), '../../..');
+  const root =
+    typeof o.root === 'string' ? path.resolve(o.root) : path.resolve(fileURLToPath(import.meta.url), '../../..');
   const now = typeof o.now === 'string' ? new Date(o.now).toISOString() : new Date().toISOString();
   const [cmd, sub] = o._;
   try {
@@ -82,13 +105,27 @@ export function main(argv: string[], log: (s: string) => void = console.log, err
       log(formatLint(findings));
       return findings.some(f => f.level === 'error') ? 1 : 0;
     }
-    const write = WRITES[`${cmd} ${sub}`];
+    const key = `${cmd} ${sub}`;
+    if (NEEDS_LOCK.has(key) && !holdsLock())
+      throw new Error(
+        key === 'inbox file'
+          ? 'only the build-lock holder files the inbox (ops/build-lock.sh status)'
+          : `${key} needs the build lock (ops/build-lock.sh status): queue it with ops/record inbox add ${sub === 'add' ? cmd : '...'} instead`,
+      );
+    if (key === 'inbox add') {
+      const done = inboxAdd(root, rec, o, typeof o.session === 'string' ? o.session : SESSION());
+      log(`${done.id}: ${done.what}`);
+      return 0;
+    }
+    const write =
+      key === 'inbox file' ? (r: Chart, _o: Opts, n: string) => inboxFile(root, r, n) : WRITES[`${cmd} ${sub}`];
     if (!write) {
       err(USAGE);
       return 1;
     }
     const done = write(rec, o, now);
     saveChart(root, rec);
+    if (key === 'inbox file') clearInbox(root, rec);
     render(root, rec, false, () => {});
     log(`${done.id}: ${done.what}`);
     return 0;

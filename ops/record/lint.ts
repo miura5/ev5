@@ -2,7 +2,17 @@
 // and a rule's decision and task must resolve. Shape checks: duplicate ids, unknown statuses and kinds, a done task
 // with no commit, a report without its words, a malformed deploy or release.
 import type { Chart } from './chart.ts';
-import { DECISION_KINDS, DECISION_STATUS, RELEASE_TARGETS, TASK_KINDS, TASK_STATUS, TENET_CHECKS, TENET_SCOPES, kindOf } from './chart.ts';
+import {
+  DECISION_KINDS,
+  DECISION_STATUS,
+  RELEASE_TARGETS,
+  TASK_KINDS,
+  TASK_STATUS,
+  TENET_CHECKS,
+  TENET_SCOPES,
+  kindOf,
+  list,
+} from './chart.ts';
 
 export interface Finding {
   level: 'error' | 'warn';
@@ -11,7 +21,13 @@ export interface Finding {
   detail: string;
 }
 // The checks that are links: what lint reports as dangling.
-export const LINK_CHECKS = new Set(['missing-dependency', 'missing-decision', 'rule-decision', 'rule-task']);
+export const LINK_CHECKS = new Set([
+  'missing-dependency',
+  'missing-decision',
+  'rule-decision',
+  'rule-task',
+  'broken-inbox-depends',
+]);
 
 const has = (xs: readonly string[], x: unknown): boolean => xs.includes(String(x));
 
@@ -26,10 +42,12 @@ export function lintChart(rec: Chart): Finding[] {
   const add = (level: Finding['level'], check: string, id: string, detail: string): void => {
     out.push({ level, check, id, detail });
   };
-  for (const [id, n] of duplicates(rec.tasks.map(t => t.id))) add('error', 'duplicate-id', id, `${n} tasks carry ${id}`);
+  for (const [id, n] of duplicates(rec.tasks.map(t => t.id)))
+    add('error', 'duplicate-id', id, `${n} tasks carry ${id}`);
   for (const [id, n] of duplicates(rec.decisions.map(d => d.id)))
     add('error', 'duplicate-id', id, `${n} decisions carry ${id}`);
-  for (const [id, n] of duplicates(rec.rules.map(r => r.id))) add('error', 'duplicate-id', id, `${n} rules carry ${id}`);
+  for (const [id, n] of duplicates(rec.rules.map(r => r.id)))
+    add('error', 'duplicate-id', id, `${n} rules carry ${id}`);
 
   const tasks = new Set(rec.tasks.map(t => t.id)),
     decisions = new Map(rec.decisions.map(d => [d.id, d]));
@@ -37,7 +55,8 @@ export function lintChart(rec: Chart): Finding[] {
     for (const d of t.depends || [])
       if (!tasks.has(d)) add('error', 'missing-dependency', t.id, `depends on ${d}, which is not in the record`);
     const into = (t.triage as { into?: string } | undefined)?.into;
-    if (into && !tasks.has(into)) add('error', 'missing-dependency', t.id, `joined ${into}, which is not in the record`);
+    if (into && !tasks.has(into))
+      add('error', 'missing-dependency', t.id, `joined ${into}, which is not in the record`);
     if (!has(TASK_STATUS, t.status)) add('error', 'bad-status', t.id, `status "${t.status}"`);
     if (!has(TASK_KINDS, t.kind)) add('error', 'bad-kind', t.id, `kind "${t.kind}"`);
     if (t.status === 'done' && !t.commit) add('error', 'done-without-commit', t.id, 'done with no commit');
@@ -66,6 +85,38 @@ export function lintChart(rec: Chart): Finding[] {
     else if (d.status === 'superseded' && !r.ended)
       add('error', 'rule-superseded', r.id, `rests on ${r.decision}, which is superseded`);
     if (r.task && !tasks.has(r.task)) add('error', 'rule-task', r.id, `names ${r.task}, which is not in the record`);
+  }
+  // Provisional ids live only in chart/inbox, and what an inbox entry depends on must resolve.
+  const P = /^P-\d+$/;
+  for (const t of rec.tasks) {
+    if (P.test(t.id)) add('error', 'provisional-id', t.id, 'a P- id outside chart/inbox');
+    for (const d of t.depends || [])
+      if (P.test(d)) add('error', 'provisional-id', t.id, `depends on ${d}, a P- id outside chart/inbox`);
+  }
+  for (const d of rec.decisions)
+    for (const x of [d.id, ...(d.supersedes || []), ...(d.amends || [])])
+      if (P.test(x)) add('error', 'provisional-id', d.id, `names ${x}, a P- id outside chart/inbox`);
+  for (const f of rec.inbox || []) {
+    const mine = new Map(f.entries.map(e => [e.id, e.type]));
+    for (const [id, n] of duplicates(f.entries.map(e => e.id)))
+      add('error', 'duplicate-id', id, `${n} entries in ${f.file}`);
+    for (const e of f.entries) {
+      if (!P.test(e.id)) add('error', 'bad-inbox', e.id, `${f.file}: an inbox id is P-<n>`);
+      const refs: [string[], string][] =
+        e.type === 'task'
+          ? [[list(e.flags.depends), 'task']]
+          : [
+              [list(e.flags.supersedes), 'decision'],
+              [list(e.flags.amends), 'decision'],
+            ];
+      for (const [ids, kind] of refs)
+        for (const x of ids) {
+          const ok = P.test(x)
+            ? mine.get(x) === kind && f.entries.findIndex(y => y.id === x) < f.entries.indexOf(e)
+            : (kind === 'task' ? tasks : decisions).has(x);
+          if (!ok) add('error', 'broken-inbox-depends', e.id, `${f.file}: names ${x}, which does not resolve`);
+        }
+    }
   }
   for (const d of rec.deploys)
     if (!has(RELEASE_TARGETS, d.target) || !d.commit)
