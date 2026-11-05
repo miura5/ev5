@@ -17831,5 +17831,17 @@
   "notes": "Slice: write ops/record/, chart/, docs/record/; read none. Decision: D-486. After B-994, so ev4's history is frozen first and only the live files change. The playtest refresh script outside the repo reads BACKLOG.md: keep its table format.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
+ },
+ {
+  "id": "B-1019",
+  "kind": "task",
+  "title": "A kit or shell change cannot leave the /kit screenshot check red",
+  "dod": "The visual job is one of the jobs the required checks job waits for, so a PR that moves the /kit gallery cannot merge until its baselines match; the visual-baselines workflow run on a PR branch is followed by a CI run on its commit (a GITHUB_TOKEN push starts no CI); a PR that leaves the gallery alone is not slowed (§drift.checks, §ui.gallery)",
+  "milestone": "Ops",
+  "status": "open",
+  "depends": [],
+  "notes": "Main was red from #482 (B-949) to #494: B-949, B-966, B-968, B-963 and B-967 merged with visual red, because visual is not in checks' needs. Smallest fix: add visual to needs in .github/workflows/ci.yml and make the baselines workflow trigger CI after its commit. Builders have no Docker: they dispatch visual-baselines on their branch.",
+  "commit": null,
+  "source": "main red 15:35-17:10Z 2026-11-05 (PR #494)"
  }
 ]
