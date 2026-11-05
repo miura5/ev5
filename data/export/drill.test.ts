@@ -149,3 +149,27 @@ test("drill: a row changed in any table is caught by that table's hash before a 
     assert.equal(countOf(scratch, spec.name), 0, `${spec.name} untouched`);
   }
 });
+
+test("drill: each table's listed columns and key order are the migrated schema's, so no column is left out of a hash", () => {
+  const db = migratedDb();
+  for (const spec of ALL_TABLES) {
+    const info = db.prepare(`PRAGMA table_info(${spec.name})`).all() as {
+      name: string;
+      pk: number;
+    }[];
+    if (!info.length) continue; // `views`: no migration yet
+    assert.deepEqual(
+      [...info.map((c) => c.name)].sort(),
+      [...spec.columns].sort(),
+      `${spec.name} columns`,
+    );
+    assert.deepEqual(
+      info
+        .filter((c) => c.pk > 0)
+        .sort((a, b) => a.pk - b.pk)
+        .map((c) => c.name),
+      spec.orderBy,
+      `${spec.name} key order`,
+    );
+  }
+});

@@ -1,5 +1,6 @@
 name: live
-# Manual only, and gated by the "live" environment's required reviewers (CONTRACT §sec.account). The only workflow that names ev-live.
+# Manual only, and gated by the "live" environment's required reviewers (CONTRACT §sec.account). The only workflow that names the ev-live Worker.
+# It binds v5's own live store ev5-live, which Matt's word creates (ops/CUTOVER.md step 4); it never creates a store and never names ev4's (§data.own-db, §hard.data-never-lost).
 on:
   workflow_dispatch:
 
@@ -11,7 +12,10 @@ concurrency: live
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LIVE }}
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  NAME: ev-live
+  WORKER: ev-live
+  DB: ev5-live
+  BUCKET: ev5-live-images
+  JOBS: ev5-live-jobs
   WRANGLER: wrangler@4.156.2
 
 jobs:
@@ -26,11 +30,18 @@ jobs:
           node-version: 26
       - run: npm ci
       - run: npm run build
-      - name: Point the config at the live Worker and its existing D1
+      - name: Point the config at the live Worker and v5's own live store
+        # `d1 info` only reads: if the store is missing it fails here and nothing else runs.
         run: |
-          npx --yes $WRANGLER d1 info "$NAME" --json | tee d1.json
+          npx --yes $WRANGLER d1 info "$DB" --json | tee d1.json
           DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")
-          node -e "const f='wrangler.jsonc';let s=require('fs').readFileSync(f,'utf8');s=s.replaceAll('ev5-staging',process.env.NAME).replace('00000000-0000-0000-0000-000000000000',process.argv[1]).replace('\"staging\"','\"live\"');require('fs').writeFileSync(f,s)" "$DBID"
+          node -e "const f='wrangler.jsonc';let s=require('fs').readFileSync(f,'utf8');const e=process.env;s=s.replace('ev5-staging-images',e.BUCKET).replace('ev5-staging-jobs',e.JOBS).replace('\"name\": \"ev5-staging\"','\"name\": \"'+e.WORKER+'\"').replace('\"database_name\": \"ev5-staging\"','\"database_name\": \"'+e.DB+'\"').replace('00000000-0000-0000-0000-000000000000',process.argv[1]).replace('\"staging\"','\"live\"');require('fs').writeFileSync(f,s)" "$DBID"
+          if grep -n 'ev5-staging' wrangler.jsonc; then exit 1; fi
+      - name: Time Travel bookmark, then migrations
+        # The bookmark is printed before the migrations run (§data.migrations). Same command and folder as staging.
+        run: |
+          npx --yes $WRANGLER d1 time-travel info "$DB"
+          npx --yes $WRANGLER d1 migrations apply "$DB" --remote
       - name: Deploy
         run: |
           set -o pipefail
