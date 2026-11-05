@@ -24,6 +24,8 @@ export function CollectionScreen({
     services?.readCopy,
   );
   const [failed, setFailed] = useState<string>();
+  // A row just deleted: Undo restores it from Recently deleted (item.restore).
+  const [undo, setUndo] = useState<{ id: string; message: string }>();
   // A collection just made from Notes arrives with ?new=1: its title is ready to type.
   const fresh = new URLSearchParams(window.location.search).has("new");
   // New here: a note opens in Notes, a collection opens with its title ready; a set or a date shows in the list.
@@ -61,6 +63,19 @@ export function CollectionScreen({
   return (
     <>
       {error || failed ? <Toast message={(error ?? failed)!} /> : null}
+      {undo ? (
+        <Toast
+          message={undo.message}
+          onDone={() => setUndo(undefined)}
+          onUndo={() =>
+            void call("item.restore", { id: undo.id }, token).then((r) => {
+              setFailed(r.ok ? undefined : r.reason);
+              setUndo(undefined);
+              if (r.ok) reload();
+            })
+          }
+        />
+      ) : null}
       <CollectionView
         title={data?.title ?? ""}
         parent={data?.parent}
@@ -82,8 +97,10 @@ export function CollectionScreen({
                 void call("item.delete", { id: data.id }, token).then((r) => {
                   setFailed(r.ok ? undefined : r.reason);
                   if (r.ok) {
-                    onNavigate?.("/collection");
-                    reload();
+                    // To Notes with Undo there, never on to another collection with its Delete under the pointer.
+                    onNavigate?.(
+                      `/notes?deleted=${encodeURIComponent(data.id)}&what=collection`,
+                    );
                   }
                 })
             : undefined
@@ -95,7 +112,9 @@ export function CollectionScreen({
           if (action === "open") return open(eid);
           void call(`item.${action}`, { id: eid }, token).then((r) => {
             setFailed(r.ok ? undefined : r.reason);
-            if (r.ok) reload();
+            if (!r.ok) return;
+            if (action === "delete") setUndo({ id: eid, message: "Deleted" });
+            reload();
           });
         }}
       />
