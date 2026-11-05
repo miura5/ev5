@@ -25,8 +25,17 @@ export function TodayScreen({
   services?: { readCopy?: ReadCopyLike };
   onNavigate?: (path: string) => void;
 }) {
-  const { data, token, refused, error, alert, tick, addPlan, addDate } =
-    useToday(services?.readCopy);
+  const {
+    data,
+    token,
+    refused,
+    error,
+    alert,
+    tick,
+    addPlan,
+    addDate,
+    planWithEv,
+  } = useToday(services?.readCopy);
   const [notSaved, setNotSaved] = useState(false);
   const [openId, setOpenId] = useState<string>();
   const [started, setStarted] = useState<string>();
@@ -106,6 +115,11 @@ export function TodayScreen({
               ? () =>
                   onNavigate(`/library?open=${encodeURIComponent(opened.id)}`)
               : undefined
+          }
+          onPlanWithEv={() =>
+            void planWithEv(opened.id).then((ok) =>
+              ok ? setStarted("E.V. is drafting a plan") : setNotSaved(true),
+            )
           }
           onClose={() => setOpenId(undefined)}
         />

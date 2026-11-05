@@ -22,8 +22,8 @@ test("ended-session minutes count only ended sessions with minutes", () => {
     { id: "d", data: { status: "ended", minutes: 70 } },
   ];
   expect(endedMinutes(docs)).toEqual({ minutes: 120, sessions: 2 });
-  expect(endedMinutesText(120, 2)).toBe("2 h 0 m in 2 sessions");
-  expect(endedMinutesText(45, 1)).toBe("45 m in 1 session");
+  expect(endedMinutesText(120, 2)).toBe("2h 0m in 2 sessions");
+  expect(endedMinutesText(45, 1)).toBe("45m in 1 session");
 });
 
 test("mapProgress with no answers reads as empty", () => {
@@ -74,8 +74,8 @@ test("the screen shows the accuracy line and session minutes", async () => {
   await waitFor(() => expect(screen.getByText("100%")).toBeTruthy());
   expect(screen.getByText("Retrieval accuracy")).toBeTruthy();
   expect(screen.getByText("Study minutes, last 7 days")).toBeTruthy();
-  expect(screen.getByText("30 m")).toBeTruthy();
-  expect(screen.getByText(/1 session · 30 m in 1 session in all/)).toBeTruthy();
+  expect(screen.getByText("30m")).toBeTruthy();
+  expect(screen.getByText(/1 session · 30m in 1 session in all/)).toBeTruthy();
   expect(
     screen.getByRole("img", { name: "First-try accuracy by week" }),
   ).toBeTruthy();

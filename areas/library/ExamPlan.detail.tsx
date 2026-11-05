@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { weekdayShort } from "../../domain/index.ts";
+import { plainDay, weekdayShort } from "../../domain/index.ts";
 import { Button, Detail, Suggestion, TextArea } from "../../kit/index.ts";
 import type { ExamPlanData } from "./types.ts";
 import "./library.css";
@@ -86,7 +86,7 @@ export function ExamPlanDetail({
           {exam.sessions?.length ? (
             exam.sessions.map((s, i) => (
               <div key={`${s.date}-${i}`} className="ev-library-session">
-                <span className="ev-library-day">{dayOf(s.date)}</span>
+                <span className="ev-library-day">{dayOf(s.date)} {plainDay(s.date, s.date)}</span>
                 <span>{s.title}</span>
                 <span>{s.minutes}m</span>
               </div>

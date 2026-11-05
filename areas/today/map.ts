@@ -17,7 +17,7 @@ import type {
   TodayProps,
   UpcomingDate,
 } from "./types.ts";
-import { planOf, planSessions } from "./plans.ts";
+import { examSessions, planOf, planSessions } from "./plans.ts";
 import type { Session } from "./plans.ts";
 import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
 
@@ -165,6 +165,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
           : []),
       ].join(" · "),
       ...(planLine ? { plan: planLine } : {}),
+      sessions: examSessions(id, docs),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
       whenFull: weekdayDay(exam.date as string),

@@ -35,6 +35,8 @@ export interface TodayState {
   addPlan: (title: string) => Promise<boolean>;
   /** Add a date (date.create); resolves false when it could not be saved. */
   addDate: (title: string, date: string) => Promise<boolean>;
+  /** Ask E.V. to draft a study plan for an exam (date.plan_with_ev); resolves false when it could not be sent. */
+  planWithEv: (id: string) => Promise<boolean>;
 }
 
 async function get(path: string, token: string): Promise<Response> {
@@ -132,7 +134,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   }, [token]);
   // An add goes through the command (§cmd.registry), then Today reads itself again so the new line shows.
   const add = useCallback(
-    async (name: "plan.create" | "date.create", input: unknown) => {
+    async (
+      name: "plan.create" | "date.create" | "date.plan_with_ev",
+      input: unknown,
+    ) => {
       const r = await call(name, input, token);
       if (!r.ok || r.mode !== "direct") return false;
       setAgain((n) => n + 1);
@@ -146,6 +151,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   );
   const addDate = useCallback(
     (title: string, date: string) => add("date.create", { title, date }),
+    [add],
+  );
+  const planWithEv = useCallback(
+    (id: string) => add("date.plan_with_ev", { id }),
     [add],
   );
   const tick = useCallback(
@@ -195,5 +204,6 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     tick,
     addPlan,
     addDate,
+    planWithEv,
   };
 }
