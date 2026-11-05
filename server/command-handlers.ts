@@ -103,12 +103,9 @@ export const commandHandlers: Record<string, CommandHandler> = {
         i.id,
       );
       if (coll) {
-        await x.db
-          .prepare(
-            "INSERT INTO deletions (c, id, at) VALUES ('collections', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-          )
-          .bind(i.id, x.clock())
-          .run();
+        await tablesRepo(x.db, { clock: x.clock }).deletions.markCollection(
+          i.id,
+        );
         return { deleted: true, collection: i.id };
       }
     }
