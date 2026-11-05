@@ -1,14 +1,12 @@
-// BACKLOG.md, DECISIONS.md and CHANGELOG.md, generated from the Chart. The tables are ev4's renders translated line
+// BACKLOG.md and DECISIONS.md, generated from the Chart. The tables are ev4's renders translated line
 // for line, so the carried record prints as ev4 printed it; only the header lines differ, and they are a parameter.
-import type { Chart, Decision, Deploy, Release, Task } from './chart.ts';
-import { ctClock, ctDate } from './chart.ts';
+import type { Chart, Decision, Task } from './chart.ts';
 
 export interface Headers {
   backlog: string[];
   closedTasks: string;
   yourTurnIntro: string;
   decisions: string[];
-  changelog: (releases: number) => string[];
 }
 
 const GENERATED = '**Generated from the Chart by `node ops/record/cli.ts`: never edit this file by hand.**';
@@ -20,22 +18,15 @@ export const EV5_HEADERS: Headers = {
     'Change the record with `node ops/record/cli.ts task …`; `render --check` fails when this file and the record differ.',
     'Status: `open` · `in progress` · `blocked` · `done`. A task opens when every id in Depends is `done`.',
   ],
-  closedTasks: 'Closed (done and declined) tasks are in chart/tasks.json.',
+  closedTasks: 'Closed (done and declined) tasks are in chart/tasks.json; ev4\'s are frozen in chart/history/tasks.json.',
   yourTurnIntro: 'What waits on Matt, by where it happens.',
   decisions: [
     '# DECISIONS.md: E.V. v5 decisions and tenets',
     '',
     GENERATED,
     'Change one with `node ops/record/cli.ts decision …`; `render --check` fails when this file and chart/decisions.json',
-    "differ. D-044 to D-425 are ev4's history, carried as context. D-001 to D-043 are in the v2 doc's decision log.",
-    'Superseded decisions are in chart/decisions.json.',
-  ],
-  changelog: n => [
-    '# CHANGELOG.md: E.V. v5 releases and v4 deploys',
-    '',
-    GENERATED,
-    'A v5 release reaches it through `node ops/record/cli.ts release add`; chart/deploys.json is frozen v4 history.',
-    `Every v5 release, then the v4 deploys of the last ${n} live releases; every deploy is in chart/deploys.json.`,
+    "differ. Decisions up to D-439 are ev4's, frozen in chart/history/decisions.json. D-001 to D-043 are in the v2 doc's",
+    "decision log. Superseded decisions are in chart/decisions.json.",
   ],
 };
 
@@ -133,65 +124,8 @@ export function renderDecisions(rec: Chart, h: Headers = EV5_HEADERS): string {
   ].join('\n');
 }
 
-interface Line {
-  date: string;
-  change: string;
-  why: string;
-  decision: string;
-}
-/** The Changelog line ev4 gave a deploy, unless the deploy carries its own. */
-export function changelogLine(d: Deploy): Line {
-  if (d.line) return d.line as Line;
-  const at = d.time && d.time.length > 10 ? ` (${ctClock(d.time)} CT)` : '';
-  const verify = d.verify ? ` verify-deploy ${d.target} ${d.verify === 'green' ? 'GREEN' : d.verify}.` : '';
-  const live =
-    d.target === 'live' ? ` Rollback is a redeploy of ${d.rollback || '(none named)'}` : ' Live stays where it is';
-  const notes = ((d.notes as string[]) || []).map(n => ` Note: ${n}`).join('');
-  const tasks = (d.tasks as string[]) || [];
-  const change = `v4 ${d.target} deployed at ${d.commit}${at}${d.from ? `, from ${d.from}` : ''}: ${d.summary || 'see the tasks'}${tasks.length ? ` (${tasks.join(', ')})` : ''}.${verify}${live}${notes}`;
-  return {
-    date: ctDate(d.time),
-    change: change.replace(/\.\./g, '.'),
-    why:
-      (d.why as string) ||
-      (d.target === 'live'
-        ? `Matt's OK${d.okFrom && d.okFrom !== 'Matt' ? ' (' + d.okFrom + ')' : ''}`
-        : 'The B-35 gate: staging first'),
-    decision: ((d.decisions as string[]) || []).join(', ') || 'D-049',
-  };
-}
-export function releaseLine(r: Release): Line {
-  const tasks = r.tasks.length ? ` (${r.tasks.join(', ')})` : '';
-  return {
-    date: ctDate(r.time),
-    change: `${r.version} ${r.target} at ${r.commit} (${ctClock(r.time)} CT): ${r.summary}${tasks}.`.replace(/\.\./g, '.'),
-    why: r.target === 'live' ? "Matt's OK" : 'Staging first',
-    decision: r.decisions.join(', '),
-  };
-}
-
-// The v4 deploys since the 20th newest live release, staging ones between included.
-const CHANGELOG_RELEASES = 20;
-/** v5 releases newest first, then the v4 deploys of the last 20 live releases, newest first. */
-export function renderChangelog(rec: Chart, h: Headers = EV5_HEADERS): string {
-  const lives = rec.deploys.map((d, i) => (d.target === 'live' ? i : -1)).filter(i => i >= 0);
-  const from = lives.length > CHANGELOG_RELEASES ? (lives[lives.length - CHANGELOG_RELEASES] as number) : 0;
-  const rows = [
-    ...[...rec.releases].reverse().map(releaseLine),
-    ...rec.deploys.slice(from).reverse().map(changelogLine),
-  ];
-  return [
-    ...h.changelog(CHANGELOG_RELEASES),
-    '',
-    '| Date | Change | Why | Decision |',
-    '| --- | --- | --- | --- |',
-    ...rows.map(l => `| ${cell(l.date)} | ${cell(l.change)} | ${cell(l.why)} | ${cell(l.decision)} |`),
-  ].join('\n');
-}
-
-/** The three generated files, by name. */
+/** The generated files, by name. */
 export const generatedFiles = (rec: Chart, h: Headers = EV5_HEADERS): Record<string, string> => ({
   'BACKLOG.md': renderBacklog(rec, h),
   'DECISIONS.md': renderDecisions(rec, h),
-  'CHANGELOG.md': renderChangelog(rec, h),
 });

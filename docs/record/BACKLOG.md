@@ -4,7 +4,7 @@
 Change the record with `node ops/record/cli.ts task …`; `render --check` fails when this file and the record differ.
 Status: `open` · `in progress` · `blocked` · `done`. A task opens when every id in Depends is `done`.
 
-Closed (done and declined) tasks are in chart/tasks.json.
+Closed (done and declined) tasks are in chart/tasks.json; ev4's are frozen in chart/history/tasks.json.
 
 | Id | Task | Depends | Milestone | Status | Notes |
 | --- | --- | --- | --- | --- | --- |

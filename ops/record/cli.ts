@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadChart, saveChart } from './chart.ts';
 import type { Chart } from './chart.ts';
-import { decisionAdd, decisionSet, releaseAdd } from './decisions.ts';
+import { decisionAdd, decisionSet } from './decisions.ts';
 import { clearInbox, inboxAdd, inboxFile } from './inbox.ts';
 import { formatLint, lintChart } from './lint.ts';
 import { generatedFiles } from './render.ts';
@@ -22,8 +22,6 @@ export const USAGE = `node ops/record/cli.ts <command>
   decision add --title <t> [--why <w>] [--status proposed|accepted|superseded|revisit] [--supersedes <ids>]
            [--amends <ids>] [--kind decision|tenet --scope <s> --checked-by <c>] [--source <s>]
   decision set <D-id> [same flags as add]
-  release add --version v5.x.y --target staging|live --commit <sha> --summary <s> [--tasks <ids>] [--decisions <ids>]
-           [--ok Matt] [--time <ISO>]
   inbox add task|decision --title <t> ...   (any session: queues P-1, P-2 ... in chart/inbox/<session>.json)
   inbox file                                (lock holder: real ids, then deletes the inbox files)
   render [--check]
@@ -50,7 +48,6 @@ const WRITES: Record<string, Write> = {
   'task claim': taskClaim,
   'decision add': decisionAdd,
   'decision set': decisionSet,
-  'release add': releaseAdd,
 };
 
 const REPO = path.resolve(fileURLToPath(import.meta.url), '../../..');
@@ -81,7 +78,7 @@ function render(root: string, rec: Chart, check: boolean, log: (s: string) => vo
       fs.writeFileSync(p, text);
     }
   }
-  if (!check) log('docs/record/BACKLOG.md, DECISIONS.md and CHANGELOG.md rendered from chart/');
+  if (!check) log('docs/record/BACKLOG.md and DECISIONS.md rendered from chart/');
   return red ? 1 : 0;
 }
 

@@ -1,15 +1,16 @@
-// The Chart against its rules. Link checks: every id named in a task's depends, a decision's supersedes and amends,
-// and a rule's decision and task must resolve. Shape checks: duplicate ids, unknown statuses and kinds, a done task
-// with no commit, a report without its words, a malformed deploy or release.
+// The Chart against its rules. Link checks: every id named in a task's depends, a decision's supersedes and amends
+// must resolve, in the live files or in chart/history. Shape checks: duplicate ids, unknown statuses and kinds, a done
+// task with no commit, a report without its words, a malformed deploy.
 import type { Chart } from './chart.ts';
 import {
   DECISION_KINDS,
   DECISION_STATUS,
-  RELEASE_TARGETS,
   TASK_KINDS,
   TASK_STATUS,
   TENET_CHECKS,
   TENET_SCOPES,
+  allDecisions,
+  allTasks,
   kindOf,
   list,
 } from './chart.ts';
@@ -24,8 +25,6 @@ export interface Finding {
 export const LINK_CHECKS = new Set([
   'missing-dependency',
   'missing-decision',
-  'rule-decision',
-  'rule-task',
   'broken-inbox-depends',
 ]);
 
@@ -42,16 +41,14 @@ export function lintChart(rec: Chart): Finding[] {
   const add = (level: Finding['level'], check: string, id: string, detail: string): void => {
     out.push({ level, check, id, detail });
   };
-  for (const [id, n] of duplicates(rec.tasks.map(t => t.id)))
+  for (const [id, n] of duplicates(allTasks(rec).map(t => t.id)))
     add('error', 'duplicate-id', id, `${n} tasks carry ${id}`);
-  for (const [id, n] of duplicates(rec.decisions.map(d => d.id)))
+  for (const [id, n] of duplicates(allDecisions(rec).map(d => d.id)))
     add('error', 'duplicate-id', id, `${n} decisions carry ${id}`);
-  for (const [id, n] of duplicates(rec.rules.map(r => r.id)))
-    add('error', 'duplicate-id', id, `${n} rules carry ${id}`);
 
-  const tasks = new Set(rec.tasks.map(t => t.id)),
-    decisions = new Map(rec.decisions.map(d => [d.id, d]));
-  for (const t of rec.tasks) {
+  const tasks = new Set(allTasks(rec).map(t => t.id)),
+    decisions = new Map(allDecisions(rec).map(d => [d.id, d]));
+  for (const t of allTasks(rec)) {
     for (const d of t.depends || [])
       if (!tasks.has(d)) add('error', 'missing-dependency', t.id, `depends on ${d}, which is not in the record`);
     const into = (t.triage as { into?: string } | undefined)?.into;
@@ -68,7 +65,7 @@ export function lintChart(rec: Chart): Finding[] {
     if (t.waitingOn && ['done', 'declined'].includes(t.status))
       add('warn', 'stale-waiting', t.id, `is ${t.status} but still waiting on ${t.waitingOn}`);
   }
-  for (const d of rec.decisions) {
+  for (const d of allDecisions(rec)) {
     for (const x of [...(d.supersedes || []), ...(d.amends || [])])
       if (!decisions.has(x)) add('error', 'missing-decision', d.id, `names ${x}, which is not in the record`);
     if (!has(DECISION_STATUS, d.status)) add('error', 'bad-status', d.id, `status "${d.status}"`);
@@ -78,13 +75,6 @@ export function lintChart(rec: Chart): Finding[] {
         add('error', 'tenet-scope', d.id, `scope "${(d.scope || []).join(', ')}"`);
       if (!has(TENET_CHECKS, d.check)) add('error', 'tenet-check', d.id, `checked by "${d.check}"`);
     }
-  }
-  for (const r of rec.rules) {
-    const d = decisions.get(r.decision);
-    if (!d) add('error', 'rule-decision', r.id, `rests on ${r.decision}, which is not in the record`);
-    else if (d.status === 'superseded' && !r.ended)
-      add('error', 'rule-superseded', r.id, `rests on ${r.decision}, which is superseded`);
-    if (r.task && !tasks.has(r.task)) add('error', 'rule-task', r.id, `names ${r.task}, which is not in the record`);
   }
   // Provisional ids live only in chart/inbox, and what an inbox entry depends on must resolve.
   const P = /^P-\d+$/;
@@ -119,14 +109,8 @@ export function lintChart(rec: Chart): Finding[] {
     }
   }
   for (const d of rec.deploys)
-    if (!has(RELEASE_TARGETS, d.target) || !d.commit)
+    if (!['staging', 'live'].includes(d.target) || !d.commit)
       add('error', 'bad-deploy', d.commit || '?', `deploy to ${d.target} with commit ${d.commit}`);
-  for (const r of rec.releases) {
-    if (!has(RELEASE_TARGETS, r.target) || !r.commit || !/^v5\.\d+\.\d+$/.test(r.version))
-      add('error', 'bad-release', r.version || '?', `release ${r.version} to ${r.target} at ${r.commit}`);
-    for (const x of r.tasks) if (!tasks.has(x)) add('error', 'missing-dependency', r.version, `names ${x}`);
-    for (const x of r.decisions) if (!decisions.has(x)) add('error', 'missing-decision', r.version, `names ${x}`);
-  }
   return out;
 }
 

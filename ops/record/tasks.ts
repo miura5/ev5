@@ -1,7 +1,7 @@
 // Task commands: add, set and claim. Each takes the Chart and the parsed flags, changes the Chart in memory and
 // returns what it did; the CLI saves. A refusal throws.
 import type { Chart, Task } from './chart.ts';
-import { TASK_KINDS, TASK_STATUS, ctDate, list, nextTaskId } from './chart.ts';
+import { TASK_KINDS, TASK_STATUS, ctDate, list, nextTaskId, allTasks } from './chart.ts';
 import { PLACES } from './render.ts';
 
 export type Opts = Record<string, string | boolean | undefined> & { _: string[] };
@@ -17,7 +17,7 @@ function checkDepends(rec: Chart, deps: string[], self: string | null): void {
   for (const d of deps) {
     if (!TASK_ID.test(d)) throw new Error(`--depends ${d}: a task id like B-123`);
     if (d === self) throw new Error(`${self} cannot depend on itself`);
-    if (!rec.tasks.some(t => t.id === d)) throw new Error(`--depends ${d}: no such task`);
+    if (!allTasks(rec).some(t => t.id === d)) throw new Error(`--depends ${d}: no such task`);
   }
 }
 
