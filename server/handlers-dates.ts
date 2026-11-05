@@ -72,6 +72,25 @@ const planEdit = (
   change: (d: Doc) => void,
 ) => edit(x, ["planedits", exam], { schema: 2, ticks: {} }, source, change);
 
+/** Puts a plan in force in `planedits/<exam>` (un-retiring it). Shared with the study-plan job's apply step, so one tap
+ * on the job's Approve does what the command does. Repeating it changes nothing. */
+export async function putPlanInForce(
+  x: Pick<HandlerCtx, "db" | "clock">,
+  exam: string,
+  id: string,
+  source: string,
+) {
+  const cur = await docsRepo(x.db, { clock: x.clock }).get("planedits", exam);
+  const d = cur?.data as Doc | undefined;
+  if (d?.plan === id && !(d.retired && id in d.retired)) return;
+  await planEdit(x as HandlerCtx, exam, source, (d) => {
+    const { [id]: _gone, ...retired } = (d.retired ?? {}) as Doc;
+    d.plan = id;
+    if (Object.keys(retired).length) d.retired = retired;
+    else delete d.retired;
+  });
+}
+
 export const dateHandlers: Record<string, CommandHandler> = {
   "date.create": async (i: { title: string; date: string }, _c, x) => {
     const id = x.newId();
@@ -120,12 +139,7 @@ export const dateHandlers: Record<string, CommandHandler> = {
 
   "studyplan.approve": async (i: { id: string }, _c, x) => {
     const exam = await examOf(x, i.id);
-    await planEdit(x, exam, "v5/command:studyplan.approve", (d) => {
-      const { [i.id]: _gone, ...retired } = (d.retired ?? {}) as Doc;
-      d.plan = i.id;
-      if (Object.keys(retired).length) d.retired = retired;
-      else delete d.retired;
-    });
+    await putPlanInForce(x, exam, i.id, "v5/command:studyplan.approve");
     return { id: i.id, exam, inForce: true };
   },
 
