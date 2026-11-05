@@ -1,3 +1,4 @@
+/* The chat column inside the kit Page: stacks turns and the sticky composer. */
 .ask {
   display: flex;
   flex-direction: column;
@@ -8,30 +9,20 @@
   color: var(--text);
 }
 
-.ask-head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-3);
-}
-
-.ask-title {
-  margin: 0;
-  font-size: var(--fs-title);
-  font-weight: var(--fw-title);
-}
-
-.ask-meta,
+/* The composer's key hints: no kit part draws them. */
 .ask-hint {
   font-size: var(--fs-meta);
   color: var(--faint);
 }
 
+/* Turn stack: chat layout is Ask-only. */
 .ask-chat {
   display: flex;
   flex-direction: column;
   gap: var(--sp-6);
 }
 
+/* Gutter grid so replies, sources and job rows align under her text. */
 .ask-msg {
   display: grid;
   grid-template-columns: var(--icon) minmax(0, 1fr);
@@ -39,6 +30,12 @@
   align-items: start;
 }
 
+/* Her line spans the turn; the kit E.V. line draws her mark and text. */
+.ask-ev {
+  grid-column: 1 / -1;
+}
+
+/* Content column beside the gutter. */
 .ask-say {
   grid-column: 2;
   display: flex;
@@ -46,10 +43,12 @@
   gap: var(--sp-2);
 }
 
+/* Keeps reading lines short. */
 .ask-say > div {
   max-width: 600px;
 }
 
+/* Your turn's name and time: no kit part draws it. */
 .ask-who {
   display: flex;
   align-items: baseline;
@@ -59,29 +58,19 @@
   color: var(--faint);
 }
 
+/* Time is lighter than the name. */
 .ask-who time {
   font-weight: var(--fw-regular);
 }
 
-.ask-mark {
-  box-sizing: border-box;
-  width: var(--icon);
-  height: var(--icon);
-  margin-top: var(--sp-1);
-  border-radius: var(--r-round);
-  border: 2px dotted var(--her);
-}
-
-.ask-mark-quiet {
-  border-color: var(--faint);
-}
-
+/* Divider between answered turns: no kit part draws it. */
 .ask-break {
   height: var(--hairline);
   margin-bottom: var(--sp-6);
   background: var(--line);
 }
 
+/* Sticky composer at the foot of the column. */
 .ask-composer {
   position: sticky;
   bottom: 0;
@@ -93,6 +82,7 @@
   gap: var(--sp-2);
 }
 
+/* Chat box sizing; the kit Field has no chat variant. */
 .ask-field {
   display: block;
   box-sizing: border-box;
@@ -109,10 +99,12 @@
   resize: none;
 }
 
+/* Placeholder tone. */
 .ask-field::placeholder {
   color: var(--faint);
 }
 
+/* Key-hint row. */
 .ask-foot {
   display: flex;
   align-items: center;
@@ -120,11 +112,13 @@
   padding: 0 var(--sp-1);
 }
 
+/* Key cap spacing in hints. */
 .ask-kbd {
   margin-right: var(--sp-1);
   font-family: inherit;
 }
 
+/* Pushes the last hint right. */
 .ask-grow {
   flex: 1;
 }

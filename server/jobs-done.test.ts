@@ -113,7 +113,17 @@ test("a finished study plan's Done today entry carries its exam's title, and non
     .prepare(
       "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'ex-1', ?, 0, 1)",
     )
-    .bind(JSON.stringify({ title: "NUR 112 Exam 2", date: "2026-11-20" }))
+    .bind(
+      JSON.stringify({
+        schema: 2,
+        writer: "page",
+        at: "2026-11-03T00:00:00Z",
+        source: "t",
+        kind: "unit",
+        title: "NUR 112 Exam 2",
+        date: "2026-11-20",
+      }),
+    )
     .run();
   const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");
   const { jobs } = (await res.json()) as {

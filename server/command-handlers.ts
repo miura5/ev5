@@ -136,20 +136,12 @@ export const commandHandlers: Record<string, CommandHandler> = {
     const repo = docsRepo(x.db, { clock: x.clock });
     const c = await collectionOf(x.db, i.id);
     const doc = await repo.get(c, i.id);
-    if (
-      !doc ||
-      typeof doc.data !== "object" ||
-      doc.data === null ||
-      Array.isArray(doc.data)
-    )
-      throw new CommandError(404, `no item ${i.id}`);
-    const r = await repo.save(
-      c,
-      i.id,
-      JSON.stringify({ ...doc.data, title: i.title }),
-      doc.v,
-    );
-    if (!r.ok) throw new CommandError(409, "that item changed; try again");
+    if (!doc) throw new CommandError(404, `no item ${i.id}`);
+    const r = await repo.rename(c, i.id, i.title, doc.v);
+    if (!r.ok)
+      throw r.status === 409
+        ? new CommandError(409, "that item changed; try again")
+        : new CommandError(400, r.error);
     return { version: r.version };
   },
   "collection.create": async (i: { title: string }, _c, x) => {
