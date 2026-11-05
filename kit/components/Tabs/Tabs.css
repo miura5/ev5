@@ -1,0 +1,38 @@
+.kit-tabs {
+  display: flex;
+  gap: var(--sp-6);
+}
+
+.kit-tabs button {
+  all: unset;
+  display: inline-block;
+  height: var(--sp-8);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: var(--sp-8);
+  color: var(--quiet);
+  cursor: pointer;
+  transition-property: background-color, color;
+  transition-duration: var(--dur-1);
+}
+
+.kit-tabs button[data-state="on"] {
+  color: var(--text);
+  box-shadow: inset 0 -1.5px 0 var(--text);
+}
+
+.kit-tabs button:focus-visible {
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
+}
+
+.kit-tabs-n {
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.kit-tabs-n::before {
+  content: "";
+  display: inline-block;
+  width: calc(var(--sp-1) + var(--hairline) * 2);
+}

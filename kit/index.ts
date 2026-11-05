@@ -5,6 +5,9 @@ export const THEMES = ["dark", "light"] as const;
 export type Theme = (typeof THEMES)[number];
 
 import "./components/Button/Button.css";
+import "./components/Dot/Dot.css";
+import "./components/Meter/Meter.css";
+import "./components/Tabs/Tabs.css";
 import "./components/Field/Field.css";
 import "./components/Toast/Toast.css";
 import "./components/Source/Source.css";
@@ -53,6 +56,9 @@ import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
 import { Story as StudyCardStory } from "./components/StudyCard/StudyCard.story";
 import { Story as DetailStory } from "./components/Detail/Detail.story";
 import { Story as DocStory } from "./components/Doc/Doc.story";
+import { Story as DotStory } from "./components/Dot/Dot.story";
+import { Story as MeterStory } from "./components/Meter/Meter.story";
+import { Story as TabsStory } from "./components/Tabs/Tabs.story";
 import { Story as PaletteStory } from "./components/Palette/Palette.story";
 
 /** Every component's story, in gallery order; the /kit route renders each under its name. */
@@ -81,6 +87,9 @@ export const STORIES = [
   { name: "Sidebar search", Story: SidebarSearchStory },
   { name: "Theme button", Story: ThemeButtonStory },
   { name: "Page", Story: PageStory },
+  { name: "Dot", Story: DotStory },
+  { name: "Meter", Story: MeterStory },
+  { name: "Tabs", Story: TabsStory },
 ] as const;
 
 export { Row } from "./components/Row/Row";
@@ -95,7 +104,7 @@ export { Suggestion } from "./components/Suggestion/Suggestion";
 export { Bars } from "./components/Bars/Bars";
 export { Tile } from "./components/Tile/Tile";
 export { TextOptions } from "./components/TextOptions/TextOptions";
-export { Choice, Field, TextArea } from "./components/Field/Field";
+export { Choice, Field, Segmented, TextArea } from "./components/Field/Field";
 export { AreaIcon } from "./components/AreaIcon/AreaIcon";
 export { NavItem } from "./components/NavItem/NavItem";
 export { NavGroup } from "./components/NavGroup/NavGroup";
@@ -111,3 +120,6 @@ export { Page } from "./patterns/Page/Page";
 export { Section } from "./patterns/Section/Section";
 /** @public */
 export { Empty } from "./patterns/Empty/Empty";
+export { Dot, type DotTone } from "./components/Dot/Dot";
+export { Meter, type MeterPart } from "./components/Meter/Meter";
+export { Tabs, type TabItem } from "./components/Tabs/Tabs";
