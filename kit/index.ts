@@ -10,6 +10,7 @@ import "./components/Toast/Toast.css";
 import "./components/Source/Source.css";
 import "./components/Row/Row.css";
 import "./components/Tile/Tile.css";
+import "./components/Bars/Bars.css";
 import "./components/Glyph/Glyph.css";
 import "./components/EvLine/EvLine.css";
 import "./components/StudyCard/StudyCard.css";
@@ -41,6 +42,7 @@ import "./components/Menu/Menu.css";
 import { Story as SuggestionStory } from "./components/Suggestion/Suggestion.story";
 import { Story as TextOptionsStory } from "./components/TextOptions/TextOptions.story";
 import { Story as MenuStory } from "./components/Menu/Menu.story";
+import { Story as BarsStory } from "./components/Bars/Bars.story";
 import { Story as TileStory } from "./components/Tile/Tile.story";
 import { Story as GlyphStory } from "./components/Glyph/Glyph.story";
 import { Story as EvLineStory } from "./components/EvLine/EvLine.story";
@@ -57,6 +59,7 @@ export const STORIES = [
   { name: "Source", Story: SourceStory },
   { name: "Row", Story: RowStory },
   { name: "Tile", Story: TileStory },
+  { name: "Bars", Story: BarsStory },
   { name: "Suggestion", Story: SuggestionStory },
   { name: "Text options", Story: TextOptionsStory },
   { name: "Menu", Story: MenuStory },
@@ -84,6 +87,7 @@ export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
 export { EvLine } from "./components/EvLine/EvLine";
 export { Suggestion } from "./components/Suggestion/Suggestion";
+export { Bars } from "./components/Bars/Bars";
 export { Tile } from "./components/Tile/Tile";
 export { TextOptions } from "./components/TextOptions/TextOptions";
 export { Choice, Field, TextArea } from "./components/Field/Field";
