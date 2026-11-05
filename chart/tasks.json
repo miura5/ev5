@@ -16786,5 +16786,63 @@
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
   "reportedAt": "2026-11-05T12:52:59.731Z"
+ },
+ {
+  "id": "B-943",
+  "kind": "request",
+  "title": "An empty note shows a quiet line to start from, not a blank page",
+  "dod": "When a note's body is empty, areas/notes/parts/NoteEditor.tsx shows a quiet placeholder line such as 'Start writing, or type # for a heading' in the muted text token; it goes away at the first character and is never saved into the note; both themes; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Polish inside the existing structure (§ui.kit-leads): no new buttons. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T13:40:11.082Z"
+ },
+ {
+  "id": "B-944",
+  "kind": "request",
+  "title": "You can find the note editor's shortcuts from the note page and from ⌘K",
+  "dod": "The editor's keys from areas/notes/parts/editorKeys.ts (# ## ### headings, - or * and 1. lists, [] checklist, Tab and Shift-Tab indent, Mod-B, Mod-I, Mod-U bold italic underline, Shift-Mod-X strike, Mod-Z undo, Shift-Mod-Z or Mod-Y redo) are listed as quiet hints that a note page can open and that ⌘K finds (for example 'Note shortcuts'), per §ui.keys, built from kit parts only (a missing look starts as a kit task, §ui.kit-leads); the list is generated from or tested against editorKeys.ts so the two cannot drift; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "No toolbar (that choice is Matt's, after cutover). After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T13:40:11.382Z"
+ },
+ {
+  "id": "B-945",
+  "kind": "request",
+  "title": "Make cards and Start session on a note say what they do when you point at them",
+  "dod": "On the note page, Make cards has the tooltip 'Start a set from this note; E.V. drafts, you keep or drop' and Start session has 'Start a study session', as the titles in design/mockup.html (renderDocMeta), through the kit's tooltip, with the key hint if the action has one (§ui.keys); test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Make cards drafts a flashcard set from the note; Start session runs a timed study session with read-along. After the playtest 6 bugs; does not hold B-822, B-823, B-758.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T13:40:11.556Z"
+ },
+ {
+  "id": "B-946",
+  "kind": "request",
+  "title": "Decide with Matt: a formatting toolbar or a menu on selected text on the note page, plus a way to add links and pictures",
+  "dod": "Matt has chosen toolbar, selection menu or neither, and whether links and pictures get a control (ev4's note editor has a toolbar with link and image); the choice is a Chart decision; build tasks are filed from it.",
+  "milestone": "after-cutover",
+  "status": "blocked",
+  "depends": [],
+  "notes": "Matt's decision. Do not build without his word. Not before cutover.",
+  "commit": null,
+  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
+  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
+  "reportedAt": "2026-11-05T13:40:11.713Z",
+  "waitingOn": "Matt",
+  "waitingWhere": "decision"
  }
 ]
