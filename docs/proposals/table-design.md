@@ -1,6 +1,6 @@
 # Proposal: one table per stored kind
 
-Status: proposed, 2026-11-05. The build manager reviews this file and records a Chart decision before the row-shapes task, the migration task and the kind tasks start. This file is reference text, never a rule (CONTRACT §drift.one-file). It builds on `fresh-database.md` (v5's own D1, starts empty) and fills in what that file left as a list: columns, ids, pointers, indexes, the migration, the export, and the order of work.
+Status: accepted with changes, 2026-11-05. The build manager's Chart decision on the table design lists the changes, and they win over this file. This file is reference text, never a rule (CONTRACT §drift.one-file). It builds on `fresh-database.md` (v5's own D1, starts empty) and fills in what that file left as a list: columns, ids, pointers, indexes, the migration, the export, and the order of work.
 
 Ported ev4 document shapes are reference only (the earlier decision on ported shapes). Where a row below differs from today's `domain/` document schema, the row wins and the document schema goes when its kind moves.
 

@@ -5470,7 +5470,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "PR 516: migration 0005 pointer indexes; PRAGMA table_info test against 14 domain row shapes; ADD COLUMN allowed. exam, objective, weak spot, set, session, note have no row shape yet. Reopened 2026-11-05: the done bar is not met on main. Migrations 0000 to 0005 create no table for exam, objective, weak spot, set, session, note, plan or talk; PR 516 added pointer indexes only. Remaining: the one migration for B-1035's design, with the PRAGMA test against B-1022's new row shapes; the export and drill then cover every new table.",
+  "notes": "PR 516: migration 0005 pointer indexes; PRAGMA table_info test against 14 domain row shapes; ADD COLUMN allowed. exam, objective, weak spot, set, session, note have no row shape yet. Reopened 2026-11-05: the done bar is not met on main. Migrations 0000 to 0005 create no table for exam, objective, weak spot, set, session, note, plan or talk; PR 516 added pointer indexes only. Remaining: the one migration for B-1035's design, with the PRAGMA test against B-1022's new row shapes; the export and drill then cover every new table. D-498: the 'tables gate' repository is inside this task (part 1, with the migration). Part 2 is the design's cleanup step: remove /docs routes and data/docs, migration 0007, reseed staging through the gate, rerun the export and restore drill.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5542,13 +5542,13 @@
   "title": "Practice job output is the stored set item",
   "dod": "The practice job's output schema is derived from the domain set-item row (id, sourceRef pattern and all); its items land through the gate; a model reply that fails the shape is repaired once or refused with a reason (§model.output, §data.gate). Slice write: jobs/practice",
   "milestone": "Phase 6",
-  "status": "blocked",
+  "status": "open",
   "depends": [
    "B-955",
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 86 #538. Left: model-facing ItemSchema still hand-written (domain setItemSchema not exported from the barrel); saveOutput does not parse bodies before insert. 2026-11-05: PR #538 (merged 21:01Z, run 86) fits each item to the ev4 sets document shape (schema 3, writer, sourceRef materials/ or note/). Blocked by B-1035 for a recheck: once the design gives the set item table, the job output lands there and materials/ refs go until a table exists.",
+  "notes": "Run 86 #538. Left: model-facing ItemSchema still hand-written (domain setItemSchema not exported from the barrel); saveOutput does not parse bodies before insert. 2026-11-05: PR #538 (merged 21:01Z, run 86) fits each item to the ev4 sets document shape (schema 3, writer, sourceRef materials/ or note/). Blocked by B-1035 for a recheck: once the design gives the set item table, the job output lands there and materials/ refs go until a table exists. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
   "commit": "07c3481",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5558,13 +5558,13 @@
   "title": "Study plan output lands as plans and plan_items",
   "dod": "The study plan job's output goes through domain/plan into plans and plan_items; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/plan, domain/plan",
   "milestone": "Phase 6",
-  "status": "blocked",
+  "status": "open",
   "depends": [
    "B-955",
    "B-997",
    "B-1035"
   ],
-  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision.",
+  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5797,12 +5797,12 @@
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
   "dod": "domain/ has row shapes for exam, objective, weak spot, set, session, note, course, claude_* and system_docs; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
-  "status": "blocked",
+  "status": "open",
   "depends": [
    "B-997",
    "B-1035"
   ],
-  "notes": "Part one merged (PR 518): domain/claude, domain/system-doc, parseDraft exported; data, jobs/runtime, ceilings parse through domain shapes; deletion and job-plan at is an integer. Remains: Zod shapes for exam..course (hand validators today), a domain plan-body shape so commands/ and jobs/ drop PlanSchema, server/ SQL for claude_settings and job_plans via the domain, areas WireDoc removal. 2026-11-05: blocked by B-1035 (table design). Its remainder, Zod shapes over the ev4 document shapes for exam to course, is paused; after the design's decision it is re-scoped to the row shapes of the new tables (shape-fixes review, step 3).",
+  "notes": "Part one merged (PR 518): domain/claude, domain/system-doc, parseDraft exported; data, jobs/runtime, ceilings parse through domain shapes; deletion and job-plan at is an integer. Remains: Zod shapes for exam..course (hand validators today), a domain plan-body shape so commands/ and jobs/ drop PlanSchema, server/ SQL for claude_settings and job_plans via the domain, areas WireDoc removal. 2026-11-05: blocked by B-1035 (table design). Its remainder, Zod shapes over the ev4 document shapes for exam to course, is paused; after the design's decision it is re-scoped to the row shapes of the new tables (shape-fixes review, step 3). D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5939,12 +5939,12 @@
   "title": "data/: plans and plan_items tables, migration and gated repository (B-1004 part 2)",
   "dod": "Migration adds plans and plan_items (unique on plan_id, repeat, day); repository writes plan row and items in one batch through the gate using domain approvePlan, putAwayPlan, settle (§data.gate, §data.repeat). Slice write: data/",
   "milestone": "Phase 6",
-  "status": "blocked",
+  "status": "open",
   "depends": [
    "B-1004",
    "B-1035"
   ],
-  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts.",
+  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
   "commit": null,
   "source": "B-1004 report"
  },
@@ -5954,12 +5954,12 @@
   "title": "jobs/runtime: d1PlanStore approve and put-away use the plans repository (B-1004 part 3)",
   "dod": "d1PlanStore.approve/putAway call the data plans repository instead of server/plan-home.ts home.apply; one path each. Slice write: jobs/runtime, server/plan-home.ts",
   "milestone": "Phase 6",
-  "status": "blocked",
+  "status": "open",
   "depends": [
    "B-1033",
    "B-1035"
   ],
-  "notes": "2026-11-05: blocked by B-1035, behind B-1033, for a recheck against the table design.",
+  "notes": "2026-11-05: blocked by B-1035, behind B-1033, for a recheck against the table design. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
   "commit": null,
   "source": "B-1004 report"
  },
@@ -5971,7 +5971,7 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 87: docs/proposals/table-design.md. Reviewed by the build manager; see the decision. Proposes two tasks: a generated typed repository over data/tables/gate.ts, and the final cleanup (drop docs routes, data/docs, migration 0007).",
+  "notes": "Run 87: docs/proposals/table-design.md. Reviewed by the build manager; see the decision. Proposes two tasks: a generated typed repository over data/tables/gate.ts, and the final cleanup (drop docs routes, data/docs, migration 0007). The design is accepted with changes (D-498, replacing D-496); the changes win over the doc.",
   "commit": "f07dd3c",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6322,7 +6322,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him. D-497: Matt approves the AGENTS.md part, limited to removing or correcting lines that describe ev4 or one subject; no other AGENTS.md change.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6332,13 +6332,18 @@
   "title": "A generated typed repository over data/tables/gate.ts",
   "dod": null,
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "declined",
   "depends": [
    "B-1035"
   ],
   "notes": "Group 4, follows the accepted table design. Slice: write data/.",
   "commit": null,
-  "source": "table design"
+  "source": "table design",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Task freeze (D-497): the tables gate repository is part of B-998 (D-498).",
+   "at": "2026-11-05T23:31:20.499Z"
+  }
  },
  {
   "id": "B-1064",
@@ -6346,12 +6351,17 @@
   "title": "Contract the generic docs store: remove the docs routes, data/docs and the deletions table; drop docs, deletions, system_docs and claude_* tables",
   "dod": null,
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "declined",
   "depends": [
    "B-1035"
   ],
   "notes": "Group 4, last of the data moves; lands only after every kind has its table, command and outbox path.",
   "commit": null,
-  "source": "table design"
+  "source": "table design",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Task freeze (D-497): the docs store cleanup is B-998 part 2 (D-498).",
+   "at": "2026-11-05T23:31:20.666Z"
+  }
  }
 ]
