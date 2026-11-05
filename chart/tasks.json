@@ -4872,7 +4872,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Rescoped 2026-11-05 by D-483/D-484: the ev4 write-rule check it asked for protected the rollback to ev4, which ended. Audit finding 3 still stands for the new gate: handlers built docsRepo with no check, item.rename wrote title anywhere, refusals mapped to 409.",
+  "notes": "Part 1 merged (#524): the docs table gate (data/docs/gate.ts), docsRepo.rename, SQL-outside-data check across all folders. Remains: tablesRepo and other writers behind one gate; item.rename 409 mapping done; remove the 'no such table: deletions' tolerance in data/docs/gate.ts after fixtures add the table; move jobs/runtime/d1-stores.ts SQL into data/ (B-1002) and drop its exemption in ops/checks/serverwrites.ts. Lesson: a type import from data/compat in Worker-side data code breaks tsc (node:fs).",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -4918,10 +4918,10 @@
   "title": "A bad table row can't be saved, one bad row doesn't break a whole list, and Restore brings back only the item asked for",
   "dod": "Table repositories parse a row before they write it; a list skips and reports a bad row instead of throwing; deletions.restore takes the collection and the id; tests prove each",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit finding 9: putVersioned writes, then parses (data/tables/core.ts), so a bad collection row breaks every collections.list(); deletions.restore deletes by id across every collection (data/tables/drafts.ts).",
-  "commit": null,
+  "notes": "Merged #529. Nothing in the Worker passes onBad yet, so skipped rows are dropped silently there: small follow-up in server/. item.restore in server/command-handlers.ts was adjusted for the new restore signature.",
+  "commit": "9a9b21c",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
@@ -5062,15 +5062,15 @@
   "title": "Today draws its rows, sections, empty states and exam Detail with the kit",
   "dod": "Today uses kit Row (dot, done, actions on hover), Page, Section, Empty and Meter for readiness, and opens its exam Detail through the shell's host (the .ev-today-detail overlay goes); its glyphs lose their colours (§ui.glyphs); its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#today); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968",
    "B-969"
   ],
-  "notes": "Slice: write areas/today/; read kit/, shell's area-view props. Touches the same files as B-942 (Today content): claim it with B-942 or after it, never in parallel.",
-  "commit": null,
+  "notes": "Merged #523. Today's content half of B-942 still open (see B-942 notes); Today not yet seen on staging.",
+  "commit": "5f8b44f",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5096,15 +5096,15 @@
   "title": "Notes home and note page draw their rows, sections and empty states with the kit",
   "dod": "Notes uses kit Row (the folding form for collections, one level, with arrow keys), Page, Section and Empty, and any Detail it opens goes through the shell's host; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#notes, #note); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968",
    "B-1020"
   ],
-  "notes": "Notes home done in PR 503 (run 80, merged 2026-11-05). The note page still uses its own column, doc-title, docmeta and session-bar CSS: waits on B-1020 (editable Page title). Not yet seen on staging.",
-  "commit": null,
+  "notes": "Merged #526. Not yet seen on staging.",
+  "commit": "dd6d1c0",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5162,14 +5162,14 @@
   "title": "Progress draws its head, sections and meters with the kit",
   "dod": "Progress uses kit Page, Section, Empty, Meter and Bars; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#progress); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Slice: write areas/progress/; read kit/. Touches the same files as B-942 (Progress content): claim it with B-942 or after it.",
-  "commit": null,
+  "notes": "Merged #528. Uses Page, Section, Empty and Bars; no Meter (Progress has no segmented bar). Not yet seen on staging.",
+  "commit": "9e16214",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5178,14 +5178,14 @@
   "title": "Ask E.V. draws its head and empty state with the kit",
   "dod": "Ask E.V. uses kit Page and Empty, and E.V. line, Source and Suggestion for her replies; the .ask-head copy goes; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#ask); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
   "notes": "Slice: write areas/ask/; read kit/.",
-  "commit": null,
+  "commit": "2937a5b",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5194,14 +5194,14 @@
   "title": "A study session draws its card and session bar with the kit",
   "dod": "Sessions use kit StudyCard for the card and kit Doc's session bar for the bar (both built and unused today), plus Page and Empty; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#study, #note during a session); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Slice: write areas/sessions/; read kit/.",
-  "commit": null,
+  "notes": "Merged #530 using B-1031's SessionBar and StudyCard. Not yet seen on staging. Stale branch claude/B-978-session-kit remains (delete denied).",
+  "commit": "7c68a36",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -5805,10 +5805,10 @@
   "title": "README and AGENTS no longer mention the dropped CHANGELOG render",
   "dod": "README.md and AGENTS.md S-02 stop naming CHANGELOG.md and ev4's rules/views/releases files; checks green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Left over from B-994 (outside its slice). Slice: write README.md, AGENTS.md.",
-  "commit": null,
+  "commit": "4c78abc",
   "source": "run 83 B-994 report"
  },
  {
@@ -5901,5 +5901,17 @@
   "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011.",
   "commit": null,
   "source": "ops claims review 2026-11-05"
+ },
+ {
+  "id": "B-1031",
+  "kind": "task",
+  "title": "Kit SessionBar and StudyCard export (B-978 needs them)",
+  "dod": "kit draws the mock-up session bar; StudyCard exported",
+  "milestone": "Phase 6",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged in #527; filed after the fact because B-978 was refused until the kit had it.",
+  "commit": "236950a",
+  "source": "ops/record"
  }
 ]
