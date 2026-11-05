@@ -116,7 +116,11 @@ export function checkPlan(plan: Plan, ctx: PlanContext): string[] {
   if (!plan.tasks.length) out.push('The plan has no tasks.');
   if (plan.tasks.length > MAX_TASKS) out.push(`The plan has more than ${MAX_TASKS} tasks.`);
   const days = new Set(ctx.days);
-  const bad = [...new Set(plan.tasks.map((t) => t.date).filter((d) => !days.has(d)))];
+  const dates = [...new Set(plan.tasks.map((t) => t.date))];
+  // Plain ISO dates compare as text. A past day is refused by name; the exam day and later are outside ctx.days.
+  const past = dates.filter((d) => d < ctx.today);
+  if (past.length) out.push(`These dates have already passed: ${past.join(', ')}. Start from ${ctx.today}.`);
+  const bad = dates.filter((d) => !days.has(d) && !past.includes(d));
   if (bad.length) out.push(`These dates are not study days: ${bad.join(', ')}.`);
   const per = new Map<string, number>();
   for (const t of plan.tasks) per.set(t.date, (per.get(t.date) ?? 0) + t.minutes);
@@ -179,7 +183,11 @@ export function studyPlanHandlers({ store, call, system, changesSystem, frame, a
     if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
     const failed = await store.getFailure(c.jobId);
     if (failed) throw new Error(failed);
-    const ctx = await store.getContext(c.jobId);
+    // The days were fixed when the first draft was made; a change round rebuilds them from the day it runs.
+    const found = await store.load((await store.getContext(c.jobId)).exam.id);
+    if (!found) throw new Error('That exam was not found.');
+    const ctx = buildContext(found);
+    await store.putContext(c.jobId, ctx);
     await c.reserve(COST_CAP_CENTS);
     const r = await askChanges(
       { call, system: frame ? await frame(changesSystem, ctx.exam.course) : changesSystem },
