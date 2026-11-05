@@ -93,3 +93,32 @@ test("putting a plan away ends it done at once, never running, and Done today wo
     "Your study plan was put away.",
   );
 });
+
+test("a finished study plan's Done today entry carries its exam's title, and none when the exam is gone", async () => {
+  const { req, db } = setup();
+  const store = d1JobStore(db, () => 1);
+  const now = new Date().toISOString();
+  await store.put(rec("sp-t", "done", now));
+  await store.put(rec("sp-x", "done", now));
+  const ctx = (job: string, examId: string) =>
+    db
+      .prepare(
+        "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'context', ?, 0)",
+      )
+      .bind(job, JSON.stringify({ exam: { id: examId } }))
+      .run();
+  await ctx("sp-t", "ex-1");
+  await ctx("sp-x", "ex-gone");
+  await db
+    .prepare(
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'ex-1', ?, 0, 1)",
+    )
+    .bind(JSON.stringify({ title: "NUR 112 Exam 2", date: "2026-11-20" }))
+    .run();
+  const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");
+  const { jobs } = (await res.json()) as {
+    jobs: { id: string; examTitle?: string }[];
+  };
+  assert.equal(jobs.find((j) => j.id === "sp-t")?.examTitle, "NUR 112 Exam 2");
+  assert.equal(jobs.find((j) => j.id === "sp-x")?.examTitle, undefined);
+});

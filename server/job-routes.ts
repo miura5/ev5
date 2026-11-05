@@ -224,7 +224,7 @@ jobRoutes.get("/jobs", async (c) => {
     const now = Date.now();
     return c.json({
       jobs: [
-        ...(await finishedJobsToday(store, DEFS, now)),
+        ...(await finishedJobsToday(store, c.env.DB, DEFS, now)),
         ...(await endedSessionsToday(c.env.DB, now)),
       ],
     });
