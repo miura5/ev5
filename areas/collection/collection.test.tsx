@@ -200,9 +200,7 @@ test("a note row opens the note, and the collection shows its name and notes", a
               ],
             }
           : {
-              collections: [
-                { id: "b", title: "Labs", parentId: null, pos: 0 },
-              ],
+              collections: [{ id: "b", title: "Labs", parentId: null, pos: 0 }],
             };
   vi.stubGlobal(
     "fetch",

@@ -17,10 +17,10 @@ test("picks the first top-level collection with its nested and members, newest f
   expect(d.title).toBe("NUR 112");
   expect(d.nested.map((e) => e.title)).toEqual(["Labs"]);
   expect(d.items.map((e) => [e.id, e.type])).toEqual([
-    ["Untitled", "cards"],
+    ["k1", "cards"],
     ["n1", "note"],
   ]);
-  expect(d.items[0]!.title).toBe("k1");
+  expect(d.items[0]!.title).toBe("Untitled");
 });
 
 test("no collections is the empty state", () => {
@@ -66,6 +66,6 @@ test("pins keep the server order and are named from docs, else Untitled", () => 
   );
   expect(e.map((x) => [x.title, x.type])).toEqual([
     ["Heart", "note"],
-    ["k1", "cards"],
+    ["Untitled", "cards"],
   ]);
 });
