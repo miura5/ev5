@@ -1,5 +1,6 @@
 // Shared row plumbing for the repositories in this folder: ms timestamps, JSON columns and the versioned write.
 import type { D1Like } from "../docs/d1.ts";
+import { gateRow } from "./gate.ts";
 
 export type Saved<T> =
   | { ok: true; row: T }
@@ -77,7 +78,7 @@ export function core(db: D1Like, opts: TablesOptions) {
     const current = cur ? (cur.v as number) : null;
     if (current !== ifVersion) return { ok: false, conflict: true, current };
     // Parse the row before anything is written: a row its domain rule refuses throws here and never reaches the table.
-    const row = result((current ?? 0) + 1, at);
+    const row = gateRow(table, () => result((current ?? 0) + 1, at));
     if (current === null) {
       const names = [...keyCols, ...cols, "at", "v"];
       try {

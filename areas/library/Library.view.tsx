@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button, Glyph, Row } from "../../kit/index.ts";
-import { MasteryBar } from "./parts/MasteryBar.tsx";
+import { Empty, Glyph, Meter, Page, Row, Tabs } from "../../kit/index.ts";
+import type { Mastery } from "./types.ts";
 import { PracticePanel } from "./parts/PracticePanel.tsx";
 import { SetsPanel } from "./parts/SetsPanel.tsx";
 import type {
@@ -66,52 +66,36 @@ export function LibraryView({
   initialTab,
 }: LibraryViewProps) {
   const [tab, setTab] = useState<Tab>(() => initialTab ?? savedTab());
-  const tabs: { id: Tab; label: string; n?: number }[] = [
+  const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: "practice", label: "Practice" },
-    { id: "weak", label: "Weak spots", n: weakSpots.length },
-    { id: "exams", label: "Exams", n: exams.length },
-    { id: "sets", label: "Sets", n: sets.length },
+    { id: "weak", label: "Weak spots", count: weakSpots.length },
+    { id: "exams", label: "Exams", count: exams.length },
+    { id: "sets", label: "Sets", count: sets.length },
   ];
+  const pick = (id: string) => {
+    setTab(id as Tab);
+    try {
+      localStorage.setItem(TAB_KEY, id);
+    } catch {
+      /* the tab is a convenience; not saving it is fine */
+    }
+  };
   return (
-    <section className="ev-library" aria-label="Library">
-      <div className="ev-library-head">
-        <h1 className="ev-library-title">Library</h1>
-        <span className="ev-library-meta">
-          practice, weak spots, exams and sets
-        </span>
-      </div>
+    <Page title="Library" meta="practice, weak spots, exams and sets">
       {accuracy ? (
-        <Button kind="text" onClick={onOpenAccuracy}>
-          <span className="ev-library-meta">
-            First-try accuracy, last 14 days
-          </span>
-          <span>{accuracy.text}</span>
-        </Button>
+        <Row
+          title="First-try accuracy, last 14 days"
+          value={accuracy.text}
+          onOpen={onOpenAccuracy}
+        />
       ) : null}
-      <div className="ev-library-tabs" role="tablist">
-        {tabs.map((t) => (
-          <Button
-            key={t.id}
-            kind="text"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => {
-              setTab(t.id);
-              try {
-                localStorage.setItem(TAB_KEY, t.id);
-              } catch {
-                /* the tab is a convenience; not saving it is fine */
-              }
-            }}
-          >
-            {t.label}
-            {t.n !== undefined ? (
-              <span className="ev-library-meta ev-library-count">{t.n}</span>
-            ) : null}
-          </Button>
-        ))}
-      </div>
-      <div className="ev-library-panel" data-panel={tab}>
+      <Tabs
+        label="Library"
+        tabs={tabs}
+        value={tab}
+        onChange={pick}
+      />
+      <div data-panel={tab}>
         {tab === "practice" ? (
           <PracticePanel
             session={practice}
@@ -120,7 +104,7 @@ export function LibraryView({
           />
         ) : null}
         {tab === "weak" && weakSpots.length === 0 ? (
-          <span className="ev-library-meta">No weak spots.</span>
+          <Empty line="No weak spots." />
         ) : null}
         {tab === "weak"
           ? weakSpots.map((w) => (
@@ -132,12 +116,12 @@ export function LibraryView({
                   glyph={<Glyph type="questions" />}
                   onOpen={onDrill ? () => onDrill(w.id) : undefined}
                 />
-                <MasteryBar mastery={w.mastery} />
+                <Mastered mastery={w.mastery} />
               </div>
             ))
           : null}
         {tab === "exams" && exams.length === 0 ? (
-          <span className="ev-library-meta">No exams.</span>
+          <Empty line="No exams." />
         ) : null}
         {tab === "exams"
           ? exams.map((x) => (
@@ -149,7 +133,7 @@ export function LibraryView({
                   glyph={<Glyph type="date" />}
                   onOpen={onOpenExam ? () => onOpenExam(x.id) : undefined}
                 />
-                <MasteryBar mastery={x.mastery} />
+                <Mastered mastery={x.mastery} />
               </div>
             ))
           : null}
@@ -157,6 +141,21 @@ export function LibraryView({
           <SetsPanel sets={sets} onOpenSet={onOpenSet} />
         ) : null}
       </div>
-    </section>
+    </Page>
+  );
+}
+
+/** The kit Meter for a share of right, shaky and wrong answers. */
+function Mastered({ mastery: m }: { mastery: Mastery }) {
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  return (
+    <Meter
+      label={`Right ${pct(m.right)}, shaky ${pct(m.shaky)}, wrong ${pct(m.wrong)}`}
+      parts={[
+        { tone: "ok", count: m.right },
+        { tone: "warn", count: m.shaky },
+        { tone: "bad", count: m.wrong },
+      ]}
+    />
   );
 }

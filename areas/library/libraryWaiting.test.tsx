@@ -6,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryScreen } from "./Library.screen.tsx";
+import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 
 afterEach(() => {
@@ -137,10 +137,10 @@ const sessions = [
 test("opened by a link, the plan shows its sessions by day with minutes and Built from", async () => {
   boot([{ ...waitingJob, tasks: sessions }]);
   await screen.findByText("Proposed sessions");
-  const rows = [...document.querySelectorAll(".ev-library-session")].map(
+  const rows = [...document.querySelectorAll('[data-part="proposal"] [data-ui="row"]')].map(
     (r) => r.textContent,
   );
-  expect(rows).toEqual(["Fri Jan 2Dosage by weight25m", "Sun Jan 4Misses only10m"]);
+  expect(rows).toEqual(["Dosage by weightFri Jan 225m", "Misses onlySun Jan 410m"]);
   expect(screen.getByText(/Built from/)).toBeTruthy();
 });
 

@@ -3,12 +3,13 @@
 import { parseDeletion } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
+import { gateRow } from "./gate.ts";
 
 export type PendingDraft = { id: string; targetId: string; v: number };
 
 export function draftsRepo(db: D1Like, opts: TablesOptions) {
   const del = (c: string, id: string) =>
-    parseDeletion({ c, id, at: opts.clock() });
+    gateRow("deletions", () => parseDeletion({ c, id, at: opts.clock() }));
   const pending = async (
     where: string,
     arg: string,

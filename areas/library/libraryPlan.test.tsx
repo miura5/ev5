@@ -6,8 +6,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryScreen } from "./Library.screen.tsx";
-import { ExamPlanDetail } from "./ExamPlan.detail.tsx";
+import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { ExamPlanDetail } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 
 afterEach(() => {

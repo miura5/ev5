@@ -47,6 +47,11 @@ export function setup() {
     .run();
   void db
     .prepare(
+      "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
+    )
+    .run();
+  void db
+    .prepare(
       "INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'e1', ?, 0, 1)",
     )
     .bind(

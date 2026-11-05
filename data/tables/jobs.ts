@@ -4,6 +4,7 @@
 import { parseClaudeSetting, parseJobPlanRow } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
+import { gateRow } from "./gate.ts";
 
 export function jobsRepo(db: D1Like, opts: TablesOptions) {
   return {
@@ -14,7 +15,9 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
         kind: string,
         body: unknown,
       ): Promise<void> => {
-        const row = parseJobPlanRow({ jobId, kind, body, at: opts.clock() });
+        const row = gateRow("job_plans", () =>
+          parseJobPlanRow({ jobId, kind, body, at: opts.clock() }),
+        );
         await db
           .prepare(
             "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, ?, ?, ?) " +
@@ -29,7 +32,9 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
       putNumbers: async (values: Record<string, number>): Promise<void> => {
         const at = opts.clock();
         for (const [key, value] of Object.entries(values)) {
-          const row = parseClaudeSetting({ key, value, at });
+          const row = gateRow("claude_settings", () =>
+            parseClaudeSetting({ key, value, at }),
+          );
           await db
             .prepare(
               "INSERT INTO claude_settings (key, value, at) VALUES (?, ?, ?) " +

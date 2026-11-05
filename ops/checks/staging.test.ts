@@ -5,11 +5,18 @@ import { test } from "node:test";
 const root = new URL("../../", import.meta.url);
 const read = (f: string): string => fs.readFileSync(new URL(f, root), "utf8");
 
-test("the staging workflow applies the schema that holds every migration, then verifies it", () => {
+test("staging and live apply data/migrations the same way, and the config names that folder", () => {
+  assert.match(read("wrangler.jsonc"), /"migrations_dir": "data\/migrations"/);
+  for (const w of ["staging", "live"]) {
+    assert.match(read(`.github/workflows/${w}.yml`), /d1 migrations apply "\$(?:NAME|DB)" --remote/);
+  }
+});
+
+test("the staging workflow applies the migrations, then verifies them", () => {
   const yml = read(".github/workflows/staging.yml");
   assert.match(
     yml,
-    /d1 execute "\$NAME" --remote --yes --file data\/staging\/schema\.sql/,
+    /d1 migrations apply "\$NAME" --remote/,
   );
   assert.match(yml, /verify-staging-schema\.mjs/);
   const migrations = fs

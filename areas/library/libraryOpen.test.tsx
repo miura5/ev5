@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryScreen } from "./Library.screen.tsx";
+import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 
 afterEach(() => {
   cleanup();
@@ -97,7 +97,7 @@ test("?open=<weak spot id> opens its detail", async () => {
 test("an unknown id does nothing", async () => {
   boot("nope");
   await waitFor(() =>
-    expect(screen.getByRole("tab", { name: "Exams1" })).toBeTruthy(),
+    expect(screen.getByRole("radio", { name: "Exams1" })).toBeTruthy(),
   );
   expect(screen.queryByText("Review the study plan")).toBeNull();
   expect(screen.queryByText("How many mL?")).toBeNull();
@@ -108,8 +108,8 @@ test("an exam's detail sits beside the library with the date, days left and cour
   await waitFor(() =>
     expect(screen.getByText("Review the study plan")).toBeTruthy(),
   );
-  const panel = document.querySelector(".ev-library-detail") as HTMLElement;
-  const lib = document.querySelector("section.ev-library") as HTMLElement;
+  const panel = document.querySelector('[data-ui="detail"]') as HTMLElement;
+  const lib = document.querySelector('[data-ui="page"]') as HTMLElement;
   expect(panel).toBeTruthy();
   // After the page in the document, never above it.
   expect(

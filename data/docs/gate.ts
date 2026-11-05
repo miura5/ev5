@@ -46,17 +46,11 @@ export const gateProblem: WriteProblem = (c, id, doc: Json, prev) =>
 
 /** The ids in `c` with a deletions row (§delete.soft: the documents stay, reads hide them). */
 export async function deletedIds(db: D1Like, c: string): Promise<Set<string>> {
-  try {
-    const { results } = await db
-      .prepare("SELECT c, id, at FROM deletions WHERE c = ?")
-      .bind(c)
-      .all<{ id: string }>();
-    return new Set(results.map((d) => d.id));
-  } catch (e) {
-    // Every real database has the table (migrations); only a test fixture that builds `docs` alone lacks it.
-    if (/no such table: deletions/.test(String(e))) return new Set();
-    throw e;
-  }
+  const { results } = await db
+    .prepare("SELECT c, id, at FROM deletions WHERE c = ?")
+    .bind(c)
+    .all<{ id: string }>();
+  return new Set(results.map((d) => d.id));
 }
 
 export interface Row {

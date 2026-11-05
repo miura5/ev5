@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Button, EvLine, Field, Source } from "../../kit/index.ts";
+import { Button, EvLine, Field, Page, StudyCard } from "../../kit/index.ts";
 import type { StudyItem } from "./types.ts";
-import "./library.css";
 
 export interface StudyViewProps {
   title: string;
@@ -28,18 +27,16 @@ export function StudyView({
   const it = items[i];
   if (!it)
     return (
-      <section className="ev-library" aria-label="Study">
-        <h1 className="ev-library-title">Done for now</h1>
-        <span className="ev-library-meta">
-          {items.length} items · {good} Good, {items.length - good} Again. Again
-          comes back tomorrow.
-        </span>
+      <Page
+        title="Done for now"
+        meta={`${items.length} items · ${good} Good, ${items.length - good} Again. Again comes back tomorrow.`}
+      >
         <div>
           <Button kind="primary" hint="↵" onClick={onLeave}>
             Back to the set
           </Button>
         </div>
-      </section>
+      </Page>
     );
   const tell = async () => {
     if (!onTell || (await onTell(it.id))) setShown(true);
@@ -52,66 +49,50 @@ export function StudyView({
     setShown(false);
   };
   return (
-    <section className="ev-library" aria-label="Study">
-      <div className="ev-library-head">
+    <Page
+      title="Study"
+      meta={`${i + 1} of ${items.length}`}
+      crumb={
         <Button kind="text" onClick={onLeave}>
           ← {title}
         </Button>
-        <span className="ev-library-grow" />
-        <span className="ev-library-meta">
-          {i + 1} of {items.length}
-        </span>
-      </div>
-      <div className="ev-library-card">
-        <span className="ev-library-meta">{it.kicker}</span>
-        <p className="ev-library-question">{it.front}</p>
-        {shown ? (
-          <>
-            <span className="ev-library-meta">
-              {attempt
-                ? `You wrote: ${attempt}`
-                : "Logged: you asked to see it first."}
-            </span>
-            <p>{it.back}</p>
-            <Source from={it.from} />
-            {it.note ? <EvLine quiet>{it.note}</EvLine> : null}
-            <div className="ev-library-card-foot">
-              <Button hint="1" onClick={() => rate("again")}>
-                Again
-              </Button>
-              <Button hint="2" onClick={() => rate("good")}>
-                Good
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <Field
-              label="Your answer"
-              placeholder="Your answer, in your words"
-              value={attempt}
-              onChange={(e) => setAttempt(e.target.value)}
-            />
-            <div className="ev-library-card-foot">
-              <Button
-                kind="primary"
-                hint="↵"
-                disabled={!attempt.trim()}
-                onClick={() => setShown(true)}
-              >
-                Turn over
-              </Button>
-              <Button
-                kind="text"
-                title="Just tell me, logged"
-                onClick={() => void tell()}
-              >
-                Just tell me
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-    </section>
+      }
+    >
+      <StudyCard
+        kicker={it.kicker}
+        face={
+          shown ? (
+            it.front
+          ) : (
+            <>
+              {it.front}
+              <Field
+                label="Your answer"
+                placeholder="Your answer, in your words"
+                value={attempt}
+                onChange={(e) => setAttempt(e.target.value)}
+              />
+            </>
+          )
+        }
+        answer={
+          shown ? (
+            <>
+              <EvLine quiet>
+                {attempt
+                  ? `You wrote: ${attempt}`
+                  : "Logged: you asked to see it first."}
+              </EvLine>
+              {it.back}
+              {it.note ? <EvLine quiet>{it.note}</EvLine> : null}
+            </>
+          ) : undefined
+        }
+        from={it.from}
+        onTurn={() => attempt.trim() && setShown(true)}
+        onJustTell={() => void tell()}
+        onRate={rate}
+      />
+    </Page>
   );
 }

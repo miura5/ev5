@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Choice, EvLine } from "../../../kit/index.ts";
+import { Button, Choice, Empty, EvLine } from "../../../kit/index.ts";
 import type { PracticeSession } from "../types.ts";
 
 export interface PracticePanelProps {
@@ -16,7 +16,7 @@ export function PracticePanel({
 }: PracticePanelProps) {
   const [hinted, setHinted] = useState(false);
   if (!session)
-    return <span className="ev-library-meta">No practice running.</span>;
+    return <Empty line="No practice running." />;
   return (
     <form
       className="ev-library-card"
