@@ -7,7 +7,7 @@ import type { JobStore } from "./record.ts";
 
 /** @public */
 export const SWEEP_REASON =
-  "Stopped: its runner was lost. Retry it from Activity.";
+  "Stopped: it never finished because its runner was lost. Start it again.";
 
 /** Fails each queued or running job idle past its kind's deadline; returns the ids it failed. */
 export async function sweepStale(

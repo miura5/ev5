@@ -276,3 +276,8 @@ test('prompt.md exists and names the reply fields', () => {
   const p = fs.readFileSync(new URL('./prompt.md', import.meta.url), 'utf8');
   for (const w of ['summary', 'tasks', 'weakSpotId', 'days']) assert.ok(p.includes(w), w);
 });
+
+test('a study plan that has not moved in half an hour is swept to failed', async () => {
+  const { deadlinesFor } = await import('../runtime/define.ts');
+  assert.deepEqual(deadlinesFor('study_plan'), { queued: 15, running: 30 });
+});
