@@ -50,3 +50,5 @@ export {
   search,
   likePatterns,
 } from "./search/index.ts";
+export { parseCourseTable, examFrame, chatCourse } from "./course/index.ts";
+export type { CourseTable } from "./course/types.ts";

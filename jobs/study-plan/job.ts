@@ -57,7 +57,7 @@ export type Task = z.infer<typeof TaskSchema>;
 export type Plan = z.infer<typeof PlanSchema>;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
-  exam: { id: string; title: string; kind: Exam['kind']; date: string };
+  exam: { id: string; title: string; kind: Exam['kind']; date: string; course?: string };
   today: string;
   days: string[];
   weakSpots: PlanSpot[];
@@ -103,7 +103,7 @@ export function buildContext(found: NonNullable<Awaited<ReturnType<PlanStore['lo
   const days = Array.from({ length: Math.min(left, MAX_DAYS) }, (_, i) => addDays(today, i));
   const weakSpots = [...spots].sort((a, b) => b.need - a.need || a.title.localeCompare(b.title));
   return {
-    exam: { id: exam.id, title: exam.title, kind: exam.kind, date: exam.date },
+    exam: { id: exam.id, title: exam.title, kind: exam.kind, date: exam.date, ...(exam.course ? { course: exam.course } : {}) },
     today,
     days,
     weakSpots,
@@ -161,6 +161,8 @@ export type Deps = {
   call: ModelCall;
   system: string;
   changesSystem?: string;
+  /** Frames a prompt for the exam's course (server/frame-prompt.ts). */
+  frame?: (text: string, course?: string | null) => Promise<string>;
   /** studyplan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
   askChanges?: (
     d: { call: ModelCall; system: string },
@@ -168,7 +170,7 @@ export type Deps = {
   ) => Promise<{ ok: true; plan: Plan; costCents: number } | { ok: false; reason: string; costCents: number }>;
 };
 
-export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
+export function studyPlanHandlers({ store, call, system, changesSystem, frame, askChanges }: Deps): StepHandlers {
   const revise: StepHandlers[string] = async (c) => {
     const a = parseAnswer(c.input);
     if (a.decision !== 'change') return { ids: [] };
@@ -178,7 +180,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
     const ctx = await store.getContext(c.jobId);
     await c.reserve(COST_CAP_CENTS);
     const r = await askChanges(
-      { call, system: changesSystem },
+      { call, system: frame ? await frame(changesSystem, ctx.exam.course) : changesSystem },
       { draft: await store.getDraft(c.jobId), ctx, note: a.note! },
     );
     await c.spend(r.costCents);
@@ -206,7 +208,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
       const r = await runStructured({
         call,
         model: MODEL,
-        system,
+        system: frame ? await frame(system, ctx.exam.course) : system,
         prompt: JSON.stringify(ctx),
         maxTokens: MAX_TOKENS,
         schema: outputSchema(PlanSchema),
