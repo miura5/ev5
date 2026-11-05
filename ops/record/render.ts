@@ -1,6 +1,7 @@
 // BACKLOG.md and DECISIONS.md, generated from the Chart. The tables are ev4's renders translated line
 // for line, so the carried record prints as ev4 printed it; only the header lines differ, and they are a parameter.
 import type { Chart, Decision, Task } from './chart.ts';
+import { OWNER } from './chart.ts';
 
 export interface Headers {
   backlog: string[];
@@ -19,7 +20,7 @@ export const EV5_HEADERS: Headers = {
     'Status: `open` · `in progress` · `blocked` · `done`. A task opens when every id in Depends is `done`.',
   ],
   closedTasks: 'Closed (done and declined) tasks are in chart/tasks.json; ev4\'s are frozen in chart/history/tasks.json.',
-  yourTurnIntro: 'What waits on Matt, by where it happens.',
+  yourTurnIntro: 'What waits on the owner, by where it happens.',
   decisions: [
     '# DECISIONS.md: E.V. v5 decisions and tenets',
     '',
@@ -50,9 +51,9 @@ const board = (t: Task): { row?: string } => (t.board as { row?: string }) || {}
 export const boardName = (t: Task): string =>
   board(t).row || `v4 ${t.id}: ${(t.name as string) || (t.title.split(/[:(]/)[0] as string).trim()}`;
 
-/** Everything waiting on Matt, grouped by where it happens (a task with no place is a decision). */
+/** Everything waiting on the owner, grouped by where it happens (a task with no place is a decision). */
 export function yourTurn(rec: Chart): { place: string; label: string; tasks: Task[] }[] {
-  const waiting = rec.tasks.filter(t => t.waitingOn === 'Matt' && !['done', 'declined'].includes(t.status));
+  const waiting = rec.tasks.filter(t => t.waitingOn === OWNER && !['done', 'declined'].includes(t.status));
   return Object.entries(PLACES)
     .map(([place, label]) => ({
       place,
@@ -63,7 +64,7 @@ export function yourTurn(rec: Chart): { place: string; label: string; tasks: Tas
 }
 function yourTurnLines(rec: Chart): string[] {
   const groups = yourTurn(rec);
-  if (!groups.length) return ['Nothing waits on Matt.'];
+  if (!groups.length) return ['Nothing waits on the owner.'];
   const out: string[] = [];
   for (const g of groups) {
     out.push(`### ${g.label}`, '');
@@ -73,7 +74,7 @@ function yourTurnLines(rec: Chart): string[] {
   return out.slice(0, -1);
 }
 
-/** The open, blocked and in-progress tasks, then what waits on Matt by place, then the untriaged inbox. */
+/** The open, blocked and in-progress tasks, then what waits on the owner by place, then the untriaged inbox. */
 export function renderBacklog(rec: Chart, h: Headers = EV5_HEADERS): string {
   const tasks = rec.tasks.filter(t => !INBOX.has(t.status) && t.status !== 'done'),
     inbox = rec.tasks.filter(t => t.status === 'inbox');

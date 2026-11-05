@@ -17,7 +17,7 @@ export const USAGE = `node ops/record/cli.ts <command>
   task add --title <t> --milestone <m> [--dod <d>] [--depends B-1,B-2] [--notes <n>] [--source <s>]
            [--kind bug|request --words <w> --source <s>]
   task set <B-id> [--status open|blocked|done|declined] [--notes <n>] [--commit <sha>] [--title <t>] [--dod <d>]
-           [--milestone <m>] [--depends <ids>] [--reason <r>] [--waiting-on Matt|none] [--where mac|staging|github|decision]
+           [--milestone <m>] [--depends <ids>] [--reason <r>] [--waiting-on owner|none] [--where mac|staging|github|decision]
   task claim <B-id> --by <run>
   decision add --title <t> [--why <w>] [--status proposed|accepted|superseded|revisit] [--supersedes <ids>]
            [--amends <ids>] [--kind decision|tenet --scope <s> --checked-by <c>] [--source <s>]

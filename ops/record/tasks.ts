@@ -1,7 +1,7 @@
 // Task commands: add, set and claim. Each takes the Chart and the parsed flags, changes the Chart in memory and
 // returns what it did; the CLI saves. A refusal throws.
 import type { Chart, Task } from './chart.ts';
-import { TASK_KINDS, TASK_STATUS, ctDate, list, nextTaskId, allTasks } from './chart.ts';
+import { OWNER, TASK_KINDS, TASK_STATUS, ctDate, list, nextTaskId, allTasks } from './chart.ts';
 import { PLACES } from './render.ts';
 
 export type Opts = Record<string, string | boolean | undefined> & { _: string[] };
@@ -107,7 +107,8 @@ export function taskSet(rec: Chart, o: Opts, now: string): Done {
   }
   const waiting = str(o['waiting-on']);
   if (waiting != null) {
-    if (waiting && waiting !== 'none') t.waitingOn = waiting;
+    if (waiting === OWNER) t.waitingOn = OWNER;
+    else if (waiting !== 'none' && waiting !== '') throw new Error(`--waiting-on ${waiting}: ${OWNER} or none`);
     else {
       delete t.waitingOn;
       delete t.waitingWhere;
