@@ -16453,11 +16453,13 @@
   "title": "A new or changed study plan doesn't show in Library's exam Detail until the page is reloaded: after Send changes or Plan with E.V. it says in force with no Approve",
   "dod": "When a study plan job for the open exam changes state (a new draft, a revised draft after Send changes, approved, put away), the open exam Detail in Library and Today shows it without a reload: Plan reads draft waiting for you and Approve, Ask for changes and Put away appear as soon as the draft is ready; test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 07, 09, 13. After Send changes on Synthetic unit exam the Detail switched to Plan: in force with only Plan with E.V.; GET /api/v1/jobs already had the revised draft needs-you and the sidebar showed Activity 1, but closing and reopening the Detail still showed in force. Only a page reload showed the draft. Same after Plan with E.V. on e2e plan exam. Reasoned cause: areas/library/Library.screen.tsx reads jobs once in its load and does not follow the shell's jobs poll.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:18:06.938Z"
  },
  {
   "id": "B-919",
@@ -16477,11 +16479,13 @@
   "title": "A changed study plan can put sessions on days that have already passed",
   "dod": "Every session in a first or revised study plan draft falls between today (Central) and the day before the exam; a change round rebuilds the study days from the day it runs, or the check refuses past dates; test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshot 09. Revised draft 4c960a09 for Synthetic unit exam, sent on Nov 4 Central, starts Tue 2026-11-03. checkPlan only checks the days in the context, and the draft was first built earlier (it already waited in playtest 4), so the reasoned cause is that a change round reuses the first round's days.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:18:07.398Z"
  },
  {
   "id": "B-921",
@@ -16489,11 +16493,13 @@
   "title": "After you approve a study plan its sessions disappear: the exam Detail says The sessions are not shown here yet",
   "dod": "After Approve the exam Detail keeps the plan's sessions listed (day, title, minutes) with a line saying the plan is approved, as in design/mockup.html (approvePlan: Approved, N sessions added to your plan); an exam whose plan is in force shows its sessions in Review the study plan; screen test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 10, 16. areas/library/ExamPlan.detail.tsx shows 'The sessions are not shown here yet.' for a plan in force. Today showed no session from the approved plan today either (its days were Nov 3, 6, 9...), so after approving there is no place to see what was added.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:18:07.215Z"
  },
  {
   "id": "B-922",
@@ -16501,11 +16507,13 @@
   "title": "Activity's Done today stays None after you approve a plan, put one away or end a session",
   "dod": "Activity Done today lists the jobs and sessions that finished today (Central), with plain names, as in design/mockup.html (act-done); test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshot 17. In playtest 5 I approved the Synthetic unit exam plan, put away the e2e plan exam draft and ended a session; Activity showed Needs you, Running and Done today all None. GET /api/v1/jobs returned only the one waiting job, so it may not send finished jobs.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:18:23.547Z"
  },
  {
   "id": "B-923",
