@@ -27,18 +27,6 @@
   text-decoration: line-through;
 }
 
-/* A note to-do row inside the blocks. */
-.ev-session-todo {
-  display: block;
-}
-
-/* A note picture fits the column. */
-.ev-session-pic {
-  display: block;
-  max-width: 100%;
-  border-radius: var(--r-md);
-}
-
 /* The page takes focus so Space pauses; no ring on the page itself. */
 .ev-session:focus {
   outline: none;

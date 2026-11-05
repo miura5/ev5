@@ -1,34 +1,7 @@
-/** One inline run of a block: text with its marks. */
-export interface NoteRun {
-  text: string;
-  b?: boolean;
-  i?: boolean;
-  u?: boolean;
-  s?: boolean;
-  href?: string;
-}
+import type { Note } from "../../domain/index.ts";
 
-/** A note block in ev4's flat shape; list items stay flat with an indent. */
-export type NoteBlock =
-  | { type: "h1" | "h2" | "h3" | "p"; runs: readonly NoteRun[] }
-  | { type: "ul" | "ol"; indent?: number; runs: readonly NoteRun[] }
-  | {
-      type: "todo";
-      indent?: number;
-      checked?: boolean;
-      runs: readonly NoteRun[];
-    }
-  | { type: "img"; alt?: string; width?: number };
-
-/** A two-column row: a picture beside text blocks. */
-export interface NoteRow {
-  type: "row";
-  id: string;
-  left: readonly NoteBlock[];
-  right: readonly NoteBlock[];
-}
-
-export type NoteBody = NoteBlock | NoteRow;
+/** A note block: the one shape domain/note stores, with its type list, runs, indent, row and column (§ui.kit-leads). */
+export type NoteBlock = Note["blocks"][number];
 
 export interface NoteSummary {
   id: string;
@@ -55,7 +28,7 @@ export interface NotePageData {
   edited: string;
   /** Shown beside the edited time. */
   saveState: "saved" | "saving" | "not saved";
-  body: readonly NoteBody[];
+  body: readonly NoteBlock[];
 }
 
 /** A study session on the note page. */
