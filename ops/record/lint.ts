@@ -28,6 +28,11 @@ export const LINK_CHECKS = new Set([
   'broken-inbox-depends',
 ]);
 
+// A live task's milestone is one of these: Phase 0 to Phase 7, after-cutover, or Inbox for a report not yet triaged.
+export const MILESTONE = /^(Phase [0-7]|after-cutover|Inbox)$/;
+// A decision whose title only opens or closes a gate: a gate's state is its task's status and notes.
+export const GATE_TITLE = /^gates?\s+\d+\b.*\b(passed|closed|reopened|opened|reopens|waits|also waits)\b/i;
+
 const has = (xs: readonly string[], x: unknown): boolean => xs.includes(String(x));
 
 function duplicates(xs: string[]): [string, number][] {
@@ -48,6 +53,7 @@ export function lintChart(rec: Chart): Finding[] {
 
   const tasks = new Set(allTasks(rec).map(t => t.id)),
     decisions = new Map(allDecisions(rec).map(d => [d.id, d]));
+  const live = new Set(rec.tasks.map(t => t.id));
   for (const t of allTasks(rec)) {
     for (const d of t.depends || [])
       if (!tasks.has(d)) add('error', 'missing-dependency', t.id, `depends on ${d}, which is not in the record`);
@@ -61,6 +67,8 @@ export function lintChart(rec: Chart): Finding[] {
       add('error', 'bad-report', t.id, 'a report needs its words, source and time');
     if (t.status === 'declined' && !(t.triage as { reason?: string } | undefined)?.reason)
       add('error', 'declined-without-reason', t.id, 'declined with no reason');
+    if (live.has(t.id) && !MILESTONE.test(String(t.milestone)))
+      add('error', 'bad-milestone', t.id, `milestone "${t.milestone}" is not Phase 0 to Phase 7, after-cutover or Inbox`);
     if (t.status === 'inbox') add('warn', 'untriaged', t.id, `in the inbox since ${t.reportedAt}`);
     if (t.waitingOn && ['done', 'declined'].includes(t.status))
       add('warn', 'stale-waiting', t.id, `is ${t.status} but still waiting on ${t.waitingOn}`);
@@ -70,6 +78,8 @@ export function lintChart(rec: Chart): Finding[] {
       if (!decisions.has(x)) add('error', 'missing-decision', d.id, `names ${x}, which is not in the record`);
     if (!has(DECISION_STATUS, d.status)) add('error', 'bad-status', d.id, `status "${d.status}"`);
     if (!has(DECISION_KINDS, kindOf(d))) add('error', 'bad-kind', d.id, `kind "${d.kind}"`);
+    if (kindOf(d) === 'decision' && GATE_TITLE.test(d.title))
+      add('warn', 'gate-decision', d.id, 'only opens or closes a gate: record that on the gate task (status and notes)');
     if (kindOf(d) === 'tenet') {
       if (!(d.scope || []).length || (d.scope || []).some(x => !has(TENET_SCOPES, x)))
         add('error', 'tenet-scope', d.id, `scope "${(d.scope || []).join(', ')}"`);

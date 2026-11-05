@@ -37,6 +37,9 @@ function run(dir: string, ...argv: string[]): { code: number; out: string } {
   );
   return { code, out: lines.join('\n') };
 }
+/** Errors other than the carried ev4 milestones, which the fixture keeps byte-for-byte. */
+const errorCount = (rec: ReturnType<typeof loadChart>): number =>
+  lintChart(rec).filter(f => f.level === 'error' && f.check !== 'bad-milestone').length;
 const read = (dir: string, f: string): string => fs.readFileSync(path.join(dir, f), 'utf8');
 
 test("load then save leaves every carried file byte-identical (ev4's indent 1, no trailing newline)", () => {
@@ -72,7 +75,7 @@ test('task add takes the next id in the carried sequence, and the backlog shows 
 
 test('task add refuses a dangling dependency and a report without its words', () => {
   const dir = scratch();
-  assert.equal(run(dir, 'task', 'add', '--title', 'x', '--milestone', 'm', '--depends', 'B-9999').code, 1);
+  assert.equal(run(dir, 'task', 'add', '--title', 'x', '--milestone', 'Phase 1', '--depends', 'B-9999').code, 1);
   assert.equal(run(dir, 'task', 'add', '--title', 'x', '--kind', 'bug').code, 1);
   const r = run(dir, 'task', 'add', '--title', 'Bug: x', '--kind', 'bug', '--words', 'it broke', '--source', 'chat');
   assert.equal(r.code, 0, r.out);
@@ -83,7 +86,7 @@ test('task add refuses a dangling dependency and a report without its words', ()
 
 test('the claim is the lock: a second claim is refused, and set cannot skip it', () => {
   const dir = scratch();
-  run(dir, 'task', 'add', '--title', 'Lock me', '--milestone', 'm');
+  run(dir, 'task', 'add', '--title', 'Lock me', '--milestone', 'Phase 1');
   assert.equal(run(dir, 'task', 'claim', 'B-691').code, 1, 'needs --by');
   assert.equal(run(dir, 'task', 'claim', 'B-691', '--by', 'run-1').code, 0);
   const second = run(dir, 'task', 'claim', 'B-691', '--by', 'run-2');
@@ -97,7 +100,7 @@ test('the claim is the lock: a second claim is refused, and set cannot skip it',
 
 test('task set: done needs a commit, declined needs a reason, notes land', () => {
   const dir = scratch();
-  run(dir, 'task', 'add', '--title', 'Finish me', '--milestone', 'm');
+  run(dir, 'task', 'add', '--title', 'Finish me', '--milestone', 'Phase 1');
   assert.equal(run(dir, 'task', 'set', 'B-691', '--status', 'done').code, 1);
   assert.equal(run(dir, 'task', 'set', 'B-691', '--status', 'declined').code, 1);
   assert.equal(run(dir, 'task', 'set', 'B-691', '--status', 'bogus').code, 1);
@@ -105,7 +108,7 @@ test('task set: done needs a commit, declined needs a reason, notes land', () =>
   const t = loadChart(dir).tasks.at(-1);
   assert.equal(t?.commit, 'abcdef1');
   assert.equal(t?.notes, 'ok');
-  assert.equal(lintChart(loadChart(dir)).filter(f => f.level === 'error').length, 0);
+  assert.equal(errorCount(loadChart(dir)), 0);
 });
 
 test('decision add takes the next D- id, newest first; supersedes marks the old one', () => {
@@ -148,9 +151,9 @@ test('the frozen history is read, linked to and never written; ids continue past
   fs.writeFileSync(path.join(dir, 'chart', 'history', 'decisions.json'), serialize(decisions));
   saveChart(dir, { ...rec, history: { tasks, decisions } });
   const id = tasks[0]?.id as string;
-  assert.equal(run(dir, 'task', 'add', '--title', 'x', '--milestone', 'm', '--depends', id).code, 0, 'links resolve');
+  assert.equal(run(dir, 'task', 'add', '--title', 'x', '--milestone', 'Phase 1', '--depends', id).code, 0, 'links resolve');
   assert.equal(run(dir, 'task', 'set', id, '--notes', 'n').code, 1, 'history is not editable');
-  assert.equal(lintChart(loadChart(dir)).filter(f => f.level === 'error').length, 0);
+  assert.equal(errorCount(loadChart(dir)), 0);
   const frozen = loadChart(dir);
   frozen.history.tasks.pop();
   assert.throws(() => saveChart(dir, frozen), /chart\/history\/tasks.json is frozen/);
@@ -174,7 +177,7 @@ test('render --check exits 1 when a generated file differs', () => {
 
 test('lint reports dangling links in depends, supersedes and amends', () => {
   const rec = loadChart(scratch());
-  assert.equal(lintChart(rec).filter(f => f.level === 'error').length, 0, 'the carried record is clean');
+  assert.equal(errorCount(rec), 0, 'the carried record is clean');
   (rec.tasks[0] as { depends: string[] }).depends.push('B-9998');
   rec.decisions[0]?.supersedes.push('D-9997');
   rec.decisions[1]?.amends.push('D-9996');
@@ -215,11 +218,11 @@ const inboxFiles = (dir: string): string[] =>
 test('without the lock task add and decision add are refused, and inbox add works', () => {
   const dir = scratch();
   const before = read(dir, 'chart/tasks.json');
-  assert.equal(as(dir, 's1', false, 'task', 'add', '--title', 'x', '--milestone', 'm').code, 1);
+  assert.equal(as(dir, 's1', false, 'task', 'add', '--title', 'x', '--milestone', 'Phase 1').code, 1);
   assert.equal(as(dir, 's1', false, 'decision', 'add', '--title', 'x').code, 1);
   assert.equal(as(dir, 's1', false, 'inbox', 'file').code, 1);
   assert.equal(read(dir, 'chart/tasks.json'), before);
-  const r = as(dir, 's1', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm');
+  const r = as(dir, 's1', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'Phase 1');
   assert.match(r.out, /^P-1: /);
   assert.equal(read(dir, 'chart/tasks.json'), before, 'the Chart itself is untouched');
 });
@@ -228,15 +231,15 @@ test('two sessions inboxes filed together get distinct real ids, P- depends rewr
   const dir = scratch();
   const a = (...x: string[]): void => void assert.equal(as(dir, 'sess-a', false, ...x).code, 0);
   const b = (...x: string[]): void => void assert.equal(as(dir, 'sess-b', false, ...x).code, 0);
-  a('inbox', 'add', 'task', '--title', 'A1', '--milestone', 'm', '--depends', 'B-690');
-  a('inbox', 'add', 'task', '--title', 'A2', '--milestone', 'm', '--depends', 'P-1,B-690');
+  a('inbox', 'add', 'task', '--title', 'A1', '--milestone', 'Phase 1', '--depends', 'B-690');
+  a('inbox', 'add', 'task', '--title', 'A2', '--milestone', 'Phase 1', '--depends', 'P-1,B-690');
   a('inbox', 'add', 'decision', '--title', 'DA');
-  b('inbox', 'add', 'task', '--title', 'B1', '--milestone', 'm');
+  b('inbox', 'add', 'task', '--title', 'B1', '--milestone', 'Phase 1');
   b('inbox', 'add', 'decision', '--title', 'DB');
   b('inbox', 'add', 'decision', '--title', 'DB2', '--supersedes', 'P-2');
-  b('inbox', 'add', 'task', '--title', 'B2', '--milestone', 'm', '--depends', 'P-1');
+  b('inbox', 'add', 'task', '--title', 'B2', '--milestone', 'Phase 1', '--depends', 'P-1');
   assert.deepEqual(inboxFiles(dir), ['sess-a.json', 'sess-b.json']);
-  assert.equal(as(dir, 'x', false, 'task', 'add', '--title', 'y', '--milestone', 'm').code, 1);
+  assert.equal(as(dir, 'x', false, 'task', 'add', '--title', 'y', '--milestone', 'Phase 1').code, 1);
   const f = as(dir, 'x', true, 'inbox', 'file');
   assert.equal(f.code, 0, f.out);
   const rec = loadChart(dir);
@@ -251,18 +254,18 @@ test('two sessions inboxes filed together get distinct real ids, P- depends rewr
   assert.equal(d('DA')?.id !== d('DB')?.id, true);
   assert.deepEqual(d('DB2')?.supersedes, [d('DB')?.id]);
   assert.deepEqual(inboxFiles(dir), []);
-  assert.equal(lintChart(rec).filter(x => x.level === 'error').length, 0);
+  assert.equal(errorCount(rec), 0);
   assert.equal(run(dir, 'render', '--check').code, 0);
 });
 
 test('inbox add refuses a depends that does not resolve', () => {
   const dir = scratch();
   assert.equal(
-    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm', '--depends', 'P-1').code,
+    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'Phase 1', '--depends', 'P-1').code,
     1,
   );
   assert.equal(
-    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'm', '--depends', 'B-9999').code,
+    as(dir, 's', false, 'inbox', 'add', 'task', '--title', 'x', '--milestone', 'Phase 1', '--depends', 'B-9999').code,
     1,
   );
   assert.deepEqual(inboxFiles(dir), []);
