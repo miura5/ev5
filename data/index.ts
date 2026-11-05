@@ -7,3 +7,5 @@ export { workerNoteProblem } from "./docs/worker-check.ts";
 export { tablesRepo } from "./tables/tables.ts";
 /** @public */
 export type { TablesRepo } from "./tables/tables.ts";
+export { exportAll } from "./export/index.ts";
+export type { Export } from "./export/index.ts";

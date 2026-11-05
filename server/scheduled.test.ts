@@ -176,3 +176,12 @@ test("the export is not run in the quiet window, and never overwrites an existin
   const n = await writeNightlyExport(IMAGES, fakeExport, T0030 + 86_400_000);
   assert.deepEqual(n, { key: exportKey("2026-11-06"), tables: 2, rows: 5 });
 });
+
+test("with no exporter given, the export runs data's real export and stores a parseable manifest", async () => {
+  const IMAGES = fakeBucket();
+  const env = { DB: sqliteD1() as never, IMAGES };
+  assert.ok((await runScheduled(env, CRON, T0030)).includes("export"));
+  const saved = JSON.parse(IMAGES.objects.get(exportKey("2026-11-05"))!);
+  assert.equal(saved.kind, "ev-d1-export");
+  assert.ok(saved.tables.docs);
+});

@@ -3,6 +3,7 @@
 import { centralDate, centralParts, isDue, weekday } from "../domain/index.ts";
 import { d1JobStore, newJob } from "../jobs/index.ts";
 import { commands } from "../commands/index.ts";
+import { exportAll } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { commandHandlers } from "./command-handlers.ts";
 import {
@@ -69,14 +70,16 @@ export async function runScheduled(
     if (c.name === "export" && c.callers.schedule) {
       if (cron !== "*/15 * * * *") continue;
       try {
-        if (!env.IMAGES || !env.exportAll) {
-          console.warn("scheduled export has no bucket or exporter bound");
+        const exporter =
+          env.exportAll ?? ((at: number) => exportAll(env.DB, at));
+        if (!env.IMAGES) {
+          console.warn("scheduled export has no bucket bound");
           continue;
         }
         const date = centralDate(now);
         const have = await exportExists(env.IMAGES, now);
         if (!dueNow(c.name, now, have ? [date] : [])) continue;
-        const n = await writeNightlyExport(env.IMAGES, env.exportAll, now);
+        const n = await writeNightlyExport(env.IMAGES, exporter, now);
         console.log(
           `scheduled export wrote ${n.key}: ${n.tables} tables, ${n.rows} rows`,
         );
