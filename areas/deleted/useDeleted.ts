@@ -8,6 +8,7 @@ import {
   failureSentence,
   readJson,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 export interface DeletedState {
@@ -38,28 +39,27 @@ export function useDeleted(copy?: ReadCopyLike): DeletedState {
   useEffect(() => {
     if (!token) return;
     let live = true;
-    void (async () => {
-      try {
-        // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
-        const rows = await readJson<WireDeletion[]>(
-          "deletions",
-          token,
-          "deleted:list",
-          copy,
-          (b) => (b as { deletions: WireDeletion[] }).deletions,
-        );
-        if (live) {
-          setItems(mapDeletions(rows, Date.now()));
-          setError(undefined);
-          setRefused(false);
-        }
-      } catch (e) {
-        if (!live) return;
-        setItems([]);
-        setRefused(failureKind(e) === "refused");
-        setError(failureSentence(e));
-      }
-    })();
+    // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
+    const load = (c: ReadCopyLike | undefined) =>
+      readJson<WireDeletion[]>(
+        "deletions",
+        token,
+        "deleted:list",
+        c,
+        (b) => (b as { deletions: WireDeletion[] }).deletions,
+      );
+    // The list opens on the last answer kept, then the server's (§ui.instant). It mounts once per visit.
+    savedFirst(copy, true, load, (rows) => {
+      if (!live) return;
+      setItems(mapDeletions(rows, Date.now()));
+      setError(undefined);
+      setRefused(false);
+    }).catch((e: unknown) => {
+      if (!live) return;
+      setItems([]);
+      setRefused(failureKind(e) === "refused");
+      setError(failureSentence(e));
+    });
     return () => {
       live = false;
     };

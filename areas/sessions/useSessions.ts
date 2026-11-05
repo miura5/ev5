@@ -8,6 +8,7 @@ import {
   failureSentence,
   readJson,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 export interface SessionsState {
@@ -49,28 +50,27 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
   useEffect(() => {
     if (!token) return;
     let live = true;
-    void (async () => {
-      try {
-        // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
-        const docs = await readJson<WireDoc[]>(
-          "docs?collection=sessions",
-          token,
-          "sessions:list",
-          copy,
-          (b) => (b as { docs: WireDoc[] }).docs,
-        );
-        if (live) {
-          setData(mapSessions(docs, Date.now()));
-          setError(undefined);
-          setRefused(false);
-        }
-      } catch (e) {
-        if (!live) return;
-        setData(undefined);
-        setRefused(failureKind(e) === "refused");
-        setError(failureSentence(e));
-      }
-    })();
+    // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
+    const load = (c: ReadCopyLike | undefined) =>
+      readJson<WireDoc[]>(
+        "docs?collection=sessions",
+        token,
+        "sessions:list",
+        c,
+        (b) => (b as { docs: WireDoc[] }).docs,
+      );
+    // The screen opens on the last answer kept, then the server's (§ui.instant); a re-read after a change does not.
+    savedFirst(copy, tick === 0, load, (docs) => {
+      if (!live) return;
+      setData(mapSessions(docs, Date.now()));
+      setError(undefined);
+      setRefused(false);
+    }).catch((e: unknown) => {
+      if (!live) return;
+      setData(undefined);
+      setRefused(failureKind(e) === "refused");
+      setError(failureSentence(e));
+    });
     return () => {
       live = false;
     };

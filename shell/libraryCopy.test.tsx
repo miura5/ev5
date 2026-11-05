@@ -39,7 +39,9 @@ const showSets = async () => {
   fireEvent.click(screen.getByRole("tab", { name: /sets/i }));
 };
 const good = (url: string) =>
-  body(url.includes("collection=sets") ? [{ id: "s1", data: set }] : []);
+  url.endsWith("/jobs")
+    ? new Response(JSON.stringify({ jobs: [] }), { status: 200 })
+    : body(url.includes("collection=sets") ? [{ id: "s1", data: set }] : []);
 
 test("online the lists save; offline the saved sets show; a 503 neither shows them nor overwrites the copy", async () => {
   localStorage.setItem("ev5.token", "t");
@@ -73,4 +75,27 @@ test("online the lists save; offline the saved sets show; a 503 neither shows th
   await showSets();
   await screen.findByText("Doses");
   expect(copy.usingCopy()).toBe(true);
+});
+
+test("a second visit opens on the saved lists at once, before the server answers (§ui.instant)", async () => {
+  localStorage.setItem("ev5.token", "t");
+  const copy = createReadCopy(memoryCopyStore());
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (u: string) => good(String(u))),
+  );
+  render(<Library services={services(copy)} />);
+  await showSets();
+  await screen.findByText("Doses");
+  cleanup();
+
+  // The server never answers this time: the saved sets still show, and the notice stays off (it is not offline).
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise<Response>(() => undefined)),
+  );
+  render(<Library services={services(copy)} />);
+  await showSets();
+  await screen.findByText("Doses");
+  expect(copy.usingCopy()).toBe(false);
 });
