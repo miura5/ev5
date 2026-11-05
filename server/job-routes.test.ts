@@ -132,9 +132,11 @@ test("a study plan waits for Matt, and his answer continues it once", async () =
   });
   const active = await req("GET", "/api/v1/jobs", "fake-schedule");
   assert.equal(((await active.json()) as { jobs: unknown[] }).jobs.length, 1);
-  const c = await req("POST", "/api/v1/jobs/sp1/continue", "fake-app", {
-    answer: { decision: "put_away" },
-  });
+  const ans = { answer: { decision: "put_away" } };
+  const u = "/api/v1/jobs/sp1/continue";
+  for (const t of ["fake-schedule", "fake-executor"])
+    assert.equal((await req("POST", u, t, ans)).status, 403);
+  const c = await req("POST", u, "fake-app", ans);
   assert.equal(c.status, 202);
   assert.equal(
     (await req("POST", "/api/v1/jobs/sp1/continue", "fake-app", {})).status,
