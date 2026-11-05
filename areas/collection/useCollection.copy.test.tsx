@@ -81,6 +81,7 @@ test("a good read refreshes the copy", async () => {
   await waitFor(() => expect(ready(result.current)).toBe(true));
   expect(Object.keys(copy.kept).sort()).toEqual([
     "collection:/api/v1/collections",
+    "collection:/api/v1/deletions",
     "collection:/api/v1/memberships",
     "collection:/api/v1/pins",
   ]);
