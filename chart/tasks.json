@@ -16599,7 +16599,7 @@
   "milestone": "5",
   "status": "open",
   "depends": [],
-  "notes": "Checked on main e2f4fb9: item.delete finds an id only in docs (collectionOf in server/command-handlers.ts) and collections live in their own table, so no collection can be deleted; the collection journey deletes a note instead. Also seen: the plan-today journey's delete is a move to tomorrow (Gate 5 also lists delete and restore a plan item). Gate 5 blocker beside B-918, B-920, B-921 (build manager decision 2026-11-05).",
+  "notes": "Merged #441: item.delete on a collection writes one deletions row; reads hide it; Delete button on the collection page; journey deletes and restores a collection. NOT yet seen on staging or by the Playwright journey run (dispatch gate5-e2e). Child collection of a deleted parent still listed; item.move into a deleted collection not blocked.",
   "commit": null,
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
@@ -16609,10 +16609,10 @@
   "title": "A failed Suggestion accept puts the draft back without the data protocol: no at and no version pin",
   "dod": "When proposal.accept's command fails, the draft goes back to pending through a write that sets at from the Worker clock, bumps v and is pinned to the version it claimed, 409 when stale (§data.protocol); a test covers the failure path.",
   "milestone": "5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Checked on main e2f4fb9: server/handlers-proposal.ts proposal.accept catch block runs UPDATE drafts SET state = 'pending', v = v + 1 WHERE id = ? with no at and no version pin. Ahead of the wider raw-SQL task. Order: right after B-918, B-921, B-920.",
-  "commit": null,
+  "notes": "Merged #439 (run 66). Test passes on old code too; stale-revert 409 untested.",
+  "commit": "d4e5159",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
  {
@@ -16621,10 +16621,10 @@
   "title": "Server writes go through data/ repositories, not raw SQL in server/",
   "dod": "No prepare() in server/ writes (INSERT, UPDATE, DELETE); every write goes through a data/ repository that applies §data.protocol; reads move where a repository exists; a guard refuses new raw writes in server/; split by file if over about 400 lines; tests pass.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Checked on main e2f4fb9: 34 prepare() calls in 16 server files. Writes in command-handlers.ts (item.restore), handlers-drafts.ts, handlers-proposal.ts, handlers-sets.ts, job-routes.ts, job-run.ts. PLAN §4 puts writes in data/. After Gate 5.",
-  "commit": null,
+  "notes": "Merged #442 and #444 (run 66): all non-test server writes go through data/ repositories; check ops/checks/serverwrites.ts refuses new raw writes. Writes in jobs/ (d1PlanStore) not covered.",
+  "commit": "eb04c11",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
  {
@@ -16633,10 +16633,10 @@
   "title": "The CONTRACT and comments name the continuation id as the code makes it: jobId-step-round",
   "dod": "CONTRACT §job.needs-you says the continuation id is jobId-step-round; the comments in jobs/runtime/workflow.ts, jobs/runtime/record.ts and jobs/study-plan/job.ts say the same; render and checks pass.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Decision D-477. Checked on main e2f4fb9: CONTRACT.md says jobId:step; jobs/runtime/executors.ts continuationId makes jobId-step-round. Check the Workflows instance-id rule against current Cloudflare docs while there. After Gate 5.",
-  "commit": null,
+  "notes": "Merged #438. Workflows instance-id rule still unverified against Cloudflare docs (403 from proxy). jobId:step remains in PLAN.md:227 and docs/spikes/S-07-workflows.md:22.",
+  "commit": "73beeb3",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
  {
@@ -16645,10 +16645,10 @@
   "title": "Old ev4 pages read the agreed sentence: E.V. updated, reload",
   "dod": "server/ev4-routes.ts MOVED_TEXT and its test say \"E.V. updated, reload\" as CONTRACT §data.ev4-routes and PLAN §9 do; no \"has moved\" is left in server/ or public/.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Decision D-478. Checked on main e2f4fb9: server/ev4-routes.ts and server/ev4-routes.test.ts say \"E.V. has moved, reload\". After Gate 5.",
-  "commit": null,
+  "notes": "Merged #438.",
+  "commit": "73beeb3",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
  {
@@ -16657,10 +16657,10 @@
   "title": "Every date and time on screen is formatted through domain/time",
   "dod": "areas/collection/map.ts, areas/library/ExamPlan.detail.tsx, areas/today/map.ts, areas/today/Today.screen.tsx and areas/ask/Ask.screen.tsx format through domain/time in America/Chicago (§job.schedule); no toLocaleDateString, toLocaleTimeString or Intl.DateTimeFormat is left in areas/; a guard refuses new ones; tests.",
   "milestone": "v5 P6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Checked on main e2f4fb9: each file above calls toLocaleDateString or toLocaleTimeString itself (collection map.ts shortDate and ExamPlan.detail.tsx dayOf were added on 2026-11-04). After Gate 5.",
-  "commit": null,
+  "notes": "Merged #443: domain/time shortDay, longDay, clockTime, weekdayShort, weekdayDay; eslint refuses toLocale*/Intl.DateTimeFormat in areas/. Not looked at on staging.",
+  "commit": "102a055",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  },
  {
@@ -16669,10 +16669,10 @@
   "title": "Gate 3: the repositories parse every synthetic document",
   "dod": "A test runs every document in data/staging/seed.sql through the data/ repositories with their domain parsers and passes; the seed notes get the fields the note parser needs, or the parser takes them; a collection with no parser (ideas) is named in the test with the reason (PLAN §13 Gate 3).",
   "milestone": "v5 P3",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Checked 2026-11-05 on main e2f4fb9: the domain tests and data/compat pass in CI (run 41960648306), but no test parses the synthetic seed, and both seed notes fail parseNote (no schema 1, no writer). B-733 stays open until this is done. After Gate 5.",
-  "commit": null,
+  "notes": "Merged #440: data/staging/seed.test.ts parses every seed row through the repositories; seed notes fixed (schema 1, writer, course). ideas has no parser (named in test). Staging rows notes/synthetic-1 and -2 stay invalid until re-seeded (INSERT OR IGNORE). B-733 can close on this proof.",
+  "commit": "d202930",
   "source": "Daily ev5 integrity review 2026-11-04, checked on main by the build manager 2026-11-05"
  }
 ]
