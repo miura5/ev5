@@ -95,6 +95,7 @@ export function NotesScreen({
               collectionId: members.get(n.id) ?? null,
             }))}
           failed={!!error}
+          loading={!ready}
           collections={collections}
           onNewNote={() =>
             void createNote().then((id) => {
