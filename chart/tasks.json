@@ -14215,9 +14215,12 @@
    "B-790",
    "B-908",
    "B-909",
-   "B-910"
+   "B-910",
+   "B-918",
+   "B-920",
+   "B-921"
   ],
-  "notes": "Reopened 2026-11-05 (build manager decision after playtest 4): the study plan journey is broken for Matt in the browser (B-908 can't review the plan before approving, no sign Approve or Send changes worked; B-909 drafts pile up; B-910 Today shows the wrong exam). Gate 5 closes again when those are done and seen on staging. The e2e pass (D-474) stands as proof for the rest.",
+  "notes": "Reopened 2026-11-05 (D-475) after playtest 4. Playtest 5 (2026-11-05 03:00Z) saw B-908, B-909 and B-910 work on staging, but the study plan journey still needs a page reload: Gate 5 now waits on B-918 (exam Detail misses a new or revised draft until reload), B-921 (approved sessions shown nowhere) and B-920 (a revised plan schedules past days), each seen on staging in Matt's browser (D-476).",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
@@ -16443,5 +16446,101 @@
   "notes": "Run 62: PR #421. Palette hides records listed in GET /deletions (notes, exams, sets, weak spots); restoring shows them after reopening. Test lives in shell/paletteDeleted.test.tsx.",
   "commit": "97fbf2d",
   "source": "run 61"
+ },
+ {
+  "id": "B-918",
+  "kind": "task",
+  "title": "A new or changed study plan doesn't show in Library's exam Detail until the page is reloaded: after Send changes or Plan with E.V. it says in force with no Approve",
+  "dod": "When a study plan job for the open exam changes state (a new draft, a revised draft after Send changes, approved, put away), the open exam Detail in Library and Today shows it without a reload: Plan reads draft waiting for you and Approve, Ask for changes and Put away appear as soon as the draft is ready; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 07, 09, 13. After Send changes on Synthetic unit exam the Detail switched to Plan: in force with only Plan with E.V.; GET /api/v1/jobs already had the revised draft needs-you and the sidebar showed Activity 1, but closing and reopening the Detail still showed in force. Only a page reload showed the draft. Same after Plan with E.V. on e2e plan exam. Reasoned cause: areas/library/Library.screen.tsx reads jobs once in its load and does not follow the shell's jobs poll.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-919",
+  "kind": "task",
+  "title": "Toasts never go away: Changes sent and E.V. is drafting a plan stay at the bottom of Library until you leave the page",
+  "dod": "A toast hides on its own after about 4 seconds, as in design/mockup.html (toast(): 4000 ms), in every area that shows one; the kit Toast or one shared helper owns the timer; story and test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 07, 13. Both stayed up for more than 50 seconds. kit/components/Toast/Toast.tsx has no timer, and Library sets planNote and never clears it.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-920",
+  "kind": "task",
+  "title": "A changed study plan can put sessions on days that have already passed",
+  "dod": "Every session in a first or revised study plan draft falls between today (Central) and the day before the exam; a change round rebuilds the study days from the day it runs, or the check refuses past dates; test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshot 09. Revised draft 4c960a09 for Synthetic unit exam, sent on Nov 4 Central, starts Tue 2026-11-03. checkPlan only checks the days in the context, and the draft was first built earlier (it already waited in playtest 4), so the reasoned cause is that a change round reuses the first round's days.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-921",
+  "kind": "task",
+  "title": "After you approve a study plan its sessions disappear: the exam Detail says The sessions are not shown here yet",
+  "dod": "After Approve the exam Detail keeps the plan's sessions listed (day, title, minutes) with a line saying the plan is approved, as in design/mockup.html (approvePlan: Approved, N sessions added to your plan); an exam whose plan is in force shows its sessions in Review the study plan; screen test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 10, 16. areas/library/ExamPlan.detail.tsx shows 'The sessions are not shown here yet.' for a plan in force. Today showed no session from the approved plan today either (its days were Nov 3, 6, 9...), so after approving there is no place to see what was added.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-922",
+  "kind": "task",
+  "title": "Activity's Done today stays None after you approve a plan, put one away or end a session",
+  "dod": "Activity Done today lists the jobs and sessions that finished today (Central), with plain names, as in design/mockup.html (act-done); test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshot 17. In playtest 5 I approved the Synthetic unit exam plan, put away the e2e plan exam draft and ended a session; Activity showed Needs you, Running and Done today all None. GET /api/v1/jobs returned only the one waiting job, so it may not send finished jobs.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-923",
+  "kind": "task",
+  "title": "Progress says you have no answers yet while Library shows 100% first-try accuracy, and a session that says Saved to Progress shows nowhere in Progress",
+  "dod": "Progress and Library's accuracy line read the same answers, so they agree; an ended study session that says Saved to Progress shows in Progress (or the end line names the place it went); test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 18 and 05. Library: First-try accuracy, last 14 days 100%. Progress: 'Your accuracy over time will show here once you have answered some practice questions.' Ending a session from the Playtest note said Saved to Progress.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-924",
+  "kind": "task",
+  "title": "Today's and Library's exam Detail say different things for the same exam, and Library lights the wrong tab",
+  "dod": "One exam Detail for Today and Library: the same date line (date and days left), readiness words and plan words, and the same plan actions; opening an exam from Today's Review the study plan lights Library's Exams tab; Library keeps its tab on reload; screen test; seen on staging.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 14, 15. Today: Date Thursday, Nov 12; Readiness 0 ready, 0 shaky, 0 weak; Plan waiting for you. Library: Nov 12, in 8 days; none yet; draft waiting for you. Review from Today opens /library?open=e2e-plan-exam with the plan shown but the Practice tab lit. A reload of /library goes back to Practice.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+ },
+ {
+  "id": "B-925",
+  "kind": "task",
+  "title": "Study plan Detail look: the day names are not in a column so the session titles are ragged, the Detail changes width with its content, and a collection says 1 items",
+  "dod": "Proposed sessions put the day in a fixed-width column, as in design/mockup.html (PLAN_PROPOSAL: 32 px), so titles line up; the Detail panel keeps one width; the collection count says 1 item; checked against the mock-up at 1280 in both themes.",
+  "milestone": "5",
+  "status": "open",
+  "depends": [],
+  "notes": "Screenshots 06, 05, 12, 04. Detail was about 250 px wide for e2e plan exam and about 380 px for Synthetic unit exam. Collection e2e 1793776216740 B: 'Collection · 1 items'. Mock-up also puts Approve, Ask for changes and Put away on one line with Ask for changes secondary.",
+  "commit": null,
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
  }
 ]
