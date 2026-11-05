@@ -197,6 +197,14 @@
   outline: none;
 }
 
+.ev-notes-edit .ev-notes-empty::before {
+  content: attr(data-placeholder);
+  color: var(--faint);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
 .ev-notes-edit .ev-notes-li[data-block="ul"]::before {
   content: "•";
 }

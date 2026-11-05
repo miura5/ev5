@@ -100,7 +100,11 @@ export function NotePageView({
             {note.saveState}
           </span>
           <span className="ev-notes-grow" />
-          <Button kind="text" onClick={onMakeCards}>
+          <Button
+            kind="text"
+            title="Start a set from this note; E.V. drafts, you keep or drop"
+            onClick={onMakeCards}
+          >
             Make cards
           </Button>
           {session || !onDelete ? null : (
@@ -109,7 +113,11 @@ export function NotePageView({
             </Button>
           )}
           {session ? null : (
-            <Button kind="text" onClick={onStartSession}>
+            <Button
+              kind="text"
+              title="Start a study session"
+              onClick={onStartSession}
+            >
               Start session
             </Button>
           )}
