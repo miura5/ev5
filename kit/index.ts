@@ -106,7 +106,7 @@ export { Palette, type PaletteGroup } from "./components/Palette/Palette";
 export { Button } from "./components/Button/Button";
 export { Source } from "./components/Source/Source";
 export { Doc } from "./components/Doc/Doc";
-/** @public Waits for areas/sessions to take it up (B-978). */
+/** @public Waits for the sessions area to take it up. */
 export { SessionBar } from "./components/SessionBar/SessionBar";
 /** @public Waits for the areas to take it up. */
 export { StudyCard } from "./components/StudyCard/StudyCard";
