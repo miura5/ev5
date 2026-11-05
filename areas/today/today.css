@@ -145,6 +145,8 @@
 
 .ev-today-detail {
   position: fixed;
+  width: calc(var(--sp-14) * 7 + var(--sp-8));
+  max-width: 100vw;
   top: 0;
   right: 0;
   bottom: 0;

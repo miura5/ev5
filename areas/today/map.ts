@@ -206,6 +206,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
         day: "numeric",
         timeZone: "UTC",
       }),
+      dateLine: `${plainDay(exam.date as string, today)} · ${inDays(left)}`,
       course: exam.course,
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };

@@ -97,6 +97,7 @@ export function LibraryScreen({ services }: { services?: LibraryServices }) {
         onOpenSet={setOpen}
         onOpenExam={setOpen}
         onDrill={setOpen}
+        initialTab={openedByLink && exam ? "exams" : undefined}
       />
       {exam ? (
         <div className="ev-library-detail">

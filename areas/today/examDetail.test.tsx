@@ -129,3 +129,19 @@ test("an exam whose plan is in force reads approved", async () => {
   expect(screen.getAllByText(/study plan approved/)).toHaveLength(1);
   expect(screen.queryByText(/waiting for you/)).toBeNull();
 });
+
+test("Today's exam Detail uses Library's words: date with days left, readiness, plan", async () => {
+  localStorage.setItem("ev5.token", "t");
+  vi.stubGlobal("fetch", feed([]));
+  render(<TodayScreen onNavigate={vi.fn()} />);
+  fireEvent.click((await screen.findAllByText("Exam 3"))[0]!);
+  const detail = await waitFor(() => {
+    const d = document.querySelector("[data-ui='detail']");
+    expect(d).toBeTruthy();
+    return d as HTMLElement;
+  });
+  expect(detail.textContent).toContain("in 3 days");
+  expect(detail.textContent).toContain("none yet");
+  expect(detail.textContent).toContain("no plan yet");
+  expect(screen.getByText("Review the study plan")).toBeTruthy();
+});

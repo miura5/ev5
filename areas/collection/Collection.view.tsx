@@ -119,7 +119,8 @@ export function CollectionView(p: CollectionViewProps) {
             {p.title}
           </h1>
           <span className="ev-coll-meta">
-            Collection · {count} items{p.pinned ? " · pinned" : ""}
+            Collection · {count} {count === 1 ? "item" : "items"}
+            {p.pinned ? " · pinned" : ""}
           </span>
         </div>
         <Button
