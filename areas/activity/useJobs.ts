@@ -156,12 +156,14 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
         });
     void load(warm.current);
     warm.current = false;
-    const t = setInterval(() => void load(), 15000);
-    window.addEventListener("ev5:jobs-changed", load);
+    // A re-read (the 15 s timer, a job change) goes to the server only.
+    const reload = () => void load();
+    const t = setInterval(reload, 15000);
+    window.addEventListener("ev5:jobs-changed", reload);
     return () => {
       live = false;
       clearInterval(t);
-      window.removeEventListener("ev5:jobs-changed", load);
+      window.removeEventListener("ev5:jobs-changed", reload);
     };
   }, [token, tick, copy]);
   return { jobs, loading, token, refused, error, dismiss };
