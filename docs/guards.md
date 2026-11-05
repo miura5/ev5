@@ -26,5 +26,5 @@ Run: `node --experimental-strip-types --test ops/guards/guards.test.ts` (Node 22
 
 - The compat guard is the suite itself: a write that ev4's frozen schema refuses must be listed under `invalid` in `data/compat/samples/writes.ts`. The test copies `data/compat`, adds a note with an unknown field to `valid`, and the suite goes red. (The runtime path, `validateWrite`, has no CLI of its own; the Worker will call it from the repository layer.)
 - The checks run from a temp repo, so `package.json` there declares no dependencies; otherwise knip would report the real app's dependencies as unused. `knip.json` is copied untouched.
-- Not yet proven: the other custom checks (`rules`, `secrets`, `trailer`) have their own tests in `ops/checks/checks.test.ts`; `generate --check` and the TypeScript step are not covered here.
+- Not yet proven: the other custom checks (`rules`, `secrets`, `stack`, `trailer`) have their own tests in `ops/checks/checks.test.ts`; `generate --check` and the TypeScript step are not covered here.
 - `npm test` and CI do not run `ops/guards/` yet: that needs `ops/guards/` added to the `test` script in `package.json`, which is outside this task's slice.

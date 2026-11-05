@@ -1,5 +1,27 @@
 [
  {
+  "id": "D-488",
+  "date": "Nov 5",
+  "title": "One README page for E.V.: the repo README.md is the overview (stack, folders, where things live, setup, the owner's part) and MATT.md is retired",
+  "why": "Matt asked for a README he can come back to for a high-level view of the stack (2026-11-05) and said yes to this shape. The page holds facts that stay true for months; the handover and BACKLOG hold today's state. A stack check in ops/checks fails when the README's stack table and package.json disagree, so the page is updated with each release instead of from the tasks. The rules check gives the repo README its own 150-line cap, because it is not a folder README (folder READMEs keep 20). Second way considered: a docs/overview.md page, rejected because docs/ is outside the rules check and the repo page on GitHub would stay empty.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, 2026-11-05"
+ },
+ {
+  "id": "D-487",
+  "date": "Nov 5",
+  "title": "Build order from 2026-11-05: audit fixes, then the new data layer, then the cutover steps; kit and stack work runs alongside only in other folders",
+  "why": "The cutover steps (B-822, B-754, B-757) kept slipping behind the Phase 5 group, which kept taking in new polish work (playtest bugs, 14 kit tasks, stack fixes, editor shortcuts), and the audit's do-first fix B-952 sat behind kit work. The export and restore drills must run on v5's new tables, so the data layer (B-997 to B-1011) comes before them. Order: (a) B-952, B-953, B-954, then B-995, B-994; (b) B-997 to B-1011 with B-955, B-959, B-961; (c) B-822, B-754, B-757, B-756, B-759, B-823, Gate 6 B-760, Phase 7; (d) kit, Back and stack tasks only in folders group (c) or the current group does not write; (e) B-803, B-808, tidiness. Matt agreed in the ev-build channel 2026-11-05 17:02Z. Same change: 32 open ev4-era tasks that D-480 missed declined (28) or moved to after-cutover (4); B-732 declined (D-484); B-817, B-818, B-849, B-851, B-923 closed with their proof.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-480"
+  ],
+  "source": "Matt, ev-build channel 2026-11-05"
+ },
+ {
   "id": "D-486",
   "date": "Nov 5",
   "title": "The owner is a role, not a name: code, prompts and tools say owner or the student, and nothing needs the owner's name to run",
