@@ -203,6 +203,8 @@ Posted as one comment on the "For Matt" issue. Written in plain words, short:
 
 No jargon, no commit lists. Screenshots at desktop 1280.
 
+With each card, update `README.md` when the release changes the stack, the folders, the setup or Matt's part. `npm run checks` fails when its stack table and `package.json` disagree.
+
 ## 9. Cadence and usage
 
 - The build task runs on a schedule chosen to fit the daily cap left after ev4's own scheduled runs (PLAN §15 C11) **[verify the plan's current cap]**. Matt can also trigger "Run now".
