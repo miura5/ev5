@@ -118,13 +118,12 @@ export const commandHandlers: Record<string, CommandHandler> = {
   },
   // A restore only clears the deletions row: the document was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {
-    const r = await x.db
-      .prepare("DELETE FROM deletions WHERE id = ?")
-      .bind(i.id)
-      .run();
-    if (!r.meta.changes)
+    const restored = await tablesRepo(x.db, {
+      clock: x.clock,
+    }).deletions.restore(i.id);
+    if (!restored)
       throw new CommandError(404, `${i.id} is not in Recently deleted`);
-    return { restored: r.meta.changes };
+    return { restored };
   },
   "item.rename": async (i: Ref & { title: string }, _c, x) => {
     const repo = docsRepo(x.db, { clock: x.clock });
