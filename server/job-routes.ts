@@ -5,6 +5,7 @@ import {
   acknowledgeSpendAlert,
   cloudflareAdapter,
   d1JobStore,
+  d1PlanStore,
   continueJob,
   jobStatus,
   parsePublicInput,
@@ -137,17 +138,19 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   ) {
     const clock = () => Date.now();
     const at = new Date().toISOString();
-    await c.env.DB.prepare(
-      "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'status', ?, ?) " +
-        "ON CONFLICT (job_id, kind) DO UPDATE SET body = excluded.body, at = excluded.at",
-    )
-      .bind(rec.id, JSON.stringify("put away"), clock())
-      .run();
+    // putAway touches only the status row; load and apply are never called on this path.
+    const plans = d1PlanStore(c.env.DB, clock, {
+      load: async () => undefined,
+      apply: async () => {
+        throw new Error("not used when putting a plan away");
+      },
+    });
+    const output = await plans.putAway(rec.id);
     const done = await update(d1JobStore(c.env.DB, clock), rec.id, (r) =>
       transition(r, {
         to: "done",
         at,
-        output: { home: "library", id: `${rec.id}:status` },
+        output: { home: "library", id: output },
       }),
     );
     return c.json({ job: done }, 202);
