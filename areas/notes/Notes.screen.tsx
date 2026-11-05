@@ -18,6 +18,7 @@ export function NotesScreen({
 }) {
   const {
     notes,
+    ready,
     error,
     saveState,
     saveBlocks,
@@ -70,7 +71,8 @@ export function NotesScreen({
       reload();
     });
   const today = centralDate(Date.now());
-  const cur = notes.find((n) => n.id === open);
+  // A note opens for editing only from the server's answer, never from the saved copy the list opens on.
+  const cur = ready ? notes.find((n) => n.id === open) : undefined;
   if (!cur)
     return (
       <>

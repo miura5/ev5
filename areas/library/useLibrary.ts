@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc, WireJob } from "./map.ts";
 import {
@@ -10,6 +10,7 @@ import {
   failureKind,
   failureSentence,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 /** How often Library reads again, so a new or changed plan draft shows without a reload. */
@@ -74,50 +75,50 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const [data, setData] = useState<LibraryData>();
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
+  const warm = useRef(true);
   useEffect(() => {
     if (!token) return;
     let live = true;
-    void (async () => {
-      try {
-        const [exams, weakspots, sets, answers, planedits, plans, jobs] =
-          await Promise.all([
-            list("exams", token, copy),
-            list("weakspots", token, copy),
-            list("sets", token, copy),
-            list("answers", token, copy),
-            // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
-            list("planedits", token, copy).catch((): WireDoc[] => []),
-            // The approved plan's sessions live in its document; unreadable, the Detail just lists none.
-            list("plans", token, copy).catch((): WireDoc[] => []),
-            // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
-            jobApi.list(token, copy).catch((): unknown[] => []),
-          ]);
-        if (live) {
-          setData(
-            mapLibrary(
-              {
-                exams,
-                weakspots,
-                sets,
-                answers,
-                planedits,
-                plans,
-                jobs: jobs as WireJob[],
-              },
-              Date.now(),
-            ),
-          );
-          setError(undefined);
-        }
-      } catch (e) {
-        // A refused token shows nothing here: the shell's token screen takes over.
-        if (live && failureKind(e) === "refused") setRefused(true);
-        if (live)
-          setError(
-            failureKind(e) === "refused" ? undefined : failureSentence(e),
-          );
-      }
-    })();
+    const load = (c: ReadCopyLike | undefined) =>
+      Promise.all([
+        list("exams", token, c),
+        list("weakspots", token, c),
+        list("sets", token, c),
+        list("answers", token, c),
+        // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
+        list("planedits", token, c).catch((): WireDoc[] => []),
+        // The approved plan's sessions live in its document; unreadable, the Detail just lists none.
+        list("plans", token, c).catch((): WireDoc[] => []),
+        // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
+        jobApi.list(token, c).catch((): unknown[] => []),
+      ]);
+    const first = warm.current;
+    warm.current = false;
+    // The screen opens on the last answer kept, then the server's (§ui.instant).
+    savedFirst(copy, first, load, (r) => {
+      if (!live) return;
+      const [exams, weakspots, sets, answers, planedits, plans, jobs] = r;
+      setData(
+        mapLibrary(
+          {
+            exams,
+            weakspots,
+            sets,
+            answers,
+            planedits,
+            plans,
+            jobs: jobs as WireJob[],
+          },
+          Date.now(),
+        ),
+      );
+      setError(undefined);
+    }, () => setData(undefined)).catch((e: unknown) => {
+      // A refused token shows nothing here: the shell's token screen takes over.
+      if (live && failureKind(e) === "refused") setRefused(true);
+      if (live)
+        setError(failureKind(e) === "refused" ? undefined : failureSentence(e));
+    });
     return () => {
       live = false;
     };
