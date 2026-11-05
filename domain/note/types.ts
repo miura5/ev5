@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Note document (ev4 notes schema 1, frozen in data/compat/schemas/notes.schema.json): a title, a course and a body of
+// Note document (schema 1): a title, a course and a body of
 // blocks of plain-text runs with inline marks. No HTML is ever stored.
 export const BLOCK_TYPES = ['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'todo'] as const;
 export const LIST_TYPES = ['ul', 'ol', 'todo'] as const;
