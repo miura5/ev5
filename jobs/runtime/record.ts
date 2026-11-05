@@ -16,7 +16,7 @@ export type JobRecord = {
   state: JobState;
   /** Plain-words reason; required on failed, and on needs-you it says what Matt must do. */
   reason?: string;
-  /** The step a needs-you job is waiting at; Matt's answer continues it as `jobId:step`. */
+  /** The step a needs-you job is waiting at; Matt's answer continues it as `jobId-step-round`. */
   step?: string;
   costCents: number;
   output?: OutputLocation;
