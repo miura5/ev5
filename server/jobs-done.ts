@@ -1,8 +1,10 @@
 // What finished today (Central), for Activity's "Done today": finished jobs and ended study sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { centralDate } from "../domain/index.ts";
+import { docsRepo } from "../data/index.ts";
 import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
+import { examsOfPlans } from "./plan-context.ts";
 
 type JobStore = ReturnType<typeof d1JobStore>;
 
@@ -15,20 +17,50 @@ export interface DoneEntry {
   reason?: string;
   costCents: number;
   link: { home: string; id: string };
+  /** A study plan's exam title, so Activity can word it "Study plan · <exam>". */
+  examTitle?: string;
   finished: true;
+}
+
+/** The exam title of each finished study plan, by job id; a plan whose exam or title is gone has none. */
+async function examTitles(
+  db: D1Like,
+  planIds: string[],
+): Promise<Map<string, string>> {
+  const titles = new Map<string, string>();
+  const examOf = await examsOfPlans(db, planIds);
+  const repo = docsRepo(db as never, { clock: () => Date.now() });
+  const byExam = new Map<string, string | undefined>();
+  for (const [job, examId] of examOf) {
+    if (!byExam.has(examId)) {
+      const d = await repo.get("exams", examId).catch(() => null);
+      const t = (d?.data as { title?: unknown } | undefined)?.title;
+      byExam.set(examId, typeof t === "string" && t ? t : undefined);
+    }
+    const t = byExam.get(examId);
+    if (t) titles.set(job, t);
+  }
+  return titles;
 }
 
 /** Finished jobs whose last change was today (Central), newest first, worded as job_status words them. */
 export async function finishedJobsToday(
   store: JobStore,
+  db: D1Like,
   defs: ReadonlyMap<string, JobDef>,
   now: number,
 ): Promise<DoneEntry[]> {
   const today = centralDate(now);
   const out: (DoneEntry & { at: string })[] = [];
-  for (const r of await store.list()) {
-    if (!isTerminal(r.state) || centralDate(Date.parse(r.updatedAt)) !== today)
-      continue;
+  const todays = (await store.list()).filter(
+    (r) =>
+      isTerminal(r.state) && centralDate(Date.parse(r.updatedAt)) === today,
+  );
+  const titles = await examTitles(
+    db,
+    todays.filter((r) => r.kind === "study_plan").map((r) => r.id),
+  );
+  for (const r of todays) {
     const w = defs.get(r.kind)?.wording;
     const failed = r.state === "failed";
     // A study plan put away ends done with its status row as the output (jobs/runtime/d1-stores.ts), not a plan.
@@ -46,7 +78,11 @@ export async function finishedJobsToday(
       summary: failed && r.reason ? `${lead} ${r.reason}` : lead,
       ...(failed && r.reason ? { reason: r.reason } : {}),
       costCents: r.costCents,
-      link: !failed && !putAway && r.output ? r.output : { home: "activity", id: r.id },
+      link:
+        !failed && !putAway && r.output
+          ? r.output
+          : { home: "activity", id: r.id },
+      ...(titles.has(r.id) ? { examTitle: titles.get(r.id) } : {}),
       finished: true,
       at: r.updatedAt,
     });
