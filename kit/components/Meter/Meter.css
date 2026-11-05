@@ -1,0 +1,36 @@
+.kit-meter {
+  display: flex;
+  flex: none;
+  width: 100%;
+  height: var(--sp-1);
+}
+
+.kit-meter > i {
+  display: block;
+  flex: var(--part) 1 0;
+  height: 100%;
+  border-radius: var(--hairline);
+  /* The 2 px gap between parts: a hairline each side, none at the bar's ends. */
+  border-inline: var(--hairline) solid transparent;
+  background-clip: padding-box;
+}
+
+.kit-meter > i:first-child {
+  border-inline-start: 0;
+}
+
+.kit-meter > i:last-child {
+  border-inline-end: 0;
+}
+
+.kit-meter > i[data-tone="ok"] {
+  background: var(--ok);
+}
+
+.kit-meter > i[data-tone="warn"] {
+  background: var(--warn);
+}
+
+.kit-meter > i[data-tone="bad"] {
+  background: var(--bad);
+}
