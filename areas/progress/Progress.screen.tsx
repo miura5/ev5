@@ -43,7 +43,10 @@ export function ProgressScreen({
           />
         </div>
       ) : null}
-      {!error && !data?.accuracy && !(data && data.hasAnswers) ? (
+      {token && !data && !error ? (
+        <p className="ev-progress-line">Loading…</p>
+      ) : null}
+      {data && !error && !data.accuracy && !data.hasAnswers ? (
         <p className="ev-progress-line">{EMPTY}</p>
       ) : null}
       {data && data.sessions > 0 ? (

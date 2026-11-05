@@ -138,3 +138,13 @@ test("the accuracy trend reads as points, as in the mock-up", () => {
   );
   expect(trendText("72", "other")).toBe("other");
 });
+
+test("while the first read is in flight it says Loading, never the empty line", () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise<Response>(() => {})),
+  );
+  const { container } = render(<ProgressScreen />);
+  expect(container.textContent).toContain("Loading…");
+  expect(container.textContent).not.toContain("accuracy over time");
+});
