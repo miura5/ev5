@@ -33,6 +33,8 @@ export interface LibraryDocs {
   planedits?: WireDoc[];
   /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
   jobs?: WireJob[];
+  /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
+  plans?: WireDoc[];
 }
 
 /** One entry of GET /api/v1/jobs as Library reads it, restated: areas never import the server. */
@@ -68,6 +70,28 @@ function sessionsOf(tasks: unknown): PlanSession[] {
     )
     .map(({ date, title, minutes }) => ({ date, title, minutes }))
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** The sessions of an approved plan document (days of tasks); the day is the task's date. */
+function sessionsOfPlan(
+  plans: WireDoc[] | undefined,
+  planId?: string,
+): PlanSession[] {
+  const d = plans?.find((p) => p.id === planId)?.data as
+    | { days?: unknown }
+    | undefined;
+  if (!planId || !Array.isArray(d?.days)) return [];
+  return sessionsOf(
+    d.days.flatMap((day: { date?: unknown; tasks?: unknown }) =>
+      Array.isArray(day?.tasks)
+        ? day.tasks.map((t: { text?: unknown; minutes?: unknown }) => ({
+            date: day.date,
+            title: t?.text,
+            minutes: t?.minutes,
+          }))
+        : [],
+    ),
+  );
 }
 
 interface PlanEdit {
@@ -157,8 +181,10 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
     .map(({ id, v }) => {
       const job = waitingPlan(docs.jobs, id);
       const waiting = job?.id;
-      const sessions = sessionsOf(job?.tasks);
       const planId = waiting ?? planIdOf(docs.exams, id);
+      const sessions = waiting
+        ? sessionsOf(job?.tasks)
+        : sessionsOfPlan(docs.plans, planId);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
       );
