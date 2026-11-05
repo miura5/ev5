@@ -11,14 +11,14 @@ import {
 import type { D1Like } from "../jobs/index.ts";
 
 const PASSAGES = 12;
-const CANDIDATES = 60;
 
 type Row = { id: string; c: string; data: string };
 export type Excerpt = { id: string; text: string };
 
 /**
  * The one gatherer of Matt's documents (§cmd.code-first): a SQL `LIKE` over docs in the named collections, parsed to
- * searchable text and ranked by domain/search. Notes always; sets only when asked for. Unparsable documents are skipped.
+ * searchable text and ranked by domain/search. A document in Recently deleted (a deletions row) is never a passage (§delete.soft), and every match
+ * is ranked before the top k are kept, so the best match survives however many there are. Notes always; sets only when asked for. Unparsable documents are skipped.
  */
 export async function findPassages(
   db: D1Like,
@@ -32,7 +32,7 @@ export async function findPassages(
   const marks = collections.map(() => "?").join(", ");
   const { results } = await db
     .prepare(
-      `SELECT id, c, data FROM docs WHERE c IN (${marks}) AND (${where}) LIMIT ${CANDIDATES}`,
+      `SELECT id, c, data FROM docs WHERE c IN (${marks}) AND (${where}) AND NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = docs.c AND d.id = docs.id)`,
     )
     .bind(...collections, ...pats)
     .all<Row>();
