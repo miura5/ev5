@@ -39,7 +39,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
 test("Add on Plan (and key C) opens a form that adds through onAddPlan", async () => {
   const p = props();
   render(<TodayView {...p} />);
-  expect(screen.getByRole("button", { name: /^Add\s*C$/ })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Add" })).toBeTruthy();
   fireEvent.keyDown(window, { key: "c" });
   const form = screen.getByRole("form", { name: "Add to today" });
   const add = within(form).getByRole("button", {
@@ -57,7 +57,7 @@ test("Add on Plan (and key C) opens a form that adds through onAddPlan", async (
 test("key C is ignored while typing, and a failed add keeps the form open", async () => {
   const p = props({ onAddPlan: vi.fn(async () => false) });
   render(<TodayView {...p} />);
-  fireEvent.click(screen.getByRole("button", { name: /^Add\s*C$/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Add" }));
   const title = screen.getByLabelText("Title");
   fireEvent.keyDown(title, { key: "c" });
   expect(screen.getAllByRole("form")).toHaveLength(1);

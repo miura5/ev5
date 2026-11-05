@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { centralDate } from "../../domain/index.ts";
-import { TodayScreen } from "./Today.screen.tsx";
+import { TodayHosted } from "./testHost.tsx";
 
 afterEach(() => {
   cleanup();
@@ -44,7 +44,7 @@ function boot(jobs: unknown[], calls: string[] = []) {
             : json({ docs: [] });
     }),
   );
-  render(<TodayScreen />);
+  render(<TodayHosted />);
 }
 
 test("the exam Detail lists the waiting plan's sessions with weekday and date", async () => {
@@ -63,12 +63,12 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
   ]);
   fireEvent.click(await screen.findByText(/study plan waiting for you/));
   await screen.findByText("Proposed sessions");
-  const rows = [...document.querySelectorAll(".ev-today-session")].map(
-    (r) => r.textContent,
-  );
+  const rows = [
+    ...document.querySelectorAll("[data-ui='detail'] [data-ui='row']"),
+  ].map((r) => r.textContent);
   expect(rows).toEqual([
-    "Fri Jan 2Dosage by weight25m",
-    "Sun Jan 4Misses only10m",
+    "Dosage by weightFri Jan 225m",
+    "Misses onlySun Jan 410m",
   ]);
   expect(screen.queryByText("Plan with E.V.")).toBeNull();
 });
