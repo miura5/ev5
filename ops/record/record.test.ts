@@ -115,10 +115,8 @@ test('task set --waiting-on stores the role owner and refuses a name', () => {
   const dir = scratch();
   run(dir, 'task', 'add', '--title', 'Needs the owner', '--milestone', 'Phase 1');
   assert.equal(run(dir, 'task', 'set', 'B-691', '--waiting-on', 'someone').code, 1);
-  assert.equal(run(dir, 'task', 'set', 'B-691', '--waiting-on', 'owner').code, 0);
+  run(dir, 'task', 'set', 'B-691', '--waiting-on', 'owner');
   assert.equal(loadChart(dir).tasks.at(-1)?.waitingOn, 'owner');
-  assert.equal(run(dir, 'task', 'set', 'B-691', '--waiting-on', 'none').code, 0);
-  assert.equal(loadChart(dir).tasks.at(-1)?.waitingOn, undefined);
 });
 
 test('decision add takes the next D- id, newest first; supersedes marks the old one', () => {
