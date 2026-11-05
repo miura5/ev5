@@ -181,22 +181,65 @@ export async function examsOfPlans(
   return exam;
 }
 
-/** A waiting study plan names its exam (saved with its context at the gather step), so Library can match it. */
+/** The proposed sessions of each waiting study plan, from the draft saved at its draft step. */
+export async function draftTasksOfPlans(
+  db: D1Like,
+  ids: string[],
+): Promise<Map<string, { date: string; title: string; minutes: number }[]>> {
+  const out = new Map<
+    string,
+    { date: string; title: string; minutes: number }[]
+  >();
+  if (!ids.length) return out;
+  const { results } = await db
+    .prepare(
+      `SELECT job_id, body FROM job_plans WHERE kind = 'draft' AND job_id IN (${ids.map(() => "?").join(",")})`,
+    )
+    .bind(...ids)
+    .all<{ job_id: string; body: string }>();
+  for (const r of results)
+    try {
+      const tasks = (JSON.parse(r.body) as { tasks?: unknown }).tasks;
+      if (!Array.isArray(tasks)) continue;
+      out.set(
+        r.job_id,
+        tasks.flatMap(
+          (t: { date?: unknown; title?: unknown; minutes?: unknown }) =>
+            typeof t?.date === "string" &&
+            typeof t.title === "string" &&
+            typeof t.minutes === "number"
+              ? [{ date: t.date, title: t.title, minutes: t.minutes }]
+              : [],
+        ),
+      );
+    } catch {
+      // a draft that does not read is left without sessions
+    }
+  return out;
+}
+
+/** A waiting study plan names its exam and carries its proposed sessions, so Library can match and show it. */
 async function withExams<T extends { id: string; kind: string; state: string }>(
   db: D1Like,
   jobs: T[],
-): Promise<(T & { examId?: string })[]> {
+): Promise<
+  (T & {
+    examId?: string;
+    tasks?: { date: string; title: string; minutes: number }[];
+  })[]
+> {
   const waiting = jobs.filter(
     (j) => j.kind === studyPlanJob.kind && j.state === "needs-you",
   );
   if (!waiting.length) return jobs;
-  const exam = await examsOfPlans(
-    db,
-    waiting.map((j) => j.id),
-  );
-  return jobs.map((j) =>
-    exam.has(j.id) ? { ...j, examId: exam.get(j.id) } : j,
-  );
+  const ids = waiting.map((j) => j.id);
+  const exam = await examsOfPlans(db, ids);
+  const tasks = await draftTasksOfPlans(db, ids);
+  return jobs.map((j) => ({
+    ...j,
+    ...(exam.has(j.id) ? { examId: exam.get(j.id) } : {}),
+    ...(tasks.has(j.id) ? { tasks: tasks.get(j.id) } : {}),
+  }));
 }
 
 // Only live jobs: one past its deadline is failed first, so a lost runner never shows as running.
