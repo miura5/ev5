@@ -39,4 +39,18 @@ jobs:
             # A push made with GITHUB_TOKEN starts no workflow run, so start CI on the new commit by hand. Its
             # `checks` result lands on that commit, which is what the PR's required check reads.
             gh workflow run ci.yml --ref "$GITHUB_REF_NAME"
+            # GitHub can also queue a pull_request run on this sha that waits at action_required (an approval rule
+            # for bot-pushed commits). It never starts, and its unfinished `checks` blocks the PR even though the
+            # dispatched run above is green. Delete such runs; the dispatched run then stands as the check.
+            sha=$(git rev-parse HEAD)
+            for _ in $(seq 1 12); do
+              ids=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$sha&event=pull_request" \
+                --jq '.workflow_runs[] | select(.status != "completed" or .conclusion == "action_required") | .id')
+              for id in $ids; do
+                echo "Deleting stuck pull_request run $id"
+                gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$id" || true
+              done
+              [ -n "$ids" ] && break
+              sleep 10
+            done
           fi
