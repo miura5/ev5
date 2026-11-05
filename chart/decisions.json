@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-474",
+  "date": "Nov 4",
+  "title": "Gate 5 passed: all shell and area tasks done, 16 gate5-e2e journeys pass on staging (run 41940764495 at adeedcf)",
+  "why": "B-743..B-752, B-787..B-790 done; B-746, B-749, B-750 closed in run 60 with their leftovers listed in the task notes.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "AGENTS.md §3 step 8"
+ },
+ {
   "id": "D-473",
   "date": "Nov 4",
   "title": "Decisions D-001 to D-043 (v2 era) are not carried into v5",
