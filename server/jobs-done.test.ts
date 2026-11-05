@@ -55,3 +55,41 @@ test("GET /jobs?finished=today lists jobs finished today and sessions ended toda
     ["live"],
   );
 });
+
+test("putting a plan away ends it done at once, never running, and Done today words it as put away", async () => {
+  const { req, db } = setup();
+  const now = new Date().toISOString();
+  const store = d1JobStore(db, () => Date.now());
+  await store.put({
+    ...rec("sp-a", "done", now),
+    output: { home: "library", id: "plan-1" },
+  });
+  await store.put({
+    ...rec("sp-b", "done", now),
+    state: "needs-you",
+    step: "approve",
+    reason: "Approve it.",
+  } as never);
+  const c = await req("POST", "/api/v1/jobs/sp-b/continue", "fake-app", {
+    answer: { decision: "put_away" },
+  });
+  assert.equal(c.status, 202);
+  assert.equal((await store.get("sp-b"))?.state, "done");
+  const open = (await (
+    await req("GET", "/api/v1/jobs", "fake-app")
+  ).json()) as { jobs: { id: string }[] };
+  assert.deepEqual(open.jobs, []);
+  const done = (await (
+    await req("GET", "/api/v1/jobs?finished=today", "fake-app")
+  ).json()) as {
+    jobs: { id: string; lead: string }[];
+  };
+  assert.equal(
+    done.jobs.find((j) => j.id === "sp-a")?.lead,
+    "Your study plan is saved.",
+  );
+  assert.equal(
+    done.jobs.find((j) => j.id === "sp-b")?.lead,
+    "Your study plan was put away.",
+  );
+});

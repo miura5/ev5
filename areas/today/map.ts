@@ -17,72 +17,16 @@ import type {
   TodayProps,
   UpcomingDate,
 } from "./types.ts";
+import { planOf, planSessions } from "./plans.ts";
+import type { Session } from "./plans.ts";
+import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
 
-/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
-export interface WireDoc {
-  id: string;
-  data: unknown;
-}
-
-export interface TodayDocs {
-  exams: WireDoc[];
-  weakspots: WireDoc[];
-  /** The dayedits document for today, when there is one. */
-  dayedit?: WireDoc;
-  /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
-  jobs?: readonly WireJobLine[];
-  /** Which study plan is in force per exam; absent reads as none. */
-  planedits?: WireDoc[];
-}
+export type { TodayDocs, WireDoc, WireJobLine };
 
 export type TodayData = Pick<
   TodayProps,
   "say" | "plan" | "upcoming" | "thisWeek" | "alert"
 >;
-
-/** One entry of GET /api/v1/jobs, restated: only what the spend alert line needs. */
-export interface WireJobLine {
-  kind: string;
-  state: string;
-  summary: string;
-  /** The exam a study plan job is for (GET /jobs names it). */
-  examId?: string;
-}
-
-/** The exam's plan line: waiting when a study plan job names this exam, approved when its plan is in force. */
-function planOf(
-  id: string,
-  docs: TodayDocs,
-): "waiting" | "approved" | "working" | undefined {
-  const waits = (docs.jobs ?? []).some(
-    (j) =>
-      j.kind.replace(/_/g, "-") === "study-plan" &&
-      j.state === "needs-you" &&
-      j.examId === id,
-  );
-  if (waits) return "waiting";
-  // Right after Matt's answer the job still runs: the exam may point at an earlier plan until it lands.
-  const working = (docs.jobs ?? []).some(
-    (j) =>
-      j.kind.replace(/_/g, "-") === "study-plan" &&
-      j.state === "running" &&
-      j.examId === id,
-  );
-  if (working) return "working";
-  const planId = (
-    docs.exams.find((d) => d.id === id)?.data as
-      | { planId?: unknown }
-      | undefined
-  )?.planId;
-  const inForce = (
-    docs.planedits?.find((d) => d.id === id)?.data as
-      | { plan?: unknown }
-      | undefined
-  )?.plan;
-  return typeof planId === "string" && planId && inForce === planId
-    ? "approved"
-    : undefined;
-}
 
 /** A needs-you study-plan job means a plan waits for Matt. */
 export function studyPlanWaiting(jobs: readonly WireJobLine[]): boolean {
@@ -133,21 +77,27 @@ function whenLabel(date: string, left: number, today: string): string {
 const toneFor = (left: number): CourseTone =>
   left <= 3 ? "bad" : left <= 7 ? "warn" : "info";
 
-function planItems(doc: WireDoc | undefined): PlanItem[] {
+function planItems(
+  doc: WireDoc | undefined,
+  sessions: Session[] = [],
+): PlanItem[] {
   const o = (doc?.data ?? {}) as {
     added?: Record<string, { text: string; kind: string; minutes?: number }>;
     checks?: Record<string, unknown>;
     skipped?: Record<string, unknown>;
   };
-  return Object.entries(o.added ?? {})
+  const fromPlan = Object.fromEntries(sessions.map((x) => [x.id, x]));
+  return Object.entries({ ...fromPlan, ...(o.added ?? {}) })
     .filter(([k]) => !o.skipped?.[k])
     .map(([k, a]) => ({
       id: k,
       title: a.text,
       meta:
-        a.kind === "todo"
-          ? "added by you"
-          : `${KINDS[a.kind] ?? a.kind} · added by you`,
+        a.kind === "plan"
+          ? "from your study plan"
+          : a.kind === "todo"
+            ? "added by you"
+            : `${KINDS[a.kind] ?? a.kind} · added by you`,
       est: a.minutes ? `${a.minutes}m` : "",
       done: !!o.checks?.[k],
       tone: "ok" as const,
@@ -215,7 +165,14 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });
-  const plan = planItems(docs.dayedit);
+  const plan = planItems(
+    docs.dayedit,
+    planSessions(
+      docs,
+      docs.exams.map((d) => d.id),
+      today,
+    ),
+  );
   const weekEnd = addDays(today, 6);
   const thisWeek: ThisWeekItem[] = exams
     .filter((e) => (e.exam.date as string) <= weekEnd)

@@ -152,6 +152,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
         return failureSentence(e);
       }
       setAgain((n) => n + 1);
+      // The sidebar count and Activity read the jobs again now, not at their next poll (restated: areas never import the shell).
+      if (typeof window !== "undefined") window.dispatchEvent(new Event("ev5:jobs-changed"));
       return undefined;
     },
     [token],

@@ -111,3 +111,25 @@ describe("useShellStatus polling", () => {
     }
   });
 });
+
+describe("useShellStatus after an area changes a job", () => {
+  it("reads the jobs again at once, so a put-away plan drops the Activity count", async () => {
+    localStorage.setItem("ev5.token", "t");
+    let jobs: unknown[] = [
+      { id: "p", kind: "study_plan", state: "needs-you", summary: "" },
+    ];
+    const f = (async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ jobs }),
+    })) as unknown as typeof fetch;
+    const h = renderHook(() => useShellStatus(60_000, f));
+    await waitFor(() =>
+      expect(h.result.current.counts).toEqual({ activity: 1 }),
+    );
+    jobs = [];
+    window.dispatchEvent(new Event("ev5:jobs-changed"));
+    await waitFor(() => expect(h.result.current.counts).toEqual({}));
+    h.unmount();
+  });
+});

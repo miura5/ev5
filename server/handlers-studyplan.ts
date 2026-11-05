@@ -13,7 +13,8 @@ import {
 import type { JobDef } from "../jobs/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { examsOfPlans, startEnv } from "./job-routes.ts";
+import { startEnv } from "./job-routes.ts";
+import { examsOfPlans } from "./plan-context.ts";
 
 const def = studyPlanJob as JobDef;
 const MAX_NOTE = 2000;

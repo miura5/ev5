@@ -5,6 +5,7 @@ import {
   acknowledgeSpendAlert,
   cloudflareAdapter,
   d1JobStore,
+  d1PlanStore,
   continueJob,
   jobStatus,
   parsePublicInput,
@@ -12,11 +13,14 @@ import {
   startJob,
   studyPlanJob,
   sweepStale,
+  transition,
+  update,
   workflowExecutor,
 } from "../jobs/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
+import { draftTasksOfPlans, examsOfPlans } from "./plan-context.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts } from "./excerpts.ts";
@@ -127,6 +131,30 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   if (rec.state !== "needs-you")
     return c.json({ error: "job is not waiting for you" }, 409);
   const { answer } = await body(c.req.raw);
+  // Putting a plan away needs no Workflow: it ends now as done, so it never shows as running and lands in Done today.
+  if (
+    def.kind === studyPlanJob.kind &&
+    (answer as { decision?: unknown } | undefined)?.decision === "put_away"
+  ) {
+    const clock = () => Date.now();
+    const at = new Date().toISOString();
+    // putAway touches only the status row; load and apply are never called on this path.
+    const plans = d1PlanStore(c.env.DB, clock, {
+      load: async () => undefined,
+      apply: async () => {
+        throw new Error("not used when putting a plan away");
+      },
+    });
+    const output = await plans.putAway(rec.id);
+    const done = await update(d1JobStore(c.env.DB, clock), rec.id, (r) =>
+      transition(r, {
+        to: "done",
+        at,
+        output: { home: "library", id: output },
+      }),
+    );
+    return c.json({ job: done }, 202);
+  }
   const next = await continueJob(startEnv(c.env, def), def, rec.id, answer);
   return c.json({ job: next }, 202);
 });
@@ -158,66 +186,6 @@ jobRoutes.get("/jobs/:id", async (c) => {
     return c.json({ error: "not found" }, 404);
   }
 });
-
-/** The exam each live study plan was made for, from the context saved at its gather step. */
-export async function examsOfPlans(
-  db: D1Like,
-  ids: string[],
-): Promise<Map<string, string>> {
-  const exam = new Map<string, string>();
-  if (!ids.length) return exam;
-  const { results } = await db
-    .prepare(
-      `SELECT job_id, body FROM job_plans WHERE kind = 'context' AND job_id IN (${ids.map(() => "?").join(",")})`,
-    )
-    .bind(...ids)
-    .all<{ job_id: string; body: string }>();
-  for (const r of results)
-    try {
-      const id = (JSON.parse(r.body) as { exam?: { id?: unknown } }).exam?.id;
-      if (typeof id === "string") exam.set(r.job_id, id);
-    } catch {
-      // a context that does not read is left without an exam
-    }
-  return exam;
-}
-
-/** The proposed sessions of each waiting study plan, from the draft saved at its draft step. */
-export async function draftTasksOfPlans(
-  db: D1Like,
-  ids: string[],
-): Promise<Map<string, { date: string; title: string; minutes: number }[]>> {
-  const out = new Map<
-    string,
-    { date: string; title: string; minutes: number }[]
-  >();
-  if (!ids.length) return out;
-  const { results } = await db
-    .prepare(
-      `SELECT job_id, body FROM job_plans WHERE kind = 'draft' AND job_id IN (${ids.map(() => "?").join(",")})`,
-    )
-    .bind(...ids)
-    .all<{ job_id: string; body: string }>();
-  for (const r of results)
-    try {
-      const tasks = (JSON.parse(r.body) as { tasks?: unknown }).tasks;
-      if (!Array.isArray(tasks)) continue;
-      out.set(
-        r.job_id,
-        tasks.flatMap(
-          (t: { date?: unknown; title?: unknown; minutes?: unknown }) =>
-            typeof t?.date === "string" &&
-            typeof t.title === "string" &&
-            typeof t.minutes === "number"
-              ? [{ date: t.date, title: t.title, minutes: t.minutes }]
-              : [],
-        ),
-      );
-    } catch {
-      // a draft that does not read is left without sessions
-    }
-  return out;
-}
 
 /** A live study plan names its exam (waiting or running: right after Matt answers it is still being put in force); a waiting one also carries its sessions. */
 async function withExams<T extends { id: string; kind: string; state: string }>(

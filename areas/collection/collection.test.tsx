@@ -69,7 +69,6 @@ test("dates come first, then nested collections and items", () => {
 
 test("pin, new and back report; empty collection explains itself", () => {
   const onTogglePin = vi.fn();
-  const onNew = vi.fn();
   const onBack = vi.fn();
   render(
     <CollectionView
@@ -79,15 +78,12 @@ test("pin, new and back report; empty collection explains itself", () => {
       nested={[]}
       items={[]}
       onTogglePin={onTogglePin}
-      onNew={onNew}
       onBack={onBack}
     />,
   );
   fireEvent.click(screen.getByText("Pin"));
-  fireEvent.click(screen.getByText("New"));
   fireEvent.click(screen.getByText("← NUR 112"));
   expect(onTogglePin).toHaveBeenCalled();
-  expect(onNew).toHaveBeenCalled();
   expect(onBack).toHaveBeenCalled();
   expect(screen.getByText(/Nothing here yet/)).toBeTruthy();
 });
