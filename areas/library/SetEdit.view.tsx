@@ -23,7 +23,6 @@ const KINDS = [
   { value: "questions", label: "Questions" },
   { value: "steps", label: "Steps" },
 ];
-// The kit's editor row has two cells, so a step has a detail cell too (the kit lacks a one-cell row).
 const HEADS: Record<SetKind, [string, string, string]> = {
   cards: ["Term", "Definition", "card"],
   questions: ["Question", "Answer", "question"],
@@ -56,18 +55,28 @@ export function SetEditView(p: SetEditViewProps) {
         {set.items.map((it, i) => (
           <EditorRow
             key={it.id}
-            cells={[
-              {
-                label: `${front} ${i + 1}`,
-                value: it.front,
-                onChange: (v) => p.onItem?.(it.id, { front: v }),
-              },
-              {
-                label: `${back} ${i + 1}`,
-                value: it.back ?? "",
-                onChange: (v) => p.onItem?.(it.id, { back: v }),
-              },
-            ]}
+            cells={
+              set.kind === "steps"
+                ? [
+                    {
+                      label: `${front} ${i + 1}`,
+                      value: it.front,
+                      onChange: (v) => p.onItem?.(it.id, { front: v }),
+                    },
+                  ]
+                : [
+                    {
+                      label: `${front} ${i + 1}`,
+                      value: it.front,
+                      onChange: (v) => p.onItem?.(it.id, { front: v }),
+                    },
+                    {
+                      label: `${back} ${i + 1}`,
+                      value: it.back ?? "",
+                      onChange: (v) => p.onItem?.(it.id, { back: v }),
+                    },
+                  ]
+            }
             actions={
               <Button
                 kind="icon"

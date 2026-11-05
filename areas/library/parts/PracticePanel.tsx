@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Button, Choice, Empty, EvLine } from "../../../kit/index.ts";
+import { Empty, PracticeCard } from "../../../kit/index.ts";
 import type { PracticeSession } from "../types.ts";
 
 export interface PracticePanelProps {
@@ -14,47 +13,18 @@ export function PracticePanel({
   onCommit,
   onEnd,
 }: PracticePanelProps) {
-  const [hinted, setHinted] = useState(false);
-  if (!session)
-    return <Empty line="No practice running." />;
+  if (!session) return <Empty line="No practice running." />;
   return (
-    <form
-      className="ev-library-card"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const picked = new FormData(e.currentTarget).get("option");
-        if (typeof picked === "string") onCommit?.(picked);
-      }}
-    >
-      <div className="ev-library-card-head">
-        <span className="ev-library-meta">{session.title}</span>
-        <Button kind="text" onClick={onEnd}>
-          End
-        </Button>
-      </div>
-      <div className="ev-library-q">
-        <p className="ev-library-question">{session.question}</p>
-        <span className="ev-library-meta">
-          {session.position} of {session.total}
-        </span>
-      </div>
-      {session.options.map((o) => (
-        <Choice kind="radio" key={o} name="option" value={o}>
-          {o}
-        </Choice>
-      ))}
-      {hinted && session.hint ? <EvLine quiet>{session.hint}</EvLine> : null}
-      <div className="ev-library-card-foot">
-        <span className="ev-library-meta">{session.source}</span>
-        {session.hint && !hinted ? (
-          <Button kind="text" onClick={() => setHinted(true)}>
-            Hint
-          </Button>
-        ) : null}
-        <Button kind="primary" type="submit">
-          Commit answer
-        </Button>
-      </div>
-    </form>
+    <PracticeCard
+      title={session.title}
+      question={session.question}
+      position={session.position}
+      total={session.total}
+      options={session.options}
+      source={session.source}
+      hint={session.hint}
+      onCommit={onCommit}
+      onEnd={onEnd}
+    />
   );
 }

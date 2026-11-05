@@ -60,6 +60,12 @@
   text-align: right;
 }
 
+.kit-row-bar {
+  display: inline-flex;
+  flex: none;
+  width: var(--sp-14);
+}
+
 .kit-row-act {
   display: inline-flex;
   visibility: hidden;
@@ -143,4 +149,8 @@
 .kit-cell:focus {
   background: var(--hover);
   box-shadow: inset 0 -1.5px 0 var(--quiet);
+}
+
+.kit-erow-one {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
