@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { useCollection } from "./useCollection.ts";
 
@@ -20,6 +20,7 @@ function fakeCopy(kept: Record<string, unknown> = {}) {
 }
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
   localStorage.clear();
 });
