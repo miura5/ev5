@@ -23,7 +23,7 @@ async function setup() {
       if (stmt.trim()) await DB.prepare(stmt.trim()).run();
   }
   await DB.prepare(
-    "INSERT INTO docs (c, id, data, at, v) VALUES ('sets', 's1', '{\"title\":\"Old\"}', 1, 1)",
+    "INSERT INTO docs (c, id, data, at, v) VALUES ('sets', 's1', '{\"schema\":3,\"writer\":\"page\",\"at\":\"2026-11-03T00:00:00Z\",\"source\":\"t\",\"kind\":\"review\",\"items\":[{\"id\":\"i1\",\"stem\":\"q\"}],\"title\":\"Old\"}', 1, 1)",
   ).run();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const call = (name: string, input: unknown) =>

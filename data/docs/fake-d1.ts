@@ -44,6 +44,8 @@ export function fakeD1(): FakeD1 {
           return [...db.docs.values()]
             .filter((r) => r.c === a)
             .sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
+        if (s.startsWith("SELECT c, id, at FROM deletions WHERE c = ?"))
+          return [...db.deletions.values()].filter((r) => r.c === a);
         if (s.startsWith("SELECT c, id, data, at, v FROM docs WHERE at > ?"))
           return [...db.docs.values()]
             .filter((r) => r.at > (a as number))

@@ -29,23 +29,27 @@ import {
 } from "./budget.ts";
 import { parseDeletion } from "../../domain/index.ts";
 import type { D1Like, D1Statement } from "./d1.ts";
+import {
+  type Row,
+  stored,
+  readRow,
+  deletedIds,
+  gateProblem,
+  titleProblem,
+} from "./gate.ts";
 
 /** How far back `changedSince` hands the next `since`, so a write stamped just before a read is read again. */
 const OVERLAP_MS = 5000;
 
-interface Row {
-  c: string;
-  id: string;
-  data: string;
-  at: number;
-  v: number;
-}
-
 export interface DocsOptions {
   /** The Worker clock, in ms. */
   clock: () => number;
-  /** The per-document write check (default: none; ./checked.ts adds ev4's Worker check and the domain parsers). */
+  /** An extra per-document write check, run after the gate's own (the gate cannot be switched off, §data.gate). */
   problem?: WriteProblem | null;
+  /** Reads include documents with a deletions row (default: hidden, §delete.soft). */
+  includeDeleted?: boolean;
+  /** Called for each stored row a read leaves out because it does not parse (default: logs). */
+  onBad?: (b: { collection: string; doc_id: string; reason: string }) => void;
   /** The platform ceiling for one document, in bytes (default: D1's 2 MB row). */
   ceiling?: number;
   /** Called for each write over 75% of the ceiling; there is no Activity write path yet, so it logs by default. */
@@ -67,29 +71,35 @@ export interface DocsRepo extends ProtocolAdapter {
   batch(writes: unknown): Promise<Warned<BatchResult>>;
   /** Soft delete: writes the deletions row (the latest delete time wins) and leaves the document. False if none. */
   markDeleted(c: string, id: string): Promise<boolean>;
+  /** Change a document's title; a kind with no title is refused with a reason and nothing is written. */
+  rename(
+    c: string,
+    id: string,
+    title: string,
+    ifVersion: number,
+  ): Promise<Warned<SaveResult>>;
 }
 
 const SELECT = "SELECT c, id, data, at, v FROM docs";
-const stored = (r: Row): StoredDoc => ({
-  c: r.c,
-  id: r.id,
-  text: r.data,
-  data: JSON.parse(r.data) as Json,
-  at: r.at,
-  v: r.v,
-});
 
 export function docsRepo(
   db: D1Like,
   {
     clock,
     problem: inner = null,
+    includeDeleted = false,
+    onBad = (b) =>
+      console.warn(
+        `bad row left out: ${b.collection}/${b.doc_id}: ${b.reason}`,
+      ),
     ceiling = DOC_CEILING,
     onWarn = (w) => console.warn(`doc size: ${w.message}`),
   }: DocsOptions,
 ): DocsRepo {
   const problem: WriteProblem = (c, id, doc, prev) =>
-    sizeRefusal(doc, ceiling) ?? (inner ? inner(c, id, doc, prev) : null);
+    sizeRefusal(doc, ceiling) ??
+    gateProblem(c, id, doc, prev) ??
+    (inner ? inner(c, id, doc, prev) : null);
   const warnings = (rows: { c: string; id: string; data: Json }[]) => {
     const out = rows.flatMap(
       (r) => sizeWarning(r.c, r.id, r.data, ceiling) ?? [],
@@ -97,6 +107,9 @@ export function docsRepo(
     out.forEach(onWarn);
     return out.length ? { warnings: out } : {};
   };
+  const readable = (r: Row) => readRow(r, onBad);
+  const deletedIn = (c: string) =>
+    includeDeleted ? Promise.resolve(new Set<string>()) : deletedIds(db, c);
   const one = (c: string, id: string) =>
     db.prepare(`${SELECT} WHERE c = ? AND id = ?`).bind(c, id).first<Row>();
 
@@ -140,7 +153,8 @@ export function docsRepo(
   return {
     async get(c, id) {
       const r = await one(c, id);
-      return r ? stored(r) : null;
+      if (!r || (await deletedIn(c)).has(id)) return null;
+      return readable(r);
     },
 
     async list(c) {
@@ -148,7 +162,10 @@ export function docsRepo(
         .prepare(`${SELECT} WHERE c = ? ORDER BY id`)
         .bind(c)
         .all<Row>();
-      return results.map(stored);
+      const gone = await deletedIn(c);
+      return results.flatMap((r) =>
+        gone.has(r.id) ? [] : (readable(r) ?? []),
+      );
     },
 
     async changedSince(since) {
@@ -239,6 +256,26 @@ export function docsRepo(
         })),
         ...warnings(first.rows),
       };
+    },
+
+    async rename(c, id, title, ifVersion) {
+      const why = titleProblem(c, id);
+      if (why)
+        return {
+          ok: false,
+          status: 400,
+          error: why + "; nothing was written",
+          collection: c,
+          doc_id: id,
+        };
+      const cur = await one(c, id);
+      if (!cur) return staleRefusal(c, id, ifVersion, null);
+      return this.save(
+        c,
+        id,
+        JSON.stringify({ ...(JSON.parse(cur.data) as object), title }),
+        ifVersion,
+      );
     },
 
     async markDeleted(c, id) {

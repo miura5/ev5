@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { registerProtocolSuite } from "../compat/index.ts";
 import { checkedDocsRepo } from "./checked.ts";
+import { docsRepo } from "./repo.ts";
 import { parsingProblem, type ParserRegistry } from "./registry.ts";
 import { fakeD1 } from "./fake-d1.ts";
 
@@ -38,7 +39,10 @@ const spot = {
 };
 
 test("collections in the parser registry are parsed before a write", async () => {
-  const repo = checkedDocsRepo(fakeD1(), { clock: () => 1_800_000_000_000, parsers });
+  const repo = checkedDocsRepo(fakeD1(), {
+    clock: () => 1_800_000_000_000,
+    parsers,
+  });
   assert.ok((await repo.save("exams", "e1", JSON.stringify(exam), null)).ok);
   const bad = await repo.save(
     "exams",
@@ -98,7 +102,7 @@ test("a write landing between the read and the batch is a 409 and nothing is wri
 test("markDeleted writes a deletions row and leaves the document where it is", async () => {
   const db = fakeD1();
   let now = 1_800_000_000_000;
-  const repo = checkedDocsRepo(db, { clock: () => now });
+  const repo = checkedDocsRepo(db, { clock: () => now, includeDeleted: true });
   await repo.save("scratch", "gone", '{"n":1}', null);
   assert.equal(await repo.markDeleted("scratch", "nope"), false);
   assert.equal(await repo.markDeleted("scratch", "gone"), true);
@@ -110,4 +114,79 @@ test("markDeleted writes a deletions row and leaves the document where it is", a
   );
   assert.equal((await repo.get("scratch", "gone"))?.v, 1);
   assert.equal(db.docs.size, 1);
+});
+
+test("the gate: a bad row is refused on write; reads leave out a bad or deleted row; rename needs a title", async () => {
+  const db = fakeD1();
+  const bad: string[] = [];
+  const repo = docsRepo(db, {
+    clock: () => 1_800_000_000_000,
+    onBad: (b) => bad.push(b.doc_id),
+  });
+  assert.equal(
+    (
+      await repo.save(
+        "exams",
+        "e1",
+        JSON.stringify({ ...exam, score: 90 }),
+        null,
+      )
+    ).ok,
+    false,
+  );
+  assert.equal(
+    (
+      await repo.save(
+        "weakspots",
+        "w1",
+        JSON.stringify({ ...spot, title: "x" }),
+        null,
+      )
+    ).ok,
+    false,
+  );
+  assert.ok((await repo.save("exams", "e2", JSON.stringify(exam), null)).ok);
+  assert.ok((await repo.rename("exams", "e2", "Unit 4", 1)).ok);
+  assert.equal(
+    ((await repo.get("exams", "e2"))?.data as { title: string }).title,
+    "Unit 4",
+  );
+  const good = {
+    ...spot,
+    schema: 2,
+    topic: "t",
+    objective: "E4-3",
+    exam: "E4",
+    course: "NUR 112",
+    kind: "concept",
+    addedBy: "test",
+    initial: { streak: 0, nextDue: "2026-10-16", recurrence: 1, misses: 0 },
+    events: {},
+  };
+  assert.ok(
+    (await repo.save("weakspots", "w1", JSON.stringify(good), null)).ok,
+  );
+  const r = await repo.rename("weakspots", "w1", "x", 1);
+  assert.equal(!r.ok && r.status, 400);
+  assert.match(!r.ok ? r.error : "", /no title/);
+  // A row that got in some other way is reported and left out of get and list.
+  db.docs.set("exams\nbroken", {
+    c: "exams",
+    id: "broken",
+    data: '{"nope":1}',
+    at: 1,
+    v: 1,
+  });
+  assert.equal(await repo.get("exams", "broken"), null);
+  assert.deepEqual(
+    (await repo.list("exams")).map((d) => d.id),
+    ["e2"],
+  );
+  assert.deepEqual(bad, ["broken", "broken"]);
+  // A deleted row is hidden until asked for.
+  await repo.markDeleted("exams", "e2");
+  assert.equal(await repo.get("exams", "e2"), null);
+  assert.deepEqual(await repo.list("exams"), []);
+  const all = docsRepo(db, { clock: () => 1, includeDeleted: true });
+  assert.equal((await all.list("exams")).length, 1);
 });
