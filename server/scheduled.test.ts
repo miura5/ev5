@@ -196,6 +196,9 @@ test("a put that loses a race (key appears after the head check) is not an overw
       return IMAGES.put(k, v);
     },
   };
-  await assert.rejects(writeNightlyExport(racy, fakeExport, T0030), /not overwritten/);
+  await assert.rejects(
+    writeNightlyExport(racy, fakeExport, T0030),
+    /not overwritten/,
+  );
   assert.equal(IMAGES.objects.get(key), "other");
 });

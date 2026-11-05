@@ -83,7 +83,11 @@ test("no picture route can write or overwrite a key under exports/", async () =>
       return null;
     },
   };
-  const env = { IMAGES, TOKEN_APP: "app-t", TOKEN_SCHEDULE: "sch-t" } as unknown as Env;
+  const env = {
+    IMAGES,
+    TOKEN_APP: "app-t",
+    TOKEN_SCHEDULE: "sch-t",
+  } as unknown as Env;
   const body = new Uint8Array([1, 2, 3]);
   for (const name of [
     "..%2Fexports%2Fev-export-2026-11-05.json",
@@ -102,7 +106,10 @@ test("no picture route can write or overwrite a key under exports/", async () =>
     }
   }
   assert.equal(store.size, 0);
-  for (const path of ["/api/v1/exports/ev-export-2026-11-05.json", "/api/v1/note-images/exports/x.png"]) {
+  for (const path of [
+    "/api/v1/exports/ev-export-2026-11-05.json",
+    "/api/v1/note-images/exports/x.png",
+  ]) {
     const r = await app.request(
       path,
       { method: "PUT", headers: { authorization: "Bearer app-t" }, body },
