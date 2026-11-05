@@ -39,6 +39,10 @@ import { Story as RowStory } from "./components/Row/Row.story";
 import "./components/Suggestion/Suggestion.css";
 import "./components/TextOptions/TextOptions.css";
 import "./components/Menu/Menu.css";
+import "./patterns/Page/Page.css";
+import "./patterns/Section/Section.css";
+import "./patterns/Empty/Empty.css";
+import { Story as PageStory } from "./patterns/Page/Page.story";
 import { Story as SuggestionStory } from "./components/Suggestion/Suggestion.story";
 import { Story as TextOptionsStory } from "./components/TextOptions/TextOptions.story";
 import { Story as MenuStory } from "./components/Menu/Menu.story";
@@ -76,6 +80,7 @@ export const STORIES = [
   { name: "Workspace line", Story: WorkspaceLineStory },
   { name: "Sidebar search", Story: SidebarSearchStory },
   { name: "Theme button", Story: ThemeButtonStory },
+  { name: "Page", Story: PageStory },
 ] as const;
 
 export { Row } from "./components/Row/Row";
@@ -100,3 +105,9 @@ export { WorkspaceLine } from "./components/WorkspaceLine/WorkspaceLine";
 export { ThemeButton } from "./components/ThemeButton/ThemeButton";
 export { Toast } from "./components/Toast/Toast";
 export { Menu, type MenuItem } from "./components/Menu/Menu";
+/** @public Page patterns wait for the areas to take them up. */
+export { Page } from "./patterns/Page/Page";
+/** @public */
+export { Section } from "./patterns/Section/Section";
+/** @public */
+export { Empty } from "./patterns/Empty/Empty";
