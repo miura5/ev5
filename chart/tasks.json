@@ -16467,11 +16467,13 @@
   "title": "Toasts never go away: Changes sent and E.V. is drafting a plan stay at the bottom of Library until you leave the page",
   "dod": "A toast hides on its own after about 4 seconds, as in design/mockup.html (toast(): 4000 ms), in every area that shows one; the kit Toast or one shared helper owns the timer; story and test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 07, 13. Both stayed up for more than 50 seconds. kit/components/Toast/Toast.tsx has no timer, and Library sets planNote and never clears it.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:25:42.547Z"
  },
  {
   "id": "B-920",
@@ -16521,11 +16523,13 @@
   "title": "Progress says you have no answers yet while Library shows 100% first-try accuracy, and a session that says Saved to Progress shows nowhere in Progress",
   "dod": "Progress and Library's accuracy line read the same answers, so they agree; an ended study session that says Saved to Progress shows in Progress (or the end line names the place it went); test; seen on staging.",
   "milestone": "5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Screenshots 18 and 05. Library: First-try accuracy, last 14 days 100%. Progress: 'Your accuracy over time will show here once you have answered some practice questions.' Ending a session from the Playtest note said Saved to Progress.",
   "commit": null,
-  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)"
+  "source": "Visual playtest 5 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run5)",
+  "claimedBy": "run63",
+  "claimedAt": "2026-11-05T03:25:42.708Z"
  },
  {
   "id": "B-924",
