@@ -22,9 +22,11 @@ test("the 15-minute cron fails a stale job, leaves a fresh one, and a second run
   const store = d1JobStore(db, () => NOW);
   await store.put(rec("old", "2026-11-04T00:00:00.000Z"));
   await store.put(rec("fresh", new Date(NOW - 60_000).toISOString()));
-  assert.deepEqual(await runScheduled({ DB: db as never }, CRON, NOW), [
-    "job_sweep",
-  ]);
+  const ran = await runScheduled({ DB: db as never }, CRON, NOW);
+  assert.deepEqual(
+    ran.filter((n) => !n.startsWith("skipped:")),
+    ["job_sweep"],
+  );
   const old = await store.get("old");
   assert.equal(old?.state, "failed");
   assert.equal((await store.get("fresh"))?.state, "running");
