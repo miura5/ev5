@@ -16916,10 +16916,10 @@
   "title": "Only the app token can answer a waiting job (approve, put away, keep or drop)",
   "dod": "POST /api/v1/jobs/:id/continue answers 403 for the schedule and executor tokens and works for the app token; a server test proves both",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit finding 5a: schedule scope includes /api/v1/jobs/ (server/auth.ts) and /continue has no caller check (server/job-routes.ts), unlike /dismiss. Do first: put at the front of the build order.",
-  "commit": null,
+  "commit": "d1bbf12",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
@@ -16928,10 +16928,10 @@
   "title": "A failed model call releases its cost reservation, and a settled hold is closed",
   "dod": "When a job's model call throws on its last attempt, its ceiling hold is released (hourly, daily, monthly and per-job use go back to what was billed); settle marks the hold closed; the usage key is stored in the hold row; a test that throws on every attempt proves no hold stays open",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit finding 5b: holds are released only on a retry through an in-memory map (jobs/runtime/job-ceilings.ts); runStructured loses the first call's cost if the repair call throws (jobs/runtime/output.ts).",
-  "commit": null,
+  "commit": "363bcb3",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
@@ -16940,10 +16940,10 @@
   "title": "A stopped, swept or replaced job stops running, and a bad answer no longer destroys a waiting job",
   "dod": "Each Workflow step first checks the job record is still running and stops when it is not, so nothing lands under a failed job; /continue checks the answer before the move (400 on a bad answer, the job stays waiting); if the Workflow fails to start, the job goes back to waiting; tests prove all three",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Audit findings 5c and 5d: runJob never re-reads the record between steps (jobs/runtime/workflow.ts); continueJob moves to running before checking the answer and leaves running with no instance when start throws (jobs/runtime/executors.ts).",
-  "commit": null,
+  "commit": "57e0774",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
@@ -17485,10 +17485,10 @@
   "title": "Parallel sessions can't take the same task or decision id",
   "dod": "ops/record task add and decision add refuse unless ops/build-lock.sh shows this session holds the build lock; any other session uses a new ops/record inbox add, which writes chart/inbox/<session>.json with provisional ids P-1, P-2 (depends may name P- or B- ids); ops/record inbox file, run by the lock holder, gives each entry the next real id in order, rewrites P- depends, and deletes the inbox file in the same commit; lint fails a P- id outside chart/inbox and an inbox entry with a broken depends; tests cover two sessions' inboxes filed together",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Slice: write ops/record/, chart/; read ops/build-lock.sh. Today the next id is the highest on the session's own branch plus one, so outside PRs collide (three renumbers on 2026-11-05). ev4 fixed the same race with provisional ids that only the filer turns into real ones; v5 carried the Chart but not that rule. Each inbox file is new, so two sessions never edit the same lines. The AGENTS.md wording for this goes to Matt as a repo instruction change; the tool works without it.",
-  "commit": null,
+  "commit": "654022f",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -17509,10 +17509,10 @@
   "title": "The handover holds only the current state, and a check keeps it short",
   "dod": "docs/handover.md has only AGENTS.md section 7's five parts (phase, running, waiting on Matt, next, staging and live); a check fails it over 4 KB or with a line over 600 characters; the per-run diary goes in each handover PR's description instead; every Lessons entry is either deleted because its cause is fixed or listed in the PR for the build manager to propose into AGENTS.md",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Slice: write docs/handover.md, ops/checks/; read AGENTS.md. Today the handover is 56 KB, its first line 16,100 characters, with a block per run from run 5 to 76. The rules check skips docs/ today. Changing AGENTS.md is a repo instruction change that goes to Matt, so this task only lists the lessons.",
-  "commit": null,
+  "commit": "7c758ec",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -17537,7 +17537,7 @@
   "milestone": "v5 P6",
   "status": "open",
   "depends": [],
-  "notes": "",
+  "notes": "Run 82: first part merged (#512): row shapes for deletions, job_records, job_plans and the ceiling tables in domain/. Still open: exam/objective/weak spot/set/session/note/course and claude_*/system_docs row shapes; data/tables, jobs/runtime and ceilings import them; commands/ and jobs/ drop their own plan Zod shapes (needs a domain plan row shape first); WireDoc lives in areas/library/types.ts (needs an areas task).",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -17840,10 +17840,10 @@
   "title": "A kit or shell change cannot leave the /kit screenshot check red",
   "dod": "The visual job is one of the jobs the required checks job waits for, so a PR that moves the /kit gallery cannot merge until its baselines match; the visual-baselines workflow run on a PR branch is followed by a CI run on its commit (a GITHUB_TOKEN push starts no CI); a PR that leaves the gallery alone is not slowed (§drift.checks, §ui.gallery)",
   "milestone": "Ops",
-  "status": "open",
+  "status": "done",
   "depends": [],
   "notes": "Main was red from #482 (B-949) to #494: B-949, B-966, B-968, B-963 and B-967 merged with visual red, because visual is not in checks' needs. Smallest fix: add visual to needs in .github/workflows/ci.yml and make the baselines workflow trigger CI after its commit. Builders have no Docker: they dispatch visual-baselines on their branch.",
-  "commit": null,
+  "commit": "a122aac",
   "source": "main red 15:35-17:10Z 2026-11-05 (PR #494)"
  },
  {
@@ -17852,10 +17852,36 @@
   "title": "Kit Page takes an editable title and a leading glyph, and the kit has a Move picker",
   "dod": "kit Page (or a kit EditableTitle) renames on blur, Enter commits, Escape reverts, can focus and select its title when just made, shows a placeholder, and takes an optional leading glyph (design/mockup.html line 350); a kit Move picker (or Menu items) lists collections by name with the current one ticked; kit Row gets an always-visible actions option so a row's button is reachable by keyboard and touch (Activity's Got it button on the monthly spend alert, moved into Row actions by B-975, is hover-only until then); stories and tests for each; both themes match design/mockup.html",
   "milestone": "Phase 6",
+  "status": "done",
+  "depends": [],
+  "notes": "Merged #509. Lesson: the baselines workflow's commit starts a pull_request CI run held at action_required, which blocks the PR; a human-token update-branch or push starts normal CI.",
+  "commit": "3d332d9",
+  "source": "B-973 builder report, run 80"
+ },
+ {
+  "id": "B-1021",
+  "kind": "task",
+  "title": "Baselines commit must not leave the PR blocked at action_required",
+  "dod": "After visual-baselines commits to a PR branch, the PR's required checks run to green with no human action (the dispatched CI run satisfies the required check, or the workflow pushes with a token that starts pull_request CI); proved on a real kit PR",
+  "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write kit/; no area edits. Found by B-973 (collection page, stopped with no PR), B-972 (Notes home merged as PR 503; the note page waits on this) and B-975. Also needed: Row level 2 (notes inside a sub-collection), and a Row option for the ⋯ menu button and Move picker (areas/notes RowActions and e2e/notes-offline.journey.spec.ts selects .ev-notes-line). B-972 stays open for the note page; B-973 depends on this. Filed by run 80 as B-1018 in PR 499; renumbered because B-1018/B-1019 were taken on main.",
+  "notes": "Seen on PR 509: baselines succeeded, a dispatched CI run passed, but the pull_request run on the same sha stayed action_required and the PR stayed blocked until main moved and update-branch started CI. Slice: write .github/.",
   "commit": null,
-  "source": "B-973 builder report, run 80"
+  "source": "run 82 B-1020/B-1019"
+ },
+ {
+  "id": "B-1022",
+  "kind": "task",
+  "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
+  "dod": "domain/ has row shapes for exam, objective, weak spot, set, session, note, course, claude_* and system_docs; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-997"
+  ],
+  "notes": "Split from B-997 (part one merged). Order: domain row shapes, then data/jobs/commands callers, then an areas task for WireDoc.",
+  "commit": null,
+  "source": "run 82 B-997 report"
  }
 ]
