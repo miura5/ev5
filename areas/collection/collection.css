@@ -25,6 +25,11 @@
   min-width: 0;
 }
 
+.ev-coll-head + .ev-coll-sec,
+.ev-coll-head + .ev-coll-empty {
+  margin-top: var(--sp-4);
+}
+
 .ev-coll-sec {
   display: flex;
   flex-direction: column;

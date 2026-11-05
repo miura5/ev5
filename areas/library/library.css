@@ -195,8 +195,9 @@
 }
 
 .ev-library-day {
-  width: calc(var(--sp-8) * 2);
+  width: calc(var(--sp-12) * 2);
   flex: none;
+  white-space: nowrap;
 }
 
 .ev-library-actions {
