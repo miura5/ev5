@@ -192,3 +192,55 @@ test("Today follows a plan job that changes while it is open", async () => {
   });
   await waitFor(() => expect(result.current.planWaiting).toBe(true));
 });
+
+test("Today sends every read at once, and a second visit opens on the saved answer before the server's (§ui.instant)", async () => {
+  localStorage.setItem("ev5.token", "t");
+  // The shell's read copy (shell/readCopy.ts), kept small here: areas never import the shell.
+  const kept = new Map<string, unknown>();
+  const copy = {
+    read: async <T,>(k: string, get: () => Promise<T>) => {
+      const v = await get();
+      kept.set(k, v);
+      return v;
+    },
+    saved: () => {
+      let missed = false;
+      return {
+        read: async <T,>(k: string) => {
+          if (!kept.has(k)) {
+            missed = true;
+            throw new TypeError(k);
+          }
+          return structuredClone(kept.get(k)) as T;
+        },
+        missed: () => missed,
+      };
+    },
+  };
+  const pending: ((r: Response) => void)[] = [];
+  const answer = (url: string) =>
+    url.includes("jobs")
+      ? json({ jobs: [] })
+      : url.includes("dayedits")
+        ? json({}, 404)
+        : json({ docs: [] });
+  // The server holds every answer until all six reads have gone out.
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(
+      (url: string) =>
+        new Promise<Response>((r) => pending.push(() => r(answer(url)))),
+    ),
+  );
+  const first = renderHook(() => useToday(copy));
+  await waitFor(() => expect(pending).toHaveLength(6));
+  pending.forEach((go) => go(new Response()));
+  await waitFor(() => expect(first.result.current.data).toBeTruthy());
+  const seen = first.result.current.data;
+  first.unmount();
+
+  // Second visit: the server never answers, yet the screen has its data.
+  vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => undefined)));
+  const second = renderHook(() => useToday(copy));
+  await waitFor(() => expect(second.result.current.data).toEqual(seen));
+});

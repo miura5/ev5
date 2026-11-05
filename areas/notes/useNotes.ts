@@ -21,6 +21,7 @@ export interface NotesServices {
   docs: {
     list(
       collection: string,
+      copy?: ReadCopyLike,
     ): Promise<{ id: string; v: number; at: number; data: unknown }[]>;
   };
   outbox: {
@@ -43,6 +44,8 @@ export type SaveState = "saved" | "saving" | "not saved";
 
 export interface NotesState {
   notes: LoadedNote[];
+  /** False while the list shown is the saved copy, before the server has answered: a note opens for editing only after. */
+  ready: boolean;
   error?: string;
   saveState: SaveState;
   collections: NoteCollection[];
@@ -54,6 +57,8 @@ export interface NotesState {
   saveBlocks: (id: string, blocks: Block[]) => Promise<void>;
   /** Saves a new first-heading text through the outbox: it works offline and replays when the connection returns. */
   saveTitle: (id: string, title: string) => Promise<void>;
+  /** Reads everything again (after a delete or an undo). */
+  reload: () => Promise<void>;
 }
 
 /** Who a note save names in `source`: starts with "v5", as ev4's record requires of v5's writes (validateWrite). */
@@ -74,6 +79,7 @@ export function withTitle(prev: Note, title: string, at: string): Note {
 /** Reads the notes collection, replays anything waiting first, and saves titles through the outbox. */
 export function useNotes(services?: NotesServices): NotesState {
   const [notes, setNotes] = useState<LoadedNote[]>([]);
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState<string>();
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [cols, setCols] = useState<CollectionsRead>({
@@ -81,35 +87,58 @@ export function useNotes(services?: NotesServices): NotesState {
     members: new Map(),
   });
 
-  const load = useCallback(async () => {
-    if (!services) return;
-    try {
-      await services.outbox.replay();
-      const rows = await services.docs.list("notes");
-      const gone = await readDeletedNoteIds(services.readCopy);
-      setNotes(
-        rows.flatMap((r) => {
-          if (gone.has(r.id)) return []; // in Recently deleted: out of Notes until restored
-          try {
-            return [{ id: r.id, v: r.v, note: parseNote(r.data) }];
-          } catch {
-            return []; // a document that is not a note stays out of the list
-          }
-        }),
-      );
-      setError(undefined);
-      const read = await readCollections(services.readCopy);
-      setCols({
-        ...read,
-        members: new Map([...read.members].filter(([id]) => !gone.has(id))),
-      });
-    } catch (e) {
-      setError(failureSentence(e)); // never the server's own words
-    }
-  }, [services]);
+  const load = useCallback(
+    async (warm = false) => {
+      if (!services) return;
+      // All four reads go out at once; the tolerant two never fail the list.
+      const read = async (c: ReadCopyLike | undefined) => {
+        const [rows, gone, cs] = await Promise.all([
+          services.docs.list("notes", c),
+          readDeletedNoteIds(c),
+          readCollections(c),
+        ]);
+        return { rows, gone, cs };
+      };
+      const show = ({ rows, gone, cs }: Awaited<ReturnType<typeof read>>) => {
+        setNotes(
+          rows.flatMap((r) => {
+            if (gone.has(r.id)) return []; // in Recently deleted: out of Notes until restored
+            try {
+              return [{ id: r.id, v: r.v, note: parseNote(r.data) }];
+            } catch {
+              return []; // a document that is not a note stays out of the list
+            }
+          }),
+        );
+        setError(undefined);
+        setCols({
+          ...cs,
+          members: new Map([...cs.members].filter(([id]) => !gone.has(id))),
+        });
+      };
+      // The list opens on the last answer kept (§ui.instant), before anything waiting is sent; then the server's.
+      const saved = warm ? services.readCopy?.saved?.() : undefined;
+      const early = saved
+        ? await read(saved).then(
+            (r) => (saved.missed() ? false : (show(r), true)),
+            () => false,
+          )
+        : false;
+      try {
+        await services.outbox.replay();
+        show(await read(services.readCopy));
+      } catch (e) {
+        // A refusal or server failure is never "offline" (§data.offline): the saved list does not stay up as current.
+        if (early) setNotes([]);
+        setError(failureSentence(e)); // never the server's own words
+      }
+      setReady(true);
+    },
+    [services],
+  );
 
   useEffect(() => {
-    void load();
+    void load(true);
   }, [load]);
 
   /** Shows the document now, queues it, and tries to send; the state says whether it got there. */
@@ -174,6 +203,7 @@ export function useNotes(services?: NotesServices): NotesState {
 
   return {
     notes,
+    ready,
     error,
     saveState,
     collections: cols.collections,
@@ -181,5 +211,6 @@ export function useNotes(services?: NotesServices): NotesState {
     createNote,
     saveBlocks,
     saveTitle,
+    reload: load,
   };
 }

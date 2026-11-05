@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AskJob } from "./types.ts";
-import { jobApi, readToken } from "../../commands/client.ts";
+import { jobApi, readToken, savedFirst } from "../../commands/client.ts";
 
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
@@ -75,11 +75,16 @@ export function useAskJobs(copy?: ReadCopyLike): AskJobRef[] {
     if (!token) return;
     let live = true;
     // Offline, the saved list still shows what is open (§data.offline); any other failure stays quiet.
-    (jobApi.list(token, copy) as Promise<WireJob[]>)
-      .then((list) => {
+    // It opens on the last list kept, then the server's (§ui.instant).
+    savedFirst(
+      copy,
+      true,
+      (c) => jobApi.list(token, c) as Promise<WireJob[]>,
+      (list) => {
         if (live) setJobs(distinctJobs(list).map(toAskJob));
-      })
-      .catch(() => {});
+      },
+      () => live && setJobs([]),
+    ).catch(() => {});
     return () => {
       live = false;
     };

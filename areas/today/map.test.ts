@@ -66,6 +66,9 @@ test("exams, weak spots and today's plan map to the view's props", () => {
     ["e5", "Nov 20", "info"],
   ]);
   expect(d.upcoming[0]!.readiness).toEqual({ ready: 0, shaky: 0, weak: 1 });
+  // e4 has one open weak spot and none reviewed; e5 has none yet: "none yet", not 0%.
+  expect(d.upcoming[0]!.meta).toMatch(/· 0% ready/);
+  expect(d.upcoming[1]!.meta).toMatch(/· readiness none yet/);
   expect(d.thisWeek.map((w) => w.id)).toEqual(["w-e4"]);
   expect(d.plan).toEqual([
     {
@@ -139,4 +142,27 @@ test("while the study plan job still runs after Approve, the exam is not shown a
     now,
   );
   expect(d.upcoming[0]?.plan).toBe("working");
+});
+
+test("a weekly review waiting for Matt is a Weekly review row in This week", () => {
+  const job = (state: string) => ({
+    kind: "weekly_review",
+    state,
+    summary: "5h 10m studied · 2 weak spots to confirm",
+  });
+  const waiting = mapToday(
+    { exams: [], weakspots: [], jobs: [job("needs-you")] },
+    now,
+  );
+  expect(waiting.thisWeek).toEqual([
+    {
+      id: "w-weekly-review",
+      title: "Weekly review",
+      meta: "5h 10m studied · 2 weak spots to confirm",
+      when: "Sun",
+    },
+  ]);
+  expect(
+    mapToday({ exams: [], weakspots: [], jobs: [job("done")] }, now).thisWeek,
+  ).toEqual([]);
 });

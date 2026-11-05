@@ -17,7 +17,7 @@ import type {
   TodayProps,
   UpcomingDate,
 } from "./types.ts";
-import { planOf, planSessions } from "./plans.ts";
+import { examSessions, planOf, planSessions } from "./plans.ts";
 import type { Session } from "./plans.ts";
 import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
 
@@ -153,10 +153,19 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
     return {
       id,
       title: exam.title,
-      meta: planLine
-        ? `${inDays(left)} · study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`
-        : inDays(left),
+      meta: [
+        inDays(left),
+        mine.length === 0
+          ? "readiness none yet"
+          : `${Math.round((100 * ready) / mine.length)}% ready`,
+        ...(planLine
+          ? [
+              `study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`,
+            ]
+          : []),
+      ].join(" · "),
       ...(planLine ? { plan: planLine } : {}),
+      sessions: examSessions(id, docs),
       when: whenLabel(exam.date as string, left, today),
       tone: toneFor(left),
       whenFull: weekdayDay(exam.date as string),
@@ -182,6 +191,18 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       meta: exam.kind,
       when: whenLabel(exam.date as string, left, today),
     }));
+  // The weekly review is a job that waits for Matt on Sunday; Today names it in This week while it does.
+  const review = (docs.jobs ?? []).find(
+    (j) =>
+      j.kind.replace(/_/g, "-") === "weekly-review" && j.state === "needs-you",
+  );
+  if (review)
+    thisWeek.push({
+      id: "w-weekly-review",
+      title: "Weekly review",
+      meta: review.summary,
+      when: "Sun",
+    });
   const weakest = [...open].sort((a, b) => b.d.misses - a.d.misses)[0];
   const next = exams[0];
   const cite = "from Weak spots";

@@ -195,7 +195,7 @@
 }
 
 .ev-library-day {
-  width: var(--sp-8);
+  width: calc(var(--sp-8) * 2);
   flex: none;
 }
 

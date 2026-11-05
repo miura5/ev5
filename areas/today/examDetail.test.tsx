@@ -29,7 +29,7 @@ const exam = {
   date: soon,
 };
 
-test("a Coming up exam row opens its Detail with the plan line; Esc closes it", async () => {
+test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", async () => {
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal(
     "fetch",

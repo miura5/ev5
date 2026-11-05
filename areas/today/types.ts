@@ -33,6 +33,8 @@ export interface UpcomingDate {
   course?: string;
   /** The study plan for this exam: waiting for his answer, or approved and in force. */
   plan?: "waiting" | "approved" | "working";
+  /** The plan's sessions by day (the waiting draft's, or the plan in force's). */
+  sessions?: readonly { date: string; title: string; minutes: number }[];
 }
 
 export interface ThisWeekItem {

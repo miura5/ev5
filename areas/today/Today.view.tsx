@@ -125,7 +125,7 @@ export function TodayView(p: TodayProps) {
         ) : null}
       </Section>
       <Section
-        title="Coming up"
+        title="Upcoming"
         action={
           <Button kind="text" onClick={() => setAdding("date")}>
             Add date
@@ -161,20 +161,21 @@ export function TodayView(p: TodayProps) {
           </div>
         ))}
       </Section>
-      {p.thisWeek.length > 0 ? (
-        <Section title="This week">
-          {p.thisWeek.map((w) => (
-            <Row
-              key={w.id}
-              title={w.title}
-              meta={w.meta}
-              value={w.when}
-              glyph={<Glyph type="job" />}
-              onOpen={() => p.onOpen(w.id)}
-            />
-          ))}
-        </Section>
-      ) : null}
+      <Section title="This week">
+        {p.thisWeek.length === 0 ? (
+          <span className="ev-today-meta">Nothing else this week.</span>
+        ) : null}
+        {p.thisWeek.map((w) => (
+          <Row
+            key={w.id}
+            title={w.title}
+            meta={w.meta}
+            value={w.when}
+            glyph={<Glyph type="job" />}
+            onOpen={() => p.onOpen(w.id)}
+          />
+        ))}
+      </Section>
     </div>
   );
 }

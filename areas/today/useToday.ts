@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
 import { mapToday, spendAlertLine, studyPlanWaiting } from "./map.ts";
 import { buildDayEdit } from "./dayedit.ts";
@@ -12,6 +12,7 @@ import {
   failureSentence,
   jobApi,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: areas never import the shell. */
@@ -35,6 +36,8 @@ export interface TodayState {
   addPlan: (title: string) => Promise<boolean>;
   /** Add a date (date.create); resolves false when it could not be saved. */
   addDate: (title: string, date: string) => Promise<boolean>;
+  /** Ask E.V. to draft a study plan for an exam (date.plan_with_ev); resolves false when it could not be sent. */
+  planWithEv: (id: string) => Promise<boolean>;
 }
 
 async function get(path: string, token: string): Promise<Response> {
@@ -64,60 +67,63 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   const [alert, setAlert] = useState<string>();
   const [planWaiting, setPlanWaiting] = useState(false);
   const [again, setAgain] = useState(0);
+  const warm = useRef(true);
   useEffect(() => {
     if (!token) return;
     let live = true;
     const now = Date.now();
-    void (async () => {
-      try {
-        // Offline, each read gives back its saved copy (§data.offline); the shell says so.
-        const saved = <T,>(key: string, get: () => Promise<T>) =>
-          copy ? copy.read(key, get) : get();
-        const today = centralDate(now);
-        const day = await saved(`today:dayedits:${today}`, () =>
-          dayEdit(today, token),
-        );
-        const [exams, weakspots] = await Promise.all([
-          saved("today:exams", () => list("exams", token)),
-          saved("today:weakspots", () => list("weakspots", token)),
-        ]);
-        // Which plan is in force is a nicety: when it cannot be read, none is approved.
-        const planedits = await saved("today:planedits", () =>
-          list("planedits", token),
-        ).catch((): WireDoc[] => []);
-        // The approved plan's sessions live in its document; unreadable, Today just lists none from it.
-        const plans = await saved("today:plans", () =>
-          list("plans", token),
-        ).catch((): WireDoc[] => []);
-        let jobs: WireJobLine[] = [];
-        try {
-          jobs = (await jobApi.list(token, copy)) as WireJobLine[];
-          if (live) {
-            setAlert(spendAlertLine(jobs));
-            setPlanWaiting(studyPlanWaiting(jobs));
-          }
-        } catch {
-          // the alert is extra: Today still loads without it
-        }
-        const dayedit = day ?? undefined;
-        if (live) {
-          setData(
-            mapToday(
-              { exams, weakspots, dayedit, jobs, planedits, plans },
-              now,
-            ),
-          );
-          setError(undefined);
-        }
-      } catch (e) {
-        // A refused token shows nothing here: the shell's token screen takes over.
-        if (live && failureKind(e) === "refused") setRefused(true);
-        if (live)
-          setError(
-            failureKind(e) === "refused" ? undefined : failureSentence(e),
-          );
+    // Every read goes out at once; offline, each gives back its saved copy (§data.offline) and the shell says so.
+    const load = async (c: ReadCopyLike | undefined) => {
+      const saved = <T,>(key: string, get: () => Promise<T>) =>
+        c ? c.read(key, get) : get();
+      const today = centralDate(now);
+      // Which plan is in force is a nicety: when it cannot be read, none is approved.
+      const planRead = saved("today:planedits", () =>
+        list("planedits", token),
+      ).catch((): WireDoc[] => []);
+      // The approved plan's sessions live in its document; unreadable, Today just lists none from it.
+      const plans = saved("today:plans", () => list("plans", token)).catch(
+        (): WireDoc[] => [],
+      );
+      // The jobs are extra: Today still loads without them.
+      const jobRead = jobApi.list(token, c).then(
+        (j) => j as WireJobLine[],
+        () => undefined,
+      );
+      const [day, exams, weakspots, planedits, docs, jobs] = await Promise.all([
+        saved(`today:dayedits:${today}`, () => dayEdit(today, token)),
+        saved("today:exams", () => list("exams", token)),
+        saved("today:weakspots", () => list("weakspots", token)),
+        planRead,
+        plans,
+        jobRead,
+      ]);
+      return { day, exams, weakspots, planedits, plans: docs, jobs };
+    };
+    const first = warm.current;
+    warm.current = false;
+    // The screen opens on the last answer kept, then the server's (§ui.instant).
+    savedFirst(copy, first, load, (r) => {
+      if (!live) return;
+      if (r.jobs) {
+        setAlert(spendAlertLine(r.jobs));
+        setPlanWaiting(studyPlanWaiting(r.jobs));
       }
-    })();
+      const { exams, weakspots, planedits, plans } = r;
+      const dayedit = r.day ?? undefined;
+      setData(
+        mapToday(
+          { exams, weakspots, dayedit, jobs: r.jobs ?? [], planedits, plans },
+          now,
+        ),
+      );
+      setError(undefined);
+    }, () => setData(undefined)).catch((e: unknown) => {
+      // A refused token shows nothing here: the shell's token screen takes over.
+      if (live && failureKind(e) === "refused") setRefused(true);
+      if (live)
+        setError(failureKind(e) === "refused" ? undefined : failureSentence(e));
+    });
     return () => {
       live = false;
     };
@@ -132,7 +138,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   }, [token]);
   // An add goes through the command (§cmd.registry), then Today reads itself again so the new line shows.
   const add = useCallback(
-    async (name: "plan.create" | "date.create", input: unknown) => {
+    async (
+      name: "plan.create" | "date.create" | "date.plan_with_ev",
+      input: unknown,
+    ) => {
       const r = await call(name, input, token);
       if (!r.ok || r.mode !== "direct") return false;
       setAgain((n) => n + 1);
@@ -146,6 +155,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   );
   const addDate = useCallback(
     (title: string, date: string) => add("date.create", { title, date }),
+    [add],
+  );
+  const planWithEv = useCallback(
+    (id: string) => add("date.plan_with_ev", { id }),
     [add],
   );
   const tick = useCallback(
@@ -195,5 +208,6 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     tick,
     addPlan,
     addDate,
+    planWithEv,
   };
 }

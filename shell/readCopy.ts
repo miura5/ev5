@@ -33,11 +33,21 @@ export interface ReadCopy {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
   /** True while the last read shown came from the saved copy. */
   usingCopy(): boolean;
+  /** A reader that answers from the saved copy only, never the server, so a screen can open on its last answer
+   * (§ui.instant). It rejects for a key it never kept, and `missed()` then says the answer is not whole. */
+  saved(): SavedReader;
   subscribe(fn: () => void): () => void;
+}
+
+export interface SavedReader {
+  read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+  missed(): boolean;
 }
 
 export function createReadCopy(store: CopyStore): ReadCopy {
   let copy = false;
+  // The last good answer of each key this tab has read: a screen opened again paints from it without waiting.
+  const mem = new Map<string, unknown>();
   const fns = new Set<() => void>();
   const mark = (v: boolean) => {
     if (copy === v) return;
@@ -49,6 +59,7 @@ export function createReadCopy(store: CopyStore): ReadCopy {
       try {
         const fresh = await fetcher();
         mark(false);
+        mem.set(key, structuredClone(fresh));
         await store.set(key, fresh).catch(() => undefined); // a full or blocked store must not fail the read
         return fresh;
       } catch (e) {
@@ -61,6 +72,22 @@ export function createReadCopy(store: CopyStore): ReadCopy {
       }
     },
     usingCopy: () => copy,
+    saved(): SavedReader {
+      let missed = false;
+      return {
+        async read<T>(key: string): Promise<T> {
+          const kept = mem.has(key)
+            ? mem.get(key)
+            : await store.get(key).catch(() => undefined);
+          if (kept === undefined) {
+            missed = true;
+            throw new TypeError(`no saved copy of ${key}`);
+          }
+          return structuredClone(kept) as T;
+        },
+        missed: () => missed,
+      };
+    },
     subscribe: (fn) => (fns.add(fn), () => void fns.delete(fn)),
   };
 }

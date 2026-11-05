@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mapCollection, mapPins } from "./map.ts";
 import type {
   CollectionData,
@@ -14,6 +14,7 @@ import {
   failureSentence,
   readJson,
   readToken,
+  savedFirst,
 } from "../../commands/client.ts";
 
 export interface CollectionState {
@@ -52,69 +53,71 @@ export function useCollection(
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
   const [tick, setTick] = useState(0);
+  const lastTick = useRef<number | undefined>(undefined);
   useEffect(() => {
     if (!token) return;
     let live = true;
-    void (async () => {
-      try {
-        const [c, m] = await Promise.all([
-          get<{ collections: WireCollection[] }>("collections", token, copy),
-          get<{ memberships: WireMembership[] }>("memberships", token, copy),
-        ]);
+    const load = async (c: ReadCopyLike | undefined) => {
+      const [col, m, p, del] = await Promise.all([
+        get<{ collections: WireCollection[] }>("collections", token, c),
+        get<{ memberships: WireMembership[] }>("memberships", token, c),
         // A pins read that fails leaves the list empty; the collection itself still shows.
-        const p = await get<{ pins: WirePin[] }>("pins", token, copy).catch(
-          () => ({ pins: [] as WirePin[] }),
-        );
+        get<{ pins: WirePin[] }>("pins", token, c).catch(() => ({
+          pins: [] as WirePin[],
+        })),
         // Items in Recently deleted stay out until restored; an unreadable list hides nothing.
-        const del = await get<{
-          deletions: { collection: string; id: string }[];
-        }>("deletions", token, copy).catch(() => ({ deletions: [] }));
-        const gone = new Set(
-          (Array.isArray(del.deletions) ? del.deletions : []).map(
-            (x) => `${x.collection}/${x.id}`,
-          ),
-        );
-        const alive = (x: { collection: string; id: string }) =>
-          !gone.has(`${x.collection}/${x.id}`);
-        m.memberships = m.memberships.filter(alive);
-        p.pins = p.pins.filter(alive);
-        const kinds = [
-          ...new Set([
-            ...m.memberships.map((x) => x.collection),
-            ...p.pins.map((x) => x.collection),
-          ]),
-        ];
-        const docs: DocsByCollection = {};
-        await Promise.all(
-          kinds.map(async (k) => {
-            try {
-              docs[k] = (
-                await get<{ docs: WireDoc[] }>(
-                  `docs?collection=${k}`,
-                  token,
-                  copy,
-                )
-              ).docs;
-            } catch {
-              // titles fall back to ids for a kind that will not load
-            }
-          }),
-        );
-        if (live) {
-          setData(mapCollection(c.collections, m.memberships, id, docs));
-          setPins(mapPins(p.pins, docs));
-          setLoaded(true);
-          setError(undefined);
-          setRefused(false);
-        }
-      } catch (e) {
-        if (!live) return;
-        setData(undefined);
-        setPins([]);
-        setRefused(failureKind(e) === "refused");
-        setError(failureSentence(e));
-      }
-    })();
+        get<{ deletions: { collection: string; id: string }[] }>(
+          "deletions",
+          token,
+          c,
+        ).catch(() => ({ deletions: [] })),
+      ]);
+      const gone = new Set(
+        (Array.isArray(del.deletions) ? del.deletions : []).map(
+          (x) => `${x.collection}/${x.id}`,
+        ),
+      );
+      const alive = (x: { collection: string; id: string }) =>
+        !gone.has(`${x.collection}/${x.id}`);
+      m.memberships = m.memberships.filter(alive);
+      p.pins = p.pins.filter(alive);
+      const kinds = [
+        ...new Set([
+          ...m.memberships.map((x) => x.collection),
+          ...p.pins.map((x) => x.collection),
+        ]),
+      ];
+      const docs: DocsByCollection = {};
+      await Promise.all(
+        kinds.map(async (k) => {
+          try {
+            docs[k] = (
+              await get<{ docs: WireDoc[] }>(`docs?collection=${k}`, token, c)
+            ).docs;
+          } catch {
+            // titles fall back to ids for a kind that will not load
+          }
+        }),
+      );
+      return { col, m, p, docs };
+    };
+    // Opening a collection paints the last answer kept, then the server's (§ui.instant); a reload after a change does not.
+    const warm = lastTick.current === undefined || lastTick.current === tick;
+    lastTick.current = tick;
+    savedFirst(copy, warm, load, ({ col, m, p, docs }) => {
+      if (!live) return;
+      setData(mapCollection(col.collections, m.memberships, id, docs));
+      setPins(mapPins(p.pins, docs));
+      setLoaded(true);
+      setError(undefined);
+      setRefused(false);
+    }).catch((e: unknown) => {
+      if (!live) return;
+      setData(undefined);
+      setPins([]);
+      setRefused(failureKind(e) === "refused");
+      setError(failureSentence(e));
+    });
     return () => {
       live = false;
     };

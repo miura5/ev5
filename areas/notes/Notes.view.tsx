@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Glyph, Row } from "../../kit/index.ts";
+import { RowActions, type RowAction } from "./parts/RowActions.tsx";
 import { CollectionTree } from "./parts/CollectionTree.tsx";
 import type { NoteCollection, NoteSummary } from "./types.ts";
 import "./notes.css";
@@ -17,6 +18,10 @@ export interface NotesViewProps {
   onOpenNote?: (id: string) => void;
   onNewNote?: (collectionId?: string) => void;
   onNewCollection?: () => void;
+  /** A row's menu pick on Recent and in the By-collection tree. */
+  onRowAction?: (id: string, action: RowAction) => void;
+  /** Move picked a collection for a note (item.move). */
+  onMove?: (id: string, collectionId: string) => void;
 }
 
 /** Notes home: the three most recent notes, then every collection as a folding row. */
@@ -28,6 +33,8 @@ export function NotesView({
   onOpenNote,
   onNewNote,
   onNewCollection,
+  onRowAction,
+  onMove,
 }: NotesViewProps) {
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set(initialOpen));
   const toggle = (id: string) =>
@@ -57,7 +64,14 @@ export function NotesView({
           </span>
         ) : null}
         {notes.slice(0, 3).map((n) => (
-          <div className="ev-notes-line" key={n.id}>
+          <RowActions
+            key={n.id}
+            title={n.title}
+            targets={collections}
+            current={n.collectionId}
+            onAction={onRowAction ? (a) => onRowAction(n.id, a) : undefined}
+            onMove={onMove ? (c) => onMove(n.id, c) : undefined}
+          >
             <Row
               glyph={<Glyph type="note" />}
               title={n.title}
@@ -65,7 +79,7 @@ export function NotesView({
               value={n.when}
               onOpen={() => onOpenNote?.(n.id)}
             />
-          </div>
+          </RowActions>
         ))}
       </section>
       <section className="ev-notes-sec" aria-label="By collection">
@@ -81,6 +95,8 @@ export function NotesView({
           onToggle={toggle}
           onOpenNote={onOpenNote}
           onNewNoteIn={(id) => onNewNote?.(id)}
+          onRowAction={onRowAction}
+          onMove={onMove}
         />
       </section>
     </section>

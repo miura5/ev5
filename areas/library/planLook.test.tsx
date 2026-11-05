@@ -31,5 +31,5 @@ test("a draft plan answers on one line: Approve, Ask for changes (secondary), Pu
   expect(screen.queryByLabelText("What should change?")).toBeNull();
   fireEvent.click(ask);
   expect(screen.getByLabelText("What should change?")).toBeTruthy();
-  expect(screen.getByText("Tue").className).toContain("ev-library-day");
+  expect(screen.getByText("Tue Nov 10").className).toContain("ev-library-day");
 });

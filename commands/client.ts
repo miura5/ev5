@@ -121,6 +121,41 @@ export async function call(name: CommandName, input: unknown, token: string): Pr
 /** The shell's saved-copy reader (shell/readCopy.ts), restated: the shell hands it to the areas (§data.offline). */
 export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
+  /** The saved copy alone: answers without the server, rejects for a key it never kept (shell/readCopy.ts). */
+  saved?(): ReadCopyLike & { missed(): boolean };
+}
+
+/** A screen opens on its last answer, then the server's (§ui.instant). With `warm`, `load` runs first on the saved
+ * copy: that answer shows only when every read it made was kept and the server has not answered yet, and its failures
+ * are silent. Then `load` runs on `copy` as before; its answer always shows, and its failure rejects. When the server
+ * refuses or fails after the saved answer showed, `unshow` takes it down: a refusal is never "offline" (§data.offline). */
+export async function savedFirst<T>(
+  copy: ReadCopyLike | undefined,
+  warm: boolean,
+  load: (c: ReadCopyLike | undefined) => Promise<T>,
+  show: (v: T) => void,
+  unshow?: () => void,
+): Promise<void> {
+  let settled = false;
+  let shown = false;
+  const saved = warm ? copy?.saved?.() : undefined;
+  if (saved)
+    void load(saved).then(
+      (v) => {
+        if (settled || saved.missed()) return;
+        shown = true;
+        show(v);
+      },
+      () => undefined,
+    );
+  try {
+    show(await load(copy));
+  } catch (e) {
+    if (shown) unshow?.();
+    throw e;
+  } finally {
+    settled = true;
+  }
 }
 
 /** A read the server refused (wrong token, server error): never "offline", so it is never kept as the saved copy. */

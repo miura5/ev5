@@ -1,14 +1,22 @@
+import { plainDay, weekdayShort } from "../../domain/index.ts";
 import { Button, Detail } from "../../kit/index.ts";
 import type { UpcomingDate } from "./types.ts";
 
 export interface ExamDetailProps {
   exam: UpcomingDate;
   onReviewPlan?: () => void;
+  /** "Plan with E.V.": asks E.V. to draft a study plan for this exam. */
+  onPlanWithEv?: () => void;
   onClose: () => void;
 }
 
 /** Detail for a Coming up exam: its date, course and readiness, and its study plan line, and the way to review it. */
-export function ExamDetail({ exam, onReviewPlan, onClose }: ExamDetailProps) {
+export function ExamDetail({
+  exam,
+  onReviewPlan,
+  onPlanWithEv,
+  onClose,
+}: ExamDetailProps) {
   const { ready, shaky, weak } = exam.readiness;
   const total = ready + shaky + weak;
   return (
@@ -39,6 +47,33 @@ export function ExamDetail({ exam, onReviewPlan, onClose }: ExamDetailProps) {
       >
         {onReviewPlan ? (
           <Button onClick={onReviewPlan}>Review the study plan</Button>
+        ) : null}
+        {exam.plan === "waiting" || exam.plan === "approved" ? (
+          <div className="ev-today-sessions" data-part="sessions">
+            <h3 className="ev-today-label">
+              {exam.plan === "approved"
+                ? "Sessions in your plan"
+                : "Proposed sessions"}
+            </h3>
+            {exam.sessions?.length ? (
+              exam.sessions.map((s, i) => (
+                <div key={`${s.date}-${i}`} className="ev-today-session">
+                  <span className="ev-today-day">
+                    {weekdayShort(s.date)} {plainDay(s.date, s.date)}
+                  </span>
+                  <span>{s.title}</span>
+                  <span>{s.minutes}m</span>
+                </div>
+              ))
+            ) : (
+              <span>The sessions are not shown here yet.</span>
+            )}
+          </div>
+        ) : null}
+        {!exam.plan && onPlanWithEv ? (
+          <Button kind="text" onClick={onPlanWithEv}>
+            Plan with E.V.
+          </Button>
         ) : null}
       </Detail>
     </div>
