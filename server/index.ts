@@ -8,7 +8,7 @@ import { commandRoutes } from "./command-routes.ts";
 import { askRoutes } from "./ask-chat.ts";
 import { imageRoutes } from "./image-routes.ts";
 import type { R2Like } from "./image-routes.ts";
-import { isEv4Route } from "./ev4-routes.ts";
+import { isEv4PageFile, isEv4Route, MOVED_TEXT } from "./ev4-routes.ts";
 import type { D1Like } from "../jobs/index.ts";
 
 export interface Env extends AuthEnv {
@@ -67,8 +67,15 @@ app.route("/api/v1", imageRoutes);
 
 app.all("/api/*", (c) =>
   isEv4Route(c.req.path)
-    ? c.json({ error: "gone" }, 410)
+    ? c.json({ error: "gone", message: MOVED_TEXT }, 410)
     : c.json({ error: "not found" }, 404),
+);
+
+// ev4's page files: a browser still running ev4's page gets a plain answer instead of the v5 app's HTML.
+app.all("*", (c, next) =>
+  isEv4PageFile(c.req.path)
+    ? c.text(MOVED_TEXT, 410, { "Cache-Control": "no-store" })
+    : next(),
 );
 
 // Everything else is the built app (wrangler `assets`).
