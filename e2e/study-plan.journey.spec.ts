@@ -90,7 +90,7 @@ test("Prep plan: plan with E.V., ask for a change, approve, it stays after a rel
 
   const openExam = async () => {
     await page.goto("/library");
-    await page.getByRole("tab", { name: /Dates/ }).click();
+    await page.getByRole("radio", { name: /Dates/ }).click();
     await page.getByRole("button", { name: new RegExp(TITLE) }).click();
     await expect(page.getByText("Plan", { exact: true }).first()).toBeVisible();
   };
