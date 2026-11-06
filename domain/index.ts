@@ -160,3 +160,17 @@ export {
 } from "./session/table.ts";
 /** @public */
 export { parseNoteTableRow, type NoteTableRow } from "./note/table.ts";
+/** @public Plan body (the job's output) and the new-table row shapes for plans, plan_items and repeats. */
+export { planBodySchema } from "./plan/body.ts";
+/** @public */
+export {
+  parsePlanTableRow,
+  parsePlanItemTableRow,
+  parseRepeatRow,
+} from "./plan/table.ts";
+/** @public */
+export { parsePinTableRow } from "./pin/table.ts";
+/** @public */
+export { parseSettingRow } from "./settings/index.ts";
+/** @public */
+export { parseFileRow } from "./file/index.ts";

@@ -6,7 +6,7 @@ import { defineJob, parseWith } from '../runtime/define.ts';
 import { outputSchema } from '../runtime/model-call.ts';
 import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
-import { addDays, examDaysLeft, type Exam } from '../../domain/index.ts';
+import { addDays, examDaysLeft, planBodySchema, type Exam } from '../../domain/index.ts';
 
 export const MODEL = 'sonnet';
 export const MAX_TOKENS = 8000;
@@ -23,22 +23,7 @@ const text = (what: string, max = 200) =>
     .refine((t) => t.trim().length > 0 && t.length <= max, `${what}: needs 1 to ${max} characters`);
 
 export const InputSchema = z.object({ examId: text('examId', 128) }, { error: 'study plan input: not an object' });
-const TaskSchema = z.object({
-  date: z.string().refine((d) => /^\d{4}-\d{2}-\d{2}$/.test(d), 'bad date'),
-  title: text('title'),
-  minutes: z
-    .number()
-    .int()
-    .refine((m) => m >= 10 && m <= 120, 'minutes must be a whole number from 10 to 120'),
-  weakSpotId: text('weakSpotId', 128).optional(),
-});
-export const PlanSchema = z.object(
-  {
-    summary: text('summary', 400),
-    tasks: z.array(TaskSchema, { error: 'tasks must be a list' }),
-  },
-  { error: 'plan: not an object' },
-);
+export const PlanSchema = planBodySchema;
 const DecisionSchema = z.object({
   decision: z.enum(['approve', 'put_away'], {
     error: 'decision must be approve or put_away',
@@ -53,7 +38,7 @@ export type Decision = {
   decision: 'approve' | 'put_away' | 'change';
   note?: string;
 };
-export type Task = z.infer<typeof TaskSchema>;
+export type Task = Plan['tasks'][number];
 export type Plan = z.infer<typeof PlanSchema>;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
