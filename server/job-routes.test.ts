@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { tablesRepo } from "../data/index.ts";
 import { d1JobStore } from "../jobs/index.ts";
 import { input, setup, T } from "./job-routes-setup.test.ts";
 import { putNoteRow } from "./sqlite-d1.test.ts";
@@ -120,6 +121,10 @@ test("a prep plan waits for Matt, and his answer continues it once", async () =>
     updatedAt: T.toISOString(),
     v: 1,
   });
+  // The draft and context the draft step saved; put-away files the plan under its goal.
+  const { jobPlans } = tablesRepo(db, { clock: () => T.getTime() });
+  await jobPlans.put("sp1", "context", { goal: { id: "g1", title: "Exam" } });
+  await jobPlans.put("sp1", "draft", { summary: "s", tasks: [] });
   const active = await req("GET", "/api/v1/jobs", "fake-schedule");
   assert.equal(((await active.json()) as { jobs: unknown[] }).jobs.length, 1);
   const ans = { answer: { decision: "put_away" } };

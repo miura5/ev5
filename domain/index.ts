@@ -214,6 +214,7 @@ export {
   parsePlanTableRow,
   parsePlanItemTableRow,
   parseRepeatRow,
+  planTableWrite,
 } from "./plan/table.ts";
 /** @public */
 export { parsePinTableRow } from "./pin/table.ts";

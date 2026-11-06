@@ -152,6 +152,96 @@ test("d1 job store: create, compare-and-set, list", async () => {
   );
 });
 
+const ctx = (goalId: string) => ({
+  goal: {
+    id: goalId,
+    title: "Exam 1",
+    kind: "exam" as const,
+    date: "2026-11-20",
+  },
+  today: "2026-11-06",
+  days: ["2026-11-06"],
+  weakSpots: [],
+});
+const tasks = [
+  { date: "2026-11-08", title: "Review A", minutes: 30, weakSpotId: "ws1" },
+  { date: "2026-11-07", title: "Review B", minutes: 20 },
+];
+
+test("d1 plan store: approve writes the plan and its items to the tables, once, and a newer plan replaces it", async () => {
+  const db = sqliteD1();
+  const s = d1PlanStore(db, () => 1000, {
+    load: async () => undefined,
+    apply: async (j) => `plan-${j}`,
+  });
+  const plan = { summary: "s", tasks };
+  await s.putContext("j1", ctx("g1"));
+  await s.approve("j1", plan);
+  await s.approve("j1", plan); // a retried step writes nothing again
+  const q = async (sql: string) =>
+    JSON.parse(JSON.stringify((await db.prepare(sql).all()).results));
+  assert.deepEqual(
+    await q("SELECT id, goal_id, state, from_day, to_day FROM plans"),
+    [
+      {
+        id: "plan_j1",
+        goal_id: "g1",
+        state: "in_force",
+        from_day: "2026-11-07",
+        to_day: "2026-11-08",
+      },
+    ],
+  );
+  assert.deepEqual(
+    await q(
+      "SELECT id, plan_id, day, origin, linked_kind, linked_id FROM plan_items ORDER BY pos",
+    ),
+    [
+      {
+        id: "pli_j1-1",
+        plan_id: "plan_j1",
+        day: "2026-11-08",
+        origin: "plan",
+        linked_kind: "weak_spot",
+        linked_id: "ws1",
+      },
+      {
+        id: "pli_j1-2",
+        plan_id: "plan_j1",
+        day: "2026-11-07",
+        origin: "plan",
+        linked_kind: null,
+        linked_id: null,
+      },
+    ],
+  );
+  await s.putContext("j2", ctx("g1"));
+  await s.approve("j2", plan);
+  assert.deepEqual(await q("SELECT id, state FROM plans ORDER BY id"), [
+    { id: "plan_j1", state: "put_away" },
+    { id: "plan_j2", state: "in_force" },
+  ]);
+});
+
+test("d1 plan store: put-away writes a put-away plan with no items; the opposite decision is refused", async () => {
+  const db = sqliteD1();
+  const s = d1PlanStore(db, () => 1000, {
+    load: async () => undefined,
+    apply: async (j) => `plan-${j}`,
+  });
+  const plan = { summary: "s", tasks };
+  await s.putContext("j", ctx("g1"));
+  await s.putDraft("j", plan);
+  await s.putAway("j");
+  await s.putAway("j");
+  const n = async (t: string) =>
+    (await db.prepare(`SELECT count(*) AS n FROM ${t}`).first<{ n: number }>())
+      ?.n;
+  assert.equal(await n("plans"), 1);
+  assert.equal(await n("plan_items"), 0);
+  await assert.rejects(s.approve("j", plan), /already put away/);
+});
+
 test("d1 plan store keeps content by job id and marks the decision", async () => {
   const applied: string[] = [];
   const s = d1PlanStore(sqliteD1(), () => 1, {
@@ -166,8 +256,12 @@ test("d1 plan store keeps content by job id and marks the decision", async () =>
   await s.putFailure("j", "nope");
   assert.equal(await s.getFailure("j"), "nope");
   await assert.rejects(s.getContext("j"), /no context/);
+  await s.putContext("j", ctx("g1"));
   assert.equal(await s.approve("j", plan), "plan-j");
-  assert.equal(await s.putAway("j"), "j:status");
+  await assert.rejects(s.putAway("j"), /already approved/);
+  await s.putContext("k", ctx("g2"));
+  await s.putDraft("k", plan);
+  assert.equal(await s.putAway("k"), "k:status");
   assert.deepEqual(applied, ["j"]);
 });
 
