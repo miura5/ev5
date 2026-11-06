@@ -1,8 +1,7 @@
 // What the Matt-command handler files share: event keys in ev4's form, a save pinned to the version read (a stale write is
-// a 409, §data.protocol), and an append to today's talk document. Nothing here removes
+// a 409, §data.protocol), and an append of a talk row. Nothing here removes
 // anything (§delete.soft).
-import { centralDate } from "../domain/index.ts";
-import { docsRepo } from "../data/index.ts";
+import { docsRepo, tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { HandlerCtx } from "./handlers-core.ts";
 
@@ -42,29 +41,30 @@ export async function put(
   return r.version;
 }
 
-/** Appends Matt's line to today's talk document (ev4 talk schema 4). */
+/** Appends the user's line as one talk row (§data.append-only); a session check-in names its session, an Ask line its chat. */
 export async function talkLine(
   x: HandlerCtx,
-  line: Doc,
-  source: string,
+  line: { text: string; chatId?: string; sessionId?: string; replyTo?: string },
 ): Promise<string> {
-  const now = x.clock();
-  const date = centralDate(now);
-  const docs = docsRepo(x.db, { clock: x.clock });
-  const cur = await docs.get("talk", date);
-  const base: Doc = cur
-    ? { ...(cur.data as Doc) }
-    : { schema: 4, writer: "page", at: iso(now), source, date, messages: {} };
-  // talk keys end in letters only: the digits of the random part become g..p
-  const tail = rand(x).replace(
-    /[0-9]/g,
-    (d) => "ghijklmnop"[Number(d)] as string,
-  );
-  const key = eventKey(now, `page${tail}`, "m");
-  base.messages = {
-    ...base.messages,
-    [key]: { role: "matt", at: iso(now), ...line },
-  };
-  await put(x, "talk", date, base, cur ? cur.v : null);
-  return key;
+  const book = tablesRepo(x.db, { clock: x.clock }).talkBook;
+  const id = `talk_${x.newId()}`;
+  const chatId = line.sessionId
+    ? line.sessionId
+    : (line.chatId ??
+      (await book.line(line.replyTo ?? ""))?.chat_id ??
+      (await book.latestAskChat()) ??
+      `chat_${x.newId()}`);
+  await book.say({
+    id,
+    chat_id: chatId,
+    scope: line.sessionId ? "session" : "ask",
+    session_id: line.sessionId ?? null,
+    context_kind: null,
+    context_id: null,
+    role: "user",
+    text: line.text,
+    cites: null,
+    job_id: null,
+  });
+  return id;
 }

@@ -166,10 +166,15 @@ test("a repeat is saved and materializes into dayedits.added under rep-<id>-<dat
   assert.equal(fri?.added[`rep-${id}-2026-11-06`].text, "Flashcards");
   assert.equal(fri?.added[`rep-${id}-2026-11-06`].minutes, 15);
   assert.equal(await doc("dayedits", "2026-11-07"), null); // a Saturday
-  assert.ok((await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`]);
+  assert.ok(
+    (await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`],
+  );
   // an update re-runs it: nothing doubles, and the user's edit to an occurrence stays
   const before = (await doc("dayedits", "2026-11-06"))?.v;
-  assert.equal((await call("plan.update", { id, estimateMinutes: 20 })).status, 200);
+  assert.equal(
+    (await call("plan.update", { id, estimateMinutes: 20 })).status,
+    200,
+  );
   assert.equal(
     Object.keys((await doc("dayedits", "2026-11-06"))?.added).length,
     1,
@@ -219,14 +224,19 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
     )?.collection_id,
     "col_c1",
   );
-  assert.equal((await doc("dayedits", "2026-11-05"))?.added[id].course, undefined);
+  assert.equal(
+    (await doc("dayedits", "2026-11-05"))?.added[id].course,
+    undefined,
+  );
   // "none" takes it out
   assert.equal(
     (await call("plan.update", { id, collection: "none" })).status,
     200,
   );
   assert.equal(
-    await DB.prepare("SELECT * FROM memberships WHERE item_id = ?").bind(id).first(),
+    await DB.prepare("SELECT * FROM memberships WHERE item_id = ?")
+      .bind(id)
+      .first(),
     null,
   );
   for (const bad of [
@@ -236,7 +246,8 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
     { repeat: "weekly:9" },
   ])
     assert.equal(
-      (await call("plan.create", { title: "Bad", date: "2026-11-08", ...bad })).status,
+      (await call("plan.create", { title: "Bad", date: "2026-11-08", ...bad }))
+        .status,
       400,
       JSON.stringify(bad),
     );
@@ -245,10 +256,17 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
 
 test("a repeat is a Suggestion until the user accepts it", async () => {
   const { call, doc } = await setup();
-  const s = await call("plan.create", { title: "R", date: "2026-11-05", repeat: "daily" }, "ev");
+  const s = await call(
+    "plan.create",
+    { title: "R", date: "2026-11-05", repeat: "daily" },
+    "ev",
+  );
   assert.equal(s.status, 202);
   assert.equal(await doc("dayedits", "2026-11-06"), null);
-  assert.equal((await call("proposal.accept", { id: s.body.suggestion.id })).status, 200);
+  assert.equal(
+    (await call("proposal.accept", { id: s.body.suggestion.id })).status,
+    200,
+  );
   assert.ok(await doc("dayedits", "2026-11-06"));
 });
 
