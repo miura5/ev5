@@ -148,9 +148,15 @@ export const dateHandlers: Record<string, CommandHandler> = {
     x,
   ) => {
     const date = i.date === undefined ? undefined : checkDate(i.date);
-    if (i.id.startsWith("goal_")) {
-      const goals = tablesRepo(x.db, { clock: x.clock }).goals;
-      const cur = await goals.get(i.id);
+    const goals = tablesRepo(x.db, { clock: x.clock }).goals;
+    // An older date copied by the backfill is the goal `goal_<id>`; from then on the goal is the one that changes.
+    const asGoal = i.id.startsWith("goal_")
+      ? i.id
+      : (await goals.get(`goal_${i.id}`))
+        ? `goal_${i.id}`
+        : undefined;
+    if (asGoal) {
+      const cur = await goals.get(asGoal);
       if (!cur) throw new CommandError(404, `no date ${i.id}`);
       const { at: _at, v, deleted_at: _d, ...fields } = cur;
       const r = await goals.save(
