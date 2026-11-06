@@ -57,7 +57,7 @@ export async function weakSpotDocs(
     t.weakSpots.list(),
     t.weakSpotEvents.list(),
     t.objectives.list(),
-    t.collections.list(),
+    t.collectionRows.list(),
     docsRepo(db, { clock }).list("exams"),
   ]);
   const examOf = examsByCourse(exams);
@@ -116,7 +116,7 @@ export async function createWeakSpot(
     const doc = parseWeakSpot(JSON.parse(body));
     const course = doc.course?.toLowerCase();
     const home = course
-      ? (await t.collections.list()).find(
+      ? (await t.collectionRows.list()).find(
           (c) =>
             c.id.toLowerCase() === course || c.title.toLowerCase() === course,
         )

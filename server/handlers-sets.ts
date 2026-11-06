@@ -5,7 +5,6 @@ import { itemKey, setKey, upgradeItem } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { place } from "./handlers-notes.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
@@ -134,13 +133,12 @@ export const setHandlers: Record<string, CommandHandler> = {
         400,
         `${i.type} sets come later; a set is questions for now`,
       );
-    if (i.collection && !(await repo(x).collections.get(i.collection)))
+    if (i.collection && !(await repo(x).collectionRows.get(i.collection)))
       throw new CommandError(404, `no collection ${i.collection}`);
     const r = await repo(x).setBook.create(
       ownFields(setKey(x.newId()), i.title, i.collection ?? null, [null, null]),
     );
     if (!r.ok) throw refuse();
-    if (i.collection) await place(x, "sets", r.row.id, i.collection);
     return { set: asSet(r.row) };
   },
 
@@ -167,7 +165,7 @@ export const setHandlers: Record<string, CommandHandler> = {
         : i.source.split("/", 2);
     if (i.source !== undefined && (!sourceC || !sourceId))
       throw new CommandError(400, "a source is <collection>/<id>");
-    if (i.collection && !(await repo(x).collections.get(i.collection)))
+    if (i.collection && !(await repo(x).collectionRows.get(i.collection)))
       throw new CommandError(404, `no collection ${i.collection}`);
     const r = await repo(x).setBook.update(
       {
@@ -186,7 +184,6 @@ export const setHandlers: Record<string, CommandHandler> = {
       cur.v,
     );
     if (!r.ok) throw refuse();
-    if (i.collection) await place(x, "sets", cur.id, i.collection);
     return { set: asSet(r.row) };
   },
 

@@ -144,7 +144,7 @@ async function materializeRepeat(
 async function moveOf(x: HandlerCtx, target: string) {
   const goal = target.trim() === "none" || target.trim() === "" ? null : target.trim();
   const live = new Set(
-    (await tablesRepo(x.db, { clock: x.clock }).collections.list()).map((c) => c.id),
+    (await tablesRepo(x.db, { clock: x.clock }).collectionRows.list()).map((c) => c.id),
   );
   try {
     return moveWrite(goal, live);

@@ -11,6 +11,7 @@ import {
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
+import { colKey } from "./ids.ts";
 import { iso, need, put } from "./handlers-edit.ts";
 
 const SOURCE = "v5/notes";
@@ -31,7 +32,7 @@ function blocksOf(body: string): unknown {
 
 async function place(x: HandlerCtx, itemC: string, id: string, to: string) {
   const t = tablesRepo(x.db, { clock: x.clock });
-  if (!(await t.collections.get(to)))
+  if (!(await t.collectionRows.get(to)))
     throw new CommandError(404, `no collection ${to}`);
   const cur = await t.memberships.get(itemC, id);
   const r = await t.memberships.save(
@@ -50,7 +51,7 @@ export const noteHandlers: Record<string, CommandHandler> = {
     const id = newNoteId(at, x.newId().replace(/-/g, ""));
     if (
       i.collection &&
-      !(await tablesRepo(x.db, { clock: x.clock }).collections.get(
+      !(await tablesRepo(x.db, { clock: x.clock }).collectionRows.get(
         i.collection,
       ))
     )
@@ -100,7 +101,7 @@ export const newHereHandler = (
     x,
   ) => {
     const t = tablesRepo(x.db, { clock: x.clock });
-    const parent = await t.collections.get(i.collection);
+    const parent = await t.collectionRows.get(i.collection);
     if (!parent) throw new CommandError(404, `no collection ${i.collection}`);
     const run = (name: string, input: unknown) => {
       const h = all()[name];
@@ -120,15 +121,15 @@ export const newHereHandler = (
         date: centralDate(x.clock()),
       });
     // One level of nesting only (§data.membership): inside a sub-collection it goes beside it.
-    const pos = (await t.collections.list()).reduce(
+    const pos = (await t.collectionRows.list()).reduce(
       (m, c) => Math.max(m, c.pos + 1),
       0,
     );
-    const r = await t.collections.save(
+    const r = await t.collectionRows.save(
       {
-        id: x.newId(),
+        id: colKey(x.newId()),
         title: "New collection",
-        parentId: parent.parentId ?? parent.id,
+        parent_id: parent.parent_id ?? parent.id,
         pos,
       },
       null,
