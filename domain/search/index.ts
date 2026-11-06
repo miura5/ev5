@@ -15,7 +15,7 @@ type Doc = {
 };
 export type Index = { docs: Doc[]; df: Map<string, number>; avg: number };
 type SearchOptions = {
-  courses?: ReadonlySet<string>;
+  collections?: ReadonlySet<string>;
   kind?: string;
   id?: string;
   k?: number;
@@ -47,7 +47,7 @@ export function buildIndex(passages: Passage[]): Index {
   };
 }
 
-/** The best passages for a query. `courses` keeps only passages of those courses (a passage with no course stays). */
+/** The best passages for a query. `collections` keeps only passages of those collections (a passage in none stays). */
 export function search(index: Index, query: string, o: SearchOptions = {}): Hit[] {
   const seq = tokenize(query);
   const q = [...new Set(seq)];
@@ -61,7 +61,7 @@ export function search(index: Index, query: string, o: SearchOptions = {}): Hit[
   const scored: { s: number; d: Doc }[] = [];
   for (const d of index.docs) {
     const p = d.p;
-    if (o.courses && p.course && !o.courses.has(p.course)) continue;
+    if (o.collections && p.collection_id && !o.collections.has(p.collection_id)) continue;
     if ((o.kind && p.kind !== o.kind) || (o.id && p.id !== o.id)) continue;
     let s = 0;
     let hit = 0;

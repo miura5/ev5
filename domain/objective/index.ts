@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Objective document (schema 1).
-// Objectives are seeded from a course's own stated objectives, never invented. The document id is not part of the data.
+// Seeded from the material the user names, never invented (§ev.objectives). The document id is not part of the data.
 export const objectiveSchema = z.strictObject({
   schema: z.literal(1),
   writer: z.enum(['worker', 'page']),
