@@ -1,4 +1,4 @@
-// What finished today (Central), for Activity's "Done today": finished jobs and ended study sessions, in the shape of a
+// What finished today (Central), for Activity's "Done today": finished jobs and ended sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { tablesRepo } from "../data/index.ts";
 import { centralDate, sessionDocId } from "../domain/index.ts";
@@ -18,28 +18,28 @@ export interface DoneEntry {
   reason?: string;
   costCents: number;
   link: { home: string; id: string };
-  /** A study plan's exam title, so Activity can word it "Study plan · <exam>". */
-  examTitle?: string;
+  /** A prep plan's date title, so Activity can word it "Prep plan · <date>". */
+  goalTitle?: string;
   finished: true;
 }
 
-/** The exam title of each finished study plan, by job id; a plan whose exam or title is gone has none. */
-async function examTitles(
+/** The date title of each finished prep plan, by job id; a plan whose date or title is gone has none. */
+async function goalTitles(
   db: D1Like,
   planIds: string[],
 ): Promise<Map<string, string>> {
   const titles = new Map<string, string>();
   const examOf = await examsOfPlans(db, planIds);
   const byExam = new Map<string, string | undefined>();
-  for (const [job, examId] of examOf) {
-    if (!byExam.has(examId)) {
-      const d = await examDoc(db as never, () => Date.now(), examId).catch(
+  for (const [job, goalId] of examOf) {
+    if (!byExam.has(goalId)) {
+      const d = await examDoc(db as never, () => Date.now(), goalId).catch(
         () => undefined,
       );
       const t = (d?.data as { title?: unknown } | undefined)?.title;
-      byExam.set(examId, typeof t === "string" && t ? t : undefined);
+      byExam.set(goalId, typeof t === "string" && t ? t : undefined);
     }
-    const t = byExam.get(examId);
+    const t = byExam.get(goalId);
     if (t) titles.set(job, t);
   }
   return titles;
@@ -58,19 +58,19 @@ export async function finishedJobsToday(
     (r) =>
       isTerminal(r.state) && centralDate(Date.parse(r.updatedAt)) === today,
   );
-  const titles = await examTitles(
+  const titles = await goalTitles(
     db,
-    todays.filter((r) => r.kind === "study_plan").map((r) => r.id),
+    todays.filter((r) => r.kind === "prep_plan").map((r) => r.id),
   );
   for (const r of todays) {
     const w = defs.get(r.kind)?.wording;
     const failed = r.state === "failed";
-    // A study plan put away ends done with its status row as the output (jobs/runtime/d1-stores.ts), not a plan.
-    const putAway = r.kind === "study_plan" && r.output?.id.endsWith(":status");
+    // A prep plan put away ends done with its status row as the output (jobs/runtime/d1-stores.ts), not a plan.
+    const putAway = r.kind === "prep_plan" && r.output?.id.endsWith(":status");
     const lead = failed
       ? (w?.failed ?? `${r.title} did not finish.`)
       : putAway
-        ? "Your study plan was put away."
+        ? "Your prep plan was put away."
         : (w?.done ?? `${r.title} is done.`);
     out.push({
       id: r.id,
@@ -84,7 +84,7 @@ export async function finishedJobsToday(
         !failed && !putAway && r.output
           ? r.output
           : { home: "activity", id: r.id },
-      ...(titles.has(r.id) ? { examTitle: titles.get(r.id) } : {}),
+      ...(titles.has(r.id) ? { goalTitle: titles.get(r.id) } : {}),
       finished: true,
       at: r.updatedAt,
     });
@@ -94,7 +94,7 @@ export async function finishedJobsToday(
     .map(({ at: _, ...e }) => e);
 }
 
-/** Study sessions that ended today (Central): a `sessions` row with its `ended_at`. */
+/** Sessions that ended today (Central): a `sessions` row with its `ended_at`. */
 export async function endedSessionsToday(
   db: D1Like,
   now: number,
@@ -112,7 +112,7 @@ export async function endedSessionsToday(
     const lead =
       m > 0
         ? `Studied ${m} ${m === 1 ? "minute" : "minutes"}.`
-        : "Study session ended.";
+        : "Session ended.";
     out.push({
       id,
       kind: "study-session",

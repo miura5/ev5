@@ -1,7 +1,7 @@
-// Where the study plan reads its exam and weak spots and where an approved plan lands (ev4 docs collections).
-// load: `exams/<id>` plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
+// Where the prep plan reads its date and weak spots and where an approved plan lands (ev4 docs collections).
+// load: the date (`exams/<id>` or its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
 // the active ones worst first (the order is code, CONTRACT §cmd.code-first). apply: the plan becomes `plans/plan-<job>`
-// (what Today reads), the exam's `planId` points at it and `planedits/<exam>` puts it in force (as studyplan.approve does). Both writes are safe to repeat when a step retries.
+// (what Today reads), an older exam document's `planId` points at it and `planedits/<date>` puts it in force (as plan.approve does). Both writes are safe to repeat when a step retries.
 import {
   centralDate,
   deriveWeakSpot,
@@ -74,8 +74,8 @@ export function planHome(
   clock: () => number,
 ): JobRunEnv["planHome"] {
   return {
-    async load(examId) {
-      const row = await examDoc(db as DocsD1, clock, examId);
+    async load(goalId) {
+      const row = await examDoc(db as DocsD1, clock, goalId);
       if (!row) return undefined;
       const exam = parseExam(row.data);
       const today = centralDate(clock());
@@ -83,7 +83,7 @@ export function planHome(
       const attempts = await attemptsBySpot(db);
       const spots = (await weakSpotDocs(db as DocsD1, clock)).flatMap((r) => {
         const spot = r.data;
-        if (spot.exam !== examId) return [];
+        if (spot.exam !== goalId) return [];
         const model = {
           kind: spot.kind,
           derived: deriveWeakSpot(spot, attempts.get(r.id) ?? [], {
@@ -95,15 +95,15 @@ export function planHome(
           ? [{ id: r.id, title: spot.topic, need: reviewNeed(model) }]
           : [];
       });
-      return { exam: { ...exam, id: examId }, spots, today };
+      return { exam: { ...exam, id: goalId }, spots, today };
     },
 
     async apply(jobId, plan: Plan) {
       const ctx = await readJobPlan(db, jobId, "context");
       if (ctx === undefined)
         throw new Error(`job ${jobId}: no plan context saved`);
-      const { exam } = ctx as {
-        exam: { id: string; title: string };
+      const { goal } = ctx as {
+        goal: { id: string; title: string };
       };
       const planId = `plan-${jobId}`;
       const at = clock();
@@ -131,8 +131,8 @@ export function planHome(
         writer: "worker",
         at: new Date(at).toISOString(),
         source: `v5/job:${jobId}`,
-        exam: exam.id,
-        title: `${exam.title}: ${plan.summary}`.slice(0, 200),
+        exam: goal.id,
+        title: `${goal.title}: ${plan.summary}`.slice(0, 200),
         days,
       };
       // Both writes go through the docs protocol: canonical JSON and the version guard (§data.protocol).
@@ -147,31 +147,31 @@ export function planHome(
         if (!made.ok)
           throw new Error(`plan ${planId} was not saved: ${made.error}`);
       }
-      const row = await examDoc(db as DocsD1, clock, exam.id);
+      const row = await examDoc(db as DocsD1, clock, goal.id);
       if (!row)
         throw new Error(
-          `exam ${exam.id} is gone, so the plan has nowhere to attach.`,
+          `The date ${goal.title} is gone, so the plan has nowhere to attach.`,
         );
       const e = row.data as Record<string, unknown>;
       // A goal row has no planId: `planedits/<goal>` (below) is what puts its plan in force.
-      if (!exam.id.startsWith("goal_") && e.planId !== planId) {
+      if (!goal.id.startsWith("goal_") && e.planId !== planId) {
         // An exam is a Fact: its writer and source are write-once, so only planId and at change.
         const next = { ...e, planId, at: doc.at };
         const r = await docs.save(
           "exams",
-          exam.id,
+          goal.id,
           JSON.stringify(next),
           row.v,
         );
         if (!r.ok)
           throw new Error(
-            `exam ${exam.id} was not updated (it may have changed while the plan was saved; try again): ${r.error}`,
+            `The date ${goal.title} was not updated (it may have changed while the plan was saved; try again): ${r.error}`,
           );
       }
-      // Approving the job is the one tap: the plan is also put in force, as the studyplan.approve command does.
+      // Approving the job is the one tap: the plan is also put in force, as the plan.approve command does.
       await putPlanInForce(
         { db: db as never, clock },
-        exam.id,
+        goal.id,
         planId,
         `v5/job:${jobId}`,
       );

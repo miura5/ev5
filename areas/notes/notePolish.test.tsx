@@ -44,6 +44,6 @@ test("Make cards and Start session say what they do", () => {
     "Start a set from this note; E.V. drafts, you keep or drop",
   );
   expect(screen.getByRole("button", { name: "Start session" }).title).toBe(
-    "Start a study session",
+    "Start a session",
   );
 });

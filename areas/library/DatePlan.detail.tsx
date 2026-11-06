@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { plainDay, weekdayShort } from "../../domain/index.ts";
+import {
+  DATE_KINDS,
+  kindOffers,
+  plainDay,
+  weekdayShort,
+} from "../../domain/index.ts";
 import {
   Button,
   Empty,
   Row,
   Section,
+  Segmented,
   Suggestion,
   TextArea,
   type DetailProps,
@@ -19,8 +25,10 @@ export interface ExamPlanDetailProps {
   onEdit?: (proposalId: string) => void;
   onDismiss?: (proposalId: string) => void;
   onClose?: () => void;
-  /** "Plan with E.V.": asks E.V. to draft a study plan for this exam. */
+  /** "Plan with E.V.": asks E.V. to draft a prep plan for this date (only a kind that offers one shows it). */
   onPlanWithEv?: () => void;
+  /** The Kind picker: sets the date's kind (a key of the kind registry). */
+  onKind?: (kind: string) => void;
   /** The draft plan's three answers: approve it, ask for changes (with his note), or put it away. */
   onApprove?: (planId: string) => void;
   onAskChanges?: (planId: string, note: string) => void;
@@ -29,21 +37,33 @@ export interface ExamPlanDetailProps {
   startOpen?: boolean;
 }
 
-/** The shell Detail for an exam date: its properties, then the study plan's actions and E.V.'s session proposals. */
-export function examPlanDetail(p: ExamPlanDetailProps): DetailProps {
+/** The registry's kinds as the picker words them ("exam" reads "Exam"); a kind outside the registry reads as "other". */
+const KINDS = Object.keys(DATE_KINDS);
+const word = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
+const known = (k: string) => (Object.hasOwn(DATE_KINDS, k) ? k : "other");
+
+/** The shell Detail for a date: its properties and kind, then the prep plan's actions where its kind offers one. */
+export function datePlanDetail(p: ExamPlanDetailProps): DetailProps {
   const { exam } = p;
   return {
     title: exam.title,
     onClose: p.onClose,
     properties: [
       { label: "Date", value: exam.when },
-      { label: "Course", value: exam.course },
       { label: "Readiness", value: exam.readiness },
-      { label: "Plan", value: exam.plan },
+      ...(plans(exam) ? [{ label: "Plan", value: exam.plan }] : []),
     ],
     // Keyed on the plan's state, so a new state starts the body fresh.
-    children: <ExamPlanBody key={`${exam.id}:${exam.planState}`} {...p} />,
+    children: <ExamPlanBody key={`${exam.id}:${exam.kind}:${exam.planState}`} {...p} />,
   };
+}
+
+/** A date shows the prep plan where its kind offers one, or where a plan was already made for it. */
+function plans(exam: ExamPlanData): boolean {
+  return (
+    kindOffers(exam.kind, "prep-plan") ||
+    (exam.planState !== undefined && exam.planState !== "none")
+  );
 }
 
 /** What sits under the properties; it keeps its own open and asking state while the shell holds the panel. */
@@ -57,6 +77,7 @@ function ExamPlanBody({
   onApprove,
   onAskChanges,
   onPutAway,
+  onKind,
   startOpen,
 }: ExamPlanDetailProps) {
   const [note, setNote] = useState("");
@@ -70,15 +91,27 @@ function ExamPlanBody({
   const approved = exam.planState === "approved" || ended;
   const lastDay = exam.sessions?.at(-1)?.date;
   const count = exam.sessions?.length ?? 0;
+  const kind = (
+    <Section label="Kind">
+      <Segmented
+        label="Kind"
+        options={KINDS.map(word)}
+        value={word(known(exam.kind))}
+        onChange={(v) => onKind?.(v.toLowerCase())}
+      />
+    </Section>
+  );
+  if (!plans(exam)) return kind;
   return (
     <>
+      {kind}
       <Button
         onClick={() => {
           setReview((r) => !r);
           onReviewPlan?.();
         }}
       >
-        Review the study plan
+        Review the prep plan
       </Button>
       {exam.planState === "working" ? (
         <div data-part="working">
@@ -119,7 +152,7 @@ function ExamPlanBody({
             ) : (
               <Empty line="The sessions are not shown here yet." />
             )}
-            <Empty line="Built from: this exam's date and your weak spots for it" />
+            <Empty line="Built from: this date and your weak spots for it" />
           </Section>
         </div>
       ) : null}
@@ -158,7 +191,7 @@ function ExamPlanBody({
           ) : null}
         </>
       ) : null}
-      {!draft && exam.proposals.length === 0 ? (
+      {!draft && exam.proposals.length === 0 && kindOffers(exam.kind, "prep-plan") ? (
         <Button kind="text" onClick={() => onPlanWithEv?.()}>
           Plan with E.V.
         </Button>

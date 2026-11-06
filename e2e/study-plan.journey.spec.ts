@@ -1,6 +1,6 @@
 import { expect, test } from "./gate5.ts";
 
-// Study plan: in Library > Exams, plan an exam with E.V., ask for one change, approve, and read the plan back after a reload.
+// Prep plan: in Library > Dates, plan a date with E.V., ask for one change, approve, and read the plan back after a reload.
 // This is the one journey that runs the model for real (a draft step and one change round, both Sonnet): it needs the
 // Anthropic key on the staging Worker, and without it the plan job fails, so the journey fails with that said plainly.
 // Leftovers: exams, plans and jobs are never deleted (§delete.who), so the e2e exam is made once and reused; each run adds one
@@ -18,7 +18,7 @@ type Api = (
   body?: unknown,
 ) => Promise<{ status: number; body: Record<string, unknown> }>;
 
-/** The e2e exam, a week out so the plan has days to fill; a date that has gone stale is moved on (write-once fields stay). */
+/** The e2e date, a week out so the plan has days to fill, of a kind that offers the prep plan; a stale date or another kind is put right (write-once fields stay). */
 async function ensureExam(api: Api): Promise<void> {
   const at = `/api/v1/docs?collection=exams&id=${EXAM}`;
   const have = await api("GET", at);
@@ -28,8 +28,7 @@ async function ensureExam(api: Api): Promise<void> {
     at: new Date().toISOString(),
     source: "e2e",
     title: TITLE,
-    kind: "unit",
-    course: "NUR 112",
+    kind: "exam",
     date: day(7),
     status: "upcoming",
   };
@@ -40,11 +39,13 @@ async function ensureExam(api: Api): Promise<void> {
   }
   expect(have.status).toBe(200);
   const data = have.body["data"] as Record<string, unknown>;
-  if (typeof data["date"] === "string" && data["date"] >= day(3)) return;
+  const dated = typeof data["date"] === "string" && data["date"] >= day(3);
+  if (dated && data["kind"] === fresh.kind) return;
   const put = await api("PUT", `${at}&if_version=${String(have.body["v"])}`, {
     ...data,
     at: fresh.at,
-    date: fresh.date,
+    kind: fresh.kind,
+    ...(dated ? {} : { date: fresh.date }),
   });
   expect(put.status, JSON.stringify(put.body)).toBe(200);
 }
@@ -67,7 +68,7 @@ async function waitFor(
         last = `${s.state ?? `HTTP ${r.status}`} ${s.reason ?? ""}`.trim();
         if (s.state === "failed")
           throw new Error(
-            `The study-plan job failed: ${s.reason ?? "no reason given"}. If this names the model or a key, ANTHROPIC_API_KEY is missing on the staging Worker.`,
+            `The prep-plan job failed: ${s.reason ?? "no reason given"}. If this names the model or a key, ANTHROPIC_API_KEY is missing on the staging Worker.`,
           );
         return s.state;
       },
@@ -80,7 +81,7 @@ async function waitFor(
     .toBe(want);
 }
 
-test("Study plan: plan with E.V., ask for a change, approve, it stays after a reload", async ({
+test("Prep plan: plan with E.V., ask for a change, approve, it stays after a reload", async ({
   page,
   api,
 }) => {
@@ -89,7 +90,7 @@ test("Study plan: plan with E.V., ask for a change, approve, it stays after a re
 
   const openExam = async () => {
     await page.goto("/library");
-    await page.getByRole("tab", { name: /Exams/ }).click();
+    await page.getByRole("tab", { name: /Dates/ }).click();
     await page.getByRole("button", { name: new RegExp(TITLE) }).click();
     await expect(page.getByText("Plan", { exact: true }).first()).toBeVisible();
   };
@@ -127,10 +128,10 @@ test("Study plan: plan with E.V., ask for a change, approve, it stays after a re
   await page.getByRole("button", { name: "Ask for changes" }).click();
   await page
     .getByLabel("What should change?")
-    .fill("Make the first study day lighter.");
+    .fill("Make the first day lighter.");
   const asked = page.waitForResponse(
     (r) =>
-      r.url().includes("/api/v1/commands/studyplan.ask_changes") &&
+      r.url().includes("/api/v1/commands/plan.ask_changes") &&
       r.request().method() === "POST",
   );
   await page.getByRole("button", { name: "Send changes" }).click();

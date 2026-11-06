@@ -78,7 +78,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
       planned_min: 25,
       started_at: now,
       ended_at: null,
-      topic: "Study session",
+      topic: "Session",
       clock: null,
       minutes: null,
       driver: null,

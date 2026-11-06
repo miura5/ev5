@@ -23,7 +23,7 @@ import type { D1Like, JobDef, StartEnv } from "../jobs/index.ts";
 import { draftTasksOfPlans, examsOfPlans } from "./plan-context.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
-import { gatherExcerpts } from "./excerpts.ts";
+import { gatherExcerpts, type ExcerptSource } from "./excerpts.ts";
 import { lastDraftDay } from "./plan-home.ts";
 import { centralDate, endedReason, planEnded } from "../domain/index.ts";
 import { endedSessionsToday, finishedJobsToday } from "./jobs-done.ts";
@@ -73,11 +73,11 @@ export async function saveScope(
 
 export async function withGathered(
   db: D1Like,
-  input: { objectives: string[]; targetId?: string },
+  input: { objectives: string[]; targetId?: string; source?: ExcerptSource },
 ) {
   return {
     ...input,
-    excerpts: await gatherExcerpts(db, input.objectives),
+    excerpts: await gatherExcerpts(db, input.objectives, input.source),
   };
 }
 
@@ -100,7 +100,7 @@ export const jobRoutes = new Hono<{
 jobRoutes.post("/jobs/:slug", async (c) => {
   const def = KINDS[c.req.param("slug")];
   if (!def) return c.json({ error: "not found" }, 404);
-  // The app token is Matt's taps; the schedule token starts only what a schedule may (neither job kind).
+  // The app token is the user's taps; the schedule token starts only what a schedule may (neither job kind).
   const by = c.get("caller") === "app" ? "matt" : "schedule";
   if (!def.startedBy.includes(by))
     return c.json({ error: `${def.title} cannot be started by ${by}` }, 403);
@@ -121,7 +121,7 @@ jobRoutes.post("/jobs/:slug", async (c) => {
   return c.json({ job: rec }, rec.state === "failed" ? 502 : 202);
 });
 
-// Only the app token (Matt) answers a waiting job; schedule and executor tokens get 403 (§sec.auth).
+// Only the app token (the user) answers a waiting job; schedule and executor tokens get 403 (§sec.auth).
 jobRoutes.post("/jobs/:id/continue", async (c) => {
   if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
   const rec = await d1JobStore(c.env.DB, () => Date.now()).get(
@@ -174,7 +174,7 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   return c.json({ job: next }, 202);
 });
 
-// Matt's acknowledge on the monthly spend alert closes it (done); only the app token, only that kind.
+// The user's acknowledge on the monthly spend alert closes it (done); only the app token, only that kind.
 jobRoutes.post("/jobs/:id/dismiss", async (c) => {
   if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
   const store = d1JobStore(c.env.DB, () => Date.now());
@@ -202,13 +202,13 @@ jobRoutes.get("/jobs/:id", async (c) => {
   }
 });
 
-/** A live study plan names its exam (waiting or running: right after Matt answers it is still being put in force); a waiting one also carries its sessions. */
+/** A live prep plan names its date (waiting or running: right after the user answers it is still being put in force); a waiting one also carries its sessions. */
 async function withExams<T extends { id: string; kind: string; state: string }>(
   db: D1Like,
   jobs: T[],
 ): Promise<
   (T & {
-    examId?: string;
+    goalId?: string;
     tasks?: { date: string; title: string; minutes: number }[];
   })[]
 > {
@@ -226,7 +226,7 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
   );
   return jobs.map((j) => ({
     ...j,
-    ...(exam.has(j.id) ? { examId: exam.get(j.id) } : {}),
+    ...(exam.has(j.id) ? { goalId: exam.get(j.id) } : {}),
     ...(tasks.has(j.id) ? { tasks: tasks.get(j.id) } : {}),
   }));
 }

@@ -21,7 +21,7 @@ const docs: Record<string, unknown[]> = {
       data: {
         ...base,
         title: "Exam Three",
-        kind: "unit",
+        kind: "exam",
         date: "2099-01-05",
         course: "NUR 112",
       },
@@ -80,7 +80,7 @@ function boot(open: string) {
 test("?open=<exam id> opens its plan detail", async () => {
   boot("x1");
   await waitFor(() =>
-    expect(screen.getByText("Review the study plan")).toBeTruthy(),
+    expect(screen.getByText("Review the prep plan")).toBeTruthy(),
   );
 });
 
@@ -99,14 +99,14 @@ test("an unknown id does nothing", async () => {
   await waitFor(() =>
     expect(screen.getByRole("radio", { name: "Dates1" })).toBeTruthy(),
   );
-  expect(screen.queryByText("Review the study plan")).toBeNull();
+  expect(screen.queryByText("Review the prep plan")).toBeNull();
   expect(screen.queryByText("How many mL?")).toBeNull();
 });
 
-test("an exam's detail sits beside the library with the date, days left and course", async () => {
+test("a date's detail sits beside the library with the date and days left, and no course line", async () => {
   boot("x1");
   await waitFor(() =>
-    expect(screen.getByText("Review the study plan")).toBeTruthy(),
+    expect(screen.getByText("Review the prep plan")).toBeTruthy(),
   );
   const panel = document.querySelector('[data-ui="detail"]') as HTMLElement;
   const lib = document.querySelector('[data-ui="page"]') as HTMLElement;
@@ -118,7 +118,9 @@ test("an exam's detail sits beside the library with the date, days left and cour
   const row = (label: string) =>
     screen.getAllByText(label).find((e) => panel.contains(e))?.parentElement
       ?.textContent ?? "";
-  expect(row("Course")).toContain("NUR 112");
+  // No linked collection title is read, so neither a Course nor a Collection line shows.
+  expect(screen.queryByText("Course")).toBeNull();
+  expect(screen.queryByText("Collection")).toBeNull();
   expect(row("Date")).toMatch(/in [\d]+ days|years|weeks|days/);
   expect(row("Date")).not.toContain("NUR 112");
 });

@@ -24,14 +24,14 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const saved = [{ id: "j1", kind: "study-plan", state: "running", summary: "Working" }];
+const saved = [{ id: "j1", kind: "prep-plan", state: "running", summary: "Working" }];
 
 test("offline, the saved list shows and no error is raised", async () => {
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
   const { result } = renderHook(() => useJobs(fakeCopy({ jobs: saved })));
   await waitFor(() => expect(result.current.jobs).toHaveLength(1));
-  expect(result.current.jobs[0]!.title).toBe("Study plan");
+  expect(result.current.jobs[0]!.title).toBe("Prep plan");
   expect(result.current.error).toBeUndefined();
 });
 
@@ -68,13 +68,13 @@ test("a row reads in plain words, one sentence, no repeats", async () => {
   const { toActivityJob, uniqueRows } = await import("./useJobs.ts");
   const j = toActivityJob({
     id: "a",
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "needs-you",
-    summary: "Your study plan is ready. Approve it or put it away. It is waiting in Activity.",
+    summary: "Your prep plan is ready. Approve it or put it away. It is waiting in Activity.",
   });
-  expect(j.title).toBe("Study plan");
-  expect(j.summary).toBe("Your study plan is ready.");
-  const f = toActivityJob({ id: "b", kind: "study_plan", state: "failed", summary: "The study plan could not be made. No exam date." });
+  expect(j.title).toBe("Prep plan");
+  expect(j.summary).toBe("Your prep plan is ready.");
+  const f = toActivityJob({ id: "b", kind: "prep_plan", state: "failed", summary: "The prep plan could not be made. No exam date." });
   expect(f.reason).toBe("No exam date.");
   expect(uniqueRows([j, { ...j, id: "c" }])).toHaveLength(1);
 });

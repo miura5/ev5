@@ -4,7 +4,7 @@ export function Story() {
   return (
     <div data-ui="story-bars" style={{ maxWidth: "calc(var(--sp-12) * 12)" }}>
       <Bars
-        label="Study minutes, last 7 days"
+        label="Minutes, last 7 days"
         bars={[
           { label: "Tue", value: 40 },
           { label: "Wed", value: 75 },

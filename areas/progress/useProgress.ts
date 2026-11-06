@@ -33,7 +33,7 @@ export interface ProgressData {
   weeks: Point[];
   /** Minutes and ended sessions in the last 7 days. */
   week: { minutes: number; sessions: number };
-  /** Study minutes per day, last 7 days. */
+  /** Minutes per day, last 7 days. */
   days: Point[];
 }
 

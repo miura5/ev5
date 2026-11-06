@@ -8,8 +8,8 @@ test("a bad answer is a 400 and the job stays waiting", async () => {
   const store = d1JobStore(db, () => T.getTime());
   await store.put({
     id: "sp3",
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",

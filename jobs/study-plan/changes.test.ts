@@ -5,7 +5,7 @@ import { applyPatch, askChanges, parsePatch } from "./changes.ts";
 import type { Plan, PlanContext } from "./job.ts";
 
 const ctx: PlanContext = {
-  exam: { id: "e1", title: "Unit 3", kind: "unit", date: "2026-11-08" },
+  goal: { id: "e1", title: "Unit 3", kind: "exam", date: "2026-11-08" },
   today: "2026-11-03",
   days: ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07"],
   weakSpots: [{ id: "w1", title: "Heparin", need: 1 }],
@@ -77,7 +77,7 @@ test("a patch that breaks a check gets one repair ask, then succeeds", async () 
   assert.ok(r.ok);
   assert.equal(r.plan.tasks[1]?.date, "2026-11-06");
   assert.equal(seen.length, 2);
-  assert.match(seen[1]?.messages.at(-1)?.content ?? "", /not study days/);
+  assert.match(seen[1]?.messages.at(-1)?.content ?? "", /not plan days/);
 });
 
 test("bad task number, invented spot and bad shapes fail in plain words", async () => {

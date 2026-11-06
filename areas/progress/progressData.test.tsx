@@ -73,14 +73,14 @@ test("the screen shows the accuracy line and session minutes", async () => {
   render(<ProgressScreen />);
   await waitFor(() => expect(screen.getByText("100%")).toBeTruthy());
   expect(screen.getByText("Retrieval accuracy")).toBeTruthy();
-  expect(screen.getByText("Study minutes, last 7 days")).toBeTruthy();
+  expect(screen.getByText("Minutes, last 7 days")).toBeTruthy();
   expect(screen.getByText("30m")).toBeTruthy();
   expect(screen.getByText(/^1 session$/)).toBeTruthy();
   expect(
     screen.getByRole("img", { name: "First-try accuracy by week" }),
   ).toBeTruthy();
   expect(
-    screen.getByRole("img", { name: "Study minutes by day" }),
+    screen.getByRole("img", { name: "Minutes by day" }),
   ).toBeTruthy();
   vi.useRealTimers();
 });

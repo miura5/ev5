@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { longDay } from "../../domain/index.ts";
 import { Empty, Page, type DetailProps } from "../../kit/index.ts";
-import { examDetail } from "./ExamDetail.tsx";
+import { dateDetail } from "./DateDetail.tsx";
 import { TodayView } from "./Today.view.tsx";
 import { useToday, type ReadCopyLike } from "./useToday.ts";
 
@@ -39,6 +39,7 @@ export function TodayScreen({
     addPlan,
     addDate,
     planWithEv,
+    setKind,
   } = useToday(services?.readCopy);
   const notSaved = (ok: boolean) => {
     if (!ok) onToast?.("Not saved. Try again.");
@@ -48,14 +49,14 @@ export function TodayScreen({
   const [openKey, setOpenKey] = useState(0);
   const opened = data?.upcoming.find((d) => d.id === openId);
   // The exam's Detail lives in the shell's host; the shell closes it on Esc and when Matt leaves the screen.
-  const last = useRef({ onNavigate, planWithEv, onToast });
-  last.current = { onNavigate, planWithEv, onToast };
+  const last = useRef({ onNavigate, planWithEv, setKind, onToast });
+  last.current = { onNavigate, planWithEv, setKind, onToast };
   useEffect(() => {
     if (!onDetail) return;
     if (!opened) return onDetail(null);
     const go = last.current.onNavigate;
     onDetail(
-      examDetail(opened, {
+      dateDetail(opened, {
         onReviewPlan: go
           ? () => go(`/library?open=${encodeURIComponent(opened.id)}`)
           : undefined,
@@ -67,6 +68,12 @@ export function TodayScreen({
                 ok ? "E.V. is drafting a plan" : "Not saved. Try again.",
               ),
             ),
+        onKind: (kind) =>
+          void last.current
+            .setKind(opened.id, kind)
+            .then((ok) => {
+              if (!ok) last.current.onToast?.("Not saved. Try again.");
+            }),
         onClose: () => setOpenId(undefined),
       }),
     );

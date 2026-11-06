@@ -69,7 +69,7 @@ test("exams, weak spots and sets map to the views' props; invalid docs are skipp
     },
   ]);
   expect(d.exams.map((e) => [e.id, e.meta, e.mastery.wrong])).toEqual([
-    ["e4", "NUR 112 · Nov 5 · in 2 days", 1],
+    ["e4", "Nov 5 · in 2 days", 1],
   ]);
   expect(d.sets).toEqual([
     { id: "s1", title: "Doses", kind: "questions", meta: "1 question" },
