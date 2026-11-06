@@ -5,7 +5,12 @@ import { StudyView } from "./Study.view.tsx";
 import { examPlanDetail } from "./ExamPlan.detail.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
-import { useStudy, useTellMe, type LibraryServices } from "./useStudy.ts";
+import {
+  useGrade,
+  useStudy,
+  useTellMe,
+  type LibraryServices,
+} from "./useStudy.ts";
 
 /** The id the palette asks to open: /library?open=<id> (shell/findings.ts); anything else is nothing. */
 function openFromUrl(): string | undefined {
@@ -54,6 +59,7 @@ export function LibraryScreen({
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
+  const onGrade = useGrade(open ?? "");
   // A plan answer that went through says so; one that did not says why.
   const plan = async (
     name: Parameters<typeof runPlan>[0],
@@ -151,9 +157,11 @@ export function LibraryScreen({
           kicker: "Question",
           front: it.front,
           back: it.back ?? "",
+          ...(it.open ? { open: true } : {}),
         }))}
         onRate={onRate}
         onTell={onTell}
+        onGrade={onGrade}
         onLeave={() => setStudying(false)}
       />
     );
