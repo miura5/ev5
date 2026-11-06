@@ -139,7 +139,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 **Phase 6: Ops**
 - S-80 Scheduled commands: morning, evening, weekly.
-- S-81 Optional Canvas import from the Mac, after cutover.
+- S-81 Optional Canvas import from the Mac, after cutover. *(Moved to Matt's feature list 2026-11-06.)*
 - S-82 The push task (C7).
 - S-83 Restore drills, including a Time Travel restore on staging.
 - S-84 Rehearsal 2. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
