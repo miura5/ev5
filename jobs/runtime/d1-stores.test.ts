@@ -16,9 +16,18 @@ import { newJob, transition, type JobStore } from "./record.ts";
 // A real SQLite behind D1's interface (fake-d1 only knows the docs statements): batch is one transaction.
 function sqliteD1(): D1Like {
   const sql = new DatabaseSync(":memory:");
-  for (const f of ["0002_jobs_ceilings.sql", "0004_ceiling_usage.sql", "0007_plans_drafts.sql"])
+  for (const f of [
+    "0002_jobs_ceilings.sql",
+    "0003_collections_pins_own.sql",
+    "0004_ceiling_usage.sql",
+    "0006_tables.sql",
+    "0007_plans_drafts.sql",
+  ])
     sql.exec(
-      readFileSync(new URL(`../../data/migrations/${f}`, import.meta.url), "utf8"),
+      readFileSync(
+        new URL(`../../data/migrations/${f}`, import.meta.url),
+        "utf8",
+      ),
     );
   const run = (text: string, args: (string | number | null)[]) => {
     const st = sql.prepare(text);
@@ -188,7 +197,7 @@ test("saveOutput lands items and drafts in one batch and is safe to retry", asyn
   const n = async (t: string) =>
     (await db.prepare(`SELECT count(*) AS n FROM ${t}`).first<{ n: number }>())
       ?.n;
-  assert.equal(await n("own_set_items"), 1);
+  assert.equal(await n("set_items"), 1);
   assert.equal(await n("drafts"), 1);
   const d = await db
     .prepare("SELECT state, at, v FROM drafts")

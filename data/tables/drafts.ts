@@ -1,6 +1,6 @@
 // Repositories for E.V.'s set-item drafts and the soft-delete list (CONTRACT data.drafts, delete.soft). Every write takes
 // its `at` from the Worker clock and a draft change is pinned to the version read, so a stale write changes nothing.
-import { parseDeletion } from "../../domain/index.ts";
+import { itemKey, parseDeletion, setKey } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
@@ -110,11 +110,18 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
               ? [
                   db
                     .prepare(
-                      "INSERT OR IGNORE INTO own_set_items (set_id, item_id, pos, body, at, v) SELECT target_id, id, " +
-                        "(SELECT COALESCE(MAX(pos) + 1, 0) FROM own_set_items WHERE set_id = ?), body, ?, 1 " +
+                      "INSERT OR IGNORE INTO set_items (id, set_id, pos, type, body, at, v) SELECT 'item_' || id, ?, " +
+                        "(SELECT COALESCE(MAX(pos) + 1, 0) FROM set_items WHERE set_id = ?), " +
+                        "COALESCE(json_extract(body, '$.type'), 'single'), json_remove(body, '$.id'), ?, 1 " +
                         "FROM drafts WHERE id = ? AND v = ? AND state = 'pending'",
                     )
-                    .bind(r.targetId, at, r.id, r.v),
+                    .bind(
+                      setKey(r.targetId),
+                      setKey(r.targetId),
+                      at,
+                      r.id,
+                      r.v,
+                    ),
                 ]
               : []),
             db
@@ -148,13 +155,23 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .run();
       },
       /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
-      restore: async (c: string, id: string): Promise<number> =>
-        (
+      restore: async (c: string, id: string): Promise<number> => {
+        const n = (
           await db
             .prepare("DELETE FROM deletions WHERE c = ? AND id = ?")
             .bind(c, id)
             .run()
-        ).meta.changes,
+        ).meta.changes;
+        // A set item's deletion is also its row's `deleted_at`: the item comes back with it.
+        if (c === "own_set_items")
+          await db
+            .prepare(
+              "UPDATE set_items SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",
+            )
+            .bind(opts.clock(), itemKey(id.slice(id.indexOf("/") + 1)))
+            .run();
+        return n;
+      },
     },
   };
 }

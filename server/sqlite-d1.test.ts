@@ -13,6 +13,15 @@ export function sqliteD1(): D1Like {
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
     );
+  // The set items table of the tables migration (the whole migration adds columns a test's own setup may add again).
+  sql.exec(
+    /CREATE TABLE IF NOT EXISTS set_items \([\s\S]*?\n\);/.exec(
+      readFileSync(
+        new URL("../data/migrations/0006_tables.sql", import.meta.url),
+        "utf8",
+      ),
+    )![0],
+  );
   sql.exec(
     "CREATE TABLE claude_settings (key TEXT PRIMARY KEY, value INTEGER NOT NULL, at INTEGER NOT NULL)",
   );
