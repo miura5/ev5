@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { tablesRepo } from "../data/index.ts";
 import { setup } from "./matt-handlers-setup.test.ts";
 
 test("a note is made, saved and moved", async () => {
@@ -94,35 +95,48 @@ test("a session starts, pauses, answers a check, and ends", async () => {
 });
 
 test("a weak spot is confirmed, declined, learned; a spot that is not proposed cannot be confirmed", async () => {
-  const { call, doc, put } = await setup();
+  const { call, DB } = await setup();
+  const t = tablesRepo(DB as never, { clock: () => 1000 });
   const base = {
-    schema: 2,
-    writer: "page",
-    at: "2026-11-01T10:00:00.000Z",
-    source: "E.V. Home",
+    collection_id: null,
+    objective_id: null,
     topic: "Sodium",
-    objective: "",
     kind: "concept",
-    initial: {},
-    events: {},
-  };
-  await put("weakspots", "w1", { ...base, proposed: true });
-  await put("weakspots", "w2", { ...base, proposed: true });
-  await put("weakspots", "w3", base);
-  assert.equal((await call("weakspot.confirm", { id: "w1" })).status, 200);
-  assert.equal((await call("weakspot.decline", { id: "w2" })).status, 200);
-  assert.equal((await call("weakspot.confirm", { id: "w3" })).status, 409);
-  assert.equal((await call("weakspot.mark_learned", { id: "w3" })).status, 200);
+    words: null,
+    source_line: "E.V. Home",
+    duplicate_of: null,
+    created_by: "ev",
+    pre_read: 0,
+    reading_due: null,
+  } as const;
+  await t.weakSpots.save({ ...base, id: "ws_1", proposed: 1 }, null);
+  await t.weakSpots.save({ ...base, id: "ws_2", proposed: 1 }, null);
+  await t.weakSpots.save({ ...base, id: "ws_3", proposed: 0 }, null);
+  assert.equal((await call("weakspot.confirm", { id: "ws_1" })).status, 200);
+  assert.equal((await call("weakspot.decline", { id: "ws_2" })).status, 200);
+  assert.equal((await call("weakspot.confirm", { id: "ws_3" })).status, 409);
   assert.equal(
-    (await call("weakspot.drill", { id: "w3" })).body.result.client,
+    (await call("weakspot.mark_learned", { id: "ws_3" })).status,
+    200,
+  );
+  assert.equal(
+    (await call("weakspot.mark_learned", { id: "ws_3" })).status,
+    200,
+  );
+  assert.equal(
+    (await call("weakspot.drill", { id: "ws_3" })).body.result.client,
     true,
   );
   assert.equal((await call("weakspot.drill", { id: "zz" })).status, 404);
-  const w1 = await doc("weakspots", "w1");
-  assert.deepEqual(
-    Object.values(w1?.events).map((e: any) => e.type),
-    ["accept"],
-  );
+  assert.equal((await call("weakspot.mark_learned", { id: "zz" })).status, 404);
+  const types = async (id: string) =>
+    (await t.weakSpotEvents.list({ where: { weak_spot_id: id } })).map(
+      (e) => `${e.type}/${e.by}`,
+    );
+  assert.deepEqual(await types("ws_1"), ["accept/user"]);
+  assert.deepEqual(await types("ws_2"), ["decline/user"]);
+  // two quick taps are two appended rows, never a conflict
+  assert.deepEqual(await types("ws_3"), ["solid/user", "solid/user"]);
 });
 
 test("ask just tell me is logged in today's talk document", async () => {

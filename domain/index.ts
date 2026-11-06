@@ -102,6 +102,8 @@ export { parseExamRow, type ExamRow } from "./exam/row.ts";
 export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";
 /** @public */
 export { parseWeakSpotRow, type WeakSpotRow } from "./weak-spot/row.ts";
+/** @public Weak spot rows as the scheduler's model; the weak spot reads (plan home, Today, Library) import it when they move to the tables. */
+export { eventFromRow, weakSpotFromRows } from "./weak-spot/rows.ts";
 /** @public */
 export { parseSetRow, type SetRow } from "./set/row.ts";
 /** @public */
