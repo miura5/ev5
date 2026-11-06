@@ -62,9 +62,19 @@ docRoutes.get("/docs", async (c) => {
     const sessions = (await sessionDocs(c.env.DB, () => Date.now()))
       .filter((s) => s.at > n)
       .map((s) => shape({ c: SESSIONS, ...s }));
+    // Weak spots are rows too: an old weakspots document is never sent; a spot changed since then (a new event bumps
+    // its row) is sent as its weak spot document.
+    const spots = (await weakSpotDocs(c.env.DB, () => Date.now()))
+      .filter((s) => s.at > n)
+      .map((s) => shape({ c: "weakspots", ...s }));
     return c.json({
       now: out.now,
-      docs: [...out.docs.map(shape), ...goals, ...sessions],
+      docs: [
+        ...out.docs.filter((d) => d.c !== "weakspots").map(shape),
+        ...goals,
+        ...sessions,
+        ...spots,
+      ],
     });
   }
   if (!collection) return c.json({ error: "collection is required" }, 400);

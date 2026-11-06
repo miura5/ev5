@@ -7,7 +7,6 @@ import {
   parseObjective,
   parseSession,
   parseSet,
-  parseWeakSpot,
 } from "../../domain/index.ts";
 
 export const DOMAIN_PARSERS: Readonly<
@@ -18,5 +17,4 @@ export const DOMAIN_PARSERS: Readonly<
   objectives: parseObjective,
   sessions: parseSession,
   sets: parseSet,
-  weakspots: parseWeakSpot,
 };
