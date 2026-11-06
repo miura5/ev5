@@ -5695,13 +5695,15 @@
   "title": "Back and Forward move between screens, through wouter in the shell",
   "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-969"
   ],
   "notes": "Slice: write shell/, package.json, .dependency-cruiser.cjs, e2e/; read areas/. Interface: shell. Claim after B-969 (same shell files). Read wouter's current README for its API, never from memory. Decision: D-485.",
   "commit": null,
-  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
+  "claimedBy": "run-1217",
+  "claimedAt": "2026-11-06T12:43:28.637Z"
  },
  {
   "id": "B-1013",
