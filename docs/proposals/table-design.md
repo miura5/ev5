@@ -108,7 +108,7 @@ v5's live database does not exist yet and staging holds synthetic rows only, so 
 
 1. **0006 expand:** one migration, all `CREATE TABLE IF NOT EXISTS` for the tables above plus `ALTER TABLE ... ADD COLUMN` for `collections`, `pins` and `drafts` (allowed by §data.additive; the ALTER ban in `migrations.test.ts` goes). Every new table has its id `CHECK`, its indexes and its partial unique indexes. Nothing is dropped.
 2. **Migrate:** there is nothing to copy. Staging is reseeded through the gate by `data/staging/seed.ts` once the last kind has moved.
-3. **0007 contract:** drops `docs`, `deletions`, `memberships`, `item_props`, `own_*`, `system_docs`, `claude_usage`, `claude_reads`, `claude_plan_asks`, `claude_settings`. It lands only after the last reader and writer has moved (the cleanup task in section 6) and a Time Travel bookmark is noted before it runs on any live database.
+3. **Contract migration** (the next free number after the chain 0000 to 0016, which stays as it is; 0007 is the plans migration): drops `docs`, `deletions`, `memberships`, `item_props`, `own_*`, `system_docs`, `claude_usage`, `claude_reads`, `claude_plan_asks`, `claude_settings`. It lands only after the last reader and writer has moved (the cleanup task in section 6) and a Time Travel bookmark is noted before it runs on any live database.
    The PRAGMA test (the migration task) compares `PRAGMA table_info` and `PRAGMA index_list` with each table's row schema keys and declared indexes; a table without a kind-prefixed id, `at`, `v`, or `deleted_at` where deletable fails it (also the docs-kind check task check 3).
 
 ## 4. Export and restore (§data.export)
@@ -126,7 +126,7 @@ Today `PUT /docs` and `/docs/batch` accept any kind and check only notes. The en
 1. **Per kind:** when a kind's table, command and reads land, its collection name is refused by `PUT /docs` with "use the command" (the list of kinds still allowed shrinks; the docs-kind check task check 2 fails a PR that writes a kind off that list).
 2. **Outbox:** note saves post to `note.save` (the notes move) and answers to `study.attempt` (the attempts move), which write through the gate. The outbox never calls `/docs`. Its offline queue stays notes and answers only (§data.offline).
 3. **Reads:** the since-sync (`GET /docs?since`) and collection reads are replaced by per-screen paged reads from the generated client, with deleted rows left out.
-4. **Last step:** the routes, `docsRepo`, `data/docs/*`, `domain/doc-row` and `server/doc-routes.ts` are removed in the cleanup task, which also lands migration 0007. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (the docs-kind check task check 8).
+4. **Last step:** the routes, `docsRepo`, `data/docs/*`, `domain/doc-row` and `server/doc-routes.ts` are removed in the cleanup task, which also lands the contract migration. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (the docs-kind check task check 8).
 
 ## 6. Order of follow-on work
 
@@ -142,7 +142,7 @@ Dependencies run top to bottom; items on one line can run in parallel.
 7. **the weak-spots move** weak spots and events (needs objectives), then **the due-read task** the one derived read over attempts, events and objectives.
 8. **the sessions move** sessions and events, then **the talk move** talk rows (needs sessions and attempts' `adhoc` sets for "just tell me").
 9. **the first plan task** (plans and plan_items tables, repository; needs goals; includes `repeats`), **the second plan task** (prep plan job output through `domain/plan`), **the third plan task** (`d1PlanStore` approve and put-away use the repository). `planedits` and `dayedits` end here.
-10. **Cleanup (to be filed by the build manager):** refuse and remove `/docs` routes and `data/docs`, migration 0007, re-seed staging through the gate, rerun the export and restore drill on staging, confirm every table is in both.
+10. **Cleanup (to be filed by the build manager):** refuse and remove `/docs` routes and `data/docs`, the contract migration, re-seed staging through the gate, rerun the export and restore drill on staging, confirm every table is in both.
     Gates 3 to 6 rerun after step 10, as in `fresh-database.md`.
 
 ## 7. Choices settled here, and three left open with a default
