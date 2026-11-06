@@ -3,20 +3,20 @@ import { Doc } from "./Doc";
 
 export function Story() {
   const [done, setDone] = useState<string[]>([]);
-  const checks = ["Say the formula", "Name the units"].map((text) => ({
+  const checks = ["Say the idea", "Name an example"].map((text) => ({
     id: text,
     text,
     done: done.includes(text),
   }));
   return (
     <div data-ui="story-doc">
-      <Doc title="Cardiac output" meta="BIO 201 · edited today">
-        <p>Cardiac output is heart rate times stroke volume.</p>
+      <Doc title="Supply and demand" meta="Economics 101 · edited today">
+        <p>Supply and demand set the price of goods.</p>
       </Doc>
       <Doc
-        title="Cardiac output"
+        title="Supply and demand"
         session={{
-          label: "Studying · Cardiac output",
+          label: "Studying · Supply and demand",
           onLeave: () => undefined,
           checks,
           onToggle: (id) =>
@@ -25,7 +25,7 @@ export function Story() {
             ),
         }}
       >
-        <p>Stroke volume is blood ejected per beat.</p>
+        <p>Scarcity is wanting more than exists.</p>
       </Doc>
     </div>
   );

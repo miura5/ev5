@@ -8,7 +8,7 @@ export interface DocCheck {
 }
 
 export interface DocSession {
-  /** What the session is, e.g. "Studying · Cardiac output". */
+  /** What the session is, e.g. "Studying · Supply and demand". */
   label: string;
   onLeave: () => void;
   checks: DocCheck[];

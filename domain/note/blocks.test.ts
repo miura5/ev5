@@ -24,7 +24,7 @@ describe('runs and blocks', () => {
   test('stored blocks are stable and parse against the schema', () => {
     const blocks = noteBlocks(SAMPLE);
     expect(noteBlocks(blocks)).toEqual(blocks);
-    const doc = noteDoc(null, { blocks, course: 'NUR 112', at: AT });
+    const doc = noteDoc(null, { blocks, course: 'Biology 101', at: AT });
     expect(parseNote(doc)).toEqual(doc);
     expect(doc.title).toBe('Fluids and electrolytes');
     expect(doc.createdAt).toBe(doc.at);

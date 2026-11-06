@@ -29,21 +29,21 @@ afterEach(async () => {
 });
 
 const TARGETS: MoveTarget[] = [
-  { id: "bio", title: "BIO 201" },
-  { id: "nur", title: "NUR 112" },
-  { id: "ph", title: "Pharmacology", parentId: "nur" },
+  { id: "bio", title: "Economics 101" },
+  { id: "nur", title: "Biology 101" },
+  { id: "ph", title: "Cell biology", parentId: "nur" },
 ];
 
 test("collections are listed by name, children under their parent, the current one ticked", () => {
   const items = moveItems(TARGETS, "ph", "No collection");
   expect(items.map((i) => i.label)).toEqual([
     "No collection",
-    "BIO 201",
-    "NUR 112",
-    "Pharmacology",
+    "Economics 101",
+    "Biology 101",
+    "Cell biology",
   ]);
-  expect(items.find((i) => i.checked)?.label).toBe("Pharmacology");
-  expect(items.find((i) => i.label === "Pharmacology")?.indent).toBe(1);
+  expect(items.find((i) => i.checked)?.label).toBe("Cell biology");
+  expect(items.find((i) => i.label === "Cell biology")?.indent).toBe(1);
   expect(moveItems(TARGETS, null, "No collection")[0]?.checked).toBe(true);
 });
 
@@ -66,7 +66,7 @@ test("picking a collection moves; picking the current one does nothing", async (
   fireEvent.keyDown(screen.getByRole("button", { name: "Move" }), {
     key: "Enter",
   });
-  const cur = await screen.findByRole("menuitemradio", { name: /NUR 112/ });
+  const cur = await screen.findByRole("menuitemradio", { name: /Biology 101/ });
   expect(cur.getAttribute("aria-checked")).toBe("true");
   fireEvent.click(cur);
   expect(onMove).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ test("picking another collection reports its id, and None reports null", async (
     key: "Enter",
   });
   fireEvent.click(
-    await screen.findByRole("menuitemradio", { name: /BIO 201/ }),
+    await screen.findByRole("menuitemradio", { name: /Economics 101/ }),
   );
   expect(onMove).toHaveBeenCalledWith("bio");
   fireEvent.keyDown(screen.getByRole("button", { name: "Move" }), {
@@ -102,5 +102,5 @@ test("picking another collection reports its id, and None reports null", async (
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("In: Pharmacology")).toBeTruthy();
+  expect(screen.getByText("In: Cell biology")).toBeTruthy();
 });

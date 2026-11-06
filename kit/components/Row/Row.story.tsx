@@ -11,14 +11,14 @@ const MENU = [
 
 export function Story() {
   const [open, setOpen] = useState(true);
-  const [term, setTerm] = useState("Heparin");
+  const [term, setTerm] = useState("Photosynthesis");
   const [meaning, setMeaning] = useState("Anticoagulant; watch aPTT");
   const [step, setStep] = useState("Check the order");
   return (
     <div data-ui="story-row">
       <Row
-        title="Heparin and warfarin"
-        meta="12 cards · NUR 112"
+        title="Photosynthesis and respiration"
+        meta="12 cards · Biology 101"
         value="3 due"
         onOpen={() => undefined}
         actions={
@@ -37,12 +37,12 @@ export function Story() {
       />
       <Row title="Read chapter 4" done />
       <Row
-        title="Pharmacology"
+        title="Cell biology"
         fold={{ open, onToggle: () => setOpen(!open) }}
       />
       {open ? <Row title="Anticoagulants" level={1} /> : null}
       {open ? (
-        <Row title="Heparin notes" level={2} glyph={<Glyph type="note" />} />
+        <Row title="Photosynthesis notes" level={2} glyph={<Glyph type="note" />} />
       ) : null}
       <Row
         title="Monthly spend alert"

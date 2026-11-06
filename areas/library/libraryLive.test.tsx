@@ -27,7 +27,7 @@ const exam = (extra: Record<string, unknown> = {}) => ({
     title: "Exam Three",
     kind: "exam",
     date: "2099-01-05",
-    course: "NUR 112",
+    course: "Biology 101",
     ...extra,
   },
 });

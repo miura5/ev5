@@ -177,7 +177,7 @@ test("item.rename renames a collection in its own table", async () => {
   ).json()) as { result: { collection: { id: string } } };
   const id = made.result.collection.id;
   assert.equal(
-    (await call("item.rename", { id, title: "BIO 201" })).status,
+    (await call("item.rename", { id, title: "Economics 101" })).status,
     200,
   );
   assert.equal(

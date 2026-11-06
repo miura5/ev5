@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Detail } from "./Detail";
 
 export function Story() {
-  const [coll, setColl] = useState("BIO 201");
+  const [coll, setColl] = useState("Economics 101");
   return (
     <div data-ui="story-detail">
       <Detail
-        title="Cardiac output terms"
+        title="Supply and demand terms"
         primary={{ label: "Study", hint: "S", onRun: () => undefined }}
         more={{
           items: [

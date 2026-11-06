@@ -17,7 +17,7 @@ const note = (extra: object = {}) => ({
   source: "E.V. Home",
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
-  course: "NUR 112",
+  course: "Biology 101",
   editedAt: "2026-10-18T15:00:00.000Z",
   blocks: [
     { type: "h1", runs: [{ text: "Fluids" }] },

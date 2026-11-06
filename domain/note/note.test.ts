@@ -62,7 +62,7 @@ describe('noteDoc', () => {
     source: 'E.V. Home',
     createdAt: '2026-10-20T10:00:00Z',
     title: 'Old',
-    course: 'BIO 201',
+    course: 'Economics 101',
     label: 'Lecture 3',
     blocks: [],
     archivedAt: null,
@@ -77,7 +77,7 @@ describe('noteDoc', () => {
     const doc = noteDoc(prev, { blocks, at: '2026-10-26T10:00:00Z' });
     expect(doc).toMatchObject({
       createdAt: prev.createdAt,
-      course: 'BIO 201',
+      course: 'Economics 101',
       label: 'Lecture 3',
       earlierOf: prev.earlierOf,
       archivedAt: null,

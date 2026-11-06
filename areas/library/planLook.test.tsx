@@ -18,7 +18,7 @@ test("a draft plan answers on one line: Approve, Ask for changes (secondary), Pu
         planState: "draft",
         planId: "p",
         proposals: [],
-        sessions: [{ date: "2026-11-10", title: "Dosage", minutes: 25 }],
+        sessions: [{ date: "2026-11-10", title: "Unit conversion", minutes: 25 }],
       }}
     />,
   );

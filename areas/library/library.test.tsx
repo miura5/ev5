@@ -19,13 +19,13 @@ const practice: PracticeSession = {
   options: ["2.75 mL", "5.5 mL"],
   position: 1,
   total: 8,
-  source: "NUR 112 · dosage by weight",
+  source: "Biology 101 · dosage by weight",
 };
 const weak: WeakSpot[] = [
   {
     id: "w",
     title: "Oral liquid doses",
-    meta: "NUR 112 · 4 of 9",
+    meta: "Biology 101 · 4 of 9",
     mastery,
     due: "due today",
   },
@@ -33,7 +33,7 @@ const weak: WeakSpot[] = [
 const exams: LibraryExam[] = [
   {
     id: "x",
-    title: "NUR 112 · Exam 3",
+    title: "Biology 101 · Exam 3",
     kind: "exam",
     meta: "Thursday",
     when: "Thursday",
@@ -81,7 +81,7 @@ test("tabs show weak spots and exams with counts, rows open", () => {
   expect(onDrill).toHaveBeenCalledWith("w");
   fireEvent.click(screen.getByRole("radio", { name: /Dates/ }));
   expect(screen.getByText("58%")).toBeTruthy();
-  fireEvent.click(screen.getByText("NUR 112 · Exam 3"));
+  fireEvent.click(screen.getByText("Biology 101 · Exam 3"));
   expect(onOpenExam).toHaveBeenCalledWith("x");
 });
 
@@ -100,14 +100,14 @@ test("sets tab filters tiles by type and opens a set; accuracy line shows", () =
       id: "s1",
       title: "Heart",
       kind: "cards",
-      meta: "BIO 201 · 24 cards",
+      meta: "Economics 101 · 24 cards",
       due: "6 due",
     },
     {
       id: "s2",
-      title: "Dosage",
+      title: "Unit conversion",
       kind: "questions",
-      meta: "NUR 112 · 10 questions",
+      meta: "Biology 101 · 10 questions",
     },
   ];
   render(
@@ -124,7 +124,7 @@ test("sets tab filters tiles by type and opens a set; accuracy line shows", () =
   fireEvent.click(screen.getByRole("radio", { name: /Sets/ }));
   fireEvent.click(screen.getByRole("radio", { name: /Questions/ }));
   expect(screen.queryByText("Heart")).toBeNull();
-  fireEvent.click(screen.getByText("Dosage"));
+  fireEvent.click(screen.getByText("Unit conversion"));
   expect(onOpenSet).toHaveBeenCalledWith("s2");
   fireEvent.click(screen.getByRole("radio", { name: /Steps/ }));
   expect(screen.getByText("No steps sets yet.")).toBeTruthy();

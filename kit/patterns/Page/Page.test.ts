@@ -61,7 +61,7 @@ test("the story renders", () => {
 test("a page shows a leading glyph before the title", () => {
   render(
     createElement(Page, {
-      title: "Pharmacology",
+      title: "Cell biology",
       glyph: createElement("svg", { "data-testid": "g" }),
     }),
   );

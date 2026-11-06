@@ -25,7 +25,7 @@ test("Delete on a collection goes to Notes with an Undo, never on to another col
       const body = u.includes("/collections")
         ? {
             collections: [
-              { id: "c1", title: "NUR 112", parentId: null, pos: 0 },
+              { id: "c1", title: "Biology 101", parentId: null, pos: 0 },
             ],
           }
         : u.includes("/memberships")
