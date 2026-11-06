@@ -1,4 +1,4 @@
-// The study plan's body: what the study plan job's model writes and what the app sends. Ranges and formats are
+// The prep plan's body: what the prep plan job's model writes and what the app sends. Ranges and formats are
 // refinements, so the JSON Schema sent to the model stays within what structured output supports (§model.output);
 // the job's checkPlan holds the semantic rules. One shape here, so commands/ and jobs/ keep none of their own.
 import { z } from "zod";
