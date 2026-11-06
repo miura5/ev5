@@ -60,14 +60,14 @@ test("the sidebar shows counts, the running job and a search that opens ⌘K", (
       areas={areas}
       counts={{ today: 4 }}
       deletedCount={2}
-      runningJob={{ id: "j1", text: "Writing mock exam · 3/4" }}
+      runningJob={{ id: "j1", text: "Writing practice set · 3/4" }}
       onOpenJob={onOpenJob}
     />,
   );
   expect(screen.getByRole("button", { name: /^Today/ }).textContent).toContain(
     "4",
   );
-  fireEvent.click(screen.getByRole("button", { name: /Writing mock exam/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Writing practice set/ }));
   expect(onOpenJob).toHaveBeenCalledWith("j1");
   fireEvent.click(screen.getByRole("button", { name: /Search or ask/ }));
   expect(screen.getByRole("option", { name: "Ask E.V." })).toBeTruthy();
