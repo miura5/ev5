@@ -187,7 +187,7 @@ test('docs-kinds: a kind written to docs that is off the allow list fails; liste
   const r = repo({
     'server/new.ts': 'await docs.save(\n  "flashcards",\n  id, text, null);',
     'server/two.ts': 'await put(x, `bookmarks`, id, doc, null); const row = { c: "goals", id };',
-    'server/ok.ts': 'await docs.save("notes", id, text, null); await need(x, "flashcards", id); await edit(x, ["dayedits", id], {}, "s", d => d);',
+    'server/ok.ts': 'await docs.save("plans", id, text, null); await need(x, "flashcards", id); await edit(x, ["dayedits", id], {}, "s", d => d);',
     'shell/out.ts': 'q.call(services.outbox, "journal", id, doc); q.call(services.outbox, "answers", id, doc);',
     'server/new.test.ts': 'docs.save("flashcards", id, text, null)',
     'data/docs/repo.ts': 'save("flashcards", id)' });

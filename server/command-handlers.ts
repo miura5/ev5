@@ -2,6 +2,7 @@
 // Table-backed commands use the repositories; commands a screen carries out itself (open, theme, navigation) are
 // acknowledged here so the route never answers 501 for them. Nothing here removes a document (§delete.who).
 import { docsRepo, tablesRepo } from "../data/index.ts";
+import { NOTE_MAX, noteRowId } from "../domain/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
@@ -29,7 +30,15 @@ async function collectionOf(db: DocsD1, id: string): Promise<string> {
     .prepare("SELECT DISTINCT c FROM docs WHERE id = ? LIMIT 2")
     .bind(id)
     .all<{ c: string }>();
-  if (!results.length) throw new CommandError(404, `no item ${id}`);
+  if (!results.length) {
+    // A note made since the notes moved to their table has no document (§data.tables).
+    const note = await db
+      .prepare("SELECT 1 AS n FROM notes WHERE id = ?")
+      .bind(noteRowId(id))
+      .all<{ n: number }>();
+    if (note.results.length) return "notes";
+    throw new CommandError(404, `no item ${id}`);
+  }
   if (results.length > 1)
     throw new CommandError(409, `${id} is in two collections`);
   return (results[0] as { c: string }).c;
@@ -90,6 +99,13 @@ export const commandHandlers: Record<string, CommandHandler> = {
       cur ? cur.v : null,
     );
     if (!r.ok) throw new CommandError(409, "that item changed; try again");
+    if (c === "notes") {
+      const note = await t.noteBook.get(noteRowId(i.id));
+      if (note) {
+        const { at: _a, v: _v, deleted_at: _d, ...f } = note;
+        await t.noteBook.change({ ...f, collection_id: i.collection }, note.v);
+      }
+    }
     return { membership: r.row };
   },
   // A collection lives in its own table: deleting it writes one deletions row for it and no row for its items, which
@@ -109,9 +125,15 @@ export const commandHandlers: Record<string, CommandHandler> = {
         return { deleted: true, collection: i.id };
       }
     }
-    return {
-      deleted: await repo.markDeleted(await collectionOf(x.db, i.id), i.id),
-    };
+    const c = await collectionOf(x.db, i.id);
+    // A note is a row: it is hidden there and listed in Recently deleted (§delete.soft).
+    if (c === "notes") {
+      const gone = await tablesRepo(x.db, {
+        clock: x.clock,
+      }).deletions.markNote(i.id);
+      if (gone) return { deleted: true };
+    }
+    return { deleted: await repo.markDeleted(c, i.id) };
   },
   // A restore only clears the deletions row: the document was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {
@@ -145,6 +167,17 @@ export const commandHandlers: Record<string, CommandHandler> = {
     }
     const repo = docsRepo(x.db, { clock: x.clock });
     const c = await collectionOf(x.db, i.id);
+    if (c === "notes") {
+      const note = await t.noteBook.get(noteRowId(i.id));
+      if (note) {
+        if (!i.title.trim() || i.title.length > NOTE_MAX.title)
+          throw new CommandError(400, "a note title is 1 to 300 characters");
+        const { at: _a, v: _v, deleted_at: _d, ...f } = note;
+        const r = await t.noteBook.change({ ...f, title: i.title }, note.v);
+        if (!r.ok) throw new CommandError(409, "that item changed; try again");
+        return { version: r.row.v };
+      }
+    }
     const doc = await repo.get(c, i.id);
     if (!doc) throw new CommandError(404, `no item ${i.id}`);
     const r = await repo.rename(c, i.id, i.title, doc.v);

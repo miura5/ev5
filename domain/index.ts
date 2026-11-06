@@ -37,10 +37,17 @@ export {
   fits,
   splitWide,
   IMG_KEY,
+  MAX as NOTE_MAX,
   type Block,
   type Run,
   type Note,
 } from "./note/index.ts";
+export {
+  noteRowId,
+  noteDocId,
+  noteDocOf,
+  newNoteRow,
+} from "./note/rows.ts";
 export { accuracyLine, dueCounts } from "./answers/index.ts";
 export { examDaysLeft } from "./exam/index.ts";
 export type { Exam } from "./exam/index.ts";

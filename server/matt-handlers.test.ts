@@ -4,19 +4,19 @@ import { tablesRepo } from "../data/index.ts";
 import { setup } from "./matt-handlers-setup.test.ts";
 
 test("a note is made, saved and moved", async () => {
-  const { call, doc } = await setup();
+  const { call, note, DB } = await setup();
   const col = await call("collection.create", { title: "BIO" });
   const cid = col.body.result.collection.id as string;
   const made = await call("note.create", { collection: cid });
   assert.equal(made.status, 200);
   const id = made.body.result.id as string;
-  assert.ok(await doc("notes", id));
+  assert.ok(await note(id));
   const saved = await call("note.save", {
     id,
     body: "Fluids\nSodium is 135-145",
   });
   assert.equal(saved.status, 200);
-  const after = await doc("notes", id);
+  const after = await note(id);
   assert.equal(after?.blocks.length, 2);
   const col2 = await call("collection.create", { title: "NUR" });
   const moved = await call("note.move", {
@@ -24,6 +24,19 @@ test("a note is made, saved and moved", async () => {
     collection: col2.body.result.collection.id,
   });
   assert.equal(moved.status, 200);
+  // the row holds the words in its search column and the collection it moved to; nothing went to docs
+  const row = await DB.prepare(
+    "SELECT text, collection_id, v FROM notes WHERE id = ?",
+  )
+    .bind(`note_${id}`)
+    .first<{ text: string; collection_id: string; v: number }>();
+  assert.equal(row?.text, "Fluids\nSodium is 135-145");
+  assert.equal(row?.collection_id, col2.body.result.collection.id);
+  assert.equal(
+    (await DB.prepare("SELECT 1 FROM docs WHERE c = 'notes'").all()).results
+      .length,
+    0,
+  );
   assert.equal(
     (await call("note.save", { id: "n-nope", body: "x" })).status,
     404,
@@ -38,7 +51,7 @@ test("a note is made, saved and moved", async () => {
     body: JSON.stringify([{ type: "h1", runs: [{ text: "Heart" }] }]),
   });
   assert.equal(j.status, 200);
-  assert.equal((await doc("notes", id))?.title, "Heart");
+  assert.equal((await note(id))?.title, "Heart");
 });
 
 test("new here makes a note, a set, a date and a collection", async () => {

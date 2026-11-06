@@ -170,6 +170,24 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .bind(row.id, row.at)
           .run();
       },
+      /** Soft delete of a note by its document id: a deletions row, and the row's `deleted_at` (reads hide it, §delete.soft). */
+      markNote: async (docId: string): Promise<boolean> => {
+        const row = del("notes", docId);
+        const r = await db
+          .prepare(
+            "UPDATE notes SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL",
+          )
+          .bind(row.at, row.at, `note_${docId}`)
+          .run();
+        if (r.meta.changes === 0) return false;
+        await db
+          .prepare(
+            "INSERT INTO deletions (c, id, at) VALUES ('notes', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+          )
+          .bind(row.id, row.at)
+          .run();
+        return true;
+      },
       /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
       restore: async (c: string, id: string): Promise<number> => {
         const n = (
@@ -185,6 +203,13 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
               "UPDATE set_items SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",
             )
             .bind(opts.clock(), itemKey(id.slice(id.indexOf("/") + 1)))
+            .run();
+        if (c === "notes")
+          await db
+            .prepare(
+              "UPDATE notes SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",
+            )
+            .bind(opts.clock(), `note_${id}`)
             .run();
         return n;
       },

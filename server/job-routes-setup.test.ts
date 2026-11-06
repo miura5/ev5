@@ -5,7 +5,7 @@ import type { D1Like, ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
 import { runWorkflow } from "./job-run.ts";
 import type { JobRunEnv } from "./job-run.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
 
 export const T = new Date("2026-11-03T12:00:00Z");
 const item = {
@@ -24,20 +24,6 @@ export const input = {
   excerpts: [{ id: "e1", text: "Pulse is measured..." }],
   drafts: false,
 };
-
-export const putNote = (db: D1Like, id: string, title: string, text: string) =>
-  db
-    .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('notes', ?, ?, 0, 1)",
-    )
-    .bind(
-      id,
-      JSON.stringify({
-        title,
-        blocks: [{ id: "b1", type: "p", runs: [{ text }] }],
-      }),
-    )
-    .run();
 
 export function setup() {
   const db = sqliteD1();
@@ -60,23 +46,12 @@ export function setup() {
       "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
     )
     .run();
-  void db
-    .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'e1', ?, 0, 1)",
-    )
-    .bind(
-      JSON.stringify({
-        title: "Vital signs",
-        blocks: [
-          {
-            id: "b1",
-            type: "p",
-            runs: [{ text: "Pulse is measured at the wrist." }],
-          },
-        ],
-      }),
-    )
-    .run();
+  void putNoteRow(
+    db,
+    "e1",
+    "Vital signs",
+    "Vital signs: pulse is measured at the wrist.",
+  );
   for (const k of ["hourly", "daily", "monthly", "per_job"])
     db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
       .bind(`ceiling_${k}`, 5_000_000)
