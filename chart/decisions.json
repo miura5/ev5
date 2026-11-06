@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-518",
+  "date": "Nov 6",
+  "title": "A build run that finds the run lock busy waits up to about 15 minutes for it, trying every 60 seconds, before it ends",
+  "why": "Matt approved (ev-build channel 2026-11-06). Manager threads that hold the lock briefly made the handover-triggered run quit twice today, stalling the chain until the hourly run. ops/build-lock.sh take now retries every 60 s for up to LOCK_WAIT seconds (default 450, so one call fits a 10-minute Bash timeout), and AGENTS.md §3 step 0 has a run call it twice before it ends. Each attempt is still one non-force push, so two waiting runs cannot both get the lock; the 75-minute stale rule is unchanged. Second way considered: one 15-minute call; rejected because a Bash call stops at 10 minutes. Drift risk: other sessions that call take now wait too; LOCK_WAIT=0 keeps the old one-try behaviour.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
   "id": "D-517",
   "date": "Nov 6",
   "title": "Five rules-to-guards audit fixes filed as notes: a migration freeze guard from the squash on, screens write only through commands, a pinned list of E.V.'s tools (B-1036, B-998); model call and write in separate job steps (B-1005); a refused palette write shows a toast (B-979)",

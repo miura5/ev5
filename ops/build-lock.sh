@@ -4,7 +4,9 @@
 # Taking or renewing pushes a child commit without force, so two runs that race cannot both win:
 # the second push is not a fast-forward and GitHub rejects it.
 #
-#   ops/build-lock.sh take      exit 0: this run holds the lock; exit 3: another run is working, end this run
+#   ops/build-lock.sh take      exit 0: this run holds the lock; while another holds it, retries every 60 s for up to
+#                               LOCK_WAIT seconds (default 450, so one call fits a 10-minute Bash timeout); exit 3: still
+#                               busy. A build run calls take twice (about 15 minutes) before it ends (AGENTS.md §3 step 0)
 #   ops/build-lock.sh renew     after each merged batch, so a long run does not look stale
 #   ops/build-lock.sh release   before opening the handover or wait PR
 #   ops/build-lock.sh status    print the holder and the age
@@ -14,6 +16,7 @@ set -u
 REF=refs/heads/claude/build-lock
 LOCAL=refs/remotes/origin/build-lock
 STALE=4500
+WAIT="${LOCK_WAIT:-450}"
 ME="${CLAUDE_CODE_REMOTE_SESSION_ID:-${BUILD_RUN_ID:-}}"
 
 if [ -z "$ME" ]; then
@@ -21,10 +24,13 @@ if [ -z "$ME" ]; then
   exit 2
 fi
 
-git fetch -q origin "+$REF:$LOCAL" || { echo "LOCK: cannot read $REF" >&2; exit 2; }
-TIP=$(git rev-parse "$LOCAL")
-SUBJ=$(git log -1 --format=%s "$TIP")
-AGE=$(( $(date +%s) - $(git log -1 --format=%ct "$TIP") ))
+read_lock() { # sets TIP, SUBJ, AGE from origin
+  git fetch -q origin "+$REF:$LOCAL" || { echo "LOCK: cannot read $REF" >&2; exit 2; }
+  TIP=$(git rev-parse "$LOCAL")
+  SUBJ=$(git log -1 --format=%s "$TIP")
+  AGE=$(( $(date +%s) - $(git log -1 --format=%ct "$TIP") ))
+}
+read_lock
 
 move() { # $1 = new message; pushes a child of TIP
   local new
@@ -37,17 +43,30 @@ case "${1:-status}" in
     echo "LOCK: $SUBJ ($((AGE / 60)) min ago)"
     ;;
   take)
-    case "$SUBJ" in
-      "held by $ME "*) ;;
-      held*)
-        if [ "$AGE" -lt "$STALE" ]; then
-          echo "LOCK BUSY: $SUBJ ($((AGE / 60)) min ago). Another run is working: end this run without a handover."
-          exit 3
-        fi
-        echo "LOCK: taking a stale lock ($SUBJ, $((AGE / 60)) min ago)"
-        ;;
-    esac
-    if move "held by $ME"; then echo "LOCK TAKEN by $ME"; else echo "LOCK BUSY: another run took it first. End this run."; exit 3; fi
+    # One attempt is one push (move), so two waiting runs cannot both win. Between attempts, wait 60 s and read again.
+    END=$(( $(date +%s) + WAIT ))
+    while :; do
+      case "$SUBJ" in
+        "held by $ME "*) BUSY= ;;
+        held*)
+          if [ "$AGE" -lt "$STALE" ]; then BUSY="$SUBJ ($((AGE / 60)) min ago)"; else
+            echo "LOCK: taking a stale lock ($SUBJ, $((AGE / 60)) min ago)"; BUSY=
+          fi
+          ;;
+        *) BUSY= ;;
+      esac
+      if [ -z "$BUSY" ]; then
+        if move "held by $ME"; then echo "LOCK TAKEN by $ME"; exit 0; fi
+        BUSY="another run took it first"
+      fi
+      if [ "$(date +%s)" -ge "$END" ]; then
+        echo "LOCK BUSY: $BUSY. Still held after waiting: end this run without a handover (AGENTS.md §3 step 0)."
+        exit 3
+      fi
+      echo "LOCK BUSY: $BUSY; trying again in 60 s"
+      sleep 60
+      read_lock
+    done
     ;;
   renew)
     case "$SUBJ" in
