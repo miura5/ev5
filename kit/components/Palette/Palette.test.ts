@@ -119,8 +119,8 @@ test("as a picker (ask off): no Ask row, no Tab, nested rows and the current one
         {
           name: "Move to",
           items: [
-            { key: "p", label: "NUR 112", current: true },
-            { key: "c", label: "Pharm", indent: 1 },
+            { key: "p", label: "Biology 101", current: true },
+            { key: "c", label: "Cells", indent: 1 },
           ],
         },
       ],
@@ -132,7 +132,7 @@ test("as a picker (ask off): no Ask row, no Tab, nested rows and the current one
     }),
   );
   const input = screen.getByRole("combobox");
-  fireEvent.change(input, { target: { value: "ph" } });
+  fireEvent.change(input, { target: { value: "cel" } });
   expect(screen.getAllByRole("option").length).toBe(1);
   fireEvent.keyDown(input, { key: "Tab" });
   expect(onAsk).not.toHaveBeenCalled();

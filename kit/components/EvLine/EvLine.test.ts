@@ -8,9 +8,9 @@ afterEach(cleanup);
 
 test("the line shows her words beside a mark hidden from assistive tech", () => {
   const { container } = render(
-    createElement(EvLine, null, "Start with Heparin?"),
+    createElement(EvLine, null, "Start with Photosynthesis?"),
   );
-  expect(screen.getByText("Start with Heparin?")).toBeTruthy();
+  expect(screen.getByText("Start with Photosynthesis?")).toBeTruthy();
   const mark = container.querySelector(".kit-evmark");
   expect(mark?.getAttribute("aria-hidden")).toBe("true");
   expect(mark?.classList.contains("kit-evmark-quiet")).toBe(false);

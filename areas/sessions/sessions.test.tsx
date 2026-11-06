@@ -11,7 +11,7 @@ afterEach(cleanup);
 
 const base = (over: Partial<SessionViewProps> = {}): SessionViewProps => ({
   title: "Cardiac output",
-  meta: "BIO 201",
+  meta: "Economics 101",
   seconds: 1100,
   paused: false,
   checks: [

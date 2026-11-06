@@ -6,7 +6,7 @@ import { Section } from "../Section/Section";
 import { Page } from "./Page";
 
 export function Story() {
-  const [name, setName] = useState("Pharmacology");
+  const [name, setName] = useState("Cell biology");
   return (
     <div data-ui="story-page">
       <Page

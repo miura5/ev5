@@ -3,13 +3,13 @@ import { Button } from "../Button/Button";
 import { MovePicker, type MoveTarget } from "./MovePicker";
 
 const TARGETS: MoveTarget[] = [
-  { id: "nur", title: "NUR 112" },
-  { id: "pharm", title: "Pharmacology", parentId: "nur" },
-  { id: "bio", title: "BIO 201" },
+  { id: "bio", title: "Biology 101" },
+  { id: "cells", title: "Cell biology", parentId: "bio" },
+  { id: "econ", title: "Economics 101" },
 ];
 
 export function Story() {
-  const [current, setCurrent] = useState<string | null>("pharm");
+  const [current, setCurrent] = useState<string | null>("cells");
   return (
     <div data-ui="story-move-picker">
       <MovePicker

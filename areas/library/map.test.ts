@@ -13,7 +13,7 @@ const exam = {
   title: "Exam 4",
   kind: "unit",
   date: "2026-11-05",
-  course: "NUR 112",
+  course: "Biology 101",
 };
 const spot = (topic: string) => ({
   ...base,

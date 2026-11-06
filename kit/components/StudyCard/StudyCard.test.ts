@@ -9,7 +9,7 @@ afterEach(cleanup);
 test("study shows no answer until turned, then rates", () => {
   const onTurn = vi.fn();
   const onRate = vi.fn();
-  const props = { kicker: "Term", face: "Preload", onTurn, onRate };
+  const props = { kicker: "Term", face: "Demand", onTurn, onRate };
   const { rerender } = render(createElement(StudyCard, props));
   expect(screen.queryByText("Good")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: /Turn over/ }));
@@ -53,5 +53,5 @@ test("the hero flips with Space and moves with the arrows", () => {
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("Cardiac output")).toBeTruthy();
+  expect(screen.getByText("Supply and demand")).toBeTruthy();
 });

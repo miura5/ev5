@@ -40,7 +40,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
   upcoming: [
     {
       id: "d1",
-      title: "NUR 112 · Exam 3",
+      title: "Biology 101 · Exam 3",
       kind: "exam",
       meta: "58% ready",
       when: "Thu",

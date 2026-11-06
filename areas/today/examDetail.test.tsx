@@ -25,7 +25,7 @@ const exam = {
   source: "test",
   title: "Exam 3",
   kind: "exam",
-  course: "NUR 112",
+  course: "Biology 101",
   date: soon,
 };
 

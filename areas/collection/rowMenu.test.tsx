@@ -8,13 +8,13 @@ test("a row opens its menu on right-click and the . key, and Move picks a collec
   const onMove = vi.fn();
   render(
     <CollectionView
-      title="NUR 112"
+      title="Biology 101"
       dates={[]}
       nested={[]}
       items={[{ id: "n1", type: "note", title: "Med math" }]}
       targets={[
-        { id: "c1", title: "NUR 112" },
-        { id: "c2", title: "BIO 201" },
+        { id: "c1", title: "Biology 101" },
+        { id: "c2", title: "Economics 101" },
       ]}
       onItemAction={() => undefined}
       onMove={onMove}
@@ -29,6 +29,6 @@ test("a row opens its menu on right-click and the . key, and Move picks a collec
   });
   fireEvent.contextMenu(screen.getByText("Med math"));
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
+  fireEvent.click(await screen.findByRole("option", { name: /Economics 101/ }));
   expect(onMove).toHaveBeenCalledWith("n1", "c2");
 });

@@ -13,10 +13,10 @@ import { Story } from "./Field.story";
 afterEach(cleanup);
 
 test("a field is found by its label", () => {
-  render(createElement(Field, { label: "Title", defaultValue: "Heparin" }));
+  render(createElement(Field, { label: "Title", defaultValue: "Photosynthesis" }));
   expect(
     (screen.getByRole("textbox", { name: "Title" }) as HTMLInputElement).value,
-  ).toBe("Heparin");
+  ).toBe("Photosynthesis");
 });
 
 test("a segmented choice marks one option on and reports a tap", () => {
@@ -96,11 +96,11 @@ test("a text area is found by its label and a choice by its words", () => {
       null,
       createElement(TextArea, { label: "Your answer", defaultValue: "x" }),
       createElement(Choice, { kind: "checkbox" }, "Done"),
-      createElement(Choice, { kind: "radio", name: "o" }, "Heparin"),
+      createElement(Choice, { kind: "radio", name: "o" }, "Photosynthesis"),
     ),
   );
   expect(screen.getByRole("textbox", { name: "Your answer" })).toBeTruthy();
   fireEvent.click(screen.getByRole("checkbox", { name: "Done" }));
   expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
-  expect(screen.getByRole("radio", { name: "Heparin" })).toBeTruthy();
+  expect(screen.getByRole("radio", { name: "Photosynthesis" })).toBeTruthy();
 });

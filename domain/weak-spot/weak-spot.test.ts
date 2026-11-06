@@ -27,7 +27,7 @@ const ws = (id: string, extra: Record<string, unknown> = {}): WeakSpot =>
     topic: id,
     objective: 'E4-3',
     exam: 'E4',
-    course: 'NUR 112',
+    course: 'Biology 101',
     kind: 'concept',
     addedBy: 'test',
     initial: { streak: 0, nextDue: '2026-10-16', recurrence: 1, misses: 0 },
@@ -191,7 +191,7 @@ test('two events at the same instant are both kept, and the user is the owner', 
 
 test('a new spot becomes a row with no events and no counts', () => {
   const doc = {
-    schema: 2 as const, writer: 'page' as const, at: '2026-11-02T15:00:00Z', source: 'I missed it', topic: 'Heparin',
+    schema: 2 as const, writer: 'page' as const, at: '2026-11-02T15:00:00Z', source: 'I missed it', topic: 'Photosynthesis',
     objective: 'obj_1', kind: 'concept' as const, initial: {}, events: {}, proposed: true,
   };
   expect(newWeakSpotRow('ws_1', doc, 'col_1')).toMatchObject({ id: 'ws_1', collection_id: 'col_1', objective_id: 'obj_1', proposed: 1, created_by: 'user', duplicate_of: null });
