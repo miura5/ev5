@@ -9,6 +9,8 @@ import {
   type WeakSpot,
   type Attempt,
 } from './index.ts';
+import { eventFromRow, weakSpotFromRows } from './rows.ts';
+import type { WeakSpotEventRow } from './table.ts';
 
 // Ported from ev4 test/core.test.mjs (spaced review, pre-read, events); all data is made up.
 const at = (date: string, hm = '15:00') => `${date}T${hm}:00Z`; // 15:00Z = 10:00 Central (CDT)
@@ -157,4 +159,32 @@ test('parse refuses stored derived state and bad shapes', () => {
   expect(() => ws('a', { kind: 'quiz' })).toThrow();
   expect(() => ws('a', { schema: 1, proposed: true })).toThrow();
   expect(() => ws('a', { events: { 'bad key': { type: 'park' } } })).toThrow();
+});
+
+const row = {
+  id: 'ws_1', collection_id: null, objective_id: 'obj_1', topic: 'Sodium', kind: 'concept' as const, words: null,
+  source_line: 'E.V. Home', duplicate_of: null, proposed: 1 as const, created_by: 'ev' as const, pre_read: 0 as const,
+  reading_due: null, at: Date.parse('2026-11-01T10:00:00Z'), v: 1, deleted_at: null,
+};
+const evRow = (id: string, type: WeakSpotEventRow['type'], at: string, o: Partial<WeakSpotEventRow> = {}): WeakSpotEventRow => ({
+  id, weak_spot_id: 'ws_1', type, by: 'user', note: null, objective_id: null, until: null, at: Date.parse(at), v: 1, ...o,
+});
+
+test('a spot from rows points at its objective and derives as the document model does', () => {
+  const w = weakSpotFromRows(row, []);
+  expect(w.objective).toBe('obj_1');
+  expect('exam' in w || 'course' in w).toBe(false);
+  expect(deriveWeakSpot(w, []).status).toBe('proposed');
+  const open = weakSpotFromRows(row, [evRow('wse_1', 'accept', '2026-11-02T15:00:00Z', { objective_id: 'obj_2' })]);
+  const d = deriveWeakSpot(open, []);
+  expect(d.status).toBe('open');
+  expect(d.objective).toBe('obj_2');
+});
+
+test('two events at the same instant are both kept, and the user is the owner', () => {
+  const at = '2026-11-02T15:00:00Z';
+  const w = weakSpotFromRows({ ...row, proposed: 0 }, [evRow('wse_a', 'seen', at), evRow('wse_b', 'solid', at)]);
+  expect(Object.keys(w.events)).toHaveLength(2);
+  expect(eventFromRow(evRow('wse_c', 'solid', at)).by).toBe('owner');
+  expect(deriveWeakSpot(w, []).status).toBe('reviewed');
 });

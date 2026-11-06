@@ -214,7 +214,12 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
 }
 
 export function kindsRepo(db: D1Like, opts: TablesOptions) {
-  const t = <R extends Stamped>(k: Kind<R>) => table(db, opts, k);
+  type Repo<R extends Stamped> = ReturnType<typeof table<R>>;
+  // The two shapes of table: versioned (save, remove, restore) and append-only (add only), typed apart.
+  const t = <R extends Stamped>(k: Kind<R>) =>
+    table(db, opts, k) as Extract<Repo<R>, { save: unknown }>;
+  const a = <R extends Stamped>(k: Kind<R>) =>
+    table(db, opts, k) as Extract<Repo<R>, { add: unknown }>;
   return {
     goals: t(kind("goals", parseGoalRow)),
     objectives: t(
@@ -236,7 +241,7 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
         "set_id, pos, id",
       ),
     ),
-    setItemVersions: t(
+    setItemVersions: a(
       kind(
         "set_item_versions",
         parseSetItemVersionRow,
@@ -246,7 +251,7 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
       ),
     ),
     weakSpots: t(kind("weak_spots", parseWeakSpotTableRow)),
-    weakSpotEvents: t(
+    weakSpotEvents: a(
       kind(
         "weak_spot_events",
         parseWeakSpotEventRow,
@@ -255,9 +260,9 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
         true,
       ),
     ),
-    attempts: t(kind("attempts", parseAttemptRow, ["answer"], "at, id", true)),
+    attempts: a(kind("attempts", parseAttemptRow, ["answer"], "at, id", true)),
     sessions: t(kind("sessions", parseSessionTableRow, ["driver"])),
-    sessionEvents: t(
+    sessionEvents: a(
       kind(
         "session_events",
         parseSessionEventRow,
@@ -266,6 +271,6 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
         true,
       ),
     ),
-    talk: t(kind("talk", parseTalkRow, ["cites"], "chat_id, at, id", true)),
+    talk: a(kind("talk", parseTalkRow, ["cites"], "chat_id, at, id", true)),
   };
 }
