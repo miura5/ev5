@@ -12,6 +12,7 @@ import {
   update,
 } from "../jobs/index.ts";
 import type { JobDef } from "../jobs/index.ts";
+import { readJobPlan } from "./job-plans.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { saveScope, startEnv, withGathered } from "./job-routes.ts";
@@ -29,7 +30,9 @@ async function need(x: HandlerCtx, id: string) {
 
 export const jobHandlers: Record<string, CommandHandler> = {
   // The 15-minute cron: fails queued or running jobs whose runner was lost; a second run finds nothing to change.
-  job_sweep: async (_i, _c, x) => ({ failed: await sweepStale(storeOf(x), iso(x)) }),
+  job_sweep: async (_i, _c, x) => ({
+    failed: await sweepStale(storeOf(x), iso(x)),
+  }),
   // A job that is still going ends as failed with the reason "Stopped"; a finished one cannot be stopped.
   "job.stop": async (i: Ref, _c, x) => {
     const rec = await need(x, i.id);
@@ -72,14 +75,17 @@ export const jobHandlers: Record<string, CommandHandler> = {
     if (rec.kind !== practiceSet.kind)
       throw new CommandError(409, `${rec.title} has no shorter version`);
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
-    const row = await x.db
-      .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = 'scope'")
-      .bind(rec.id)
-      .first<{ body: string }>();
-    if (!row) throw new CommandError(409, "the original request was not kept");
+    let row;
+    try {
+      row = await readJobPlan(x.db as never, rec.id, "scope");
+    } catch {
+      throw new CommandError(409, "the original request cannot be read");
+    }
+    if (row === undefined)
+      throw new CommandError(409, "the original request was not kept");
     let scope;
     try {
-      scope = parsePublicInput(JSON.parse(row.body));
+      scope = parsePublicInput(row);
     } catch {
       throw new CommandError(409, "the original request cannot be read");
     }

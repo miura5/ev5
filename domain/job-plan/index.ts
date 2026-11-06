@@ -14,3 +14,23 @@ export type JobPlanRow = z.infer<typeof jobPlanSchema>;
 export function parseJobPlanRow(raw: unknown): JobPlanRow {
   return jobPlanSchema.parse(raw);
 }
+
+/** A `job_plans` row as D1 returns it: the body is the JSON text the writer saved. */
+const storedPlanSchema = z.object({
+  job_id: z.string().min(1),
+  body: z.string(),
+});
+
+/** Parses a stored job_plans row on read and returns its decoded body; throws when the row or its JSON is malformed. */
+export function parseStoredPlanBody(raw: unknown): unknown {
+  return JSON.parse(storedPlanSchema.pick({ body: true }).parse(raw).body);
+}
+
+/** Parses a stored job_plans row (with its job id) on read; throws when the row or its JSON is malformed. */
+export function parseStoredPlan(raw: unknown): {
+  jobId: string;
+  body: unknown;
+} {
+  const r = storedPlanSchema.parse(raw);
+  return { jobId: r.job_id, body: JSON.parse(r.body) };
+}
