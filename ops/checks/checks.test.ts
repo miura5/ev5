@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { checkAccount } from './account.ts';
+import { checkDocsKinds } from './docskinds.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
 import { checkPlanJob } from './planjob.ts';
@@ -179,4 +180,16 @@ test('handover: over 4 KB or a line over 600 characters fails', () => {
   assert.equal(checkHandover(dir, [f]).length, 1);
   fs.writeFileSync(path.join(dir, f), 'short line\n'.repeat(400));
   assert.equal(checkHandover(dir, [f]).length, 1);
+});
+
+test('docs-kinds: a kind written to docs that is off the allow list fails; listed kinds, reads, tests and data/docs pass', () => {
+  const r = repo({
+    'server/new.ts': 'await docs.save(\n  "flashcards",\n  id, text, null);',
+    'server/two.ts': 'await put(x, `bookmarks`, id, doc, null); const row = { c: "goals", id };',
+    'server/ok.ts': 'await docs.save("notes", id, text, null); await need(x, "flashcards", id); await edit(x, ["dayedits", id], {}, "s", d => d);',
+    'shell/out.ts': 'q.call(services.outbox, "journal", id, doc); q.call(services.outbox, "answers", id, doc);',
+    'server/new.test.ts': 'docs.save("flashcards", id, text, null)',
+    'data/docs/repo.ts': 'save("flashcards", id)' });
+  const found = checkDocsKinds(r.root, r.files).map(f => `${f.file}:${/kind "(\w+)"/.exec(f.detail)?.[1]}`).sort();
+  assert.deepEqual(found, ['server/new.ts:flashcards', 'server/two.ts:bookmarks', 'server/two.ts:goals', 'shell/out.ts:journal']);
 });
