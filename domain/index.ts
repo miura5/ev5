@@ -145,7 +145,14 @@ export {
 /** @public Row shapes for the new per-kind tables; the tables gate and the migration import them. */
 export { prefixed, WRITERS } from "./table-row/index.ts";
 /** @public */
-export { parseGoalRow, type GoalRow } from "./goal/index.ts";
+export {
+  DATE_KINDS,
+  kindOffers,
+  parseGoalRow,
+  toolsForKind,
+  type DateTool,
+  type GoalRow,
+} from "./goal/index.ts";
 /** @public */
 export { parseLinkRow, LINK_PAIRS, type LinkRow } from "./link/index.ts";
 /** @public */

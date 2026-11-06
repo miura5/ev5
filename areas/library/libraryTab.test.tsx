@@ -13,16 +13,16 @@ const selected = () =>
     .filter((t) => t.getAttribute("aria-checked") === "true")
     .map((t) => t.textContent);
 
-test("an initial tab lights that tab (an exam opened by a link lights Exams)", () => {
+test("an initial tab lights that tab (an exam opened by a link lights Dates)", () => {
   render(
     <LibraryView
       practice={null}
       weakSpots={[]}
       exams={[]}
-      initialTab="exams"
+      initialTab="dates"
     />,
   );
-  expect(selected()).toEqual(["Exams0"]);
+  expect(selected()).toEqual(["Dates0"]);
 });
 
 test("the tab he left on survives a reload", () => {

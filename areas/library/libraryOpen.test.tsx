@@ -97,7 +97,7 @@ test("?open=<weak spot id> opens its detail", async () => {
 test("an unknown id does nothing", async () => {
   boot("nope");
   await waitFor(() =>
-    expect(screen.getByRole("radio", { name: "Exams1" })).toBeTruthy(),
+    expect(screen.getByRole("radio", { name: "Dates1" })).toBeTruthy(),
   );
   expect(screen.queryByText("Review the study plan")).toBeNull();
   expect(screen.queryByText("How many mL?")).toBeNull();
