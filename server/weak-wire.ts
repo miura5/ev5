@@ -4,7 +4,12 @@
 // spot's exam is the nearest upcoming dated exam of its course (an exam of that course with no date comes after the dated ones).
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
-import { parseExam, weakSpotDoc } from "../domain/index.ts";
+import {
+  newWeakSpotRow,
+  parseExam,
+  parseWeakSpot,
+  weakSpotDoc,
+} from "../domain/index.ts";
 import type { Exam } from "../domain/index.ts";
 
 export interface WireSpot {
@@ -84,4 +89,46 @@ export async function weakSpotDocs(
         examDate: (exam?.exam as Exam | undefined)?.date ?? null,
       };
     });
+}
+
+export type Created =
+  | { ok: true; at: number; version: number }
+  | { ok: false; status: 400 | 409; error: string };
+
+/**
+ * Creates a weak spot in its table (§data.tables, §data.gate), from the document the page or a run sends. The id is the row's
+ * `ws_` id. It is a create only: a repeat id, or a named version, is a 409. A new spot carries no events and no starting counts;
+ * its course comes from the document's `course` (the collection's id or title). Nothing is written to `docs`.
+ */
+export async function createWeakSpot(
+  db: DocsD1,
+  clock: () => number,
+  id: string,
+  body: string,
+  ifVersion: number | null,
+): Promise<Created> {
+  if (!id.startsWith("ws_"))
+    return { ok: false, status: 400, error: "a weak spot id starts with ws_" };
+  if (ifVersion !== null)
+    return { ok: false, status: 409, error: "a weak spot is created once" };
+  const t = tablesRepo(db, { clock });
+  try {
+    const doc = parseWeakSpot(JSON.parse(body));
+    const course = doc.course?.toLowerCase();
+    const home = course
+      ? (await t.collections.list()).find(
+          (c) =>
+            c.id.toLowerCase() === course || c.title.toLowerCase() === course,
+        )
+      : undefined;
+    const saved = await t.weakSpots.save(
+      newWeakSpotRow(id, doc, home?.id ?? null),
+      null,
+    );
+    return saved.ok
+      ? { ok: true, at: saved.row.at, version: saved.row.v }
+      : { ok: false, status: 409, error: "that changed; try again" };
+  } catch (e) {
+    return { ok: false, status: 400, error: (e as Error).message };
+  }
 }

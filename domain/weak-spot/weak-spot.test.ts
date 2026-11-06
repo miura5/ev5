@@ -9,7 +9,7 @@ import {
   type WeakSpot,
   type Attempt,
 } from './index.ts';
-import { eventFromRow, weakSpotFromRows } from './rows.ts';
+import { eventFromRow, newWeakSpotRow, weakSpotFromRows } from './rows.ts';
 import type { WeakSpotEventRow } from './table.ts';
 
 // Ported from ev4 test/core.test.mjs (spaced review, pre-read, events); all data is made up.
@@ -187,4 +187,15 @@ test('two events at the same instant are both kept, and the user is the owner', 
   expect(Object.keys(w.events)).toHaveLength(2);
   expect(eventFromRow(evRow('wse_c', 'solid', at)).by).toBe('owner');
   expect(deriveWeakSpot(w, []).status).toBe('reviewed');
+});
+
+test('a new spot becomes a row with no events and no counts', () => {
+  const doc = {
+    schema: 2 as const, writer: 'page' as const, at: '2026-11-02T15:00:00Z', source: 'I missed it', topic: 'Heparin',
+    objective: 'obj_1', kind: 'concept' as const, initial: {}, events: {}, proposed: true,
+  };
+  expect(newWeakSpotRow('ws_1', doc, 'col_1')).toMatchObject({ id: 'ws_1', collection_id: 'col_1', objective_id: 'obj_1', proposed: 1, created_by: 'user', duplicate_of: null });
+  expect(newWeakSpotRow('ws_2', { ...doc, objective: '', writer: 'worker' }, null)).toMatchObject({ objective_id: null, created_by: 'ev' });
+  expect(() => newWeakSpotRow('ws_3', { ...doc, initial: { streak: 2 } }, null)).toThrow();
+  expect(() => newWeakSpotRow('ws_4', { ...doc, events: { 'accept-20261102-150000': { type: 'accept' } } }, null)).toThrow();
 });
