@@ -108,22 +108,11 @@ test("a finished prep plan's Done today entry carries its exam's title, and none
       )
       .bind(job, JSON.stringify({ goal: { id: goalId } }))
       .run();
-  await ctx("sp-t", "ex-1");
-  await ctx("sp-x", "ex-gone");
+  await ctx("sp-t", "goal_ex1");
+  await ctx("sp-x", "goal_gone");
   await db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'ex-1', ?, 0, 1)",
-    )
-    .bind(
-      JSON.stringify({
-        schema: 2,
-        writer: "page",
-        at: "2026-11-03T00:00:00Z",
-        source: "t",
-        kind: "unit",
-        title: "NUR 112 Exam 2",
-        date: "2026-11-20",
-      }),
+      "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_ex1', NULL, 'NUR 112 Exam 2', 'exam', '2026-11-20', 'open', NULL, 'user', 0, 1)",
     )
     .run();
   const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");

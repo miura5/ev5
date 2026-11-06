@@ -3,7 +3,7 @@
 // it points at an objective, and the objective is linked to goals (§data.links), so a spot's goal is the soonest upcoming
 // goal its objective is linked to (a goal with no date comes after the dated ones). No name is matched.
 import { tablesRepo } from "../data/index.ts";
-import { examDocs, goalsByObjective } from "./goal-wire.ts";
+import { goalDocs, goalsByObjective } from "./goal-wire.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
   newWeakSpotRow,
@@ -56,7 +56,7 @@ export async function weakSpotDocs(
       t.weakSpotEvents.list(),
       t.objectives.list(),
       t.collectionRows.list(),
-      examDocs(db, clock),
+      goalDocs(db, clock),
       goalsByObjective(db, clock),
     ]);
   const goalOf = goalOfObjective(exams, linked);
