@@ -1,5 +1,5 @@
 // domain/link: the one many-to-many table. A link points at a goal or an objective (table design 2.4): a note, set or
-// file is for a goal; an objective is on a goal; a note, set or file covers an objective. Material waits (per the table-design decision).
+// file is for a goal; an objective or a weak spot is on a goal; a note, set or file covers an objective. Material waits (per the table-design decision).
 import { z } from "zod";
 import {
   deletable,
@@ -14,6 +14,7 @@ const SOURCES = ["note", "set", "file"] as const;
 export const LINK_PAIRS: readonly (readonly [string, string])[] = [
   ...SOURCES.map((k) => [k, "goal"] as const),
   ["objective", "goal"],
+  ["weak_spot", "goal"],
   ...SOURCES.map((k) => [k, "objective"] as const),
 ];
 

@@ -86,3 +86,15 @@ export async function goalsByObjective(
       out.set(l.from_id, [...(out.get(l.from_id) ?? []), l.to_id]);
   return out;
 }
+
+/** For each weak spot, the goals it is linked to directly (weak spot -> goal links, §data.links). */
+export async function goalsByWeakSpot(
+  db: DocsD1,
+  clock: () => number,
+): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  for (const l of await tablesRepo(db, { clock }).links.list())
+    if (l.from_kind === "weak_spot" && l.to_kind === "goal")
+      out.set(l.from_id, [...(out.get(l.from_id) ?? []), l.to_id]);
+  return out;
+}

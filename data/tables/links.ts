@@ -9,6 +9,7 @@ import { kindsRepo } from "./kinds.ts";
 /** The table each link end lives in. `file` has no table yet (note pictures come later), so its end is not resolved. */
 const END_TABLE: Record<string, string | undefined> = {
   goal: "goals",
+  weak_spot: "weak_spots",
   objective: "objectives",
   note: "notes",
   set: "sets",
