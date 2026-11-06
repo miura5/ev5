@@ -56,7 +56,7 @@ export async function setPlanState(
   return { ...cur, state };
 }
 
-/** The study plan's content in `job_plans`, keyed by job id so a retried step writes the same row. */
+/** The prep plan's content in `job_plans`, keyed by job id so a retried step writes the same row. */
 export function d1PlanStore(
   db: D1Like,
   clock: Clock,
