@@ -8,9 +8,8 @@ const ID = /§[a-z][a-z0-9-]*\.[a-z0-9][a-z0-9.-]*[a-z0-9]/g;
 const SCANNED = /\.(?:tsx?|css|[cm]?js|sh|jsonc?|ya?ml|html)$/;
 const SKIPPED = /(?:^|\/)(?:node_modules|dist|chart)\/|\.test\.tsx?$|^package-lock\.json$/;
 
-// Citations found wrong on 2026-11-06 in files outside this check's slice, as `file rule-without-the-section-sign`.
-// The task that owns the file fixes the citation (that one should cite model.ceilings) and removes the line. Never add one.
-const ALLOWED = new Set<string>(['server/handlers-studyplan.ts job.ceilings']);
+// Citations found wrong in files outside this check's slice, as `file rule-without-the-section-sign`. Never add one.
+const ALLOWED = new Set<string>([]);
 
 export function checkSourceIds(root: string, files: string[]): Finding[] {
   if (!files.includes('CONTRACT.md')) return [];

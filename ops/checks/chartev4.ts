@@ -5,9 +5,9 @@ import { read } from './lib.ts';
 
 const EV4_PATH = /(?<![\w./-])(?:tools|core|pwa|page)\/[\w./-]+|(?<![\w.-])spec\.[a-z][\w.]*/;
 
-// Paths found in open done bars on 2026-11-06, still to be rewritten by their tasks through the Chart; delete each line then.
+// Paths found in open done bars, still to be rewritten through the Chart; delete each line then.
 // Never add one.
-const ALLOWED = new Set(['spec.boundaries', 'tools/token-audit.mjs', 'spec.ui.look.layout']);
+const ALLOWED = new Set<string>([]);
 
 export function checkChartEv4(root: string, files: string[]): Finding[] {
   if (!files.includes('chart/tasks.json')) return [];
