@@ -60,7 +60,11 @@ function setup(
   const run: JobRunEnv = {
     db,
     call,
-    prompts: { practice_set: "write", study_plan: "plan", study_plan_changes: "chg" },
+    prompts: {
+      practice_set: "write",
+      study_plan: "plan",
+      study_plan_changes: "chg",
+    },
     planHome: { load: async () => undefined, apply: async () => "x" },
     now: () => T,
     newId: () => "h1",
@@ -85,8 +89,8 @@ test("a practice set runs through the Workflow: items saved, cost counted, job d
   assert.deepEqual(rec.output, { home: "library", id: "set-1" });
   assert.equal(calls(), 1);
   const items = await db
-    .prepare("SELECT COUNT(*) AS n FROM own_set_items WHERE set_id = ?")
-    .bind("set-1")
+    .prepare("SELECT COUNT(*) AS n FROM set_items WHERE set_id = ?")
+    .bind("set_set-1")
     .first<{ n: number }>();
   assert.equal(items?.n, 2);
   const day = await db

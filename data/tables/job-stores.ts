@@ -2,6 +2,8 @@
 // runtime's own, moved here unchanged so jobs/ can swap to these. Writes take `at` from the Worker clock, a job record is
 // pinned to the version read, and the ceiling statements run as atomic batches that a guard can roll back.
 import {
+  itemKey,
+  setKey,
   parseCeilingHold,
   parseJobRecord,
   type JobRecordRow,
@@ -237,9 +239,19 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
           ...items.map((body, n) =>
             db
               .prepare(
-                "INSERT OR IGNORE INTO own_set_items (set_id, item_id, pos, body, at, v) VALUES (?, ?, ?, ?, ?, 1)",
+                "INSERT OR IGNORE INTO set_items (id, set_id, pos, type, body, at, v) VALUES (?, ?, ?, ?, json_remove(?, '$.id'), ?, 1)",
               )
-              .bind(a.targetId, itemIds[n]!, n, body, at),
+              .bind(
+                itemKey(itemIds[n]!),
+                setKey(a.targetId),
+                n,
+                String(
+                  (a.items[n] as { type?: unknown } | undefined)?.type ??
+                    "single",
+                ),
+                body,
+                at,
+              ),
           ),
           ...a.drafts.map((d, n) =>
             db

@@ -2,7 +2,14 @@
 // there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
 // set's attempt is an append-only `own_attempts` row; an ev4 set's is a new `answers` document (its set is never touched).
 // Choice items are graded here; numeric items against their tolerance; an open answer is recorded for grading later.
-import { parseSet, scoreAnswer, itemType, numberAnswer } from "../domain/index.ts";
+import {
+  itemKey,
+  numberAnswer,
+  itemType,
+  parseSet,
+  scoreAnswer,
+  setKey,
+} from "../domain/index.ts";
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -17,8 +24,10 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
   const slash = id.indexOf("/");
   if (slash < 0) {
     const { results } = await x.db
-      .prepare("SELECT set_id FROM own_set_items WHERE item_id = ? LIMIT 2")
-      .bind(id)
+      .prepare(
+        "SELECT set_id FROM set_items WHERE id = ? AND deleted_at IS NULL LIMIT 2",
+      )
+      .bind(itemKey(id))
       .all<{ set_id: string }>();
     if (results.length > 1)
       throw new CommandError(409, `${id} is in two sets; name it <set>/<item>`);
@@ -27,10 +36,15 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
   }
   const set = id.slice(0, slash);
   const itemId = id.slice(slash + 1);
-  const own = (await repo(x).ownSets.items(set)).find(
-    (r) => r.itemId === itemId,
+  const own = (await repo(x).setBook.read(setKey(set)))?.items.find(
+    (r) => r.id === itemKey(itemId),
   );
-  if (own) return { own: true, set, item: own.body as Item };
+  if (own)
+    return {
+      own: true,
+      set: own.set_id,
+      item: { ...(own.body as object), id: own.id } as Item,
+    };
   const doc = await docsRepo(x.db, { clock: x.clock }).get("sets", set);
   const item = doc && parseSet(doc.data).items.find((q) => q.id === itemId);
   if (!item) throw new CommandError(404, `no item ${id}`);
@@ -142,8 +156,8 @@ const reveal = (q: Item) => ({
 export const studyHandlers: Record<string, CommandHandler> = {
   // Opening the study view is the screen's; the server says what is in the set and where he left off.
   "study.start": async (i: { id: string }, _c, x) => {
-    const own = await repo(x).ownSets.items(i.id);
-    let ids = own.map((r) => r.itemId);
+    const own = (await repo(x).setBook.read(setKey(i.id)))?.items ?? [];
+    let ids = own.map((r) => r.id);
     if (!own.length) {
       const doc = await docsRepo(x.db, { clock: x.clock }).get("sets", i.id);
       if (!doc) throw new CommandError(404, `no set ${i.id}`);

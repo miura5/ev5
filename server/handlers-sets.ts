@@ -1,6 +1,7 @@
-// Matt's own sets (CONTRACT §data.tables, §ui.own-everything): `own_sets` rows with their items in `own_set_items`,
+// Matt's own sets (CONTRACT §data.tables, §ui.own-everything): `sets` rows with their items in `set_items`,
 // written with the table protocol (a version, a stale write is a 409). An item is typed as a question, then "- " lines
 // for options and "* " for the right ones. Removing an item writes a `deletions` row and leaves the row (§delete.soft).
+import { itemKey, setKey } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -52,22 +53,75 @@ function edited(
   return kept;
 }
 
+type Book = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof repo>["setBook"]["read"]>>
+>;
+type TItem = Book["items"][number];
+const stamp = (at: number) => new Date(at).toISOString();
+
+/** The set as screens have always had it: its type is "question" and a source is <kind>/<id>. */
+const asSet = (s: Book["set"]) => ({
+  id: s.id,
+  title: s.title ?? "",
+  type: "question",
+  sourceC: s.source_kind,
+  sourceId: s.source_id,
+  at: stamp(s.at),
+  v: s.v,
+});
+
+/** The item as screens have always had it: its body carries its id. */
+const asItem = (i: TItem) => ({
+  setId: i.set_id,
+  itemId: i.id,
+  pos: i.pos,
+  body: { ...(i.body as object), id: i.id },
+  at: stamp(i.at),
+  v: i.v,
+});
+
+/** The row's fields from a typed body: the id is the row's, so the body stays without it. */
+function rowBody(body: Record<string, unknown>) {
+  const { id: _id, ...rest } = body;
+  return {
+    type: String(rest.type ?? "single") as TItem["type"],
+    body: rest as TItem["body"],
+  };
+}
+
 async function ownSet(x: HandlerCtx, id: string) {
-  const s = await repo(x).ownSets.get(id);
-  if (!s) throw new CommandError(404, `no set ${id}`);
-  return s;
+  const book = await repo(x).setBook.read(setKey(id));
+  if (!book) throw new CommandError(404, `no set ${id}`);
+  return book;
 }
 
 async function ownItem(x: HandlerCtx, set: string, item: string) {
-  await ownSet(x, set);
-  const found = (await repo(x).ownSets.items(set)).find(
-    (r) => r.itemId === item,
-  );
+  const book = await ownSet(x, set);
+  const found = book.items.find((r) => r.id === itemKey(item));
   if (!found) throw new CommandError(404, `no item ${item} in ${set}`);
   return found;
 }
 
 const refuse = () => new CommandError(409, "that set changed; try again");
+
+/** The fields every own set row has besides what the caller changes. */
+const ownFields = (
+  id: string,
+  title: string,
+  collection: string | null,
+  source: [string | null, string | null],
+) => ({
+  id,
+  collection_id: collection,
+  kind: "adhoc" as const,
+  title,
+  source_kind: source[0],
+  source_id: source[1],
+  created_by: "user" as const,
+  job_id: null,
+  focus: null,
+  asked: null,
+});
 
 export const setHandlers: Record<string, CommandHandler> = {
   "set.create": async (
@@ -82,19 +136,12 @@ export const setHandlers: Record<string, CommandHandler> = {
       );
     if (i.collection && !(await repo(x).collections.get(i.collection)))
       throw new CommandError(404, `no collection ${i.collection}`);
-    const r = await repo(x).ownSets.save(
-      {
-        id: x.newId(),
-        title: i.title,
-        type: "question",
-        sourceC: null,
-        sourceId: null,
-      },
-      null,
+    const r = await repo(x).setBook.create(
+      ownFields(setKey(x.newId()), i.title, i.collection ?? null, [null, null]),
     );
     if (!r.ok) throw refuse();
-    if (i.collection) await place(x, "own_sets", r.row.id, i.collection);
-    return { set: r.row };
+    if (i.collection) await place(x, "sets", r.row.id, i.collection);
+    return { set: asSet(r.row) };
   },
 
   "set.update": async (
@@ -108,7 +155,7 @@ export const setHandlers: Record<string, CommandHandler> = {
     _c,
     x,
   ) => {
-    const cur = await ownSet(x, i.id);
+    const cur = (await ownSet(x, i.id)).set;
     if (i.type && i.type !== "question")
       throw new CommandError(
         400,
@@ -116,36 +163,48 @@ export const setHandlers: Record<string, CommandHandler> = {
       );
     const [sourceC, sourceId] =
       i.source === undefined
-        ? [cur.sourceC, cur.sourceId]
+        ? [cur.source_kind, cur.source_id]
         : i.source.split("/", 2);
     if (i.source !== undefined && (!sourceC || !sourceId))
       throw new CommandError(400, "a source is <collection>/<id>");
-    const r = await repo(x).ownSets.save(
+    if (i.collection && !(await repo(x).collections.get(i.collection)))
+      throw new CommandError(404, `no collection ${i.collection}`);
+    const r = await repo(x).setBook.update(
       {
-        id: cur.id,
-        title: i.title ?? cur.title,
-        type: "question",
-        sourceC: sourceC ?? null,
-        sourceId: sourceId ?? null,
+        ...ownFields(
+          cur.id,
+          i.title ?? cur.title ?? "",
+          i.collection ?? cur.collection_id,
+          [sourceC ?? null, sourceId ?? null],
+        ),
+        kind: cur.kind,
+        created_by: cur.created_by,
+        job_id: cur.job_id,
+        focus: cur.focus,
+        asked: cur.asked,
       },
       cur.v,
     );
     if (!r.ok) throw refuse();
-    if (i.collection) await place(x, "own_sets", cur.id, i.collection);
-    return { set: r.row };
+    if (i.collection) await place(x, "sets", cur.id, i.collection);
+    return { set: asSet(r.row) };
   },
 
   "set.item_add": async (i: { set: string; text: string }, _c, x) => {
-    await ownSet(x, i.set);
-    const items = await repo(x).ownSets.items(i.set);
-    const id = x.newId();
+    const { set, items } = await ownSet(x, i.set);
+    const id = itemKey(x.newId());
     const pos = items.reduce((m, r) => Math.max(m, r.pos + 1), 1);
-    const r = await repo(x).ownSets.saveItem(
-      { setId: i.set, itemId: id, pos, body: itemBody(id, i.text) as never },
-      null,
-    );
+    const r = await repo(x).setBook.addItem({
+      id,
+      set_id: set.id,
+      pos,
+      ...rowBody(itemBody(id, i.text)),
+      objective_id: null,
+      weak_spot_id: null,
+      source_ref: null,
+    });
     if (!r.ok) throw refuse();
-    return { item: r.row };
+    return { item: asItem(r.row) };
   },
 
   "set.item_update": async (
@@ -154,22 +213,21 @@ export const setHandlers: Record<string, CommandHandler> = {
     x,
   ) => {
     const cur = await ownItem(x, i.set, i.item);
-    const r = await repo(x).ownSets.saveItem(
-      {
-        setId: i.set,
-        itemId: i.item,
-        pos: cur.pos,
-        body: edited(cur.body, itemBody(i.item, i.text)) as never,
-      },
+    const r = await repo(x).setBook.editItem(
+      cur.id,
+      rowBody(edited(cur.body, itemBody(cur.id, i.text))),
       cur.v,
     );
     if (!r.ok) throw refuse();
-    return { item: r.row };
+    return { item: asItem(r.row) };
   },
 
   "set.item_delete": async (i: { set: string; item: string }, _c, x) => {
-    await ownItem(x, i.set, i.item);
-    await repo(x).deletions.markOwnSetItem(i.set, i.item);
+    const cur = await ownItem(x, i.set, i.item);
+    const r = await repo(x).setBook.removeItem(cur.id, cur.v);
+    if (!r.ok) throw refuse();
+    // Recently deleted lists the deletion by its `<set>/<item>` key and clears it on a restore.
+    await repo(x).deletions.markOwnSetItem(cur.set_id, cur.id);
     return { set: i.set, item: i.item, deleted: true };
   },
 

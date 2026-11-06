@@ -16,6 +16,9 @@ export function setsRepo(db: D1Like, opts: TablesOptions) {
     setBook: {
       /** Creates a set (a new id); a repeated id is a conflict. */
       create: (s: Fields<SetTableRow>) => k.sets.save(s, null),
+      /** Changes a set at the version read (title, source, collection). */
+      update: (s: Fields<SetTableRow>, ifVersion: number) =>
+        k.sets.save(s, ifVersion),
       /** Adds an item to a live set (a new id); a repeated id is a conflict. */
       addItem: async (i: Fields<SetItemRow>): Promise<Saved<SetItemRow>> => {
         if (!(await k.sets.get(i.set_id)))
@@ -44,6 +47,9 @@ export function setsRepo(db: D1Like, opts: TablesOptions) {
       /** Removes an item from its set (soft); its versions and its attempts stay. */
       removeItem: (id: string, ifVersion: number) =>
         k.setItems.remove(id, ifVersion),
+      /** Brings a removed item back. */
+      restoreItem: (id: string, ifVersion: number) =>
+        k.setItems.restore(id, ifVersion),
       /** The version of an item an attempt names, or null. */
       itemVersion: async (id: string, v: number) =>
         (await k.setItemVersions.get(`${id}@${v}`)) ??
