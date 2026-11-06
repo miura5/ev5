@@ -18,6 +18,28 @@ export interface OutboxOptions {
 const defaultRandom = (n: number): string =>
   Array.from(crypto.getRandomValues(new Uint32Array(n)), (x) => ALPHABET[x % ALPHABET.length]).join('');
 
+/** Names the refused entries a replay found; the shell shows them (never kept silently). */
+export type RefusedListener = (refused: { key: string; id: string; reason: string }[]) => void;
+
+/** A device that queued an answer before commands existed holds an `answers` document (setId, item, attempt key).
+ * It is posted as the command that now writes that row (§data.gate, §data.append-only: one attempts row, no delete),
+ * under an att_ id made from the entry's own id, so a replay after a lost reply is a 409 and never a second row. */
+export function answerCommand(o: Pick<OutboxEntry, 'id' | 'doc'>): { name: string; input: Record<string, unknown> } | null {
+  const d = o.doc as { setId?: unknown; answers?: Record<string, Record<string, Record<string, unknown>>> };
+  if (typeof d.setId !== 'string' || !d.answers) return null;
+  const [itemId, tries] = Object.entries(d.answers)[0] ?? [];
+  const t = Object.values(tries ?? {})[0];
+  if (!itemId || !t) return null;
+  const attempt = `att_${o.id.replace(/[^A-Za-z0-9]/g, '')}`;
+  const id = `${d.setId}/${itemId}`;
+  if (t.outcome === 'told') return { name: 'study.just_tell_me', input: { id, attempt } };
+  const rating = t.rating === 'again' || t.rating === 'good' ? t.rating : undefined;
+  return {
+    name: 'study.attempt',
+    input: { id, answer: typeof t.text === 'string' ? t.text : '', ...(rating ? { rating } : {}), attempt },
+  };
+}
+
 export const entryKey = (c: string, id: string): string => `${c}\n${id}`;
 
 export function createOutbox(opts: OutboxOptions) {
@@ -25,6 +47,7 @@ export function createOutbox(opts: OutboxOptions) {
   const now = opts.now ?? Date.now;
   const random = opts.random ?? defaultRandom;
   let replaying: Promise<ReplayResult> | null = null;
+  const listeners = new Set<RefusedListener>();
 
   async function enqueue(kind: OutboxKind, c: string, id: string, doc: OutboxEntry['doc'], base: number | null) {
     const key = entryKey(c, id);
@@ -49,10 +72,13 @@ export function createOutbox(opts: OutboxOptions) {
   const sendable = async () => (await waiting()).filter((e) => !e.refused);
 
   async function sendOne(o: OutboxEntry, out: ReplayResult): Promise<'go' | 'stop'> {
+    const legacy = o.kind === 'answer' ? answerCommand(o) : null;
     const r =
       o.kind === 'command'
         ? await transport.command(o.c, o.doc)
-        : await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
+        : legacy
+          ? await transport.command(legacy.name, legacy.input)
+          : await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
     if (r.status >= 200 && r.status < 300) {
       out.sent++;
       await store.remove(o.key, o.tag);
@@ -110,13 +136,24 @@ export function createOutbox(opts: OutboxOptions) {
     } catch {
       out.stopped = 'offline'; // a rejected call: the outbox waits
     }
+    if (out.refused.length) {
+      const all = await store.all();
+      const shown = out.refused.flatMap((k) => {
+        const e = all.find((x) => x.key === k);
+        return e ? [{ key: k, id: e.id, reason: e.refused ?? '' }] : [];
+      });
+      for (const l of listeners) l(shown);
+    }
     return out;
   }
 
   /** Send everything that waits. One replay runs at a time; a second call joins it. */
   const replay = (): Promise<ReplayResult> => (replaying ??= run().finally(() => (replaying = null)));
 
-  return { queueNote, queueAnswer, queueCommand, replay, waiting, count: async () => (await sendable()).length };
+  /** Calls `l` with the entries a replay found refused for good; returns the way to stop. */
+  const onRefused = (l: RefusedListener) => (listeners.add(l), () => void listeners.delete(l));
+
+  return { queueNote, queueAnswer, queueCommand, onRefused, replay, waiting, count: async () => (await sendable()).length };
 }
 
 export type Outbox = ReturnType<typeof createOutbox>;

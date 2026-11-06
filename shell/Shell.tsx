@@ -117,7 +117,7 @@ export function Shell({
   }, []);
   const View = current?.view;
   const od = useOpenedDetail(path, palette, onNavigate);
-  const { toasts, show: showToast, drop: dropToast } = useToasts();
+  const { toasts, show: showToast, drop: dropToast } = useToasts(services);
   // What Matt types in ⌘K comes from the palette's onQuery; the record is read once each time the palette opens.
   const [typed, setTyped] = useState("");
   const [record, setRecord] = useState<Record_>({});
