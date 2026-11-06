@@ -6,7 +6,11 @@ import { docsRepo } from "./repo.ts";
 import { fakeD1 } from "./fake-d1.ts";
 
 // The same suite the in-memory reference passes, run over the D1 repository and its gate.
-registerProtocolSuite("d1 repository", (clock) => docsRepo(fakeD1(), { clock }), test);
+registerProtocolSuite(
+  "d1 repository",
+  (clock) => docsRepo(fakeD1(), { clock }),
+  test,
+);
 
 // An extra write check on a kind with no domain parser, refusing any field it does not list.
 const strict =
@@ -25,12 +29,6 @@ const exam = {
   title: "Unit 3",
   kind: "unit",
 };
-const spot = {
-  schema: 1,
-  writer: "page",
-  at: "2026-11-03T00:00:00Z",
-  source: "v5/test",
-};
 
 test("an extra write check runs on both write paths, and a refused batch writes nothing", async () => {
   const repo = docsRepo(fakeD1(), {
@@ -43,7 +41,12 @@ test("an extra write check runs on both write paths, and a refused batch writes 
   assert.equal(await repo.get("scratch", "s2"), null);
   const batch = await repo.batch([
     { op: "set", collection: "exams", doc_id: "e3", data: exam },
-    { op: "set", collection: "scratch", doc_id: "s3", data: { nonsense: true } },
+    {
+      op: "set",
+      collection: "scratch",
+      doc_id: "s3",
+      data: { nonsense: true },
+    },
   ]);
   assert.equal(!batch.ok && batch.status, 400);
   assert.equal(await repo.get("exams", "e3"), null, "all or nothing");
@@ -53,7 +56,12 @@ test("the gate parses notes with the domain parser and keeps a note's identity w
   const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
   const note = goodNote();
   assert.ok((await repo.save("notes", "n-a", JSON.stringify(note), null)).ok);
-  const extra = await repo.save("notes", "n-b", JSON.stringify({ ...note, html: "<b>x</b>" }), null);
+  const extra = await repo.save(
+    "notes",
+    "n-b",
+    JSON.stringify({ ...note, html: "<b>x</b>" }),
+    null,
+  );
   assert.match(!extra.ok ? extra.error : "", /^notes\/n-b does not parse/);
   const moved = await repo.save(
     "notes",
@@ -129,41 +137,12 @@ test("the gate: a bad row is refused on write; reads leave out a bad or deleted 
     ).ok,
     false,
   );
-  assert.equal(
-    (
-      await repo.save(
-        "weakspots",
-        "w1",
-        JSON.stringify({ ...spot, title: "x" }),
-        null,
-      )
-    ).ok,
-    false,
-  );
   assert.ok((await repo.save("exams", "e2", JSON.stringify(exam), null)).ok);
   assert.ok((await repo.rename("exams", "e2", "Unit 4", 1)).ok);
   assert.equal(
     ((await repo.get("exams", "e2"))?.data as { title: string }).title,
     "Unit 4",
   );
-  const good = {
-    ...spot,
-    schema: 2,
-    topic: "t",
-    objective: "E4-3",
-    exam: "E4",
-    course: "NUR 112",
-    kind: "concept",
-    addedBy: "test",
-    initial: { streak: 0, nextDue: "2026-10-16", recurrence: 1, misses: 0 },
-    events: {},
-  };
-  assert.ok(
-    (await repo.save("weakspots", "w1", JSON.stringify(good), null)).ok,
-  );
-  const r = await repo.rename("weakspots", "w1", "x", 1);
-  assert.equal(!r.ok && r.status, 400);
-  assert.match(!r.ok ? r.error : "", /no title/);
   // A row that got in some other way is reported and left out of get and list.
   db.docs.set("exams\nbroken", {
     c: "exams",

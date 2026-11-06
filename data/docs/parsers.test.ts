@@ -15,7 +15,12 @@ const FIXTURES: Record<string, unknown> = {
     createdAt: AT,
     title: "Preload",
     course: null,
-    blocks: [{ type: "p", runs: [{ text: "Stretch before ", b: true }, { text: "contraction." }] }],
+    blocks: [
+      {
+        type: "p",
+        runs: [{ text: "Stretch before ", b: true }, { text: "contraction." }],
+      },
+    ],
   },
   sets: {
     schema: 3,
@@ -25,19 +30,16 @@ const FIXTURES: Record<string, unknown> = {
     kind: "drill",
     date: "2026-11-02",
     exam: null,
-    items: [{ id: "q1", type: "single", stem: "Which one is larger?", options: ["Two", "One"], correct: [0] }],
+    items: [
+      {
+        id: "q1",
+        type: "single",
+        stem: "Which one is larger?",
+        options: ["Two", "One"],
+        correct: [0],
+      },
+    ],
     createdAt: AT,
-  },
-  weakspots: {
-    schema: 2,
-    writer: "page",
-    at: AT,
-    source: "v5/test",
-    topic: "Ratios",
-    objective: "o-1",
-    kind: "concept",
-    initial: {},
-    events: { "page-20261102-150000": { type: "seen", by: "owner", at: AT } },
   },
 };
 
@@ -48,7 +50,6 @@ test("the registry names a domain parser for each docs kind with a domain entity
     "objectives",
     "sessions",
     "sets",
-    "weakspots",
   ]);
 });
 
@@ -61,7 +62,12 @@ for (const [c, doc] of Object.entries(FIXTURES)) {
   });
   test(`${c}: a document its parser refuses is not written`, async () => {
     const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
-    const r = await repo.save(c, "d1", JSON.stringify({ ...(doc as object), schema: 99 }), null);
+    const r = await repo.save(
+      c,
+      "d1",
+      JSON.stringify({ ...(doc as object), schema: 99 }),
+      null,
+    );
     assert.equal(!r.ok && r.status, 400);
     assert.equal(await repo.get(c, "d1"), null);
   });

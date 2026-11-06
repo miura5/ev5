@@ -89,6 +89,7 @@ export async function weakSpotDocs(
   return spots
     .filter((s) => s.duplicate_of === null)
     .map((s) => {
+      const own = events.filter((e) => e.weak_spot_id === s.id);
       const home = course.get(
         s.collection_id ??
           (s.objective_id
@@ -100,15 +101,12 @@ export async function weakSpotDocs(
       return {
         id: s.id,
         v: s.v,
-        at: s.at,
-        data: weakSpotDoc(
-          s,
-          events.filter((e) => e.weak_spot_id === s.id),
-          {
-            exam: exam?.id ?? null,
-            ...(home ? { course: home.title } : {}),
-          },
-        ),
+        // An event is an appended row and does not touch the spot's row, so the spot changed when its newest event came.
+        at: own.reduce((m, e) => Math.max(m, e.at), s.at),
+        data: weakSpotDoc(s, own, {
+          exam: exam?.id ?? null,
+          ...(home ? { course: home.title } : {}),
+        }),
         examDate: (exam?.exam as Exam | undefined)?.date ?? null,
       };
     });

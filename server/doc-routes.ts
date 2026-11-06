@@ -25,6 +25,7 @@ type Ctx = {
 };
 export const docRoutes = new Hono<Ctx>();
 const SESSIONS = "sessions";
+const WEAK_SPOTS = "weakspots";
 const NOTES = "notes";
 
 const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
@@ -64,6 +65,11 @@ docRoutes.get("/docs", async (c) => {
     const sessions = (await sessionDocs(c.env.DB, () => Date.now()))
       .filter((s) => s.at > n)
       .map((s) => shape({ c: SESSIONS, ...s }));
+    // Weak spots are rows too: an old weakspots document is never sent; a spot changed since then (a new event bumps
+    // its row) is sent as its weak spot document.
+    const spots = (await weakSpotDocs(c.env.DB, () => Date.now()))
+      .filter((s) => s.at > n)
+      .map((s) => shape({ c: WEAK_SPOTS, ...s }));
     // Notes are rows too (§data.tables): the older documents are left behind in docs and never sent.
     const notes = (await noteDocs(c.env.DB, () => Date.now()))
       .filter((m) => m.at > n)
@@ -71,10 +77,13 @@ docRoutes.get("/docs", async (c) => {
     return c.json({
       now: out.now,
       docs: [
-        ...out.docs.filter((d) => d.c !== NOTES).map(shape),
+        ...out.docs
+          .filter((d) => d.c !== NOTES && d.c !== WEAK_SPOTS)
+          .map(shape),
         ...goals,
         ...sessions,
         ...notes,
+        ...spots,
       ],
     });
   }
