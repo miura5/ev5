@@ -34,6 +34,8 @@ jobs:
       - run: npm run build
       - name: Rebuild - delete the staging D1 (only ev5-staging, only on demand)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild }}
+        # From outside the repo: wrangler.jsonc names ev5-staging with a placeholder id, so a delete run here asks for that id.
+        working-directory: ${{ runner.temp }}
         run: npx --yes $WRANGLER d1 delete ev5-staging -y
       - name: Create D1 if missing
         run: |
