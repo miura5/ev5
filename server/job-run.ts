@@ -41,10 +41,9 @@ export type JobRunEnv = {
     study_plan: string;
     study_plan_changes: string;
   };
-  /** Where the study plan reads its exam and approves its tasks (server/plan-home.ts). */
+  /** Where the study plan reads its exam and weak spots (server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
-    apply: (jobId: string, plan: Plan) => Promise<string>;
   };
   now?: () => Date;
   newId?: () => string;

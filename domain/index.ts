@@ -42,12 +42,7 @@ export {
   type Run,
   type Note,
 } from "./note/index.ts";
-export {
-  noteRowId,
-  noteDocId,
-  noteDocOf,
-  newNoteRow,
-} from "./note/rows.ts";
+export { noteRowId, noteDocId, noteDocOf, newNoteRow } from "./note/rows.ts";
 export { accuracyLine, dueCounts } from "./answers/index.ts";
 export { goalDaysLeft } from "./goal/read.ts";
 export type { Goal } from "./goal/read.ts";
@@ -142,22 +137,8 @@ export { parseSetRow, type SetRow } from "./set/row.ts";
 export { parseSessionRow, type SessionRow } from "./session/row.ts";
 /** @public */
 export { parseNoteRow, type NoteRow } from "./note/row.ts";
-/** @public Study plan rows and their approve and put-away paths; the study plan job and the data gate import them. */
-export {
-  parsePlanRow,
-  parsePlanItemRow,
-  approvePlan,
-  putAwayPlan,
-  settle,
-  checkUnique,
-  planId,
-  lastDay,
-  planEnded,
-  endedReason,
-  type PlanRow,
-  type PlanItemRow,
-  type PlanWrite,
-} from "./plan/index.ts";
+/** @public The plan date rules: the last day, when a plan has ended, and what Matt is told. */
+export { lastDay, planEnded, endedReason } from "./plan/index.ts";
 /** @public Row shapes for the new per-kind tables; the tables gate and the migration import them. */
 export { prefixed, WRITERS } from "./table-row/index.ts";
 /** @public */
@@ -215,6 +196,7 @@ export {
   parsePlanItemTableRow,
   parseRepeatRow,
   planTableWrite,
+  planTableId,
 } from "./plan/table.ts";
 /** @public */
 export { parsePinTableRow } from "./pin/table.ts";

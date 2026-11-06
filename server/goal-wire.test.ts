@@ -1,13 +1,14 @@
-// A goal made by date.create reads as an exam document whose planId is the plan its `planedits/<goal>` names
+// A goal made by date.create reads as an exam document whose planId is the plan its `plans` rows put in force (or away)
 // (goal-wire.ts), so Library and Today find an approved plan for a real date as they do for an older exam.
 import test from "node:test";
 import assert from "node:assert/strict";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
+import { tablesRepo } from "../data/index.ts";
 import { setup } from "./matt-handlers-setup.test.ts";
 
 test("a date made with date.create shows its approved plan as its planId, and keeps it when put away", async () => {
-  const { DB, call, put } = await setup();
+  const { DB, call } = await setup();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const shown = async (path: string) => {
     const body = (await (
@@ -31,39 +32,44 @@ test("a date made with date.create shows its approved plan as its planId, and ke
     (await shown("/api/v1/docs?collection=exams"))?.planId,
     undefined,
   );
-  for (const p of ["plan-a", "plan-b"])
-    await put("plans", p, {
-      schema: 1,
-      writer: "worker",
-      at: "2026-11-01T00:00:00.000Z",
-      source: "t",
-      exam: id,
-      days: [{ date: "2999-11-30", tasks: [{ id: "t", text: "x" }] }],
-    });
+  for (const p of ["plan_a", "plan_b"])
+    await tablesRepo(DB, { clock: Date.now }).plans.save(
+      {
+        id: p,
+        goal_id: id,
+        job_id: null,
+        state: "draft",
+        title: null,
+        from_day: "2999-11-30",
+        to_day: "2999-11-30",
+        summary: null,
+      },
+      null,
+    );
   // The goal row itself does not change on Approve; the sync feed still sends it again, with its plan.
   const before = Date.now();
   await new Promise((r) => setTimeout(r, 5));
-  assert.equal((await call("plan.approve", { id: "plan-a" })).status, 200);
+  assert.equal((await call("plan.approve", { id: "plan_a" })).status, 200);
   assert.equal(
     (await shown("/api/v1/docs?collection=exams"))?.planId,
-    "plan-a",
+    "plan_a",
   );
   assert.equal(
     (await shown(`/api/v1/docs?since=${before}`))?.planId,
-    "plan-a",
+    "plan_a",
     "the sync feed sends the goal with its plan too",
   );
-  assert.equal((await call("plan.put_away", { id: "plan-a" })).status, 200);
+  assert.equal((await call("plan.put_away", { id: "plan_a" })).status, 200);
   assert.equal(
     (await shown("/api/v1/docs?collection=exams"))?.planId,
-    "plan-a",
+    "plan_a",
     "a put-away plan still reads as this date's plan, so it shows as put away",
   );
-  assert.equal((await call("plan.approve", { id: "plan-b" })).status, 200);
-  assert.equal((await call("plan.put_away", { id: "plan-b" })).status, 200);
+  assert.equal((await call("plan.approve", { id: "plan_b" })).status, 200);
+  assert.equal((await call("plan.put_away", { id: "plan_b" })).status, 200);
   assert.equal(
     (await shown("/api/v1/docs?collection=exams"))?.planId,
-    "plan-b",
+    "plan_b",
     "the plan put away last",
   );
 });

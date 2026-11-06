@@ -1,7 +1,11 @@
 // Thin adapters from the job runtime's store interfaces onto data/'s repositories (§data.gate): jobs/ holds no SQL.
 // The repositories own the statements, the Worker clock for `at`, the version pin and the atomic batches.
 import { tablesRepo, type DocsD1 } from "../../data/index.ts";
-import { centralDate, planTableWrite } from "../../domain/index.ts";
+import {
+  centralDate,
+  planTableId,
+  planTableWrite,
+} from "../../domain/index.ts";
 import type { CeilingStore } from "./ceilings.ts";
 import type { JobStore } from "./record.ts";
 import type { Plan, PlanContext, PlanStore } from "../study-plan/job.ts";
@@ -26,14 +30,39 @@ export function d1CeilingStore(db: D1Like): CeilingStore {
   return { used, findOpen, usageSeen, reserve, settle, release };
 }
 
+/**
+ * Moves a plan row to a state through the gate (§data.gate), the one path the plan.approve and plan.put_away commands
+ * and the job's decision share. Putting a plan in force first puts away the goal's other plan in force (one in force per
+ * goal, §data.tables). Returns the row, or undefined when there is none; a stale version throws "changed".
+ */
+export async function setPlanState(
+  db: D1Like,
+  clock: Clock,
+  id: string,
+  state: "in_force" | "put_away",
+) {
+  const { plans } = tablesRepo(db, { clock });
+  const cur = await plans.get(id);
+  if (!cur) return undefined;
+  if (cur.state === state) return cur;
+  if (state === "in_force")
+    for (const other of await plans.list({
+      where: { goal_id: cur.goal_id, state: "in_force" },
+    }))
+      if (other.id !== id) await setPlanState(db, clock, other.id, "put_away");
+  const { at: _at, v, deleted_at: _d, ...f } = cur;
+  const r = await plans.save({ ...f, state }, v);
+  if (!r.ok) throw new Error(`plan ${id} changed; try again`);
+  return { ...cur, state };
+}
+
 /** The study plan's content in `job_plans`, keyed by job id so a retried step writes the same row. */
 export function d1PlanStore(
   db: D1Like,
   clock: Clock,
   home: {
-    /** Reads the exam and weak spots (ev4 docs, Central date) and puts an approved plan's tasks on Today. */
+    /** Reads the exam and weak spots (rows, Central date). */
     load: PlanStore["load"];
-    apply: (jobId: string, plan: Plan) => Promise<string>;
   },
 ): PlanStore {
   const { jobPlans, plans, planItems } = tablesRepo(db, { clock });
@@ -77,11 +106,8 @@ export function d1PlanStore(
     if (state === "in_force")
       for (const old of await plans.list({
         where: { goal_id: goal.id, state: "in_force" },
-      })) {
-        const { at: _at, v, deleted_at: _d, ...f } = old;
-        const r = await plans.save({ ...f, state: "put_away" }, v);
-        if (!r.ok) throw new Error(`plan ${old.id} changed; try again`);
-      }
+      }))
+        await setPlanState(db, clock, old.id, "put_away");
     const made = await plans.save(w.plan, null);
     if (!made.ok) throw new Error(`plan ${w.plan.id} was not saved`);
     for (const item of w.items) {
@@ -99,11 +125,9 @@ export function d1PlanStore(
     putFailure: async (j, reason) => void (await put(j, "failure", reason)),
     getFailure: (j) => get<string>(j, "failure"),
     async approve(jobId, plan) {
-      // Expand step (PLAN §11): the legacy doc stays until Today and Library read the tables, so both land.
-      const id = await home.apply(jobId, plan);
       await writeTables(jobId, plan, "in_force");
       await put(jobId, "status", "approved");
-      return id;
+      return planTableId(jobId);
     },
     async putAway(jobId) {
       await writeTables(jobId, await need<Plan>(jobId, "draft"), "put_away");

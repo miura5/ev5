@@ -1,61 +1,24 @@
 // Dates and the prep plan (CONTRACT §cmd.registry, §data.protocol). Every date is a `goals` row (§data.tables),
-// joined to objectives by link rows (§data.links). Approving a prep plan makes it the plan in force in `planedits/<exam>`; putting it away marks
-// it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
+// joined to objectives by link rows (§data.links). Approving a prep plan sets its `plans` row in force (the goal's other
+// plan in force is put away); putting it away sets it put away (§delete.soft: the row and its items stay). Both go through the
+// gate, the same path as the job's decision, and a stale version is a 409.
 import {
   addDays,
   centralDate,
   DATE_KINDS,
   endedReason,
-  lastDay,
   planEnded,
 } from "../domain/index.ts";
-import { docsRepo, tablesRepo, WriteRefused } from "../data/index.ts";
+import { tablesRepo, WriteRefused } from "../data/index.ts";
+import { setPlanState } from "../jobs/index.ts";
 import { goalKey, linkKey } from "./ids.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-
-type Doc = Record<string, any>;
-
-const iso = (ms: number) => new Date(ms).toISOString();
 
 function checkDate(date: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || addDays(date, 0) !== date)
     throw new CommandError(400, `${date} is not a date`);
   return date;
-}
-
-async function save(
-  x: HandlerCtx,
-  c: string,
-  id: string,
-  doc: Doc,
-  v: number | null,
-) {
-  const r = await docsRepo(x.db, { clock: x.clock }).save(
-    c,
-    id,
-    JSON.stringify(doc),
-    v,
-  );
-  if (!r.ok) throw new CommandError(409, "that changed; try again");
-}
-
-/** Reads a document, runs `change` on a copy (a new one gets its envelope) and saves it with the version read. */
-async function edit(
-  x: HandlerCtx,
-  [c, id]: [string, string],
-  fresh: Doc,
-  source: string,
-  change: (d: Doc) => void,
-) {
-  const cur = await docsRepo(x.db, { clock: x.clock }).get(c, id);
-  const now = iso(x.clock());
-  const doc: Doc = cur
-    ? { ...(cur.data as Doc) }
-    : { writer: "page", at: now, source, ...fresh };
-  change(doc);
-  doc.updatedAt = now;
-  await save(x, c, id, doc, cur ? cur.v : null);
 }
 
 /** A kind from the registry (domain/goal), else the default "other". */
@@ -66,44 +29,22 @@ function checkKind(kind: string | undefined): string {
   return kind;
 }
 
-async function need(x: HandlerCtx, c: string, id: string): Promise<Doc> {
-  const doc = await docsRepo(x.db, { clock: x.clock }).get(c, id);
-  if (!doc) throw new CommandError(404, `no ${c} entry ${id}`);
-  return doc.data as Doc;
-}
-
-/** The plan's date, whose `planedits` document says which plan is in force and which are put away. */
-async function examOf(x: HandlerCtx, id: string): Promise<string> {
-  const exam = (await need(x, "plans", id)).exam;
-  if (typeof exam !== "string" || !exam)
-    throw new CommandError(400, `plan ${id} has no date`);
-  return exam;
-}
-
-const planEdit = (
+/** Moves a plan row to a state through the path the job's decision uses (§data.gate); a plan that is not there is a 404. */
+async function movePlan(
   x: HandlerCtx,
-  exam: string,
-  source: string,
-  change: (d: Doc) => void,
-) => edit(x, ["planedits", exam], { schema: 2, ticks: {} }, source, change);
-
-/** Puts a plan in force in `planedits/<exam>` (un-retiring it). Shared with the prep-plan job's apply step, so one tap
- * on the job's Approve does what the command does. Repeating it changes nothing. */
-export async function putPlanInForce(
-  x: Pick<HandlerCtx, "db" | "clock">,
-  exam: string,
   id: string,
-  source: string,
+  state: "in_force" | "put_away",
 ) {
-  const cur = await docsRepo(x.db, { clock: x.clock }).get("planedits", exam);
-  const d = cur?.data as Doc | undefined;
-  if (d?.plan === id && !(d.retired && id in d.retired)) return;
-  await planEdit(x as HandlerCtx, exam, source, (d) => {
-    const { [id]: _gone, ...retired } = (d.retired ?? {}) as Doc;
-    d.plan = id;
-    if (Object.keys(retired).length) d.retired = retired;
-    else delete d.retired;
-  });
+  try {
+    const row = await setPlanState(x.db, x.clock, id, state);
+    if (row) return row;
+  } catch (e) {
+    if (e instanceof WriteRefused) throw new CommandError(409, e.message);
+    if (/changed; try again/.test(String(e)))
+      throw new CommandError(409, "that changed; try again");
+    throw e;
+  }
+  throw new CommandError(404, `no plan ${id}`);
 }
 
 export const dateHandlers: Record<string, CommandHandler> = {
@@ -175,27 +116,20 @@ export const dateHandlers: Record<string, CommandHandler> = {
   },
 
   "plan.approve": async (i: { id: string }, _c, x) => {
-    const exam = await examOf(x, i.id);
-    const days = (await need(x, "plans", i.id)).days;
-    const last = lastDay(
-      Array.isArray(days)
-        ? days.flatMap((d: Doc) =>
-            typeof d?.date === "string" ? [d.date] : [],
-          )
-        : [],
-    );
-    if (last !== undefined && planEnded([last], centralDate(x.clock())))
-      throw new CommandError(409, endedReason(last));
-    await putPlanInForce(x, exam, i.id, "v5/command:plan.approve");
-    return { id: i.id, exam, inForce: true };
+    const plan = await tablesRepo(x.db, { clock: x.clock }).plans.get(i.id);
+    if (!plan) throw new CommandError(404, `no plan ${i.id}`);
+    // The plan's last day is its `to_day`; a plan whose days have all passed is not put in force (one in force stays).
+    if (
+      plan.state !== "in_force" &&
+      planEnded([plan.to_day], centralDate(x.clock()))
+    )
+      throw new CommandError(409, endedReason(plan.to_day));
+    await movePlan(x, i.id, "in_force");
+    return { id: i.id, exam: plan.goal_id, inForce: true };
   },
 
   "plan.put_away": async (i: { id: string }, _c, x) => {
-    const exam = await examOf(x, i.id);
-    await planEdit(x, exam, "v5/command:plan.put_away", (d) => {
-      if (d.plan === i.id) delete d.plan;
-      d.retired = { ...d.retired, [i.id]: { at: iso(x.clock()), by: "Matt" } };
-    });
-    return { id: i.id, exam, inForce: false };
+    const plan = await movePlan(x, i.id, "put_away");
+    return { id: i.id, exam: plan.goal_id, inForce: false };
   },
 };

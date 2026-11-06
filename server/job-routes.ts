@@ -153,13 +153,8 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   ) {
     const clock = () => Date.now();
     const at = new Date().toISOString();
-    // putAway touches only the status row; load and apply are never called on this path.
-    const plans = d1PlanStore(c.env.DB, clock, {
-      load: async () => undefined,
-      apply: async () => {
-        throw new Error("not used when putting a plan away");
-      },
-    });
+    // putAway reads no exam; load is never called on this path.
+    const plans = d1PlanStore(c.env.DB, clock, { load: async () => undefined });
     const output = await plans.putAway(rec.id);
     const done = await update(d1JobStore(c.env.DB, clock), rec.id, (r) =>
       transition(r, {

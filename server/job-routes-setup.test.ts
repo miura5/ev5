@@ -69,7 +69,7 @@ export function setup() {
       study_plan: "plan",
       study_plan_changes: "chg",
     },
-    planHome: { load: async () => undefined, apply: async () => "x" },
+    planHome: { load: async () => undefined },
     now: () => T,
     newId: () => "h1",
   };

@@ -27,7 +27,6 @@ test("plans and planedits are read from the plan rows, and a put-away plan reads
   ).body.result;
   const store = d1PlanStore(DB, () => Date.now(), {
     load: async () => undefined,
-    apply: async (j) => `plan-${j}`,
   });
   const plan = {
     summary: "s",
