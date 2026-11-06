@@ -121,3 +121,42 @@ export {
   type PlanItemRow,
   type PlanWrite,
 } from "./plan/index.ts";
+/** @public Row shapes for the new per-kind tables; the tables gate and the migration import them. */
+export { prefixed, WRITERS } from "./table-row/index.ts";
+/** @public */
+export { parseGoalRow, type GoalRow } from "./goal/index.ts";
+/** @public */
+export { parseLinkRow, LINK_PAIRS, type LinkRow } from "./link/index.ts";
+/** @public */
+export { parseAttemptRow, type AttemptRow } from "./attempt/index.ts";
+/** @public */
+export { parseTalkRow, type TalkRow } from "./talk/index.ts";
+/** @public */
+export { parseCollectionRow, type CollectionRow } from "./collection/table.ts";
+/** @public */
+export { parseObjectiveTableRow, type ObjectiveTableRow } from "./objective/table.ts";
+/** @public */
+export {
+  parseWeakSpotTableRow,
+  parseWeakSpotEventRow,
+  type WeakSpotTableRow,
+  type WeakSpotEventRow,
+} from "./weak-spot/table.ts";
+/** @public */
+export {
+  parseSetTableRow,
+  parseSetItemRow,
+  parseSetItemVersionRow,
+  type SetTableRow,
+  type SetItemRow,
+  type SetItemVersionRow,
+} from "./set/table.ts";
+/** @public */
+export {
+  parseSessionTableRow,
+  parseSessionEventRow,
+  type SessionTableRow,
+  type SessionEventRow,
+} from "./session/table.ts";
+/** @public */
+export { parseNoteTableRow, type NoteTableRow } from "./note/table.ts";
