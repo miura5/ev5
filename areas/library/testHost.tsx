@@ -12,6 +12,10 @@ import {
 /** Stands in for the shell in tests: holds the Detail the screen opens, closes it on Esc like the shell's host. */
 export function LibraryHosted(props: Parameters<typeof LibraryScreen>[0]) {
   const [detail, setDetail] = useState<DetailProps | null>(null);
+  // The address the shell would hold: opening or closing a set moves it.
+  const [search, setSearch] = useState(props.search ?? "");
+  const onNavigate = (to: string) =>
+    setSearch(to.split("?").slice(1).join("?"));
   useEffect(() => {
     if (!detail) return;
     const onEsc = (e: KeyboardEvent) => {
@@ -22,7 +26,12 @@ export function LibraryHosted(props: Parameters<typeof LibraryScreen>[0]) {
   }, [detail]);
   return (
     <>
-      <LibraryScreen {...props} onDetail={setDetail} />
+      <LibraryScreen
+        {...props}
+        search={search}
+        onNavigate={onNavigate}
+        onDetail={setDetail}
+      />
       {detail ? (
         <Detail
           {...detail}

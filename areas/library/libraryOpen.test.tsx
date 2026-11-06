@@ -1,6 +1,13 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { LibraryScreen as RawScreen } from "./Library.screen.tsx";
 
 afterEach(() => {
   cleanup();
@@ -61,8 +68,7 @@ const docs: Record<string, unknown[]> = {
   ],
 };
 
-function boot(open: string) {
-  const SEARCH = `open=${open}`;
+function stub() {
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal(
     "fetch",
@@ -73,7 +79,11 @@ function boot(open: string) {
       });
     }),
   );
-  render(<LibraryScreen search={SEARCH} />);
+}
+
+function boot(open: string) {
+  stub();
+  render(<LibraryScreen search={`open=${open}`} />);
 }
 
 test("?open=<exam id> opens its plan detail", async () => {
@@ -122,4 +132,25 @@ test("a date's detail sits beside the library with the date and days left, and n
   expect(screen.queryByText("Collection")).toBeNull();
   expect(row("Date")).toMatch(/in [\d]+ days|years|weeks|days/);
   expect(row("Date")).not.toContain("NUR 112");
+});
+
+test("the open set follows the address: Back and Forward change it, opening asks the shell to navigate", async () => {
+  stub();
+  const go: string[] = [];
+  const { rerender } = render(
+    <RawScreen search="" onNavigate={(t) => go.push(t)} />,
+  );
+  fireEvent.click(await screen.findByRole("radio", { name: /Sets/ }));
+  fireEvent.click(await screen.findByRole("button", { name: /Doses/ }));
+  expect(go).toEqual(["/library?open=s1"]);
+  // The shell moves the address; the screen shows the set.
+  rerender(<RawScreen search="open=s1" onNavigate={(t) => go.push(t)} />);
+  await waitFor(() => expect(screen.getByText("How many mL?")).toBeTruthy());
+  // Back: the address loses ?open=, the list returns.
+  rerender(<RawScreen search="" onNavigate={(t) => go.push(t)} />);
+  await waitFor(() => expect(screen.queryByText("How many mL?")).toBeNull());
+  expect(screen.getByRole("radio", { name: /Sets/ })).toBeTruthy();
+  // Forward: the set again.
+  rerender(<RawScreen search="open=s1" onNavigate={(t) => go.push(t)} />);
+  await waitFor(() => expect(screen.getByText("How many mL?")).toBeTruthy());
 });
