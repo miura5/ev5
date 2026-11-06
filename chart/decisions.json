@@ -1,5 +1,73 @@
 [
  {
+  "id": "D-504",
+  "date": "Nov 6",
+  "title": "Stored and wire names are renamed before cutover, while it is cheap",
+  "why": "Build manager (technical), 2026-11-06. The job kind, command ids, job inputs and the practice variant are stored in job records, job plans and the outbox, and the commands are E.V.'s tool names, so 'code names follow only where touched, no rename sweep' would leave study_plan, studyplan.*, examId and mock_exam in the live database for good. Before cutover the rename is free: study_plan becomes prep_plan (route /jobs/prep-plan), studyplan.approve, .ask_changes and .put_away become plan.approve, plan.ask_changes and plan.put_away, examId and examTitle become goalId and goalTitle, the date tool study-plan becomes prep-plan, and the variant mock_exam becomes full_run; an idempotent migration rewrites staging rows. Folder and function names may follow later. Replaces the 'no rename sweep' clauses of D-499 and D-500 (B-1038, B-1040).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-499",
+   "D-500"
+  ],
+  "source": "Build manager, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-503",
+  "date": "Nov 6",
+  "title": "Scope audit wording and shape calls: Session and Minutes, a date Kind picker, pinned collections show their next date, Rate it honestly, no graded work",
+  "why": "Matt approved all of the build manager's picks (ev-build channel 2026-11-06, scope audit calls 2 to 6). 1) 'Session' replaces 'Study session' and 'Minutes' replaces 'Study minutes' (study only as a verb). 2) Each date has a kind picked from the one kind registry (Exam or Other); only kind exam offers the prep plan for now; prep plans for other kinds stay parked (B-1038). 3) Every pinned collection that has a linked date shows the day of its next linked date; no one-course special case (B-942). 4) The study card's line reads 'Rate it honestly'; the 'graded work' plan kind is dropped (B-1060, B-1033). 5) AGENTS.md lines on the study plan, the mock exam, exams with their plan and the Canvas executor are reworded in B-1062, beyond D-497's ev4 and one-subject approval.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-499",
+   "D-500"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-502",
+  "date": "Nov 6",
+  "title": "E.V. says you to the user, never 'the student' or a name",
+  "why": "Matt approved (ev-build channel 2026-11-06, scope audit call 1). E.V.'s voice says 'you'; a description of the person in a prompt says 'the user'; no prompt or tool description names a person or says 'the student'. The owner role in code stays 'owner'. This amends D-486's prompt clause ('prompts say the student'), which the 2026-11-05 sweep followed. B-1014's guard refuses 'student'.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-486"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-501",
+  "date": "Nov 6",
+  "title": "Practice sets are grounded in any notes or collection the user points at, not course excerpts",
+  "why": "A practice set takes its material from the notes or collection the user picks, so it works for any subject, not only a Canvas course. This is the one input gap found in the any-learner check. Built inside B-1040 with the sets move; no new task id (D-497).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Build manager (technical), ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-500",
+  "date": "Nov 6",
+  "title": "No Courses section; a course is a collection the user names, and the mock exam becomes a full practice run",
+  "why": "Matt approved (ev-build channel 2026-11-06), so the product does not read as school-only. 1) No Courses section in the sidebar or on Today: B-942 drops them, and the mock-up is not changed to add them. A course is a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them (B-942, B-906). 2) The practice set mode \"mock exam\" is called \"full practice run\" in user-facing text, in E.V.'s prompts (jobs/practice-set prompt.md and job.ts wording) and in design/mockup.html; code ids follow only where B-1040 touches them, no rename sweep (B-1040). No new task ids (D-497).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-499",
+  "date": "Nov 6",
+  "title": "The Library's Exams tab becomes Dates; each date has a kind, and one registry says which tools a kind offers; study plan becomes prep plan",
+  "why": "Matt approved (ev-build channel 2026-11-06): the product must not read as exam-only. The user-facing name is Dates, not Exams or Deadlines (a talk, trip or renewal is a date but not a deadline). Every date is a goals row with a kind (domain/goal already stores kind as data); exam is one kind. One registry in domain/ (one home) maps each kind to the tools it offers. Today it has one entry: kind exam offers the study plan and its weak-spot links. Screens and jobs ask the registry, never check for exams by name, so a new kind or tool later is one registry entry, not a new code path. Built inside B-1038 (no new task ids, D-497). Build no new kinds or tools now. A date's name may still say Exam 3. The Library tab id and label exams/Exams become dates/Dates (areas/library, its tests and links that open the tab), and design/mockup.html names the tab Dates in the same change. Internal exam and examsByCourse names in areas and server go when B-1038 drops the old exam reads. Wording (Matt 2026-11-06): the user-facing name \"study plan\" becomes \"prep plan\" everywhere he reads it (UI labels, button text, toasts, E.V.'s messages, design/mockup.html); code identifiers follow only where B-1038 touches them, with no separate rename sweep. Word rule: \"study\" stays only as a verb for working through a set or practice (\"Study this set\"); names of things stay general (Dates, Plan, Prep plan, Sets, Notes), with no \"study\" in them. Prep plans for other date kinds come after the task freeze (docs/parked.md).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-06; shape by the build manager"
+ },
+ {
   "id": "D-498",
   "date": "Nov 5",
   "title": "Table design accepted with changes: no user name in data, generic collections, no Canvas or ev4 columns before cutover",
