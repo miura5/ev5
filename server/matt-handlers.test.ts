@@ -252,3 +252,33 @@ test("a check answer and an Ask just-tell-me each write one log-only attempts ro
   );
   assert.equal(all.length, 2);
 });
+
+test("note.save pins to if_version, creates at 0, and sets a title", async () => {
+  const { call, note, DB } = await setup();
+  const id = "n-20261106-120000-abcdefghijkl";
+  const body = JSON.stringify([{ type: "p", runs: [{ text: "hello" }] }]);
+  // a missing note with a version is a stale pin; with 0 it is a create
+  assert.equal((await call("note.save", { id, body, if_version: 3 })).status, 409);
+  const made = await call("note.save", {
+    id,
+    body,
+    if_version: 0,
+    title: "Fluids (earlier)",
+    earlier_of: "n-20261106-110000-zzzzzzzzzzzz",
+  });
+  assert.equal(made.status, 200);
+  assert.equal(made.body.result.version, 1);
+  assert.equal((await note(id))?.title, "Fluids (earlier)");
+  const row = await DB.prepare("SELECT earlier_of FROM notes WHERE id = ?")
+    .bind(`note_${id}`)
+    .first<{ earlier_of: string }>();
+  assert.equal(row?.earlier_of, "note_n-20261106-110000-zzzzzzzzzzzz");
+  // a create over an existing note is stale
+  assert.equal((await call("note.save", { id, body, if_version: 0 })).status, 409);
+  // a pinned change lands once; the same pin again is stale and writes nothing
+  const ok = await call("note.save", { id, body: "again", if_version: 1 });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.result.version, 2);
+  assert.equal((await call("note.save", { id, body: "late", if_version: 1 })).status, 409);
+  assert.equal((await note(id))?.blocks[0]?.runs[0]?.text, "again");
+});
