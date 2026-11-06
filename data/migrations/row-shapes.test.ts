@@ -74,7 +74,7 @@ const tables: Entry[] = [
   {
     table: 'sets',
     parse: parseSetTableRow,
-    sample: { id: 'set_1', collection_id: null, kind: 'adhoc', title: null, source_kind: null, source_id: null, created_by: 'user', job_id: null, focus: null, asked: null, ...S, ...D },
+    sample: { id: 'set_1', collection_id: null, kind: 'own', title: null, source_kind: null, source_id: null, created_by: 'user', job_id: null, focus: null, asked: null, ...S, ...D },
   },
   {
     table: 'set_items',
