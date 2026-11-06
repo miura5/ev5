@@ -86,11 +86,48 @@ collectionRoutes.get("/collections", async (c) => {
 
 collectionRoutes.get("/memberships", async (c) => {
   const id = c.req.query("collection_id");
-  const out = await rows<MembershipRow>(
+  // A set on the `sets` table keeps its collection on its own row (the one place a move, a create and a source scope
+  // agree on), so a membership row for it is not read: that is the `own_sets` copy migration 0008 left, or a stale
+  // `sets` one. A membership for any other item (a document, a note, a date) is read as it is.
+  const sets = await rows<MembershipRow>(
+    c.env.DB,
+    `SELECT 'sets' AS item_c, id AS item_id, collection_id, at, v FROM sets WHERE deleted_at IS NULL LIMIT ${LIMIT}`,
+    [],
+  );
+  const own = new Set(sets.map((r) => r.item_id));
+  const placed = await rows<MembershipRow>(
     c.env.DB,
     `SELECT item_c, item_id, collection_id, at, v FROM memberships WHERE NOT EXISTS (SELECT 1 FROM collections d WHERE d.id = memberships.collection_id AND d.deleted_at IS NOT NULL)${id === undefined ? "" : " AND collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
     id === undefined ? [] : [id],
   );
+  const gone = new Set(
+    (
+      await rows<{ id: string }>(
+        c.env.DB,
+        "SELECT id FROM collections WHERE deleted_at IS NOT NULL",
+        [],
+      )
+    ).map((r) => r.id),
+  );
+  const out = [
+    ...placed.filter(
+      (r) =>
+        r.item_c !== "own_sets" && !(r.item_c === "sets" && own.has(r.item_id)),
+    ),
+    ...sets.filter(
+      (r) =>
+        r.collection_id != null &&
+        !gone.has(r.collection_id) &&
+        (id === undefined || r.collection_id === id),
+    ),
+  ]
+    .sort(
+      (x, y) =>
+        y.at - x.at ||
+        x.item_c.localeCompare(y.item_c) ||
+        x.item_id.localeCompare(y.item_id),
+    )
+    .slice(0, LIMIT);
   return c.json({
     memberships: out.map((r) => ({
       collection: r.item_c,
