@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { checkAccount } from './account.ts';
+import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
@@ -192,4 +193,9 @@ test('docs-kinds: a kind written to docs that is off the allow list fails; liste
     'data/docs/repo.ts': 'save("flashcards", id)' });
   const found = checkDocsKinds(r.root, r.files).map(f => `${f.file}:${/kind "(\w+)"/.exec(f.detail)?.[1]}`).sort();
   assert.deepEqual(found, ['server/new.ts:flashcards', 'server/two.ts:bookmarks', 'server/two.ts:goals', 'shell/out.ts:journal']);
+});
+
+test('compat-import: an import of a compat module or a data/compat path is refused', () => {
+  const r = repo({ 'a.ts': "import { x } from './data/compat/schemas.ts';\n", 'b.ts': "import { y } from './y.ts';\n", 'data/compat/z.ts': '' });
+  assert.equal(checkCompatImport(r.root, r.files).length, 2);
 });
