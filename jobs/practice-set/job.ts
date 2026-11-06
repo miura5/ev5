@@ -70,7 +70,7 @@ export const InputSchema = z
 // The JSON Schema sent to the model comes from this one schema; semantic rules (counts, citations) are checkItems.
 export const ItemSchema = z.object({
   stem: nonBlank("stem"),
-  // the model writes choice questions only; the names come from domain/item (B-1036)
+  // the model writes choice questions only; the names come from domain/item
   type: z.enum(ITEM_TYPES).extract(["single", "multi_select"], {
     error: "type must be single or multi_select.",
   }),

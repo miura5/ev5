@@ -1,4 +1,4 @@
-// Rows stored before B-1036 name two item types and one field the old way: 'sata' is now 'multi_select', 'matrix' is
+// Rows stored earlier name two item types and one field the old way: 'sata' is now 'multi_select', 'matrix' is
 // now 'grid' and its `matrix` field is `grid`. Stored rows are mapped on read; nothing rewrites them.
 const LEGACY_TYPES: Record<string, string> = { sata: 'multi_select', matrix: 'grid' };
 
