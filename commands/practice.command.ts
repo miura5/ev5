@@ -12,6 +12,9 @@ export const practiceCommands = [
   defineCommand({ name: 'weakspot.mark_learned', title: 'Mark a weak spot learned', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'weakspot.confirm', title: 'Confirm a proposed weak spot', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'weakspot.decline', title: 'Decline a proposed weak spot', input: ref, callers: M, effect: 'instant' }),
+  // A weak spot is linked to a date with a link row (§data.links); only a date whose kind offers weak-spot-links takes it.
+  defineCommand({ name: 'weakspot.link', title: 'Link a weak spot to a date', input: z.object({ id, goal: id }), callers: M, effect: 'instant', undo: 'weakspot.unlink' }),
+  defineCommand({ name: 'weakspot.unlink', title: 'Unlink a weak spot from a date', input: z.object({ id, goal: id }), callers: M, effect: 'instant', undo: 'weakspot.link' }),
   defineCommand({ name: 'weeklyreview.done', title: 'Finish the weekly review', input: ref, callers: M, effect: 'instant' }),
   defineCommand({
     name: 'set.create',
