@@ -65,8 +65,8 @@ export async function goalDocs(
   });
 }
 
-/** One goal as its exam document, by id; an id that is not a goal has none. */
-export async function examDoc(
+/** One goal as its wire document, by id; an id that is not a goal has none. */
+export async function goalDoc(
   db: DocsD1,
   clock: () => number,
   id: string,

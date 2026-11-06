@@ -14,7 +14,7 @@ import {
 } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
 import { readJobPlan } from "./job-plans.ts";
-import { examDoc } from "./goal-wire.ts";
+import { goalDoc } from "./goal-wire.ts";
 import { weakSpotDocs } from "./weak-wire.ts";
 import { putPlanInForce } from "./handlers-dates.ts";
 import type { DocsD1 } from "../data/index.ts";
@@ -75,7 +75,7 @@ export function planHome(
 ): JobRunEnv["planHome"] {
   return {
     async load(goalId) {
-      const row = await examDoc(db as DocsD1, clock, goalId);
+      const row = await goalDoc(db as DocsD1, clock, goalId);
       if (!row) return undefined;
       const exam = parseGoal(row.data);
       const today = centralDate(clock());
@@ -147,7 +147,7 @@ export function planHome(
         if (!made.ok)
           throw new Error(`plan ${planId} was not saved: ${made.error}`);
       }
-      const row = await examDoc(db as DocsD1, clock, goal.id);
+      const row = await goalDoc(db as DocsD1, clock, goal.id);
       if (!row)
         throw new Error(
           `The date ${goal.title} is gone, so the plan has nowhere to attach.`,
