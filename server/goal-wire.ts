@@ -1,8 +1,9 @@
 // Goals as the screens read exams (CONTRACT §data.tables): a goals row, shown as the exam document Today, Library and
 // the plan already read. Every date is a goal row; there are no `exams` documents to merge.
-import { docsRepo, tablesRepo } from "../data/index.ts";
+import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { parseGoal } from "../domain/index.ts";
+import { planeditDocs } from "./plan-wire.ts";
 
 export interface WireGoal {
   id: string;
@@ -33,9 +34,7 @@ export async function goalDocs(
   clock: () => number,
 ): Promise<WireGoal[]> {
   const rows = await tablesRepo(db, { clock }).goals.list();
-  const edits = new Map(
-    (await docsRepo(db, { clock }).list("planedits")).map((d) => [d.id, d]),
-  );
+  const edits = new Map((await planeditDocs(db, clock)).map((d) => [d.id, d]));
   return rows.flatMap((g) => {
     const edit = edits.get(g.id);
     const planId = planIdOf(edit?.data);

@@ -19,6 +19,7 @@ function sqliteD1(): D1Like & { sql: DatabaseSync } {
     "0003_collections_pins_own.sql",
     "0004_ceiling_usage.sql",
     "0006_tables.sql",
+    "0007_plans_drafts.sql",
   ])
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
