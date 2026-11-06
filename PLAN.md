@@ -153,7 +153,8 @@ D1 holds one generic table, `docs(c, id, data JSON, at, v)`, plus five small tab
 ### 5.5 Migrations
 Wrangler migrations, starting with a baseline that only restates ev4's `schema.sql` (`IF NOT EXISTS`, a no-op on live). After that:
 - each migration is additive and idempotent;
-- migrations are added, never rewritten.
+- migrations are added, never rewritten once applied to live;
+- before cutover the chain is squashed once into one baseline of the final tables (D-514).
 
 ### 5.6 Deletes
 - Soft deletes go in a new `deletions(c, id, at)` table, which ev4 ignores, so nothing is lost on a rollback.
