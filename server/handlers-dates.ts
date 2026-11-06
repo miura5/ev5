@@ -5,6 +5,7 @@
 import {
   addDays,
   centralDate,
+  DATE_KINDS,
   endedReason,
   lastDay,
   planEnded,
@@ -58,6 +59,14 @@ async function edit(
   await save(x, c, id, doc, cur ? cur.v : null);
 }
 
+/** A kind from the registry (domain/goal), else the default "other". */
+function checkKind(kind: string | undefined): string {
+  if (kind === undefined) return "other";
+  if (!Object.hasOwn(DATE_KINDS, kind))
+    throw new CommandError(400, `${kind} is not a kind of date`);
+  return kind;
+}
+
 async function need(x: HandlerCtx, c: string, id: string): Promise<Doc> {
   const doc = await docsRepo(x.db, { clock: x.clock }).get(c, id);
   if (!doc) throw new CommandError(404, `no ${c} entry ${id}`);
@@ -100,7 +109,7 @@ export async function putPlanInForce(
 
 export const dateHandlers: Record<string, CommandHandler> = {
   "date.create": async (
-    i: { title: string; date: string; objectives?: string[] },
+    i: { title: string; date: string; kind?: string; objectives?: string[] },
     _c,
     x,
   ) => {
@@ -111,7 +120,7 @@ export const dateHandlers: Record<string, CommandHandler> = {
         id,
         collection_id: null,
         title: i.title,
-        kind: "other",
+        kind: checkKind(i.kind),
         date: checkDate(i.date),
         status: "open",
         score: null,
@@ -143,11 +152,12 @@ export const dateHandlers: Record<string, CommandHandler> = {
   },
 
   "date.update": async (
-    i: { id: string; title?: string; date?: string },
+    i: { id: string; title?: string; date?: string; kind?: string },
     _c,
     x,
   ) => {
     const date = i.date === undefined ? undefined : checkDate(i.date);
+    const kind = i.kind === undefined ? undefined : checkKind(i.kind);
     const goals = tablesRepo(x.db, { clock: x.clock }).goals;
     // An older date copied by the backfill is the goal `goal_<id>`; from then on the goal is the one that changes.
     const asGoal = i.id.startsWith("goal_")
@@ -164,6 +174,7 @@ export const dateHandlers: Record<string, CommandHandler> = {
           ...fields,
           ...(date ? { date } : {}),
           ...(i.title ? { title: i.title } : {}),
+          ...(kind ? { kind } : {}),
         },
         v,
       );
@@ -171,6 +182,8 @@ export const dateHandlers: Record<string, CommandHandler> = {
       return { id: i.id };
     }
     await need(x, "dates", i.id);
+    // An older date not yet copied to a goal keeps its kind; only a goal's kind changes.
+    if (kind) throw new CommandError(409, "this date's kind cannot be changed yet");
     await edit(
       x,
       ["dateedits", i.id],

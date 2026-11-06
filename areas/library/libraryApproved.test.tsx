@@ -7,8 +7,8 @@ afterEach(cleanup);
 const exam = {
   id: "x1",
   title: "Exam Three",
+  kind: "exam",
   when: "Tue",
-  course: "NUR 112",
   readiness: "none yet",
   plan: "in force",
   planState: "approved" as const,

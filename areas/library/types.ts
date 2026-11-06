@@ -35,6 +35,8 @@ export interface LibraryExam {
   meta: string;
   /** The date and days left, e.g. "Thu, Nov 5 · in 2 days"; "no date" when unset. */
   when: string;
+  /** The date's kind, a key of the kind registry; a kind outside it offers nothing. */
+  kind: string;
   mastery: Mastery;
   /** Readiness, e.g. "58%". */
   readiness: string;
@@ -124,6 +126,8 @@ export interface ExamPlanData {
   title: string;
   /** Date and time, e.g. "Thursday, Nov 5 · 9:00 am". */
   when: string;
+  /** The date's kind, a key of the kind registry ("exam", "other"); what it offers comes from there. */
+  kind: string;
   readiness: string;
   /** Plan state, e.g. "plan waiting for you". */
   plan: string;

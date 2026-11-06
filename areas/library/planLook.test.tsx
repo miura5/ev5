@@ -11,6 +11,7 @@ test("a draft plan answers on one line: Approve, Ask for changes (secondary), Pu
       exam={{
         id: "x",
         title: "Exam",
+        kind: "exam",
         when: "Nov 12 · in 8 days",
         readiness: "none yet",
         plan: "draft waiting for you",

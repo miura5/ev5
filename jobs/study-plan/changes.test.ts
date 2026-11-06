@@ -5,7 +5,7 @@ import { applyPatch, askChanges, parsePatch } from "./changes.ts";
 import type { Plan, PlanContext } from "./job.ts";
 
 const ctx: PlanContext = {
-  goal: { id: "e1", title: "Unit 3", kind: "unit", date: "2026-11-08" },
+  goal: { id: "e1", title: "Unit 3", kind: "exam", date: "2026-11-08" },
   today: "2026-11-03",
   days: ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07"],
   weakSpots: [{ id: "w1", title: "Heparin", need: 1 }],

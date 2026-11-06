@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Empty, Page, type DetailProps } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
-import { examPlanDetail } from "./ExamPlan.detail.tsx";
+import { datePlanDetail } from "./DatePlan.detail.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
 import {
@@ -40,9 +40,8 @@ export function LibraryScreen({
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, runPlan, answerPlan } = useLibrary(
-    services?.readCopy,
-  );
+  const { data, token, refused, error, runPlan, setKind, answerPlan } =
+    useLibrary(services?.readCopy);
   const setPlanNote = (message: string) => onToast?.(message);
   useEffect(() => {
     if (error && token && !refused) onToast?.(error);
@@ -89,8 +88,13 @@ export function LibraryScreen({
       (await answerPlan(id, decision)) ??
         (decision === "approve" ? "Plan approved" : "Plan put away"),
     );
-  const last = useRef({ plan, answer });
-  last.current = { plan, answer };
+  // A kind that was saved says nothing (the Detail shows it); one that was not says why.
+  const kind = async (id: string, k: string) => {
+    const why = await setKind(id, k);
+    if (why) setPlanNote(why);
+  };
+  const last = useRef({ plan, answer, kind });
+  last.current = { plan, answer, kind };
   const page = open ? data?.pages[open] : undefined;
   const exam = open ? data?.exams.find((x) => x.id === open) : undefined;
   const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
@@ -101,11 +105,12 @@ export function LibraryScreen({
     if (page || (!exam && !spot)) return onDetail(null);
     if (exam)
       return onDetail(
-        examPlanDetail({
+        datePlanDetail({
           exam: {
             id: exam.id,
             title: exam.title,
             when: exam.when,
+            kind: exam.kind,
             readiness: exam.readiness || "none yet",
             plan: PLAN_TEXT[exam.planState ?? "none"],
             planState: exam.planState,
@@ -142,6 +147,7 @@ export function LibraryScreen({
                   { id },
                   "Plan put away",
                 )),
+          onKind: (k) => void last.current.kind(exam.id, k),
           onClose: close,
         }),
       );

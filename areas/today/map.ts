@@ -167,6 +167,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       tone: toneFor(left),
       whenFull: weekdayDay(exam.date as string),
       dateLine: `${plainDay(exam.date as string, today)} · ${inDays(left)}`,
+      kind: exam.kind,
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });

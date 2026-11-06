@@ -36,7 +36,7 @@ test("date.plan_with_ev starts the prep plan job for that exam", async () => {
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1)",
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1)",
     )
     .run();
   const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
@@ -99,7 +99,7 @@ test("a new plan for an exam puts away its older waiting draft and stops its old
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1), ('exams', 'x2', '{}', 0, 1)",
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1), ('exams', 'x2', '{\"kind\":\"exam\"}', 0, 1)",
     )
     .run();
   await waiting(s.db, "old-draft");
@@ -165,6 +165,7 @@ test("date.plan_with_ev plans a date made by date.create (a goals row)", async (
   const made = await cmd(s, "date.create", {
     title: "Exam 2",
     date: "2026-12-01",
+    kind: "exam",
   });
   assert.equal(made.status, 200);
   const id = made.body.result.id as string;
@@ -172,4 +173,14 @@ test("date.plan_with_ev plans a date made by date.create (a goals row)", async (
   assert.equal(r.status, 200);
   const params = s.started.at(-1) as unknown as { input: unknown };
   assert.deepEqual(params.input, { goalId: id });
+});
+
+test("date.plan_with_ev refuses a date whose kind offers no prep plan, and starts nothing", async () => {
+  const s = setup();
+  const made = await cmd(s, "date.create", { title: "Half marathon", date: "2026-12-01" });
+  assert.equal(made.status, 200);
+  const r = await cmd(s, "date.plan_with_ev", { id: made.body.result.id });
+  assert.equal(r.status, 409);
+  assert.match(String(r.body.error), /Half marathon has no prep plan/);
+  assert.equal(s.started.length, 0);
 });

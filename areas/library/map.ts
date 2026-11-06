@@ -228,6 +228,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         title: v.title,
         meta: when,
         when,
+        kind: v.kind,
         mastery: {
           right: share(ready, mine.length),
           shaky: share(shaky, mine.length),

@@ -24,7 +24,7 @@ const exam = {
     at: "2026-10-01T15:00:00Z",
     source: "test",
     title: "Exam Three",
-    kind: "unit",
+    kind: "exam",
     date: "2099-01-05",
     course: "NUR 112",
   },

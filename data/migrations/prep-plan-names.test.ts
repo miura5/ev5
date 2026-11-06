@@ -6,9 +6,9 @@ import { DatabaseSync } from 'node:sqlite';
 const dir = new URL('.', import.meta.url);
 const read = (name: string): string => readFileSync(new URL(name, dir), 'utf8');
 const all = readdirSync(dir).filter((f) => /^\d{4}_.*\.sql$/.test(f)).sort();
-const RENAME = '0015_prep_plan_names_backfill.sql';
+const RENAME = '0016_prep_plan_names_backfill.sql';
 
-test('migration 0015 renames stored prep plan names and runs once', () => {
+test('migration 0016 renames stored prep plan names and runs once', () => {
   const db = new DatabaseSync(':memory:');
   for (const m of all.filter((f) => f < RENAME)) db.exec(read(m));
   const job = (id: string, kind: string, title: string) =>

@@ -157,6 +157,20 @@ test("an older date entry is still changed through an override", async () => {
   });
 });
 
+test("a date's kind comes from the registry: other by default, set on create or update, anything else refused", async () => {
+  const { DB, call } = await setup();
+  const kindOf = async (id: string) =>
+    (await DB.prepare("SELECT kind FROM goals WHERE id = ?").bind(id).first<{ kind: string }>())?.kind;
+  const plain = (await call("date.create", { title: "Trip", date: "2026-12-01" })).body.result.id;
+  assert.equal(await kindOf(plain), "other");
+  const exam = (await call("date.create", { title: "Unit 3", date: "2026-12-02", kind: "exam" })).body.result.id;
+  assert.equal(await kindOf(exam), "exam");
+  assert.equal((await call("date.update", { id: plain, kind: "exam" })).status, 200);
+  assert.equal(await kindOf(plain), "exam");
+  assert.equal((await call("date.update", { id: plain, kind: "quiz" })).status, 400);
+  assert.equal((await call("date.create", { title: "x", date: "2026-12-03", kind: "quiz" })).status, 400);
+});
+
 test("approving a prep plan puts it in force and putting it away retires it", async () => {
   const { call, doc, put } = await setup();
   await put("plans", "p1", {

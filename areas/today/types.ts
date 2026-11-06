@@ -30,6 +30,8 @@ export interface UpcomingDate {
   whenFull?: string;
   /** The date and days left for the Detail, worded as Library words it: "Thu, Nov 12 · in 8 days". */
   dateLine?: string;
+  /** The date's kind, a key of the kind registry ("exam", "other"); what it offers comes from there. */
+  kind: string;
   /** The prep plan for this exam: waiting for his answer, or approved and in force. */
   plan?: "waiting" | "approved" | "working";
   /** The plan's sessions by day (the waiting draft's, or the plan in force's). */

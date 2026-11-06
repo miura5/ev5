@@ -18,7 +18,7 @@ type Api = (
   body?: unknown,
 ) => Promise<{ status: number; body: Record<string, unknown> }>;
 
-/** The e2e exam, a week out so the plan has days to fill; a date that has gone stale is moved on (write-once fields stay). */
+/** The e2e date, a week out so the plan has days to fill, of a kind that offers the prep plan; a stale date or another kind is put right (write-once fields stay). */
 async function ensureExam(api: Api): Promise<void> {
   const at = `/api/v1/docs?collection=exams&id=${EXAM}`;
   const have = await api("GET", at);
@@ -28,8 +28,7 @@ async function ensureExam(api: Api): Promise<void> {
     at: new Date().toISOString(),
     source: "e2e",
     title: TITLE,
-    kind: "unit",
-    course: "NUR 112",
+    kind: "exam",
     date: day(7),
     status: "upcoming",
   };
@@ -40,11 +39,13 @@ async function ensureExam(api: Api): Promise<void> {
   }
   expect(have.status).toBe(200);
   const data = have.body["data"] as Record<string, unknown>;
-  if (typeof data["date"] === "string" && data["date"] >= day(3)) return;
+  const dated = typeof data["date"] === "string" && data["date"] >= day(3);
+  if (dated && data["kind"] === fresh.kind) return;
   const put = await api("PUT", `${at}&if_version=${String(have.body["v"])}`, {
     ...data,
     at: fresh.at,
-    date: fresh.date,
+    kind: fresh.kind,
+    ...(dated ? {} : { date: fresh.date }),
   });
   expect(put.status, JSON.stringify(put.body)).toBe(200);
 }

@@ -26,7 +26,7 @@ const exam = {
   at: T,
   source: 't',
   title: 'Unit 3',
-  kind: 'unit' as const,
+  kind: 'exam' as const,
   date: '2026-11-08',
 };
 const spots = [

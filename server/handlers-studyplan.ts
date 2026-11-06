@@ -5,12 +5,14 @@ import {
   continueJob,
   d1JobStore,
   isTerminal,
+  noPlanReason,
   startJob,
   studyPlanJob,
   transition,
   update,
 } from "../jobs/index.ts";
 import type { JobDef } from "../jobs/index.ts";
+import { kindOffers } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { startEnv } from "./job-routes.ts";
@@ -61,6 +63,9 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
     const exam = await examDoc(x.db as never, x.clock, i.id);
     if (!exam) throw new CommandError(404, `no date ${i.id}`);
+    const d = exam.data as { title?: unknown; kind?: unknown };
+    if (typeof d.kind !== "string" || !kindOffers(d.kind, "prep-plan"))
+      throw new CommandError(409, noPlanReason(String(d.title ?? i.id)));
     const job = await startJob(
       startEnv({ DB: x.db as never, JOBS: x.jobs }, def),
       def,

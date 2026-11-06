@@ -55,6 +55,7 @@ test("exam plan detail shows proposals dashed and acts on them", () => {
       exam={{
         id: "x",
         title: "Exam 3",
+        kind: "exam",
         when: "Thursday, Nov 5",
         readiness: "58%",
         plan: "waiting for you",

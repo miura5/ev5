@@ -29,6 +29,8 @@ export interface LibraryState {
     name: PlanCommand,
     input: Record<string, string>,
   ): Promise<string | undefined>;
+  /** Sets a date's kind (date.update), then reads again; resolves to a plain sentence when it fails. */
+  setKind(id: string, kind: string): Promise<string | undefined>;
   /** Answers a prep plan that is still waiting (approve or put away), then reads again. */
   answerPlan(
     jobId: string,
@@ -144,6 +146,15 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
+  const setKind = useCallback(
+    async (id: string, kind: string) => {
+      const r = await call("date.update", { id, kind }, token);
+      if (!r.ok) return planFailure(r.status, r.reason);
+      setAgain((n) => n + 1);
+      return undefined;
+    },
+    [token],
+  );
   const answerPlan = useCallback(
     async (jobId: string, decision: "approve" | "put_away") => {
       try {
@@ -159,5 +170,5 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
-  return { data, token, error, refused, runPlan, answerPlan };
+  return { data, token, error, refused, runPlan, setKind, answerPlan };
 }

@@ -21,7 +21,7 @@ const docs: Record<string, unknown[]> = {
       data: {
         ...base,
         title: "Exam Three",
-        kind: "unit",
+        kind: "exam",
         date: "2099-01-05",
         course: "NUR 112",
       },

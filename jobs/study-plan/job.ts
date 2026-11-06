@@ -6,7 +6,7 @@ import { defineJob, parseWith } from '../runtime/define.ts';
 import { outputSchema } from '../runtime/model-call.ts';
 import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
-import { addDays, examDaysLeft, planBodySchema, type Exam } from '../../domain/index.ts';
+import { addDays, examDaysLeft, kindOffers, planBodySchema, type Exam } from '../../domain/index.ts';
 
 export const MODEL = 'sonnet';
 export const MAX_TOKENS = 8000;
@@ -78,9 +78,16 @@ export function parseAnswer(raw: unknown): Decision {
   return rec(raw, 'answer').decision === 'change' ? parseWith(ChangeSchema)(raw) : parseDecision(raw);
 }
 
+/** Why a date gets no prep plan: its kind does not offer one. */
+export function noPlanReason(title: string): string {
+  return `${title} has no prep plan: a date of this kind does not offer one. Change its kind to plan it.`;
+}
+
 /** The deterministic part: the days from today to the day before the goal's date (at most 28), weak spots worst first. */
 export function buildContext(found: NonNullable<Awaited<ReturnType<PlanStore['load']>>>): PlanContext {
   const { exam, spots, today } = found;
+  // The registry says which kinds of date offer a prep plan (domain/goal); the job never checks a kind by name.
+  if (!kindOffers(exam.kind, 'prep-plan')) throw new Error(noPlanReason(exam.title));
   const left = examDaysLeft(exam, today);
   if (left === null || !exam.date)
     throw new Error(`${exam.title} has no date yet, so there is nothing to plan toward.`);
