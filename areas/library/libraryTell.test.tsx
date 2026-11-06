@@ -76,3 +76,22 @@ test("if the event cannot be queued the back stays hidden", async () => {
   await waitFor(() => expect(queueAnswer).toHaveBeenCalled());
   expect(screen.queryByText("The back")).toBeNull();
 });
+
+test("a rating posts study.attempt with the rating and a client att_ id", async () => {
+  const queueCommand = vi.fn().mockResolvedValue(undefined);
+  const queueAnswer = vi.fn();
+  const replay = vi.fn().mockResolvedValue(undefined);
+  const { useStudy } = await import("./useStudy.ts");
+  function H() {
+    const onRate = useStudy("set-1", { outbox: { queueCommand, queueAnswer, replay } });
+    return <button onClick={() => onRate("q1", "good", "typed")}>rate</button>;
+  }
+  render(<H />);
+  fireEvent.click(screen.getByText("rate"));
+  await waitFor(() => expect(queueCommand).toHaveBeenCalled());
+  const [name, id, input] = queueCommand.mock.calls[0] ?? [];
+  expect(name).toBe("study.attempt");
+  expect(id).toMatch(/^att_[0-9a-f]{24}$/);
+  expect(input).toEqual({ id: "set-1/q1", answer: "typed", rating: "good", attempt: id });
+  expect(queueAnswer).not.toHaveBeenCalled();
+});

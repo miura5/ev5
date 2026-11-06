@@ -63,9 +63,11 @@ test("a typed open answer goes to study.attempt whole and shows the score, not A
   );
   const [url, init] = fetchMock.mock.calls[0] as [string, { body: string }];
   expect(url).toContain("commands/study.attempt");
-  expect(JSON.parse(init.body)).toEqual({
-    input: { id: "set-1/q1", answer: long },
+  const sent = JSON.parse(init.body) as { input: { attempt: string } };
+  expect(sent).toEqual({
+    input: { id: "set-1/q1", answer: long, attempt: sent.input.attempt },
   });
+  expect(sent.input.attempt).toMatch(/^att_[0-9a-f]{24}$/);
   expect(screen.queryByText("Again")).toBeNull();
   expect(screen.getByText("Next")).toBeTruthy();
 });

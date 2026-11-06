@@ -47,6 +47,23 @@ export function LibraryScreen({
   useEffect(() => {
     if (error && token && !refused) onToast?.(error);
   }, [error, token, refused, onToast]);
+  // Answers the server turned down for good stay on this device; say so once instead of leaving them unseen.
+  const waiting = services?.outbox.waiting;
+  const told = useRef(false);
+  useEffect(() => {
+    if (!waiting || told.current) return;
+    told.current = true;
+    void waiting
+      .call(services?.outbox)
+      .then((all) => {
+        const bad = all.filter((e) => e.refused);
+        if (bad.length)
+          onToast?.(
+            `${bad.length} answer${bad.length === 1 ? " was" : "s were"} not saved: ${bad[0]?.refused ?? ""}`,
+          );
+      })
+      .catch(() => undefined);
+  }, [waiting, services, onToast]);
   const [open, setOpen] = useState<string | undefined>(openFromUrl);
   // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
   const [openKey, setOpenKey] = useState(0);
