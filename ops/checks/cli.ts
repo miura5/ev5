@@ -3,6 +3,7 @@
 import { checkAccount } from './account.ts';
 import { checkChartEv4 } from './chartev4.ts';
 import { checkControls } from './controls.ts';
+import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkDocsWrites } from './docswrites.ts';
 import { checkIds } from './ids.ts';
@@ -32,6 +33,7 @@ const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
   ...checkChartEv4(root, files),
+  ...checkCompatImport(root, files),
   ...checkControls(root, files),
   ...checkDocsKinds(root, files),
   ...checkDocsWrites(root, files),
