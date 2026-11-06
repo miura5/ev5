@@ -15,6 +15,7 @@ async function setup() {
     "0002_jobs_ceilings",
     "0003_collections_pins_own",
     "0004_ceiling_usage",
+    "0006_tables",
   ])
     for (const stmt of readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
@@ -155,21 +156,21 @@ test("a draft is kept into its set exactly once, or dropped; the whole set at on
   const items = async () =>
     (
       await DB.prepare(
-        "SELECT item_id, pos FROM own_set_items WHERE set_id = 's1' ORDER BY pos",
+        "SELECT id AS item_id, pos FROM set_items WHERE set_id = 'set_s1' ORDER BY pos",
       ).all<any>()
     ).results.map((r: any) => ({ ...r }));
   assert.equal((await call("draft.keep", { id: "d1" })).status, 200);
   assert.equal((await call("draft.keep", { id: "d1" })).status, 404); // kept once
   assert.equal((await call("draft.drop", { id: "d2" })).status, 200);
   assert.equal((await call("draft.keep", { id: "sg" })).status, 404); // a Suggestion is not a draft
-  assert.deepEqual(await items(), [{ item_id: "d1", pos: 0 }]);
+  assert.deepEqual(await items(), [{ item_id: "item_d1", pos: 0 }]);
   assert.equal(
     (await call("draft.keep_all", { set: "s1" })).body.result.kept,
     2,
   );
   assert.deepEqual(
     (await items()).map((r: any) => r.item_id),
-    ["d1", "d3", "d4"],
+    ["item_d1", "item_d3", "item_d4"],
   );
   assert.equal(await state("d2"), "dropped");
   assert.equal(await state("sg"), "pending");

@@ -135,7 +135,7 @@ collectionRoutes.get("/deletions", async (c) => {
   );
   const items = await rows<{ k: string; t: string | null }>(
     c.env.DB,
-    "SELECT d.c || '/' || d.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN own_set_items i ON d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.item_id",
+    "SELECT d.c || '/' || d.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN set_items i ON d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.id",
     [],
   );
   const colls = await rows<{ k: string; t: string | null }>(

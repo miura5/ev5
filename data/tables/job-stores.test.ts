@@ -118,7 +118,7 @@ test("job output: items and drafts land in one batch, a retry changes nothing", 
   await repo.jobOutput.save(a);
   const n = (t: string) =>
     (sql.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get() as { n: number }).n;
-  assert.equal(n("own_set_items"), 2);
+  assert.equal(n("set_items"), 2);
   assert.equal(n("drafts"), 1);
   assert.equal(
     (sql.prepare("SELECT state FROM drafts").get() as { state: string }).state,

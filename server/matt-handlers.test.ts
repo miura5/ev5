@@ -61,7 +61,7 @@ test("new here makes a note, a set, a date and a collection", async () => {
   ).all<{ item_c: string }>();
   assert.deepEqual(
     m.results.map((r) => r.item_c),
-    ["notes", "own_sets"],
+    ["notes", "sets"],
   );
 });
 
