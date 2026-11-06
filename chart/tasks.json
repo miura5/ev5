@@ -4576,7 +4576,7 @@
   "title": "Prep plan output lands as plans and plan_items",
   "dod": "The prep plan job's output goes through domain/plan into plans and plan_items, each plan pointing at a goal; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/study-plan, domain/plan",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-955",
    "B-997",
@@ -4584,7 +4584,9 @@
   ],
   "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B9: each plan points at a goal, not an exam id; day items that point at a plan task carry the plan id (from B-486). Scope sweep #619: plans point at a goal (context goal, input goalId). Still named study plan: folder jobs/study-plan, server/handlers-studyplan.ts, studyPlanJob, ExamPlanData, UpcomingDate, the prompt keys study_plan and study_plan_changes, comments in server/job-run.ts, jobs/runtime/d1-stores.ts, domain/plan; rename with this move. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F11: the plans and plan_items tables, migration (0007_plans_drafts.sql) and repository (data/tables/plan.ts, #576; domain/plan/table.ts) are on main; what is left is moving the writers to them. The header of domain/plan/index.ts describes a table that does not exist. 2026-11-06 run (#668): expand step done: d1PlanStore.approve and putAway also write plans and plan_items through data/tables/plan.ts (planTableWrite in domain/plan/table.ts), next to home.apply. Left (with B-1033 and B-1034): move Today and Library readers (areas/today, areas/library, outside jobs slice) to the tables, then delete home.apply, putPlanInForce and planedits writes (handlers-dates.ts), old exam-keyed approvePlan, putAwayPlan, PlanRow; d1PlanStore home keeps only load. Claim freed. Run 2026-11-06 21:40: expand was already on main (0007, data/tables/plan.ts); #673 plans/planedits wire documents are served from plans and plan_items (server/plan-wire.ts); #675 plan.approve and plan.put_away act on table rows through setPlanState, home.apply and the exam-keyed domain/plan shapes deleted, legacy document fallback dropped. Left: Today and Library read the wire documents, not rows; docs-kinds ALLOWED still lists planedits, /docs serves plans and planedits (part 2); the study-plan rename (jobs/study-plan, handlers-studyplan.ts, studyPlanJob, ExamPlanData, UpcomingDate, prompt keys); no test for a plan.approve racing a job approve.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "cse_01JjJLDVyXoGxjAZYtxBm6o8",
+  "claimedAt": "2026-11-06T21:40:06.306Z"
  },
  {
   "id": "B-1005",
@@ -5105,13 +5107,15 @@
   "title": "E.V. conversation is talk rows, and Ask E.V. keeps its chat",
   "dod": "Session check-in lines and Ask E.V. turns are appended talk rows in the one talk table; Ask E.V. saves each turn and sends the saved conversation, capped by count or tokens, through the ceilings already in place (§model.ceilings); a reload keeps the chat; no summarising (§data.append-only). Slice: write data/, server/; the Ask screen part is in B-1007.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Group 4 (D-489 order as amended by D-495). Scope audit 2026-11-06: B14: talk lines are still appended into a day document with role matt; append talk rows instead. Checked 2026-11-06: data and server are done (talk table 0006, data/tables/talk.ts, check-ins and just-tell-me append talk rows, server/ask-chat.ts saves turns after the ceilings reserve, GET /ask/chat). Left, in areas/ (B-1007): areas/ask/tellLog.ts logTellMe still PUTs a day document to docs talk with role matt (swap to the command and delete it); Ask loads its chat from GET /ask/chat on mount and sends chat_id.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDVyXoGxjAZYtxBm6o8",
+  "claimedAt": "2026-11-06T21:40:06.401Z"
  },
  {
   "id": "B-1044",
@@ -5134,13 +5138,15 @@
   "title": "Note pictures get a files row and are in the export and the restore drill",
   "dod": "Each stored note picture has a files row (id, type, size, SHA-256, owner pointer, at, v); the export copies the bytes or lists them with their hashes, and the restore drill checks them; an orphan picture is reported (§data.links, §data.export, §data.note-images, §hard.data-never-lost). Nothing is built for PDFs, slides or pages yet. Slice: write data/, server/image-routes.ts, data/export.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Group 4 (D-489 order as amended by D-495). Export and restore audit 2026-11-06 (D-516): server/image-routes.ts puts a picture with no onlyIf, so an upload can silently replace an existing picture, and pictures share the IMAGES bucket with exports with no second copy. Refuse overwrite (onlyIf etagDoesNotMatch \"*\", as nightly-export.ts does), and put pictures in the export or a second copy that the restore drill checks. Four-app research 2026-11-06 (D-521): server/image-routes.ts checks the bytes' magic number against the declared type on upload, and serves pictures with Content-Security-Policy default-src 'none' and nosniff. Run 2026-11-06 21:40 (#679): PUT /note-images refuses overwrite (onlyIf etagDoesNotMatch *, 409); a retried upload now gets 409, so the outbox must treat 409 as already stored (check areas/). Left: files table, repository and migration (0018 is free); a files row on upload (needs a D1 binding in image-routes, split with server/index.ts); export copies bytes or lists hashes; restore drill checks them; orphan report; D-521 magic-number check and CSP default-src none on GET.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDVyXoGxjAZYtxBm6o8",
+  "claimedAt": "2026-11-06T21:40:06.496Z"
  },
  {
   "id": "B-1046",
