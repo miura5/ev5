@@ -112,7 +112,7 @@ const ownFields = (
 ) => ({
   id,
   collection_id: collection,
-  kind: "adhoc" as const,
+  kind: "own" as const,
   title,
   source_kind: source[0],
   source_id: source[1],

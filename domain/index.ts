@@ -1,5 +1,5 @@
 // The domain barrel: the parsers for the kinds v5 stores, so data/ and ops/ reach them through one door.
-export { parseExam } from "./exam/index.ts";
+export { parseGoal } from "./goal/read.ts";
 export { parseObjective } from "./objective/index.ts";
 export {
   parseWeakSpot,
@@ -49,8 +49,8 @@ export {
   newNoteRow,
 } from "./note/rows.ts";
 export { accuracyLine, dueCounts } from "./answers/index.ts";
-export { examDaysLeft } from "./exam/index.ts";
-export type { Exam } from "./exam/index.ts";
+export { goalDaysLeft } from "./goal/read.ts";
+export type { Goal } from "./goal/read.ts";
 export {
   addDays,
   centralDate,
@@ -124,7 +124,6 @@ export { parseSystemDoc } from "./system-doc/index.ts";
 /** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
 export { docRowSchema } from "./doc-row/index.ts";
 /** @public */
-export { parseExamRow, type ExamRow } from "./exam/row.ts";
 /** @public */
 export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";
 /** @public */

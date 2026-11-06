@@ -49,3 +49,18 @@ test('migration 0016 renames stored prep plan names and runs once', () => {
   assert.deepEqual(body('j1', 'draft'), { summary: 's', tasks: [] });
   assert.deepEqual(body('j3', 'context'), { goal: { id: 'g1', title: 'Run', kind: 'exam', date: '2026-12-01' } });
 });
+
+test('migration 0017 gives the user\'s sets the own kind and runs once', () => {
+  const NAME = '0017_own_set_kind_backfill.sql';
+  const db = new DatabaseSync(':memory:');
+  for (const m of all.filter((f) => f < NAME)) db.exec(read(m));
+  const set = (id: string, kind: string, by: string) =>
+    db.prepare('INSERT INTO sets (id, kind, created_by, at, v) VALUES (?, ?, ?, 1, 1)').run(id, kind, by);
+  set('set_1', 'adhoc', 'user');
+  set('set_2', 'adhoc', 'ev');
+  set('set_3', 'review', 'ev');
+  db.exec(read(NAME));
+  db.exec(read(NAME));
+  const kinds = db.prepare('SELECT id, kind FROM sets ORDER BY id').all().map((r) => `${r.id}:${r.kind}`);
+  assert.deepEqual(kinds, ['set_1:own', 'set_2:adhoc', 'set_3:review']);
+});
