@@ -17,18 +17,21 @@ const examDoc = (planId: string) => ({
     planId,
   },
 });
-const planDoc = (id: string, title: string) => ({
-  id,
-  data: {
-    days: [{ date: "2099-01-02", tasks: [{ text: title, minutes: 30 }] }],
-  },
+const item = (plan: string, title: string, day = "2099-01-02") => ({
+  id: `pli_${plan}_${title}`,
+  data: { plan_id: plan, day, title, minutes: 30 },
 });
 const docs = (planId: string, jobs: object[] = []) => ({
   exams: [examDoc(planId)],
   weakspots: [],
   sets: [],
-  planedits: [{ id: "x1", data: { plan: planId } }],
-  plans: [planDoc("plan-old", "Old plan"), planDoc("plan-new", "New plan")],
+  plans: [
+    { id: "plan-old", data: { goal_id: "x1", state: "put_away" } },
+    { id: "plan-new", data: { goal_id: "x1", state: "in_force" } },
+  ].map((p) =>
+    p.id === planId ? { ...p, data: { ...p.data, state: "in_force" } } : p,
+  ),
+  planItems: [item("plan-old", "Old plan"), item("plan-new", "New plan")],
   jobs: jobs as never,
 });
 const now = Date.parse("2026-11-05T18:00:00Z");
@@ -54,14 +57,7 @@ test("right after Approve, while the plan job still runs, no earlier plan shows"
 test("a plan in force whose days have all passed reads as ended, not approved", () => {
   const past = {
     ...docs("plan-old"),
-    plans: [
-      {
-        id: "plan-old",
-        data: {
-          days: [{ date: "2026-11-04", tasks: [{ text: "Old", minutes: 30 }] }],
-        },
-      },
-    ],
+    planItems: [item("plan-old", "Old", "2026-11-04")],
   };
   expect(mapLibrary(past, now).exams[0]?.planState).toBe("ended");
   // The last day is still today (Central): the plan is not over.

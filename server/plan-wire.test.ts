@@ -1,5 +1,4 @@
-// The plan rows read as the documents Today and Library use (plan-wire.ts): the plan's days of tasks, and which plan is in
-// force or put away per goal; a goal with no plan row still reads its older documents.
+// The plan rows read as rows (plan-wire.ts): each plan with its goal and state, and each item with its plan and day.
 import test from "node:test";
 import assert from "node:assert/strict";
 import app from "./index.ts";
@@ -9,7 +8,7 @@ import { setup } from "./matt-handlers-setup.test.ts";
 
 type Doc = { id: string; data: Record<string, any> };
 
-test("plans and planedits are read from the plan rows, and a put-away plan reads as retired", async () => {
+test("plans and plan_items are read as rows, and a put-away plan reads as put away", async () => {
   const { DB, call } = await setup();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const read = async (c: string) =>
@@ -40,23 +39,22 @@ test("plans and planedits are read from the plan rows, and a put-away plan reads
   await store.approve("j1", plan);
   const [one] = await read("plans");
   assert.equal(one!.id, "plan_j1");
-  assert.equal(one!.data.exam, goal);
+  assert.equal(one!.data.goal_id, goal);
+  assert.equal(one!.data.state, "in_force");
   assert.deepEqual(
-    one!.data.days.map((d: any) => [d.date, d.tasks.map((t: any) => t.id)]),
+    (await read("plan_items")).map((i) => [i.data.day, i.data.title]),
     [
-      ["2999-11-01", ["j1-2"]],
-      ["2999-11-02", ["j1-1"]],
+      ["2999-11-01", "A"],
+      ["2999-11-02", "B"],
     ],
   );
-  assert.equal(one!.data.days[0].tasks[0].ref, "ws_1");
-  assert.deepEqual(
-    (await read("planedits")).find((d) => d.id === goal)?.data.plan,
-    "plan_j1",
-  );
+  assert.equal((await read("plan_items"))[0]!.data.weak_spot_id, "ws_1");
   await store.putContext("j2", ctx);
   await store.putDraft("j2", plan);
   await store.putAway("j2");
-  const edit = (await read("planedits")).find((d) => d.id === goal)!.data;
-  assert.equal(edit.plan, "plan_j1"); // a put-away draft leaves the plan in force
-  assert.ok(edit.retired.plan_j2);
+  const states = Object.fromEntries(
+    (await read("plans")).map((p) => [p.id, p.data.state]),
+  );
+  assert.equal(states.plan_j1, "in_force"); // a put-away draft leaves the plan in force
+  assert.equal(states.plan_j2, "put_away");
 });

@@ -82,21 +82,24 @@ test("an approved plan keeps its sessions listed with the approved line", () => 
       exams: [exam({ planId: "plan-j1" })],
       weakspots: [],
       sets: [],
-      planedits: [{ id: "x1", data: { plan: "plan-j1" } }],
-      plans: [
+      plans: [{ id: "plan-j1", data: { goal_id: "x1", state: "in_force" } }],
+      planItems: [
         {
-          id: "plan-j1",
+          id: "pli_a",
           data: {
-            days: [
-              {
-                date: "2099-01-03",
-                tasks: [{ id: "a", text: "Practice set", minutes: 20 }],
-              },
-              {
-                date: "2099-01-02",
-                tasks: [{ id: "b", text: "Review heart sounds", minutes: 30 }],
-              },
-            ],
+            plan_id: "plan-j1",
+            day: "2099-01-03",
+            title: "Practice set",
+            minutes: 20,
+          },
+        },
+        {
+          id: "pli_b",
+          data: {
+            plan_id: "plan-j1",
+            day: "2099-01-02",
+            title: "Review heart sounds",
+            minutes: 30,
           },
         },
       ],

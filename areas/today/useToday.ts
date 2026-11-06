@@ -80,27 +80,27 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         c ? c.read(key, get) : get();
       const today = centralDate(now);
       // Which plan is in force is a nicety: when it cannot be read, none is approved.
-      const planRead = saved("today:planedits", () =>
-        list("planedits", token),
-      ).catch((): WireDoc[] => []);
-      // The approved plan's sessions live in its document; unreadable, Today just lists none from it.
-      const plans = saved("today:plans", () => list("plans", token)).catch(
+      const planRead = saved("today:plans", () => list("plans", token)).catch(
         (): WireDoc[] => [],
       );
+      // The approved plan's sessions are its plan_items rows; unreadable, Today just lists none from it.
+      const items = saved("today:plan_items", () =>
+        list("plan_items", token),
+      ).catch((): WireDoc[] => []);
       // The jobs are extra: Today still loads without them.
       const jobRead = jobApi.list(token, c).then(
         (j) => j as WireJobLine[],
         () => undefined,
       );
-      const [day, exams, weakspots, planedits, docs, jobs] = await Promise.all([
+      const [day, exams, weakspots, plans, planItems, jobs] = await Promise.all([
         saved(`today:dayedits:${today}`, () => dayEdit(today, token)),
         saved("today:exams", () => list("exams", token)),
         saved("today:weakspots", () => list("weakspots", token)),
         planRead,
-        plans,
+        items,
         jobRead,
       ]);
-      return { day, exams, weakspots, planedits, plans: docs, jobs };
+      return { day, exams, weakspots, plans, planItems, jobs };
     };
     const first = warm.current;
     warm.current = false;
@@ -111,11 +111,11 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         setAlert(spendAlertLine(r.jobs));
         setPlanWaiting(prepPlanWaiting(r.jobs));
       }
-      const { exams, weakspots, planedits, plans } = r;
+      const { exams, weakspots, plans, planItems } = r;
       const dayedit = r.day ?? undefined;
       setData(
         mapToday(
-          { exams, weakspots, dayedit, jobs: r.jobs ?? [], planedits, plans },
+          { exams, weakspots, dayedit, jobs: r.jobs ?? [], plans, planItems },
           now,
         ),
       );

@@ -133,7 +133,7 @@ test("while the prep plan job still runs after Approve, the exam is not shown as
     {
       exams: [{ id: "e4", data: exam("2026-11-20", { planId: "plan-old" }) }],
       weakspots: [],
-      planedits: [{ id: "e4", data: { plan: "plan-old" } }],
+      plans: [{ id: "plan-old", data: { goal_id: "e4", state: "in_force" } }],
       jobs: [
         { kind: "prep_plan", state: "running", summary: "", goalId: "e4" },
       ],

@@ -31,12 +31,12 @@ export interface LibraryDocs {
   sets: WireDoc[];
   /** Practice answers; absent reads as none. */
   answers?: WireDoc[];
-  /** Which prep plan is in force or put away per exam; absent reads as none. */
-  planedits?: WireDoc[];
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: WireJob[];
-  /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
+  /** The plans rows (goal, state: in force, put away or a draft); absent reads as none. */
   plans?: WireDoc[];
+  /** The plan_items rows (plan, day, title, minutes): a plan's sessions. */
+  planItems?: WireDoc[];
 }
 
 /** One entry of GET /api/v1/jobs as Library reads it, restated: areas never import the server. */
@@ -74,31 +74,27 @@ function sessionsOf(tasks: unknown): PlanSession[] {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/** The sessions of an approved plan document (days of tasks); the day is the task's date. */
+/** The sessions of a plan: its plan_items rows (the day is the item's day). */
 function sessionsOfPlan(
-  plans: WireDoc[] | undefined,
+  items: WireDoc[] | undefined,
   planId?: string,
 ): PlanSession[] {
-  const d = plans?.find((p) => p.id === planId)?.data as
-    | { days?: unknown }
-    | undefined;
-  if (!planId || !Array.isArray(d?.days)) return [];
+  if (!planId) return [];
   return sessionsOf(
-    d.days.flatMap((day: { date?: unknown; tasks?: unknown }) =>
-      Array.isArray(day?.tasks)
-        ? day.tasks.map((t: { text?: unknown; minutes?: unknown }) => ({
-            date: day.date,
-            title: t?.text,
-            minutes: t?.minutes,
-          }))
-        : [],
-    ),
+    (items ?? []).flatMap((i) => {
+      const d = i.data as
+        | {
+            plan_id?: unknown;
+            day?: unknown;
+            title?: unknown;
+            minutes?: unknown;
+          }
+        | undefined;
+      return d?.plan_id === planId
+        ? [{ date: d.day, title: d.title, minutes: d.minutes }]
+        : [];
+    }),
   );
-}
-
-interface PlanEdit {
-  plan?: string;
-  retired?: Record<string, unknown>;
 }
 
 function planIdOf(exams: WireDoc[], id: string): string | undefined {
@@ -120,20 +116,20 @@ function workingPlan(jobs: WireJob[] | undefined, exam: string): boolean {
 
 function planStateOf(
   planId: string | undefined,
-  e: PlanEdit | undefined,
+  state: unknown,
   sessions: readonly PlanSession[],
   today: string,
 ): PlanState {
   if (!planId) return "none";
   // A plan past its last day is over, not in force, even though it is still the one the exam points at.
-  if (e?.plan === planId)
+  if (state === "in_force")
     return planEnded(
       sessions.map((s) => s.date),
       today,
     )
       ? "ended"
       : "approved";
-  if (e?.retired && planId in e.retired) return "away";
+  if (state === "put_away") return "away";
   return "draft";
 }
 
@@ -192,9 +188,12 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         goalId: v.exam ?? null,
       };
     });
-  const edits = new Map(
-    (docs.planedits ?? []).map((p) => [p.id, (p.data ?? {}) as PlanEdit]),
-  );
+  const stateOfPlan = (id: string | undefined): unknown =>
+    (
+      docs.plans?.find((p) => p.id === id)?.data as
+        | { state?: unknown }
+        | undefined
+    )?.state;
   const exams: LibraryExam[] = docs.exams
     .flatMap((d) => tryParse(parseGoal, d))
     .filter((e) => (e.v.status ?? "upcoming") === "upcoming")
@@ -212,7 +211,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         ? sessionsOf(job?.tasks)
         : working
           ? []
-          : sessionsOfPlan(docs.plans, planId);
+          : sessionsOfPlan(docs.planItems, planId);
       const mine = spots.filter(
         (s) => s.v.exam === id && ["open", "reviewed"].includes(s.d.status),
       );
@@ -243,7 +242,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
           ? "draft"
           : working
             ? "working"
-            : planStateOf(planId, edits.get(id), sessions, today),
+            : planStateOf(planId, stateOfPlan(planId), sessions, today),
         ...(planId ? { planId } : {}),
         ...(waiting ? { waiting: true } : {}),
         ...(sessions.length ? { sessions } : {}),

@@ -86,8 +86,8 @@ const feed = (jobs: unknown[], extra: Record<string, unknown[]> = {}) =>
         ? json({}, 404)
         : url.includes("collection=exams")
           ? json({ docs: extra.exams ?? two })
-          : url.includes("collection=planedits")
-            ? json({ docs: extra.planedits ?? [] })
+          : url.includes("collection=plans")
+            ? json({ docs: extra.plans ?? [] })
             : json({ docs: [] }),
   );
 
@@ -120,7 +120,7 @@ test("an exam whose plan is in force reads approved", async () => {
     "fetch",
     feed([], {
       exams: [{ id: "e3", data: { ...exam, planId: "p1" } }, two[1]],
-      planedits: [{ id: "e3", data: { plan: "p1" } }],
+      plans: [{ id: "p1", data: { goal_id: "e3", state: "in_force" } }],
     }),
   );
   render(<TodayHosted />);
@@ -148,14 +148,20 @@ test("Today's exam Detail uses Library's words: date with days left, readiness, 
 test("an approved plan's session dated today lists on Today's Plan, and Start next starts it", async () => {
   localStorage.setItem("ev5.token", "t");
   const today = centralDate(new Date());
-  const days = [
+  const items = [
     {
-      date: today,
-      tasks: [
-        { id: "j-1", text: "Gather notes and make a review list", minutes: 30 },
-      ],
+      id: "pli_j-1",
+      data: {
+        plan_id: "p1",
+        day: today,
+        title: "Gather notes and make a review list",
+        minutes: 30,
+      },
     },
-    { date: "2099-01-01", tasks: [{ id: "j-2", text: "Later", minutes: 10 }] },
+    {
+      id: "pli_j-2",
+      data: { plan_id: "p1", day: "2099-01-01", title: "Later", minutes: 10 },
+    },
   ];
   vi.stubGlobal(
     "fetch",
@@ -166,10 +172,14 @@ test("an approved plan's session dated today lists on Today's Plan, and Start ne
           ? json({}, 404)
           : url.includes("collection=exams")
             ? json({ docs: [{ id: "e3", data: { ...exam, planId: "p1" } }] })
-            : url.includes("collection=planedits")
-              ? json({ docs: [{ id: "e3", data: { plan: "p1" } }] })
+            : url.includes("collection=plan_items")
+              ? json({ docs: items })
               : url.includes("collection=plans")
-                ? json({ docs: [{ id: "p1", data: { days } }] })
+                ? json({
+                    docs: [
+                      { id: "p1", data: { goal_id: "e3", state: "in_force" } },
+                    ],
+                  })
                 : json({ docs: [] }),
     ),
   );
