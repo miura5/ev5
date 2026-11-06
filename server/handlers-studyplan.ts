@@ -1,6 +1,6 @@
 // The two study-plan commands that run the job (CONTRACT §job.study-plan, §cmd.registry): "plan this date with E.V."
 // starts the plan job for an exam, and "ask for changes" answers the waiting plan with Matt's note so the job's own
-// revise step does the work. Spend and ceilings are the job runtime's (§job.ceilings); nothing here calls a model.
+// revise step does the work. Spend and ceilings are the job runtime's (§model.ceilings); nothing here calls a model.
 import {
   continueJob,
   d1JobStore,
