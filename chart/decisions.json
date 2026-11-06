@@ -1,12 +1,80 @@
 [
  {
+  "id": "D-511",
+  "date": "Nov 6",
+  "title": "Progress has no Minutes section; it follows the mock-up",
+  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call D). The mock-up's Progress has no minutes section, so B-942's done bar drops it and the app removes the one it shows. This amends D-503's wording item 1 only where it implied a Minutes section.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-503"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-510",
+  "date": "Nov 6",
+  "title": "The mock-up shows the Dates tab and the Kind picker; the date Detail drops Time, Repeat and Linked for now",
+  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call C). design/mockup.html and DESIGN-BRIEF follow D-499 and D-503: Library tabs with Dates, and a date Detail with Title, Date, Kind (Exam or Other) and, for an exam, the prep plan. Time, Repeat and Linked are not in the goals table, so they leave the mock-up until a task adds them. Built in B-1060.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-499"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-509",
+  "date": "Nov 6",
+  "title": "A weak spot links to a date directly, with link rows, as the mock-up shows",
+  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call B). Today a weak spot reaches a date only through an objective, nothing writes objectives, and Other dates have none, so a prep plan always gets 0 weak spots. A weak spot gets a link row to its goal (§data.links), which the prep plan and readiness read; objectives stay optional. Built in B-1039, with the picker in B-1052.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-508",
+  "date": "Nov 6",
+  "title": "Again and Good self-ratings are stored as self-ratings and do not count toward accuracy; only checked answers do",
+  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call A). A self-rated attempt is kept as a self-rating, not as a graded score; accuracy, weak-spot state and later scheduling read only checked answers. A choice or numeric item is checked against its key even when a rating is sent. Built in B-1037; B-1044's due read follows it.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-507",
+  "date": "Nov 6",
+  "title": "A task is claimed only by its Chart entry under the run lock (AGENTS.md §3); a claude/<task>- branch is not a claim",
+  "why": "Post-sweep audit finding 10: prompts/START-BUILD.md step 3 said any claude/<task id>- branch claims a task, while AGENTS.md §3 says the claim is the Chart entry and the run lock keeps other runs off it. Old branches on origin cover B-998, B-1022, B-1037 and B-1038, so a run that followed the prompt would skip the four biggest data tasks. AGENTS.md §3 is the one rule; the prompt's step 3 now points to it, and stale branches are ignored. B-1038's claim from a dead run (builder-goals-readers, 06:42Z) is released.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "build manager, post-sweep fix sweep 2026-11-06"
+ },
+ {
+  "id": "D-506",
+  "date": "Nov 6",
+  "title": "Migrations: the chain 0000 to 0016 is v5's schema; no baseline rewrite, no more backfills; staging is rebuilt from the chain with synthetic rows",
+  "why": "Post-sweep audit 2026-11-06 findings 3, 4, 5. B-998's done bar asked for one empty-database baseline, while §data.migrations says migrations are added and never rewritten, and staging applies files by name, so a rewritten baseline would give live a schema staging never ran. v5 live starts empty (D-484), so docs-to-table backfills (0008, 0010 to 0014) copy nothing that matters for live; 0011 copies nothing even on staging (it reads c='dates' and skips hyphenated ids). Choice: the files 0000 to 0016 stay as they are (0011 included: it is harmless, and rewriting it breaks the rule); the contract step that drops target_c, own_* and docs is one new migration with the next free number when B-998 part 2 runs (not '0007', which is the plans migration); the DROP carve-out in data/migrations/migrations.test.ts is limited to that contract migration. Staging is rebuilt once from an empty database through the same chain and filled with synthetic rows written by commands (B-1009), so every date on staging is a goal and no copy step needs repair. Second way considered: fix 0011 and add more backfills; rejected because live has nothing to copy and a corrected copy would show each date twice (examDocs merge) with the plan keyed by the old id. Drift risk: a builder adds another backfill; the done bars of B-998 and B-1009 say not to. Amends D-498's 'migration 0007' wording.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-498"
+  ],
+  "source": "build manager, post-sweep fix sweep 2026-11-06"
+ },
+ {
   "id": "D-505",
   "date": "Nov 6",
   "title": "Every date kind offers weak-spot links; only the exam kind offers the prep plan for now",
   "why": "Practice on any goal makes weak spots, and the mock-up shows weak spots on Other dates; the prep plan stays on exams as Matt chose. The one registry in domain/goal holds this as data: exam offers prep-plan and weak-spot-links, other offers weak-spot-links.",
   "status": "accepted",
   "supersedes": [],
-  "amends": [],
+  "amends": [
+   "D-499"
+  ],
   "source": "Scope audit sweep 2026-11-06, build manager"
  },
  {
