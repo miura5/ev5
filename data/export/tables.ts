@@ -25,7 +25,11 @@ export const BASE_TABLES: TableSpec[] = [
 
 /** The tables PLAN §5.10 adds. */
 export const NEW_TABLES: TableSpec[] = [
-  t("collections", ["id", "title", "parent_id", "pos", "at", "v"], ["id"]),
+  t(
+    "collections",
+    ["id", "title", "parent_id", "pos", "at", "v", "deleted_at"],
+    ["id"],
+  ),
   t(
     "memberships",
     ["item_c", "item_id", "collection_id", "at", "v"],
@@ -88,8 +92,11 @@ export const JOB_TABLES: TableSpec[] = [
   t("job_plans", ["job_id", "kind", "body", "at"], ["job_id", "kind"]),
 ];
 
+import { ROW_TABLES } from "./row-tables.ts";
+
 export const ALL_TABLES: TableSpec[] = [
   ...BASE_TABLES,
   ...NEW_TABLES,
   ...JOB_TABLES,
+  ...ROW_TABLES,
 ];

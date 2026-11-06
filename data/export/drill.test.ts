@@ -40,11 +40,19 @@ function seed(db: DatabaseSync, spec: TableSpec): boolean {
   }[];
   if (!info.length) return false; // a table no migration creates exports as empty
   const types = new Map(info.map((c) => [c.name, c.type.toUpperCase()]));
+  // A table whose id carries a kind prefix as a CHECK (§data.tables) gets ids that satisfy it.
+  const ddl = (
+    db
+      .prepare("SELECT sql FROM sqlite_master WHERE name = ?")
+      .get(spec.name) as { sql: string }
+  ).sql;
+  const prefix = /substr\(id, 1, \d+\) = '(\w+)'/.exec(ddl)?.[1] ?? "";
   for (let n = 1; n <= ROWS_PER_TABLE; n++) {
     const vals = spec.columns.map((c) => {
       if (NULL_COLS.includes(c)) return null;
       if (JSON_COLS.includes(c))
         return `{"z":${n},"a":{"é":"ü ${n}","list":[1,"two",null]}}`;
+      if (c === "id" && prefix) return `${prefix}${n}`;
       if (c === "c" && spec.name === "docs") return n === 1 ? "notes" : "exams";
       return types.get(c) === "INTEGER" ? n : `${spec.name}-${c}-${n}`;
     });
