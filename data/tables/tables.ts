@@ -21,6 +21,7 @@ import { draftsRepo } from "./drafts.ts";
 import { jobsRepo } from "./jobs.ts";
 import { jobStoresRepo } from "./job-stores.ts";
 import { kindsRepo } from "./kinds.ts";
+import { planRepo } from "./plan.ts";
 
 type Collection = ReturnType<typeof parseCollection>;
 type Membership = ReturnType<typeof parseMembership>;
@@ -229,6 +230,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...jobsRepo(db, opts),
     ...jobStoresRepo(db, opts),
     ...kindsRepo(db, opts),
+    ...planRepo(db, opts),
   };
 }
 /** @public Used by the first consumer, a later task. */

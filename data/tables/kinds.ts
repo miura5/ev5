@@ -8,6 +8,9 @@ import {
   parseLinkRow,
   parseNoteTableRow,
   parseObjectiveTableRow,
+  parsePlanItemTableRow,
+  parsePlanTableRow,
+  parseRepeatRow,
   parseSessionEventRow,
   parseSessionTableRow,
   parseSetItemRow,
@@ -271,6 +274,9 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
         true,
       ),
     ),
+    plans: t(kind("plans", parsePlanTableRow, [], "from_day, id")),
+    planItems: t(kind("plan_items", parsePlanItemTableRow, [], "day, pos, id")),
+    repeats: t(kind("repeats", parseRepeatRow, ["rule"], "from_day, id")),
     talk: a(kind("talk", parseTalkRow, ["cites"], "chat_id, at, id", true)),
   };
 }

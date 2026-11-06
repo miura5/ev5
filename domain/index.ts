@@ -84,7 +84,7 @@ export {
   parseCeilingUsage,
 } from "./ceiling/index.ts";
 /** @public */
-export { parseDraft } from "./draft/index.ts";
+export { parseDraft, parseDraftTableRow } from "./draft/index.ts";
 /** @public */
 export {
   parseClaudeUsage,
