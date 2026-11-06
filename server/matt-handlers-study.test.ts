@@ -94,11 +94,41 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
   const told = await call("study.just_tell_me", { id: `${set}/${item}` });
   assert.equal(told.body.result.told, true);
   const rows = await DB.prepare(
-    "SELECT key FROM own_attempts ORDER BY key",
-  ).all<{ key: string }>();
+    "SELECT id, item_id, item_v, set_id, source, how, answer, score FROM attempts ORDER BY at",
+  ).all<Record<string, unknown>>();
+  assert.equal(rows.results.length, 2);
+  const [a1, a2] = rows.results as Record<string, unknown>[];
+  assert.match(String(a1?.id), /^att_/);
   assert.deepEqual(
-    rows.results.map((r) => r.key),
-    ["a1", "a2"],
+    [a1?.item_id, a1?.item_v, a1?.set_id, a1?.source, a1?.how, a1?.score],
+    [item, 1, set, "run", "chose", 0],
+  );
+  assert.deepEqual(JSON.parse(String(a1?.answer)), { chosen: [0] });
+  assert.deepEqual([a2?.how, a2?.answer, a2?.score], ["told", null, null]);
+  assert.equal(
+    (
+      await DB.prepare("SELECT COUNT(*) AS n FROM own_attempts").first<{
+        n: number;
+      }>()
+    )?.n,
+    0,
+  );
+  // a retry that names the same attempt id is refused, never doubled
+  const again = { id: item, answer: "1", attempt: "att_retry1" };
+  assert.equal((await call("study.attempt", again)).status, 200);
+  assert.equal((await call("study.attempt", again)).status, 409);
+  assert.equal(
+    (await call("study.just_tell_me", { id: item, attempt: "att_retry1" }))
+      .status,
+    409,
+  );
+  assert.equal(
+    (
+      await DB.prepare("SELECT COUNT(*) AS n FROM attempts").first<{
+        n: number;
+      }>()
+    )?.n,
+    3,
   );
   assert.equal(
     (await call("study.leave", { id: set })).body.result.client,
