@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-523",
+  "date": "Nov 6",
+  "title": "Handover size headroom: AGENTS.md §7 says to keep docs/handover.md under about 3,500 bytes and run npm run checks before opening the handover PR",
+  "why": "On 2026-11-06 three handover PRs in a row (#658, #663, #669) failed the static check at 4,130 to 4,281 bytes against the 4,096-byte cap in ops/checks/handover.ts, so handover merges stopped starting runs and each run waited for the hourly schedule. Matt approved the line. Second way considered: raising the limit; rejected because the limit keeps the handover readable. Drift risk: none, the cap stays in one place (the check) and the procedure only points to it.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-build channel 2026-11-06, Matt: Yes, add the line"
+ },
+ {
   "id": "D-522",
   "date": "Nov 6",
   "title": "Keys live in the command registry: one shell key listener dispatches every key, item menus are lists of command ids, and ⌘K matches keywords",
