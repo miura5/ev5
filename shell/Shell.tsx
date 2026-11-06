@@ -116,7 +116,7 @@ export function Shell({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   const View = current?.view;
-  const [opened, setOpened, clearDetail] = useOpenedDetail(bare, palette);
+  const od = useOpenedDetail(path, palette, onNavigate);
   const { toasts, show: showToast, drop: dropToast } = useToasts();
   // What Matt types in ⌘K comes from the palette's onQuery; the record is read once each time the palette opens.
   const [typed, setTyped] = useState("");
@@ -278,13 +278,13 @@ export function Shell({
               onNavigate={onNavigate}
               path={bare}
               search={path.split("?").slice(1).join("?")}
-              onDetail={setOpened}
+              onDetail={od[1]}
               onToast={showToast}
             />
           ) : null}
         </div>
       </main>
-      <DetailSlot opened={opened} onClear={clearDetail} legacy={detail} />
+      <DetailSlot opened={od[0]} onClear={od[2]} legacy={detail} />
       <ToastHost toasts={toasts} onDrop={dropToast} hidden={palette} />
       {palette ? (
         <Palette
