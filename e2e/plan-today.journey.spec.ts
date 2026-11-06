@@ -61,19 +61,28 @@ test("Today: the tick is clicked in the browser and survives a reload", async ({
   try {
     await page.goto("/");
     await expect(page).toHaveURL(/\/today$/);
-    const mark = page.getByRole("button", { name: `Mark done: ${title}` });
+    const mark = page.getByRole("button", {
+      name: `Mark done: ${title}`,
+      exact: true,
+    });
     await expect(mark).toHaveAttribute("aria-pressed", "false");
     await mark.click();
     await expect(
-      page.getByRole("button", { name: `Mark not done: ${title}` }),
+      page.getByRole("button", {
+        name: `Mark not done: ${title}`,
+        exact: true,
+      }),
     ).toHaveAttribute("aria-pressed", "true");
 
     await page.reload();
     await expect(
-      page.getByRole("button", { name: `Mark not done: ${title}` }),
+      page.getByRole("button", {
+        name: `Mark not done: ${title}`,
+        exact: true,
+      }),
     ).toHaveAttribute("aria-pressed", "true");
   } finally {
-    // Off Today, so a run leaves no "e2e tick" row for Matt.
+    // Off Today, so a run leaves no "e2e tick" row for the user.
     await parkPlanItem(api, id);
   }
 });

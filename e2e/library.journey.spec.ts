@@ -8,8 +8,8 @@ test("Library opens, Dates and Sets tabs switch, a known date reads back whole",
   await expect(
     page.getByRole("heading", { name: "Library", level: 1 }),
   ).toBeVisible();
-  await page.getByRole("tab", { name: /Sets/ }).click();
-  await page.getByRole("tab", { name: /Dates/ }).click();
+  await page.getByRole("radio", { name: /Sets/ }).click();
+  await page.getByRole("radio", { name: /Dates/ }).click();
   const one = await api(
     "GET",
     "/api/v1/docs?collection=exams&id=synthetic-exam",
