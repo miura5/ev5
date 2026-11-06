@@ -1,0 +1,92 @@
+{
+  "entry": [
+    "server/index.ts!",
+    "server/worker.ts!",
+    "areas/registry.generated.ts!",
+    "commands/client.ts!",
+    "data/export/index.ts!",
+    "shell/outbox/index.ts!",
+    "shell/main.tsx!"
+  ],
+  "project": [
+    "{areas,shell,kit,domain,commands,jobs,data,server}/**/*.{ts,tsx}!"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "domain/attempt/**": [
+      "exports"
+    ],
+    "domain/ceiling/**": [
+      "exports"
+    ],
+    "domain/collection/**": [
+      "exports"
+    ],
+    "domain/draft/**": [
+      "exports"
+    ],
+    "domain/exam/**": [
+      "exports"
+    ],
+    "domain/file/**": [
+      "exports"
+    ],
+    "domain/goal/**": [
+      "exports"
+    ],
+    "domain/item-props/**": [
+      "exports"
+    ],
+    "domain/link/**": [
+      "exports"
+    ],
+    "domain/note/**": [
+      "exports"
+    ],
+    "domain/objective/**": [
+      "exports"
+    ],
+    "domain/own-set/**": [
+      "exports"
+    ],
+    "domain/pin/**": [
+      "exports"
+    ],
+    "domain/plan/**": [
+      "exports"
+    ],
+    "domain/search/**": [
+      "exports"
+    ],
+    "domain/session/**": [
+      "exports"
+    ],
+    "domain/set/**": [
+      "exports"
+    ],
+    "domain/settings/**": [
+      "exports"
+    ],
+    "domain/talk/**": [
+      "exports"
+    ],
+    "domain/time/**": [
+      "exports"
+    ],
+    "domain/weak-spot/**": [
+      "exports"
+    ],
+    "jobs/**": [
+      "exports"
+    ],
+    "jobs/runtime/**": [
+      "exports"
+    ],
+    "kit/**": [
+      "exports"
+    ],
+    "shell/**": [
+      "exports"
+    ]
+  }
+}

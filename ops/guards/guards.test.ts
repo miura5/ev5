@@ -9,7 +9,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 const REAL = path.resolve(import.meta.dirname, '../..');
-const CONFIGS = ['eslint.config.js', '.dependency-cruiser.cjs', 'stylelint.config.js', 'knip.json', 'tsconfig.json', 'CONTRACT.md'];
+const CONFIGS = ['eslint.config.js', '.dependency-cruiser.cjs', 'stylelint.config.js', 'knip.json', 'knip.production.json', 'tsconfig.json', 'CONTRACT.md'];
 const bin = (n: string): string => path.join(REAL, 'node_modules/.bin', n);
 const strip = Number(process.versions.node.split('.')[0]) < 24 ? ['--experimental-strip-types'] : [];
 const DIRS = ['areas', 'shell', 'kit', 'commands', 'jobs', 'domain', 'data', 'server', 'ops'];
@@ -19,6 +19,8 @@ const CLEAN: Files = {
   'domain/ok.ts': 'export const ok = 1;\n',
   'domain/ok.test.ts': "import { ok } from './ok.ts';\nexport const t = ok;\n",
   'kit/ok.css': 'a { color: var(--ink); }\n',
+  'domain/index.ts': "import { ok } from './ok.ts';\nexport const fromIndex = ok;\n",
+  'server/index.ts': "import { fromIndex } from '../domain/index.ts';\nexport const s = fromIndex;\n",
 };
 
 // A temp repo: the real guard configs, linked node_modules, every folder the guards look in, then `files`.
@@ -69,6 +71,10 @@ const GUARDS: Guard[] = [
   { name: 'a raw button in a view (ops/checks controls)', command: checks, files: { 'areas/x/X.view.tsx': 'export const X = () => <button type="button">go</button>;\n' }, expect: /controls: areas\/x\/X\.view\.tsx: renders a raw <button>; use the kit component/ },
   { name: 'a decision id in a comment (ops/checks ids)', command: checks, files: { 'domain/why.ts': `// kept because of ${['D', '123'].join('-')}\nexport const why = 1;\n` }, expect: /ids: domain\/why\.ts: line 1 gives D.123/ },
   { name: 'a new kind written to the docs table (ops/checks docs-kinds)', command: checks, files: { 'server/flash.ts': 'await docs.save("flashcards", id, text, null);\n' }, expect: /docs-kinds: server\/flash\.ts: line 1 writes kind "flashcards" to the generic docs table/ },
+  { name: 'an export only its test uses (ops/checks unused-exports)', command: checks, files: { 'domain/tested.ts': 'export const used = 1;\nexport const testOnly = 2;\n', 'domain/tested.test.ts': "import { used, testOnly } from './tested.ts';\nexport const t = used + testOnly;\n", 'domain/index.ts': "export { used } from './tested.ts';\n", 'server/index.ts': "import { used } from '../domain/index.ts';\nexport const s = used;\n" }, expect: /unused-exports: domain\/tested\.ts: line 2 exports testOnly, which only tests import/ },
+  { name: 'a section id that CONTRACT does not define (ops/checks source-ids)', command: checks, files: { 'domain/cite.ts': '// see §nope.missing\nexport const cite = 1;\n' }, expect: /source-ids: domain\/cite\.ts: line 1 cites §nope\.missing, which is not defined in CONTRACT\.md/ },
+  { name: 'a section id that has ended (ops/checks source-ids)', command: checks, files: { 'domain/old.ts': '// see §old.rule\nexport const old = 1;\n', 'CONTRACT.md': '- §old.rule · gone\n', 'docs/contract/ended.md': '- §old.rule · ended\n' }, expect: /source-ids: domain\/old\.ts: line 1 cites §old\.rule, which is ended/ },
+  { name: 'an open task whose done bar names an ev4 path (ops/checks chart-ev4)', command: checks, files: { 'chart/tasks.json': '[{"id":"X-9","status":"open","dod":"npm test and tools/foo.mjs pass"}]\n' }, expect: /chart-ev4: chart\/tasks\.json: X-9: the done bar names the ev4 path "tools\/foo\.mjs"/ },
   { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },
 ];
 
