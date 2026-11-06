@@ -5248,12 +5248,12 @@
   "title": "Name the done tasks the table design superseded",
   "dod": "One decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-1035"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28. The open ev4-era after-cutover tasks were deleted in D-512 (2026-11-06); the superseded decision is what is left.",
-  "commit": null,
+  "notes": "Group 4. Recorded as D-520.",
+  "commit": "d687ce5",
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
   "claimedBy": "run-20261106-1709",
   "claimedAt": "2026-11-06T17:10:34.843Z"
