@@ -23,7 +23,7 @@
   width: var(--sp-4);
   min-height: calc(var(--hairline) * 2);
   border-radius: var(--r-sm) var(--r-sm) 0 0;
-  background: var(--line2);
+  background: var(--bar);
 }
 
 .kit-bars-bar.now {

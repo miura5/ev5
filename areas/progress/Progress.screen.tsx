@@ -54,8 +54,9 @@ export function ProgressScreen({
               <span className="ev-progress-meta">
                 {data.week.sessions}{" "}
                 {data.week.sessions === 1 ? "session" : "sessions"}
-                {" · "}
-                {endedMinutesText(data.minutes, data.sessions)} in all
+                {data.sessions > data.week.sessions
+                  ? ` · ${endedMinutesText(data.minutes, data.sessions)} in all`
+                  : null}
               </span>
             </div>
             <Bars label="Study minutes by day" bars={data.days} />

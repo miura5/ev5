@@ -1,4 +1,9 @@
-import { addDays, centralDate, weekdayShort } from "../../domain/index.ts";
+import {
+  addDays,
+  centralDate,
+  weekday,
+  weekdayShort,
+} from "../../domain/index.ts";
 
 interface WireDoc {
   id: string;
@@ -11,7 +16,6 @@ export interface Point {
   title: string;
 }
 
-const WEEK = 7 * 86_400_000;
 const MONTHS = [
   "Jan",
   "Feb",
@@ -68,27 +72,30 @@ function firstTries(
   return out;
 }
 
-/** First-try accuracy for each of the last `weeks` weeks (oldest first); a week with no answers reads 0. */
+/** First-try accuracy for each of the last `weeks` Sunday-start Central weeks (oldest first, the last is this week so far); a week with no answers reads 0. Each bar is labelled with its week's first day. */
 export function weeklyAccuracy(
   answers: readonly WireDoc[],
   now: number,
   weeks = 8,
 ): Point[] {
-  const tries = firstTries(answers);
+  const tries = firstTries(answers).map((t) => ({
+    date: centralDate(t.at),
+    correct: t.correct,
+  }));
+  const today = centralDate(now);
+  const thisWeek = addDays(today, -weekday(today));
   const out: Point[] = [];
   let prevMonth: string | null = null;
   for (let w = weeks - 1; w >= 0; w--) {
-    const to = now - w * WEEK;
-    const inWeek = tries.filter((t) => t.at > to - WEEK && t.at <= to);
+    const start = addDays(thisWeek, -7 * w);
+    const end = addDays(start, 6);
+    const inWeek = tries.filter((t) => t.date >= start && t.date <= end);
     const value = inWeek.length
       ? Math.round(
           (100 * inWeek.filter((t) => t.correct).length) / inWeek.length,
         )
       : 0;
-    const { label, month } = dayLabel(
-      centralDate(to - WEEK + 86_400_000),
-      prevMonth,
-    );
+    const { label, month } = dayLabel(start, prevMonth);
     prevMonth = month;
     out.push({
       label,

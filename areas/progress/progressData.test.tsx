@@ -75,7 +75,7 @@ test("the screen shows the accuracy line and session minutes", async () => {
   expect(screen.getByText("Retrieval accuracy")).toBeTruthy();
   expect(screen.getByText("Study minutes, last 7 days")).toBeTruthy();
   expect(screen.getByText("30m")).toBeTruthy();
-  expect(screen.getByText(/1 session · 30m in 1 session in all/)).toBeTruthy();
+  expect(screen.getByText(/^1 session$/)).toBeTruthy();
   expect(
     screen.getByRole("img", { name: "First-try accuracy by week" }),
   ).toBeTruthy();
@@ -108,6 +108,16 @@ test("weekly accuracy buckets first tries into 8 weeks, newest last", () => {
   expect(pts[6]?.value).toBe(100);
   expect(pts[0]?.value).toBe(0);
   expect(pts[0]?.title).toMatch(/no answers/);
+  expect(pts.map((p) => p.label)).toEqual([
+    "Sep 13",
+    "20",
+    "27",
+    "Oct 4",
+    "11",
+    "18",
+    "25",
+    "Nov 1",
+  ]);
 });
 
 test("daily minutes put each ended session on its Central day, today last", () => {
