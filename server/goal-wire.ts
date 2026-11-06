@@ -11,19 +11,40 @@ export interface WireGoal {
   data: ReturnType<typeof parseExam>;
 }
 
-/** Every live goal as an exam document, in id order; one that does not fit the exam shape is left out. */
+/** The plan a goal's `planedits/<goal>` document points it at, as an old exam's `planId` does: the plan in force, else
+ * the plan put away last (so a put-away plan reads as put away). Approving a plan writes only `planedits`, never the row. */
+function planIdOf(edit: unknown): string | undefined {
+  const e = (edit ?? {}) as { plan?: unknown; retired?: unknown };
+  if (typeof e.plan === "string" && e.plan) return e.plan;
+  if (!e.retired || typeof e.retired !== "object") return undefined;
+  const when = (r: unknown) =>
+    Date.parse(String((r as { at?: unknown } | null)?.at)) || 0;
+  let last: [string, number] | undefined;
+  for (const [id, r] of Object.entries(e.retired))
+    if (!last || when(r) >= last[1]) last = [id, when(r)];
+  return last?.[0];
+}
+
+/** Every live goal as an exam document, in id order; one that does not fit the exam shape is left out. Its `planId`
+ * comes from `planedits/<goal>` (read once for every goal), and its `at` moves with that document, so a goal whose plan
+ * changed is sent again by `GET /docs?since`. */
 export async function goalDocs(
   db: DocsD1,
   clock: () => number,
 ): Promise<WireGoal[]> {
   const rows = await tablesRepo(db, { clock }).goals.list();
+  const edits = new Map(
+    (await docsRepo(db, { clock }).list("planedits")).map((d) => [d.id, d]),
+  );
   return rows.flatMap((g) => {
+    const edit = edits.get(g.id);
+    const planId = planIdOf(edit?.data);
     try {
       return [
         {
           id: g.id,
           v: g.v,
-          at: g.at,
+          at: Math.max(g.at, edit?.at ?? 0),
           data: parseExam({
             schema: 2,
             writer: g.created_by === "user" ? "page" : "worker",
@@ -34,6 +55,7 @@ export async function goalDocs(
             ...(g.collection_id ? { course: g.collection_id } : {}),
             date: g.date,
             status: g.status === "done" ? "done" : "upcoming",
+            ...(planId ? { planId } : {}),
           }),
         },
       ];

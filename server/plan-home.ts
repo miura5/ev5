@@ -153,7 +153,7 @@ export function planHome(
           `The date ${goal.title} is gone, so the plan has nowhere to attach.`,
         );
       const e = row.data as Record<string, unknown>;
-      // A goal row has no planId: `planedits/<goal>` (below) is what puts its plan in force.
+      // A goal row has no planId of its own: goalDocs (goal-wire.ts) reads it from `planedits/<goal>`, put in force below.
       if (!goal.id.startsWith("goal_") && e.planId !== planId) {
         // An exam is a Fact: its writer and source are write-once, so only planId and at change.
         const next = { ...e, planId, at: doc.at };
