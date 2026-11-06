@@ -121,11 +121,11 @@ test("forced invalid output fails cleanly after one repair, with nothing half-pa
 test("wrong answer keys fail the semantic check", async () => {
   const bad = reply([
     q("e1", { correct: [9] }),
-    q("e1", { type: "sata", correct: [1] }),
+    q("e1", { type: "multi_select", correct: [1] }),
   ]);
   const r = await writePracticeSet("j", input(), script(bad, bad));
   assert.ok(!r.ok);
-  assert.match(r.reason, /do not exist|sata but has 1/);
+  assert.match(r.reason, /do not exist|multi_select but has 1/);
 });
 
 test("max_tokens fails cleanly with the reason, no repair", async () => {

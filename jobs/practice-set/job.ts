@@ -9,7 +9,7 @@ import {
   type ModelCall,
 } from "../runtime/index.ts";
 import { parseWith } from "../runtime/define.ts";
-import { parseSet } from "../../domain/index.ts";
+import { ITEM_TYPES, parseSet } from "../../domain/index.ts";
 import { outputSchema } from "../runtime/model-call.ts";
 
 export const VARIANTS = ["practice", "mock_exam"] as const;
@@ -70,7 +70,10 @@ export const InputSchema = z
 // The JSON Schema sent to the model comes from this one schema; semantic rules (counts, citations) are checkItems.
 export const ItemSchema = z.object({
   stem: nonBlank("stem"),
-  type: z.enum(["single", "sata"], { error: "type must be single or sata." }),
+  // the model writes choice questions only; the names come from domain/item
+  type: z.enum(ITEM_TYPES).extract(["single", "multi_select"], {
+    error: "type must be single or multi_select.",
+  }),
   options: textList("options"),
   correct: z.array(z.number().int(), {
     error: "correct must be a list of option numbers.",

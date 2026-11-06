@@ -3,7 +3,7 @@ import type { Item, ItemType } from './types.ts';
 /** The shape of an item: its own type, else select-all when more than one answer is right, else single. */
 export function itemType(q: Pick<Item, 'type' | 'correct'> | null | undefined): ItemType {
   if (q?.type) return q.type;
-  return Array.isArray(q?.correct) && q.correct.length > 1 ? 'sata' : 'single';
+  return Array.isArray(q?.correct) && q.correct.length > 1 ? 'multi_select' : 'single';
 }
 
 /** A number answer as given: a number, text ("2.5" or "2.5 cm") or {value, unit}; null when it holds no number. */
@@ -30,7 +30,7 @@ const unitKey = (u: unknown): string =>
 export type Scored = { correct: boolean; score: number };
 
 /**
- * Scores an answer. chosen: option indexes (single, select all), one column index per row (matrix), or the number
+ * Scores an answer. chosen: option indexes (single, select all), one column index per row (grid), or the number
  * given (right within the item's tolerance; a unit given must be the item's). Select all is plus/minus scored, floored
  * at 0. An open answer is kept for grading later, so it is never scored here.
  */
@@ -45,8 +45,8 @@ export function scoreAnswer(q: Item, chosen: unknown): Scored {
     return { correct, score: correct ? 1 : 0 };
   }
   const picked: unknown[] = Array.isArray(chosen) ? chosen : [];
-  if (t === 'matrix') {
-    const rows = q.matrix?.rows ?? [];
+  if (t === 'grid') {
+    const rows = q.grid?.rows ?? [];
     const right = rows.filter((r, i) => picked[i] === r.correct).length;
     return { correct: rows.length > 0 && right === rows.length, score: rows.length ? right / rows.length : 0 };
   }

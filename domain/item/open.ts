@@ -24,6 +24,6 @@ export function openItemErrors(q: Item, o: OpenLimits = OPEN_LIMITS): string[] {
   if (typeof q.modelAnswer !== 'string' || !q.modelAnswer.trim()) errors.push('an open item needs a model answer');
   if (typeof q.sourceRef !== 'string' || !q.sourceRef.trim()) errors.push('an open item needs its sourceRef');
   const loose = q as Record<string, unknown>;
-  if (q.options || q.correct || q.matrix || loose.answer != null) errors.push('an open item has no options or answer');
+  if (q.options || q.correct || q.grid || loose.answer != null) errors.push('an open item has no options or answer');
   return errors;
 }

@@ -1,20 +1,20 @@
 // Set document: a list of practice questions. Items never change once written; answers live in their own collection
 // keyed by set id and item id, so a set holds no answers. The item formats are domain/item's.
 import { z } from 'zod';
-import { ITEM_TYPES } from '../item/index.ts';
+import { ITEM_TYPES, upgradeItem } from '../item/index.ts';
 
 export const SET_KINDS = ['review', 'drill', 'sim', 'more', 'job', 'check'] as const;
 export const SET_WRITERS = ['morning', 'worker', 'page'] as const;
 
 const text = z.string().min(1);
 const nonNeg = z.number().int().min(0);
-const matrixRowSchema = z.looseObject({
+const gridRowSchema = z.looseObject({
   text,
   correct: nonNeg,
   rationale: z.string().optional(),
 });
 /** @public */
-export type MatrixRow = z.infer<typeof matrixRowSchema>;
+export type GridRow = z.infer<typeof gridRowSchema>;
 const keyPointSchema = z.looseObject({
   text: z.string(),
   keywords: z.array(z.array(text).min(1)).min(1),
@@ -31,10 +31,10 @@ const setItemSchema = z.strictObject({
   options: z.array(text).max(6).optional(),
   correct: z.array(nonNeg).min(1).optional(),
   rationales: z.array(z.string()).optional(),
-  matrix: z
+  grid: z
     .looseObject({
       columns: z.array(z.string()).min(2).max(4),
-      rows: z.array(matrixRowSchema).min(3).max(6),
+      rows: z.array(gridRowSchema).min(3).max(6),
     })
     .optional(),
   answer: z.number().optional(),
@@ -62,7 +62,7 @@ export const studySetSchema = z.strictObject({
   at: text,
   source: text,
   kind: z.enum(SET_KINDS),
-  items: z.array(setItemSchema).min(1),
+  items: z.array(z.preprocess(upgradeItem, setItemSchema)).min(1),
   title: z.string().optional(),
   date: z
     .string()
