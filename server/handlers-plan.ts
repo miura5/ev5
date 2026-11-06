@@ -1,8 +1,8 @@
 // The plan-item commands (CONTRACT §cmd.registry, §data.protocol): a manual item is a `dayedits.added` entry made by
-// Matt (PLAN §5.10), a tick is a `dayedits.checks` entry, and a time goes to `item_props`. Every write goes through the
-// docs protocol with the document's version, so a stale write is a 409. A repeat, a link and a time go to
+// the user (PLAN §5.10), a tick is a `dayedits.checks` entry, and a time goes to `item_props`. Every write goes through
+// the docs protocol with the document's version, so a stale write is a 409. A repeat, a link and a time go to
 // `item_props`; a repeat also materializes the next days' occurrences into `dayedits.added` under `rep-<id>-<date>`
-// (PLAN §5.10); a collection is a membership row, or ev4's `course` field for a `course:<key>` target.
+// (PLAN §5.10); a collection is a membership row for a live `col_` id, and "none" takes the item out.
 import { addDays, centralDate } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler } from "./handlers-core.ts";

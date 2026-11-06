@@ -26,7 +26,7 @@ const exam = {
   at: T,
   source: 't',
   title: 'Unit 3',
-  kind: 'unit' as const,
+  kind: 'exam' as const,
   date: '2026-11-08',
 };
 const spots = [
@@ -96,7 +96,7 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
   let n = 0;
   const env: Env = {
     store: jobs,
-    executors: { workflow: workflowExecutor(wf.adapter, 'study_plan') },
+    executors: { workflow: workflowExecutor(wf.adapter, 'prep_plan') },
     now: () => T,
     newId: () => `j${++n}`,
   };
@@ -105,14 +105,14 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
 
 test('only Matt can start it, never a schedule or the Mac', async () => {
   const { env } = setup(async () => reply(good));
-  await assert.rejects(startJob(env, studyPlanJob, { examId: 'e1' }, 'schedule'), /cannot be started/);
-  await assert.rejects(startJob(env, studyPlanJob, { examId: 'e1' }, 'mac'), /cannot be started/);
+  await assert.rejects(startJob(env, studyPlanJob, { goalId: 'e1' }, 'schedule'), /cannot be started/);
+  await assert.rejects(startJob(env, studyPlanJob, { goalId: 'e1' }, 'mac'), /cannot be started/);
 });
 
 test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   const reqs: ModelRequest[] = [];
   const { env, jobs, wf, log, spent } = setup(async (r) => (reqs.push(r), reply(good)));
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const waiting = (await jobs.get(job.id))!;
   assert.equal(waiting.state, 'needs-you');
@@ -136,7 +136,7 @@ test('a change request on the draft calls Haiku, stores the patched draft, then 
     reqs.push(r);
     return r.model === 'haiku' ? reply({ summary: 'Lighter.', ops: [{ op: 'remove', task: 2 }] }) : reply(good);
   });
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   await continueJob(env, studyPlanJob, job.id, {
     decision: 'change',
@@ -166,7 +166,7 @@ test('several change rounds on one draft, then approve saves the last', async ()
     const ops = [{ op: 'update', task: 1, minutes: 20 + reqs.length }];
     return r.model === 'haiku' ? reply({ summary: `Round ${reqs.length - 1}.`, ops }) : reply(good);
   });
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   for (let i = 1; i <= 3; i++) {
     await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: `note ${i}` });
@@ -187,7 +187,7 @@ test('several change rounds on one draft, then approve saves the last', async ()
 test('after the last change round another change fails the job in plain words', async () => {
   const ops = [{ op: 'update', task: 1, minutes: 25 }];
   const { env, jobs, wf } = setup(async (r) => (r.model === 'haiku' ? reply({ ops }) : reply(good)));
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   for (let i = 0; i <= MAX_CHANGE_ROUNDS; i++) {
     await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: 'again' });
@@ -203,7 +203,7 @@ test('after the last change round another change fails the job in plain words', 
 
 test('put away keeps the draft and approves nothing', async () => {
   const { env, jobs, wf, log } = setup(async () => reply(good));
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   await continueJob(env, studyPlanJob, job.id, { decision: 'put_away' });
   await wf.idle();
@@ -216,7 +216,7 @@ test('an undated exam fails in plain words with no model call', async () => {
   const { env, jobs, wf } = setup(async () => (calls++, reply(good)), {
     exam: { ...exam, date: null } as never,
   });
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const r = (await jobs.get(job.id))!;
   assert.equal(r.state, 'failed');
@@ -231,7 +231,7 @@ test('a plan citing an unknown weak spot gets one repair ask, then fails without
     tasks: [{ date: '2026-11-03', title: 'x', minutes: 30, weakSpotId: 'nope' }],
   };
   const { env, jobs, wf, spent } = setup(async () => (calls++, reply(bad)));
-  const job = await startJob(env, studyPlanJob, { examId: 'e1' }, 'matt');
+  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const r = (await jobs.get(job.id))!;
   assert.equal(r.state, 'failed');
@@ -256,7 +256,7 @@ test('checkPlan: window, daily cap and citations', () => {
   const ctx = buildContext({ exam, spots, today: '2026-11-03' });
   assert.deepEqual(checkPlan(good, ctx), []);
   const t = (date: string, minutes: number) => ({ date, title: 'a', minutes });
-  assert.match(checkPlan({ summary: 's', tasks: [t('2026-11-08', 30)] }, ctx).join(), /not study days/);
+  assert.match(checkPlan({ summary: 's', tasks: [t('2026-11-08', 30)] }, ctx).join(), /not plan days/);
   assert.match(
     checkPlan({ summary: 's', tasks: [t('2026-11-04', 120), t('2026-11-04', 90)] }, ctx).join(),
     /210 minutes/,
@@ -277,7 +277,7 @@ test('prompt.md exists and names the reply fields', () => {
   for (const w of ['summary', 'tasks', 'weakSpotId', 'days']) assert.ok(p.includes(w), w);
 });
 
-test('a study plan that has not moved in half an hour is swept to failed', async () => {
+test('a prep plan that has not moved in half an hour is swept to failed', async () => {
   const { deadlinesFor } = await import('../runtime/define.ts');
-  assert.deepEqual(deadlinesFor('study_plan'), { queued: 15, running: 30 });
+  assert.deepEqual(deadlinesFor('prep_plan'), { queued: 15, running: 30 });
 });

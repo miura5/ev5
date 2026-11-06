@@ -1,20 +1,20 @@
 import type { D1Like } from "../jobs/index.ts";
 import { readJobPlans } from "./job-plans.ts";
 
-/** The exam each live study plan was made for, from the context saved at its gather step. */
+/** The date each live prep plan was made for, from the context saved at its gather step. */
 export async function examsOfPlans(
   db: D1Like,
   ids: string[],
 ): Promise<Map<string, string>> {
   const exam = new Map<string, string>();
   for (const [jobId, body] of await readJobPlans(db, "context", ids)) {
-    const id = (body as { exam?: { id?: unknown } } | null)?.exam?.id;
+    const id = (body as { goal?: { id?: unknown } } | null)?.goal?.id;
     if (typeof id === "string") exam.set(jobId, id);
   }
   return exam;
 }
 
-/** The proposed sessions of each waiting study plan, from the draft saved at its draft step. */
+/** The proposed sessions of each waiting prep plan, from the draft saved at its draft step. */
 export async function draftTasksOfPlans(
   db: D1Like,
   ids: string[],

@@ -23,7 +23,7 @@ export function Story() {
         label="Library without counts"
         tabs={[
           { id: "sets", label: "Sets" },
-          { id: "exams", label: "Exams" },
+          { id: "dates", label: "Dates" },
         ]}
         value={b}
         onChange={setB}

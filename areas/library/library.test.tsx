@@ -34,9 +34,9 @@ const exams: LibraryExam[] = [
   {
     id: "x",
     title: "NUR 112 · Exam 3",
+    kind: "exam",
     meta: "Thursday",
     when: "Thursday",
-    course: "",
     mastery,
     readiness: "58%",
   },

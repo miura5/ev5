@@ -7,7 +7,7 @@ import type { ReadCopyLike } from "../../commands/client.ts";
 const EMPTY =
   "Your accuracy over time will show here once you have answered some practice questions.";
 
-/** Progress: weekly first-try accuracy and the last week's study minutes, each with its big number and bars (read-only, no writes). */
+/** Progress: weekly first-try accuracy and the last week's minutes, each with its big number and bars (read-only, no writes). */
 export function ProgressScreen({
   services,
 }: {
@@ -45,7 +45,7 @@ export function ProgressScreen({
         <Empty line={EMPTY} />
       ) : null}
       {data && data.sessions > 0 ? (
-        <Section label="Study minutes, last 7 days">
+        <Section label="Minutes, last 7 days">
           <div className="ev-progress-body">
             <div className="ev-progress-big">
               <span className="ev-progress-num">
@@ -59,7 +59,7 @@ export function ProgressScreen({
                   : null}
               </span>
             </div>
-            <Bars label="Study minutes by day" bars={data.days} />
+            <Bars label="Minutes by day" bars={data.days} />
           </div>
         </Section>
       ) : null}

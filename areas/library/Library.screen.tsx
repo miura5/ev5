@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Empty, Page, type DetailProps } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
-import { examPlanDetail } from "./ExamPlan.detail.tsx";
+import { datePlanDetail } from "./DatePlan.detail.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
 import {
@@ -40,9 +40,8 @@ export function LibraryScreen({
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, runPlan, answerPlan } = useLibrary(
-    services?.readCopy,
-  );
+  const { data, token, refused, error, runPlan, setKind, answerPlan } =
+    useLibrary(services?.readCopy);
   const setPlanNote = (message: string) => onToast?.(message);
   useEffect(() => {
     if (error && token && !refused) onToast?.(error);
@@ -71,7 +70,7 @@ export function LibraryScreen({
     setOpen(id);
     setOpenKey((k) => k + 1);
   };
-  // An exam opened by a link (Today's Review the study plan) shows its proposal at once.
+  // An exam opened by a link (Today's Review the prep plan) shows its proposal at once.
   const [openedByLink] = useState(() => !!openFromUrl());
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
@@ -89,8 +88,13 @@ export function LibraryScreen({
       (await answerPlan(id, decision)) ??
         (decision === "approve" ? "Plan approved" : "Plan put away"),
     );
-  const last = useRef({ plan, answer });
-  last.current = { plan, answer };
+  // A kind that was saved says nothing (the Detail shows it); one that was not says why.
+  const kind = async (id: string, k: string) => {
+    const why = await setKind(id, k);
+    if (why) setPlanNote(why);
+  };
+  const last = useRef({ plan, answer, kind });
+  last.current = { plan, answer, kind };
   const page = open ? data?.pages[open] : undefined;
   const exam = open ? data?.exams.find((x) => x.id === open) : undefined;
   const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
@@ -101,12 +105,12 @@ export function LibraryScreen({
     if (page || (!exam && !spot)) return onDetail(null);
     if (exam)
       return onDetail(
-        examPlanDetail({
+        datePlanDetail({
           exam: {
             id: exam.id,
             title: exam.title,
             when: exam.when,
-            course: exam.course,
+            kind: exam.kind,
             readiness: exam.readiness || "none yet",
             plan: PLAN_TEXT[exam.planState ?? "none"],
             planState: exam.planState,
@@ -125,13 +129,13 @@ export function LibraryScreen({
             void (exam.waiting
               ? last.current.answer(id, "approve")
               : last.current.plan(
-                  "studyplan.approve",
+                  "plan.approve",
                   { id },
                   "Plan approved",
                 )),
           onAskChanges: (id, note) =>
             void last.current.plan(
-              "studyplan.ask_changes",
+              "plan.ask_changes",
               { id, note },
               "Changes sent",
             ),
@@ -139,10 +143,11 @@ export function LibraryScreen({
             void (exam.waiting
               ? last.current.answer(id, "put_away")
               : last.current.plan(
-                  "studyplan.put_away",
+                  "plan.put_away",
                   { id },
                   "Plan put away",
                 )),
+          onKind: (k) => void last.current.kind(exam.id, k),
           onClose: close,
         }),
       );
@@ -150,10 +155,8 @@ export function LibraryScreen({
       onDetail({
         title: spot.title,
         onClose: close,
-        properties: [
-          { label: "Course", value: spot.meta },
-          { label: "Next", value: spot.due },
-        ],
+        // A linked collection's title is not read here yet, so the spot shows no Collection line.
+        properties: [{ label: "Next", value: spot.due }],
       });
   }, [page, exam, spot, openedByLink, openKey, onDetail]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty library.

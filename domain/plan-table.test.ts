@@ -56,8 +56,11 @@ test("plans: state, ordered days, prefixed id, at most one in force per goal", (
 test("plan_items: origin, linked pair, one place per repeat and day", () => {
   expect(parsePlanItemTableRow(item).minutes).toBe(30);
   expect(
-    parsePlanItemTableRow({ ...item, origin: "matt", plan_id: null }).plan_id,
+    parsePlanItemTableRow({ ...item, origin: "user", plan_id: null }).plan_id,
   ).toBeNull();
+  expect(() =>
+    parsePlanItemTableRow({ ...item, origin: "matt", plan_id: null }),
+  ).toThrow();
   expect(() => parsePlanItemTableRow({ ...item, plan_id: null })).toThrow();
   expect(() =>
     parsePlanItemTableRow({ ...item, linked_kind: "note" }),

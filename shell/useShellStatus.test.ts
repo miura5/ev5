@@ -15,11 +15,11 @@ describe("statusFromJobs", () => {
       text: "Writing your practice set",
     });
   });
-  it("names a study plan job in plain words, never its key", () => {
+  it("names a prep plan job in plain words, never its key", () => {
     const s = statusFromJobs([
-      { id: "p", kind: "study_plan", state: "running", summary: "" },
+      { id: "p", kind: "prep_plan", state: "running", summary: "" },
     ]);
-    expect(s.runningJob?.text).toBe("Building your study plan");
+    expect(s.runningJob?.text).toBe("Building your prep plan");
     const o = statusFromJobs([
       { id: "q", kind: "odd_new_job", state: "running", summary: "" },
     ]);
@@ -32,7 +32,7 @@ describe("statusFromJobs", () => {
 
 describe("two needs-you records that read the same count once", () => {
   const w = {
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "needs-you",
     summary: "Plan needs you. Rate it.",
     lead: "Plan needs you.",
@@ -116,7 +116,7 @@ describe("useShellStatus after an area changes a job", () => {
   it("reads the jobs again at once, so a put-away plan drops the Activity count", async () => {
     localStorage.setItem("ev5.token", "t");
     let jobs: unknown[] = [
-      { id: "p", kind: "study_plan", state: "needs-you", summary: "" },
+      { id: "p", kind: "prep_plan", state: "needs-you", summary: "" },
     ];
     const f = (async () => ({
       ok: true,

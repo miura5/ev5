@@ -20,8 +20,8 @@ const cmd = async (
 const waiting = (db: D1Like, id: string, over = {}) =>
   d1JobStore(db, () => 1).put({
     id,
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",
@@ -32,18 +32,18 @@ const waiting = (db: D1Like, id: string, over = {}) =>
     ...over,
   });
 
-test("date.plan_with_ev starts the study plan job for that exam", async () => {
+test("date.plan_with_ev starts the prep plan job for that exam", async () => {
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1)",
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1)",
     )
     .run();
   const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
   assert.equal(r.status, 200);
-  assert.equal(r.body.result.job.kind, "study_plan");
+  assert.equal(r.body.result.job.kind, "prep_plan");
   const params = s.started.at(-1) as unknown as { input: unknown };
-  assert.deepEqual(params.input, { examId: "x1" });
+  assert.deepEqual(params.input, { goalId: "x1" });
 });
 
 test("date.plan_with_ev refuses an exam that is not there", async () => {
@@ -51,10 +51,10 @@ test("date.plan_with_ev refuses an exam that is not there", async () => {
   assert.equal((await cmd(s, "date.plan_with_ev", { id: "nope" })).status, 404);
 });
 
-test("studyplan.ask_changes answers the waiting plan with the change and the note", async () => {
+test("plan.ask_changes answers the waiting plan with the change and the note", async () => {
   const s = setup();
   await waiting(s.db, "sp1");
-  const r = await cmd(s, "studyplan.ask_changes", {
+  const r = await cmd(s, "plan.ask_changes", {
     id: "plan-sp1",
     note: "  lighter weekends  ",
   });
@@ -67,18 +67,18 @@ test("studyplan.ask_changes answers the waiting plan with the change and the not
   });
   // a second tap finds the plan no longer waiting
   assert.equal(
-    (await cmd(s, "studyplan.ask_changes", { id: "sp1", note: "again" }))
+    (await cmd(s, "plan.ask_changes", { id: "sp1", note: "again" }))
       .status,
     409,
   );
 });
 
-test("studyplan.ask_changes refuses what is not a waiting study plan", async () => {
+test("plan.ask_changes refuses what is not a waiting prep plan", async () => {
   const s = setup();
   await waiting(s.db, "other", { kind: "practice_set" });
   await waiting(s.db, "run", { state: "running", step: undefined });
   const ask = (id: string, note = "x") =>
-    cmd(s, "studyplan.ask_changes", { id, note });
+    cmd(s, "plan.ask_changes", { id, note });
   assert.equal((await ask("nope")).status, 404);
   assert.equal((await ask("other")).status, 404);
   assert.equal((await ask("run")).status, 409);
@@ -87,19 +87,19 @@ test("studyplan.ask_changes refuses what is not a waiting study plan", async () 
   assert.equal((await ask("sp2", "   ")).status, 400);
 });
 
-const context = (db: D1Like, jobId: string, examId: string) =>
+const context = (db: D1Like, jobId: string, goalId: string) =>
   db
     .prepare(
       "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'context', ?, 0)",
     )
-    .bind(jobId, JSON.stringify({ exam: { id: examId } }))
+    .bind(jobId, JSON.stringify({ goal: { id: goalId } }))
     .run();
 
 test("a new plan for an exam puts away its older waiting draft and stops its older run", async () => {
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{}', 0, 1), ('exams', 'x2', '{}', 0, 1)",
+      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1), ('exams', 'x2', '{\"kind\":\"exam\"}', 0, 1)",
     )
     .run();
   await waiting(s.db, "old-draft");
@@ -124,13 +124,13 @@ test("a new plan for an exam puts away its older waiting draft and stops its old
   assert.equal((await store.get("other-exam"))?.state, "needs-you");
 });
 
-test("approving a study plan draft whose days have all passed is refused and the job keeps waiting", async () => {
+test("approving a prep plan draft whose days have all passed is refused and the job keeps waiting", async () => {
   const s = setup();
   const { req, db } = s;
   await d1JobStore(db, () => 1).put({
     id: "sp2",
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",
@@ -165,11 +165,22 @@ test("date.plan_with_ev plans a date made by date.create (a goals row)", async (
   const made = await cmd(s, "date.create", {
     title: "Exam 2",
     date: "2026-12-01",
+    kind: "exam",
   });
   assert.equal(made.status, 200);
   const id = made.body.result.id as string;
   const r = await cmd(s, "date.plan_with_ev", { id });
   assert.equal(r.status, 200);
   const params = s.started.at(-1) as unknown as { input: unknown };
-  assert.deepEqual(params.input, { examId: id });
+  assert.deepEqual(params.input, { goalId: id });
+});
+
+test("date.plan_with_ev refuses a date whose kind offers no prep plan, and starts nothing", async () => {
+  const s = setup();
+  const made = await cmd(s, "date.create", { title: "Half marathon", date: "2026-12-01" });
+  assert.equal(made.status, 200);
+  const r = await cmd(s, "date.plan_with_ev", { id: made.body.result.id });
+  assert.equal(r.status, 409);
+  assert.match(String(r.body.error), /Half marathon has no prep plan/);
+  assert.equal(s.started.length, 0);
 });

@@ -24,16 +24,16 @@ const exam = {
     at: "2026-10-01T15:00:00Z",
     source: "test",
     title: "Exam Three",
-    kind: "unit",
+    kind: "exam",
     date: "2099-01-05",
     course: "NUR 112",
   },
 };
 const waitingJob = {
   id: "j1",
-  kind: "study_plan",
+  kind: "prep_plan",
   state: "needs-you",
-  examId: "x1",
+  goalId: "x1",
 };
 
 /** Boots the screen on the exam with a waiting plan job; returns the calls made to commands and job answers. */
@@ -81,7 +81,7 @@ test("jobs that are not this exam's waiting plan change nothing", () => {
       { exams: [exam] as never, weakspots: [], sets: [], jobs: jobs as never },
       Date.parse("2026-11-04T12:00:00Z"),
     ).exams[0]?.planState;
-  expect(state([{ ...waitingJob, examId: "other" }])).toBe("none");
+  expect(state([{ ...waitingJob, goalId: "other" }])).toBe("none");
   // A running plan job is being saved: it shows neither a draft nor an earlier plan.
   expect(state([{ ...waitingJob, state: "running" }])).toBe("working");
   expect(state([{ ...waitingJob, kind: "practice_set" }])).toBe("none");
@@ -107,7 +107,7 @@ test("Put away on a waiting plan answers the job", async () => {
   });
 });
 
-test("Asking for changes sends the job id to studyplan.ask_changes", async () => {
+test("Asking for changes sends the job id to plan.ask_changes", async () => {
   const sent = boot();
   fireEvent.click(
     await screen.findByRole("button", { name: "Ask for changes" }),
@@ -118,7 +118,7 @@ test("Asking for changes sends the job id to studyplan.ask_changes", async () =>
   fireEvent.click(screen.getByText("Send changes"));
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
-    to: "commands/studyplan.ask_changes",
+    to: "commands/plan.ask_changes",
     body: { input: { id: "j1", note: "fewer evenings" } },
   });
 });
@@ -144,12 +144,12 @@ test("opened by a link, the plan shows its sessions by day with minutes and Buil
   expect(screen.getByText(/Built from/)).toBeTruthy();
 });
 
-test("Review the study plan toggles the proposal", async () => {
+test("Review the prep plan toggles the proposal", async () => {
   boot();
   await screen.findByText("Proposed sessions");
-  fireEvent.click(screen.getByText("Review the study plan"));
+  fireEvent.click(screen.getByText("Review the prep plan"));
   expect(screen.queryByText("Proposed sessions")).toBeNull();
-  fireEvent.click(screen.getByText("Review the study plan"));
+  fireEvent.click(screen.getByText("Review the prep plan"));
   expect(screen.getByText("Proposed sessions")).toBeTruthy();
 });
 

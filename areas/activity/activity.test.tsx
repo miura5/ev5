@@ -5,7 +5,7 @@ import { ActivityView, type ActivityJob } from "./Activity.view.tsx";
 import { toActivityJob, uniqueRows } from "./useJobs.ts";
 
 test("two needs-you jobs that read the same list once (the sidebar and Ask count once too)", () => {
-  const w = { kind: "study_plan", state: "needs-you" as const, summary: "Plan needs you. Rate it.", lead: "Plan needs you." };
+  const w = { kind: "prep_plan", state: "needs-you" as const, summary: "Plan needs you. Rate it.", lead: "Plan needs you." };
   const rows = uniqueRows([{ id: "a", ...w }, { id: "b", ...w }].map(toActivityJob));
   expect(rows.map((r) => r.id)).toEqual(["a"]);
 });
@@ -15,7 +15,7 @@ afterEach(cleanup);
 const jobs: ActivityJob[] = [
   {
     id: "a",
-    title: "Study plan",
+    title: "Prep plan",
     state: "needs-you",
     reason: "Rate your confidence",
     summary: "x",
@@ -39,7 +39,7 @@ const jobs: ActivityJob[] = [
 test("jobs sit in their sections and failed shows its reason", () => {
   render(<ActivityView jobs={jobs} />);
   const needs = screen.getByRole("region", { name: "Needs you" });
-  expect(needs.textContent).toContain("Study plan");
+  expect(needs.textContent).toContain("Prep plan");
   const done = screen.getByRole("region", { name: "Done today" });
   expect(done.textContent).toContain("The model was unreachable");
   expect(done.textContent).toContain("Morning");
@@ -49,11 +49,11 @@ test("jobs sit in their sections and failed shows its reason", () => {
 test("wire jobs become rows with the reason for needs-you and failed", () => {
   const j = toActivityJob({
     id: "z",
-    kind: "study-plan",
+    kind: "prep-plan",
     state: "needs-you",
     summary: "Rate it.",
   });
-  expect(j).toMatchObject({ title: "Study plan", reason: "Rate it." });
+  expect(j).toMatchObject({ title: "Prep plan", reason: "Rate it." });
   expect(
     toActivityJob({ id: "y", kind: "x", state: "running", summary: "s" })
       .reason,
@@ -80,7 +80,7 @@ test("the spend alert can be acknowledged from its row, and only it", () => {
   expect(
     toActivityJob({
       id: "z",
-      kind: "study-plan",
+      kind: "prep-plan",
       state: "needs-you",
       summary: "s",
     }).dismissable,
@@ -93,16 +93,16 @@ test("the spend alert can be acknowledged from its row, and only it", () => {
 test("a server that sends lead and reason apart is used as is, with no sentence trimming", () => {
   const j = toActivityJob({
     id: "q",
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "needs-you",
-    summary: "Study plan needs you. Rate it. It is waiting in Activity.",
-    lead: "Study plan needs you.",
+    summary: "Prep plan needs you. Rate it. It is waiting in Activity.",
+    lead: "Prep plan needs you.",
     reason: "Rate it. Then approve.",
   });
-  expect(j).toMatchObject({ summary: "Study plan needs you.", reason: "Rate it. Then approve." });
+  expect(j).toMatchObject({ summary: "Prep plan needs you.", reason: "Rate it. Then approve." });
   const f = toActivityJob({
     id: "r",
-    kind: "study-plan",
+    kind: "prep-plan",
     state: "failed",
     summary: "x",
     lead: "The plan did not finish.",

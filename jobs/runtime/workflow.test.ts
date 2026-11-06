@@ -26,8 +26,8 @@ function memory(): JobStore {
 function setup(handlers: StepHandlers, ceil?: Partial<Ceilings>, answer?: (raw: unknown) => unknown) {
   forgetKinds();
   const def = defineJob({
-    kind: 'study_plan',
-    title: 'Study plan',
+    kind: 'prep_plan',
+    title: 'Prep plan',
     input: parse,
     output: parse,
     model: 'plan',
@@ -206,8 +206,8 @@ test('a job that failed before it began is not started', async () => {
   const s = setup({ plan: async () => (ran.push('plan'), { ids: ['p'] }) });
   await s.store.put({
     id: 'j9',
-    kind: 'study_plan',
-    title: 'Study plan',
+    kind: 'prep_plan',
+    title: 'Prep plan',
     state: 'failed',
     reason: 'Gone.',
     costCents: 0,

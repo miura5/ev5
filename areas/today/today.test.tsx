@@ -43,6 +43,7 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
     {
       id: "d1",
       title: "NUR 112 · Exam 3",
+      kind: "exam",
       meta: "58% ready",
       when: "Thu",
       tone: "info",

@@ -1,6 +1,6 @@
 import { expect, test } from "./gate5.ts";
 
-test("Library opens, Exams and Sets tabs switch, a known exam reads back whole", async ({
+test("Library opens, Dates and Sets tabs switch, a known date reads back whole", async ({
   page,
   api,
 }) => {
@@ -9,7 +9,7 @@ test("Library opens, Exams and Sets tabs switch, a known exam reads back whole",
     page.getByRole("heading", { name: "Library", level: 1 }),
   ).toBeVisible();
   await page.getByRole("tab", { name: /Sets/ }).click();
-  await page.getByRole("tab", { name: /Exams/ }).click();
+  await page.getByRole("tab", { name: /Dates/ }).click();
   const one = await api(
     "GET",
     "/api/v1/docs?collection=exams&id=synthetic-exam",

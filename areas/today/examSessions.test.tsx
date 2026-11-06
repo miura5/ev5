@@ -24,7 +24,7 @@ const exam = {
   at: "2026-10-01T15:00:00Z",
   source: "test",
   title: "Exam 3",
-  kind: "unit",
+  kind: "exam",
   course: "NUR 112",
   date: soon,
 };
@@ -51,9 +51,9 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
   boot([
     {
       id: "j",
-      kind: "study_plan",
+      kind: "prep_plan",
       state: "needs-you",
-      examId: "e3",
+      goalId: "e3",
       summary: "x",
       tasks: [
         { date: "2099-01-04", title: "Misses only", minutes: 10 },
@@ -61,7 +61,7 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
       ],
     },
   ]);
-  fireEvent.click(await screen.findByText(/study plan waiting for you/));
+  fireEvent.click(await screen.findByText(/prep plan waiting for you/));
   await screen.findByText("Proposed sessions");
   const rows = [
     ...document.querySelectorAll("[data-ui='detail'] [data-ui='row']"),

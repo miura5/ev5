@@ -9,9 +9,9 @@ export interface TodayDocs {
   weakspots: WireDoc[];
   /** The dayedits document for today, when there is one. */
   dayedit?: WireDoc;
-  /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
+  /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: readonly WireJobLine[];
-  /** Which study plan is in force per exam; absent reads as none. */
+  /** Which prep plan is in force per exam; absent reads as none. */
   planedits?: WireDoc[];
   /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
   plans?: WireDoc[];
@@ -22,13 +22,13 @@ export interface WireJobLine {
   kind: string;
   state: string;
   summary: string;
-  /** The exam a study plan job is for (GET /jobs names it). */
-  examId?: string;
+  /** The exam a prep plan job is for (GET /jobs names it). */
+  goalId?: string;
   /** The draft's sessions, if the server sends them. */
   tasks?: unknown;
 }
 
-/** One proposed or planned study session: a Central date (YYYY-MM-DD), what to do and how long. */
+/** One proposed or planned session: a Central date (YYYY-MM-DD), what to do and how long. */
 export interface ExamSession {
   date: string;
   title: string;
@@ -55,9 +55,9 @@ export function examSessions(id: string, docs: TodayDocs): ExamSession[] {
   if (state === "waiting") {
     const job = (docs.jobs ?? []).find(
       (j) =>
-        j.kind.replace(/_/g, "-") === "study-plan" &&
+        j.kind.replace(/_/g, "-") === "prep-plan" &&
         j.state === "needs-you" &&
-        j.examId === id,
+        j.goalId === id,
     );
     return sessionsOf(job?.tasks);
   }
@@ -84,24 +84,24 @@ export function examSessions(id: string, docs: TodayDocs): ExamSession[] {
   );
 }
 
-/** The exam's plan line: waiting when a study plan job names this exam, approved when its plan is in force. */
+/** The exam's plan line: waiting when a prep plan job names this exam, approved when its plan is in force. */
 export function planOf(
   id: string,
   docs: TodayDocs,
 ): "waiting" | "approved" | "working" | undefined {
   const waits = (docs.jobs ?? []).some(
     (j) =>
-      j.kind.replace(/_/g, "-") === "study-plan" &&
+      j.kind.replace(/_/g, "-") === "prep-plan" &&
       j.state === "needs-you" &&
-      j.examId === id,
+      j.goalId === id,
   );
   if (waits) return "waiting";
   // Right after Matt's answer the job still runs: the exam may point at an earlier plan until it lands.
   const working = (docs.jobs ?? []).some(
     (j) =>
-      j.kind.replace(/_/g, "-") === "study-plan" &&
+      j.kind.replace(/_/g, "-") === "prep-plan" &&
       j.state === "running" &&
-      j.examId === id,
+      j.goalId === id,
   );
   if (working) return "working";
   const planId = (
@@ -129,13 +129,13 @@ export type Session = {
 /** Today's sessions from the plans in force: each task dated today (Central), keyed by its task id so a tick sticks. */
 export function planSessions(
   docs: TodayDocs,
-  examIds: string[],
+  goalIds: string[],
   today: string,
 ): Session[] {
-  return examIds.flatMap((examId) => {
-    if (planOf(examId, docs) !== "approved") return [];
+  return goalIds.flatMap((goalId) => {
+    if (planOf(goalId, docs) !== "approved") return [];
     const planId = (
-      docs.exams.find((d) => d.id === examId)?.data as { planId?: string }
+      docs.exams.find((d) => d.id === goalId)?.data as { planId?: string }
     ).planId;
     const days = (
       docs.plans?.find((p) => p.id === planId)?.data as

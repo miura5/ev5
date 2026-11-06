@@ -206,12 +206,25 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
     .bind(id)
     .first<Record<string, any>>();
   assert.equal(m?.collection_id, "col_c1");
-  // into a course: ev4's field, the row goes
+  // a course: target is refused, and the item stays where it was
   assert.equal(
-    (await call("plan.update", { id, collection: "course:NUR 112" })).status,
+    (await call("plan.update", { id, collection: "course:Biology" })).status,
+    400,
+  );
+  assert.equal(
+    (
+      await DB.prepare("SELECT * FROM memberships WHERE item_id = ?")
+        .bind(id)
+        .first<Record<string, any>>()
+    )?.collection_id,
+    "col_c1",
+  );
+  assert.equal((await doc("dayedits", "2026-11-05"))?.added[id].course, undefined);
+  // "none" takes it out
+  assert.equal(
+    (await call("plan.update", { id, collection: "none" })).status,
     200,
   );
-  assert.equal((await doc("dayedits", "2026-11-05"))?.added[id].course, "NUR 112");
   assert.equal(
     await DB.prepare("SELECT * FROM memberships WHERE item_id = ?").bind(id).first(),
     null,

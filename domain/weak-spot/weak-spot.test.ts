@@ -40,42 +40,42 @@ const att = (date: string, correct: boolean, hm = '15:00'): Attempt => ({
 });
 
 test('spaced review: two right answers on different days make it solid', () => {
-  const d = deriveWeakSpot(ws('a'), [att('2026-10-12', true), att('2026-10-13', true)], { examDate: '2026-10-30' });
+  const d = deriveWeakSpot(ws('a'), [att('2026-10-12', true), att('2026-10-13', true)], { goalDate: '2026-10-30' });
   expect(d.status).toBe('reviewed');
   expect(d.solidBy).toBe('review');
 });
 test('spaced review: right twice the same day only counts once', () => {
   const d = deriveWeakSpot(ws('a'), [att('2026-10-12', true, '14:00'), att('2026-10-12', true, '18:00')], {
-    examDate: '2026-10-30',
+    goalDate: '2026-10-30',
   });
   expect([d.status, d.streak, d.nextDue]).toEqual(['open', 1, '2026-10-15']);
 });
 test('spaced review: wrong then right the same day advances once (v2 behavior)', () => {
   const d = deriveWeakSpot(ws('a'), [att('2026-10-17', false, '06:31'), att('2026-10-17', true, '14:48')], {
-    examDate: '2026-10-21',
+    goalDate: '2026-10-21',
   });
   expect([d.status, d.streak, d.nextDue, d.misses]).toEqual(['open', 1, '2026-10-18', 1]);
 });
 test('spaced review: near the exam the interval is one day and never lands on exam day', () => {
   expect(
     deriveWeakSpot(ws('a'), [att('2026-10-17', true)], {
-      examDate: '2026-10-21',
+      goalDate: '2026-10-21',
     }).nextDue,
   ).toBe('2026-10-18');
   expect(
     deriveWeakSpot(ws('a'), [att('2026-10-12', true)], {
-      examDate: '2026-10-21',
+      goalDate: '2026-10-21',
     }).nextDue,
   ).toBe('2026-10-15');
   expect(
     deriveWeakSpot(ws('a'), [att('2026-10-18', true)], {
-      examDate: '2026-10-20',
+      goalDate: '2026-10-20',
     }).nextDue,
   ).toBe('2026-10-19');
 });
 test('spaced review: a miss after solid reopens it and raises recurrence', () => {
   const d = deriveWeakSpot(ws('a'), [att('2026-10-12', true), att('2026-10-13', true), att('2026-10-15', false)], {
-    examDate: '2026-10-30',
+    goalDate: '2026-10-30',
   });
   expect([d.status, d.streak, d.recurrence, d.nextDue]).toEqual(['open', 0, 2, '2026-10-16']);
 });
@@ -142,7 +142,7 @@ test('triage events and the due, solid and need helpers', () => {
   const open = {
     kind: 'concept',
     derived: deriveWeakSpot(ws('a'), [att('2026-10-17', true)], {
-      examDate: '2026-10-30',
+      goalDate: '2026-10-30',
     }),
   };
   const got = [isActive(open), isSolid(open), isDue(open, '2026-10-19'), isDue(open, '2026-10-20'), reviewNeed(open)];

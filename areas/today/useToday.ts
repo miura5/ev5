@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
-import { mapToday, spendAlertLine, studyPlanWaiting } from "./map.ts";
+import { mapToday, spendAlertLine, prepPlanWaiting } from "./map.ts";
 import { buildDayEdit } from "./dayedit.ts";
 import type { DayEditDoc } from "./dayedit.ts";
 import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
@@ -28,7 +28,7 @@ export interface TodayState {
   refused?: boolean;
   /** The monthly spend alert line, when one is waiting. */
   alert?: string;
-  /** A study plan waits for Matt in Activity. */
+  /** A prep plan waits for Matt in Activity. */
   planWaiting?: boolean;
   /** Tick (or un-tick) a plan item; resolves false when it could not be saved. */
   tick: (id: string, done: boolean) => Promise<boolean>;
@@ -36,8 +36,10 @@ export interface TodayState {
   addPlan: (title: string) => Promise<boolean>;
   /** Add a date (date.create); resolves false when it could not be saved. */
   addDate: (title: string, date: string) => Promise<boolean>;
-  /** Ask E.V. to draft a study plan for an exam (date.plan_with_ev); resolves false when it could not be sent. */
+  /** Ask E.V. to draft a prep plan for an exam (date.plan_with_ev); resolves false when it could not be sent. */
   planWithEv: (id: string) => Promise<boolean>;
+  /** Set a date's kind (date.update); resolves false when it could not be saved. */
+  setKind: (id: string, kind: string) => Promise<boolean>;
 }
 
 async function get(path: string, token: string): Promise<Response> {
@@ -107,7 +109,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
       if (!live) return;
       if (r.jobs) {
         setAlert(spendAlertLine(r.jobs));
-        setPlanWaiting(studyPlanWaiting(r.jobs));
+        setPlanWaiting(prepPlanWaiting(r.jobs));
       }
       const { exams, weakspots, planedits, plans } = r;
       const dayedit = r.day ?? undefined;
@@ -128,7 +130,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
       live = false;
     };
   }, [token, copy, again]);
-  // A study plan job changes on its own (drafted, revised, approved): read again so Today follows without a reload.
+  // A prep plan job changes on its own (drafted, revised, approved): read again so Today follows without a reload.
   useEffect(() => {
     if (!token) return;
     const t = setInterval(() => {
@@ -139,7 +141,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   // An add goes through the command (§cmd.registry), then Today reads itself again so the new line shows.
   const add = useCallback(
     async (
-      name: "plan.create" | "date.create" | "date.plan_with_ev",
+      name: "plan.create" | "date.create" | "date.update" | "date.plan_with_ev",
       input: unknown,
     ) => {
       const r = await call(name, input, token);
@@ -159,6 +161,10 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   );
   const planWithEv = useCallback(
     (id: string) => add("date.plan_with_ev", { id }),
+    [add],
+  );
+  const setKind = useCallback(
+    (id: string, kind: string) => add("date.update", { id, kind }),
     [add],
   );
   const tick = useCallback(
@@ -209,5 +215,6 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     addPlan,
     addDate,
     planWithEv,
+    setKind,
   };
 }
