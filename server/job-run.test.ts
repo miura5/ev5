@@ -80,7 +80,7 @@ test("a practice set runs through the Workflow: items saved, cost counted, job d
   const { db, env, wf, calls } = setup();
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
-  const rec = (await env.store.get("job1"))!;
+  const rec = (await env.store.get("job_job1"))!;
   assert.equal(rec.state, "done", JSON.stringify(rec));
   assert.deepEqual(rec.output, { home: "library", id: "set-1" });
   assert.equal(calls(), 1);
@@ -110,7 +110,7 @@ test("a ceiling hit stops the job before any model call, in plain words", async 
   const { env, wf, calls } = setup({ ceiling: 1 });
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
-  const rec = (await env.store.get("job1"))!;
+  const rec = (await env.store.get("job_job1"))!;
   assert.equal(rec.state, "failed");
   assert.match(JSON.stringify(rec), /Stopped before it started/);
   assert.equal(calls(), 0);
@@ -120,7 +120,7 @@ test("with no ceilings set in settings the documented defaults apply and the job
   const { env, wf, calls } = setup({ settings: false });
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
-  assert.equal((await env.store.get("job1"))!.state, "done");
+  assert.equal((await env.store.get("job_job1"))!.state, "done");
   assert.equal(calls(), 1);
 });
 
@@ -128,7 +128,7 @@ test("a stored ceiling of 0 still stops every call", async () => {
   const { env, wf, calls } = setup({ ceiling: 0 });
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
-  assert.equal((await env.store.get("job1"))!.state, "failed");
+  assert.equal((await env.store.get("job_job1"))!.state, "failed");
   assert.equal(calls(), 0);
 });
 
@@ -145,6 +145,6 @@ test("a bad model reply fails the job and a step retry does not pay for the call
   const { env, wf } = setup({ call: bad });
   await startJob(env, practiceSet, input, "matt");
   await wf.idle();
-  assert.equal((await env.store.get("job1"))!.state, "failed");
+  assert.equal((await env.store.get("job_job1"))!.state, "failed");
   assert.equal(n, 2, "the first reply plus the one repair ask, once");
 });

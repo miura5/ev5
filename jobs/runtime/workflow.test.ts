@@ -68,23 +68,23 @@ test('needs-you ends the instance; one continuation, repeated, saves once', asyn
   const { def, env, store, wf, usage } = setup(h);
   await startJob(env, def, {}, 'matt');
   await wf.idle();
-  const waiting = (await store.get('j1'))!;
+  const waiting = (await store.get('job_j1'))!;
   assert.equal(waiting.state, 'needs-you');
   assert.equal(waiting.step, 'approve');
   assert.equal(saved.length, 0);
-  assert.deepEqual([...usage.keys()], ['j1:call:1']);
+  assert.deepEqual([...usage.keys()], ['job_j1:call:1']);
   assert.equal(waiting.costCents, 7); // the job record shows the spend, not only the ceilings
 
-  const running = await continueJob(env, def, 'j1', 'yes');
-  await assert.rejects(continueJob(env, def, 'j1', 'yes'), /not waiting/);
+  const running = await continueJob(env, def, 'job_j1', 'yes');
+  await assert.rejects(continueJob(env, def, 'job_j1', 'yes'), /not waiting/);
   // even a direct second start of the same continuation id is a no-op
-  await env.executors.workflow!.start(continuationId('j1', 'approve', running.v), running, 'yes', {
+  await env.executors.workflow!.start(continuationId('job_j1', 'approve', running.v), running, 'yes', {
     from: 'approve',
     round: running.v,
   });
   await wf.idle();
   assert.deepEqual(saved, ['yes']);
-  const done = (await store.get('j1'))!;
+  const done = (await store.get('job_j1'))!;
   assert.equal(done.state, 'done');
   assert.deepEqual(done.output, { home: 'library', id: 'plan-1' });
 });
@@ -106,7 +106,7 @@ test('retry policy is the only retry: a flaky step retries with a new attempt; u
   await startJob(env, def, {}, 'matt');
   await wf.idle();
   assert.equal(calls, 3);
-  assert.deepEqual([...usage.keys()], ['j1:call:1', 'j1:call:2', 'j1:call:3']);
+  assert.deepEqual([...usage.keys()], ['job_j1:call:1', 'job_j1:call:2', 'job_j1:call:3']);
 });
 
 test('a ceiling hit or exhausted retries fails the job cleanly; content in a step result is refused', async () => {
@@ -125,14 +125,14 @@ test('a ceiling hit or exhausted retries fails the job cleanly; content in a ste
   );
   await startJob(s.env, s.def, {}, 'matt');
   await s.wf.idle();
-  let r = (await s.store.get('j1'))!;
+  let r = (await s.store.get('job_j1'))!;
   assert.equal(r.state, 'failed');
   assert.match(r.reason!, /hourly ceiling/);
 
   s = setup({ ...ok, call: async () => ({ ids: ['x'.repeat(500)] }) });
   await startJob(s.env, s.def, {}, 'matt');
   await s.wf.idle();
-  r = (await s.store.get('j1'))!;
+  r = (await s.store.get('job_j1'))!;
   assert.equal(r.state, 'failed');
   assert.match(r.reason!, /ids, never content/);
 });
@@ -162,12 +162,12 @@ test('two rounds at the same step get different valid instance ids and spend key
   await wf.idle();
   for (const from of ['plan', 'plan']) {
     // an answer at a step that waits again: the job goes back to needs-you at `approve`, then is answered again
-    const cur = (await store.get('j1'))!;
+    const cur = (await store.get('job_j1'))!;
     const r = cur.v + 1;
     const next = { ...cur, state: 'running' as const, v: r };
     delete next.step;
     await store.put(next);
-    await env.executors.workflow!.start(continuationId('j1', from, r), next, 'a', { from, round: r });
+    await env.executors.workflow!.start(continuationId('job_j1', from, r), next, 'a', { from, round: r });
     await wf.idle();
   }
   const keys = [...usage.keys()];
@@ -183,7 +183,7 @@ test('a job that is no longer running stops: no later step runs and nothing land
     plan: async () => (ran.push('plan'), { ids: ['p'] }),
     call: async () => {
       ran.push('call');
-      const cur = (await store.get('j1'))!;
+      const cur = (await store.get('job_j1'))!;
       // the sweep (or a replacing plan) fails the job while this step is working
       await store.put({ ...cur, state: 'failed', reason: 'Swept.', v: cur.v + 1 });
       return { ids: ['d'] };
@@ -196,7 +196,7 @@ test('a job that is no longer running stops: no later step runs and nothing land
   await startJob(s.env, s.def, {}, 'matt');
   await s.wf.idle();
   assert.deepEqual(ran, ['plan', 'call']);
-  const r = (await s.store.get('j1'))!;
+  const r = (await s.store.get('job_j1'))!;
   assert.equal(r.state, 'failed');
   assert.equal(r.reason, 'Swept.');
 });
@@ -236,19 +236,19 @@ test('a bad answer is refused before the move: the job stays waiting and a good 
   const { def, env, store, wf } = setup(waiting, undefined, check);
   await startJob(env, def, {}, 'matt');
   await wf.idle();
-  const before = (await store.get('j1'))!;
-  await assert.rejects(continueJob(env, def, 'j1', 'nope'), /Answer yes/);
-  assert.deepEqual(await store.get('j1'), before);
-  await continueJob(env, def, 'j1', 'yes');
+  const before = (await store.get('job_j1'))!;
+  await assert.rejects(continueJob(env, def, 'job_j1', 'nope'), /Answer yes/);
+  assert.deepEqual(await store.get('job_j1'), before);
+  await continueJob(env, def, 'job_j1', 'yes');
   await wf.idle();
-  assert.equal((await store.get('j1'))!.state, 'done');
+  assert.equal((await store.get('job_j1'))!.state, 'done');
 });
 
 test('a Workflow that fails to start puts the job back to waiting, then a retry works', async () => {
   const { def, env, store, wf } = setup(waiting);
   await startJob(env, def, {}, 'matt');
   await wf.idle();
-  const before = (await store.get('j1'))!;
+  const before = (await store.get('job_j1'))!;
   const real = env.executors.workflow!;
   env.executors.workflow = {
     kind: 'workflow',
@@ -256,13 +256,13 @@ test('a Workflow that fails to start puts the job back to waiting, then a retry 
       throw new Error('binding down');
     },
   };
-  await assert.rejects(continueJob(env, def, 'j1', 'yes'), /binding down/);
-  const back = (await store.get('j1'))!;
+  await assert.rejects(continueJob(env, def, 'job_j1', 'yes'), /binding down/);
+  const back = (await store.get('job_j1'))!;
   assert.equal(back.state, 'needs-you');
   assert.equal(back.step, before.step);
   assert.equal(back.reason, before.reason);
   env.executors.workflow = real;
-  await continueJob(env, def, 'j1', 'yes');
+  await continueJob(env, def, 'job_j1', 'yes');
   await wf.idle();
-  assert.equal((await store.get('j1'))!.state, 'done');
+  assert.equal((await store.get('job_j1'))!.state, 'done');
 });

@@ -140,7 +140,7 @@ test('startJob, continuation id, and idempotent needs-you', async () => {
   const { e, started, store } = env();
   assert.rejects(startJob(e, def, {}, 'schedule'), /cannot be started/);
   const j = await startJob(e, def, {}, 'matt');
-  assert.deepEqual(started, ['j1']);
+  assert.deepEqual(started, ['job_j1']);
   await reportJob(e, { jobId: j.id, state: 'running' });
   await reportJob(e, {
     jobId: j.id,
@@ -149,7 +149,7 @@ test('startJob, continuation id, and idempotent needs-you', async () => {
     reason: 'Approve the plan.',
   });
   await continueJob(e, def, j.id, { ok: true });
-  assert.deepEqual(started, ['j1', continuationId(j.id, 'approve', 4)]);
+  assert.deepEqual(started, ['job_j1', continuationId(j.id, 'approve', 4)]);
   assert.match(started[1]!, /^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,99}$/);
   assert.notEqual(continuationId(j.id, 'approve', 4), continuationId(j.id, 'approve', 6));
   assert.throws(() => continuationId('a:b', 'approve', 1), /valid Workflow instance id/);

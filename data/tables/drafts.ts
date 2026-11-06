@@ -49,12 +49,13 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       }): Promise<void> => {
         await db
           .prepare(
-            "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
+            "INSERT INTO drafts (id, job_id, kind, target_c, target_kind, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
           )
           .bind(
             d.id,
             d.jobId,
             d.kind,
+            d.targetC,
             d.targetC,
             d.targetId,
             d.body,
