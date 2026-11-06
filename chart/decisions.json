@@ -1,5 +1,57 @@
 [
  {
+  "id": "D-517",
+  "date": "Nov 6",
+  "title": "Five rules-to-guards audit fixes filed as notes: a migration freeze guard from the squash on, screens write only through commands, a pinned list of E.V.'s tools (B-1036, B-998); model call and write in separate job steps (B-1005); a refused palette write shows a toast (B-979)",
+  "why": "The build manager checked the screen writes, E.V.'s tool list and the palette's dropped result on main (3ee15c1); the migration guard and the step split rest on the audit's evidence (commit 5e7b0e6, PR #613). Each turns a written rule into a check or a test, so it cannot drift back. The migration freeze guard lands in the squash PR (D-514), which is the one allowed rewrite. Second way considered: new tasks; rejected by the task freeze (D-497). Drift risk: the guard landing before the squash would block it; the notes put both in one PR.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-studio rules-to-guards audit, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-516",
+  "date": "Nov 6",
+  "title": "Five export and restore audit fixes filed as notes: a real restore drill gates Gate 6 (B-757, B-760); export failures are seen and capped, and the export becomes a manifest plus per-table parts (B-822); note pictures refuse overwrite and are backed up (B-1045); an offline reload test for note edits (B-1037)",
+  "why": "The build manager checked the export failure path and the picture overwrite on main; the others rest on the audit's evidence. Today's drills restore only synthetic exports in tests, so a real export file has never been restored: a workflow pulls the newest real staging export from R2, restores it into a scratch D1 and proves counts and hashes, and Gate 6 passes only after it has run green once on staging and once on the first live export, before ev4's tasks go off. Second way considered: run the drill on Matt's Mac; rejected because it needs him and is not repeatable in CI. The export format (manifest plus per-table parts, hashed per table, with columns and migration level, D-515) is settled once, before the first live export. Drift risk: the first live export going out in the old single-file format; B-822's note says it must land first.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-studio export and restore audit, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-515",
+  "date": "Nov 6",
+  "title": "Five one-way-door audit fixes filed as notes: exports record their columns and migration level (B-822, B-757); the squash gives ceilings a v5 settings table and builds pins, objectives and drafts in final shape (B-998); one source of kind names (B-1036); live Worker secrets on the cutover checklist (B-823)",
+  "why": "The build manager checked each on main (3ee15c1). Each is hard to change once live data exists, so each must land before the first live export, the squash or cutover. Second way considered: new tasks and separate table-rebuild migrations now; rejected by the task freeze (D-497) and because the squash (D-514) builds the final shapes anyway. Drift risk: a live export, the squash or cutover going ahead before its note is done; each note says what must land first.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-studio one-way-door audit, ev-build channel 2026-11-06"
+ },
+ {
+  "id": "D-514",
+  "date": "Nov 6",
+  "title": "One migration squash before cutover: the chain 0000 to 0016 becomes one baseline of the final tables, and staging is rebuilt from it",
+  "why": "Matt approved (ev-build channel 2026-11-06), from the ev-studio audit. After the data move is done (B-998 part 2 precondition: no docs reader or writer left) and before CUTOVER step 7, data/migrations 0000 to 0016 and their backfill files and tests are replaced by one baseline that builds the final per-kind tables from empty, with no docs table and no backfills; staging is rebuilt from it (staging workflow, rebuild=true) and the restore drill reruns. This replaces D-506's planned contract migration with the next free number; §data.migrations now reads never rewritten once applied to live. Second way considered: keep the files and add no more backfills; rejected because the docs baseline and backfills that copy nothing would be locked in on live for good. Drift risk: doing it mid-move while server files still read docs; the B-998 note forbids that.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-506"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06 (ev-studio audit)"
+ },
+ {
+  "id": "D-513",
+  "date": "Nov 6",
+  "title": "Three ev-studio audit proposals accepted as notes: insert errors (B-955), type check covers data, jobs and ops (B-1036), course name leaves code and wire names (B-1036 check 1)",
+  "why": "Source: ev-studio code audit, Matt sent it 2026-11-06; the build manager checked each claim on main (52c0909). Second way considered: new tasks; rejected by the task freeze (D-497). Drift risk: new tables copy the catch-all insert; the B-955 note and its test guard it.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-studio code audit, Matt, ev-build channel 2026-11-06"
+ },
+ {
   "id": "D-512",
   "date": "Nov 6",
   "title": "Feature ideas live in Matt's feature list outside the repo; the 61 after-cutover tasks are deleted",
