@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { parseExamRow } from '../exam/row.ts';
+import { goalReadSchema } from '../goal/read.ts';
+import { docRowSchema } from './index.ts';
 import { parseObjectiveRow } from '../objective/row.ts';
 import { parseWeakSpotRow } from '../weak-spot/row.ts';
 import { parseSetRow } from '../set/row.ts';
@@ -35,7 +36,7 @@ const session = { schema: 2, writer: 'page', at: T, source: 'E.V. Home', date: '
 const note = { schema: 1, writer: 'page', at: T, source: 't', createdAt: T, title: 'Fluids', blocks: [] };
 
 const kinds = [
-  { c: 'exams', parse: parseExamRow, data: exam, bad: { ...exam, kind: '' } },
+  { c: 'exams', parse: (r: unknown) => docRowSchema('exams', goalReadSchema).parse(r), data: exam, bad: { ...exam, kind: '' } },
   { c: 'objectives', parse: parseObjectiveRow, data: objective, bad: { ...objective, text: '' } },
   { c: 'weakspots', parse: parseWeakSpotRow, data: weakSpot, bad: { ...weakSpot, kind: 'other' } },
   { c: 'sets', parse: parseSetRow, data: set, bad: { ...set, items: [] } },

@@ -7,7 +7,7 @@ import { goalDocs, goalsByObjective, goalsByWeakSpot } from "./goal-wire.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
   newWeakSpotRow,
-  parseExam,
+  parseGoal,
   parseWeakSpot,
   weakSpotDoc,
 } from "../domain/index.ts";
@@ -28,7 +28,7 @@ function goalOfObjective(
 ) {
   const upcoming = rows.flatMap((r) => {
     try {
-      const e = parseExam(r.data);
+      const e = parseGoal(r.data);
       return (e.status ?? "upcoming") === "upcoming"
         ? [{ id: r.id, goal: e }]
         : [];

@@ -6,7 +6,7 @@ import { defineJob, parseWith } from '../runtime/define.ts';
 import { outputSchema } from '../runtime/model-call.ts';
 import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
-import { addDays, examDaysLeft, kindOffers, planBodySchema, type Exam } from '../../domain/index.ts';
+import { addDays, goalDaysLeft, kindOffers, planBodySchema, type Goal } from '../../domain/index.ts';
 
 export const MODEL = 'sonnet';
 export const MAX_TOKENS = 8000;
@@ -42,7 +42,7 @@ export type Task = Plan['tasks'][number];
 export type Plan = z.infer<typeof PlanSchema>;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
-  goal: { id: string; title: string; kind: Exam['kind']; date: string };
+  goal: { id: string; title: string; kind: Goal['kind']; date: string };
   today: string;
   days: string[];
   weakSpots: PlanSpot[];
@@ -51,7 +51,7 @@ export type PlanContext = {
 /** Where plan content lives (D1 in production). Keyed by job id, so a retried step writes the same row. */
 export interface PlanStore {
   /** The goal (a dated goal, read as an exam document) and its active weak spots as of `today` (Central date). */
-  load(goalId: string): Promise<{ exam: Exam & { id: string }; spots: PlanSpot[]; today: string } | undefined>;
+  load(goalId: string): Promise<{ exam: Goal & { id: string }; spots: PlanSpot[]; today: string } | undefined>;
   putContext(jobId: string, ctx: PlanContext): Promise<string>;
   getContext(jobId: string): Promise<PlanContext>;
   putDraft(jobId: string, plan: Plan): Promise<string>;
@@ -88,7 +88,7 @@ export function buildContext(found: NonNullable<Awaited<ReturnType<PlanStore['lo
   const { exam, spots, today } = found;
   // The registry says which kinds of date offer a prep plan (domain/goal); the job never checks a kind by name.
   if (!kindOffers(exam.kind, 'prep-plan')) throw new Error(noPlanReason(exam.title));
-  const left = examDaysLeft(exam, today);
+  const left = goalDaysLeft(exam, today);
   if (left === null || !exam.date)
     throw new Error(`${exam.title} has no date yet, so there is nothing to plan toward.`);
   if (left < 1) throw new Error(`${exam.title} is today or past, so a prep plan no longer fits.`);

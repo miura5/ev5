@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   centralDate,
-  examDaysLeft,
-  parseExam,
+  goalDaysLeft,
+  parseGoal,
   plainDay,
 } from "../domain/index.ts";
 import { readJson, readToken } from "../commands/client.ts";
@@ -75,8 +75,8 @@ export function sidebarPins(w: PinWire, now: Date | number): SidebarPin[] {
     const doc = w.docs.exams?.find((d) => d.id === m.id);
     if (!doc) continue;
     try {
-      const exam = parseExam(doc.data);
-      const left = examDaysLeft(exam, today);
+      const exam = parseGoal(doc.data);
+      const left = goalDaysLeft(exam, today);
       if (left === null || left < 0 || !exam.date || exam.status === "done")
         continue;
       // The collection it is in, and the one that holds that (one level, as the mock-up does).

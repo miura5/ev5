@@ -3,13 +3,13 @@ import {
   centralDate,
   inDays,
   deriveWeakSpot,
-  examDaysLeft,
-  parseExam,
+  goalDaysLeft,
+  parseGoal,
   parseWeakSpot,
   plainDay,
   weekdayDay,
 } from "../../domain/index.ts";
-import type { Exam } from "../../domain/index.ts";
+import type { Goal } from "../../domain/index.ts";
 import type {
   PlanItem,
   ThisWeekItem,
@@ -114,14 +114,14 @@ function planSay(plan: PlanItem[]): TodayData["say"] | undefined {
 export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
   const today = centralDate(now);
   const exams = docs.exams
-    .flatMap((d) => tryParse(parseExam, d))
+    .flatMap((d) => tryParse(parseGoal, d))
     .map((e) => ({
       id: e.id,
-      exam: e.v as Exam,
-      left: examDaysLeft(e.v, today),
+      exam: e.v as Goal,
+      left: goalDaysLeft(e.v, today),
     }))
     .filter(
-      (e): e is { id: string; exam: Exam; left: number } =>
+      (e): e is { id: string; exam: Goal; left: number } =>
         e.left !== null && e.left >= 0,
     )
     .filter((e) => (e.exam.status ?? "upcoming") === "upcoming")
