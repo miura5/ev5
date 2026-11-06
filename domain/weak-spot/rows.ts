@@ -17,7 +17,7 @@ export function eventFromRow(e: WeakSpotEventRow): WeakSpotEvent {
 
 /**
  * A `weak_spots` row and its `weak_spot_events` rows as the model `deriveWeakSpot` rebuilds state from. The spot points at its
- * objective (an empty one when none is set); its exam and course come from that objective, never from the spot. The
+ * objective (an empty one when none is set); its goal comes from that objective's links, never from the spot. The
  * scheduler's rules are untouched: its starting counts are zero, as for a new spot.
  */
 export function weakSpotFromRows(
@@ -50,7 +50,8 @@ const wireKey = (e: WeakSpotEventRow) =>
 
 /**
  * The document the screens read (`GET /docs?collection=weakspots`) built from the rows: the model above, with the events
- * under keys the document schema accepts and the exam and course the caller worked out from the spot's objective.
+ * under keys the document schema accepts, the goal (as `exam`) the caller worked out from the objective's links, and the
+ * spot's collection title (as `course`).
  */
 export function weakSpotDoc(
   row: WeakSpotTableRow,
@@ -72,7 +73,7 @@ export type NewWeakSpotRow = Omit<WeakSpotTableRow, "at" | "v" | "deleted_at">;
 
 /**
  * A new weak spot document as its table row (§data.tables). A new spot has no events and no starting counts (the scheduler
- * starts it at zero), and it points at its objective, not at an exam. `collectionId` is the course's id, worked out by the
+ * starts it at zero), and it points at its objective, not at an exam. `collectionId` is the collection's id, worked out by the
  * caller. Throws on a document that carries events or starting counts, which only the scheduler's rules may add.
  */
 export function newWeakSpotRow(
