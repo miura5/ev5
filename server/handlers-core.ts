@@ -22,6 +22,8 @@ export interface HandlerCtx {
   /** The Workflows binding, for commands that start a job. */
   jobs?: { create(o: { id: string; params: unknown }): Promise<unknown> };
   ask?: (text: string) => Promise<unknown>;
+  /** Grades a typed open answer (reserves the ceilings, then asks the model); the route supplies it. */
+  grade?: (i: { question: string; reference: string; answer: string }) => Promise<{ score: number; note: string; costCents: number }>;
 }
 export type CommandHandler = (
   input: never,
