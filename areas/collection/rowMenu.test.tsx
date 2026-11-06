@@ -20,7 +20,7 @@ test("a row opens its menu on right-click and the . key, and Move picks a collec
       onMove={onMove}
     />,
   );
-  fireEvent.keyDown(screen.getByRole("button", { name: /Med math/ }), {
+  fireEvent.keyDown(document.querySelector<HTMLElement>('[data-ui="row"]')!, {
     key: ".",
   });
   expect((await screen.findByRole("menu")).textContent).toContain("Move");
@@ -29,6 +29,6 @@ test("a row opens its menu on right-click and the . key, and Move picks a collec
   });
   fireEvent.contextMenu(screen.getByText("Med math"));
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("button", { name: "BIO 201" }));
+  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
   expect(onMove).toHaveBeenCalledWith("n1", "c2");
 });

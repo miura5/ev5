@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { call } from "../../commands/client.ts";
+import { Empty } from "../../kit/index.ts";
 import { CollectionView, type NewKind } from "./Collection.view.tsx";
 import { useCollection, type ReadCopyLike } from "./useCollection.ts";
 
@@ -32,11 +33,13 @@ export function CollectionScreen({
   }, [error, token, refused, onToast]);
   // A row just deleted: Undo restores it from Recently deleted (item.restore).
   const setUndo = (u: { id: string; message: string }) =>
-    onToast?.(u.message, () =>
-      void call("item.restore", { id: u.id }, token).then((r) => {
-        setFailed(r.ok ? undefined : r.reason);
-        if (r.ok) reload();
-      }),
+    onToast?.(
+      u.message,
+      () =>
+        void call("item.restore", { id: u.id }, token).then((r) => {
+          setFailed(r.ok ? undefined : r.reason);
+          if (r.ok) reload();
+        }),
     );
   // A collection just made from Notes arrives with ?new=1: its title is ready to type.
   const fresh = new URLSearchParams(window.location.search).has("new");
@@ -70,8 +73,7 @@ export function CollectionScreen({
   // No token, or one the server refused: no data and no "nothing here"; the shell's token screen asks for it.
   if (!token || refused) return null;
   // First read still on its way: a loading line, never "Untitled collection, 0 items".
-  if (!data && !error)
-    return <p className="ev-coll-empty">Opening the collection…</p>;
+  if (!data && !error) return <Empty line="Opening the collection…" />;
   return (
     <>
       <CollectionView

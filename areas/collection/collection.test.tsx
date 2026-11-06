@@ -55,11 +55,9 @@ test("dates come first, then nested collections and items", () => {
   const onOpen = vi.fn();
   render(<CollectionView {...base} pinned onOpen={onOpen} />);
   expect(
-    document.querySelector('[data-section="Coming up"]')!.textContent,
+    screen.getByRole("region", { name: "Coming up" }).textContent,
   ).toContain("Exam 2");
-  const all = document.querySelector(
-    '[data-section="Everything"]',
-  )!.textContent!;
+  const all = screen.getByRole("region", { name: "Everything" }).textContent!;
   expect(all.indexOf("Labs")).toBeLessThan(all.indexOf("Cardiac drugs"));
   expect(screen.getByText("Collection · 3 items · pinned")).toBeTruthy();
   fireEvent.click(screen.getByText("Cardiac drugs"));
@@ -119,7 +117,7 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
   const { CollectionScreen } = await import("./Collection.screen.tsx");
   const onNavigate = vi.fn();
   render(<CollectionScreen path="/collection/b" onNavigate={onNavigate} />);
-  expect(await screen.findByText("Labs")).toBeTruthy();
+  expect(await screen.findByDisplayValue("Labs")).toBeTruthy();
   fireEvent.click(screen.getByText("← NUR 112"));
   expect(onNavigate).toHaveBeenCalledWith("/collection/a");
   localStorage.clear();
@@ -154,9 +152,9 @@ test("pinned items are listed under Pinned, named from their docs", async () => 
   const { CollectionScreen } = await import("./Collection.screen.tsx");
   render(<CollectionScreen path="/collection" />);
   expect(await screen.findByText("Insulin types")).toBeTruthy();
-  expect(
-    document.querySelector('[data-section="Pinned"]')!.textContent,
-  ).toContain("Insulin types");
+  expect(screen.getByRole("region", { name: "Pinned" }).textContent).toContain(
+    "Insulin types",
+  );
   localStorage.clear();
   vi.unstubAllGlobals();
 });
@@ -213,7 +211,7 @@ test("a note row opens the note, and the collection shows its name and notes", a
   const { CollectionScreen } = await import("./Collection.screen.tsx");
   const onNavigate = vi.fn();
   render(<CollectionScreen path="/collection/b" onNavigate={onNavigate} />);
-  expect(await screen.findByText("Labs")).toBeTruthy();
+  expect(await screen.findByDisplayValue("Labs")).toBeTruthy();
   expect(screen.getByText("Untitled")).toBeTruthy();
   expect(screen.getByText(/^Note · /)).toBeTruthy();
   expect(screen.queryByText("n1")).toBeNull();
@@ -253,12 +251,11 @@ test("the collection title saves on Enter and Esc puts the old words back", () =
       onRename={onRename}
     />,
   );
-  const h = screen.getByRole("heading", { level: 1 });
-  h.textContent = "BIO 201";
+  const h = screen.getByRole("textbox", { name: "Title" }) as HTMLInputElement;
+  fireEvent.change(h, { target: { value: "BIO 201" } });
   fireEvent.keyDown(h, { key: "Enter" });
-  fireEvent.blur(h);
   expect(onRename).toHaveBeenCalledWith("BIO 201");
-  h.textContent = "x";
+  fireEvent.change(h, { target: { value: "x" } });
   fireEvent.keyDown(h, { key: "Escape" });
-  expect(h.textContent).toBe("Untitled collection");
+  expect(h.value).toBe("Untitled collection");
 });

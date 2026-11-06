@@ -51,7 +51,10 @@ export function mapPins(
     id: p.id,
     type: TYPES[p.collection] ?? "note",
     title: docTitle(docs[p.collection]?.find((d) => d.id === p.id)),
-    meta: kindLine(p.collection, docs[p.collection]?.find((d) => d.id === p.id)),
+    meta: kindLine(
+      p.collection,
+      docs[p.collection]?.find((d) => d.id === p.id),
+    ),
     to: openPath(p.collection, p.id),
   }));
 }
@@ -114,8 +117,7 @@ export const docTitle = (d: WireDoc | undefined): string =>
   "Untitled";
 
 /** "Nov 3", Central time (§time), from epoch ms. */
-export const shortDate = (ms: number): string =>
-  shortDay(ms);
+export const shortDate = (ms: number): string => shortDay(ms);
 
 /** Shows the collection `id`, else the first top-level one (by pos), with its sub-collections and members; none gives undefined (empty state). */
 export function mapCollection(

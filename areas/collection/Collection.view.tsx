@@ -1,14 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import {
   Button,
+  Empty,
   Glyph,
   Menu,
+  Page,
+  Palette,
   Row,
+  Section,
   type GlyphType,
   type MenuItem,
 } from "../../kit/index.ts";
-import { RowActions } from "./RowActions.tsx";
-import "./collection.css";
 
 /** One thing in a collection as the collection read reports it; areas never import data, so the shape is restated. */
 export interface CollectionEntry {
@@ -56,6 +58,9 @@ export interface CollectionViewProps {
   onDelete?: () => void;
 }
 
+type ItemAction = "open" | "pin" | "unpin" | "delete";
+
+/** One row of the page: the kit Row with its menu (right-click, the . key, the dots) and Move's picker. */
 function EntryRow({
   e,
   pinned,
@@ -71,27 +76,56 @@ function EntryRow({
   onAction?: CollectionViewProps["onItemAction"];
   onMove?: CollectionViewProps["onMove"];
 }) {
-  const row = (
-    <Row
-      title={e.title}
-      meta={e.meta}
-      value={e.value}
-      glyph={<Glyph type={e.type} />}
-      onOpen={onOpen ? () => onOpen(e.id) : undefined}
-    />
-  );
-  if (!onAction) return row;
+  const [moving, setMoving] = useState(false);
+  const items: MenuItem[] = [
+    { key: "open", label: "Open" },
+    pinned ? { key: "unpin", label: "Unpin" } : { key: "pin", label: "Pin" },
+    ...(onMove ? [{ key: "move", label: "Move…" }] : []),
+    { key: "delete", label: "Delete", danger: true },
+  ];
   return (
-    <RowActions
-      title={e.title}
-      entry={e.id}
-      pinned={pinned}
-      targets={targets.filter((t) => t.id !== e.id)}
-      onAction={(a) => onAction(e.id, a)}
-      onMove={onMove ? (c) => onMove(e.id, c) : undefined}
-    >
-      {row}
-    </RowActions>
+    <>
+      <Row
+        title={e.title}
+        meta={e.meta}
+        value={e.value}
+        glyph={<Glyph type={e.type} />}
+        onOpen={onOpen ? () => onOpen(e.id) : undefined}
+        menu={
+          onAction
+            ? {
+                items,
+                label: `Actions for ${e.title}`,
+                button: true,
+                onPick: (k) => {
+                  if (k === "move") setMoving(true);
+                  else onAction(e.id, k as ItemAction);
+                },
+              }
+            : undefined
+        }
+      />
+      {moving ? (
+        <Palette
+          ask={false}
+          label={`Move ${e.title} to`}
+          placeholder="Move to a collection"
+          groups={[
+            {
+              name: "Move to",
+              items: targets
+                .filter((t) => t.id !== e.id)
+                .map((t) => ({ key: t.id, label: t.title })),
+            },
+          ]}
+          onRun={(id) => {
+            setMoving(false);
+            onMove?.(e.id, id);
+          }}
+          onClose={() => setMoving(false)}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -109,13 +143,6 @@ export function CollectionView(p: CollectionViewProps) {
       onAction={p.onItemAction}
     />
   );
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    const el = titleRef.current;
-    if (!p.focusTitle || !el) return;
-    el.focus();
-    getSelection()?.selectAllChildren(el);
-  }, [p.focusTitle]);
   const newItems: MenuItem[] = [
     { key: "note", label: "Note" },
     { key: "set", label: "Set" },
@@ -124,91 +151,61 @@ export function CollectionView(p: CollectionViewProps) {
   ];
   const count = p.dates.length + p.nested.length + p.items.length;
   return (
-    <section className="ev-coll" aria-label="Collection">
-      {p.parent ? (
-        <Button kind="text" onClick={p.onBack}>
-          ← {p.parent}
-        </Button>
-      ) : null}
-      <div className="ev-coll-head">
-        <Glyph type="collection" />
-        <div className="ev-coll-heading">
-          <h1
-            ref={titleRef}
-            className="ev-coll-title"
-            contentEditable={p.onRename ? true : undefined}
-            suppressContentEditableWarning
-            data-placeholder="Untitled collection"
-            tabIndex={p.onRename ? 0 : undefined}
-            onKeyDown={(e) => {
-              if (!p.onRename) return;
-              if (e.key === "Enter") {
-                e.preventDefault();
-                e.currentTarget.blur();
-              } else if (e.key === "Escape") {
-                e.currentTarget.textContent = p.title;
-                e.currentTarget.blur();
-              }
-            }}
-            onBlur={(e) => p.onRename?.(e.currentTarget.textContent ?? "")}
-          >
-            {p.title}
-          </h1>
-          <span className="ev-coll-meta">
-            Collection · {count} {count === 1 ? "item" : "items"}
-            {p.pinned ? " · pinned" : ""}
-          </span>
-        </div>
-        <Button
-          kind="text"
-          hint="P"
-          onClick={p.onTogglePin}
-          aria-pressed={!!p.pinned}
-        >
-          {p.pinned ? "Unpin" : "Pin"}
-        </Button>
-        <Menu
-          label="New in this collection"
-          items={newItems}
-          onPick={(k) => p.onNewHere?.(k as NewKind)}
-          trigger={
-            <Button kind="text" hint="C" aria-label="New in this collection">
-              New
-            </Button>
-          }
-        />
-        {p.onDelete ? (
-          <Button kind="text" onClick={p.onDelete}>
-            Delete
+    <Page
+      title={p.title}
+      onTitle={p.onRename}
+      titlePlaceholder="Untitled collection"
+      focusTitle={p.focusTitle}
+      glyph={<Glyph type="collection" />}
+      meta={`Collection · ${count} ${count === 1 ? "item" : "items"}${p.pinned ? " · pinned" : ""}`}
+      crumb={
+        p.parent ? (
+          <Button kind="text" onClick={p.onBack}>
+            ← {p.parent}
           </Button>
-        ) : null}
-      </div>
+        ) : undefined
+      }
+      actions={
+        <>
+          <Button
+            kind="text"
+            hint="P"
+            onClick={p.onTogglePin}
+            aria-pressed={!!p.pinned}
+          >
+            {p.pinned ? "Unpin" : "Pin"}
+          </Button>
+          <Menu
+            label="New in this collection"
+            items={newItems}
+            onPick={(k) => p.onNewHere?.(k as NewKind)}
+            trigger={
+              <Button kind="text" hint="C" aria-label="New in this collection">
+                New
+              </Button>
+            }
+          />
+          {p.onDelete ? (
+            <Button kind="text" onClick={p.onDelete}>
+              Delete
+            </Button>
+          ) : null}
+        </>
+      }
+    >
       {p.pinnedItems && p.pinnedItems.length > 0 ? (
-        <div className="ev-coll-sec" data-section="Pinned">
-          <h2 className="ev-coll-label">Pinned</h2>
-          {p.pinnedItems.map(entry)}
-        </div>
+        <Section label="Pinned">{p.pinnedItems.map(entry)}</Section>
       ) : null}
       {p.dates.length > 0 ? (
-        <div className="ev-coll-sec" data-section="Coming up">
-          <h2 className="ev-coll-label">Coming up</h2>
-          {p.dates.map(entry)}
-        </div>
+        <Section label="Coming up">{p.dates.map(entry)}</Section>
       ) : null}
       {p.nested.length + p.items.length > 0 ? (
-        <div className="ev-coll-sec" data-section="Everything">
-          <div className="ev-coll-sec-head">
-            <h2 className="ev-coll-label">Everything</h2>
-            <span className="ev-coll-meta">newest first</span>
-          </div>
+        <Section label="Everything" count="newest first">
           {[...p.nested, ...p.items].map(entry)}
-        </div>
+        </Section>
       ) : (
-        <div className="ev-coll-empty">
-          Nothing here yet. New adds a note, a set or a date here; or move
-          things in from their menu.
-        </div>
+        <Empty line="Nothing here yet. New adds a note, a set or a date here; or move things in from their menu." />
       )}
-    </section>
+    </Page>
   );
 }

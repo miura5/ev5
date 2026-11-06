@@ -92,7 +92,7 @@ test("New > Note sends collection.new_here and opens the new note", async () => 
   const { CollectionScreen } = await import("./Collection.screen.tsx");
   const onNavigate = vi.fn();
   render(<CollectionScreen path="/collection/a" onNavigate={onNavigate} />);
-  await screen.findByText("NUR 112");
+  await screen.findByDisplayValue("NUR 112");
   await openMenu("New in this collection");
   await act(async () => {
     fireEvent.click(screen.getByRole("menuitem", { name: "Note" }));
