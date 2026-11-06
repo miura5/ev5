@@ -23,7 +23,7 @@ interface WireDoc {
 export interface ProgressData {
   /** First-try accuracy over the last 14 days; null when there are no answers in the window. */
   accuracy: string | null;
-  /** Any answer at all, so the empty-state sentence shows only for a student with none. */
+  /** Any answer at all, so the empty-state sentence shows only for a user with none. */
   hasAnswers: boolean;
   /** Minutes studied in ended sessions. */
   minutes: number;

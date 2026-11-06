@@ -20,7 +20,7 @@ export function tools(): Tool[] {
     .filter(c => c.callers.ev)
     .map(c => ({
       name: c.name.replace(/\./g, '__'),
-      description: `${c.description ?? c.title}${c.callers.ev === 'propose' ? ' (makes a Suggestion for Matt to accept)' : ''}`,
+      description: `${c.description ?? c.title}${c.callers.ev === 'propose' ? ' (makes a Suggestion the user accepts or dismisses)' : ''}`,
       input_schema: z.toJSONSchema(c.input),
     }));
 }
