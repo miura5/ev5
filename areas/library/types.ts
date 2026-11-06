@@ -26,6 +26,8 @@ export interface WeakSpot {
   mastery: Mastery;
   /** When it is next due, e.g. "due today". */
   due: string;
+  /** The date it matters for (its soonest upcoming goal, linked directly or through its objective); null when none. */
+  goalId: string | null;
 }
 
 export interface LibraryExam {

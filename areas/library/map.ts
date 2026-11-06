@@ -189,6 +189,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         meta: `${d.misses} missed`,
         mastery,
         due,
+        goalId: v.exam ?? null,
       };
     });
   const edits = new Map(
