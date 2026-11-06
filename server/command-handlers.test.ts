@@ -14,6 +14,7 @@ async function setup() {
     "0001_deletions",
     "0003_collections_pins_own",
     "0004_ceiling_usage",
+    "0009_collections_pins_expand", // the old pins repository fills the new columns
   ]) {
     const text = readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),

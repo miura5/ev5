@@ -21,6 +21,7 @@ import { draftsRepo } from "./drafts.ts";
 import { jobsRepo } from "./jobs.ts";
 import { jobStoresRepo } from "./job-stores.ts";
 import { attemptsRepo } from "./attempts.ts";
+import { collectionRepo } from "./collections.ts";
 import { kindsRepo } from "./kinds.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
@@ -148,7 +149,9 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
       list: async (): Promise<Pin[]> =>
         readRows(
           "pins",
-          await all("SELECT * FROM pins ORDER BY pos, target_c, target_id"),
+          await all(
+            "SELECT * FROM pins WHERE deleted_at IS NULL ORDER BY pos, target_c, target_id",
+          ),
           (r) =>
             parsePin({
               targetC: r.target_c,
@@ -158,7 +161,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
             }),
           opts,
         ),
-      /** Pins have no version: a pin is set or moved by writing its position (the latest write wins). */
+      /** Pins have no version here: a pin is set or moved by writing its position (the latest write wins). Fills the new id and target_kind beside target_c (expand step); pinRows is the versioned form. */
       set: async (
         targetC: string,
         targetId: string,
@@ -167,9 +170,16 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
         const at = opts.clock();
         await db
           .prepare(
-            "INSERT INTO pins (target_c, target_id, pos, at) VALUES (?, ?, ?, ?) ON CONFLICT (target_c, target_id) DO UPDATE SET pos = excluded.pos, at = excluded.at",
+            "INSERT INTO pins (target_c, target_id, pos, at, id, target_kind) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (target_c, target_id) DO UPDATE SET pos = excluded.pos, at = excluded.at, deleted_at = NULL",
           )
-          .bind(targetC, targetId, pos, at)
+          .bind(
+            targetC,
+            targetId,
+            pos,
+            at,
+            `pin_${at.toString(16).padStart(11, "0")}${crypto.randomUUID().slice(0, 8)}`,
+            targetC,
+          )
           .run();
         return gateRow("pins", () =>
           parsePin({ targetC, targetId, pos, at: iso(at) }),
@@ -232,6 +242,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...jobsRepo(db, opts),
     ...jobStoresRepo(db, opts),
     ...kindsRepo(db, opts),
+    ...collectionRepo(db, opts),
     ...planRepo(db, opts),
     ...attemptsRepo(db, opts),
     ...setsRepo(db, opts),
