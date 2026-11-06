@@ -201,7 +201,7 @@ export function LibraryScreen({
         onOpenSet={openIt}
         onOpenExam={openIt}
         onDrill={openIt}
-        initialTab={openedByLink && exam ? "exams" : undefined}
+        initialTab={openedByLink && exam ? "dates" : undefined}
       />
     </>
   );

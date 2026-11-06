@@ -79,7 +79,7 @@ test("tabs show weak spots and exams with counts, rows open", () => {
   fireEvent.click(screen.getByRole("radio", { name: /Weak spots/ }));
   fireEvent.click(screen.getByText("Oral liquid doses"));
   expect(onDrill).toHaveBeenCalledWith("w");
-  fireEvent.click(screen.getByRole("radio", { name: /Exams/ }));
+  fireEvent.click(screen.getByRole("radio", { name: /Dates/ }));
   expect(screen.getByText("58%")).toBeTruthy();
   fireEvent.click(screen.getByText("NUR 112 · Exam 3"));
   expect(onOpenExam).toHaveBeenCalledWith("x");
@@ -89,8 +89,8 @@ test("empty tabs say so", () => {
   render(<LibraryView practice={null} weakSpots={[]} exams={[]} />);
   fireEvent.click(screen.getByRole("radio", { name: /Weak spots/ }));
   expect(screen.getByText("No weak spots.")).toBeTruthy();
-  fireEvent.click(screen.getByRole("radio", { name: /Exams/ }));
-  expect(screen.getByText("No exams.")).toBeTruthy();
+  fireEvent.click(screen.getByRole("radio", { name: /Dates/ }));
+  expect(screen.getByText("No dates.")).toBeTruthy();
 });
 
 test("sets tab filters tiles by type and opens a set; accuracy line shows", () => {
