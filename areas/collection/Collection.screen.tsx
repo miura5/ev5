@@ -12,12 +12,14 @@ const idOf = (path?: string) => {
 
 export function CollectionScreen({
   path,
+  search,
   onNavigate,
   onToast,
   services,
 }: {
   services?: { readCopy?: ReadCopyLike };
   path?: string;
+  search?: string;
   onNavigate?: (path: string) => void;
   onToast?: (message: string, onUndo?: () => void) => void;
 }) {
@@ -42,7 +44,7 @@ export function CollectionScreen({
         }),
     );
   // A collection just made from Notes arrives with ?new=1: its title is ready to type.
-  const fresh = new URLSearchParams(window.location.search).has("new");
+  const fresh = new URLSearchParams(search ?? "").has("new");
   // New here: a note opens in Notes, a collection opens with its title ready; a set or a date shows in the list.
   const newHere = (kind: NewKind) => {
     if (!data) return;

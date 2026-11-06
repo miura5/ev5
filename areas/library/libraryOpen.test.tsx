@@ -5,7 +5,6 @@ import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
-  window.history.replaceState(null, "", "/");
 });
 
 const base = {
@@ -63,8 +62,8 @@ const docs: Record<string, unknown[]> = {
 };
 
 function boot(open: string) {
+  const SEARCH = `open=${open}`;
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", `/library?open=${open}`);
   vi.stubGlobal(
     "fetch",
     vi.fn(async (u: string) => {
@@ -74,7 +73,7 @@ function boot(open: string) {
       });
     }),
   );
-  render(<LibraryScreen />);
+  render(<LibraryScreen search={SEARCH} />);
 }
 
 test("?open=<exam id> opens its plan detail", async () => {

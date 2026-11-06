@@ -17,7 +17,6 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   localStorage.clear();
-  window.history.replaceState(null, "", "/");
 });
 
 const services: NotesServices = {
@@ -43,7 +42,6 @@ const services: NotesServices = {
 
 test("after a collection is deleted, Notes shows Undo and Undo restores it", async () => {
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", "/notes?deleted=c1&what=collection");
   const sent: string[] = [];
   vi.stubGlobal(
     "fetch",
@@ -57,7 +55,7 @@ test("after a collection is deleted, Notes shows Undo and Undo restores it", asy
       );
     }),
   );
-  render(<NotesScreen services={services} />);
+  render(<NotesScreen services={services} search="deleted=c1&what=collection" />);
   expect(await screen.findByText("Collection deleted")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Undo" }));
   await waitFor(() => expect(sent.join()).toContain("item.restore"));
@@ -65,7 +63,6 @@ test("after a collection is deleted, Notes shows Undo and Undo restores it", asy
 
 test("a note page has Delete, which shows Undo", async () => {
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", "/notes?open=n1");
   vi.stubGlobal(
     "fetch",
     vi.fn(
@@ -75,7 +72,7 @@ test("a note page has Delete, which shows Undo", async () => {
         }),
     ),
   );
-  render(<NotesScreen services={services} />);
+  render(<NotesScreen services={services} search="open=n1" />);
   fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
   expect(await screen.findByText("Note deleted")).toBeTruthy();
 });

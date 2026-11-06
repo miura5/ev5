@@ -10,11 +10,13 @@ import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 import { ExamPlanDetail } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 
+/** The address query the shell hands the screen. */
+const SEARCH = "open=x1";
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   localStorage.clear();
-  window.history.replaceState(null, "", "/");
 });
 
 const base = {
@@ -38,7 +40,6 @@ const exam = (extra: Record<string, unknown>) => ({
 /** Boots the screen on the exam; commands answer with `status`; returns the command calls made. */
 function boot(examDoc: unknown, planedits: unknown[] = [], status = 200) {
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", "/library?open=x1");
   const sent: { name: string; input: unknown }[] = [];
   vi.stubGlobal(
     "fetch",
@@ -64,7 +65,7 @@ function boot(examDoc: unknown, planedits: unknown[] = [], status = 200) {
       });
     }),
   );
-  render(<LibraryScreen />);
+  render(<LibraryScreen search={SEARCH} />);
   return sent;
 }
 

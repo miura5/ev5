@@ -9,11 +9,13 @@ import { afterEach, expect, test, vi } from "vitest";
 import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 
+/** The address query the shell hands the screen. */
+const SEARCH = "open=x1";
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   localStorage.clear();
-  window.history.replaceState(null, "", "/");
 });
 
 const exam = {
@@ -39,7 +41,6 @@ const waitingJob = {
 /** Boots the screen on the exam with a waiting plan job; returns the calls made to commands and job answers. */
 function boot(jobs: unknown[] = [waitingJob]) {
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", "/library?open=x1");
   const sent: { to: string; body: unknown }[] = [];
   vi.stubGlobal(
     "fetch",
@@ -61,7 +62,7 @@ function boot(jobs: unknown[] = [waitingJob]) {
       );
     }),
   );
-  render(<LibraryScreen />);
+  render(<LibraryScreen search={SEARCH} />);
   return sent;
 }
 

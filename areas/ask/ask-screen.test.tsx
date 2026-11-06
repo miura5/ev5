@@ -142,12 +142,10 @@ test("?text= prefills the input and sends nothing", () => {
     json: async () => ({ jobs: [] }),
   }));
   vi.stubGlobal("fetch", fetchMock);
-  window.history.pushState({}, "", "/ask?text=what%20is%20a%20ratio");
-  render(<AskScreen />);
+  render(<AskScreen search="text=what%20is%20a%20ratio" />);
   const box = screen.getByLabelText("Message to E.V.") as HTMLTextAreaElement;
   expect(box.value).toBe("what is a ratio");
   expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/ask"))).toBe(
     false,
   );
-  window.history.pushState({}, "", "/");
 });
