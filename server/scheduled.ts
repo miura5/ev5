@@ -18,7 +18,7 @@ export function cronFor(every: string | undefined): string | null {
   return every === "every:15m" ? "*/15 * * * *" : null;
 }
 
-/** Central wall times (HH:MM) of the daily job-effect commands, and the weekday (0 = Sunday) of the weekly one. Defaults. */
+/** Local wall times (HH:MM) of the daily job-effect commands, and the weekday (0 = Sunday) of the weekly one. Defaults. */
 export const SCHEDULE: Record<string, { time: string; weekday?: number }> = {
   morning: { time: "05:00" },
   evening: { time: "20:00" },
@@ -30,16 +30,16 @@ export const SCHEDULE: Record<string, { time: string; weekday?: number }> = {
 /** The job kind each scheduled command starts. None is attached yet (§job.kinds: a new kind needs a Chart decision). */
 export const SCHEDULED_KINDS: Record<string, string> = {};
 
-/** Nothing is scheduled from 01:00 to 03:00 Central (§job.schedule), where daylight saving moves the clock. */
+/** Nothing is scheduled from 01:00 to 03:00 local time (§job.schedule), where daylight saving moves the clock. */
 export const inQuietWindow = (now: number): boolean => {
   const t = centralParts(now).time;
   return t >= "01:00" && t < "03:00";
 };
 
-/** The id of a command's run for a Central date; the same id twice is refused by the store, so a date runs once. */
+/** The id of a command's run for a local date; the same id twice is refused by the store, so a date runs once. */
 export const runId = (name: string, date: string): string => `${name}@${date}`;
 
-/** True when the command is due now: its Central wall time has passed and no run exists for that Central date (§job.schedule). */
+/** True when the command is due now: its local wall time has passed and no run exists for that local date (§job.schedule). */
 export function dueNow(
   name: string,
   now: number,

@@ -1,11 +1,7 @@
 import { expect, test } from 'vitest';
-import { parseCourseTable } from '../course/index.ts';
 import {
   parseCollection,
   parseMembership,
-  courseCollectionId,
-  virtualCourse,
-  virtualCollections,
   nestingProblems,
   canNest,
   effectiveCollection,
@@ -17,11 +13,9 @@ const col = (id: string, parentId: string | null = null) =>
 const row = (collectionId: string, at = '2026-11-03T10:00:00Z') =>
   parseMembership({ itemC: 'notes', itemId: 'n1', collectionId, at, v: 1 });
 const live = new Set(['a', 'b']);
-const old = { course: 'BIO', courseAt: '2026-11-01T00:00:00Z' };
 
 test('parses rows and refuses bad ones', () => {
   expect(col('a').title).toBe('a');
-  expect(() => col('course:BIO')).toThrow();
   expect(() => parseCollection({ id: 'a', title: 'a', parentId: 'a', pos: 1, at: 't', v: 1 })).toThrow();
   expect(() => parseCollection({ id: 'a', title: 'a', parentId: null, pos: 1, at: 't', v: 1, x: 1 })).toThrow();
   expect(() => parseMembership({ itemC: 'notes', itemId: '', collectionId: 'a', at: 't', v: 1 })).toThrow();
@@ -34,45 +28,22 @@ test('nesting is one level', () => {
   expect(canNest(rows, null)).toBe(true);
   expect(canNest(rows, 'a')).toBe(true);
   expect(canNest(rows, 'b')).toBe(false);
-  expect(canNest(rows, 'course:BIO')).toBe(false);
+  expect(canNest(rows, 'zz')).toBe(false);
 });
 
-test('courses are virtual read-only collections', () => {
-  const table = parseCourseTable({
-    BIO: {
-      status: 'active',
-      canvasId: 1,
-      examKinds: ['unit'],
-      reviewKinds: [],
-      examDayKinds: [],
-      scoredKinds: [],
-      calendarDayKinds: [],
-      dayBudget: 'shared',
-      library: [],
-      default: true,
-    },
-  });
-  expect(virtualCollections(table)).toEqual([{ id: 'course:BIO', title: 'BIO', readOnly: true }]);
-  expect(virtualCourse(courseCollectionId('BIO'))).toBe('BIO');
-  expect(virtualCourse('a')).toBe(null);
-});
-
-test('effective collection: row, else course, newer course wins', () => {
-  expect(effectiveCollection({}, undefined, live)).toBe(null);
-  expect(effectiveCollection({ course: 'BIO' }, undefined, live)).toBe('course:BIO');
-  expect(effectiveCollection(old, row('a'), live)).toBe('a');
-  expect(effectiveCollection({ course: 'BIO' }, row('a'), live)).toBe('a');
-  expect(effectiveCollection({ course: 'BIO', courseAt: '2026-11-04T00:00:00Z' }, row('a'), live)).toBe('course:BIO');
+test('effective collection: the membership row, else none', () => {
+  expect(effectiveCollection(undefined, live)).toBe(null);
+  expect(effectiveCollection(row('a'), live)).toBe('a');
 });
 
 test('a deleted collection ungroups its items, and restoring regroups them', () => {
-  expect(effectiveCollection(old, row('a'), new Set(['b']))).toBe(null);
-  expect(effectiveCollection(old, row('a'), live)).toBe('a');
+  expect(effectiveCollection(row('a'), new Set(['b']))).toBe(null);
+  expect(effectiveCollection(row('a'), live)).toBe('a');
 });
 
-test('moves write a row, the course, or ungroup', () => {
+test('moves write a row or ungroup, and refuse anything but a live collection', () => {
   expect(moveWrite('a', live)).toEqual({ kind: 'row', collectionId: 'a' });
-  expect(moveWrite('course:LAND 200', live)).toEqual({ kind: 'course', course: 'LAND 200', removeRow: true });
   expect(moveWrite(null, live)).toEqual({ kind: 'ungroup', removeRow: true });
   expect(() => moveWrite('zz', live)).toThrow();
+  expect(() => moveWrite('course:LAND 200', live)).toThrow();
 });

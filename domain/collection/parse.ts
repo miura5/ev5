@@ -1,6 +1,6 @@
 import { collectionSchema, membershipSchema, type Collection, type Membership } from './types.ts';
 
-/** Validates a collections row; a real id never starts with "course:" (that prefix is the virtual courses). */
+/** Validates a collections row. */
 export function parseCollection(raw: unknown): Collection {
   return collectionSchema.parse(raw);
 }

@@ -116,12 +116,12 @@ export type Derived = {
 export type ReviewRules = {
   solidAfterRightDays: number;
   intervalDays: number;
-  intervalNearExamDays: number;
-  nearExamWithinDays: number;
+  intervalNearDateDays: number;
+  nearDateWithinDays: number;
 };
 export const REVIEW_RULES: ReviewRules = {
   solidAfterRightDays: 2,
   intervalDays: 3,
-  intervalNearExamDays: 1,
-  nearExamWithinDays: 5,
+  intervalNearDateDays: 1,
+  nearDateWithinDays: 5,
 };

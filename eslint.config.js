@@ -33,7 +33,7 @@ export default [
     },
   },
   {
-    // Dates and times on screen come from domain/time, in America/Chicago (§job.schedule).
+    // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
     files: ["areas/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-syntax": [

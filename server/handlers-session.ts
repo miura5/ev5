@@ -1,7 +1,7 @@
-// Sessions and their checks (CONTRACT §cmd.registry, §data.protocol): a session is an ev4 `sessions` document, its
-// clock rebuilt from the events map, so every command here appends one event (or the marks status and endedAt) at the
-// version read. Starting one ends the one running (a mark, never a removal). A check's answer is Matt's line in today's
-// talk document; the session keeps only that it was answered (the note's text never enters a session).
+// Sessions and their checks (CONTRACT §cmd.registry, §data.protocol): a session is a `sessions` row with appended
+// `session_events` rows, its clock rebuilt from the events, so every command here appends one event (or the marks status
+// and endedAt) at the version read. Starting one ends the one running (a mark, never a removal). A check's answer is the
+// user's line in today's talk document; the session keeps only that it was answered (the note's text never enters it).
 import {
   centralDate,
   newSessionEventRow,
