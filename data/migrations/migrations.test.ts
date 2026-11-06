@@ -33,7 +33,17 @@ test('every migration is idempotent and only adds', () => {
     const base = (sql: string): string => sql.replace(/(,\s*\w+ [A-Z]+[^,)]*)*\)$/, '');
     for (const o of before) {
       const now = after.find((x) => x.name === o.name)?.sql ?? '';
-      assert.ok(now === o.sql || now.startsWith(base(o.sql)), `${m} changed ${o.name}`);
+      // SQLite puts the new column before a trailing table constraint (PRIMARY KEY (...)), so every old line must survive, in order.
+      const kept = (): boolean => {
+        let at = 0;
+        for (const line of o.sql.split('\n').map((l) => l.trim().replace(/,$/, '')).filter(Boolean)) {
+          const i = now.indexOf(line, at);
+          if (i < 0) return false;
+          at = i + line.length;
+        }
+        return true;
+      };
+      assert.ok(now === o.sql || now.startsWith(base(o.sql)) || kept(), `${m} changed ${o.name}`);
     }
     before = after;
   }
@@ -41,7 +51,9 @@ test('every migration is idempotent and only adds', () => {
   // D1 applies each migration once, so an ADD COLUMN (no IF NOT EXISTS in SQLite) is not re-run; the rest must be.
   for (const m of migrations) if (!/\bADD\s+COLUMN\b/i.test(read(m))) db.exec(read(m));
   assert.equal(shape(db), once);
-  for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|DELETE|UPDATE)\b/i, m);
+  // Only a `*_backfill` migration rewrites rows (UPDATE); nothing is ever dropped or deleted.
+  for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|DELETE)\b/i, m);
+  for (const m of migrations.filter((f) => !/_backfill\.sql$/.test(f))) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\bUPDATE\b/i, m);
   // §data.additive: adding a column is an ordinary migration; every other ALTER form (rename, drop) stays banned.
   for (const m of migrations) {
     const sql = read(m).replace(/--.*$/gm, '').replace(/\bALTER\s+TABLE\s+\w+\s+ADD\s+COLUMN\b/gi, '');

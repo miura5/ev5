@@ -35,7 +35,20 @@ export const NEW_TABLES: TableSpec[] = [
     ["item_c", "item_id", "collection_id", "at", "v"],
     ["item_c", "item_id"],
   ),
-  t("pins", ["target_c", "target_id", "pos", "at"], ["target_c", "target_id"]),
+  t(
+    "pins",
+    [
+      "target_c",
+      "target_id",
+      "pos",
+      "at",
+      "id",
+      "target_kind",
+      "v",
+      "deleted_at",
+    ],
+    ["target_c", "target_id"],
+  ),
   t(
     "item_props",
     [

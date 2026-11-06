@@ -55,6 +55,7 @@ function migrated(withNew: boolean): DatabaseSync {
   db.exec(sql("0004_ceiling_usage.sql"));
   if (withNew) db.exec(NEW_DDL);
   if (withNew) db.exec(sql("0006_tables.sql")); // the per-kind tables, and collections.deleted_at
+  if (withNew) db.exec(sql("0009_collections_pins_expand.sql")); // the pins columns the exporter selects
   db.exec(sql("0007_plans_drafts.sql")); // drafts.target_kind (the exporter selects it), plans, plan_items, repeats and drafts.target_kind
   return db;
 }
@@ -70,7 +71,7 @@ INSERT INTO claude_plan_asks VALUES ('job1',2,32);
 INSERT INTO system_docs VALUES ('one','{}',33),('two','{}',34);
 INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
 INSERT INTO memberships VALUES ('notes','n1','k2',42,1);
-INSERT INTO pins VALUES ('notes','n1',0,43);
+INSERT INTO pins (target_c, target_id, pos, at) VALUES ('notes','n1',0,43);
 INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
 INSERT INTO own_sets VALUES ('s1','Mine','question',NULL,NULL,46,1);
 INSERT INTO own_set_items VALUES ('s1','i1',0,'{"q":"?"}',47,1),('s1','i2',1,'{"q":"!"}',47,1);

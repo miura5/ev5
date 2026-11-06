@@ -4,10 +4,12 @@
 // stale version answers 409 (§data.protocol). Append-only tables have `add` and no change or delete (§data.append-only).
 import {
   parseAttemptRow,
+  parseCollectionRow,
   parseGoalRow,
   parseLinkRow,
   parseNoteTableRow,
   parseObjectiveTableRow,
+  parsePinTableRow,
   parsePlanItemTableRow,
   parsePlanTableRow,
   parseRepeatRow,
@@ -21,7 +23,7 @@ import {
   parseWeakSpotTableRow,
 } from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
-import { ROW_TABLES } from "../export/row-tables.ts";
+import { ALL_TABLES } from "../export/tables.ts";
 import {
   core,
   text,
@@ -44,6 +46,8 @@ interface Kind<R> {
   appendOnly?: boolean;
   /** The order of a list. */
   order: string;
+  /** Old column -> new column it copies, until the contract migration (written, never read). */
+  mirror: Record<string, string>;
 }
 
 function kind<R>(
@@ -52,25 +56,30 @@ function kind<R>(
   json: string[] = [],
   order = "id",
   appendOnly = false,
+  mirror: Record<string, string> = {},
 ): Kind<R> {
-  return { table, parse, json, order, appendOnly };
+  return { table, parse, json, order, appendOnly, mirror };
 }
 
-function columns(table: string): string[] {
-  const t = ROW_TABLES.find((x) => x.name === table);
+function columns(table: string, mirrors: string[] = []): string[] {
+  const t = ALL_TABLES.find((x) => x.name === table);
   if (!t) throw new Error(`no row table ${table}`);
-  return t.columns.filter((c) => !["id", "at", "v", "deleted_at"].includes(c));
+  return t.columns.filter(
+    (c) => !["id", "at", "v", "deleted_at", ...mirrors].includes(c),
+  );
 }
 
 function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
   const { all, first, putVersioned } = core(db, opts);
-  const cols = columns(k.table);
+  const mirrored = Object.keys(k.mirror);
+  const cols = columns(k.table, mirrored);
   const q = (c: string) => `"${c}"`; // by and until are keywords
-  const deletable = ROW_TABLES.find(
+  const deletable = ALL_TABLES.find(
     (x) => x.name === k.table,
   )!.columns.includes("deleted_at");
   const toRow = (r: Raw): R => {
     const o: Record<string, unknown> = { ...r };
+    for (const c of mirrored) delete o[c];
     for (const c of k.json)
       o[c] = r[c] === null ? null : JSON.parse(String(r[c]));
     return k.parse(o);
@@ -178,8 +187,11 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
         k.table,
         ["id"],
         [id],
-        cols.map(q),
-        cols.map((c) => s[c] as string | number | null),
+        [...cols, ...mirrored].map(q),
+        [
+          ...cols.map((c) => s[c] as string | number | null),
+          ...mirrored.map((c) => s[k.mirror[c]!] as string | number | null),
+        ],
         ifVersion,
         (v, at) => build(rec, v, at, was),
       );
@@ -218,12 +230,18 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
 
 export function kindsRepo(db: D1Like, opts: TablesOptions) {
   type Repo<R extends Stamped> = ReturnType<typeof table<R>>;
-  // The two shapes of table: versioned (save, remove, restore) and append-only (add only), typed apart.
   const t = <R extends Stamped>(k: Kind<R>) =>
     table(db, opts, k) as Extract<Repo<R>, { save: unknown }>;
   const a = <R extends Stamped>(k: Kind<R>) =>
     table(db, opts, k) as Extract<Repo<R>, { add: unknown }>;
   return {
+    // Named apart from the older `collections` and `pins` repositories until the server step.
+    collectionRows: t(kind("collections", parseCollectionRow)),
+    pinRows: t(
+      kind("pins", parsePinTableRow, [], "pos, id", false, {
+        target_c: "target_kind",
+      }),
+    ),
     goals: t(kind("goals", parseGoalRow)),
     objectives: t(
       kind(
