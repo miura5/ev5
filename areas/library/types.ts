@@ -89,6 +89,8 @@ export interface SetItem {
   id: string;
   front: string;
   back?: string;
+  /** A question answered in his own words: the server grades what he types. */
+  open?: boolean;
 }
 
 /** The set page in view mode. */
@@ -114,6 +116,8 @@ export interface StudyItem {
   from?: string;
   /** E.V.s one line shown with the back. */
   note?: string;
+  /** A typed open answer: it is graded, not self-rated. */
+  open?: boolean;
 }
 
 /** An exam as a date with its plan: properties plus E.V.s dashed session proposals. */

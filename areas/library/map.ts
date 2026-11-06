@@ -1,5 +1,6 @@
 import {
   centralDate,
+  itemType,
   inDays,
   deriveWeakSpot,
   examDaysLeft,
@@ -275,6 +276,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
             .map((i) => q.options?.[i])
             .filter(Boolean)
             .join("; ") || undefined,
+        ...(itemType(q) === "open" ? { open: true } : {}),
       })),
     };
   }
