@@ -1,6 +1,7 @@
 // The outbox's transport and the page's reads over /api/v1/docs (server/doc-routes.ts). The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
-import { ApiError, readToken } from "../../commands/client.ts";
+import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
+import type { CommandName } from "../../commands/client.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -55,6 +56,10 @@ export function docsHttp(
         version: typeof b.version === "number" ? b.version : undefined,
         text: JSON.stringify(b),
       };
+    },
+    async command(name, input): Promise<PutAnswer> {
+      const r = await runCommand(name as CommandName, input, token());
+      return r.ok ? { status: 200 } : { status: r.status, text: r.reason };
     },
     async get(c, id): Promise<GetAnswer> {
       const r = await call(`?${q({ collection: c, id })}`);

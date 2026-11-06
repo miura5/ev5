@@ -29,6 +29,14 @@ function fakeServer() {
         docs.set(`${c}/${id}`, { v, data: JSON.parse(body) });
         return { status: 200, version: v };
       },
+      async command(name, input) {
+        if (!s.online) throw new Error('offline');
+        const id = (input as { attempt: string }).attempt;
+        if (s.status) return { status: s.status, text: 'no' };
+        if (docs.has(`${name}/${id}`)) return { status: 409 };
+        docs.set(`${name}/${id}`, { v: 1, data: input });
+        return { status: 200 };
+      },
       async get(c, id) {
         if (!s.online) throw new Error('offline');
         const cur = docs.get(`${c}/${id}`);
@@ -134,5 +142,24 @@ describe('what stays and what is refused', () => {
     expect(r.sent).toBe(2);
     expect(server.docs.get('answers/a-1')?.v).toBe(1);
     expect(await box.waiting()).toEqual([]);
+  });
+
+  test('a command answer is posted under its att_ id; a repeat (409) is already recorded and drops out', async () => {
+    const { server, box } = make();
+    await box.queueCommand('study.just_tell_me', 'att_1', { id: 's/q', attempt: 'att_1' });
+    await box.queueCommand('study.just_tell_me', 'att_2', { id: 's/q', attempt: 'att_2' });
+    server.docs.set('study.just_tell_me/att_2', { v: 1, data: {} });
+    const r = await box.replay();
+    expect(r.sent).toBe(2);
+    expect(server.docs.has('study.just_tell_me/att_1')).toBe(true);
+    expect(await box.waiting()).toEqual([]);
+  });
+
+  test('a command refused for good is kept and shown with its reason, not dropped', async () => {
+    const { server, box } = make();
+    await box.queueCommand('study.just_tell_me', 'att_1', { id: 's/q', attempt: 'att_1' });
+    server.status = 400;
+    expect((await box.replay()).refused).toHaveLength(1);
+    expect((await box.waiting())[0]?.refused).toContain('400');
   });
 });
