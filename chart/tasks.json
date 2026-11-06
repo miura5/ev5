@@ -6013,7 +6013,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).\nReaders on goals done (date.plan_with_ev, study-plan job load/apply, jobs-done exam titles, weak-wire with objective links, GET /docs?since). Left: exam.* commands, dates backfill (dates docs -> goals rows), drop dateedits/examedits.",
+  "notes": "Group 4 (D-489 order as amended by D-495).\nReaders on goals done (date.plan_with_ev, study-plan job load/apply, jobs-done exam titles, weak-wire with objective links, GET /docs?since). Dates backfill done: migration 0011 copies dates docs (+dateedits overrides, deletions, objective links) into goals/links, idempotent, tested; date.update on an old id now changes goal_<id>. There are no exam.* commands in the registry (exams are read from exams docs plus goals), so nothing to move. Left: copy of exams docs into goals (exams docs have no id mapping to read-sides yet), drop dateedits/examedits.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "builder-goals-readers",
