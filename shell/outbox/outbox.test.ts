@@ -79,6 +79,22 @@ describe('the offline note journey', () => {
     expect(JSON.stringify(server.docs.get(`notes/${ID}`)?.data)).toContain('first and more');
   });
 
+  test('an edit made offline survives a reload that is still offline, then saves (§data.offline)', async () => {
+    const { server, store, box } = make();
+    server.docs.set(`notes/${ID}`, { v: 2, data: note('Fluids', 'old') });
+    server.online = false;
+    await box.queueNote(ID, note('Fluids', 'edited offline'), 2);
+    // The page reloads: a new outbox over the same store, still offline.
+    const reloaded = createOutbox({ store, transport: server.transport, now: () => 1_790_000_100_000, random: () => 'x' });
+    expect(await reloaded.count()).toBe(1);
+    expect((await reloaded.replay()).stopped).toBe('offline');
+    expect(store.size()).toBe(1);
+    server.online = true;
+    expect(await reloaded.replay()).toMatchObject({ sent: 1, kept: [] });
+    expect(server.docs.get(`notes/${ID}`)).toMatchObject({ v: 3 });
+    expect(JSON.stringify(server.docs.get(`notes/${ID}`)?.data)).toContain('edited offline');
+  });
+
   test('a stale save keeps both: the record stays the note, his words become "(earlier)"', async () => {
     const { server, box } = make();
     server.docs.set(`notes/${ID}`, { v: 3, data: note('Fluids', 'edited on the laptop') });

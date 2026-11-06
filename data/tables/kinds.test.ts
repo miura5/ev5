@@ -93,7 +93,7 @@ test("JSON columns round-trip and list filters by column", async () => {
     {
       id: "set_1",
       collection_id: null,
-      kind: "adhoc",
+      kind: "own",
       title: null,
       source_kind: null,
       source_id: null,
