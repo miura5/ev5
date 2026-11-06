@@ -1,5 +1,5 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next). B-758 and B-732 declined (D-484).
-## Running    nothing. Run 92 merged (details in the Chart notes): B-1039 creation, B-1022 id prefixes and target_kind, B-998 plan repository, B-1037 attempts writer, B-1040 own sets on the tables (migration 0008), B-1048, B-1049, B-1050.
+## Running    nothing.
 Sandbox runs Node 22 (repo wants 26): precheck fails locally on directory tests; CI is the proof.
 NOTE: deletions made before #580 show twice in Recently deleted (B-1040). B-1049 grading is untried on staging with a real model call.
 ## Waiting on Matt   nothing
@@ -7,16 +7,16 @@ NOTE: deletions made before #580 show twice in Recently deleted (B-1040). B-1049
 Task freeze (D-497): no new task ids until groups 3 to 6 are done; findings go in task notes or docs/parked.md.
 (1) Audit fixes: done (run 82).
 (2) Record drift: done (run 83; B-1023 run 84).
-(3) Kit drift: most merged. B-1021 (baselines commit leaves a PR blocked at action_required) fix unproven: check on the next kit PR with baselines.
-Open: B-942 (Today/Progress vs mock-up; Courses in the sidebar and course dots are not in the mock-up: design agent updates it or the bar drops them), B-973 (with B-940; its branch is empty), B-1032 (not yet checked against the mock-up in a browser), then B-979, with Back B-1012 and B-1013.
+(3) Kit drift: most merged.
+Open: B-942 (Today/Progress vs mock-up; Courses in the sidebar and course dots are not in the mock-up: design agent updates it or the bar drops them), B-973 (with B-940; its branch is empty), then B-979, with Back B-1012 and B-1013.
 (4) Data layer. Build to D-498 (the build manager's decision on docs/proposals/table-design.md; its changes win over the doc and replace D-496).
-Order: B-1022 remainder (draft callers to snake_case rows, which needs the draft id scheme changed in jobs/practice-set and handlers-proposal; server SQL for claude_settings and job_plans; WireDoc in areas; old doc-row shapes), B-998 remainder (collections, memberships, pins, item_props onto the gate; part 2: remove /docs routes and data/docs, migration 0009 or later, reseed staging, rerun drill), B-1036 (check 2 second half, 1, 6, 7 wait for the docs removal).
+Order: B-1022 remainder (draft callers to snake_case rows, which needs the draft id scheme changed in jobs/practice-set and handlers-proposal; server SQL for claude_settings and job_plans; WireDoc in areas; old doc-row shapes), B-998 remainder (collections, memberships, pins, item_props onto the gate; part 2: remove /docs routes and data/docs, migration 0009 or later, reseed staging, rerun drill), B-1036 (item type ids to plain names, any time; check 2 second half, 1, 6, 7 wait for the docs removal).
 Moves: B-1037 attempts (rest in Chart), B-1038 goals and objectives with link rows, B-1039 (rest in Chart), B-1040 sets (rest in Chart), B-1041 sessions, B-1042 notes, B-1043 talk (Ask E.V. keeps its chat), B-1004/B-1033/B-1034 plans; then B-1044 (due read on attempts), B-1045 (note pictures).
-Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; this sandbox cannot), B-1009. Bugs alongside: B-1048, B-1049, B-1050 done in run 92. B-1006, B-1007, B-1008, B-1011 wait for group 3. Small follow-up: pass onBad to the table repos.
-Small ev4-trace cleanups (group 4): B-1059 (journeys, after B-1009), B-1060 (sample content, with B-942), B-1061 (Chart triage), B-1062 (PLAN and AGENTS lines; Matt approved the AGENTS part, ev4 and one-subject lines only, D-497).
+Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; this sandbox cannot), B-1009. B-1006, B-1007, B-1008 wait for group 3. Small follow-up: pass onBad to the table repos.
+Small ev4-trace cleanups (group 4): B-1059 (journeys, after B-1009), B-1060 (sample content, with B-942), B-1061 (Chart triage), B-1062 (PLAN, AGENTS and README lines; Matt approved the AGENTS part, ev4 and one-subject lines only, D-497).
 (5) Cutover steps: B-822 (staging proof, Mac copy), B-754 (morning, evening, weekly_review job kinds), B-757 (drills on the new tables), B-756, B-759, B-823, B-1026, B-1027 (after B-1005), B-1028, B-1029, B-1030. B-755 (Canvas) is now optional after cutover (D-495).
 (6) Gate 6 B-760.
 (7) B-1051: review, then fix bugs, repeated until Matt says the app is right. Only then Phase 7 (B-825, review, UX pass, release card).
-Then leftovers, only in folders the current group does not write: B-980, B-982 to B-992, B-1014 to B-1016, B-803 and B-808 (B-803 needs ANTHROPIC_API_KEY), B-943, Library practice session and Edit/Study hookups, B-749, B-750, weeklyreview.done, set.write_with_ev (501). Sweep thread (B-900 to B-906) files its own Chart edits.
+Then leftovers, only in folders the current group does not write: B-980, B-982 to B-992, B-1014 to B-1016, B-803 and B-808 (B-803 needs ANTHROPIC_API_KEY), Library practice session and Edit/Study hookups, weeklyreview.done, set.write_with_ev (501). Sweep thread (B-900 to B-906) files its own Chart edits.
 Not in this order: the after-cutover milestone (D-480, D-487); B-965 only on Matt's word after cutover.
 ## Staging    ev5-staging, deploys on push to main. The shell shows a token screen first (paste once; stored as localStorage `ev5.token`). To try: Today, Library, Activity, Recently deleted, the theme button at the sidebar foot.   ## Live  ev4 build (unchanged)
