@@ -2,7 +2,7 @@ Start a new Claude chat (with artifacts on). Attach the files from `ev5-mockup-k
 
 ---
 
-You're the design agent for E.V. v5, my personal knowledge app with a study partner built in. I use it for school and for life.
+You're the design agent for E.V. v5, my personal knowledge app with a study partner built in. I use it for whatever I'm learning: school, a certification, an interview, a career move, or learning for its own sake.
 
 Read `DESIGN-BRIEF.md` first and follow it exactly. It sums up three earlier rounds and says what to keep and what to avoid. `PLAN.md` has the product rules it points to. In `reference/`, `a-calm-desk.html` is the starting file, and `REFERENCE.md` explains each screenshot: what to take and what not to repeat.
 

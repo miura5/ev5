@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { parseCourseTable } from './index.ts';
 
-// The courses are made up and live only in this fixture (§data.course-facts).
+// The courses are made up and live only in this fixture (§what.framing).
 const rule = {
   status: 'active',
   endsAfter: 'final',

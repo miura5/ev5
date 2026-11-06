@@ -691,6 +691,12 @@ WHERE y.ms IS NOT NULL AND y.ms >= 0
   AND (json_extract(y.ev, '$.type') <> 'snooze' OR json_extract(y.ev, '$.until') GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')
   AND EXISTS (SELECT 1 FROM weak_spots s WHERE s.id = y.spot);
 
+-- The full practice run's stored name (§data.migrations): a practice set's saved scope (`job_plans` kind `scope`) that
+-- names the variant "mock_exam" now names "full_run", the name the practice set job reads. Plain equality only, so a
+-- second run changes nothing.
+UPDATE job_plans SET body = json_set(body, '$.variant', 'full_run')
+WHERE kind = 'scope' AND json_valid(body) AND json_extract(body, '$.variant') = 'mock_exam';
+
 -- Renames the prep plan's stored names (§data.additive): a job record of kind 'study_plan' becomes 'prep_plan' (its
 -- title 'Study plan' becomes 'Prep plan'), and a saved plan context in job_plans keeps its date under `goal` instead of
 -- `exam`, without the old `course` field. Plain equality only, so a second run changes nothing. The job's input and the

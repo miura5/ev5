@@ -1,4 +1,4 @@
-// The prep plan job (CONTRACT §job.study-plan, §job.kinds): starts only from Matt's tap, never from chat words.
+// The prep plan job (CONTRACT §job.prep-plan, §job.kinds): starts only from Matt's tap, never from chat words.
 // Steps: gather (code only), draft (one Sonnet call), approve (needs you), save. Dates and the weak-spot order are code
 // in domain (§cmd.code-first); the model only arranges them into tasks. The model call and the store are injected.
 import { z } from 'zod';

@@ -38,7 +38,7 @@ scope:     Cutover (PLAN §8) unchanged in content. How the mock-up shows it:
              - card sets and step sets, with due counts and Again / Good (with FSRS, PLAN §5.7, C3);
              - Learn and Test modes;
              - saved views;
-             - rating confidence before approving a study plan (Matt-first planning, C9);
+             - rating confidence before approving a prep plan (Matt-first planning, C9);
              - the phone layout (the phone stays as it is, PLAN §2.2).
            Matt's yes: given by approval on 2026-11-03.
 
@@ -63,11 +63,11 @@ kit:       Button: primary (one per screen), secondary, text, icon; key hint bes
 ```
 
 ## Open for the architect (from mockup-audit.md, Part C)
-1. **Storage for each new thing,** in new tables only, with export and restore-drill coverage (PLAN §5.2, §5.4):
-   - collections beyond courses, and nesting;
+1. **Storage for each new thing: settled.** v5 keeps its record in its own database, one table per kind (§data.own-db, §data.tables), so each of these has its own table, with export and restore-drill coverage:
+   - collections of any kind, and nesting;
    - pins and saved views;
    - plan-item time, repeat and linked item;
-   - non-exam dates;
+   - dates of any kind, each with its kind;
    - set items typed by hand, and step sets;
    - E.V.'s pending drafts;
    - "Mark as learned".

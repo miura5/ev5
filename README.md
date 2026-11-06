@@ -1,6 +1,6 @@
 # E.V. v5
 
-E.V. is a personal study app for one student, the owner. It keeps notes and study sessions, writes and runs practice, tracks weak spots against exam dates, plans the day, and talks with the student as a study partner. E.V. asks for the student's attempt first and cites the student's own notes.
+E.V. is a personal knowledge app for one learner with any goal: school, a certification, an interview, a career move, or learning for its own sake. It keeps notes and sessions, writes and runs practice, tracks weak spots against your dates, plans the day, and talks with you as a partner. E.V. asks for your attempt first and cites your own notes.
 
 v5 is a rebuild of ev4. ev4 stays live until cutover.
 
@@ -16,7 +16,7 @@ The table names each main part, its packages and why we use it. A check compares
 | Cloudflare Worker | none: set in wrangler.jsonc | One Worker runs the server and serves the app's files. No server to look after. |
 | Cloudflare D1 | none: the DB binding | v5's own database, which started empty. ev4's data stays untouched as an archive. SQLite at the edge, with Time Travel backups. |
 | Cloudflare R2 | none: the IMAGES binding | Note pictures and the nightly export. |
-| Cloudflare Workflows | none: the JOBS binding | Long jobs (practice sets, study plans) run as steps that survive a restart. |
+| Cloudflare Workflows | none: the JOBS binding | Long jobs (practice sets, prep plans) run as steps that survive a restart. |
 | Server routes | `hono` | Small router made for Workers. |
 | Schemas | `zod` | One schema per thing. Types, checks and tool schemas come from it. |
 | Model calls | `@anthropic-ai/sdk` | Claude writes practice, plans and Ask E.V. replies. |
@@ -40,7 +40,7 @@ browser                     Worker (server/)
                                jobs/ ───▶ data/ ─▶ D1, R2
 ```
 
-- **domain/**: pure rules (exams, notes, sets, weak spots, time in Central). No reads or writes.
+- **domain/**: pure rules (goals and dates, notes, sets, weak spots, time). No reads or writes.
 - **data/**: reads and writes D1 and R2, migrations, the export and the restore.
 - **commands/**: one registry of actions. Buttons, ⌘K, the schedule and E.V.'s tools all come from it.
 - **jobs/**: long model work on Workflows, with one job record and spend ceilings.
@@ -91,8 +91,8 @@ Questions and release cards come as comments on the pinned issue. Turn on notifi
 - **"exam week"** pauses new features, and the build fixes bugs. **"exam's over"** starts features again.
 - **Only you decide** live deploys, money, accounts and secrets, anything on your Mac, changes to something you use daily, and exceptions to something you asked for (§who.matt).
 - **A live deploy** happens on your word, after staging, through the `live` environment you approve in GitHub (§hard.live-on-matts-word).
-- **Before cutover:** be at your Mac once while the agent makes the new Canvas sync task, and test v5 on staging like a normal study day. At cutover, say **"go live"**, approve the deploy in GitHub, and keep your devices online so no unsent notes stay behind.
-- After cutover, E.V. keeps the same app address and the same phone icon.
+- **Before cutover:** test v5 on staging like a normal day of learning. At cutover, say **"go live"**, approve the deploy in GitHub, and keep your devices online so no unsent notes stay behind.
+- After cutover, E.V. keeps the same app address and the same phone icon. If you want the optional Canvas import, be at your Mac once while the agent makes its task.
 
 ## Keeping this page true
 

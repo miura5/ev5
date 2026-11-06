@@ -4,6 +4,8 @@
 
 **Update 2026-11-05 (D-484):** Matt chose no rollback to ev4. v5 gets its own database with one table per kind, and it starts empty: nothing is copied from ev4. Every part of this plan that exists only for the rollback window or for ev4's shared database (most of §5, rehearsals 1 and 2, the rollback after cutover, C4 and C6) has ended. CONTRACT.md §3 and `ops/CUTOVER.md` hold the current rules.
 
+**Update 2026-11-06 (D-494, D-495, D-499, D-500):** E.V. is a personal knowledge app for one independent learner with any goal (school, a certification, an interview, a career move, or learning for its own sake), not a study app for one subject. Exams are one kind of date, a plan for a date is a prep plan, and Canvas is an optional import after cutover. CONTRACT.md §what.framing holds the framing.
+
 **How this document relates to the others:**
 - Phase 0 copies the rules in this plan into `CONTRACT.md`, each with a `§id`.
 - From the Phase 0 gate onward, **CONTRACT.md wins** and this file is history. Only the build manager edits it, and only to tick off phases.
@@ -13,17 +15,17 @@
 
 ## 1. What E.V. is
 
-Matt's personal study partner. He is a first-semester ADN nursing student, taking NUR 112 and BIO 201, on Central time, and he is its only user. E.V.:
+Matt's personal knowledge app for whatever he is learning; he is its only user. E.V.:
 - plans the day,
 - writes and runs practice,
-- tracks weak spots against upcoming exams,
-- keeps notes and study sessions,
+- tracks weak spots against upcoming dates,
+- keeps notes and sessions,
 - and talks with him as an agent.
 
-**Framing (confirm, C12):** E.V. is a **personal knowledge app with a study partner built in**. School is its first use, not its shape.
+**Framing (C12, widened 2026-11-06):** E.V. is a **personal knowledge app** for one independent learner with any goal, with a partner built in.
 - There are no built-in courses or semesters.
 - Matt groups things with his own collections, and pins what he wants in the sidebar.
-- Under the hood, ev4's school collections (exams, weak spots, courses) stay as they are: a course shows up as one of his collections, and an exam as a dated goal. That is a UI mapping, not a schema change.
+- A course is a collection he names, and an exam is one kind of date (§what.framing). v5 has its own tables (§data.own-db).
 
 **The core loop.** Every feature serves it, or it waits:
 **notes → practice → errors → weak spots and review → today's plan → back to practice.**
@@ -47,10 +49,10 @@ A design that does Matt's thinking for him is a defect.
 **[Matt: changed 2026-11-02]** CONTRACT.md §1 now holds five hard limits (data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money without him). Items 2, 5 and 6 below became ordinary CONTRACT rules (D-451).
 
 1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in the repo. The repo is public (C10), so anything committed is public. Secrets still never go in files (§10), and staging, fixtures, logs and builder prompts stay synthetic or id-only (C15, answered 2026-11-02).
-2. Canvas is read-only: GETs through Matt's signed-in browser, never a token.
+2. Canvas is read-only: GETs through Matt's signed-in browser, never a token. *(Now §data.canvas: an optional import after cutover.)*
 3. Nothing is deleted, except items Matt deletes himself, which are purged after 30 days (D-425). How the purge is timed is in §5.6.
 4. Live deploys happen only on Matt's word, and only through staging.
-5. Same Cloudflare Worker, same D1 database, same backups. Schema changes are additive only (§5.2) until the rollback window closes.
+5. ~~Same Cloudflare Worker, same D1 database, same backups. Schema changes are additive only (§5.2) until the rollback window closes.~~ *(Ended: replaced by the fresh-database decision, D-484.)* v5 keeps ev-live's Worker with its own database (§data.same-worker).
 6. Model ids and prices come from the docs, never from memory.
 
 ### 2.2 Carried over from ev4
@@ -75,7 +77,7 @@ A design that does Matt's thinking for him is a defect.
 | 54 files over 300 lines, and disguised splits | `max-lines` 300, no import cycles, folder entry points, no `export *` |
 | Custom checks and a custom test harness that drifted | Standard tools: TypeScript, ESLint, dependency-cruiser, Stylelint, knip, Vitest, @playwright/test |
 | Hand-written enums repeated in several lists (B-609) | One Zod schema per thing. Types, validation and tool schemas are derived from it |
-| UTC crons drifting across daylight saving | One time module in America/Chicago; scheduling by Central date |
+| UTC crons drifting across daylight saving | One time module in the user's time zone (today America/Chicago); scheduling by local date |
 | Model output parsed loosely (B-491) | Strict structured output, then Zod validation, then semantic checks |
 
 ## 4. The skeleton
@@ -101,7 +103,7 @@ ev5/
 ├─ data/              IO only: D1 repositories, migrations, export, restore
 │  └─ protocol/       the write protocol (§5.3) and its test suite (`compat/` ended with the fresh-database decision, D-484)
 ├─ server/            the Worker (Hono): routes → commands → domain / jobs / data
-├─ ops/               release, the record writer, scheduled commands, rollback runbook
+├─ ops/               release, the record writer, scheduled commands, the cutover list, restore runbook
 ├─ e2e/               Playwright journeys, one file per journey
 ├─ design/            mockup.html (the approved UI reference) · DESIGN-BRIEF.md
 └─ docs/history/      the review and other history; never instructions
@@ -122,7 +124,9 @@ Other folders import a folder only through its `index.ts`. No import cycles.
 
 ## 5. Data and ev4 compatibility
 
-ev4 and v5 share one D1 database. This section is what keeps ev4 working, and keeps rollback possible, while v5 changes around it.
+> **Ended in most part (2026-11-05):** v5 has its own database, one table per kind, which starts empty, and there is no rollback to ev4 (D-484). The parts of this section about ev4's shared `docs` table, its frozen schemas, additive-only changes, the `deletions` table and the rollback window no longer apply. The current data rules are CONTRACT.md §3; the tables are in `docs/proposals/table-design.md` as changed by D-498.
+
+~~ev4 and v5 share one D1 database. This section is what keeps ev4 working, and keeps rollback possible, while v5 changes around it.~~
 
 ### 5.1 What the data is
 D1 holds one generic table, `docs(c, id, data JSON, at, v)`, plus five small tables: `claude_usage`, `claude_reads`, `claude_settings`, `claude_plan_asks`, `system_docs`. There are 36 collections, each with a JSON Schema in ev4's `spec/schemas/`. v5 keeps this table and reads every ev4 document without migration.
@@ -160,13 +164,13 @@ Wrangler migrations, starting with a baseline that only restates ev4's `schema.s
 - **[Mock-up: added]** During a rollback, ev4 shows items v5 deleted (it has no tombstones) and can't see v5-only things (§5.10). Nothing is lost. Going forward again, v5 shows its own state again.
 
 ### 5.7 Scheduling and review
-- Weak spots keep ev4's fixed-interval scheduler, ported unchanged into `domain/weakspot`.
+- Weak spots use a fixed-interval scheduler, rewritten from ev4's into `domain/weak-spot` with its own tests and no subject (§data.study-logic).
 - FSRS (`ts-fsrs`) arrives with E.V.'s cards after cutover **(confirm)**. Cards start fresh, because ev4 has no per-card history, and every review is logged from the first one.
 - **Principle:** derived state is always rebuildable from append-only logs (answers, events, reviews).
 
 ### 5.8 Search for grounding
 - `LIKE` over `docs`, plus passage scoring in `domain/search`. **No FTS5 in live D1**: a virtual table blocks D1 export.
-- A retrieval test set (synthetic course text) proves search is good enough.
+- A retrieval test set (synthetic notes text) proves search is good enough.
 - If it fails that test, a derived and rebuildable index goes in a separate database **(Matt decides then)**.
 
 ### 5.9 Offline
@@ -175,20 +179,7 @@ Wrangler migrations, starting with a baseline that only restates ev4's `schema.s
 - Every other write is online-only and shows "not saved" when it fails.
 
 ### 5.10 Where the mock-up's new things live **[Mock-up: added]**
-Each item has a home in ev4's existing shape, or in a new table (§5.2). Every new table follows §5.4–§5.5: an additive, idempotent migration, plus `at` and `v` columns with the same protocol as `docs`. Each one is in the export, with a count and a SHA-256 over its canonical rows, and in the restore drill **before** it goes live.
-
-| New thing | Home | When | The export and restore drill must also show |
-|---|---|---|---|
-| Collections, nesting one level | new `collections(id, title, parent_id NULL, pos, at, v)`. ev4 courses (spec.courses) appear as read-only virtual collections `course:<key>`. Nesting is one level, checked in `domain/collection` | cutover (C13) | parents resolve after restore; no row has a grandparent |
-| An item's collection (at most one) | new `memberships(item_c, item_id, collection_id, at, v)`, PK `(item_c, item_id)`. The effective collection is the row if there is one, otherwise ev4's `course` field. Moving into a course writes ev4's existing `course` field and removes the row | cutover (C13) | every row points to an existing item and collection, or is reported as an orphan (never dropped); in rehearsal 2, an ev4 `course` change made during the rollback wins over an older row |
-| Pins | new `pins(target_c, target_id, pos, at)` | cutover (C13) | order kept; pins to deleted items stay hidden, not lost |
-| Saved views | new `views(id, title, query JSON, at, v)`; `query` is a Zod schema in `domain/view` | after cutover | queries parse after restore |
-| Plan-item time, repeat and linked item | Manual plan items stay ev4 `dayedits.added` entries (`by: "Matt"`, `minutes` = estimate). Time, repeat, linked item, and overrides for morning-made items (ev4 has no override field) go in new `item_props(c, id, time, repeat JSON, linked_c, linked_id, overrides JSON, at, v)`. A repeat materializes each day's occurrence into `dayedits.added` under the idempotent key `rep-<id>-<date>`, so ev4 sees it after a rollback | cutover | re-running materialization after a restore adds no duplicates; linked targets resolve or are reported |
-| Dates that aren't exams | ev4 `dates` with `kind: "other"`, `writer: "page"`. Edits to Canvas dates go in ev4's `dateedits.overrides`. Repeat and linked item go in `item_props` | cutover | covered by the `docs` manifest; `item_props` as above |
-| Sets typed by hand; question sets now, card and step sets later | new `own_sets(id, title, type, source_c, source_id, at, v)`, `own_set_items(set_id, item_id, pos, body JSON, at, v)`, and append-only `own_attempts(set_id, item_id, key, at, body JSON)`. Item bodies are Zod schemas per type. ev4 sets stay read-only (see E-1). Weak-spot derivation reads both ev4 `answers` and `own_attempts` | questions at cutover (C13); cards and steps after, with FSRS (C3) | item order and per-set counts match; attempts are never rewritten |
-| E.V.'s pending drafts and Today proposals | new `drafts(id, job_id, kind, target_c, target_id, body JSON, state pending·kept·dropped, at, v)`. Keeping one copies it into its home (an `own_set_items` row, a `dayedits.added` entry, an ev4 `sets` save) and marks it kept, in one batch | cutover | states kept; a kept draft's copy exists exactly once |
-| Mark as learned | ev4's existing `solid` event in `weakspots.events` (`by: "owner"`). No new storage | cutover | covered by the `docs` manifest |
-| Weekly review's proposed weak spots | ev4's existing `proposed` flag, plus `accept`/`decline` events. No new storage | cutover | covered by the `docs` manifest |
+*(Ended: replaced by the fresh-database decision, D-484.)* Where each thing lives: CONTRACT §data.tables and `docs/proposals/table-design.md` as changed by D-498.
 
 ## 6. Jobs, commands and E.V.
 
@@ -206,8 +197,8 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - **Shell** (M): `palette.open`, `palette.to_ev` (Tab), `theme.toggle`, `nav.go`.
 - **Plan items** (M; E proposes): `plan.create`, `plan.update` (date, time, estimate, repeat, linked, collection), `plan.toggle_done`, `plan.move_tomorrow`, `plan.start`, `plan.start_next`.
 - **Proposals and drafts** (M): `proposal.accept`, `proposal.edit`, `proposal.dismiss`, `draft.keep`, `draft.drop`, `draft.keep_all`, `draft.drop_all`. (E creates proposals and drafts through the propose mode of the commands above.)
-- **Dates** (M; E proposes): `date.create`, `date.update`; `date.plan_with_ev` starts the study plan job.
-- **Study plan** (M): `studyplan.approve`, `studyplan.ask_changes`, `studyplan.put_away`; `studyplan.rate` *later* (C9).
+- **Dates** (M; E proposes): `date.create`, `date.update`; `date.plan_with_ev` starts the prep plan job.
+- **Prep plan** (M): `plan.approve`, `plan.ask_changes`, `plan.put_away`; `plan.rate` *later* (C9).
 - **Weak spots** (M): `weakspot.drill`, `weakspot.mark_learned`, `weakspot.confirm`, `weakspot.decline`, `weeklyreview.done`. E proposes weak spots only through the weekly review and practice.
 - **Sets** (M): `set.create`, `set.update` (title, type, collection, source), `set.item_add`, `set.item_update`, `set.item_delete`, `set.done`; `set.write_with_ev` starts the practice set job in draft mode; `set.unverified_keep`, `set.unverified_drop`, `set.save`.
 - **Study and practice** (M): `study.start`, `study.attempt`, `study.reveal`, `study.just_tell_me` (logged), `study.leave`; `study.grade` (Again / Good) *later*, with cards.
@@ -216,7 +207,7 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - **Saved views** (M) *later*: `view.create`, `view.update`.
 - **Jobs** (M): `job.stop`, `job.retry_shorter`, `job.dismiss`. **E direct:** `job_status`.
 - **Ask E.V.** (M): `ask.send`, `ask.just_tell_me` (logged).
-- **Scheduled** (S): `morning`, `evening`, `weekly_review` (Sundays; it ends as a Needs-you item in Activity), `export`, `restore_drill`, `push_summary`. **X:** `canvas_sync`, reported through `report_job`.
+- **Scheduled** (S): `morning`, `evening`, `weekly_review` (Sundays; it ends as a Needs-you item in Activity), `export`, `restore_drill`, `push_summary`. After cutover, **X:** an optional Canvas import, reported through `report_job`.
 - **Never callable by E.V.:** delete, restore, pin, approve, keep or drop, mark as learned, and every "just tell me".
 
 ### 6.2 Jobs
@@ -225,8 +216,8 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - **Executors:**
   - a Cloudflare Workflow runs model jobs;
   - a Worker cron runs scheduled commands;
-  - a Mac session runs the Canvas sync, which needs Matt's signed-in browser, and reports through `report_job`.
-- **"Needs you" is a D1 state, not a waiting Workflow.** The instance ends there. Matt's answer starts a continuation instance with id `jobId:step`, so it is idempotent.
+  - after cutover, a Mac session runs the optional Canvas import, which needs Matt's signed-in browser, and reports through `report_job`.
+- **"Needs you" is a D1 state, not a waiting Workflow.** The instance ends there. Matt's answer starts a continuation instance with id `jobId-step-round`, so it is idempotent.
 - **Steps return ids, never content.** Content goes to D1.
 - **One retry layer:**
   - the step's retry policy; the Anthropic SDK uses `maxRetries: 0` inside steps;
@@ -242,21 +233,21 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - On failure: one repair ask with the errors, then fail. Half-parsed output never lands.
 
 ### 6.4 Jobs at cutover
-1. **Practice set.** Mock exam is a variant of it.
-2. **Study plan.** Sonnet, multi-step, and needs-you for Approve. Its approved tasks appear on Today.
+1. **Practice set.** The full practice run is a variant of it.
+2. **Prep plan.** Sonnet, multi-step, and needs-you for Approve. Its approved tasks appear on Today.
 
-Other job kinds (study guide, clinical prep, share set, exam retro) follow after cutover, in an order set by live usage counts.
+Other job kinds (a guide, a share set, a look back after a date) follow after cutover, in an order set by live usage counts.
 
 **[Mock-up: added]** No new job kind comes from the mock-up:
 - **"Write with E.V."** (Library, an empty set, Edit mode) is the practice set job with a *drafts* output: its items land in `drafts` against the set, and Matt keeps or drops each one. The job finishes with "you kept N of M".
-- **A practice set with unsourced items** lands as drafts too. Matt keeps each one, marked unverified, or drops it, then saves. Only then is the ev4 `sets` document written.
+- **A practice set with unsourced items** lands as drafts too. Matt keeps each one, marked unverified, or drops it, then saves. Only then is the set written.
 - **"Make cards"** (a note) is the same job with the card item schema. It ships *after cutover*, with cards and FSRS (C3).
 - **The weekly review** is the `weekly_review` scheduled command. Its run is in the job record, and it waits in Activity as Needs you (confirm or decline each proposed weak spot). It isn't a line on Today.
 
 ### 6.5 Models and cost
 - Ids and prices live only in `jobs/runtime/models.ts`, with a "checked on" date. A check warns when it is old, and no environment variable overrides it.
 - Practice uses Haiku with a 32,000-token budget **[verify against the model's maximum]**.
-- Prompt caching on stable prefixes (the system prompt and course context).
+- Prompt caching on stable prefixes (the system prompt and the notes or collection context).
 - Ceilings:
   - hourly and daily, kept from ev4, as D1 settings that can change without a release;
   - an atomic per-job ask cap;
@@ -309,24 +300,23 @@ Other job kinds (study guide, clinical prep, share set, exam retro) follow after
 ## 8. Cutover scope
 
 v5 goes live, on Matt's word, when these match or beat ev4:
-1. **Today:** the plan list, including approved study-plan tasks, the morning review set and note tasks; Suggestions; upcoming exams and other dates. **[Mock-up: changed]** The weekly review is a Needs-you item in Activity on Sundays, not a line on Today.
-2. **Library:** practice (attempt first, cited feedback), weak spots, exams with their study plan, sets, and one retrieval-accuracy line. **[Mock-up: changed]** Weak spots (worst first, Drill) sit on the Library home and on a date's Detail, and the accuracy line sits under the Library title. Question sets can be made and edited by hand, with "Write with E.V." drafts (C13).
+1. **Today:** the plan list, including approved prep-plan tasks, the morning review set and note tasks; Suggestions; upcoming dates of any kind. **[Mock-up: changed]** The weekly review is a Needs-you item in Activity on Sundays, not a line on Today.
+2. **Library:** practice (attempt first, cited feedback), weak spots, Dates with their prep plan, sets, and one retrieval-accuracy line. **[Mock-up: changed]** Weak spots (worst first, Drill) sit on the Library home and on a date's Detail, and the accuracy line sits under the Library title. Question sets can be made and edited by hand, with "Write with E.V." drafts (C13).
 3. **Ask E.V.:** chat with the generated tools, attempt-first, and `job_status`.
-4. **Notes, with study sessions:** the editor, images, two-column rows, read-along, session comments and check questions, writing time, and the offline outbox **(confirm)**.
+4. **Notes, with sessions:** the editor, images, two-column rows, read-along, session comments and check questions, writing time, and the offline outbox **(confirm)**.
 5. **Activity.**
-5a. **[Mock-up: added] Owning things (C13):** create, edit and delete by hand for plan items, notes, question sets, dates and collections; collections nested one level; pins; Recently deleted with Restore. Each new table is in the export and the restore drill first (§5.10).
-6. **Jobs:** practice set and study plan.
+5a. **[Mock-up: added] Owning things (C13):** create, edit and delete by hand for plan items, notes, question sets, dates and collections; collections nested one level; pins; Recently deleted with Restore. Each new table is in the export and the restore drill first (§data.tables).
+6. **Jobs:** practice set and prep plan.
 7. **Scheduled commands:**
    - morning review set and drills;
    - evening weak-spot parking and prep check;
    - weekly review;
-   - the Canvas sync through the Mac executor;
    - pushes to the phone through a thin cloud task that only reads v5's summary **(confirm)**;
    - the export and the restore drill.
 
-**After cutover:** Progress (beyond the accuracy line), FSRS cards, the other job kinds, predictions and calibration, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
+**After cutover:** Progress (beyond the accuracy line), FSRS cards, the other job kinds, predictions and calibration, the optional Canvas import through the Mac executor, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
 
-**[Mock-up: added] Also after cutover, though shown in the mock-up:** card sets and step sets, with due counts and Again / Good (C3); "Make cards" from a note; Learn and Test modes; saved views; rating confidence before approving a study plan (until then Approve works without ratings, C9); the phone layout (the phone stays as it is, §2.2). The mock-up shows the long-term design, and this list decides what ships first.
+**[Mock-up: added] Also after cutover, though shown in the mock-up:** card sets and step sets, with due counts and Again / Good (C3); "Make cards" from a note; Learn and Test modes; saved views; rating confidence before approving a prep plan (until then Approve works without ratings, C9); the phone layout (the phone stays as it is, §2.2). The mock-up shows the long-term design, and this list decides what ships first.
 
 ## 9. Failure modes (decided)
 
@@ -337,10 +327,10 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 | The cost cap is hit mid-job | The pre-flight reservation refuses the call, and the job fails cleanly with the reason. Matt can run it again |
 | D1 is unavailable | The Worker returns 503 with Retry-After. The page runs from its local copy, and only outbox writes queue |
 | A migration fails halfway | Wrangler rolls back the failed migration **[verify]**. Restore from the bookmark noted before it if needed |
-| Daylight saving changes | The cron fires every 15 minutes. A command is due when its Central wall time has passed and no run exists for that Central date. Nothing is scheduled between 01:00 and 03:00 Central. Tested on 2026-11-01 and 2027-03-14 |
+| Daylight saving changes | The cron fires every 15 minutes. A command is due when its local wall time has passed and no run exists for that local date, in the user's time zone (today America/Chicago). Nothing is scheduled between 01:00 and 03:00 local. Tested on 2026-11-01 and 2027-03-14 |
 | A future FSRS replay meets bad history | Invalid events are skipped and logged. A card whose replay errors starts fresh and is flagged. Its state can be rebuilt |
 | The phone is offline | The shell is cached and reads come from the local copy. Only note saves and answers queue |
-| ev4 clients still open at cutover | v5 answers ev4's routes with 410 "E.V. updated, reload". On first boot, v5 offers to import any unsent ev4 outbox notes |
+| ev4 clients still open at cutover | v5 answers ev4's routes with 410 "E.V. updated, reload". ~~On first boot, v5 offers to import any unsent ev4 outbox notes~~ *(Ended: replaced by the fresh-database decision, D-484.)* |
 
 ## 10. Security and privacy
 
@@ -348,7 +338,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 - **Auth:** a bearer token per caller (app, cloud schedule, Mac executor), each scoped to its routes. Constant-time compare (ev4's `pwa/guard.js` pattern). Rate-limited wrong attempts. Only the app token can change ceilings.
 - **The public shell holds no personal config.** Settings load from D1 behind the token.
 - **Logs and Workflow step outputs** hold ids and counts, never prompts or note text.
-- **Staging uses synthetic data only (confirm).** The one real-data check (§13, Phase 3) runs read-only in a restricted scratch copy and reports counts and errors only.
+- **Staging uses synthetic data only (confirm).** ~~The one real-data check (§13, Phase 3) runs read-only in a restricted scratch copy and reports counts and errors only.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - ~~**The personal-data scan**~~ **[Matt: changed 2026-11-02]** A **secrets scan** (API keys, tokens, `.dev.vars`) runs in CI instead. Personal data is no longer a repo limit (§2.1.1).
 
 ## 11. The workflow that prevents drift
@@ -391,16 +381,16 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 | Menus, popovers, focus | Import Radix primitives (unstyled) |
 | ⌘K | Import `cmdk` |
 | Time zones | `Intl`, in `domain/time` (D-465) |
-| Notes editor view | Import ProseMirror/Tiptap **[verify licence]**. Translate ev4's JSON block format and the pure note model |
+| Notes editor view | Import ProseMirror/Tiptap **[verify licence]**. Translate the note block format (JSON blocks) and the pure note model |
 | PWA | Import `vite-plugin-pwa` |
 | Lint and structure | ESLint, dependency-cruiser, Stylelint, knip |
 | Tests | Vitest, @playwright/test (no custom harness) |
-| D1 access | Translate ev4's protocol into a new typed wrapper over `docs` |
+| D1 access | Typed per-table repositories behind the gate (§data.gate) |
 | Tokens | Carry ev4's values into a static `tokens.css` (there is no generator to translate) |
 | The record | Carry `chart/*.json` as data; write a new small writer |
 | Collections, pins, own sets, drafts, item properties | **[Mock-up: added]** New D1 tables through Wrangler migrations (§5.10), each with a `domain/<entity>` Zod schema. No new dependency |
 | Repeat rules (plan items, dates) | **[Mock-up: added]** Write a small rule (daily, weekdays, weekly, every N days) in `domain/time`. No recurrence library |
-| Canvas sync | Translate the GET scripts, `normalizeCanvas` and the readers. Add pagination. The Mac executor reports through the job record |
+| Canvas import (after cutover) | Optional: read-only GETs with pagination, written for v5. The Mac executor reports through the job record |
 | Cut | FTS5; the token generator; the FSRS replay; ev4's release ceremony in `chart.mjs`; the custom harness; the D-/B-id comments |
 
 ## 13. Phases and gates
@@ -411,26 +401,21 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
 - ev4 goes to bug fixes only. One fix removes the Mac path and the Canvas host from ev4's public spec **(confirm)**.
 - Matt's confirmations (§15) are recorded.
 - Sweep the 322 accepted ev4 decisions into CONTRACT.md (about 75–150 lines, every rule with a `§id`). Matt confirms only its hard-limits section.
-- Write `data/compat`.
+- ~~Write `data/compat`.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - **Spike: Workflows.** On the current plan tier, show:
   - needs-you as a D1 state, finishing through a continuation instance;
   - a deploy while an instance runs;
-  - a redeploy that removes the binding, as an ev4 rollback would;
+  - ~~a redeploy that removes the binding, as an ev4 rollback would;~~ *(Ended: replaced by the fresh-database decision, D-484.)*
   - the limits **[verify]**.
 - **Spike: the notes editor.** A lossless blocks ⇄ ProseMirror round trip on synthetic notes and on the behaviours in ev4's notes harness.
-- **Gate:** CONTRACT.md, `data/compat`, both spike results and Matt's answers are in the repo and the Chart.
+- **Gate:** CONTRACT.md, ~~`data/compat`,~~ both spike results and Matt's answers are in the repo and the Chart.
 
 **Phase 1: Repo, guards, walking skeleton**
 - Empty folders, every check in §11 in CI, registries generated from empty folders.
-- Prove that each guard fails when it should: a 301-line file, a bad import, a cycle, an inline disable, a raw colour, an unused export, a component without a story, a write fixture ev4's schema rejects, a tool defined outside the registry.
+- Prove that each guard fails when it should: a 301-line file, a bad import, a cycle, an inline disable, a raw colour, an unused export, a component without a story, ~~a write fixture ev4's schema rejects,~~ a tool defined outside the registry.
 - Deploy the empty app to a v5 staging Worker with a synthetic D1 through CI. v5 never uses ev4's staging, which ev4 bug fixes still need.
-- **Rehearsal 1**, on a throwaway Worker+D1 pair with ev4's synthetic record:
-  1. deploy ev4;
-  2. deploy empty v5 over it;
-  3. confirm ev4's routes get a 410;
-  4. roll back with the runbook;
-  5. confirm ev4 boots, reads and writes, `PlanJob` is intact, and ev4's IndexedDB is untouched.
-- **Gate:** every guard has been shown to fail, and rehearsal 1 passes.
+- ~~**Rehearsal 1**, on a throwaway Worker+D1 pair with ev4's synthetic record.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
+- **Gate:** every guard has been shown to fail~~, and rehearsal 1 passes~~.
 
 **Phase 2: Kit (first set)**
 - `tokens.css` from ev4's values (`page/theme.js` R4 and `page/ds/tokens.css`), matching the approved mock-up.
@@ -439,20 +424,20 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
 
 **Phase 3: Domain and data**
 - `domain/time` first, with the DST tests.
-- Entities, smallest first: exam, objective, weak spot (with its scheduler), set, item, session, note, course. Bring ev4's tests across.
-- **[Mock-up: added]** Then the new entities from §5.10: collection and membership, pin, item properties (with repeat), own set and its items and attempts, draft. Each has its migration, repository and compat fixture.
-- Repositories over `docs`; the migration baseline; the export of every table (**[Mock-up: added]** including every §5.10 table); the `deletions` table, with no purge yet.
+- Entities, smallest first: goal, objective, weak spot (with its scheduler), set, item, session, note, collection, with their own tests.
+- **[Mock-up: added]** Then the mock-up's new entities: pin, item properties (with repeat), own set and its items and attempts, draft. Each has its migration and repository.
+- Typed per-table repositories behind the gate (§data.gate); the migration baseline; the export of every table; soft deletes (`deleted_at`, §delete.soft).
 - `domain/search` with the retrieval test set.
 - **Gate:**
   - domain tests pass;
   - ~~every write fixture passes `data/compat`;~~ *(Ended: replaced by the fresh-database decision, D-484.)*
-  - the repositories parse every synthetic document;
-  - one read-only, counts-only parse of a restricted scratch copy of live finds zero errors (run with Matt's OK).
+  - the repositories parse every synthetic row;
+  - ~~one read-only, counts-only parse of a restricted scratch copy of live finds zero errors (run with Matt's OK).~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 
 **Phase 4: Commands, runtime, server**
 - The registry, generated tools and descriptions, and `job_status`.
 - The runtime: states, needs-you as a D1 state, ceilings including monthly, the single retry layer, structured-output validation.
-- The two cutover jobs (practice set, study plan), grounded with citations.
+- The two cutover jobs (practice set, prep plan), grounded with citations.
 - Hono routes, scoped tokens, and ev4-route refusals.
 - **Gate:** both jobs run on v5 staging. A forced invalid output, a forced `max_tokens` and a forced ceiling hit each end as a clean failure with the reason.
 
@@ -463,24 +448,19 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
   - do a practice set;
   - **[Mock-up: added]** make a question set by hand, then keep and drop E.V.'s drafts;
   - **[Mock-up: added]** make a collection, move a note into it, pin it, delete it and restore it;
-  - make and approve a study plan;
+  - make and approve a prep plan;
   - write a note offline, then sync;
-  - run a study session;
+  - run a session;
   - ask "is it ready?" while a job runs.
 
 **Phase 6: Ops**
 - The record writer, carrying `chart/*.json`.
 - Scheduled commands on the 15-minute cron.
-- The Mac executor for Canvas; the push task.
-- Restore drills: R2 export → scratch D1 with a matching manifest for every table; one Time Travel restore on staging. **[Mock-up: added]** The drills also run the checks in §5.10's last column.
-- **Rehearsal 2:**
-  1. cut over;
-  2. write in v5;
-  3. roll back;
-  4. write in ev4;
-  5. go forward again, with v5 re-deriving what it owns from ev4's append-only writes. **[Mock-up: added]** Also check that ev4 `course` changes made during the rollback win over older membership rows, and that repeat materialization adds no duplicates.
+- The push task. (The Mac executor for the optional Canvas import comes after cutover.)
+- Restore drills: R2 export → scratch D1 with a matching manifest for every table; one Time Travel restore on staging.
+- ~~**Rehearsal 2:** cut over, write in v5, roll back, write in ev4, go forward again.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - One real end-to-end run.
-- **Gate:** the end-to-end run, both drills and rehearsal 2 pass.
+- **Gate:** the end-to-end run and both drills pass~~, and rehearsal 2~~.
 
 **Phase 7: Review and Matt's test**
 - A whole-repo code review (lost data, cost, security, crashes, unreachable controls).
@@ -491,15 +471,10 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
 1. Check every device's ev4 outbox is empty.
 2. Disable ev4's cloud tasks. Re-create the Mac tasks for v5 with Matt present.
 3. Take an R2 export and note the Time Travel bookmark.
-4. Ship v5 to ev-staging, then to ev-live. The deploy itself is ev4's write freeze.
+4. Ship v5 to ev5-staging, then to ev-live. The deploy itself is ev4's write freeze.
 5. Verify parity against the manifest.
 
-**Rollback** (on Matt's word, any time in the window): run the runbook in `ops/`.
-1. Drain jobs.
-2. Deploy the tagged last ev4 live build through ev4's own workflow.
-3. Re-enable ev4's tasks.
-
-While the window is open, v5 keeps a `PlanJob` stub class and never ships a Durable Object deletion. The window ends on Matt's word, after one exam on v5 with no rollback-worthy bug **(confirm)**.
+~~**Rollback** (on Matt's word, any time in the window): run the runbook in `ops/`.~~ *(Ended: replaced by the fresh-database decision, D-484.)* v5 keeps ev4's `PlanJob` stub class and ships no Durable Object deletion (§data.same-worker).
 
 ## 14. Risks we accept, and what waits
 
@@ -512,18 +487,18 @@ While the window is open, v5 keeps a `PlanJob` stub class and never ships a Dura
 
 | # | Question | Default (architect's recommendation) |
 |---|---|---|
-| C1 | Staging data | Synthetic only, plus one read-only, counts-only check of a scratch copy |
-| C2 | Cutover scope | Notes with sessions and the study plan job are in it |
+| C1 | Staging data | Synthetic only~~, plus one read-only, counts-only check of a scratch copy~~ *(Ended: replaced by the fresh-database decision, D-484.)* |
+| C2 | Cutover scope | Notes with sessions and the prep plan job are in it |
 | C3 | Cards and FSRS | After cutover, starting fresh |
-| C4 | Purge and backups | Purge live only, after the rollback window. Backups keep everything |
-| C5 | Money | Start on the Free plan, and move to paid only if the spike or the rollback window needs it. Confirm the Console spend limit is set |
-| C6 | End of the rollback window | Your word, after one exam on v5 |
+| C4 | Purge and backups | Purge live only~~, after the rollback window~~ *(Ended: replaced by the fresh-database decision, D-484.)*. Backups keep everything |
+| C5 | Money | Start on the Free plan, and move to paid only if the spike ~~or the rollback window~~ needs it. Confirm the Console spend limit is set |
+| C6 | ~~End of the rollback window~~ | ~~Your word, after one exam on v5~~ *(Ended: replaced by the fresh-database decision, D-484.)* |
 | C7 | Phone pushes | A thin cloud task reads v5's summary and pushes |
 | C8 | Public ev4 repo | Remove the Mac path and Canvas host from HEAD. No history rewrite |
 | C9 | Planning style after cutover | You rate confidence first, and E.V. critiques and proposes |
 | C10 | ev5 repo visibility | **[Matt: changed 2026-11-02]** Public: on GitHub Free, a private repo gets no branch protection and no approval gate. v5 staging shares ev-live's Cloudflare account (Matt's call), and CI refuses any non-live config that names ev-live |
 | C11 | Room for the build | Trim ev4's watchdog from 8 to 2 runs a day, so the build's scheduled runs fit the daily cap **[verify the count]** |
-| C12 | What E.V. is | A personal knowledge app with a study partner built in. No built-in courses. Collections and pins are his own. The data contract and cutover scope are unchanged |
+| C12 | What E.V. is | A personal knowledge app with a study partner built in. No built-in courses. Collections and pins are his own. The data contract and cutover scope are unchanged. *(Widened 2026-11-06: any learner and any goal, §what.framing.)* |
 | C13 | **[Mock-up: added]** Owning things at cutover | Hand-made question sets with E.V.'s drafts, collections (nested one level), pins and Recently deleted are all in cutover, each behind the export and restore drill (§5.10). Card and step sets and saved views come after |
-| C14 | **[Mock-up: added]** Editing a set E.V. wrote in ev4 (E-1) | Copy on first edit: Edit turns it into your own set; the original and its answer history stay untouched, and the original is hidden |
+| C14 | **[Mock-up: added]** Editing a set E.V. wrote in ev4 (E-1) | ~~Copy on first edit: Edit turns it into your own set; the original and its answer history stay untouched, and the original is hidden~~ *(Ended: set items carry a version, §data.item-versions.)* |
 | C15 | **[Matt: added]** Where personal data may go now that §2.1.1 is gone (E-2) | Allowed in the repo, but staging, fixtures, logs and builder prompts stay synthetic or id-only (C1, §10) |

@@ -212,8 +212,12 @@ Swept on 2026-11-02 from ev4's `chart/decisions.json`: 322 accepted decisions. 1
 
 | id | the part that ended | why |
 |---|---|---|
-| D-078 | E.V. keeps the daily list directly | E.V.'s plan changes are now proposals (§cmd.propose); the rest ports as study logic (§data.study-logic) |
+| D-078 | E.V. keeps the daily list directly | E.V.'s plan changes are now proposals (§cmd.propose); the rest stands as study logic (§data.study-logic) |
 | D-091 | The monthly drill re-seeds staging from the newest live backup | staging is synthetic only (§sec.staging-data); the live-restore part stands (§data.export) |
+| D-099 | Courses as a spec table (Canvas id, status, exam kinds, day-type budget) | collections stay generic, with no course facts on them; only "no course is named in code" stands (§what.framing) |
+| D-143 | Clinical, lab, validation and class days with their own Prep marker and pack checks | no day types are built in (§data.study-logic); urgency only for dated goals due today or tomorrow stands there |
+| D-144 | Prep lists built for each day type (class, clinical, lab, validation) from course materials | no day types are built in (§data.study-logic); each item naming its source stands (§ev.cites) |
+| D-204 | Exams as prep days, and a per-kind kit (clinical, lab) at the end of every prep check | no day types or kits are built in (§data.study-logic); answers from the user's own record, each naming its source, stand (§ev.cites) |
 | D-335 | Everything in Matt's record is open to agents too | partly kept: agents see real data only when a task needs it, never on staging or in commits (§sec.live-data); app logic and jobs still read it (§ev.reads) |
 | D-349 | Ceilings at set token values | the values are D1 settings, not rules (§model.ceilings) |
 | D-370 | No UI framework: plain JS | plain JS ended (v5 is React with unstyled Radix); no framework look stands (§ui.mockup) |
@@ -243,3 +247,10 @@ Ended 2026-11-05 (D-484): Matt does not need to go back to ev4 after the switch,
 | §data.ev4-sets | ev4 sets are immutable and copied on first edit | set items carry a version instead (§data.item-versions) |
 | §data.new-tables | the mock-up's new things live only in nine named side tables | the side tables existed because ev4's collections were frozen; replaced by §data.tables |
 | §deliver.window | while the rollback window is open, v5 keeps a `PlanJob` stub, ships no Durable Object deletion and rolls back by the `ops/` runbook | there is no rollback to ev4; the `PlanJob` stub stays for ev4's stored state (§data.same-worker) |
+
+Ended 2026-11-06 (D-494, D-498, D-499): E.V. is a personal knowledge app for any learner and any goal, so collections stay generic and no course or school shape is built in (§what.framing).
+
+| id | rule | why it ended |
+|---|---|---|
+| §data.course-facts | Course facts (Canvas ids, class weekdays, exam kinds) are data on the course's collection row; no course is named in code | collections stay generic, with no class weekdays, exam kinds or Canvas ids on them (D-498); "no course is named in code" moved into §what.framing, and ev4's class-weekday setting (D-414) ended with it |
+| §job.study-plan | A new or remade study plan starts only from Matt's tap, never from chat words | renamed §job.prep-plan with the prep plan's name; the rule itself is unchanged |

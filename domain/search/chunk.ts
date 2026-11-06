@@ -1,15 +1,15 @@
-// Course material cut into passages by page or slide mark, ported from ev4 core/library.mjs (libraryChunks, citeMaterial).
+// Your material cut into passages by page or slide mark, each keeping the page it came from and its collection.
 export type Material = {
   id: string;
   title?: string;
-  course?: string | null;
+  collection_id?: string | null;
   kind?: string;
   text: string;
 };
 export type Passage = {
   id: string;
   title: string;
-  course: string | null;
+  collection_id: string | null;
   kind: string;
   page: number | null;
   unit: 'page' | 'slide' | null;
@@ -37,8 +37,8 @@ export function chunkMaterials(materials: Material[], chunkChars = CHUNK_CHARS):
           out.push({
             id: m.id,
             title: m.title || m.id,
-            course: m.course ?? null,
-            kind: m.kind ?? 'slides',
+            collection_id: m.collection_id ?? null,
+            kind: m.kind ?? 'note',
             page,
             unit,
             text: buf.trim(),
@@ -56,7 +56,7 @@ export function chunkMaterials(materials: Material[], chunkChars = CHUNK_CHARS):
   return out;
 }
 
-/** How a passage is named: "SKILLS PACKET, p. 12" or "Chapter 7 ppt, slide 4". */
+/** How a passage is named: "a source file, p. 12" or "Chapter 7 ppt, slide 4". */
 export const cite = (p: Pick<Passage, 'id' | 'title' | 'page' | 'unit'>): string =>
   (p.title || p.id).replace(/\.(pdf|docx|pptx)$/i, '') +
   (p.page ? (p.unit === 'slide' ? ', slide ' : ', p. ') + p.page : '');
