@@ -4230,7 +4230,7 @@
   "title": "A check stops screens from drawing their own rows, heads, sections, empty states or Detail",
   "dod": "Stylelint refuses, in areas/, the row-height tokens, selectors for rows, page heads, sections, empty states or panels, and any rule on a .kit- class; ESLint refuses an import of kit Detail from areas/ (the shell's host is the one way); each new guard has a red fixture PR recorded (as S-14 did); the shell's interface contract step is done; npm run precheck is green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-969",
    "B-970",
@@ -4245,7 +4245,9 @@
   ],
   "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first.",
   "commit": null,
-  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
+  "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)",
+  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
+  "claimedAt": "2026-11-06T14:07:34.374Z"
  },
  {
   "id": "B-980",
@@ -4701,15 +4703,15 @@
   "title": "Back and Forward move between screens, through wouter in the shell",
   "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-969"
   ],
   "notes": "Run 2026-11-06 (#637): wouter 3.13.0 pinned, Switch/Route in shell/App.tsx, / -> /today replace, /kit outside shell, dependency-cruiser rule wouter-only-in-shell, routing test. LEFT (belongs with B-1013, needs areas/): pass path/params/search/navigate as props to areas (Library, Notes, Collection, Ask still read window.location; Ask uses location.assign(/activity) which reloads); e2e Library-open-set-Back-Forward; seen on staging. CONTRACT has no routing §id yet. Claim freed.",
   "commit": null,
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
-  "claimedBy": "run-1217",
-  "claimedAt": "2026-11-06T12:43:28.637Z"
+  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
+  "claimedAt": "2026-11-06T14:07:34.204Z"
  },
  {
   "id": "B-1013",
