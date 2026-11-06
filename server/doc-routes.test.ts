@@ -1,4 +1,5 @@
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
@@ -12,6 +13,14 @@ async function setup() {
   await DB.prepare(
     "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
   ).run();
+  for (const f of ["0003_collections_pins_own", "0006_tables"])
+    for (const stmt of readFileSync(
+      new URL(`../data/migrations/${f}.sql`, import.meta.url),
+      "utf8",
+    )
+      .replace(/--.*$/gm, "")
+      .split(";"))
+      if (stmt.trim()) await DB.prepare(stmt.trim()).run();
   const env = {
     DB,
     TOKEN_APP: "app-t",
@@ -244,4 +253,41 @@ test("size budget: a single put over 90% is refused too", async () => {
     !no.ok && no.status === 400 && /nothing was written/.test(no.error),
   );
   assert.equal(await repo.get("s", "b"), null);
+});
+
+test("changes since include a goal, as its exam document", async () => {
+  const DB = sqliteD1();
+  for (const f of [
+    "0000_baseline",
+    "0001_deletions",
+    "0003_collections_pins_own",
+    "0006_tables",
+  ])
+    for (const stmt of readFileSync(
+      new URL(`../data/migrations/${f}.sql`, import.meta.url),
+      "utf8",
+    )
+      .replace(/--.*$/gm, "")
+      .split(";"))
+      if (stmt.trim()) await DB.prepare(stmt.trim()).run();
+  const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
+  const hdr = { authorization: "Bearer app-t" };
+  const made = await app.request(
+    "/api/v1/commands/date.create",
+    {
+      method: "POST",
+      headers: hdr,
+      body: JSON.stringify({ input: { title: "Exam 2", date: "2026-12-01" } }),
+    },
+    env,
+  );
+  const id = ((await made.json()) as { result: { id: string } }).result.id;
+  const r = await app.request("/api/v1/docs?since=0", { headers: hdr }, env);
+  const docs = (
+    (await r.json()) as { docs: { collection: string; id: string }[] }
+  ).docs;
+  assert.deepEqual(
+    docs.filter((d) => d.id === id).map((d) => d.collection),
+    ["exams"],
+  );
 });

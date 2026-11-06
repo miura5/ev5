@@ -14,6 +14,7 @@ import {
 } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
 import { readJobPlan } from "./job-plans.ts";
+import { examDoc } from "./goal-wire.ts";
 import { weakSpotDocs } from "./weak-wire.ts";
 import { putPlanInForce } from "./handlers-dates.ts";
 import type { DocsD1 } from "../data/index.ts";
@@ -74,12 +75,9 @@ export function planHome(
 ): JobRunEnv["planHome"] {
   return {
     async load(examId) {
-      const row = await db
-        .prepare("SELECT id, data, v FROM docs WHERE c = 'exams' AND id = ?")
-        .bind(examId)
-        .first<Row>();
+      const row = await examDoc(db as DocsD1, clock, examId);
       if (!row) return undefined;
-      const exam = parseExam(JSON.parse(row.data));
+      const exam = parseExam(row.data);
       const today = centralDate(clock());
       // The weak spots are rows (§data.tables); the ones in this exam's course are aimed at this exam.
       const attempts = await attemptsBySpot(db);
@@ -149,13 +147,14 @@ export function planHome(
         if (!made.ok)
           throw new Error(`plan ${planId} was not saved: ${made.error}`);
       }
-      const row = await docs.get("exams", exam.id);
+      const row = await examDoc(db as DocsD1, clock, exam.id);
       if (!row)
         throw new Error(
           `exam ${exam.id} is gone, so the plan has nowhere to attach.`,
         );
       const e = row.data as Record<string, unknown>;
-      if (e.planId !== planId) {
+      // A goal row has no planId: `planedits/<goal>` (below) is what puts its plan in force.
+      if (!exam.id.startsWith("goal_") && e.planId !== planId) {
         // An exam is a Fact: its writer and source are write-once, so only planId and at change.
         const next = { ...e, planId, at: doc.at };
         const r = await docs.save(

@@ -1,7 +1,7 @@
 // What finished today (Central), for Activity's "Done today": finished jobs and ended study sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { centralDate } from "../domain/index.ts";
-import { docsRepo } from "../data/index.ts";
+import { examDoc } from "./goal-wire.ts";
 import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
 import { examsOfPlans } from "./plan-context.ts";
@@ -29,11 +29,12 @@ async function examTitles(
 ): Promise<Map<string, string>> {
   const titles = new Map<string, string>();
   const examOf = await examsOfPlans(db, planIds);
-  const repo = docsRepo(db as never, { clock: () => Date.now() });
   const byExam = new Map<string, string | undefined>();
   for (const [job, examId] of examOf) {
     if (!byExam.has(examId)) {
-      const d = await repo.get("exams", examId).catch(() => null);
+      const d = await examDoc(db as never, () => Date.now(), examId).catch(
+        () => undefined,
+      );
       const t = (d?.data as { title?: unknown } | undefined)?.title;
       byExam.set(examId, typeof t === "string" && t ? t : undefined);
     }

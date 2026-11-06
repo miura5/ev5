@@ -2,7 +2,8 @@
 // `weak_spot_events` rows, read through the tables gate, shown as the weak spot document. A spot has no exam of its own: it
 // points at an objective, the objective sits in a course (a collection), and an exam belongs to the course it names, so a
 // spot's exam is the nearest upcoming dated exam of its course (an exam of that course with no date comes after the dated ones).
-import { docsRepo, tablesRepo } from "../data/index.ts";
+import { tablesRepo } from "../data/index.ts";
+import { examDocs, goalsByObjective } from "./goal-wire.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
   newWeakSpotRow,
@@ -22,7 +23,10 @@ export interface WireSpot {
 }
 
 /** The exams of each course, soonest first: an exam names its course by the collection's id or its title. */
-function examsByCourse(rows: { id: string; data: unknown }[]) {
+function examsByCourse(
+  rows: { id: string; data: unknown }[],
+  linked: Map<string, string[]>,
+) {
   const exams = rows.flatMap((r) => {
     try {
       const e = parseExam(r.data);
@@ -33,18 +37,35 @@ function examsByCourse(rows: { id: string; data: unknown }[]) {
       return []; // one malformed exam must not hide the spots
     }
   });
-  return (course: { id: string; title: string } | undefined) =>
-    course
+  const soonest = (a: { exam: Exam }, b: { exam: Exam }) =>
+    (a.exam.date ?? "9999").localeCompare(b.exam.date ?? "9999");
+  const upcoming = rows.flatMap((r) => {
+    try {
+      const e = parseExam(r.data);
+      return (e.status ?? "upcoming") === "upcoming"
+        ? [{ id: r.id, exam: e }]
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  return (
+    course: { id: string; title: string } | undefined,
+    objectiveId?: string | null,
+  ) =>
+    // A goal the spot's objective is linked to (§data.links) wins over the course match.
+    upcoming
+      .filter((u) => (linked.get(objectiveId ?? "") ?? []).includes(u.id))
+      .sort(soonest)[0] ??
+    (course
       ? exams
           .filter(
             ({ exam }) =>
               exam.course?.toLowerCase() === course.id.toLowerCase() ||
               exam.course?.toLowerCase() === course.title.toLowerCase(),
           )
-          .sort((a, b) =>
-            (a.exam.date ?? "9999").localeCompare(b.exam.date ?? "9999"),
-          )[0]
-      : undefined;
+          .sort(soonest)[0]
+      : undefined);
 }
 
 /** Every live weak spot (a duplicate counts once, as its twin) as its document, in id order. */
@@ -53,14 +74,16 @@ export async function weakSpotDocs(
   clock: () => number,
 ): Promise<WireSpot[]> {
   const t = tablesRepo(db, { clock });
-  const [spots, events, objectives, collections, exams] = await Promise.all([
-    t.weakSpots.list(),
-    t.weakSpotEvents.list(),
-    t.objectives.list(),
-    t.collectionRows.list(),
-    docsRepo(db, { clock }).list("exams"),
-  ]);
-  const examOf = examsByCourse(exams);
+  const [spots, events, objectives, collections, exams, linked] =
+    await Promise.all([
+      t.weakSpots.list(),
+      t.weakSpotEvents.list(),
+      t.objectives.list(),
+      t.collectionRows.list(),
+      examDocs(db, clock),
+      goalsByObjective(db, clock),
+    ]);
+  const examOf = examsByCourse(exams, linked);
   const objective = new Map(objectives.map((o) => [o.id, o]));
   const course = new Map(collections.map((c) => [c.id, c]));
   return spots
@@ -73,7 +96,7 @@ export async function weakSpotDocs(
             : "") ??
           "",
       );
-      const exam = examOf(home);
+      const exam = examOf(home, s.objective_id);
       return {
         id: s.id,
         v: s.v,
