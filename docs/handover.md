@@ -1,5 +1,5 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
-## Running    nothing. (Node 22 sandbox: `node --test <dir>` fails there; CI is the proof.)
+## Running    B-1060 PR #657 (claude/B-1060-neutral-samples): green with new baselines, auto-merge on but GitHub showed 'blocked' at 18:00; if still open, look at the required checks, then update the branch or re-run CI. B-1061 done (D-520, #656). (Node 22 sandbox: `node --test <dir>` fails there; CI is the proof.)
 NOTE: B-1049 grading is untried on staging with a real model call. Fix live.yml's D1 lookup before the live database is made (B-823 notes).
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). Keep groups and order; drop done tasks.
