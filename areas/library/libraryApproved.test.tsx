@@ -30,3 +30,10 @@ test("after Approve the Detail lists the sessions and says how many were added",
   expect(screen.queryByText("The sessions are not shown here yet.")).toBeNull();
   expect(screen.queryByText("Approve")).toBeNull();
 });
+
+test("an ended plan says so, is not shown as approved, and offers to plan again", () => {
+  render(<ExamPlanDetail exam={{ ...exam, planState: "ended" as const }} />);
+  expect(screen.getByText(/This plan ended on/)).toBeTruthy();
+  expect(screen.queryByText(/^Approved/)).toBeNull();
+  expect(screen.getByText("Plan with E.V.")).toBeTruthy();
+});
