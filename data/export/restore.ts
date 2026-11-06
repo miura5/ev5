@@ -2,6 +2,7 @@
 // must equal the export's, and the PLAN §5.10 checks run. Orphans are reported, never dropped. Writes only to `scratch`.
 import type { D1Like } from "../docs/d1.ts";
 import { ALL_TABLES } from "./tables.ts";
+import { checkPictures, type PictureBucket } from "./pictures.ts";
 import {
   EXPORT_KIND,
   exportAll,
@@ -73,6 +74,7 @@ export function checkRows(
 export async function restoreInto(
   scratch: D1Like,
   x: Export,
+  pictures?: PictureBucket,
 ): Promise<RestoreReport> {
   const bad = await checkExport(x);
   if (bad.length) return { ok: false, diffs: bad, orphans: [], problems: [] };
@@ -94,6 +96,12 @@ export async function restoreInto(
     ...manifestDiffs(back.collections, x.collections),
   ];
   const { orphans, problems } = checkRows(back.rows);
+  // With the bucket in hand, the drill reads every picture back against its files row (§data.note-images).
+  if (pictures) {
+    const p = await checkPictures(back.rows.files ?? [], pictures);
+    problems.push(...p.problems);
+    orphans.push(...p.orphans);
+  }
   return {
     ok: diffs.length === 0 && problems.length === 0,
     diffs,
