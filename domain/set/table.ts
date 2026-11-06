@@ -16,7 +16,7 @@ export const setTableSchema = z
   .strictObject({
     id: prefixed("set_"),
     collection_id: z.string().min(1).nullable(),
-    kind: z.enum([...SET_KINDS, "adhoc"]),
+    kind: z.enum([...SET_KINDS, "own", "adhoc"]),
     title: z.string().nullable(),
     source_kind: z.string().min(1).nullable(),
     source_id: z.string().min(1).nullable(),
