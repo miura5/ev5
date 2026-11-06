@@ -67,8 +67,7 @@ test("plan.ask_changes answers the waiting plan with the change and the note", a
   });
   // a second tap finds the plan no longer waiting
   assert.equal(
-    (await cmd(s, "plan.ask_changes", { id: "sp1", note: "again" }))
-      .status,
+    (await cmd(s, "plan.ask_changes", { id: "sp1", note: "again" })).status,
     409,
   );
 });
@@ -177,7 +176,10 @@ test("date.plan_with_ev plans a date made by date.create (a goals row)", async (
 
 test("date.plan_with_ev refuses a date whose kind offers no prep plan, and starts nothing", async () => {
   const s = setup();
-  const made = await cmd(s, "date.create", { title: "Half marathon", date: "2026-12-01" });
+  const made = await cmd(s, "date.create", {
+    title: "Half marathon",
+    date: "2026-12-01",
+  });
   assert.equal(made.status, 200);
   const r = await cmd(s, "date.plan_with_ev", { id: made.body.result.id });
   assert.equal(r.status, 409);

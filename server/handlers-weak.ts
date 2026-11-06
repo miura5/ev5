@@ -1,7 +1,7 @@
 // Weak spots (CONTRACT §ev.capture, §ui.weak-spots, §data.append-only): a weak spot is a `weak_spots` row and everything Matt does
 // to it is one appended `weak_spot_events` row (accept, decline, solid), so two quick taps are two inserts and never a 409;
 // "mark as learned" is a status, never a delete. A spot E.V. proposed counts nowhere until Matt confirms it. "Just tell me"
-// in Ask is logged as Matt's line in today's talk document.
+// in Ask is logged as the user's line, one talk row.
 import { tablesRepo } from "../data/index.ts";
 import type { WeakSpotEventRow } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
@@ -62,7 +62,7 @@ export const weakHandlers: Record<string, CommandHandler> = {
   },
   // The reply Matt asked to be told is logged; the answer itself is on the Ask screen.
   "ask.just_tell_me": async (i: { id: string }, _c, x) => {
-    await talkLine(x, { text: "Just tell me", replyTo: i.id }, "v5/ask");
+    await talkLine(x, { text: "Just tell me", replyTo: i.id });
     return { id: i.id, told: true };
   },
 };
