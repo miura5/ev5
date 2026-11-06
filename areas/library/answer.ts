@@ -21,7 +21,9 @@ export function buildAnswer(
   const iso = now.toISOString().slice(0, 19) + "Z";
   const stamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}`;
   const key = `page-${stamp}-${rand.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
-  const text = attempt.trim().slice(0, 600);
+  const full = attempt.trim();
+  // The ev4 answer document keeps 600 characters of text; a longer answer says so, with its length (never cut silently).
+  const text = full.slice(0, 600);
   return {
     id: `${setId}-${key}`,
     doc: {
@@ -39,6 +41,9 @@ export function buildAnswer(
               : { correct: rating === "good" }),
             at: iso,
             ...(text ? { text } : {}),
+            ...(full.length > 600
+              ? { textCut: true, textLength: full.length }
+              : {}),
           },
         },
       },
