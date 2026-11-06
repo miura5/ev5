@@ -1,4 +1,4 @@
-// All time in America/Chicago, using Intl only (no date library). Dates are 'YYYY-MM-DD' strings, times 'HH:MM'.
+// Time in the user's zone, today the one constant ZONE (§job.schedule); Intl only. Dates 'YYYY-MM-DD', times 'HH:MM'.
 export const ZONE = 'America/Chicago';
 
 const fmt = new Intl.DateTimeFormat('en-CA', {
