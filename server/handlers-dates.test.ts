@@ -136,25 +136,12 @@ test("a date is a goals row, linked to objectives, changed in place and read as 
   );
 });
 
-test("an older date entry is still changed through an override", async () => {
-  const { call, doc, put } = await setup();
-  await put("dates", "d1", {
-    schema: 1,
-    writer: "page",
-    at: "2026-11-01T00:00:00.000Z",
-    source: "t",
-    date: "2026-11-20",
-    title: "Old",
-    kind: "other",
-    addedBy: "Matt",
-  });
+test("date.update changes a goal only; an id that is not a goal is a 404", async () => {
+  const { call } = await setup();
   assert.equal(
     (await call("date.update", { id: "d1", date: "2026-11-21" })).status,
-    200,
+    404,
   );
-  assert.deepEqual((await doc("dateedits", "d1"))?.overrides, {
-    date: "2026-11-21",
-  });
 });
 
 test("a date's kind comes from the registry: other by default, set on create or update, anything else refused", async () => {

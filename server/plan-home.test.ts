@@ -68,27 +68,14 @@ const objective = (id: string, collection: string, goal: string) =>
 
 function seeded() {
   const db = sqliteD1();
-  put(db, "exams", "e1", {
-    schema: 2,
-    ...meta,
-    title: "Unit 3",
-    kind: "unit",
-    course: "Biology",
-    date: "2026-11-10",
-  });
   db.sql.exec(
     "INSERT INTO collections (id, title, at) VALUES ('col_c1', 'Biology', 0), ('col_c2', 'Spanish', 0)",
   );
-  put(db, "exams", "e2", {
-    schema: 2,
-    ...meta,
-    title: "Other",
-    kind: "unit",
-    course: "Spanish",
-    date: "2026-11-12",
-  });
-  db.sql.exec(objective("obj_1", "col_c1", "e1"));
-  db.sql.exec(objective("obj_2", "col_c2", "e2"));
+  db.sql.exec(
+    "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_e1', 'col_c1', 'Unit 3', 'unit', '2026-11-10', 'open', NULL, 'user', 0, 1), ('goal_e2', 'col_c2', 'Other', 'unit', '2026-11-12', 'open', NULL, 'user', 0, 1)",
+  );
+  db.sql.exec(objective("obj_1", "col_c1", "goal_e1"));
+  db.sql.exec(objective("obj_2", "col_c2", "goal_e2"));
   db.sql.exec(row("ws_w1", "Cell division", "col_c1", "obj_1"));
   db.sql.exec(row("ws_w2", "Photosynthesis", "col_c1", "obj_1"));
   db.sql.exec(row("ws_w3", "Other goal", "col_c2", "obj_2"));
@@ -105,9 +92,9 @@ function seeded() {
 
 test("load returns the exam, Central today and only this exam's active weak spots with their need", async () => {
   const home = planHome(seeded(), () => T);
-  const got = (await home.load("e1"))!;
+  const got = (await home.load("goal_e1"))!;
   assert.equal(got.today, "2026-11-03");
-  assert.equal(got.exam.id, "e1");
+  assert.equal(got.exam.id, "goal_e1");
   assert.deepEqual(got.spots.map((s) => [s.id, s.title, s.need]).sort(), [
     ["ws_w1", "Cell division", 2],
     ["ws_w2", "Photosynthesis", 2],
@@ -131,17 +118,17 @@ test("answers on a weak spot count toward its need", async () => {
       },
     },
   });
-  const got = (await planHome(db, () => T).load("e1"))!;
+  const got = (await planHome(db, () => T).load("goal_e1"))!;
   assert.ok(got.spots.find((s) => s.id === "ws_w1"));
 });
 
-test("apply puts the plan on Today (plans doc) and points the exam at it; repeating is safe", async () => {
+test("apply puts the plan on Today (plans doc) and puts it in force; repeating is safe", async () => {
   const db = seeded();
   db.sql
     .prepare(
       "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('j1', 'context', ?, 0)",
     )
-    .run(JSON.stringify({ goal: { id: "e1", title: "Unit 3" } }));
+    .run(JSON.stringify({ goal: { id: "goal_e1", title: "Unit 3" } }));
   const home = planHome(db, () => T);
   const plan = {
     summary: "Cells first",
@@ -165,7 +152,7 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
         .get() as { data: string }
     ).data,
   );
-  assert.equal(doc.exam, "e1");
+  assert.equal(doc.exam, "goal_e1");
   assert.deepEqual(
     doc.days.map((d: { date: string; tasks: unknown[] }) => [
       d.date,
@@ -177,11 +164,6 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
     ],
   );
   assert.equal(doc.days[0].tasks[0].ref, "ws_w1");
-  const exam = db.sql
-    .prepare("SELECT data, v FROM docs WHERE c='exams' AND id='e1'")
-    .get() as { data: string; v: number };
-  assert.equal(JSON.parse(exam.data).planId, "plan-j1");
-  assert.equal(exam.v, 2, "the exam was updated once, not on the repeat");
   // Stored as canonical JSON (compact, as ev4 stores it; §data.protocol) and as a v5 write; an exam keeps its envelope
   // (a Fact's writer and source are write-once). The ev4 contract check on this output needs a Node-only test door.
   const text = (id: string, c: string) =>
@@ -191,14 +173,10 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
       }
     ).data;
   assert.equal(text("plan-j1", "plans"), JSON.stringify(doc));
-  assert.equal(exam.data, JSON.stringify(JSON.parse(exam.data)));
-  const stored = JSON.parse(exam.data);
-  assert.equal(stored.writer, "page");
-  assert.equal(stored.source, "t");
   assert.equal(doc.source, "v5/job:j1");
   // One tap: the plan is in force, written once (the repeat left it alone).
   const pe = db.sql
-    .prepare("SELECT data, v FROM docs WHERE c='planedits' AND id='e1'")
+    .prepare("SELECT data, v FROM docs WHERE c='planedits' AND id='goal_e1'")
     .get() as { data: string; v: number };
   assert.equal(JSON.parse(pe.data).plan, "plan-j1");
   assert.equal(pe.v, 1);
@@ -226,10 +204,10 @@ test("weak spots read as documents the screens parse: goal from the objective's 
   );
   const docs = await weakSpotDocs(db as unknown as DocsD1, () => T);
   assert.deepEqual(docs.map((d) => [d.id, d.data.exam]).sort(), [
-    ["ws_w1", "e1"],
-    ["ws_w2", "e1"],
-    ["ws_w3", "e2"],
-    ["ws_w4", "e1"],
+    ["ws_w1", "goal_e1"],
+    ["ws_w2", "goal_e1"],
+    ["ws_w3", "goal_e2"],
+    ["ws_w4", "goal_e1"],
     ["ws_w5", null],
   ]);
   const w1 = docs.find((d) => d.id === "ws_w1")!;

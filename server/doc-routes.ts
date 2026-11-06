@@ -119,17 +119,14 @@ docRoutes.get("/docs", async (c) => {
       ? c.json(shape({ c: collection, ...one }))
       : c.json({ error: "not found" }, 404);
   }
-  // Goals are rows (§data.tables); until the backfill, the exams list is the old documents and the goals.
+  // Goals are rows (§data.tables): the exams list is the goals, each as its exam document.
   if (collection === "exams") {
     const goals = (await goalDocs(c.env.DB, () => Date.now())).map((g) =>
       shape({ c: collection, ...g }),
     );
-    if (id === undefined)
-      return c.json({
-        docs: [...(await r.list(collection)).map(shape), ...goals],
-      });
+    if (id === undefined) return c.json({ docs: goals });
     const goal = goals.find((g) => g.id === id);
-    if (goal) return c.json(goal);
+    return goal ? c.json(goal) : c.json({ error: "not found" }, 404);
   }
   if (id === undefined)
     return c.json({ docs: (await r.list(collection)).map(shape) });
