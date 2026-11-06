@@ -59,7 +59,7 @@ test("exam plan detail shows proposals dashed and acts on them", () => {
         when: "Thursday, Nov 5",
         readiness: "58%",
         plan: "waiting for you",
-        proposals: [{ id: "p", text: "Dosage drill, 25 min" }],
+        proposals: [{ id: "p", text: "Unit conversion drill, 25 min" }],
       }}
       onAccept={onAccept}
       onDismiss={onDismiss}

@@ -49,7 +49,7 @@ const note: CollectionEntry = {
   title: "Cardiac drugs",
 };
 const sub: CollectionEntry = { id: "c2", type: "collection", title: "Labs" };
-const base = { title: "NUR 112", dates: [exam], nested: [sub], items: [note] };
+const base = { title: "Biology 101", dates: [exam], nested: [sub], items: [note] };
 
 test("dates come first, then nested collections and items", () => {
   const onOpen = vi.fn();
@@ -71,7 +71,7 @@ test("pin, new and back report; empty collection explains itself", () => {
   render(
     <CollectionView
       title="Labs"
-      parent="NUR 112"
+      parent="Biology 101"
       dates={[]}
       nested={[]}
       items={[]}
@@ -80,7 +80,7 @@ test("pin, new and back report; empty collection explains itself", () => {
     />,
   );
   fireEvent.click(screen.getByText("Pin"));
-  fireEvent.click(screen.getByText("← NUR 112"));
+  fireEvent.click(screen.getByText("← Biology 101"));
   expect(onTogglePin).toHaveBeenCalled();
   expect(onBack).toHaveBeenCalled();
   expect(screen.getByText(/Nothing here yet/)).toBeTruthy();
@@ -98,7 +98,7 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
           }
         : {
             collections: [
-              { id: "a", title: "NUR 112", parentId: null, pos: 0 },
+              { id: "a", title: "Biology 101", parentId: null, pos: 0 },
               { id: "b", title: "Labs", parentId: "a", pos: 1 },
             ],
           };
@@ -118,7 +118,7 @@ test("/collection/:id opens that collection and Back goes to its parent", async 
   const onNavigate = vi.fn();
   render(<CollectionScreen path="/collection/b" onNavigate={onNavigate} />);
   expect(await screen.findByDisplayValue("Labs")).toBeTruthy();
-  fireEvent.click(screen.getByText("← NUR 112"));
+  fireEvent.click(screen.getByText("← Biology 101"));
   expect(onNavigate).toHaveBeenCalledWith("/collection/a");
   localStorage.clear();
   vi.unstubAllGlobals();
@@ -134,7 +134,7 @@ test("pinned items are listed under Pinned, named from their docs", async () => 
           ? { memberships: [] }
           : {
               collections: [
-                { id: "a", title: "NUR 112", parentId: null, pos: 0 },
+                { id: "a", title: "Biology 101", parentId: null, pos: 0 },
               ],
             };
   vi.stubGlobal(
@@ -229,7 +229,7 @@ test("the collection page offers Delete for the collection itself", () => {
   const onDelete = vi.fn();
   render(
     <CollectionView
-      title="BIO 201"
+      title="Economics 101"
       dates={[]}
       nested={[]}
       items={[]}
@@ -252,9 +252,9 @@ test("the collection title saves on Enter and Esc puts the old words back", () =
     />,
   );
   const h = screen.getByRole("textbox", { name: "Title" }) as HTMLInputElement;
-  fireEvent.change(h, { target: { value: "BIO 201" } });
+  fireEvent.change(h, { target: { value: "Economics 101" } });
   fireEvent.keyDown(h, { key: "Enter" });
-  expect(onRename).toHaveBeenCalledWith("BIO 201");
+  expect(onRename).toHaveBeenCalledWith("Economics 101");
   fireEvent.change(h, { target: { value: "x" } });
   fireEvent.keyDown(h, { key: "Escape" });
   expect(h.value).toBe("Untitled collection");

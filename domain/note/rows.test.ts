@@ -11,7 +11,7 @@ const doc = parseNote({
   source: "E.V. Home",
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
-  course: "NUR 112",
+  course: "Biology 101",
   label: "week 4",
   editedAt: T0,
   earlierOf: "n-20261017-090000-abcdefgh",

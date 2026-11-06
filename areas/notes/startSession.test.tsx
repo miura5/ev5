@@ -24,7 +24,7 @@ const note = {
   source: "E.V. Home",
   createdAt: "2026-10-26T15:00:00.000Z",
   title: "Fluids",
-  course: "NUR 112",
+  course: "Biology 101",
   blocks: [{ type: "h1", runs: [{ text: "Fluids" }] }],
 };
 const services: NotesServices = {

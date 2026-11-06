@@ -16,7 +16,7 @@ test("a row shows title, meta and value, and opens by click or Enter", () => {
   const onOpen = vi.fn();
   render(
     createElement(Row, {
-      title: "Heparin",
+      title: "Photosynthesis",
       meta: "12 cards",
       value: "3 due",
       onOpen,
@@ -39,11 +39,11 @@ test("a folding row exposes aria-expanded and folds with the arrow keys", () => 
   const onToggle = vi.fn();
   const { rerender } = render(
     createElement(Row, {
-      title: "Pharmacology",
+      title: "Cell biology",
       fold: { open: false, onToggle },
     }),
   );
-  const row = screen.getByRole("button", { name: "Pharmacology" });
+  const row = screen.getByRole("button", { name: "Cell biology" });
   expect(row.getAttribute("aria-expanded")).toBe("false");
   fireEvent.keyDown(row, { key: "ArrowLeft" });
   expect(onToggle).not.toHaveBeenCalled();
@@ -51,11 +51,11 @@ test("a folding row exposes aria-expanded and folds with the arrow keys", () => 
   expect(onToggle).toHaveBeenCalledTimes(1);
   rerender(
     createElement(Row, {
-      title: "Pharmacology",
+      title: "Cell biology",
       fold: { open: true, onToggle },
     }),
   );
-  const open = screen.getByRole("button", { name: "Pharmacology" });
+  const open = screen.getByRole("button", { name: "Cell biology" });
   expect(open.getAttribute("aria-expanded")).toBe("true");
   fireEvent.keyDown(open, { key: "ArrowRight" });
   expect(onToggle).toHaveBeenCalledTimes(1);
@@ -90,7 +90,7 @@ test("actions sit in the row's hover slot and stay reachable by role", () => {
   const onMore = vi.fn();
   render(
     createElement(Row, {
-      title: "Heparin",
+      title: "Photosynthesis",
       actions: createElement("button", { onClick: onMore }, "More"),
     }),
   );
@@ -114,9 +114,9 @@ test("right-click and the period key open the item menu", async () => {
     label: "Row actions",
   };
   render(
-    createElement(Row, { title: "Heparin", onOpen: () => undefined, menu }),
+    createElement(Row, { title: "Photosynthesis", onOpen: () => undefined, menu }),
   );
-  const row = screen.getByRole("button", { name: "Heparin" });
+  const row = screen.getByRole("button", { name: "Photosynthesis" });
   fireEvent.contextMenu(row);
   expect(await screen.findByRole("menu", { name: "Row actions" })).toBeTruthy();
   fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
@@ -130,7 +130,7 @@ test("an editor row has two named cells that edit in place", () => {
   render(
     createElement(EditorRow, {
       cells: [
-        { label: "Term", value: "Heparin", onChange: onTerm },
+        { label: "Term", value: "Photosynthesis", onChange: onTerm },
         { label: "Meaning", value: "Anticoagulant", onChange: vi.fn() },
       ],
     }),

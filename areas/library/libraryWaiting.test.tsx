@@ -28,7 +28,7 @@ const exam = {
     title: "Exam Three",
     kind: "exam",
     date: "2099-01-05",
-    course: "NUR 112",
+    course: "Biology 101",
   },
 };
 const waitingJob = {
@@ -132,7 +132,7 @@ test("with no waiting plan the exam offers Plan with E.V.", async () => {
 
 const sessions = [
   { date: "2099-01-04", title: "Misses only", minutes: 10 },
-  { date: "2099-01-02", title: "Dosage by weight", minutes: 25 },
+  { date: "2099-01-02", title: "Unit conversion by weight", minutes: 25 },
 ];
 
 test("opened by a link, the plan shows its sessions by day with minutes and Built from", async () => {
@@ -142,7 +142,7 @@ test("opened by a link, the plan shows its sessions by day with minutes and Buil
     ...document.querySelectorAll('[data-part="proposal"] [data-ui="row"]'),
   ].map((r) => r.textContent);
   expect(rows).toEqual([
-    "Dosage by weightFri Jan 225m",
+    "Unit conversion by weightFri Jan 225m",
     "Misses onlySun Jan 410m",
   ]);
   expect(screen.getByText(/Built from/)).toBeTruthy();

@@ -10,7 +10,7 @@ test("a tile shows title, meta and value and opens on tap", () => {
   const onOpen = vi.fn();
   render(
     createElement(Tile, {
-      title: "Heparin",
+      title: "Photosynthesis",
       meta: "12 cards",
       value: "3 due",
       onOpen,

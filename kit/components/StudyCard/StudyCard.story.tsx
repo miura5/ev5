@@ -8,15 +8,15 @@ export function Story() {
     <div data-ui="story-study-card">
       <StudyCard
         kicker="Term"
-        face="Cardiac output"
-        answer={turned ? "Heart rate times stroke volume." : undefined}
-        from="Cardiac output terms"
+        face="Supply and demand"
+        answer={turned ? "Price falls when supply rises." : undefined}
+        from="Supply and demand terms"
         onTurn={() => setTurned(true)}
       />
       <StudyCard
         kicker="Term"
-        face="Stroke volume"
-        answer={flipped ? "Blood ejected per beat." : undefined}
+        face="Scarcity"
+        answer={flipped ? "Wanting more than exists." : undefined}
         hero={{
           position: 2,
           total: 8,

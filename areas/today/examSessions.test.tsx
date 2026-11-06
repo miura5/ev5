@@ -25,7 +25,7 @@ const exam = {
   source: "test",
   title: "Exam 3",
   kind: "exam",
-  course: "NUR 112",
+  course: "Biology 101",
   date: soon,
 };
 
@@ -57,7 +57,7 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
       summary: "x",
       tasks: [
         { date: "2099-01-04", title: "Misses only", minutes: 10 },
-        { date: "2099-01-02", title: "Dosage by weight", minutes: 25 },
+        { date: "2099-01-02", title: "Unit conversion by weight", minutes: 25 },
       ],
     },
   ]);
@@ -67,7 +67,7 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
     ...document.querySelectorAll("[data-ui='detail'] [data-ui='row']"),
   ].map((r) => r.textContent);
   expect(rows).toEqual([
-    "Dosage by weightFri Jan 225m",
+    "Unit conversion by weightFri Jan 225m",
     "Misses onlySun Jan 410m",
   ]);
   expect(screen.queryByText("Plan with E.V.")).toBeNull();

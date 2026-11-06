@@ -57,5 +57,5 @@ test("the main action calls back and ⋯ opens the passed-in menu; neither shows
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("Cardiac output terms")).toBeTruthy();
+  expect(screen.getByText("Supply and demand terms")).toBeTruthy();
 });

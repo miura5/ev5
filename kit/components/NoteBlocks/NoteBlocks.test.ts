@@ -53,5 +53,5 @@ test("blocks sharing a row id draw in two columns; an unknown type is a paragrap
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getAllByText("Say the formula")).toHaveLength(2);
+  expect(screen.getAllByText("Say the idea")).toHaveLength(2);
 });

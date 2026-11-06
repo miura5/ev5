@@ -13,9 +13,9 @@ import {
 } from "./index.ts";
 
 const plan = {
-  summary: "Heparin first.",
+  summary: "Photosynthesis first.",
   tasks: [
-    { date: "2026-11-03", title: "Heparin", minutes: 30, weakSpotId: "w1" },
+    { date: "2026-11-03", title: "Photosynthesis", minutes: 30, weakSpotId: "w1" },
     { date: "2026-11-03", title: "Review", minutes: 20 },
     { date: "2026-11-04", title: "Quiz", minutes: 25 },
   ],

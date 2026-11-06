@@ -8,12 +8,12 @@ const ctx: PlanContext = {
   goal: { id: "e1", title: "Unit 3", kind: "exam", date: "2026-11-08" },
   today: "2026-11-03",
   days: ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07"],
-  weakSpots: [{ id: "w1", title: "Heparin", need: 1 }],
+  weakSpots: [{ id: "w1", title: "Photosynthesis", need: 1 }],
 };
 const draft: Plan = {
-  summary: "Heparin first.",
+  summary: "Photosynthesis first.",
   tasks: [
-    { date: "2026-11-03", title: "Heparin", minutes: 30, weakSpotId: "w1" },
+    { date: "2026-11-03", title: "Photosynthesis", minutes: 30, weakSpotId: "w1" },
     { date: "2026-11-04", title: "Review", minutes: 20 },
   ],
 };
@@ -54,7 +54,7 @@ test("applies update, remove and add to a copy and leaves the draft alone", asyn
   assert.deepEqual(
     r.plan.tasks.map((t) => [t.title, t.minutes]),
     [
-      ["Heparin", 45],
+      ["Photosynthesis", 45],
       ["Quiz", 25],
     ],
   );

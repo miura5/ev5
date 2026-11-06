@@ -86,7 +86,7 @@ const exam = {
   id: "e1",
   v: 1,
   at: 1,
-  data: { title: "NUR 112 exam", date: "2099-01-01" },
+  data: { title: "Biology 101 exam", date: "2099-01-01" },
 };
 
 test("offline, Today shows the saved exams and weak spots", async () => {

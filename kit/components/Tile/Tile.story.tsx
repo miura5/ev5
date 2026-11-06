@@ -11,8 +11,8 @@ export function Story() {
       }}
     >
       <Tile
-        title="Heparin and warfarin"
-        meta="12 cards · NUR 112"
+        title="Photosynthesis and respiration"
+        meta="12 cards · Biology 101"
         value="3 due"
         onOpen={() => undefined}
       />

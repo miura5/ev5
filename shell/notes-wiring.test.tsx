@@ -32,7 +32,7 @@ const note = (title: string) => ({
   source: "E.V. Home",
   createdAt: "2026-10-26T15:00:00.000Z",
   title,
-  course: "NUR 112",
+  course: "Biology 101",
   blocks: [
     { type: "h1", runs: [{ text: title }] },
     { type: "p", runs: [{ text: "Sodium range" }] },

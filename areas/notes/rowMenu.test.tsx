@@ -20,8 +20,8 @@ beforeAll(() => {
 afterEach(cleanup);
 
 const collections = [
-  { id: "c1", title: "NUR 112", parentId: null },
-  { id: "c2", title: "BIO 201", parentId: null },
+  { id: "c1", title: "Biology 101", parentId: null },
+  { id: "c2", title: "Economics 101", parentId: null },
 ];
 const note = (id: string, title: string, c: string | null): NoteSummary => ({
   id,
@@ -66,7 +66,7 @@ test("Move picks a collection and calls onMove with it", async () => {
   const { onMove } = setup();
   fireEvent.contextMenu(screen.getAllByText("Med math")[0]!);
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
+  fireEvent.click(await screen.findByRole("option", { name: /Economics 101/ }));
   expect(onMove).toHaveBeenCalledWith("a", "c2");
 });
 
@@ -100,9 +100,9 @@ test("the Move picker is a list with children under their parent, the current on
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
   const opts = await screen.findAllByRole("option");
   expect(opts.map((o) => o.textContent?.replace("✓", "").trim())).toEqual([
-    "NUR 112",
+    "Biology 101",
     "Pharm",
-    "BIO 201",
+    "Economics 101",
   ]);
   expect(opts[0]!.textContent).toContain("✓");
   expect(screen.queryAllByRole("button", { name: "Cancel" }).length).toBe(0);
@@ -119,7 +119,7 @@ test("the note page menu has Pin, Move and Delete", async () => {
       note={{
         id: "a",
         title: "Med math",
-        collectionName: "NUR 112",
+        collectionName: "Biology 101",
         edited: "today",
         saveState: "saved",
         body: [],
@@ -136,6 +136,6 @@ test("the note page menu has Pin, Move and Delete", async () => {
   expect(onPin).toHaveBeenCalled();
   fireEvent.contextMenu(screen.getByText(/edited today/));
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
-  fireEvent.click(await screen.findByRole("option", { name: /BIO 201/ }));
+  fireEvent.click(await screen.findByRole("option", { name: /Economics 101/ }));
   expect(onMove).toHaveBeenCalledWith("c2");
 });

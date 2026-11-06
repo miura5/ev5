@@ -30,7 +30,7 @@ const exam = {
   date: '2026-11-08',
 };
 const spots = [
-  { id: 'w1', title: 'Heparin', need: 1 },
+  { id: 'w1', title: 'Photosynthesis', need: 1 },
   { id: 'w2', title: 'Insulin', need: 2 },
 ];
 const good: Plan = {

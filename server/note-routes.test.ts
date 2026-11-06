@@ -55,7 +55,7 @@ const note = (extra: object = {}) => ({
   source: "E.V. Home",
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
-  course: "NUR 112",
+  course: "Biology 101",
   blocks: [{ type: "p", runs: [{ text: "Sodium is 135 to 145." }] }],
   ...extra,
 });
@@ -96,7 +96,7 @@ test("PUT /docs?collection=notes writes a row; GET shows the same document; a st
   };
   assert.equal(got.v, 2);
   assert.equal(got.data.title, "Fluids 2");
-  assert.equal(got.data.course, "NUR 112");
+  assert.equal(got.data.course, "Biology 101");
   assert.equal(
     (
       (await (await call("GET", "?collection=notes")).json()) as {

@@ -36,5 +36,5 @@ test("a session shows the bar and toggles checks", () => {
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("Studying · Cardiac output")).toBeTruthy();
+  expect(screen.getByText("Studying · Supply and demand")).toBeTruthy();
 });

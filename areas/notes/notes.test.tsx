@@ -12,7 +12,7 @@ import type { NotePageData } from "./types.ts";
 afterEach(cleanup);
 
 const collections: NoteCollection[] = [
-  { id: "nur112", title: "NUR 112", parentId: null },
+  { id: "nur112", title: "Biology 101", parentId: null },
   { id: "lecture", title: "Lecture notes", parentId: "nur112" },
 ];
 const n = (
@@ -45,7 +45,7 @@ test("home lists the 3 most recent and folds collections open to their notes", (
   );
   expect(screen.queryByText("Fourth")).toBeNull();
   expect(screen.queryByText("Fluid balance")).toBeNull();
-  const top = screen.getByRole("button", { name: /^NUR 112/ });
+  const top = screen.getByRole("button", { name: /^Biology 101/ });
   expect(top.getAttribute("aria-expanded")).toBe("false");
   fireEvent.click(top);
   fireEvent.click(screen.getByRole("button", { name: /^Lecture notes/ }));
@@ -58,7 +58,7 @@ test("new note carries the collection; the loose group has no New note", () => {
   render(
     <NotesView notes={notes} collections={collections} onNewNote={onNewNote} />,
   );
-  fireEvent.click(screen.getByRole("button", { name: "New note in NUR 112" }));
+  fireEvent.click(screen.getByRole("button", { name: "New note in Biology 101" }));
   expect(onNewNote).toHaveBeenCalledWith("nur112");
   expect(
     screen.queryByRole("button", { name: "New note in No collection" }),
@@ -74,7 +74,7 @@ test("empty home says so", () => {
 const page: NotePageData = {
   id: "n-co",
   title: "Cardiac output",
-  collectionName: "BIO 201",
+  collectionName: "Economics 101",
   edited: "now",
   saveState: "saved",
   body: [
