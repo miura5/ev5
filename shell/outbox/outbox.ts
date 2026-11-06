@@ -40,11 +40,19 @@ export function createOutbox(opts: OutboxOptions) {
   /** A practice answer: append-only, so always a create. `c` is the collection the answer is written to. */
   const queueAnswer = (c: string, id: string, doc: Record<string, unknown>) => enqueue('answer', c, id, doc, null);
 
+  /** A practice answer posted as a command (study.attempt, study.just_tell_me) under a client-made att_ id: a replay
+   * that names the same id is a 409, which means it is already recorded. */
+  const queueCommand = (name: string, id: string, input: Record<string, unknown>) =>
+    enqueue('command', name, id, input, null);
+
   const waiting = async () => (await store.all()).sort((a, b) => a.at - b.at);
   const sendable = async () => (await waiting()).filter((e) => !e.refused);
 
   async function sendOne(o: OutboxEntry, out: ReplayResult): Promise<'go' | 'stop'> {
-    const r = await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
+    const r =
+      o.kind === 'command'
+        ? await transport.command(o.c, o.doc)
+        : await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
     if (r.status >= 200 && r.status < 300) {
       out.sent++;
       await store.remove(o.key, o.tag);
@@ -54,7 +62,7 @@ export function createOutbox(opts: OutboxOptions) {
       return 'go';
     }
     if (r.status === 409) {
-      if (o.kind === 'answer') return (await store.remove(o.key, o.tag), out.sent++, 'go'); // already recorded
+      if (o.kind !== 'note') return (await store.remove(o.key, o.tag), out.sent++, 'go'); // already recorded
       await keepBoth(o, out);
       return 'go';
     }
@@ -108,7 +116,7 @@ export function createOutbox(opts: OutboxOptions) {
   /** Send everything that waits. One replay runs at a time; a second call joins it. */
   const replay = (): Promise<ReplayResult> => (replaying ??= run().finally(() => (replaying = null)));
 
-  return { queueNote, queueAnswer, replay, waiting, count: async () => (await sendable()).length };
+  return { queueNote, queueAnswer, queueCommand, replay, waiting, count: async () => (await sendable()).length };
 }
 
 export type Outbox = ReturnType<typeof createOutbox>;
