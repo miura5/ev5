@@ -66,3 +66,36 @@ export function weakSpotDoc(
     ...(where.course ? { course: where.course } : {}),
   };
 }
+
+/** The `weak_spots` columns a new spot supplies; the gate sets `at`, `v` and `deleted_at`. */
+export type NewWeakSpotRow = Omit<WeakSpotTableRow, "at" | "v" | "deleted_at">;
+
+/**
+ * A new weak spot document as its table row (§data.tables). A new spot has no events and no starting counts (the scheduler
+ * starts it at zero), and it points at its objective, not at an exam. `collectionId` is the course's id, worked out by the
+ * caller. Throws on a document that carries events or starting counts, which only the scheduler's rules may add.
+ */
+export function newWeakSpotRow(
+  id: string,
+  doc: WeakSpot,
+  collectionId: string | null,
+): NewWeakSpotRow {
+  if (Object.keys(doc.events).length > 0)
+    throw new Error("a new weak spot starts with no events");
+  if (Object.keys(doc.initial).length > 0)
+    throw new Error("a new weak spot starts with empty counts");
+  return {
+    id,
+    collection_id: collectionId,
+    objective_id: doc.objective === "" ? null : doc.objective,
+    topic: doc.topic,
+    kind: doc.kind,
+    words: doc.words ?? null,
+    source_line: doc.source,
+    duplicate_of: null,
+    proposed: doc.proposed ? 1 : 0,
+    created_by: doc.writer === "page" ? "user" : "ev",
+    pre_read: doc.preRead ? 1 : 0,
+    reading_due: doc.readingDue ?? null,
+  };
+}

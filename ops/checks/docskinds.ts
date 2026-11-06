@@ -17,7 +17,6 @@ export const ALLOWED = new Set<string>([
   'plans',
   'sessions',
   'talk',
-  'weakspots',
 ]);
 
 const KIND = `["'\`]([a-z][a-z_]*)["'\`]`;

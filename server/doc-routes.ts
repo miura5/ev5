@@ -10,7 +10,7 @@ import { Hono } from "hono";
 import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
-import { weakSpotDocs } from "./weak-wire.ts";
+import { createWeakSpot, weakSpotDocs } from "./weak-wire.ts";
 
 export interface DocRoutesEnv {
   DB: DocsD1;
@@ -75,6 +75,18 @@ docRoutes.put("/docs", async (c) => {
     return c.json({ error: "collection and id are required" }, 400);
   const text = await bodyText(c.req.raw);
   if (text === null) return c.json({ error: "body is over 1 MB" }, 413);
+  if (collection === "weakspots") {
+    // A weak spot is a row, never a document (§data.tables).
+    const made = await createWeakSpot(
+      c.env.DB,
+      () => Date.now(),
+      id,
+      text,
+      iv === undefined ? null : Number(iv),
+    );
+    if (made.ok) return c.json({ at: made.at, version: made.version });
+    return c.json({ error: made.error }, made.status);
+  }
   const res = await repo(c.env.DB).save(
     collection,
     id,
@@ -100,6 +112,11 @@ docRoutes.post("/docs/batch", async (c) => {
   } catch {
     return c.json({ error: "body is not JSON" }, 400);
   }
+  if (
+    Array.isArray(writes) &&
+    writes.some((w) => (w as { collection?: unknown })?.collection === "weakspots")
+  )
+    return c.json({ error: "weak spots are written one at a time" }, 400);
   const res = await repo(c.env.DB).batch(writes);
   if (res.ok)
     return c.json({

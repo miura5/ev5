@@ -232,3 +232,33 @@ test("weak spots read as documents the screens parse: exam from the course, a ta
     "mark as learned shows",
   );
 });
+
+test("a weak spot is created in its table, once, with no events and no docs row", async () => {
+  const { createWeakSpot } = await import("./weak-wire.ts");
+  const db = sqliteD1();
+  db.sql.exec(
+    "INSERT INTO collections (id, title, at) VALUES ('c1', 'NUR 112', 0)",
+  );
+  const doc = {
+    schema: 2,
+    ...meta,
+    topic: "Heparin",
+    objective: "",
+    kind: "concept",
+    initial: {},
+    events: {},
+    proposed: true,
+    course: "NUR 112",
+  };
+  const made = await createWeakSpot(db as never, () => T, "ws_1", JSON.stringify(doc), null);
+  assert.equal(made.ok, true);
+  const spots = await weakSpotDocs(db as never, () => T);
+  assert.equal(spots.length, 1);
+  assert.equal(spots[0]?.data.course, "NUR 112");
+  assert.equal(spots[0]?.data.proposed, true);
+  assert.equal(db.sql.prepare("SELECT COUNT(*) n FROM docs").get()?.n, 0);
+  const again = await createWeakSpot(db as never, () => T, "ws_1", JSON.stringify(doc), null);
+  assert.equal(again.ok, false);
+  const bad = await createWeakSpot(db as never, () => T, "x", "{}", null);
+  assert.equal(!bad.ok && bad.status, 400);
+});
