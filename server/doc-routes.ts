@@ -52,7 +52,11 @@ docRoutes.get("/docs", async (c) => {
     if (!Number.isFinite(n) || n < 0)
       return c.json({ error: "since: a time in ms" }, 400);
     const out = await r.changedSince(n);
-    return c.json({ now: out.now, docs: out.docs.map(shape) });
+    // Goals are rows, not documents (§data.tables): a goal changed since then is sent as its exam document.
+    const goals = (await goalDocs(c.env.DB, () => Date.now()))
+      .filter((g) => g.at > n)
+      .map((g) => shape({ c: "exams", ...g }));
+    return c.json({ now: out.now, docs: [...out.docs.map(shape), ...goals] });
   }
   if (!collection) return c.json({ error: "collection is required" }, 400);
   // Weak spots live in their tables (§data.tables); the screens still read them as documents.

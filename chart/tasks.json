@@ -6009,13 +6009,15 @@
   "title": "Goals and objectives move to their own tables, joined by link rows",
   "dod": "Exams and hand-made dates are one goal record: a goal made with date.create shows on Today and Library, and Plan with E.V. finds it; objectives live in their table and reach goals and material through link rows, not one exam id or a split of the objective id; the dateedits and examedits documents are gone; writes go through the gate (§data.tables, §data.links, §data.gate). Slice: write domain/, data/, server/ (split along the layers if over 400 lines).",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "notes": "Group 4 (D-489 order as amended by D-495).\nReaders on goals done (date.plan_with_ev, study-plan job load/apply, jobs-done exam titles, weak-wire with objective links, GET /docs?since). Left: exam.* commands, dates backfill (dates docs -> goals rows), drop dateedits/examedits.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "builder-goals-readers",
+  "claimedAt": "2026-11-06T06:42:59.259Z"
  },
  {
   "id": "B-1039",

@@ -159,3 +159,17 @@ test("approving a study plan draft whose days have all passed is refused and the
   assert.equal(body.offer, "plan_again");
   assert.equal((await d1JobStore(db, () => 1).get("sp2"))?.state, "needs-you");
 });
+
+test("date.plan_with_ev plans a date made by date.create (a goals row)", async () => {
+  const s = setup();
+  const made = await cmd(s, "date.create", {
+    title: "Exam 2",
+    date: "2026-12-01",
+  });
+  assert.equal(made.status, 200);
+  const id = made.body.result.id as string;
+  const r = await cmd(s, "date.plan_with_ev", { id });
+  assert.equal(r.status, 200);
+  const params = s.started.at(-1) as unknown as { input: unknown };
+  assert.deepEqual(params.input, { examId: id });
+});

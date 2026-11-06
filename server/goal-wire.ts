@@ -1,6 +1,6 @@
 // Goals as the screens read exams (CONTRACT §data.tables): a goals row, shown as the exam document Today, Library and
 // the plan already read. Until the backfill moves the old `exams` documents into goals, the exams list is both.
-import { tablesRepo } from "../data/index.ts";
+import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { parseExam } from "../domain/index.ts";
 
@@ -41,4 +41,43 @@ export async function goalDocs(
       return [];
     }
   });
+}
+
+/** Every exam as a document, from the old `exams` documents and the goals together (until the backfill). */
+export async function examDocs(
+  db: DocsD1,
+  clock: () => number,
+): Promise<{ id: string; v: number; at: number; data: unknown }[]> {
+  const old = await docsRepo(db, { clock }).list("exams");
+  return [
+    ...old.map((d) => ({ id: d.id, v: d.v, at: d.at, data: d.data })),
+    ...(await goalDocs(db, clock)),
+  ];
+}
+
+/** One exam as a document: the old `exams` document, else the goal with that id. */
+export async function examDoc(
+  db: DocsD1,
+  clock: () => number,
+  id: string,
+): Promise<{ id: string; v: number; at: number; data: unknown } | undefined> {
+  const old = await db
+    .prepare("SELECT data, at, v FROM docs WHERE c = 'exams' AND id = ?")
+    .bind(id)
+    .first<{ data: string; at: number; v: number }>();
+  if (old) return { id, v: old.v, at: old.at, data: JSON.parse(old.data) };
+  if (!id.startsWith("goal_")) return undefined;
+  return (await goalDocs(db, clock)).find((g) => g.id === id);
+}
+
+/** For each objective, the goals it is linked to (objective -> goal links, §data.links). */
+export async function goalsByObjective(
+  db: DocsD1,
+  clock: () => number,
+): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  for (const l of await tablesRepo(db, { clock }).links.list())
+    if (l.from_kind === "objective" && l.to_kind === "goal")
+      out.set(l.from_id, [...(out.get(l.from_id) ?? []), l.to_id]);
+  return out;
 }

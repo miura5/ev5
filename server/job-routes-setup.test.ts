@@ -1,4 +1,5 @@
 // The shared Worker, fake Workflows and seeded record for the job route tests.
+import { readFileSync } from "node:fs";
 import { fakeWorkflows } from "../jobs/index.ts";
 import type { D1Like, ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
@@ -40,6 +41,15 @@ export const putNote = (db: D1Like, id: string, title: string, text: string) =>
 
 export function setup() {
   const db = sqliteD1();
+  // The goals and links tables a date made by date.create lives in (§data.tables).
+  for (const f of ["0003_collections_pins_own", "0006_tables"])
+    for (const stmt of readFileSync(
+      new URL(`../data/migrations/${f}.sql`, import.meta.url),
+      "utf8",
+    )
+      .replace(/--.*$/gm, "")
+      .split(";"))
+      if (stmt.trim()) void db.prepare(stmt.trim()).run();
   void db
     .prepare(
       "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",

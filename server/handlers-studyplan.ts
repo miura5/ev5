@@ -14,6 +14,7 @@ import type { JobDef } from "../jobs/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { startEnv } from "./job-routes.ts";
+import { examDoc } from "./goal-wire.ts";
 import { examsOfPlans } from "./plan-context.ts";
 
 const def = studyPlanJob as JobDef;
@@ -58,10 +59,7 @@ async function replaceOlder(x: HandlerCtx, examId: string, keep: string) {
 export const studyPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
-    const exam = await x.db
-      .prepare("SELECT id FROM docs WHERE c = 'exams' AND id = ?")
-      .bind(i.id)
-      .first<{ id: string }>();
+    const exam = await examDoc(x.db as never, x.clock, i.id);
     if (!exam) throw new CommandError(404, `no exam ${i.id}`);
     const job = await startJob(
       startEnv({ DB: x.db as never, JOBS: x.jobs }, def),
