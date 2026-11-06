@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { tablesRepo } from "../data/index.ts";
 import { d1JobStore } from "../jobs/index.ts";
 import { setup } from "./job-routes-setup.test.ts";
 
@@ -71,6 +72,9 @@ test("putting a plan away ends it done at once, never running, and Done today wo
     step: "approve",
     reason: "Approve it.",
   } as never);
+  const { jobPlans } = tablesRepo(db, { clock: () => Date.now() });
+  await jobPlans.put("sp-b", "context", { goal: { id: "g1", title: "Exam" } });
+  await jobPlans.put("sp-b", "draft", { summary: "s", tasks: [] });
   const c = await req("POST", "/api/v1/jobs/sp-b/continue", "fake-app", {
     answer: { decision: "put_away" },
   });
@@ -119,6 +123,9 @@ test("a finished prep plan's Done today entry carries its exam's title, and none
   const { jobs } = (await res.json()) as {
     jobs: { id: string; goalTitle?: string }[];
   };
-  assert.equal(jobs.find((j) => j.id === "sp-t")?.goalTitle, "Biology 101 Exam 2");
+  assert.equal(
+    jobs.find((j) => j.id === "sp-t")?.goalTitle,
+    "Biology 101 Exam 2",
+  );
   assert.equal(jobs.find((j) => j.id === "sp-x")?.goalTitle, undefined);
 });

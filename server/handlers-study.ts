@@ -110,12 +110,7 @@ function check(q: Item, answer: string, rated: boolean) {
   }
 }
 
-async function record(
-  x: HandlerCtx,
-  f: Found,
-  how: Entry,
-  attemptId?: string,
-) {
+async function record(x: HandlerCtx, f: Found, how: Entry, attemptId?: string) {
   const now = x.clock();
   if (f.own) {
     // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).

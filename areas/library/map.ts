@@ -3,8 +3,8 @@ import {
   itemType,
   inDays,
   deriveWeakSpot,
-  examDaysLeft,
-  parseExam,
+  goalDaysLeft,
+  parseGoal,
   parseSet,
   parseWeakSpot,
   plainDay,
@@ -189,13 +189,14 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         meta: `${d.misses} missed`,
         mastery,
         due,
+        goalId: v.exam ?? null,
       };
     });
   const edits = new Map(
     (docs.planedits ?? []).map((p) => [p.id, (p.data ?? {}) as PlanEdit]),
   );
   const exams: LibraryExam[] = docs.exams
-    .flatMap((d) => tryParse(parseExam, d))
+    .flatMap((d) => tryParse(parseGoal, d))
     .filter((e) => (e.v.status ?? "upcoming") === "upcoming")
     .sort(
       (a, b) =>
@@ -219,7 +220,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       const shaky = mine.filter(
         (s) => s.d.status === "open" && s.d.streak > 0,
       ).length;
-      const left = examDaysLeft(v, today);
+      const left = goalDaysLeft(v, today);
       const when = v.date
         ? `${plainDay(v.date, today)}${left !== null && left >= 0 ? ` · ${inDays(left)}` : ""}`
         : "no date";

@@ -27,6 +27,7 @@ import { kindsRepo } from "./kinds.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
 import { sessionsRepo } from "./sessions.ts";
+import { talkRepo } from "./talk.ts";
 import { notesRepo } from "./notes.ts";
 
 type Collection = ReturnType<typeof parseCollection>;
@@ -251,6 +252,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...attemptsRepo(db, opts),
     ...setsRepo(db, opts),
     ...sessionsRepo(db, opts),
+    ...talkRepo(db, opts),
     ...notesRepo(db, opts),
   };
 }

@@ -3,6 +3,7 @@ import { Empty, Page, type DetailProps } from "../../kit/index.ts";
 import { LibraryView } from "./Library.view.tsx";
 import { StudyView } from "./Study.view.tsx";
 import { datePlanDetail } from "./DatePlan.detail.tsx";
+import { weakSpotDetail } from "./WeakSpot.detail.tsx";
 import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
 import {
@@ -40,7 +41,7 @@ export function LibraryScreen({
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, runPlan, setKind, answerPlan } =
+  const { data, token, refused, error, runPlan, setKind, linkSpot, answerPlan } =
     useLibrary(services?.readCopy);
   const setPlanNote = (message: string) => onToast?.(message);
   useEffect(() => {
@@ -98,8 +99,13 @@ export function LibraryScreen({
     const why = await setKind(id, k);
     if (why) setPlanNote(why);
   };
-  const last = useRef({ plan, answer, kind });
-  last.current = { plan, answer, kind };
+  // A date change that was saved says nothing (the Detail shows it); one that was not says why.
+  const link = async (id: string, from: string | null, to: string | null) => {
+    const why = await linkSpot(id, from, to);
+    if (why) setPlanNote(why);
+  };
+  const last = useRef({ plan, answer, kind, link });
+  last.current = { plan, answer, kind, link };
   const page = open ? data?.pages[open] : undefined;
   const exam = open ? data?.exams.find((x) => x.id === open) : undefined;
   const spot = open ? data?.weakSpots.find((w) => w.id === open) : undefined;
@@ -149,13 +155,15 @@ export function LibraryScreen({
         }),
       );
     if (spot)
-      onDetail({
-        title: spot.title,
-        onClose: close,
-        // A linked collection's title is not read here yet, so the spot shows no Collection line.
-        properties: [{ label: "Next", value: spot.due }],
-      });
-  }, [page, exam, spot, openedByLink, openKey, onDetail]);
+      onDetail(
+        weakSpotDetail({
+          spot,
+          dates: data?.exams ?? [],
+          onLink: (to) => void last.current.link(spot.id, spot.goalId, to),
+          onClose: close,
+        }),
+      );
+  }, [page, exam, spot, data?.exams, openedByLink, openKey, onDetail]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty library.
   if (!token || refused) return null;
   // First data still on its way: the heading and a loading line, never an empty pane.

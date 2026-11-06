@@ -2,7 +2,7 @@
 // a write to one of these kinds, and every read of it. A kind not listed here has no domain entity yet and is not
 // parsed.
 import {
-  parseExam,
+  parseGoal,
   parseNote,
   parseObjective,
   parseSession,
@@ -12,7 +12,7 @@ import {
 export const DOMAIN_PARSERS: Readonly<
   Record<string, (raw: unknown) => unknown>
 > = {
-  exams: parseExam,
+  exams: parseGoal,
   notes: parseNote,
   objectives: parseObjective,
   sessions: parseSession,

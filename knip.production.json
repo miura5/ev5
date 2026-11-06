@@ -25,9 +25,6 @@
     "domain/draft/**": [
       "exports"
     ],
-    "domain/exam/**": [
-      "exports"
-    ],
     "domain/file/**": [
       "exports"
     ],

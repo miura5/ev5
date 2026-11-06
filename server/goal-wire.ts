@@ -2,13 +2,13 @@
 // the plan already read. Every date is a goal row; there are no `exams` documents to merge.
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
-import { parseExam } from "../domain/index.ts";
+import { parseGoal } from "../domain/index.ts";
 
 export interface WireGoal {
   id: string;
   v: number;
   at: number;
-  data: ReturnType<typeof parseExam>;
+  data: ReturnType<typeof parseGoal>;
 }
 
 /** The plan a goal's `planedits/<goal>` document points it at, as an old exam's `planId` does: the plan in force, else
@@ -45,7 +45,7 @@ export async function goalDocs(
           id: g.id,
           v: g.v,
           at: Math.max(g.at, edit?.at ?? 0),
-          data: parseExam({
+          data: parseGoal({
             schema: 2,
             writer: g.created_by === "user" ? "page" : "worker",
             at: new Date(g.at).toISOString(),

@@ -9,7 +9,7 @@ import {
   lastDay,
   planEnded,
   isActive,
-  parseExam,
+  parseGoal,
   reviewNeed,
 } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
@@ -77,7 +77,7 @@ export function planHome(
     async load(goalId) {
       const row = await examDoc(db as DocsD1, clock, goalId);
       if (!row) return undefined;
-      const exam = parseExam(row.data);
+      const exam = parseGoal(row.data);
       const today = centralDate(clock());
       // The weak spots are rows (§data.tables); the ones whose objective is linked to this goal are aimed at it.
       const attempts = await attemptsBySpot(db);

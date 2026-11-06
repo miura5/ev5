@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
 import type { ModelCall } from "../jobs/index.ts";
+import { tablesRepo } from "../data/index.ts";
 import app from "./index.ts";
+import { HISTORY_TURNS, historyLines } from "./ask-chat.ts";
 import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
 
 const NOTE = {
@@ -61,7 +63,7 @@ function setup(
       },
       env,
     );
-  return { ask, calls, db };
+  return { ask, calls, db, env };
 }
 
 test("a reply that cites a note it was given shows that note as its source", async () => {
@@ -132,4 +134,85 @@ test("only the app token may ask, and empty text is refused", async () => {
   const { ask } = setup({ text: "x", cited: [], asksTry: false });
   assert.equal((await ask("hi", "nope")).status, 401);
   assert.equal((await ask("  ")).status, 400);
+});
+
+test("each turn is saved as talk rows, and the saved chat is sent with the next question", async () => {
+  const { ask, calls, db } = setup({
+    text: "Under 60.",
+    cited: ["n-1"],
+    asksTry: false,
+  });
+  const first = (await (await ask("what is bradycardia?")).json()) as any;
+  assert.match(first.reply.chatId, /^chat_/);
+  assert.match(calls[0] as string, /Conversation so far:\n- none/);
+  await ask("and tachycardia?");
+  assert.match(
+    calls[1] as string,
+    /User: what is bradycardia\?\nE\.V\.: Under 60\./,
+  );
+  const rows = await tablesRepo(db as never, { clock: () => 1 }).talkBook.chat(
+    first.reply.chatId,
+  );
+  assert.deepEqual(
+    rows.map((r) => r.role),
+    ["user", "ev", "user", "ev"],
+  );
+  assert.deepEqual(rows[1]!.cites, ["n-1"]);
+});
+
+test("a refused question is not saved, and the history is capped by count and size", async () => {
+  const { ask, calls, db } = setup(
+    { text: "x", cited: [], asksTry: false },
+    {
+      ceiling_hourly: 0,
+      ceiling_daily: 5_000_000,
+      ceiling_monthly: 40_000_000,
+      ceiling_per_job: 1_000_000,
+    },
+  );
+  assert.equal((await ask("hello?")).status, 429);
+  assert.equal(
+    (await db.prepare("SELECT count(*) AS n FROM talk").first<{ n: number }>())
+      ?.n,
+    0,
+  );
+  assert.equal(calls.length, 0);
+  const t = Array.from({ length: 30 }, (_, i) => ({
+    role: "user",
+    text: `q${i}`,
+  }));
+  assert.equal(historyLines(t).length, HISTORY_TURNS);
+  assert.equal(historyLines(t)[HISTORY_TURNS - 1], "User: q29");
+  assert.deepEqual(
+    historyLines(
+      [
+        { role: "ev", text: "a".repeat(50) },
+        { role: "user", text: "b" },
+      ],
+      12,
+      20,
+    ),
+    ["User: b"],
+  );
+});
+
+test("a reload reads the saved chat back", async () => {
+  const { ask, env } = setup({ text: "Under 60.", cited: [], asksTry: false });
+  await ask("what is bradycardia?");
+  const r = await app.request(
+    "/api/v1/ask/chat",
+    {
+      headers: {
+        authorization: "Bearer fake-app",
+        "cf-connecting-ip": "9.9.9.9",
+      },
+    },
+    env,
+  );
+  const body = (await r.json()) as any;
+  assert.equal(r.status, 200);
+  assert.deepEqual(
+    body.lines.map((l: any) => l.role),
+    ["user", "ev"],
+  );
 });

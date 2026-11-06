@@ -31,6 +31,12 @@ export interface LibraryState {
   ): Promise<string | undefined>;
   /** Sets a date's kind (date.update), then reads again; resolves to a plain sentence when it fails. */
   setKind(id: string, kind: string): Promise<string | undefined>;
+  /** Moves a weak spot's link from one date to another (weakspot.link, then weakspot.unlink); null ends or starts it. */
+  linkSpot(
+    id: string,
+    from: string | null,
+    to: string | null,
+  ): Promise<string | undefined>;
   /** Answers a prep plan that is still waiting (approve or put away), then reads again. */
   answerPlan(
     jobId: string,
@@ -158,6 +164,23 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
+  const linkSpot = useCallback(
+    async (id: string, from: string | null, to: string | null) => {
+      if (to === from) return undefined;
+      // Link the new date first, so a refused link leaves the old one in place.
+      for (const [name, goal] of [
+        ["weakspot.link", to],
+        ["weakspot.unlink", from],
+      ] as const) {
+        if (!goal) continue;
+        const r = await call(name, { id, goal }, token);
+        if (!r.ok) return planFailure(r.status, r.reason);
+      }
+      setAgain((n) => n + 1);
+      return undefined;
+    },
+    [token],
+  );
   const answerPlan = useCallback(
     async (jobId: string, decision: "approve" | "put_away") => {
       try {
@@ -174,5 +197,14 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
-  return { data, token, error, refused, runPlan, setKind, answerPlan };
+  return {
+    data,
+    token,
+    error,
+    refused,
+    runPlan,
+    setKind,
+    linkSpot,
+    answerPlan,
+  };
 }

@@ -1,9 +1,11 @@
 // Weak spots (CONTRACT §ev.capture, §ui.weak-spots, §data.append-only): a weak spot is a `weak_spots` row and everything Matt does
 // to it is one appended `weak_spot_events` row (accept, decline, solid), so two quick taps are two inserts and never a 409;
 // "mark as learned" is a status, never a delete. A spot E.V. proposed counts nowhere until Matt confirms it. "Just tell me"
-// in Ask is logged as Matt's line in today's talk document.
+// in Ask is logged as the user's line, one talk row.
 import { tablesRepo } from "../data/index.ts";
+import { kindOffers } from "../domain/index.ts";
 import type { WeakSpotEventRow } from "../domain/index.ts";
+import { linkKey } from "./ids.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { talkLine } from "./handlers-edit.ts";
@@ -39,6 +41,16 @@ async function event(
   if (!r.ok) throw new CommandError(409, "that changed; try again");
 }
 
+/** The live weak spot -> goal link rows between a spot and a date (§data.links). */
+const spotLinks = async (x: HandlerCtx, id: string, goal: string) =>
+  (await tables(x).links.list()).filter(
+    (l) =>
+      l.from_kind === "weak_spot" &&
+      l.from_id === id &&
+      l.to_kind === "goal" &&
+      l.to_id === goal,
+  );
+
 export const weakHandlers: Record<string, CommandHandler> = {
   // Starting the drill is the screen's; the server agrees once the spot exists.
   "weakspot.drill": async (i: { id: string }, _c, x) => {
@@ -60,9 +72,40 @@ export const weakHandlers: Record<string, CommandHandler> = {
     await event(x, i.id, "decline");
     return { id: i.id, declined: true };
   },
+  // A weak spot points at its date with one link row (§data.links); linking twice keeps the one row, unlinking removes it.
+  "weakspot.link": async (i: { id: string; goal: string }, _c, x) => {
+    await need(x, i.id);
+    const g = await tables(x).goals.get(i.goal);
+    if (!g) throw new CommandError(404, `no date ${i.goal}`);
+    if (!kindOffers(g.kind, "weak-spot-links"))
+      throw new CommandError(409, `${g.title} does not take weak spots`);
+    const have = (await spotLinks(x, i.id, i.goal))[0];
+    if (have) return { id: i.id, goal: i.goal, link: have.id };
+    const link = linkKey(x.newId());
+    const r = await tables(x).links.save(
+      {
+        id: link,
+        from_kind: "weak_spot",
+        from_id: i.id,
+        to_kind: "goal",
+        to_id: i.goal,
+        by: "user",
+        note: null,
+      },
+      null,
+    );
+    if (!r.ok) throw new CommandError(409, "that changed; try again");
+    return { id: i.id, goal: i.goal, link };
+  },
+  "weakspot.unlink": async (i: { id: string; goal: string }, _c, x) => {
+    await need(x, i.id);
+    for (const l of await spotLinks(x, i.id, i.goal))
+      await tables(x).links.remove(l.id, l.v);
+    return { id: i.id, goal: i.goal };
+  },
   // The reply Matt asked to be told is logged; the answer itself is on the Ask screen.
   "ask.just_tell_me": async (i: { id: string }, _c, x) => {
-    await talkLine(x, { text: "Just tell me", replyTo: i.id }, "v5/ask");
+    await talkLine(x, { text: "Just tell me", replyTo: i.id });
     return { id: i.id, told: true };
   },
 };

@@ -67,6 +67,8 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
   plans: "plan",
   jobs: "job",
   goals: "date",
+  exams: "date",
+  sets: "questions",
 };
 
 /** The kind in words, for the row's second line. */

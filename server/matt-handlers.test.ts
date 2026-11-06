@@ -189,14 +189,26 @@ test("a weak spot is confirmed, declined, learned; a spot that is not proposed c
   assert.deepEqual(await types("ws_3"), ["solid/user", "solid/user"]);
 });
 
-test("ask just tell me is logged in today's talk document", async () => {
-  const { call, DB, doc } = await setup();
+test("ask just tell me is logged as an appended talk row in the chat", async () => {
+  const { call, DB } = await setup();
   assert.equal((await call("ask.just_tell_me", { id: "m-1" })).status, 200);
   assert.equal((await call("ask.just_tell_me", { id: "m-2" })).status, 200);
-  const r = await DB.prepare("SELECT id FROM docs WHERE c = 'talk'").all<{
-    id: string;
-  }>();
-  assert.equal(r.results.length, 1);
-  const t = await doc("talk", (r.results[0] as { id: string }).id);
-  assert.equal(Object.keys(t?.messages).length, 2);
+  const r = await tablesRepo(DB as never, { clock: () => 1000 }).talkBook.chat(
+    (await tablesRepo(DB as never, {
+      clock: () => 1000,
+    }).talkBook.latestAskChat()) as string,
+  );
+  assert.equal(r.length, 2);
+  assert.deepEqual(
+    r.map((l) => [l.role, l.text, l.scope]),
+    [
+      ["user", "Just tell me", "ask"],
+      ["user", "Just tell me", "ask"],
+    ],
+  );
+  assert.equal(
+    (await DB.prepare("SELECT 1 FROM docs WHERE c = 'talk'").all()).results
+      .length,
+    0,
+  );
 });

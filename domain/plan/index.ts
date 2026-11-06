@@ -1,7 +1,7 @@
-// domain/plan: a study plan's saved rows, `plans(id, exam_id, job_id, status, summary, at)` and
-// `plan_items(id, plan_id, repeat, day, title, minutes, weak_spot_id, pos)`. The study plan job's approved tasks become
-// plan_items here (§model.output: code validates, the model only arranges); a plan item is unique by repeat and day
-// (§data.repeat). Approve and put away each have exactly one path, below. Pure: the data gate writes the rows (§data.gate).
+// domain/plan: the study plan job's rules and the older exam-keyed row shapes below (camelCase, `examId`), kept until the
+// callers move. The tables that exist are `plans` and `plan_items` (migration 0007): their rows are ./table.ts, which also
+// builds them from a job's plan (`planTableWrite`); the data gate writes them (§data.gate) and a plan item is unique by
+// repeat and day (§data.repeat). The code validates and the model only arranges (§model.output). Pure: no SQL here.
 import { z } from "zod";
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;

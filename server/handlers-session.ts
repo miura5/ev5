@@ -1,7 +1,7 @@
 // Sessions and their checks (CONTRACT §cmd.registry, §data.protocol): a session is a `sessions` row with appended
 // `session_events` rows, its clock rebuilt from the events, so every command here appends one event (or the marks status
 // and endedAt) at the version read. Starting one ends the one running (a mark, never a removal). A check's answer is the
-// user's line in today's talk document; the session keeps only that it was answered (the note's text never enters it).
+// user's line, one appended talk row; the session keeps only that it was answered (the note's text never enters it).
 import {
   centralDate,
   newSessionEventRow,
@@ -17,7 +17,6 @@ import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { eventKey, iso, rand, talkLine } from "./handlers-edit.ts";
 
-const SESSION_ID = /^ss-/;
 const book = (x: HandlerCtx) =>
   tablesRepo(x.db, { clock: x.clock }).sessionBook;
 const view = (s: StoredSession) =>
@@ -113,18 +112,14 @@ export const sessionHandlers: Record<string, CommandHandler> = {
     return { id: i.id, minutes };
   },
 
-  // The answer is Matt's line in the talk document; the session records that check n was answered.
+  // The answer is the user's line, one talk row of the session; the session records that check n was answered.
   "check.answer": async (i: { id: string; answer: string }, _c, x) => {
     const cur = await open(x, i.id);
     const n = Math.max(1, sessionState(view(cur), x.clock()).checks);
-    const msg = await talkLine(
-      x,
-      {
-        text: i.answer.slice(0, 4000),
-        session: SESSION_ID.test(i.id) ? i.id : undefined,
-      },
-      "v5/sessions",
-    );
+    const msg = await talkLine(x, {
+      text: i.answer.slice(0, 4000),
+      sessionId: cur.row.id,
+    });
     await addEvent(x, cur, { type: "answer", n, msgId: msg });
     return { id: i.id, n };
   },

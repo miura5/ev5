@@ -66,6 +66,7 @@ test("exams, weak spots and sets map to the views' props; invalid docs are skipp
       meta: "2 missed",
       mastery: { right: 0, shaky: 0, wrong: 1 },
       due: "due today",
+      goalId: "e4",
     },
   ]);
   expect(d.exams.map((e) => [e.id, e.meta, e.mastery.wrong])).toEqual([

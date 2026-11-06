@@ -1,6 +1,7 @@
 // Thin adapters from the job runtime's store interfaces onto data/'s repositories (§data.gate): jobs/ holds no SQL.
 // The repositories own the statements, the Worker clock for `at`, the version pin and the atomic batches.
 import { tablesRepo, type DocsD1 } from "../../data/index.ts";
+import { centralDate, planTableWrite } from "../../domain/index.ts";
 import type { CeilingStore } from "./ceilings.ts";
 import type { JobStore } from "./record.ts";
 import type { Plan, PlanContext, PlanStore } from "../study-plan/job.ts";
@@ -35,7 +36,7 @@ export function d1PlanStore(
     apply: (jobId: string, plan: Plan) => Promise<string>;
   },
 ): PlanStore {
-  const { jobPlans } = tablesRepo(db, { clock });
+  const { jobPlans, plans, planItems } = tablesRepo(db, { clock });
   const put = async (jobId: string, kind: string, body: unknown) => {
     await jobPlans.put(jobId, kind, body);
     return `${jobId}:${kind}`;
@@ -47,6 +48,48 @@ export function d1PlanStore(
     if (v === undefined) throw new Error(`job ${jobId}: no ${kind} saved`);
     return v;
   };
+  /**
+   * The plan's rows through the gate: the plan for the goal's context, one item per task. A goal's plan already in force
+   * is put away first (one in force per goal). A retried step finds its rows and writes nothing again; the opposite
+   * decision to the one saved is refused (a plan settled one way is not unsettled).
+   */
+  const writeTables = async (
+    jobId: string,
+    plan: Plan,
+    state: "in_force" | "put_away",
+  ) => {
+    const { goal } = await need<PlanContext>(jobId, "context");
+    const w = planTableWrite({
+      jobId,
+      goalId: goal.id,
+      goalTitle: goal.title,
+      plan,
+      state,
+      today: centralDate(clock()),
+    });
+    const saved = await plans.get(w.plan.id, { deleted: true });
+    if (saved) {
+      if ((saved.state === "put_away") === (state === "put_away")) return;
+      throw new Error(
+        `This plan was already ${saved.state === "put_away" ? "put away" : "approved"}.`,
+      );
+    }
+    if (state === "in_force")
+      for (const old of await plans.list({
+        where: { goal_id: goal.id, state: "in_force" },
+      })) {
+        const { at: _at, v, deleted_at: _d, ...f } = old;
+        const r = await plans.save({ ...f, state: "put_away" }, v);
+        if (!r.ok) throw new Error(`plan ${old.id} changed; try again`);
+      }
+    const made = await plans.save(w.plan, null);
+    if (!made.ok) throw new Error(`plan ${w.plan.id} was not saved`);
+    for (const item of w.items) {
+      if (await planItems.get(item.id, { deleted: true })) continue;
+      const r = await planItems.save(item, null);
+      if (!r.ok) throw new Error(`plan item ${item.id} was not saved`);
+    }
+  };
   return {
     load: home.load,
     putContext: (j, ctx: PlanContext) => put(j, "context", ctx),
@@ -56,11 +99,14 @@ export function d1PlanStore(
     putFailure: async (j, reason) => void (await put(j, "failure", reason)),
     getFailure: (j) => get<string>(j, "failure"),
     async approve(jobId, plan) {
+      // Expand step (PLAN §11): the legacy doc stays until Today and Library read the tables, so both land.
       const id = await home.apply(jobId, plan);
+      await writeTables(jobId, plan, "in_force");
       await put(jobId, "status", "approved");
       return id;
     },
     async putAway(jobId) {
+      await writeTables(jobId, await need<Plan>(jobId, "draft"), "put_away");
       return put(jobId, "status", "put away"); // the draft row stays
     },
   };
