@@ -5802,7 +5802,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Current state (run 92): domain/ holds the snake_case row shapes for every new table (collections, goals, objectives, links, attempts, weak spots, sets and items, sessions, notes, talk, plans, plan_items, repeats, pins, settings, files, drafts) and the one plan body shape (planBodySchema, used by jobs/study-plan); data, jobs/runtime and ceilings parse through domain shapes; drafts inserts fill target_kind; job ids are job_ and hold ids hold_; model_usage is not needed (ceiling tables and job_records.cost_cents cover cost). Left: draft callers still use camelCase draftSchema and targetC, blocked by draft ids <job>:d<n> doubling as item ids (jobs/practice-set, handlers-proposal); the contract migration drops target_c and backfills target_kind; server SQL for claude_settings and job_plans through the domain; WireDoc removal in areas; remove the old doc-row exam..note shapes and old camelCase plan shapes once their kinds move.",
+  "notes": "Group 4. Drafts done (#587, run 93): snake_case draft rows, draft_ ids (domain draftKey), DRAFT_KINDS set-item+suggestion; writers still fill target_c until the contract migration. Left: server SQL for claude_settings and job_plans, WireDoc in areas, old doc-row shapes (wait for B-1037 to B-1043), contract migration dropping target_c. Unprefixed draft ids on staging are not found by id (short-lived).",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5985,7 +5985,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Current state (run 92): checks 2 (first half, docs-kind ALLOWED list; each move PR removes its kind), 3, 4, 5, 8 and 9 are on main with red fixtures; the source-ids and chart-ev4 allow lists are empty. server/prompt-words.test.ts already keeps subject words out of the model prompts. Left: check 2's second half (SQL naming docs, ev4 collection names, ev4 envelope, data/compat imports), blocked until docs and data/docs are gone (B-998 part 2); checks 1, 6, 7 after the subject and ev4 sweep. 2026-11-06 daily review: item type ids 'sata' and 'matrix' are exam-format names. Build manager's decision: the formats stay (they are general), the ids become 'multi_select' and 'grid' ('matrix' names the exam format; 'grid' says what the user sees), and jobs/practice-set/job.ts:73 imports the one list from domain/item. Added to the done bar, with SATA in check 1.",
+  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
