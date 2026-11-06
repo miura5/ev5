@@ -20,6 +20,7 @@ const PLAN_TEXT = {
   none: "no plan yet",
   draft: "draft waiting for you",
   approved: "in force",
+  ended: "ended",
   away: "put away",
   working: "E.V. is saving the plan",
 } as const;
@@ -100,7 +101,11 @@ export function LibraryScreen({
           onApprove: (id) =>
             void (exam.waiting
               ? last.current.answer(id, "approve")
-              : last.current.plan("studyplan.approve", { id }, "Plan approved")),
+              : last.current.plan(
+                  "studyplan.approve",
+                  { id },
+                  "Plan approved",
+                )),
           onAskChanges: (id, note) =>
             void last.current.plan(
               "studyplan.ask_changes",

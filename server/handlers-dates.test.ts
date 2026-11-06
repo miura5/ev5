@@ -108,6 +108,34 @@ test("approving a study plan puts it in force and putting it away retires it", a
   assert.equal((await doc("plans", "p1"))?.exam, "e1"); // the plan itself is untouched
 });
 
+test("approving a plan whose days have all passed is refused with a plain reason", async () => {
+  const { call, doc, put } = await setup();
+  const day = (date: string) => ({ date, tasks: [{ id: "t", text: "x" }] });
+  const base = {
+    schema: 1,
+    writer: "worker",
+    at: "2026-11-01T00:00:00.000Z",
+    source: "t",
+    exam: "e1",
+  };
+  await put("plans", "old", {
+    ...base,
+    days: [day("2000-01-01"), day("2000-01-02")],
+  });
+  await put("plans", "live", {
+    ...base,
+    days: [day("2000-01-01"), day("2999-01-01")],
+  });
+  const r = await call("studyplan.approve", { id: "old" });
+  assert.equal(r.status, 409);
+  assert.match(
+    JSON.stringify(r.body),
+    /days have all passed.*Plan again/,
+  );
+  assert.equal(await doc("planedits", "e1"), null);
+  assert.equal((await call("studyplan.approve", { id: "live" })).status, 200);
+});
+
 test("a draft is kept into its set exactly once, or dropped; the whole set at once", async () => {
   const { DB, call, put } = await setup();
   const draft = (id: string, set: string, kind = "set-item") =>

@@ -123,3 +123,39 @@ test("a new plan for an exam puts away its older waiting draft and stops its old
   assert.match(run?.reason ?? "", /newer plan/);
   assert.equal((await store.get("other-exam"))?.state, "needs-you");
 });
+
+test("approving a study plan draft whose days have all passed is refused and the job keeps waiting", async () => {
+  const s = setup();
+  const { req, db } = s;
+  await d1JobStore(db, () => 1).put({
+    id: "sp2",
+    kind: "study_plan",
+    title: "Study plan",
+    state: "needs-you",
+    step: "approve",
+    reason: "Approve it.",
+    costCents: 0,
+    createdAt: "2026-11-04T00:00:00.000Z",
+    updatedAt: "2026-11-04T00:00:00.000Z",
+    v: 1,
+  });
+  await db
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('sp2', 'draft', ?, 0)",
+    )
+    .bind(
+      JSON.stringify({
+        summary: "s",
+        tasks: [{ date: "2000-01-01", title: "t", minutes: 20 }],
+      }),
+    )
+    .run();
+  const r = await req("POST", "/api/v1/jobs/sp2/continue", "fake-app", {
+    answer: { decision: "approve" },
+  });
+  assert.equal(r.status, 409);
+  const body = (await r.json()) as { error: string; offer: string };
+  assert.match(body.error, /days have all passed/);
+  assert.equal(body.offer, "plan_again");
+  assert.equal((await d1JobStore(db, () => 1).get("sp2"))?.state, "needs-you");
+});

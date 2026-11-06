@@ -7,6 +7,7 @@ import {
   parseSet,
   parseWeakSpot,
   plainDay,
+  planEnded,
 } from "../../domain/index.ts";
 import { accuracyLine, dueCounts } from "../../domain/index.ts";
 import type {
@@ -116,9 +117,21 @@ function workingPlan(jobs: WireJob[] | undefined, exam: string): boolean {
   );
 }
 
-function planStateOf(planId: string | undefined, e?: PlanEdit): PlanState {
+function planStateOf(
+  planId: string | undefined,
+  e: PlanEdit | undefined,
+  sessions: readonly PlanSession[],
+  today: string,
+): PlanState {
   if (!planId) return "none";
-  if (e?.plan === planId) return "approved";
+  // A plan past its last day is over, not in force, even though it is still the one the exam points at.
+  if (e?.plan === planId)
+    return planEnded(
+      sessions.map((s) => s.date),
+      today,
+    )
+      ? "ended"
+      : "approved";
   if (e?.retired && planId in e.retired) return "away";
   return "draft";
 }
@@ -228,7 +241,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
           ? "draft"
           : working
             ? "working"
-            : planStateOf(planId, edits.get(id)),
+            : planStateOf(planId, edits.get(id), sessions, today),
         ...(planId ? { planId } : {}),
         ...(waiting ? { waiting: true } : {}),
         ...(sessions.length ? { sessions } : {}),

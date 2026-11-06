@@ -66,7 +66,9 @@ function ExamPlanBody({
   );
   const draft = exam.planState === "draft" && exam.planId;
   const planId = exam.planId ?? "";
-  const approved = exam.planState === "approved";
+  const ended = exam.planState === "ended";
+  const approved = exam.planState === "approved" || ended;
+  const lastDay = exam.sessions?.at(-1)?.date;
   const count = exam.sessions?.length ?? 0;
   return (
     <>
@@ -83,7 +85,13 @@ function ExamPlanBody({
           <Empty line="E.V. is saving the plan…" />
         </div>
       ) : null}
-      {approved ? (
+      {ended ? (
+        <div data-part="ended">
+          <Empty
+            line={`This plan ended${lastDay ? ` on ${plainDay(lastDay, lastDay)}` : ""}. Sessions that were not done are not carried over; ask E.V. to plan again.`}
+          />
+        </div>
+      ) : approved ? (
         <div data-part="approved">
           <Empty
             line={
@@ -96,7 +104,9 @@ function ExamPlanBody({
       ) : null}
       {review ? (
         <div data-part="proposal">
-          <Section label={approved ? "Sessions in your plan" : "Proposed sessions"}>
+          <Section
+            label={approved ? "Sessions in your plan" : "Proposed sessions"}
+          >
             {exam.sessions?.length ? (
               exam.sessions.map((s, i) => (
                 <Row

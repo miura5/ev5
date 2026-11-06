@@ -24,6 +24,8 @@ import { draftTasksOfPlans, examsOfPlans } from "./plan-context.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts } from "./excerpts.ts";
+import { lastDraftDay } from "./plan-home.ts";
+import { centralDate, endedReason, planEnded } from "../domain/index.ts";
 import { endedSessionsToday, finishedJobsToday } from "./jobs-done.ts";
 
 export interface JobRoutesEnv {
@@ -134,6 +136,15 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
     def.answer?.(answer);
   } catch (e) {
     return c.json({ error: (e as Error).message }, 400);
+  }
+  // A draft whose days have all passed (Central) is refused, with a plain reason and an offer to plan again.
+  if (
+    def.kind === studyPlanJob.kind &&
+    (answer as { decision?: unknown } | undefined)?.decision === "approve"
+  ) {
+    const last = await lastDraftDay(c.env.DB, rec.id);
+    if (last !== undefined && planEnded([last], centralDate(Date.now())))
+      return c.json({ error: endedReason(last), offer: "plan_again" }, 409);
   }
   // Putting a plan away needs no Workflow: it ends now as done, so it never shows as running and lands in Done today.
   if (

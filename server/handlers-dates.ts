@@ -2,7 +2,13 @@
 // page; a change to any date, Canvas's included, is an override in `dateedits` (a Canvas entry's fields are marks only
 // canvas-sync may write). Approving a study plan makes it the plan in force in `planedits/<exam>`; putting it away marks
 // it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
-import { addDays } from "../domain/index.ts";
+import {
+  addDays,
+  centralDate,
+  endedReason,
+  lastDay,
+  planEnded,
+} from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -139,6 +145,16 @@ export const dateHandlers: Record<string, CommandHandler> = {
 
   "studyplan.approve": async (i: { id: string }, _c, x) => {
     const exam = await examOf(x, i.id);
+    const days = (await need(x, "plans", i.id)).days;
+    const last = lastDay(
+      Array.isArray(days)
+        ? days.flatMap((d: Doc) =>
+            typeof d?.date === "string" ? [d.date] : [],
+          )
+        : [],
+    );
+    if (last !== undefined && planEnded([last], centralDate(x.clock())))
+      throw new CommandError(409, endedReason(last));
     await putPlanInForce(x, exam, i.id, "v5/command:studyplan.approve");
     return { id: i.id, exam, inForce: true };
   },
