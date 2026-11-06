@@ -17,6 +17,7 @@ import {
   parseSessionTableRow,
   parseSessionEventRow,
   parseTalkRow,
+  parseFileRow,
   parsePlanTableRow,
   parsePlanItemTableRow,
   parseRepeatRow,
@@ -103,6 +104,7 @@ const tables: Entry[] = [
     sample: { id: 'ses_1', kind: 'note', note_id: null, set_id: null, collection_id: null, day: '2026-11-05', status: 'active', planned_min: null, started_at: null, ended_at: null, topic: null, clock: null, minutes: null, driver: null, ...S, ...D },
   },
   { table: 'session_events', parse: parseSessionEventRow, sample: { id: 'sese_1', session_id: 'ses_1', type: 'start', body: null, ...S } },
+  { table: 'files', parse: parseFileRow, sample: { id: 'file_1', kind: 'note_image', type: 'image/png', size: 1, sha256: 'a'.repeat(64), r2_key: 'note-images/a.png', owner_kind: 'note', owner_id: 'note_1', ...S, ...D } },
   {
     table: 'talk',
     parse: parseTalkRow,
@@ -199,6 +201,7 @@ test('every pointer column is indexed (§data.tables)', () => {
     sessions: ['note_id', 'set_id', 'collection_id'],
     session_events: ['session_id,at'],
     talk: ['chat_id,at', 'session_id'],
+    files: ['owner_kind,owner_id', 'r2_key'],
     memberships: ['collection_id'],
     pins: ['target_kind,target_id'],
     own_sets: ['source_c,source_id'],
