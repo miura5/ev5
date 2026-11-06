@@ -25,7 +25,7 @@ test("only the staging rebuild deletes a D1: ev5-staging, on demand, before the 
   const yml = read(".github/workflows/staging.yml");
   const deletes = [...yml.matchAll(/d1 delete (\S+)/g)].map((m) => m[1]);
   assert.deepEqual(deletes, ["ev5-staging"]);
-  assert.match(yml, /if: \$\{\{ github\.event_name == 'workflow_dispatch' && inputs\.rebuild \}\}\n\s+run: npx --yes \$WRANGLER d1 delete ev5-staging -y/);
+  assert.match(yml, /if: \$\{\{ github\.event_name == 'workflow_dispatch' && inputs\.rebuild \}\}\n(?:\s+#.*\n)?\s+working-directory: \$\{\{ runner\.temp \}\}\n\s+run: npx --yes \$WRANGLER d1 delete ev5-staging -y/);
   assert.ok(yml.indexOf("d1 delete") < yml.indexOf("d1 create"));
   for (const f of fs.readdirSync(new URL(".github/workflows/", root)).filter((n) => n !== "staging.yml"))
     assert.doesNotMatch(read(`.github/workflows/${f}`), /d1 delete/, f);
