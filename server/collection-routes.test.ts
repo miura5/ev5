@@ -25,13 +25,13 @@ async function setup(withTables: boolean) {
   ).run();
   if (withTables) {
     await DB.prepare(
-      "CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT NOT NULL, parent_id TEXT, pos INTEGER NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL)",
+      "CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT NOT NULL, parent_id TEXT, pos INTEGER NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, deleted_at INTEGER)",
     ).run();
     await DB.prepare(
       "CREATE TABLE memberships (item_c TEXT NOT NULL, item_id TEXT NOT NULL, collection_id TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (item_c, item_id))",
     ).run();
     await DB.prepare(
-      "INSERT INTO collections VALUES ('c2','Spanish',NULL,2,5,1),('c1','NUR 112',NULL,1,5,1),('c3','Unit 1','c1',1,6,1)",
+      "INSERT INTO collections VALUES ('col_c2','Spanish',NULL,2,5,1,NULL),('col_c1','NUR 112',NULL,1,5,1,NULL),('col_c3','Unit 1','col_c1',1,6,1,NULL)",
     ).run();
     await DB.prepare(
       "CREATE TABLE pins (target_c TEXT NOT NULL, target_id TEXT NOT NULL, pos INTEGER NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (target_c, target_id))",
@@ -40,7 +40,7 @@ async function setup(withTables: boolean) {
       "INSERT INTO pins VALUES ('sets','s1',1,5),('notes','n1',0,9),('notes','n2',1,8)",
     ).run();
     await DB.prepare(
-      "INSERT INTO memberships VALUES ('notes','n1','c1',7,1),('sets','s1','c2',9,1)",
+      "INSERT INTO memberships VALUES ('notes','n1','col_c1',7,1),('sets','s1','col_c2',9,1)",
     ).run();
   }
   const env = {
@@ -66,9 +66,9 @@ test("collections read by position, with parent ids", async () => {
   assert.deepEqual(
     j.collections.map((c) => [c.id, c.parentId]),
     [
-      ["c1", null],
-      ["c3", "c1"],
-      ["c2", null],
+      ["col_c1", null],
+      ["col_c3", "col_c1"],
+      ["col_c2", null],
     ],
   );
 });
@@ -83,7 +83,7 @@ test("memberships read newest first and filter by collection", async () => {
     ["s1", "n1"],
   );
   const one = (await (
-    await call("GET", "/memberships?collection_id=c1")
+    await call("GET", "/memberships?collection_id=col_c1")
   ).json()) as {
     memberships: { id: string; collection: string }[];
   };

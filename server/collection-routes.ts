@@ -69,7 +69,7 @@ interface DeletionRow {
 collectionRoutes.get("/collections", async (c) => {
   const out = await rows<CollectionRow>(
     c.env.DB,
-    `SELECT id, title, parent_id, pos, at, v FROM collections WHERE NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = 'collections' AND d.id = collections.id) ORDER BY pos, id LIMIT ${LIMIT}`,
+    `SELECT id, title, parent_id, pos, at, v FROM collections WHERE deleted_at IS NULL ORDER BY pos, id LIMIT ${LIMIT}`,
     [],
   );
   return c.json({
@@ -88,7 +88,7 @@ collectionRoutes.get("/memberships", async (c) => {
   const id = c.req.query("collection_id");
   const out = await rows<MembershipRow>(
     c.env.DB,
-    `SELECT item_c, item_id, collection_id, at, v FROM memberships WHERE NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = 'collections' AND d.id = memberships.collection_id)${id === undefined ? "" : " AND collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
+    `SELECT item_c, item_id, collection_id, at, v FROM memberships WHERE NOT EXISTS (SELECT 1 FROM collections d WHERE d.id = memberships.collection_id AND d.deleted_at IS NOT NULL)${id === undefined ? "" : " AND collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
     id === undefined ? [] : [id],
   );
   return c.json({

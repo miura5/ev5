@@ -74,7 +74,7 @@ function seeded() {
     date: "2026-11-10",
   });
   db.sql.exec(
-    "INSERT INTO collections (id, title, at) VALUES ('c1', 'NUR 112', 0), ('c2', 'BIO 201', 0)",
+    "INSERT INTO collections (id, title, at) VALUES ('col_c1', 'NUR 112', 0), ('col_c2', 'BIO 201', 0)",
   );
   put(db, "exams", "e2", {
     schema: 2,
@@ -84,10 +84,10 @@ function seeded() {
     course: "BIO 201",
     date: "2026-11-12",
   });
-  db.sql.exec(row("ws_w1", "Heart sounds", "c1"));
-  db.sql.exec(row("ws_w2", "Insulin", "c1"));
-  db.sql.exec(row("ws_w3", "Other exam", "c2"));
-  db.sql.exec(row("ws_w4", "Parked", "c1"));
+  db.sql.exec(row("ws_w1", "Heart sounds", "col_c1"));
+  db.sql.exec(row("ws_w2", "Insulin", "col_c1"));
+  db.sql.exec(row("ws_w3", "Other exam", "col_c2"));
+  db.sql.exec(row("ws_w4", "Parked", "col_c1"));
   db.sql.exec(
     "INSERT INTO weak_spot_events (id, weak_spot_id, type, \"by\", note, objective_id, \"until\", at, v) VALUES ('wse_1', 'ws_w4', 'park', 'user', 'later', NULL, NULL, " +
       Date.parse("2026-11-02T10:00:00Z") +
@@ -237,7 +237,7 @@ test("a weak spot is created in its table, once, with no events and no docs row"
   const { createWeakSpot } = await import("./weak-wire.ts");
   const db = sqliteD1();
   db.sql.exec(
-    "INSERT INTO collections (id, title, at) VALUES ('c1', 'NUR 112', 0)",
+    "INSERT INTO collections (id, title, at) VALUES ('col_c1', 'NUR 112', 0)",
   );
   const doc = {
     schema: 2,

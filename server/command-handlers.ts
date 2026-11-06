@@ -4,6 +4,7 @@
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
+import { colKey } from "./ids.ts";
 import type { CommandHandler } from "./handlers-core.ts";
 import { dateHandlers } from "./handlers-dates.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
@@ -81,7 +82,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
   "item.move": async (i: Ref & { collection: string }, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
     const c = await collectionOf(x.db, i.id);
-    if (!(await t.collections.get(i.collection)))
+    if (!(await t.collectionRows.get(i.collection)))
       throw new CommandError(404, `no collection ${i.collection}`);
     const cur = await t.memberships.get(c, i.id);
     const r = await t.memberships.save(
@@ -100,13 +101,11 @@ export const commandHandlers: Record<string, CommandHandler> = {
       .bind(i.id)
       .all<{ n: number }>();
     if (!inDocs.results.length) {
-      const coll = await tablesRepo(x.db, { clock: x.clock }).collections.get(
-        i.id,
-      );
+      const t = tablesRepo(x.db, { clock: x.clock });
+      const coll = await t.collectionRows.get(i.id);
       if (coll) {
-        await tablesRepo(x.db, { clock: x.clock }).deletions.markCollection(
-          i.id,
-        );
+        await t.deletions.markCollection(i.id);
+        await t.collectionRows.remove(i.id, coll.v);
         return { deleted: true, collection: i.id };
       }
     }
@@ -118,10 +117,10 @@ export const commandHandlers: Record<string, CommandHandler> = {
   "item.restore": async (i: Ref, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
     // A collection lives in its own table; any other item is named by the collection its document is in.
-    const c = (await t.collections.get(i.id))
-      ? "collections"
-      : await collectionOf(x.db, i.id);
+    const coll = await t.collectionRows.get(i.id, { deleted: true });
+    const c = coll ? "collections" : await collectionOf(x.db, i.id);
     const restored = await t.deletions.restore(c, i.id);
+    if (coll?.deleted_at != null) await t.collectionRows.restore(i.id, coll.v);
     if (!restored)
       throw new CommandError(404, `${i.id} is not in Recently deleted`);
     return { restored };
@@ -129,9 +128,17 @@ export const commandHandlers: Record<string, CommandHandler> = {
   "item.rename": async (i: Ref & { title: string }, _c, x) => {
     // A collection lives in its own table: rename it there (nothing else changes).
     const t = tablesRepo(x.db, { clock: x.clock });
-    const coll = await t.collections.get(i.id);
+    const coll = await t.collectionRows.get(i.id);
     if (coll) {
-      const r = await t.collections.save({ ...coll, title: i.title }, coll.v);
+      const r = await t.collectionRows.save(
+        {
+          id: coll.id,
+          title: i.title,
+          parent_id: coll.parent_id,
+          pos: coll.pos,
+        },
+        coll.v,
+      );
       if (!r.ok)
         throw new CommandError(409, "that collection changed; try again");
       return { version: r.row.v };
@@ -149,12 +156,12 @@ export const commandHandlers: Record<string, CommandHandler> = {
   },
   "collection.create": async (i: { title: string }, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
-    const pos = (await t.collections.list()).reduce(
+    const pos = (await t.collectionRows.list()).reduce(
       (m, c) => Math.max(m, c.pos + 1),
       0,
     );
-    const r = await t.collections.save(
-      { id: x.newId(), title: i.title, parentId: null, pos },
+    const r = await t.collectionRows.save(
+      { id: colKey(x.newId()), title: i.title, parent_id: null, pos },
       null,
     );
     if (!r.ok) throw new CommandError(409, "that collection already exists");

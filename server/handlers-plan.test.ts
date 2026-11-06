@@ -14,6 +14,7 @@ async function setup() {
     "0001_deletions",
     "0003_collections_pins_own",
     "0004_ceiling_usage",
+    "0006_tables",
   ])
     for (const stmt of readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
@@ -186,14 +187,14 @@ test("a repeat is saved and materializes into dayedits.added under rep-<id>-<dat
 test("a link and a collection are kept, and a bad option writes nothing", async () => {
   const { call, doc, DB } = await setup();
   await DB.prepare(
-    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('c1', 'Skills', NULL, 0, 1, 1)",
+    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('col_c1', 'Skills', NULL, 0, 1, 1)",
   ).run();
   const { id } = (
     await call("plan.create", {
       title: "Lab",
       date: "2026-11-05",
       linked: "exams/e1",
-      collection: "c1",
+      collection: "col_c1",
     })
   ).body.result;
   const p = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
@@ -204,7 +205,7 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
   const m = await DB.prepare("SELECT * FROM memberships WHERE item_id = ?")
     .bind(id)
     .first<Record<string, any>>();
-  assert.equal(m?.collection_id, "c1");
+  assert.equal(m?.collection_id, "col_c1");
   // into a course: ev4's field, the row goes
   assert.equal(
     (await call("plan.update", { id, collection: "course:NUR 112" })).status,

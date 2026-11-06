@@ -61,8 +61,15 @@ test("new here makes a note, a set, a date and a collection", async () => {
   ).all<{ item_c: string }>();
   assert.deepEqual(
     m.results.map((r) => r.item_c),
-    ["notes", "sets"],
+    ["notes"],
   );
+  // a set carries its own collection_id; it has no membership row
+  const set = await DB.prepare(
+    "SELECT collection_id FROM sets WHERE collection_id = ?",
+  )
+    .bind(cid)
+    .all();
+  assert.equal(set.results.length, 1);
 });
 
 test("a session starts, pauses, answers a check, and ends", async () => {
