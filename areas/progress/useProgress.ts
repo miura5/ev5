@@ -76,7 +76,7 @@ export interface ProgressState {
   error?: string;
 }
 
-/** Reads answers and sessions with the app token Matt keeps in this browser (the shell holds none). */
+/** Reads answers and sessions with the app token the user keeps in this browser (the shell holds none). */
 export function useProgress(copy?: ReadCopyLike): ProgressState {
   const [token] = useState(readToken);
   const [data, setData] = useState<ProgressData>();
