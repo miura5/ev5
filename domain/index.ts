@@ -16,7 +16,17 @@ export {
   ITEM_TYPES,
   upgradeItem,
 } from "./item/index.ts";
-export { parseSession } from "./session/index.ts";
+export { parseSession, type SessionEvent } from "./session/index.ts";
+export {
+  newSessionEventRow,
+  newSessionRow,
+  sessionDoc,
+  sessionDocId,
+  sessionEventId,
+  sessionRowId,
+  type NewSessionEventRow,
+  type NewSessionRow,
+} from "./session/rows.ts";
 export {
   parseNote,
   writeProblem as noteWriteProblem,

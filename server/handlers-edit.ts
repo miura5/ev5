@@ -1,5 +1,5 @@
-// What the Matt-command handler files share: event keys in ev4's form, a read-change-save on one document pinned to the
-// version read (a stale write is a 409, §data.protocol), and an append to today's talk document. Nothing here removes
+// What the Matt-command handler files share: event keys in ev4's form, a save pinned to the version read (a stale write is
+// a 409, §data.protocol), and an append to today's talk document. Nothing here removes
 // anything (§delete.soft).
 import { centralDate } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
@@ -52,36 +52,6 @@ export async function put(
   if (!r.ok) throw new CommandError(409, "that changed; try again");
   return r.version;
 }
-
-/** Reads a document, applies `change` to a copy and saves it with the version read. */
-export async function edit(
-  x: HandlerCtx,
-  c: string,
-  id: string,
-  change: (d: Doc) => void,
-): Promise<number> {
-  const cur = await need(x, c, id);
-  const doc: Doc = { ...cur.data };
-  change(doc);
-  return put(x, c, id, doc, cur.v);
-}
-
-/** Adds one event to a document's `events` map (append-only for the page). */
-export const addEvent = (
-  x: HandlerCtx,
-  c: string,
-  id: string,
-  event: Doc,
-  extra: (d: Doc) => void = () => {},
-) =>
-  edit(x, c, id, (d) => {
-    const at = iso(x.clock());
-    d.events = {
-      ...d.events,
-      [eventKey(x.clock(), rand(x))]: { at, ...event },
-    };
-    extra(d);
-  });
 
 /** Appends Matt's line to today's talk document (ev4 talk schema 4). */
 export async function talkLine(

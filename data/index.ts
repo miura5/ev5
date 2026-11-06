@@ -9,3 +9,5 @@ export type { TablesRepo } from "./tables/tables.ts";
 export { exportAll } from "./export/index.ts";
 /** The refusal a gate throws for a row the rules turn down; the server answers it with a 4xx. */
 export { WriteRefused } from "./tables/gate.ts";
+/** @public The shape of a session read with its events. */
+export type { StoredSession } from "./tables/sessions.ts";

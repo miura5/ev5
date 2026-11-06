@@ -1,6 +1,7 @@
 // What finished today (Central), for Activity's "Done today": finished jobs and ended study sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
-import { centralDate } from "../domain/index.ts";
+import { tablesRepo } from "../data/index.ts";
+import { centralDate, sessionDocId } from "../domain/index.ts";
 import { examDoc } from "./goal-wire.ts";
 import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
@@ -93,45 +94,33 @@ export async function finishedJobsToday(
     .map(({ at: _, ...e }) => e);
 }
 
-/** Study sessions that ended today (Central): a session is a `sessions` document with `endedAt`. */
+/** Study sessions that ended today (Central): a `sessions` row with its `ended_at`. */
 export async function endedSessionsToday(
   db: D1Like,
   now: number,
 ): Promise<DoneEntry[]> {
   const today = centralDate(now);
-  // Central today lies within three UTC dates; the exact day is checked below.
-  const days = [-1, 0, 1].map((d) =>
-    new Date(now + d * 86_400_000).toISOString().slice(0, 10),
-  );
-  const { results } = await db
-    .prepare(
-      `SELECT id, data FROM docs WHERE c = 'sessions' AND (${days.map(() => `data LIKE ?`).join(" OR ")})`,
-    )
-    .bind(...days.map((d) => `%"endedAt":"${d}%`))
-    .all<{ id: string; data: string }>();
+  const ended = await tablesRepo(db, { clock: () => now }).sessions.list({
+    where: { status: "ended" },
+  });
   const out: DoneEntry[] = [];
-  for (const row of results) {
-    let d: { status?: string; endedAt?: string; minutes?: number };
-    try {
-      d = JSON.parse(row.data);
-    } catch {
-      continue;
-    }
-    if (d.status !== "ended" || !d.endedAt) continue;
-    if (centralDate(Date.parse(d.endedAt)) !== today) continue;
-    const m = Math.round(d.minutes ?? 0);
+  for (const row of ended) {
+    if (row.ended_at === null || centralDate(row.ended_at) !== today) continue;
+
+    const id = sessionDocId(row.id);
+    const m = Math.round(row.minutes ?? 0);
     const lead =
       m > 0
         ? `Studied ${m} ${m === 1 ? "minute" : "minutes"}.`
         : "Study session ended.";
     out.push({
-      id: row.id,
+      id,
       kind: "study-session",
       state: "done",
       summary: lead,
       lead,
       costCents: 0,
-      link: { home: "activity", id: row.id },
+      link: { home: "activity", id },
       finished: true,
     });
   }
