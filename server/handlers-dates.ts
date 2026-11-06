@@ -1,6 +1,6 @@
-// Dates and the study plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `dates` entry written by the
-// page; a change to any date, Canvas's included, is an override in `dateedits` (a Canvas entry's fields are marks only
-// canvas-sync may write). Approving a study plan makes it the plan in force in `planedits/<exam>`; putting it away marks
+// Dates and the study plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `goals` row (§data.tables),
+// joined to objectives by link rows (§data.links); an older `dates` entry is changed by an override in `dateedits` until
+// the backfill (a Canvas entry's fields are marks only canvas-sync may write). Approving a study plan makes it the plan in force in `planedits/<exam>`; putting it away marks
 // it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
 import {
   addDays,
@@ -9,7 +9,8 @@ import {
   lastDay,
   planEnded,
 } from "../domain/index.ts";
-import { docsRepo } from "../data/index.ts";
+import { docsRepo, tablesRepo, WriteRefused } from "../data/index.ts";
+import { goalKey, linkKey } from "./ids.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 
@@ -98,25 +99,46 @@ export async function putPlanInForce(
 }
 
 export const dateHandlers: Record<string, CommandHandler> = {
-  "date.create": async (i: { title: string; date: string }, _c, x) => {
-    const id = x.newId();
-    const now = iso(x.clock());
-    await save(
-      x,
-      "dates",
-      id,
+  "date.create": async (
+    i: { title: string; date: string; objectives?: string[] },
+    _c,
+    x,
+  ) => {
+    const t = tablesRepo(x.db, { clock: x.clock });
+    const id = goalKey(x.newId());
+    const made = await t.goals.save(
       {
-        schema: 1,
-        writer: "page",
-        at: now,
-        source: "v5/command:date.create",
-        date: checkDate(i.date),
+        id,
+        collection_id: null,
         title: i.title,
         kind: "other",
-        addedBy: "Matt",
+        date: checkDate(i.date),
+        status: "open",
+        score: null,
+        created_by: "user",
       },
       null,
     );
+    if (!made.ok) throw new CommandError(409, "that changed; try again");
+    try {
+      for (const objective of new Set(i.objectives ?? []))
+        await t.links.save(
+          {
+            id: linkKey(x.newId()),
+            from_kind: "objective",
+            from_id: objective,
+            to_kind: "goal",
+            to_id: id,
+            by: "user",
+            note: null,
+          },
+          null,
+        );
+    } catch (e) {
+      if (!(e instanceof WriteRefused)) throw e;
+      await t.goals.remove(id, made.row.v); // no half-made date
+      throw new CommandError(404, e.message);
+    }
     return { id, date: i.date };
   },
 
@@ -125,8 +147,24 @@ export const dateHandlers: Record<string, CommandHandler> = {
     _c,
     x,
   ) => {
-    await need(x, "dates", i.id);
     const date = i.date === undefined ? undefined : checkDate(i.date);
+    if (i.id.startsWith("goal_")) {
+      const goals = tablesRepo(x.db, { clock: x.clock }).goals;
+      const cur = await goals.get(i.id);
+      if (!cur) throw new CommandError(404, `no date ${i.id}`);
+      const { at: _at, v, deleted_at: _d, ...fields } = cur;
+      const r = await goals.save(
+        {
+          ...fields,
+          ...(date ? { date } : {}),
+          ...(i.title ? { title: i.title } : {}),
+        },
+        v,
+      );
+      if (!r.ok) throw new CommandError(409, "that changed; try again");
+      return { id: i.id };
+    }
+    await need(x, "dates", i.id);
     await edit(
       x,
       ["dateedits", i.id],

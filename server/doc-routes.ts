@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
+import { goalDocs } from "./goal-wire.ts";
 import { createWeakSpot, weakSpotDocs } from "./weak-wire.ts";
 
 export interface DocRoutesEnv {
@@ -63,6 +64,18 @@ docRoutes.get("/docs", async (c) => {
     const one = spots.find((s) => s.id === id);
     return one ? c.json(one) : c.json({ error: "not found" }, 404);
   }
+  // Goals are rows (§data.tables); until the backfill, the exams list is the old documents and the goals.
+  if (collection === "exams") {
+    const goals = (await goalDocs(c.env.DB, () => Date.now())).map((g) =>
+      shape({ c: collection, ...g }),
+    );
+    if (id === undefined)
+      return c.json({
+        docs: [...(await r.list(collection)).map(shape), ...goals],
+      });
+    const goal = goals.find((g) => g.id === id);
+    if (goal) return c.json(goal);
+  }
   if (id === undefined)
     return c.json({ docs: (await r.list(collection)).map(shape) });
   const doc = await r.get(collection, id);
@@ -114,7 +127,9 @@ docRoutes.post("/docs/batch", async (c) => {
   }
   if (
     Array.isArray(writes) &&
-    writes.some((w) => (w as { collection?: unknown })?.collection === "weakspots")
+    writes.some(
+      (w) => (w as { collection?: unknown })?.collection === "weakspots",
+    )
   )
     return c.json({ error: "weak spots are written one at a time" }, 400);
   const res = await repo(c.env.DB).batch(writes);
