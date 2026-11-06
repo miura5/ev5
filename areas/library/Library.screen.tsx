@@ -30,11 +30,13 @@ const PLAN_TEXT = {
 export function LibraryScreen({
   services,
   search,
+  onNavigate,
   onDetail,
   onToast,
 }: {
   services?: LibraryServices;
   search?: string;
+  onNavigate?: (path: string) => void;
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
@@ -61,7 +63,10 @@ export function LibraryScreen({
       })
       .catch(() => undefined);
   }, [waiting, services, onToast]);
-  const [open, setOpen] = useState<string | undefined>(() => openFromSearch(search));
+  // The open set is the shell's address (?open=), so Back and Forward move between the list and a set.
+  const open = openFromSearch(search);
+  const setOpen = (id: string | undefined) =>
+    onNavigate?.(id ? `/library?open=${encodeURIComponent(id)}` : "/library");
   // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
   const [openKey, setOpenKey] = useState(0);
   const openIt = (id: string) => {
@@ -71,6 +76,8 @@ export function LibraryScreen({
   // An exam opened by a link (Today's Review the prep plan) shows its proposal at once.
   const [openedByLink] = useState(() => !!openFromSearch(search));
   const [studying, setStudying] = useState(false);
+  // Back or Forward to another set (or the list) never lands inside a study run.
+  useEffect(() => setStudying(false), [open]);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
   const onGrade = useGrade(open ?? "");
@@ -126,11 +133,7 @@ export function LibraryScreen({
           onApprove: (id) =>
             void (exam.waiting
               ? last.current.answer(id, "approve")
-              : last.current.plan(
-                  "plan.approve",
-                  { id },
-                  "Plan approved",
-                )),
+              : last.current.plan("plan.approve", { id }, "Plan approved")),
           onAskChanges: (id, note) =>
             void last.current.plan(
               "plan.ask_changes",
@@ -140,11 +143,7 @@ export function LibraryScreen({
           onPutAway: (id) =>
             void (exam.waiting
               ? last.current.answer(id, "put_away")
-              : last.current.plan(
-                  "plan.put_away",
-                  { id },
-                  "Plan put away",
-                )),
+              : last.current.plan("plan.put_away", { id }, "Plan put away")),
           onKind: (k) => void last.current.kind(exam.id, k),
           onClose: close,
         }),
