@@ -43,3 +43,12 @@ export { fakeWorkflows } from "./runtime/workflow.fake.ts";
 export { runStructured, checkCitations } from "./runtime/output.ts";
 export { outputSchema } from "./runtime/model-call.ts";
 export { modelInfo } from "./runtime/models.ts";
+export {
+  gradeAnswer,
+  gradePrompt,
+  GRADE_MODEL,
+  GRADE_MAX_TOKENS,
+  GRADE_SYSTEM,
+  GRADE_MAX_ANSWER_CHARS,
+} from "./grade/grade.ts";
+export type { GradeInput, GradeResult } from "./grade/grade.ts";

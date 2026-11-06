@@ -1,7 +1,9 @@
 // Studying (CONTRACT §cmd.registry, PLAN §6.1 rule 10): the answer comes after the attempt, and "just tell me" is always
 // there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
 // set's attempt is an append-only `own_attempts` row; an ev4 set's is a new `answers` document (its set is never touched).
-// Choice items are graded here; numeric items against their tolerance; an open answer is recorded for grading later.
+// Choice items are graded here; numeric items against their tolerance; a typed open answer is graded by the model
+// (jobs/grade, CONTRACT §model.output, §model.ceilings) and its score is kept with the answer.
+import { GRADE_MAX_ANSWER_CHARS } from "../jobs/index.ts";
 import {
   itemKey,
   numberAnswer,
@@ -17,6 +19,8 @@ import { eventKey, iso, put, rand } from "./handlers-edit.ts";
 
 type Item = ReturnType<typeof parseSet>["items"][number];
 type Found = { own: boolean; set: string; item: Item };
+
+const ANSWER_TEXT_MAX = 600;
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
@@ -125,8 +129,11 @@ async function record(
       ? { outcome: "told", at }
       : {
           ...(how.g.correct === undefined ? {} : { correct: how.g.correct }),
+          ...(how.g.score === undefined ? {} : { score: how.g.score }),
           at,
-          ...(how.text ? { text: how.text.slice(0, 600) } : {}),
+          // An ev4 answer document keeps 600 characters of text; when the answer is longer it says so, with its length.
+          ...(how.text ? { text: how.text.slice(0, ANSWER_TEXT_MAX) } : {}),
+          ...(how.text.length > ANSWER_TEXT_MAX ? { textCut: true, textLength: how.text.length } : {}),
         };
   await put(
     x,
@@ -144,6 +151,15 @@ async function record(
   );
   return key;
 }
+
+/** From this score a graded open answer counts as right. */
+const PASS = 0.7;
+
+/** The reference the grader reads: the model answer, then the key points, as plain text. */
+const reference = (q: Item) =>
+  [q.modelAnswer, ...(q.keyPoints ?? []).map((k) => `Key point: ${k.text}`)]
+    .filter((s): s is string => typeof s === "string" && !!s)
+    .join("\n");
 
 const reveal = (q: Item) => ({
   correct: q.correct,
@@ -171,13 +187,31 @@ export const studyHandlers: Record<string, CommandHandler> = {
     const open = itemType(f.item) === "open";
     if (open && !i.answer.trim())
       throw new CommandError(400, "write an answer first");
-    const g = grade(f.item, i.answer);
+    let g = grade(f.item, i.answer);
+    let note: string | undefined;
+    if (open) {
+      if (i.answer.length > GRADE_MAX_ANSWER_CHARS)
+        throw new CommandError(
+          400,
+          `that answer is over ${GRADE_MAX_ANSWER_CHARS} characters; shorten it to the key points`,
+        );
+      if (!x.grade) throw new CommandError(503, "grading is not available");
+      const r = await x.grade({
+        question: String(f.item.stem ?? ""),
+        reference: reference(f.item),
+        answer: i.answer,
+      });
+      g = { score: r.score, correct: r.score >= PASS };
+      note = r.note;
+    }
     const key = await record(x, f, { text: open ? i.answer : "", g });
     // Only whether it was right comes back: the answer waits for study.reveal (the attempt comes first).
     return {
       id: i.id,
       key,
       ...(g.correct === undefined ? {} : { correct: g.correct }),
+      ...(g.score === undefined ? {} : { score: g.score }),
+      ...(note ? { note } : {}),
     };
   },
 
