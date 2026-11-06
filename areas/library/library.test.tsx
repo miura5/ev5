@@ -28,6 +28,7 @@ const weak: WeakSpot[] = [
     meta: "Biology 101 · 4 of 9",
     mastery,
     due: "due today",
+    goalId: null,
   },
 ];
 const exams: LibraryExam[] = [
