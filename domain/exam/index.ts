@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { daysBetween } from '../time/index.ts';
 
 // Exam document: a dated goal. Its kind is a short free-text label ("midterm", "quiz"), not a fixed list, because what
-// an exam is depends on the course (§data.course-facts). The score and the prediction are stored elsewhere, not here.
+// an exam is depends on the learner's goal (§what.framing). The score and the prediction are stored elsewhere, not here.
 
 export const examSchema = z.strictObject({
   schema: z.literal(2),
