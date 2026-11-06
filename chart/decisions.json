@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-520",
+  "date": "Nov 6",
+  "title": "Done tasks superseded by the table design (D-498): B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834",
+  "why": "These tasks were ev4 document code under new names (docs routes, data/docs, doc-shaped repositories). The table design (B-1035, D-498) replaces them, so their done marks do not count toward readiness; the table tasks in group 4 carry the work. Their code goes when the docs removal (B-998 part 2) lands.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev4 spillover audit 2026-11-05 T27, T28"
+ },
+ {
   "id": "D-519",
   "date": "Nov 6",
   "title": "Seven repo hygiene fixes filed as notes: pinned actions, job-level write tokens, CodeQL, React hooks lint and a Worker size ceiling (B-1036); crash handling in the shell (B-979) and server (B-1001); a deploy health check that fails on an error (B-823)",
