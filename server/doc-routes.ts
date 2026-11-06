@@ -7,7 +7,7 @@
 //   POST   /docs/batch                   {writes:[{op,collection,doc_id,data,if_version}]}, all or nothing
 //   DELETE /docs                         refused with 403 (§delete.who): the Worker has no delete path
 import { Hono } from "hono";
-import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
+import { docsRepo, MAX_BODY, NO_DELETE, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { goalDocs } from "./goal-wire.ts";
@@ -127,6 +127,31 @@ docRoutes.get("/docs", async (c) => {
     if (id === undefined) return c.json({ docs: goals });
     const goal = goals.find((g) => g.id === id);
     return goal ? c.json(goal) : c.json({ error: "not found" }, 404);
+  }
+  // Sets are rows (§data.tables): a set on its table is read as a document with its title, beside E.V.'s sets that are
+  // still documents (a row wins over a document of the same id).
+  if (collection === "sets") {
+    const rows = (
+      await tablesRepo(c.env.DB, { clock: () => Date.now() }).sets.list()
+    ).map((s) =>
+      shape({
+        c: collection,
+        id: s.id,
+        data: {
+          title: s.title ?? "",
+          kind: s.kind,
+          collectionId: s.collection_id,
+        },
+        at: s.at,
+        v: s.v,
+      }),
+    );
+    const docs = (await r.list(collection)).map(shape);
+    const have = new Set(rows.map((x) => x.id));
+    const all = [...rows, ...docs.filter((d) => !have.has(d.id))];
+    if (id === undefined) return c.json({ docs: all });
+    const one = all.find((d) => d.id === id);
+    return one ? c.json(one) : c.json({ error: "not found" }, 404);
   }
   if (id === undefined)
     return c.json({ docs: (await r.list(collection)).map(shape) });

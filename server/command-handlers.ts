@@ -6,7 +6,7 @@ import { NOTE_MAX, noteRowId } from "../domain/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
-import type { CommandHandler } from "./handlers-core.ts";
+import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { dateHandlers } from "./handlers-dates.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
 import { jobHandlers } from "./handlers-jobs.ts";
@@ -44,6 +44,15 @@ async function collectionOf(db: DocsD1, id: string): Promise<string> {
   return (results[0] as { c: string }).c;
 }
 
+/** The collection name an item is pinned, moved and renamed under. A set or a goal is a row, not a document, so its
+ * id names its table: `set_` is "sets" and `goal_` is "exams" (the goal as its exam document, as GET /docs reads it). */
+async function placeOf(x: HandlerCtx, id: string): Promise<string> {
+  const t = tablesRepo(x.db, { clock: x.clock });
+  if (id.startsWith("set_") && (await t.sets.get(id))) return "sets";
+  if (id.startsWith("goal_") && (await t.goals.get(id))) return "exams";
+  return collectionOf(x.db, id);
+}
+
 const ack = async () => ({ client: true });
 
 export const commandHandlers: Record<string, CommandHandler> = {
@@ -74,7 +83,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
 
   "item.pin": async (i: Ref, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
-    const c = await collectionOf(x.db, i.id);
+    const c = await placeOf(x, i.id);
     const pins = await t.pins.list();
     const own = pins.find((p) => p.targetC === c && p.targetId === i.id);
     const pos = own
@@ -84,15 +93,26 @@ export const commandHandlers: Record<string, CommandHandler> = {
   },
   "item.unpin": async (i: Ref, _c, x) => ({
     removed: await tablesRepo(x.db, { clock: x.clock }).pins.remove(
-      await collectionOf(x.db, i.id),
+      await placeOf(x, i.id),
       i.id,
     ),
   }),
   "item.move": async (i: Ref & { collection: string }, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
-    const c = await collectionOf(x.db, i.id);
+    const c = await placeOf(x, i.id);
     if (!(await t.collectionRows.get(i.collection)))
       throw new CommandError(404, `no collection ${i.collection}`);
+    // A set on its table keeps its collection on its own row, the one place a source scope reads (domain/search).
+    const setRow = c === "sets" ? await t.sets.get(i.id) : null;
+    if (setRow) {
+      const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
+      const m = await t.sets.save(
+        { ...f, collection_id: i.collection },
+        setRow.v,
+      );
+      if (!m.ok) throw new CommandError(409, "that item changed; try again");
+      return { set: { id: i.id, collectionId: i.collection } };
+    }
     const cur = await t.memberships.get(c, i.id);
     const r = await t.memberships.save(
       { itemC: c, itemId: i.id, collectionId: i.collection },
@@ -166,7 +186,22 @@ export const commandHandlers: Record<string, CommandHandler> = {
       return { version: r.row.v };
     }
     const repo = docsRepo(x.db, { clock: x.clock });
-    const c = await collectionOf(x.db, i.id);
+    const c = await placeOf(x, i.id);
+    // A set or a date on its table is renamed there; E.V.'s sets that are still documents go on to the document below.
+    const setRow = c === "sets" ? await t.sets.get(i.id) : null;
+    if (setRow) {
+      const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
+      const r = await t.sets.save({ ...f, title: i.title }, setRow.v);
+      if (!r.ok) throw new CommandError(409, "that item changed; try again");
+      return { version: r.row.v };
+    }
+    const goalRow = c === "exams" ? await t.goals.get(i.id) : null;
+    if (goalRow) {
+      const { at: _a, v: _v, deleted_at: _d, ...f } = goalRow;
+      const r = await t.goals.save({ ...f, title: i.title }, goalRow.v);
+      if (!r.ok) throw new CommandError(409, "that item changed; try again");
+      return { version: r.row.v };
+    }
     if (c === "notes") {
       const note = await t.noteBook.get(noteRowId(i.id));
       if (note) {
