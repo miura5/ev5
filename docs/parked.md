@@ -1,8 +1,7 @@
 # Parked findings
 
-Findings from runs, reviews and audits that fit no open task while the task freeze holds (see the handover's Next). One line each, no task or decision ids. The build manager files them as tasks after the freeze ends.
+Findings from runs, reviews and audits (bugs, fixes and cleanups) that fit no open task while the task freeze holds (see the handover's Next). One line each, no task or decision ids. Feature ideas go to Matt's feature list instead (AGENTS.md §5). The build manager files them as tasks after the freeze ends.
 
-- Prep plans for date kinds other than exam (a talk, a trip, a renewal): the date-kind registry gives other kinds a prep plan; Matt agreed the direction 2026-11-06.
 - A time zone setting: `domain/time` reads the user's time zone from a setting instead of the one constant `ZONE` (America/Chicago today), so scheduled commands and the calendar day follow the user's own zone (§job.schedule).
 - Recently deleted shows a collection deleted before migration 0010 twice: the old-id copy reads Untitled and answers 404 on Restore. Gone on staging after the rebuild; live starts empty.
 - A guard so only numbered `.sql` files land in `data/migrations`: wrangler applies every `.sql` there, and `ev4-schema.fixture.sql` is recorded as applied on staging (harmless today).
