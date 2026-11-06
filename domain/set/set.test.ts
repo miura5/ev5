@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { itemType, scoreAnswer } from '../item/index.ts';
-import { answeredItems, editSet, parseSet, setDone, setShortfall, type SetItem } from './index.ts';
+import { answeredItems, parseSet, setDone, setShortfall, type SetItem } from './index.ts';
 
 // All data is made up.
 const single: SetItem = {
@@ -88,23 +88,6 @@ test('a set short of the count asked for says so in its header', () => {
   const set = parseSet({ ...base, asked: 4 });
   expect(setShortfall(set)).toBe('2 of 4: 2 didn’t pass E.V.’s checks');
   expect(setShortfall(parseSet(base))).toBe('');
-});
-
-test('editing copies into an own set and leaves the original and its answers untouched', () => {
-  const original = parseSet({ ...base, writer: 'morning' });
-  const frozen = JSON.stringify(original);
-  const answers = { d1: attempt('2026-10-17') };
-  const edited = editSet(
-    original,
-    [{ ...single, stem: 'Which finding needs action first, and why?' }],
-    '2026-10-20T12:00:00Z',
-  );
-  expect(JSON.stringify(original)).toBe(frozen);
-  expect(edited.writer).toBe('page');
-  expect(edited.items).toHaveLength(1);
-  expect(() => parseSet(edited)).not.toThrow();
-  expect(setDone(edited, answers)).toBe(true);
-  expect(setDone(original, answers)).toBe(false);
 });
 
 test('a stored set item with the old type names and the matrix field reads in today\'s words', () => {

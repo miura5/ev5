@@ -1,6 +1,6 @@
 // Studying (CONTRACT §cmd.registry, PLAN §6.1 rule 10): the answer comes after the attempt, and "just tell me" is always
-// there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
-// set's attempt is one append-only `attempts` row (data/tables/attempts.ts); an ev4 set's is a new `answers` document (its set is never touched).
+// there and always logged. An item is named `<set>/<item>`, or by its bare id. Every attempt is one append-only
+// `attempts` row (data/tables/attempts.ts, §data.item-versions); sets and items are rows of `sets` and `set_items`.
 // Choice items are graded here; numeric items against their tolerance; a typed open answer is graded by the model
 // (jobs/grade, CONTRACT §model.output, §model.ceilings) and its score is kept with the answer. Again or Good on an open
 // card is a self-rating (how "self", no score): only checked answers count toward accuracy.
@@ -14,14 +14,13 @@ import {
   setKey,
   upgradeItem,
 } from "../domain/index.ts";
-import { docsRepo, tablesRepo } from "../data/index.ts";
+import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { eventKey, iso, put, rand } from "./handlers-edit.ts";
-import { entryOf, rowOf, type Entry, type Graded } from "./study-entry.ts";
+import { rowOf, type Entry, type Graded } from "./study-entry.ts";
 
 type Item = ReturnType<typeof parseSet>["items"][number];
-type Found = { own: boolean; set: string; item: Item };
+type Found = { set: string; item: Item };
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
@@ -46,36 +45,19 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
   );
   if (own)
     return {
-      own: true,
       set: own.set_id,
       item: { ...(upgradeItem(own.body) as object), id: own.id } as Item,
     };
-  const doc = await docsRepo(x.db, { clock: x.clock }).get("sets", set);
-  const item = doc && parseSet(doc.data).items.find((q) => q.id === itemId);
-  if (!item) throw new CommandError(404, `no item ${id}`);
-  return { own: false, set, item };
+  throw new CommandError(404, `no item ${id}`);
 }
 
-/** How many attempts the item has: an own set's rows, or the ev4 `answers` documents of the set that name it. */
+/** How many attempts the item has: the `attempts` rows that name it. */
 async function attempts(x: HandlerCtx, f: Found): Promise<number> {
-  if (f.own) {
-    const r = await x.db
-      .prepare("SELECT COUNT(*) AS n FROM attempts WHERE item_id = ?")
-      .bind(f.item.id)
-      .first<{ n: number }>();
-    return r?.n ?? 0;
-  }
-  const { results } = await x.db
-    .prepare("SELECT data FROM docs WHERE c = 'answers' AND id LIKE ?")
-    .bind(`${f.set.replace(/[%_]/g, "")}-%`)
-    .all<{ data: string }>();
-  return results.filter((r) => {
-    const d = JSON.parse(r.data) as {
-      setId?: string;
-      answers?: Record<string, unknown>;
-    };
-    return d.setId === f.set && !!d.answers?.[f.item.id];
-  }).length;
+  const r = await x.db
+    .prepare("SELECT COUNT(*) AS n FROM attempts WHERE item_id = ?")
+    .bind(f.item.id)
+    .first<{ n: number }>();
+  return r?.n ?? 0;
 }
 
 /** The answer as indexes ("0" or "0,2"), or the number (and unit, if any) a number answer asks for. */
@@ -111,40 +93,19 @@ function check(q: Item, answer: string, rated: boolean) {
 }
 
 async function record(x: HandlerCtx, f: Found, how: Entry, attemptId?: string) {
-  const now = x.clock();
-  if (f.own) {
-    // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).
-    const id = attemptId ?? `att_${x.newId().replace(/-/g, "")}`;
-    const r = await repo(x).attempts.record({
-      id,
-      item_id: f.item.id,
-      set_id: f.set,
-      session_id: null,
-      source: "run",
-      ...rowOf(itemType(f.item) === "open", how),
-      answered_at: now,
-    });
-    if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
-    return id;
-  }
-  const key = eventKey(now, rand(x));
-  const at = iso(now).slice(0, 19) + "Z";
-  const entry = entryOf(how, at);
-  await put(
-    x,
-    "answers",
-    `${f.set}-${key}`,
-    {
-      schema: 2,
-      writer: "page",
-      at,
-      source: "v5/study",
-      setId: f.set,
-      answers: { [f.item.id]: { [key]: entry } },
-    },
-    null,
-  );
-  return key;
+  // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).
+  const id = attemptId ?? `att_${x.newId().replace(/-/g, "")}`;
+  const r = await repo(x).attempts.record({
+    id,
+    item_id: f.item.id,
+    set_id: f.set,
+    session_id: null,
+    source: "run",
+    ...rowOf(itemType(f.item) === "open", how),
+    answered_at: x.clock(),
+  });
+  if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
+  return id;
 }
 
 /** From this score a graded open answer counts as right. */
@@ -167,14 +128,9 @@ const reveal = (q: Item) => ({
 export const studyHandlers: Record<string, CommandHandler> = {
   // Opening the study view is the screen's; the server says what is in the set and where he left off.
   "study.start": async (i: { id: string }, _c, x) => {
-    const own = (await repo(x).setBook.read(setKey(i.id)))?.items ?? [];
-    let ids = own.map((r) => r.id);
-    if (!own.length) {
-      const doc = await docsRepo(x.db, { clock: x.clock }).get("sets", i.id);
-      if (!doc) throw new CommandError(404, `no set ${i.id}`);
-      ids = parseSet(doc.data).items.map((q) => q.id);
-    }
-    return { client: true, set: i.id, items: ids.length };
+    const read = await repo(x).setBook.read(setKey(i.id));
+    if (!read) throw new CommandError(404, `no set ${i.id}`);
+    return { client: true, set: i.id, items: read.items.length };
   },
 
   "study.attempt": async (
