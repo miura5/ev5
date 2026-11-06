@@ -175,6 +175,7 @@ export function LibraryScreen({
           front: it.front,
           back: it.back ?? "",
           ...(it.open ? { open: true } : {}),
+          ...(it.options ? { options: it.options, multi: !!it.multi } : {}),
         }))}
         onRate={onRate}
         onTell={onTell}

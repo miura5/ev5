@@ -277,6 +277,9 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
             .filter(Boolean)
             .join("; ") || undefined,
         ...(itemType(q) === "open" ? { open: true } : {}),
+        ...(q.options?.length && !["open", "numeric"].includes(itemType(q))
+          ? { options: q.options, multi: itemType(q) === "multi_select" }
+          : {}),
       })),
     };
   }

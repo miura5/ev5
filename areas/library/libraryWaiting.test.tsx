@@ -138,10 +138,13 @@ const sessions = [
 test("opened by a link, the plan shows its sessions by day with minutes and Built from", async () => {
   boot([{ ...waitingJob, tasks: sessions }]);
   await screen.findByText("Proposed sessions");
-  const rows = [...document.querySelectorAll('[data-part="proposal"] [data-ui="row"]')].map(
-    (r) => r.textContent,
-  );
-  expect(rows).toEqual(["Dosage by weightFri Jan 225m", "Misses onlySun Jan 410m"]);
+  const rows = [
+    ...document.querySelectorAll('[data-part="proposal"] [data-ui="row"]'),
+  ].map((r) => r.textContent);
+  expect(rows).toEqual([
+    "Dosage by weightFri Jan 225m",
+    "Misses onlySun Jan 410m",
+  ]);
   expect(screen.getByText(/Built from/)).toBeTruthy();
 });
 

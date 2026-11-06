@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Button, EvLine, Field, Page, StudyCard } from "../../kit/index.ts";
+import {
+  Button,
+  Choice,
+  EvLine,
+  Field,
+  Page,
+  StudyCard,
+} from "../../kit/index.ts";
 import type { StudyItem } from "./types.ts";
 import type { GradeOutcome } from "./useStudy.ts";
 
@@ -28,9 +35,11 @@ export function StudyView({
   const [attempt, setAttempt] = useState("");
   const [shown, setShown] = useState(false);
   const [good, setGood] = useState(0);
+  const [picked, setPicked] = useState<readonly number[]>([]);
   const [grading, setGrading] = useState(false);
   const [graded, setGraded] = useState<GradeOutcome | null>(null);
   const it = items[i];
+  const options = it?.open ? undefined : it?.options;
   if (!it)
     return (
       <Page
@@ -60,11 +69,24 @@ export function StudyView({
     if (graded?.ok && graded.correct) setGood(good + 1);
     setI(i + 1);
     setAttempt("");
+    setPicked([]);
     setShown(false);
     setGraded(null);
   };
+  // A choice card sends the option numbers (the server checks them against the key); others send his words.
+  const sent = options ? picked.join(",") : attempt;
+  const said = options ? picked.map((n) => options[n]).join("; ") : attempt;
+  const pick = (n: number) =>
+    setPicked(
+      it.multi
+        ? picked.includes(n)
+          ? picked.filter((x) => x !== n)
+          : [...picked, n].sort((a, b) => a - b)
+        : [n],
+    );
   const rate = (r: "again" | "good") => {
-    onRate?.(it.id, r, attempt);
+    onRate?.(it.id, r, sent);
+    setPicked([]);
     if (r === "good") setGood(good + 1);
     setI(i + 1);
     setAttempt("");
@@ -102,12 +124,31 @@ export function StudyView({
           ) : (
             <>
               {it.front}
-              <Field
-                label="Your answer"
-                placeholder="Your answer, in your words"
-                value={attempt}
-                onChange={(e) => setAttempt(e.target.value)}
-              />
+              {options ? (
+                <div
+                  role={it.multi ? "group" : "radiogroup"}
+                  aria-label="Options"
+                >
+                  {options.map((o, n) => (
+                    <Choice
+                      key={n}
+                      kind={it.multi ? "checkbox" : "radio"}
+                      name={`opt-${it.id}`}
+                      checked={picked.includes(n)}
+                      onChange={() => pick(n)}
+                    >
+                      {o}
+                    </Choice>
+                  ))}
+                </div>
+              ) : (
+                <Field
+                  label="Your answer"
+                  placeholder="Your answer, in your words"
+                  value={attempt}
+                  onChange={(e) => setAttempt(e.target.value)}
+                />
+              )}
               {grading ? <EvLine quiet>Grading your answer…</EvLine> : null}
               {graded && !graded.ok ? <EvLine>{graded.message}</EvLine> : null}
             </>
@@ -117,8 +158,8 @@ export function StudyView({
           shown ? (
             <>
               <EvLine quiet>
-                {attempt
-                  ? `You wrote: ${attempt}`
+                {said
+                  ? `${options ? "You chose" : "You wrote"}: ${said}`
                   : "Logged: you asked to see it first."}
               </EvLine>
               {it.back}
@@ -128,7 +169,9 @@ export function StudyView({
         }
         from={it.from}
         onTurn={() =>
-          it.open && onGrade ? void gradeIt() : attempt.trim() && setShown(true)
+          it.open && onGrade
+            ? void gradeIt()
+            : (options ? picked.length : attempt.trim()) && setShown(true)
         }
         onJustTell={() => void tell()}
         onRate={rate}

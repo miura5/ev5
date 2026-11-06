@@ -46,7 +46,9 @@ test("Just tell me posts study.just_tell_me under a client att_ id when the outb
   const queueCommand = vi.fn().mockResolvedValue(undefined);
   const queueAnswer = vi.fn();
   const replay = vi.fn().mockResolvedValue(undefined);
-  render(<Harness services={{ outbox: { queueCommand, queueAnswer, replay } }} />);
+  render(
+    <Harness services={{ outbox: { queueCommand, queueAnswer, replay } }} />,
+  );
   fireEvent.click(screen.getByText("Just tell me"));
   await waitFor(() => expect(screen.getByText("The back")).toBeTruthy());
   expect(queueAnswer).not.toHaveBeenCalled();
@@ -83,7 +85,9 @@ test("a rating posts study.attempt with the rating and a client att_ id", async 
   const replay = vi.fn().mockResolvedValue(undefined);
   const { useStudy } = await import("./useStudy.ts");
   function H() {
-    const onRate = useStudy("set-1", { outbox: { queueCommand, queueAnswer, replay } });
+    const onRate = useStudy("set-1", {
+      outbox: { queueCommand, queueAnswer, replay },
+    });
     return <button onClick={() => onRate("q1", "good", "typed")}>rate</button>;
   }
   render(<H />);
@@ -92,6 +96,11 @@ test("a rating posts study.attempt with the rating and a client att_ id", async 
   const [name, id, input] = queueCommand.mock.calls[0] ?? [];
   expect(name).toBe("study.attempt");
   expect(id).toMatch(/^att_[0-9a-f]{24}$/);
-  expect(input).toEqual({ id: "set-1/q1", answer: "typed", rating: "good", attempt: id });
+  expect(input).toEqual({
+    id: "set-1/q1",
+    answer: "typed",
+    rating: "good",
+    attempt: id,
+  });
   expect(queueAnswer).not.toHaveBeenCalled();
 });

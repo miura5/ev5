@@ -75,6 +75,12 @@ test("exams, weak spots and sets map to the views' props; invalid docs are skipp
     { id: "s1", title: "Doses", kind: "questions", meta: "1 question" },
   ]);
   expect(d.pages.s1!.items).toEqual([
-    { id: "q1", front: "How many mL?", back: "5 mL" },
+    {
+      id: "q1",
+      front: "How many mL?",
+      back: "5 mL",
+      options: ["2 mL", "5 mL"],
+      multi: false,
+    },
   ]);
 });
