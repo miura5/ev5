@@ -42,6 +42,30 @@ export async function put(
 }
 
 /** Appends the user's line as one talk row (§data.append-only); a session check-in names its session, an Ask line its chat. */
+/** Appends one log-only attempts row through the gate (§data.gate); a retry that names the same id is a 409, never a second row. */
+export async function logAttempt(
+  x: HandlerCtx,
+  a: {
+    id?: string;
+    item_id: string;
+    set_id: string;
+    session_id: string | null;
+    source: "note" | "ask";
+    how: "typed" | "told";
+    answer: unknown;
+  },
+): Promise<string> {
+  const id = a.id ?? `att_${x.newId().replace(/-/g, "")}`;
+  const r = await tablesRepo(x.db, { clock: x.clock }).attempts.recordLogOnly({
+    ...a,
+    id,
+    answer: a.answer as never,
+    answered_at: x.clock(),
+  });
+  if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
+  return id;
+}
+
 export async function talkLine(
   x: HandlerCtx,
   line: { text: string; chatId?: string; sessionId?: string; replyTo?: string },
