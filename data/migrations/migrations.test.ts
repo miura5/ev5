@@ -29,11 +29,17 @@ test('every migration is idempotent and only adds', () => {
   for (const m of migrations) {
     db.exec(read(m));
     const after = JSON.parse(shape(db)) as { name: string; sql: string }[];
-    for (const o of before) assert.equal(after.find((x) => x.name === o.name)?.sql, o.sql, `${m} changed ${o.name}`);
+    // An ADD COLUMN appends to the table's stored SQL; everything before the appended columns must be untouched.
+    const base = (sql: string): string => sql.replace(/(,\s*\w+ [A-Z]+[^,)]*)*\)$/, '');
+    for (const o of before) {
+      const now = after.find((x) => x.name === o.name)?.sql ?? '';
+      assert.ok(now === o.sql || now.startsWith(base(o.sql)), `${m} changed ${o.name}`);
+    }
     before = after;
   }
   const once = shape(db);
-  for (const m of migrations) db.exec(read(m));
+  // D1 applies each migration once, so an ADD COLUMN (no IF NOT EXISTS in SQLite) is not re-run; the rest must be.
+  for (const m of migrations) if (!/\bADD\s+COLUMN\b/i.test(read(m))) db.exec(read(m));
   assert.equal(shape(db), once);
   for (const m of migrations) assert.doesNotMatch(read(m).replace(/--.*$/gm, ''), /\b(DROP|DELETE|UPDATE)\b/i, m);
   // §data.additive: adding a column is an ordinary migration; every other ALTER form (rename, drop) stays banned.

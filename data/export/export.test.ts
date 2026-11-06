@@ -54,6 +54,7 @@ function migrated(withNew: boolean): DatabaseSync {
   db.exec(sql("0002_jobs_ceilings.sql")); // job tables, drafts and own_set_items
   db.exec(sql("0004_ceiling_usage.sql"));
   if (withNew) db.exec(NEW_DDL);
+  if (withNew) db.exec(sql("0006_tables.sql")); // the per-kind tables, and collections.deleted_at
   return db;
 }
 
@@ -66,7 +67,7 @@ INSERT INTO claude_reads VALUES ('n1','h1',30);
 INSERT INTO claude_settings VALUES ('claude.hourTokens',1000,31);
 INSERT INTO claude_plan_asks VALUES ('job1',2,32);
 INSERT INTO system_docs VALUES ('one','{}',33),('two','{}',34);
-INSERT INTO collections VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
+INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
 INSERT INTO memberships VALUES ('notes','n1','k2',42,1);
 INSERT INTO pins VALUES ('notes','n1',0,43);
 INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
@@ -121,7 +122,7 @@ test("a table whose migration has not landed exports as empty; restoring into a 
 
 test("orphans are reported and kept; a grandparent collection fails the restore", async () => {
   const src = migrated(true);
-  src.exec(`INSERT INTO collections VALUES ('a','A',NULL,0,1,1),('b','B','a',0,1,1),('c','C','b',0,1,1);
+  src.exec(`INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('a','A',NULL,0,1,1),('b','B','a',0,1,1),('c','C','b',0,1,1);
     INSERT INTO memberships VALUES ('notes','missing','a',1,1);`);
   const scratch = migrated(true);
   const report = await restoreInto(
@@ -163,7 +164,10 @@ test("a restore refuses a file of any other kind, an ev4 backup included, and wr
   const x = await exportAll(sqliteD1(src));
   for (const kind of ["ev-d1-export", "other"]) {
     const scratch = migrated(true);
-    const report = await restoreInto(sqliteD1(scratch), { ...x, kind } as never);
+    const report = await restoreInto(sqliteD1(scratch), {
+      ...x,
+      kind,
+    } as never);
     assert.equal(report.ok, false, kind);
     assert.match(report.diffs[0] ?? "", /only v5's own export is restored/);
     assert.equal(

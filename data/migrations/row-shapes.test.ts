@@ -3,7 +3,20 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import {
-  parseCollection,
+  parseCollectionRow,
+  parseGoalRow,
+  parseObjectiveTableRow,
+  parseLinkRow,
+  parseNoteTableRow,
+  parseSetTableRow,
+  parseSetItemRow,
+  parseSetItemVersionRow,
+  parseWeakSpotTableRow,
+  parseWeakSpotEventRow,
+  parseAttemptRow,
+  parseSessionTableRow,
+  parseSessionEventRow,
+  parseTalkRow,
   parseMembership,
   parsePin,
   parseItemProps,
@@ -31,14 +44,15 @@ const built = (): DatabaseSync => {
 
 const snake = (k: string): string => k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 const T = '2026-11-05T00:00:00Z';
+const S = { at: 1, v: 1 };
+const D = { deleted_at: null };
 const item = { id: 'q1', stem: 'Which finding needs action first?', options: ['a', 'b', 'c'], correct: [1] };
 
 // table -> the domain parser that owns its row, a valid sample row, and how the keys land in columns (§data.tables:
 // `at` and `v` on every table under §data.protocol). The shape's keys are read from the parser's output (every shape is
 // a strict object), and a key is required when the parser refuses it as null. `expand` splits a key into several
 // columns; `stored` keys live inside a JSON column, so that row has `data` instead.
-// Gap: exam, objective, weak spot, set,
-// session and note have no row shape for a table of their own yet; they stay in `docs` for now.
+// Gap: plans, plan_items and repeats have no row shape yet. The old docs-backed tables stay until the contract migration.
 type Entry = {
   table: string;
   parse: (r: unknown) => object;
@@ -47,7 +61,48 @@ type Entry = {
   stored?: string[];
 };
 const tables: Entry[] = [
-  { table: 'collections', parse: parseCollection, sample: { id: 'c1', title: 't', parentId: null, pos: 0, at: T, v: 1 } },
+  { table: 'collections', parse: parseCollectionRow, sample: { id: 'col_1', title: 't', parent_id: null, pos: 0, at: 1, v: 1, deleted_at: null } },
+  { table: 'goals', parse: parseGoalRow, sample: { id: 'goal_1', collection_id: null, title: 't', kind: 'midterm', date: null, status: 'open', score: null, created_by: 'user', ...S, ...D } },
+  { table: 'objectives', parse: parseObjectiveTableRow, sample: { id: 'obj_1', collection_id: 'col_1', num: null, text: 't', chapters: null, source_ref: null, created_by: 'user', ...S, ...D } },
+  { table: 'links', parse: parseLinkRow, sample: { id: 'link_1', from_kind: 'note', from_id: 'note_1', to_kind: 'goal', to_id: 'goal_1', by: 'user', note: null, ...S, ...D } },
+  { table: 'notes', parse: parseNoteTableRow, sample: { id: 'note_1', collection_id: null, title: 't', body: {}, text: '', earlier_of: null, ...S, ...D } },
+  {
+    table: 'sets',
+    parse: parseSetTableRow,
+    sample: { id: 'set_1', collection_id: null, kind: 'adhoc', title: null, source_kind: null, source_id: null, created_by: 'user', job_id: null, focus: null, asked: null, ...S, ...D },
+  },
+  {
+    table: 'set_items',
+    parse: parseSetItemRow,
+    sample: { id: 'item_1', set_id: 'set_1', pos: 0, type: 'single', body: {}, objective_id: null, weak_spot_id: null, source_ref: null, ...S, ...D },
+  },
+  { table: 'set_item_versions', parse: parseSetItemVersionRow, sample: { id: 'item_1@1', item_id: 'item_1', item_v: 1, body: {}, at: 1, v: 1 } },
+  {
+    table: 'weak_spots',
+    parse: parseWeakSpotTableRow,
+    sample: { id: 'ws_1', collection_id: null, objective_id: null, topic: 't', kind: 'concept', words: null, source_line: 's', duplicate_of: null, proposed: 0, created_by: 'user', pre_read: 0, reading_due: null, ...S, ...D },
+  },
+  {
+    table: 'weak_spot_events',
+    parse: parseWeakSpotEventRow,
+    sample: { id: 'wse_1', weak_spot_id: 'ws_1', type: 'seen', by: 'user', note: null, objective_id: null, until: null, ...S },
+  },
+  {
+    table: 'attempts',
+    parse: parseAttemptRow,
+    sample: { id: 'att_1', item_id: 'item_1', item_v: 1, set_id: 'set_1', session_id: null, source: 'run', how: 'chose', answer: null, score: null, answered_at: 1, ...S },
+  },
+  {
+    table: 'sessions',
+    parse: parseSessionTableRow,
+    sample: { id: 'ses_1', kind: 'note', note_id: null, set_id: null, collection_id: null, day: '2026-11-05', status: 'active', planned_min: null, started_at: null, ended_at: null, topic: null, clock: null, minutes: null, driver: null, ...S, ...D },
+  },
+  { table: 'session_events', parse: parseSessionEventRow, sample: { id: 'sese_1', session_id: 'ses_1', type: 'start', body: null, ...S } },
+  {
+    table: 'talk',
+    parse: parseTalkRow,
+    sample: { id: 'talk_1', chat_id: 'c', scope: 'ask', session_id: null, context_kind: null, context_id: null, role: 'user', text: 't', cites: null, job_id: null, ...S },
+  },
   { table: 'memberships', parse: parseMembership, sample: { itemC: 'notes', itemId: 'n1', collectionId: 'c1', at: T, v: 1 } },
   { table: 'pins', parse: parsePin, sample: { targetC: 'notes', targetId: 'n1', pos: 0, at: T } },
   {
@@ -113,6 +168,19 @@ test('every pointer column is indexed (§data.tables)', () => {
     );
   const pointers: Record<string, string[]> = {
     collections: ['parent_id'],
+    goals: ['collection_id', 'date'],
+    objectives: ['collection_id'],
+    links: ['to_kind,to_id', 'from_kind,from_id'],
+    notes: ['collection_id', 'earlier_of'],
+    sets: ['collection_id', 'source_kind,source_id', 'job_id'],
+    set_items: ['set_id,pos', 'objective_id', 'weak_spot_id'],
+    set_item_versions: ['item_id,item_v'],
+    weak_spots: ['objective_id', 'collection_id', 'duplicate_of'],
+    weak_spot_events: ['weak_spot_id,at', 'objective_id'],
+    attempts: ['item_id,at', 'set_id,at', 'session_id'],
+    sessions: ['note_id', 'set_id', 'collection_id'],
+    session_events: ['session_id,at'],
+    talk: ['chat_id,at', 'session_id'],
     memberships: ['collection_id'],
     own_sets: ['source_c,source_id'],
     item_props: ['linked_c,linked_id'],
