@@ -40,8 +40,16 @@ jobs:
       - name: Create D1 if missing
         run: |
           npx --yes $WRANGLER d1 create "$NAME" || true
-          npx --yes $WRANGLER d1 info "$NAME" --json | tee d1.json
-          echo "DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")" >> "$GITHUB_ENV"
+          # A database made a moment ago can take a few seconds to show by name: wait for its id, and stop if it never shows.
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            npx --yes $WRANGLER d1 info "$NAME" --json > d1.json || true
+            DBID=$(node -p "try{JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid||''}catch{''}")
+            [ -n "$DBID" ] && break
+            sleep 6
+          done
+          [ -n "$DBID" ] || { echo "no id for D1 $NAME"; exit 1; }
+          echo "D1 $NAME is $DBID"
+          echo "DBID=$DBID" >> "$GITHUB_ENV"
       - name: Create the pictures bucket if missing
         run: npx --yes $WRANGLER r2 bucket create "$NAME-images" || npx --yes $WRANGLER r2 bucket info "$NAME-images"
       - name: Schema
