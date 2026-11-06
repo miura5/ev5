@@ -1,56 +1,50 @@
-import { useEffect, useState } from "react";
+import { Redirect, Route, Switch, useLocation, useSearch } from "wouter";
 import { KitGallery } from "./KitGallery.tsx";
 import { Shell } from "./Shell.tsx";
 import { TokenGate } from "./TokenGate.tsx";
 import { createServices } from "./services.ts";
 import { usePins } from "./usePins.ts";
 import { useShellStatus } from "./useShellStatus.ts";
+import { useState } from "react";
 
-/** The bare root is Today: open it at /today so the address shows where Matt is. */
-export const entryPath = (path: string): string =>
-  path === "/" ? "/today" : path;
-
-export function App({ path }: { path: string }) {
-  if (path === "/kit") return <KitGallery />;
+/** Routing is wouter's: the address is the one source of the screen and its ?open= item. */
+export function App() {
   return (
-    <TokenGate>
-      {(useDifferentToken) => (
-        <Body path={path} useDifferentToken={useDifferentToken} />
-      )}
-    </TokenGate>
+    <Switch>
+      <Route path="/kit" component={KitGallery} />
+      <Route path="/">
+        <Redirect to="/today" replace />
+      </Route>
+      <Route>
+        <TokenGate>
+          {(useDifferentToken) => (
+            <Body useDifferentToken={useDifferentToken} />
+          )}
+        </TokenGate>
+      </Route>
+    </Switch>
   );
 }
 
-function Body({
-  path,
-  useDifferentToken,
-}: {
-  path: string;
-  useDifferentToken: () => void;
-}) {
-  const [at, setAt] = useState(() => entryPath(path));
-  useEffect(() => {
-    if (path === "/") window.history.replaceState(null, "", "/today");
-  }, [path]);
+function Body({ useDifferentToken }: { useDifferentToken: () => void }) {
+  const [location, navigate] = useLocation();
+  const search = useSearch();
+  const at = search ? `${location}?${search}` : location;
   const [services] = useState(createServices);
   const status = useShellStatus(undefined, undefined, services.readCopy);
   const pins = usePins(services.readCopy);
-  const go = (to: string) => {
-    window.history.pushState(null, "", to);
-    setAt(to);
-  };
   return (
     <Shell
       path={at}
-      onNavigate={go}
+      onNavigate={(to) => navigate(to)}
       pins={pins}
       onOpenPin={(id) => {
         const to = pins.find((p) => p.id === id)?.to;
-        if (to) go(to);
+        if (to) navigate(to);
       }}
       counts={status.counts}
       runningJob={status.runningJob}
-      onOpenJob={() => go("/activity")}
+      onOpenJob={() => navigate("/activity")}
       services={services}
       onUseDifferentToken={useDifferentToken}
     />
