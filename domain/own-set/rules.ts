@@ -63,10 +63,10 @@ export function nextAttemptKey(attempts: OwnAttempt[], setId: string, itemId: st
   return `a${attempts.filter((a) => a.setId === setId && a.itemId === itemId).length + 1}`;
 }
 
-/** Scores an attempt at a single, select-all or matrix item; other types are graded by their own rules. */
+/** Scores an attempt at a single, select-all or grid item; other types are graded by their own rules. */
 export function attemptBody(item: SetItem, chosen: number[]): AttemptBody {
   const t = itemType(item);
-  if (t !== 'single' && t !== 'sata' && t !== 'matrix') throw new Error(`attempt: ${t} items are graded elsewhere`);
+  if (t !== 'single' && t !== 'multi_select' && t !== 'grid') throw new Error(`attempt: ${t} items are graded elsewhere`);
   return { chosen, ...scoreAnswer(item, chosen) };
 }
 

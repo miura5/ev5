@@ -11,6 +11,7 @@ import {
   parseSet,
   scoreAnswer,
   setKey,
+  upgradeItem,
 } from "../domain/index.ts";
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
@@ -47,7 +48,7 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
     return {
       own: true,
       set: own.set_id,
-      item: { ...(own.body as object), id: own.id } as Item,
+      item: { ...(upgradeItem(own.body) as object), id: own.id } as Item,
     };
   const doc = await docsRepo(x.db, { clock: x.clock }).get("sets", set);
   const item = doc && parseSet(doc.data).items.find((q) => q.id === itemId);

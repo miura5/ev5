@@ -1,10 +1,10 @@
 // One practice question as a set holds it. Items never change once written; answers are keyed by item id. The formats
-// are general: one answer, select all, a matrix, a number answer and an open answer. No subject is built in.
-export const ITEM_TYPES = ['single', 'sata', 'matrix', 'numeric', 'open'] as const;
+// are general: one answer, select all, a grid, a number answer and an open answer. No subject is built in.
+export const ITEM_TYPES = ['single', 'multi_select', 'grid', 'numeric', 'open'] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
 
 export type KeyPoint = { text: string; keywords: string[][] };
-export type MatrixRow = { text: string; correct: number; rationale?: string };
+export type GridRow = { text: string; correct: number; rationale?: string };
 
 export type Item = {
   id: string;
@@ -14,7 +14,7 @@ export type Item = {
   options?: string[];
   correct?: number[];
   rationales?: string[];
-  matrix?: { columns: string[]; rows: MatrixRow[] };
+  grid?: { columns: string[]; rows: GridRow[] };
   /** A number answer: its value, its unit (any free text; none for a bare number) and how far off still counts. */
   answer?: number;
   unit?: string;

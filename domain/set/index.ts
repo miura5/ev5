@@ -5,7 +5,7 @@ export {
   /** @public */
   SET_WRITERS,
   /** @public */
-  type MatrixRow,
+  type GridRow,
   /** @public */
   type KeyPoint,
   type SetItem,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ITEM_TYPES } from "../item/index.ts";
+import { ITEM_TYPES, upgradeType } from "../item/index.ts";
 import {
   deletable,
   json,
@@ -33,8 +33,8 @@ export const setTableSchema = z
 export type SetTableRow = z.infer<typeof setTableSchema>;
 
 const itemColumns = {
-  type: z.enum(ITEM_TYPES),
-  /** The item without its id: stem, options, correct, rationales, matrix, steps, keywords. */
+  type: z.preprocess(upgradeType, z.enum(ITEM_TYPES)),
+  /** The item without its id: stem, options, correct, rationales, grid, steps, keywords. */
   body: json,
 };
 

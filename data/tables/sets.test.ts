@@ -97,7 +97,7 @@ test("migration 0008 copies own sets under prefixed ids, once, and a deleted ite
   const db = migratedDb();
   db.exec(
     `INSERT INTO own_sets VALUES ('abc','Cardiac','question',NULL,NULL,5,2);
-     INSERT INTO own_set_items VALUES ('abc','x1',1,'{"id":"x1","stem":"Q","type":"sata"}',6,3);
+     INSERT INTO own_set_items VALUES ('abc','x1',1,'{"id":"x1","stem":"Q","type":"multi_select"}',6,3);
      INSERT INTO own_set_items VALUES ('abc','x2',2,'{"id":"x2","stem":"R"}',7,1);
      INSERT INTO deletions VALUES ('own_set_items','abc/x2',9);
      INSERT INTO own_attempts VALUES ('abc','x1','a1',8,'{}');`,
@@ -113,7 +113,7 @@ test("migration 0008 copies own sets under prefixed ids, once, and a deleted ite
   assert.equal(r?.set.title, "Cardiac");
   assert.deepEqual(
     r?.items.map((i) => [i.id, i.type, i.v, i.body]),
-    [["item_x1", "sata", 3, { stem: "Q", type: "sata" }]],
+    [["item_x1", "multi_select", 3, { stem: "Q", type: "multi_select" }]],
   );
   const n = (t: string) =>
     (db.prepare(`SELECT count(*) AS n FROM ${t}`).get() as { n: number }).n;

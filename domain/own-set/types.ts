@@ -34,7 +34,7 @@ export const ownSetItemSchema = z.strictObject({
 });
 export type OwnSetItem = z.infer<typeof ownSetItemSchema>;
 
-/** What an attempt records: the options chosen (single, sata), one column per row (matrix), or a typed answer. */
+/** What an attempt records: the options chosen (single, multi_select), one column per row (grid), or a typed answer. */
 export const attemptBodySchema = z
   .strictObject({
     chosen: z.array(z.number().int().min(0)).optional(),

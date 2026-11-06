@@ -9,17 +9,17 @@ const single: SetItem = {
   options: ['a', 'b', 'c'],
   correct: [1],
 };
-const sata: SetItem = {
+const multiSelect: SetItem = {
   id: 'd2',
   stem: 'Which findings are expected?',
   options: ['a', 'b', 'c', 'd'],
   correct: [0, 2],
 };
-const matrix: SetItem = {
+const grid: SetItem = {
   id: 'd3',
   stem: 'Mark each finding by its meaning.',
-  type: 'matrix',
-  matrix: {
+  type: 'grid',
+  grid: {
     columns: ['expected', 'unexpected'],
     rows: [
       { text: 'x', correct: 0 },
@@ -34,7 +34,7 @@ const base = {
   at: '2026-10-15T15:00:00Z',
   source: 'test',
   kind: 'drill',
-  items: [single, sata],
+  items: [single, multiSelect],
 };
 const attempt = (date: string) => ({
   k: { at: `${date}T15:00:00Z`, correct: true },
@@ -51,25 +51,25 @@ test('parseSet accepts a schema 3 set and refuses stored answers and unknown fie
   expect(() =>
     parseSet({
       ...base,
-      items: [{ ...matrix, matrix: { columns: ['a'], rows: [] } }],
+      items: [{ ...grid, grid: { columns: ['a'], rows: [] } }],
     }),
-  ).toThrow(/matrix/);
+  ).toThrow(/grid/);
   expect(() => parseSet({ ...base, items: [{ ...single, sourceRef: 'x/1' }] })).toThrow(/sourceRef/);
-  expect(parseSet({ ...base, items: [matrix], asked: 3 }).asked).toBe(3);
+  expect(parseSet({ ...base, items: [grid], asked: 3 }).asked).toBe(3);
 });
 
-test('a set item scores with the item scorer: single, select-all (plus/minus, floored at 0) and matrix', () => {
-  expect(itemType(sata)).toBe('sata');
+test('a set item scores with the item scorer: single, select-all (plus/minus, floored at 0) and grid', () => {
+  expect(itemType(multiSelect)).toBe('multi_select');
   expect(scoreAnswer(single, [1])).toEqual({ correct: true, score: 1 });
   expect(scoreAnswer(single, [0])).toEqual({ correct: false, score: 0 });
-  expect(scoreAnswer(sata, [2, 0])).toEqual({ correct: true, score: 1 });
-  expect(scoreAnswer(sata, [0])).toEqual({ correct: false, score: 0.5 });
-  expect(scoreAnswer(sata, [0, 1, 3]).score).toBe(0);
-  expect(scoreAnswer(matrix, [0, 1, 0])).toEqual({
+  expect(scoreAnswer(multiSelect, [2, 0])).toEqual({ correct: true, score: 1 });
+  expect(scoreAnswer(multiSelect, [0])).toEqual({ correct: false, score: 0.5 });
+  expect(scoreAnswer(multiSelect, [0, 1, 3]).score).toBe(0);
+  expect(scoreAnswer(grid, [0, 1, 0])).toEqual({
     correct: false,
     score: 2 / 3,
   });
-  expect(scoreAnswer(matrix, [0, 1, 1]).correct).toBe(true);
+  expect(scoreAnswer(grid, [0, 1, 1]).correct).toBe(true);
 });
 
 test('a drill is done once every item has an attempt, right or wrong', () => {
@@ -105,4 +105,12 @@ test('editing copies into an own set and leaves the original and its answers unt
   expect(() => parseSet(edited)).not.toThrow();
   expect(setDone(edited, answers)).toBe(true);
   expect(setDone(original, answers)).toBe(false);
+});
+
+test('a stored set item with the old type names and the matrix field reads in today\'s words', () => {
+  const old = { ...grid, type: 'matrix', matrix: grid.grid, grid: undefined };
+  const legacy = { ...multiSelect, type: 'sata' };
+  const set = parseSet({ ...base, items: [legacy, old] } as never);
+  expect(set.items.map((i) => i.type)).toEqual(['multi_select', 'grid']);
+  expect(set.items[1]?.grid?.rows.length).toBe(3);
 });

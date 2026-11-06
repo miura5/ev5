@@ -17,7 +17,7 @@ test("editing an item keeps its rationale, objective, source and table", async (
     rationales: ["a", "b", "c"],
     objective: "obj-1",
     sourceRef: { c: "notes", id: "n1" },
-    matrix: { rows: ["r"], cols: ["c"] },
+    grid: { rows: ["r"], cols: ["c"] },
   };
   await DB.prepare("UPDATE set_items SET body = ? WHERE id = ?")
     .bind(JSON.stringify(extra), item)
@@ -36,5 +36,5 @@ test("editing an item keeps its rationale, objective, source and table", async (
   assert.deepEqual(body.rationales, ["a", "b", "c"]);
   assert.equal(body.objective, "obj-1");
   assert.deepEqual(body.sourceRef, { c: "notes", id: "n1" });
-  assert.deepEqual(body.matrix, { rows: ["r"], cols: ["c"] });
+  assert.deepEqual(body.grid, { rows: ["r"], cols: ["c"] });
 });

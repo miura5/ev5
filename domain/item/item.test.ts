@@ -3,7 +3,7 @@ import { itemType, numberAnswer, scoreAnswer, validateItem, type Item } from './
 
 const I = (x: object) => x as Item;
 
-test('question checks: single, select-all, matrix and the bad cases', () => {
+test('question checks: single, select-all, grid and the bad cases', () => {
   const single = I({
     id: 'q1',
     type: 'single',
@@ -20,32 +20,32 @@ test('question checks: single, select-all, matrix and the bad cases', () => {
   expect(validateItem({ ...single, rationales: ['a'] }, { strict: true }).ok).toBe(false);
   expect(validateItem({ ...single, rationales: ['a'] }).ok).toBe(true);
   expect(validateItem({ ...single, options: ['A', 'a', 'C'], correct: [0], rationales: ['', '', ''] }).ok).toBe(false);
-  const sata = {
+  const multiSelect = {
     ...single,
     id: 'q2',
-    type: 'sata' as const,
+    type: 'multi_select' as const,
     options: ['A', 'B', 'C', 'D', 'E'],
     correct: [0, 3],
     rationales: ['a', 'b', 'c', 'd', 'e'],
   };
-  expect(validateItem(sata, { strict: true }).ok).toBe(true);
-  expect(validateItem({ ...sata, correct: [1] }).ok).toBe(false);
+  expect(validateItem(multiSelect, { strict: true }).ok).toBe(true);
+  expect(validateItem({ ...multiSelect, correct: [1] }).ok).toBe(false);
   const rows = [
     { text: 'Thinner skin', correct: 0, rationale: 'r' },
     { text: 'New confusion', correct: 1, rationale: 'r' },
     { text: 'Slower reaction time', correct: 0, rationale: 'r' },
   ];
-  const matrix = I({
+  const grid = I({
     id: 'q3',
-    type: 'matrix',
+    type: 'grid',
     objective: 'E4-3',
     stem: 'For each finding in an 80-year-old, mark expected or unexpected.',
-    matrix: { columns: ['Expected', 'Unexpected'], rows },
+    grid: { columns: ['Expected', 'Unexpected'], rows },
   });
-  expect(validateItem(matrix, { strict: true }).ok).toBe(true);
-  expect(validateItem({ ...matrix, matrix: { columns: ['E', 'U'], rows: rows.slice(0, 2) } }).ok).toBe(false);
+  expect(validateItem(grid, { strict: true }).ok).toBe(true);
+  expect(validateItem({ ...grid, grid: { columns: ['E', 'U'], rows: rows.slice(0, 2) } }).ok).toBe(false);
   const bad = { columns: ['E', 'U'], rows: [...rows.slice(0, 2), { text: 'x', correct: 3, rationale: 'r' }] };
-  expect(validateItem({ ...matrix, matrix: bad }).ok).toBe(false);
+  expect(validateItem({ ...grid, grid: bad }).ok).toBe(false);
   expect(validateItem(null).errors).toEqual(['not an object']);
 });
 
@@ -80,16 +80,16 @@ test('number answers: a value, any unit as free text, a tolerance and steps; sco
   expect(itemType(n)).toBe('numeric');
 });
 
-test('scoring: exact for single, +/- for select-all, per row for matrix', () => {
-  const sata = I({ type: 'sata', options: ['A', 'B', 'C', 'D', 'E'], correct: [0, 2, 3] });
-  expect(scoreAnswer(sata, [3, 0, 2])).toEqual({ correct: true, score: 1 });
-  expect(scoreAnswer(sata, [0, 2]).correct).toBe(false);
-  expect(Math.round(scoreAnswer(sata, [0, 2]).score * 100)).toBe(67);
-  expect(scoreAnswer(sata, [0, 1]).score).toBe(0);
-  const m = I({ type: 'matrix', matrix: { columns: ['E', 'U'], rows: [{ correct: 0 }, { correct: 1 }, { correct: 0 }] } });
+test('scoring: exact for single, +/- for select-all, per row for grid', () => {
+  const multiSelect = I({ type: 'multi_select', options: ['A', 'B', 'C', 'D', 'E'], correct: [0, 2, 3] });
+  expect(scoreAnswer(multiSelect, [3, 0, 2])).toEqual({ correct: true, score: 1 });
+  expect(scoreAnswer(multiSelect, [0, 2]).correct).toBe(false);
+  expect(Math.round(scoreAnswer(multiSelect, [0, 2]).score * 100)).toBe(67);
+  expect(scoreAnswer(multiSelect, [0, 1]).score).toBe(0);
+  const m = I({ type: 'grid', grid: { columns: ['E', 'U'], rows: [{ correct: 0 }, { correct: 1 }, { correct: 0 }] } });
   expect(scoreAnswer(m, [0, 1, 0])).toEqual({ correct: true, score: 1 });
   expect(scoreAnswer(m, [0, 0, 0]).correct).toBe(false);
-  expect(itemType(I({ correct: [0, 1] }))).toBe('sata');
+  expect(itemType(I({ correct: [0, 1] }))).toBe('multi_select');
 });
 
 const open = (o: object = {}) =>

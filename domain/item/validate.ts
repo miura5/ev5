@@ -26,18 +26,18 @@ export function validateItem(raw: unknown, opts: { strict?: boolean } = {}): Val
       errors.push('tolerance must be a number of 0 or more');
     if (!Array.isArray(q.steps) || !q.steps.length || q.steps.some((x) => typeof x !== 'string' || !x.trim()))
       errors.push('a number answer needs its worked steps');
-    if (q.options || q.correct || q.matrix) errors.push('a number answer has no options');
-  } else if (t === 'matrix') {
-    const m = q.matrix;
+    if (q.options || q.correct || q.grid) errors.push('a number answer has no options');
+  } else if (t === 'grid') {
+    const m = q.grid;
     if (!m || !Array.isArray(m.columns) || m.columns.length < 2 || m.columns.length > 4)
-      errors.push('matrix needs 2-4 columns');
-    else if (!Array.isArray(m.rows) || m.rows.length < 3 || m.rows.length > 6) errors.push('matrix needs 3-6 rows');
+      errors.push('grid needs 2-4 columns');
+    else if (!Array.isArray(m.rows) || m.rows.length < 3 || m.rows.length > 6) errors.push('grid needs 3-6 rows');
     else
       m.rows.forEach((r, i) => {
-        if (!r || !r.text) errors.push(`matrix row ${i} has no text`);
+        if (!r || !r.text) errors.push(`grid row ${i} has no text`);
         if (!Number.isInteger(r.correct) || r.correct < 0 || r.correct >= m.columns.length)
-          errors.push(`matrix row ${i} has a bad answer`);
-        if (!r.rationale) warnings.push(`matrix row ${i} has no rationale`);
+          errors.push(`grid row ${i} has a bad answer`);
+        if (!r.rationale) warnings.push(`grid row ${i} has no rationale`);
       });
   } else {
     const o = q.options;
@@ -52,8 +52,8 @@ export function validateItem(raw: unknown, opts: { strict?: boolean } = {}): Val
         if (c.some((i) => !Number.isInteger(i) || i < 0 || i >= o.length)) errors.push('correct index out of range');
         if (new Set(c).size !== c.length) errors.push('duplicate correct index');
         if (t === 'single' && c.length !== 1) errors.push('single needs exactly one correct');
-        if (t === 'sata' && c.length < 2) errors.push('select-all needs two or more correct');
-        if (t === 'sata' && c.length === o.length) warnings.push('every option is correct');
+        if (t === 'multi_select' && c.length < 2) errors.push('select-all needs two or more correct');
+        if (t === 'multi_select' && c.length === o.length) warnings.push('every option is correct');
       }
       if (!Array.isArray(q.rationales) || q.rationales.length !== o.length)
         (opts.strict ? errors : warnings).push('needs one rationale per option');

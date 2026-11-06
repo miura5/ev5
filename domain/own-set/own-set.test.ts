@@ -20,7 +20,7 @@ import type { OwnAttempt } from './types.ts';
 
 const NOW = '2026-11-03T10:00:00Z';
 const q = (id: string, correct = [1]): SetItem => ({
-  ...(correct.length > 1 ? { type: 'sata' as const } : {}),
+  ...(correct.length > 1 ? { type: 'multi_select' as const } : {}),
   id,
   stem: 'Which finding needs action first?',
   options: ['a', 'b', 'c'],

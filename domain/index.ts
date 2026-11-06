@@ -9,7 +9,13 @@ export {
 } from "./weak-spot/index.ts";
 export type { Attempt } from "./weak-spot/index.ts";
 export { parseSet, setKey, itemKey } from "./set/index.ts";
-export { scoreAnswer, itemType, numberAnswer } from "./item/index.ts";
+export {
+  scoreAnswer,
+  itemType,
+  numberAnswer,
+  ITEM_TYPES,
+  upgradeItem,
+} from "./item/index.ts";
 export { parseSession } from "./session/index.ts";
 export {
   parseNote,

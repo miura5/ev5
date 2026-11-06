@@ -1,7 +1,7 @@
 // Matt's own sets (CONTRACT §data.tables, §ui.own-everything): `sets` rows with their items in `set_items`,
 // written with the table protocol (a version, a stale write is a 409). An item is typed as a question, then "- " lines
 // for options and "* " for the right ones. Removing an item writes a `deletions` row and leaves the row (§delete.soft).
-import { itemKey, setKey } from "../domain/index.ts";
+import { itemKey, setKey, upgradeItem } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -28,18 +28,18 @@ function itemBody(id: string, text: string) {
   return {
     id,
     stem,
-    type: correct.length > 1 ? "sata" : "single",
+    type: correct.length > 1 ? "multi_select" : "single",
     options,
     correct,
   };
 }
 
-/** An edit changes the typed fields only: rationale, objective, sourceRef, matrix and the like stay. */
+/** An edit changes the typed fields only: rationale, objective, sourceRef, grid and the like stay. */
 function edited(
   old: unknown,
   typed: ReturnType<typeof itemBody>,
 ): Record<string, unknown> {
-  const was = (old ?? {}) as Record<string, unknown>;
+  const was = upgradeItem(old ?? {}) as Record<string, unknown>;
   const kept: Record<string, unknown> = { ...was, ...typed };
   // per-option rationales only stay while the options they explain are the same count
   if (
@@ -47,8 +47,8 @@ function edited(
     was.rationales.length !== typed.options.length
   )
     delete kept.rationales;
-  // a table (or other non-choice) item keeps its type; only choice items switch between single and sata
-  if (was.type && was.type !== "single" && was.type !== "sata")
+  // a table (or other non-choice) item keeps its type; only choice items switch between single and multi_select
+  if (was.type && was.type !== "single" && was.type !== "multi_select")
     kept.type = was.type;
   return kept;
 }
@@ -75,7 +75,7 @@ const asItem = (i: TItem) => ({
   setId: i.set_id,
   itemId: i.id,
   pos: i.pos,
-  body: { ...(i.body as object), id: i.id },
+  body: { ...(upgradeItem(i.body) as object), id: i.id },
   at: stamp(i.at),
   v: i.v,
 });
