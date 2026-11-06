@@ -39,7 +39,7 @@
  {
   "id": "B-71",
   "kind": "task",
-  "title": "Calibration into readiness (D-119): after two exams with a prediction (D-094) and a score (examedits), readiness carries a calibrated estimate (the coverage number adjusted by the mean signed error, bounded), shown beside the coverage number and never replacing it; the weekly reports calibration error; the retro (D-104) is its input",
+  "title": "Calibration into readiness: after two dates of kind exam with a prediction and a score, readiness carries a calibrated estimate (the coverage number adjusted by the mean signed error, bounded), shown beside the coverage number and never replacing it; the weekly review reports calibration error",
   "dod": null,
   "milestone": "after-cutover",
   "status": "blocked",
@@ -71,7 +71,7 @@
   "id": "B-266",
   "kind": "bug",
   "title": "Bug (reported Oct 23): e.v. Center aligned on phone",
-  "dod": "Post-freeze design: E.V. records an exam score he gives her where scores live (examedits), including exams with no date (E1-E3), and never says Logged for something she did not store; his 92/84/96 (now in an idea note) move there",
+  "dod": "E.V. records a score he gives her on a date of kind exam, where goal scores live, including dates with no day set, and never says Logged for something she did not store",
   "milestone": "after-cutover",
   "status": "blocked",
   "depends": [],
@@ -302,7 +302,7 @@
  {
   "id": "B-443",
   "kind": "request",
-  "title": "Request (reported Oct 27): Keep weak spots from past exams and past units as a separate history pool that never counts toward the upcoming exam's weak spots or crowds its practice, but can be reviewed in downtime, with the current unit always first.",
+  "title": "Request (reported Oct 27): Keep weak spots from past dates as a separate history pool that never counts toward upcoming dates",
   "dod": "Weak spots split by a derived current/past rule (no data change): the badge, practice sets and morning reviews count current only; a collapsed 'From past units' section in Study > Weak spots with each row's exam, Drill, and a 'Review old material' set; answers credit history; core unit tests per branch; harness check at 390 and 1280; npm test green.",
   "milestone": "after-cutover",
   "status": "blocked",
@@ -323,8 +323,8 @@
  {
   "id": "B-444",
   "kind": "request",
-  "title": "Request (reported Oct 27): Let him mark text in a note as need to know (terminology, rationales, figures, formulas) so quizzes and practice sets include it; E.V. may suggest such points from the note and probe them sparingly, proposing a weak spot when he misses one, without a flood of distractions; nursing courses framed NCLEX, others exam-style.",
-  "dod": "Plan from the design (k run mark as the single truth; suggestions only on demand or at session end, accepted per quote; practice weights key points about 2 of 5 with course framing; probes only on marked points at most one per 15 minutes; misses proposed as weak spots); split into 4 build tasks before building; each with tests; npm test green.",
+  "title": "Request (reported Oct 27): Let him mark text in a note as need to know (terminology, rationales, figures, formulas) so quizzes and practice sets include it; E.V. may suggest such points from the note and probe them sparingly, proposing a weak spot when he misses one, without a flood of distractions.",
+  "dod": "Plan from the design (k run mark as the single truth; suggestions only on demand or at session end, accepted per quote; practice weights key points about 2 of 5; probes only on marked points at most one per 15 minutes; misses proposed as weak spots); split into build tasks before building; each with tests; npm test green.",
   "milestone": "after-cutover",
   "status": "blocked",
   "depends": [],
@@ -347,7 +347,7 @@
   "title": "Request (reported Oct 27): Connect weak spots and need-to-know points with typed links (for example causes, sign of, treats, contraindicates, comes before) proposed by E.V. and accepted by him, and use them to generate NCLEX-style clinical judgment and prioritization practice sets with plausible distractors, and to surface links between old and current material.",
   "dod": "A planning pass first (after B-444 is underway): a short fixed set of link types, E.V.-proposed and accepted per link, where links live, how a clinical judgment set uses them (prioritization, distractors, cross-unit cues), token cost and tasks with definitions of done; brought to Matt before any build.",
   "milestone": "after-cutover",
-  "status": "blocked",
+  "status": "declined",
   "depends": [],
   "notes": "Parked by the phase plan (D-347): features wait until after the architecture review (B-415) and consolidation; input to that review. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
   "commit": null,
@@ -358,8 +358,9 @@
    "row": "v4 B-445: Connect weak spots and need-to-know points with typed links (for…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T01:40:47.645Z"
+   "outcome": "declined",
+   "reason": "A subject-specific feature (clinical link types); kinds are data, not built in (§what.framing). Scope audit 2026-11-06",
+   "at": "2026-11-06T07:57:07.566Z"
   }
  },
  {
@@ -386,7 +387,7 @@
  {
   "id": "B-457",
   "kind": "bug",
-  "title": "Bug (reported Oct 28): When a study plan's Sonnet request drops before its reply arrives, or comes back without usage, the Worker can give the ask back or count nothing, so a billed answer may not count toward the 2-ask cap or the token ceilings.",
+  "title": "Bug (reported Oct 28): When a prep plan's Sonnet request drops before its reply arrives, or comes back without usage, the Worker can give the ask back or count nothing, so a billed answer may not count toward the 2-ask cap or the token ceilings.",
   "dod": "Every Sonnet ask that is not a refusal Claude returned (4xx/5xx) keeps its claim and counts a conservative estimate (input at ~3.5 chars/token plus max_tokens, at the model's weight) toward the ceilings: a throw before headers after the request was sent, a 200 with a non-JSON body or no usage, and a Worker cancelled mid-ask; a max_tokens-cut answer gets no fix and writes nothing, with a test; npm test green.",
   "milestone": "after-cutover",
   "status": "open",
@@ -432,7 +433,7 @@
   "title": "Bug (reported Oct 29): After B-481, dosage practice sets come back correct but short: on staging a 6-problem oral liquid set kept 2 (both correct, no answer in the stem) and a 10-problem weight-based set kept 8; most drops are items the writer sent without usable calc numbers or with the answer in the stem, and the one top-up ask did not fill the gap. A dosage set should reach the asked count with checked items.",
   "dod": "A dosage practice set of N reaches N checked items in the usual case: the writer is shown one worked example of a calc item and a clean stem, and the job logs why each dropped item was dropped; if the yield stays under 80% on two real staging runs, calculation items are composed from code-chosen numbers (code picks weight, dose, stock; the model writes the wording, options from known wrong-method answers). Proved by two real sets on staging.",
   "milestone": "after-cutover",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
   "commit": null,
@@ -443,8 +444,9 @@
    "row": "v4 B-484: After B-481, dosage practice sets come back correct but short: on…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T06:09:46.604Z"
+   "outcome": "declined",
+   "reason": "A subject-specific feature (dosage calc sets); no subject is built in (§what.framing). Scope audit 2026-11-06",
+   "at": "2026-11-06T07:57:07.679Z"
   }
  },
  {
@@ -453,7 +455,7 @@
   "title": "Bug (reported Oct 29): Plan task refs on day items are keyed by exam id (plans/<exam>#<task>), so a new plan approved for the same exam can claim an old day's row by a matching task id; day-item refs should carry the plan id.",
   "dod": "Day items that point at a plan task carry the plan id as well as the exam and task id, so a new plan for the same exam never claims an old day's row; npm test covers it.",
   "milestone": "after-cutover",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
   "commit": null,
@@ -464,8 +466,9 @@
    "row": "v4 B-486: Plan task refs on day items are keyed by exam id…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T12:34:40.107Z"
+   "outcome": "declined",
+   "reason": "Merged into B-1004: plan items live in the plans and plan_items tables keyed by plan id, so an old day row can't be claimed by a new plan (scope audit 2026-11-06)",
+   "at": "2026-11-06T07:56:30.620Z"
   }
  },
  {
@@ -507,7 +510,7 @@
   "id": "B-523",
   "kind": "bug",
   "title": "Bug (reported Oct 29): A weak-spot drill asks about a different topic than the spot it was started from.",
-  "dod": "A drill started from a weak spot uses that spot's objective and course; test. Depends on B-499. (F-42, F-43)",
+  "dod": "A drill started from a weak spot uses that spot's objective; test.",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [],
@@ -653,8 +656,8 @@
  {
   "id": "B-536",
   "kind": "bug",
-  "title": "Bug (reported Oct 29): Release review of aa177a1 backlog: 'give me the drug card for X' starts a flashcards job; quiz_me's course enum is empty once no course is active, which could fail the whole chat call; two add-to-deck folds in the same second could reuse card ids; a deck past 256 KiB is refused with a plain error.",
-  "dod": "quiz_me omits the tool or the enum when no course is active; card asks need a cards/flashcards noun with a make verb; new card ids can't collide within a second; a deck near its size limit says so plainly; tests.",
+  "title": "Bug (reported Oct 29): quiz_me's collection enum is empty when no collection is picked, which could fail the whole chat call; two add-to-deck folds in the same second could reuse card ids; a deck past its size limit is refused with a plain error.",
+  "dod": "quiz_me omits the tool or the enum when nothing is picked; new card ids can't collide within a second; a deck near its size limit says so plainly; tests.",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [],
@@ -674,7 +677,7 @@
  {
   "id": "B-537",
   "kind": "bug",
-  "title": "Bug (reported Oct 29): Staging e2e oddities (aa177a1): E.V. tells him to tap 'Make a new plan' (the button is Remake); the BIO mini quiz re-serves its 3 answered questions and its teaser shows a question it never asks; a pediatric dosing task's Open lands on the Study overview, not its set, and the set isn't listed under Practice sets; at 390 the last quiz card stays pinned above the composer over the newest reply; the import preview lists repeat terms it says it leaves out; Pick an objective offers every course objective unfiltered.",
+  "title": "Bug (reported Oct 29): Staging e2e oddities: E.V. tells him to tap 'Make a new plan' (the button is Remake); a mini quiz re-serves its 3 answered questions and its teaser shows a question it never asks; a task's Open lands on the overview, not its set, and the set isn't listed under Practice sets; the import preview lists repeat terms it says it leaves out; Pick an objective offers every objective unfiltered.",
   "dod": "Each listed oddity fixed or split into its own task; tests where behaviour changes.",
   "milestone": "after-cutover",
   "status": "open",
@@ -845,7 +848,7 @@
   "id": "B-608",
   "kind": "request",
   "title": "Request (reported Oct 30): When E.V. creates a plan task, flashcard deck or note, it also records which existing objective or topic it is about (no new UI), so concept-level tracking for D-404 has linked data from now on.",
-  "dod": "Plan tasks, decks and notes E.V. creates carry an objective or topic reference from the course's existing objectives or weak-spot topics; nothing visible changes; a test covers each creator.",
+  "dod": "Plan tasks, decks and notes E.V. creates carry an objective or topic reference from the existing objectives or weak-spot topics; nothing visible changes; a test covers each creator.",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [
@@ -935,8 +938,8 @@
  {
   "id": "B-617",
   "kind": "request",
-  "title": "Request (reported Oct 30): Jobs kit: one way to define a model job, with course framing, grounding, counts and length limits handled by the kit, not each job (NCLEX in BIO notes and the 101-card deck were this).",
-  "dod": "Every model job is defined through the jobs kit; course framing, grounding and counts are the kit's, with one test per rule.",
+  "title": "Request (reported Oct 30): Jobs kit: one way to define a model job, with framing from the chosen material, grounding, counts and length limits handled by the kit",
+  "dod": "Every model job is defined through the jobs kit; framing from the chosen material, grounding and counts are the kit's, with one test per rule.",
   "milestone": "after-cutover",
   "status": "blocked",
   "depends": [
@@ -1252,12 +1255,17 @@
   "title": "S-09: (ev4 repo) Remove the Mac path and Canvas host from ev4's public spec",
   "dod": "Shipped through ev4's own process; not built here",
   "milestone": "Phase 0",
-  "status": "blocked",
+  "status": "declined",
   "depends": [],
   "notes": "ev4 task: ships through ev4's own process, never from this repo",
   "commit": null,
   "source": "AGENTS.md §4.3",
-  "waitingWhere": "github"
+  "waitingWhere": "github",
+  "triage": {
+   "outcome": "declined",
+   "reason": "Ended for v5: an ev4 fix that ships through ev4's own process (§hard.ev4-own-process); v5 no longer depends on ev4, so it is not a v5 Phase 0 item (scope audit 2026-11-06, B23)",
+   "at": "2026-11-06T07:56:31.029Z"
+  }
  },
  {
   "id": "B-700",
@@ -2175,13 +2183,13 @@
   "id": "B-754",
   "kind": "task",
   "title": "S-80: Scheduled commands: morning, evening, weekly",
-  "dod": "Scheduled commands run from a 15-minute Worker cron: one is due when its Central wall time has passed and no run exists for that Central date; nothing is scheduled 01:00-03:00 Central; a missing run is reported, never re-fired; tested across DST on 2026-11-01 and 2027-03-14 (CONTRACT §job.schedule, §job.trace)",
+  "dod": "Scheduled commands run from a 15-minute Worker cron: one is due when its local wall time (the user's time zone through domain/time) has passed and no run exists for that local date; nothing is scheduled 01:00-03:00 local; a missing run is reported, never re-fired; tested across DST on 2026-11-01 and 2027-03-14 (CONTRACT §job.schedule, §job.trace)",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-753"
   ],
-  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next.",
+  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C13: the rule says the user's time zone; today domain/time has one zone constant (America/Chicago); a time zone setting is parked (docs/parked.md).",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
@@ -2224,7 +2232,7 @@
    "B-753",
    "B-999"
   ],
-  "notes": "Run 74 (#466): data/export/drill.test.ts drills all 20 tables (counts, hashes, canonical JSON, refuse non-empty, tamper caught), ops/restore-drill/time-travel.sh (staging only), ops/RESTORE.md. LEFT: a GitHub workflow with the staging token that runs time-travel.sh ev5-staging (script never run); views has no migration yet. Rescoped 2026-11-05: the drills run on v5's new tables after B-999, not on the docs-table export.",
+  "notes": "Run 74 (#466): data/export/drill.test.ts drills all 20 tables (counts, hashes, canonical JSON, refuse non-empty, tamper caught), ops/restore-drill/time-travel.sh (staging only), ops/RESTORE.md. LEFT: a GitHub workflow with the staging token that runs time-travel.sh ev5-staging (script never run); views has no migration yet. Rescoped 2026-11-05: the drills run on v5's new tables after B-999, not on the docs-table export. Scope audit 2026-11-06: B21: ops/RESTORE.md and time-travel.sh check a SHA-256 per table and write one marked row in a v5 table, not a docs row.",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -2975,7 +2983,7 @@
   "id": "B-808",
   "kind": "task",
   "title": "Prompt caching on stable prefixes",
-  "dod": "The model call marks the system prompt and course context with cache_control; a test sees it in the request; a staging run shows cache reads in usage (CONTRACT §model.choice)",
+  "dod": "The model call marks the system prompt and the stable material context with cache_control; a test sees it in the request; a staging run shows cache reads in usage (CONTRACT §model.choice)",
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
@@ -2998,15 +3006,15 @@
  {
   "id": "B-810",
   "kind": "task",
-  "title": "The server gathers practice-set excerpts from Matt's record",
-  "dod": "The practice-set job input names a scope, not excerpts; the server finds passages with a LIKE query over docs ranked by domain/search; a test shows caller-supplied excerpts are ignored; a job run cites only gathered ids (CONTRACT §data.search, §ev.cites)",
+  "title": "The server gathers practice-set excerpts from the user's notes",
+  "dod": "The practice-set job input names a scope, not excerpts; the server finds passages in the notes table, scoped to the notes or collection the user picks, ranked by domain/search; a test shows caller-supplied excerpts are ignored; a job run cites only gathered ids (CONTRACT §data.search, §ev.cites)",
   "milestone": "Phase 5",
   "status": "open",
   "depends": [
    "B-731",
    "B-739"
   ],
-  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only.",
+  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B4: no LIKE over docs; the source scope is built in B-1040.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -4260,12 +4268,12 @@
  {
   "id": "B-906",
   "kind": "task",
-  "title": "A course not synced from Canvas needs no Canvas course id",
-  "dod": "domain/course/types.ts:6 requires canvasId: number and domain/course/table.ts:19 refuses a course without an integer canvasId. canvasId becomes optional for a course not synced from Canvas; table.ts still refuses a canvasId that is present but not an integer; canvas-sync and every reader of canvasId (domain/exam, server/handlers-dates.ts, data/compat) skip a course without one. Tests pin a course with no canvasId, and the ev4 compat fixture still passes. Slice: write domain/course; read domain/exam, data/compat.",
+  "title": "A course is a collection the user names: the course table and virtual course collections go",
+  "dod": "domain/course, the virtual course: collections and the course branch of the collection move are deleted; plan.update takes only a col_ id or none as its collection; no reader of canvasId is left; tests pin plan.update refusing a course: target (§what.framing). Slice: write domain/course, domain/collection, server/ (plan-options, handlers-plan), data/export",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them.",
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B6: the old bar (make canvasId optional, keep data/compat passing) named removed shapes.",
   "commit": null,
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
@@ -4730,12 +4738,12 @@
  {
   "id": "B-942",
   "kind": "bug",
-  "title": "Today and Progress don't follow the mock-up: Today lacks This week, readiness bars and Courses; Progress is two plain lines",
-  "dod": "Today matches design/mockup.html (#today) and design/screens/today.png: section Upcoming with course dot, readiness bar and plan state, a This week section, Courses in the sidebar, Start next as the primary button. Progress matches #progress and design/screens/progress.png: Retrieval accuracy and Study minutes sections, each with its big number, its line and its weekly bars; both themes; seen on staging.",
+  "title": "Today and Progress don't follow the mock-up",
+  "dod": "Today matches design/mockup.html #today and Progress matches #progress, in both themes, seen on staging; no Courses section in the sidebar and no course dots on Today; every pinned collection with a linked date shows the day of its next linked date; Progress names its sections Retrieval accuracy and Minutes (§ui.mockup)",
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept. Decided 2026-11-06 (Matt, inbox decision on Courses): drop Courses from the sidebar and course dots from Today; the mock-up is not changed to add them. A course shows as an ordinary collection.",
+  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept. Decided 2026-11-06 (Matt, inbox decision on Courses): drop Courses from the sidebar and course dots from Today; the mock-up is not changed to add them. A course shows as an ordinary collection. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C14, B22, A6: the old design/screens PNGs moved to docs/history/design-rounds/ (history, not a reference); Matt chose the general pinned-collection date rule (2026-11-06); a Details 'Course' property reads 'Collection'.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
@@ -5470,7 +5478,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 94: part 1 is not data-only (builder stopped, no code). Needs: (a) server: col_/pin_ id makers, collection callers to snake_case rows (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export), replace memberships.save with the item's own collection_id, item_props become plan_items columns (D-498 drops both tables, so do not move them onto the gate); (b) data: migration backfilling col_ ids and rewriting references, pins gets id, v, deleted_at, target_kind; collections and pins in kindsRepo (one-level parent check, plan.ts style); update tables.test and row-shapes.test. Do (b) before or with (a); then part 2. Earlier state: migrations 0006 to 0008 on main, plan repo and gate in data/tables.",
+  "notes": "Run 94: part 1 is not data-only (builder stopped, no code). Needs: (a) server: col_/pin_ id makers, collection callers to snake_case rows (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export), replace memberships.save with the item's own collection_id, item_props become plan_items columns (D-498 drops both tables, so do not move them onto the gate); (b) data: migration backfilling col_ ids and rewriting references, pins gets id, v, deleted_at, target_kind; collections and pins in kindsRepo (one-level parent check, plan.ts style); update tables.test and row-shapes.test. Do (b) before or with (a); then part 2. Earlier state: migrations 0006 to 0008 on main, plan repo and gate in data/tables. Scope audit 2026-11-06: C7: docs/proposals/table-design.md is edited in place to D-498 (B-1030 slice). B8: objectives.collection_id is nullable in the new empty-database baseline, so an objective can hang off a goal by link only. B12: the baseline has only D-498 tables; ev4 tables leave the export list.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5518,7 +5526,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "",
+  "notes": "Scope audit 2026-11-06: B11, B13: docsRepo in 10 files and raw SQL over docs; each kind's move writes created_by or by only.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5548,15 +5556,15 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 86 #538. Left: model-facing ItemSchema still hand-written (domain setItemSchema not exported from the barrel); saveOutput does not parse bodies before insert. 2026-11-05: PR #538 (merged 21:01Z, run 86) fits each item to the ev4 sets document shape (schema 3, writer, sourceRef materials/ or note/). Blocked by B-1035 for a recheck: once the design gives the set item table, the job output lands there and materials/ refs go until a table exists. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
+  "notes": "Run 86 #538. Left: model-facing ItemSchema still hand-written (domain setItemSchema not exported from the barrel); saveOutput does not parse bodies before insert. 2026-11-05: PR #538 (merged 21:01Z, run 86) fits each item to the ev4 sets document shape (schema 3, writer, sourceRef materials/ or note/). Blocked by B-1035 for a recheck: once the design gives the set item table, the job output lands there and materials/ refs go until a table exists. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B13: checkStored builds an ev4 sets document; parse the domain set-item row.",
   "commit": "07c3481",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
   "id": "B-1004",
   "kind": "task",
-  "title": "Study plan output lands as plans and plan_items",
-  "dod": "The study plan job's output goes through domain/plan into plans and plan_items; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/plan, domain/plan",
+  "title": "Prep plan output lands as plans and plan_items",
+  "dod": "The prep plan job's output goes through domain/plan into plans and plan_items, each plan pointing at a goal; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/study-plan, domain/plan",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
@@ -5564,7 +5572,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
+  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B9: each plan points at a goal, not an exam id; day items that point at a plan task carry the plan id (from B-486).",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5635,7 +5643,7 @@
    "B-955",
    "B-998"
   ],
-  "notes": "",
+  "notes": "Scope audit 2026-11-06: B19: the seed holds docs rows with writer, source and course codes; reseed with neutral titles through the gate.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5708,12 +5716,12 @@
  {
   "id": "B-1014",
   "kind": "task",
-  "title": "E.V.'s prompts call the user the student, not by name",
-  "dod": "Ask E.V.'s system prompt (server/ask-chat.ts) and the study-plan changes prompt (jobs/study-plan/changes-prompt.md), and any other model prompt, name no person: they say the student or you; one real end-to-end Ask and study-plan run on staging is green",
+  "title": "E.V.'s prompts say you or the user, never 'the student' or a name",
+  "dod": "Ask E.V.'s system prompt (server/ask-chat.ts), the prep-plan prompts, the practice-set prompt and user message, the grading prompt and E.V.'s tool descriptions (commands/catalog.ts) name no person and never say 'the student': E.V.'s voice says 'you', and a description of the person says 'the user'; server/prompt-words.test.ts checks every one of them and refuses student(s), mock exam, exam-style and study plan; one real end-to-end Ask and prep-plan run on staging is green",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's.",
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C2, A1, B20: the earlier sweep wrote 'the student' into every prompt because this done bar asked for it; Matt chose 'you' (2026-11-06), which amends D-486's prompt clause. The scope sweep rewords the prompts and widens the guard.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
@@ -5721,11 +5729,11 @@
   "id": "B-1015",
   "kind": "task",
   "title": "The app's user role is owner in the code, not a person's name",
-  "dod": "the Caller and Starter value 'matt' becomes 'owner' (commands/define.ts and every *.command.ts, commands/catalog.ts, jobs/runtime/define.ts, both jobs, server/command-routes.ts, server/job-routes.ts, server/handlers-jobs.ts, server/handlers-studyplan.ts) and comments in those files say the owner; generated files are up to date; an ESLint rule refuses the owner's first name in non-test code, with an allow list only for data/compat (ev4's frozen schemas) and the files that still write ev4's stored 'by' value until the data study's row shapes replace it, each with a one-line reason; a red guard fixture is recorded; precheck green",
+  "dod": "the Caller and Starter value 'matt' becomes 'owner' (commands/define.ts and every *.command.ts, commands/catalog.ts, jobs/runtime/define.ts, both jobs, server/command-routes.ts, server/job-routes.ts, server/handlers-jobs.ts, the prep-plan handlers) and comments in those files say the owner; generated files are up to date; an ESLint rule refuses the owner's first name in non-test code; a red guard fixture is recorded; precheck green",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those.",
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498).",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
@@ -5795,14 +5803,14 @@
   "id": "B-1022",
   "kind": "task",
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
-  "dod": "domain/ has row shapes for exam, objective, weak spot, set, session, note, course, claude_* and system_docs; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
+  "dod": "domain/ has row shapes for every table in docs/proposals/table-design.md as changed by D-498 (goal, objective, link, weak spot, set, item, session, note, collection, settings and the rest); no exam, course, claude_* or system_docs row shapes; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-997",
    "B-1035"
   ],
-  "notes": "Group 4. Done: drafts (#587); server job_plans and claude_settings reads through domain parsers (#590, domain/job-plan parseStoredPlan, server/job-plans.ts). Left: jobs/runtime/d1-stores.ts job_plans/claude_settings (a jobs/ task), WireDoc in areas, old doc-row shapes (after B-1037 to B-1043), data/docs gate onto parse*Row, plan row shape so commands/ and jobs/ drop PlanSchema, parseCourseTable callers, row-shapes.test gap, contract migration dropping target_c; consider snake_case jobPlanSchema then.",
+  "notes": "Group 4. Done: drafts (#587); server job_plans and claude_settings reads through domain parsers (#590, domain/job-plan parseStoredPlan, server/job-plans.ts). Left: jobs/runtime/d1-stores.ts job_plans/claude_settings (a jobs/ task), WireDoc in areas, old doc-row shapes (after B-1037 to B-1043), data/docs gate onto parse*Row, plan row shape so commands/ and jobs/ drop PlanSchema, parseCourseTable callers, row-shapes.test gap, contract migration dropping target_c; consider snake_case jobPlanSchema then. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the done bar no longer asks for exam, course, claude_* or system_docs shapes.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5863,7 +5871,7 @@
   "id": "B-1027",
   "kind": "task",
   "title": "Zod checks fit a Workflow step's CPU limit on Free",
-  "dod": "Workers Logs CPU time on staging for one study plan and one large practice set shows the Zod parse in each step stays inside the Free plan's per-step CPU limit (read from current Cloudflare docs); the result is recorded as a decision (§model.output)",
+  "dod": "Workers Logs CPU time on staging for one prep plan and one large practice set shows the Zod parse in each step stays inside the Free plan's per-step CPU limit (read from current Cloudflare docs); the result is recorded as a decision (§model.output)",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
@@ -5901,11 +5909,11 @@
   "id": "B-1030",
   "kind": "task",
   "title": "Clear rollback-era and wrong names from the plan and docs",
-  "dod": "PLAN.md and docs/spikes/S-07-workflows.md use jobId-step-round (D-477), not jobId:step; CUTOVER step 6, CONTRACT §deliver.cutover and PLAN.md:494 name ev5-staging, not ev-staging; CONTRACT §drift.checks drops compat; the rollback-era PLAN lines, docs/guards.md compat rows and S-07 rollback notes are marked ended or removed (D-484)",
+  "dod": "PLAN.md and docs/spikes/S-07-workflows.md use jobId-step-round (D-477), not jobId:step; CUTOVER step 6, CONTRACT §deliver.cutover and PLAN.md name ev5-staging, not ev-staging; the rollback-era and ev4-data lines in PLAN.md (§5.10, §12, Phase 3 included), prompts/START-BUILD.md, docs/proposals/ (fresh-database marked accepted and history; table-design edited to D-498), docs/spikes/S-08, ops/CUTOVER.md, ops/RESTORE.md and design/ are marked ended or removed (D-484, D-498)",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011. 2026-11-05 ev4 sweep (#550) did part of this: CONTRACT §drift.checks drops compat, docs/guards.md compat rows gone, PLAN compat lines marked ended (D-484). The rest of the list stands.",
+  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011. 2026-11-05 ev4 sweep (#550) did part of this: CONTRACT §drift.checks drops compat, docs/guards.md compat rows gone, PLAN compat lines marked ended (D-484). The rest of the list stands. Scope audit 2026-11-06: C7, C9, C10, C12, A15 to A17, B21: slice widened to prompts/START-BUILD.md, docs/proposals/, docs/spikes/, ops/*.md and the design rollback lines.",
   "commit": null,
   "source": "ops claims review 2026-11-05"
  },
@@ -5944,7 +5952,7 @@
    "B-1004",
    "B-1035"
   ],
-  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc).",
+  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B10: plan_items origin 'matt' becomes 'user' before the first writer. A9: Matt dropped the 'graded work' plan kind (2026-11-06). B9: planedits, dayedits, item_props and the camelCase plan rows go when plans are written through the gate.",
   "commit": null,
   "source": "B-1004 report"
  },
@@ -5985,7 +5993,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build.",
+  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build. Scope audit 2026-11-06: A11: about 45 code comments give ev4 as a reason (check 6 refuses them). B16: delete domain/item/upgrade.ts once staging is reseeded (B-1009). B17: test-only exam and ev4 exports go with check 4. A10: extend check 1 to test fixtures so course codes don't return.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6013,7 +6021,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#606): Library tab is Dates, domain/goal has DATE_KINDS/toolsForKind/kindOffers (only exam). Left: nothing consults the registry yet (plan UI and study-plan job still name exams); exams docs into goals; drop dateedits/examedits and examDocs merge; old tab id exams in localStorage falls back to Practice once. The Dates decision (inbox P-1) is still unfiled: the supervisor's PR #607 edits that inbox file, so it is filed after #607 merges. Wording (Matt 2026-11-06, same decision): user-facing \"study plan\" becomes \"prep plan\" (labels, buttons, toasts, E.V.'s messages, mock-up); code names follow only where B-1038 touches them, no rename sweep. \"Study\" stays only as a verb (\"Study this set\"); names of things carry no \"study\" (Dates, Plan, Prep plan, Sets, Notes). Prep plans for other kinds: after the freeze (docs/parked.md).",
+  "notes": "Run 97 (#606): Library tab is Dates, domain/goal has DATE_KINDS/toolsForKind/kindOffers (only exam). Left: nothing consults the registry yet (plan UI and study-plan job still name exams); exams docs into goals; drop dateedits/examedits and examDocs merge; old tab id exams in localStorage falls back to Practice once. The Dates decision (inbox P-1) is still unfiled: the supervisor's PR #607 edits that inbox file, so it is filed after #607 merges. Wording (Matt 2026-11-06, same decision): user-facing \"study plan\" becomes \"prep plan\" (labels, buttons, toasts, E.V.'s messages, mock-up); code names follow only where B-1038 touches them, no rename sweep. \"Study\" stays only as a verb (\"Study this set\"); names of things carry no \"study\" (Dates, Plan, Prep plan, Sets, Notes). Prep plans for other kinds: after the freeze (docs/parked.md). Scope audit 2026-11-06: B1, B2, B3, A2, A3, A5, A6, A7, A9, section 0 (e2e journeys click Dates). Build manager decision 2026-11-06: stored and wire names are renamed now, before cutover (study_plan to prep_plan, studyplan.* to plan.*, examId to goalId), which replaces the 'no rename sweep' clause. Matt chose a Kind picker on each date (Exam or Other), with the prep plan only on exams for now. B3 (goals served in their own shape, domain/exam deleted) and B8 (exam-keyed objective schema deleted) stay here.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "builder-goals-readers",
@@ -6029,7 +6037,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration.",
+  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots).",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6043,7 +6051,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 578 setBook repo; PR 580 own sets and items read and write sets/set_items (migration 0008 backfills own sets, items, deletions, attempts, placements; ids set_ and item_). KNOWN: deletions rows from before keep old keys, so those entries show twice in Recently deleted (one untitled, unrestorable). Left: E.V.'s docs-based sets into the tables, remove copy-on-first-edit (editSet), sourceRef kinds, data/export and areas/deleted still name own_sets/own_set_items, retire own_* at the contract migration. Decided 2026-11-06: (Matt) the \"mock exam\" mode reads \"full practice run\" in UI text, E.V.'s prompts (jobs/practice-set prompt.md, job.ts wording) and the mock-up; code ids follow only where this task touches them. (Build manager) practice set grounding takes any notes or collection the user points at, not course excerpts; built here.",
+  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 578 setBook repo; PR 580 own sets and items read and write sets/set_items (migration 0008 backfills own sets, items, deletions, attempts, placements; ids set_ and item_). KNOWN: deletions rows from before keep old keys, so those entries show twice in Recently deleted (one untitled, unrestorable). Left: E.V.'s docs-based sets into the tables, remove copy-on-first-edit (editSet), sourceRef kinds, data/export and areas/deleted still name own_sets/own_set_items, retire own_* at the contract migration. Decided 2026-11-06: (Matt) the \"mock exam\" mode reads \"full practice run\" in UI text, E.V.'s prompts (jobs/practice-set prompt.md, job.ts wording) and the mock-up; code ids follow only where this task touches them. (Build manager) practice set grounding takes any notes or collection the user points at, not course excerpts; built here. Scope audit 2026-11-06: B2 (variant mock_exam renamed full_run with a migration; the 'no rename sweep' clause is replaced), B4 (a source scope: a collection or a note; domain/search uses collection_id), A4, A12. B7: sets carry no course string.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6085,7 +6093,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).",
+  "notes": "Group 4 (D-489 order as amended by D-495). Scope audit 2026-11-06: B14: talk lines are still appended into a day document with role matt; append talk rows instead.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6286,7 +6294,7 @@
   "depends": [
    "B-1009"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T19. After B-1009 re-seeds staging and each kind has its command.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T19. After B-1009 re-seeds staging and each kind has its command. Scope audit 2026-11-06: B18: specs still write ev4 documents (16 /api/v1/docs sites in 9 specs). The 'Exams' tab locators were fixed in the scope sweep.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6294,11 +6302,11 @@
   "id": "B-1060",
   "kind": "task",
   "title": "Neutral sample content in the mock-up and kit stories",
-  "dod": "design/mockup.html and the kit stories (Suggestion, EvLine, MovePicker, Row, NavItem, Tile, Doc, Detail) use sample content from no single subject; areas comments stop copying it; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories.",
+  "dod": "design/mockup.html, every kit story and test named in scope audit A10 (Suggestion, EvLine, Row, Tile, Source, MovePicker, NavItem, Page, PracticeCard, Doc, Detail; Row, Page, MovePicker, Palette and PracticeCard tests), test fixtures in areas/, domain/, data/ and server/, and prompts/START-MOCKUP.md use sample content from no single subject; the /kit baselines are retaken in the same change; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories and tests, test fixtures, prompts/START-MOCKUP.md",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26. Also 2026-11-06: test fixtures with nursing examples (Dosage, NUR 112) get general examples too.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26. Also 2026-11-06: test fixtures with nursing examples (Dosage, NUR 112) get general examples too. Scope audit 2026-11-06: A10, C17, A8: Matt chose 'Rate it honestly' (2026-11-06).",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6306,25 +6314,25 @@
   "id": "B-1061",
   "kind": "task",
   "title": "Triage the ev4-era tasks: keep, merge or drop",
-  "dod": "Each open or blocked after-cutover task from the ev4 era (B-69 to B-670) is kept and reworded for v5 when it is a general need, merged into a v5 task that covers it, or declined with a reason when it names an ev4 path (tools/, core/, pwa/, page/, spec.) or asks for a subject-specific feature; one decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
+  "dod": "Each open or blocked after-cutover task from the ev4 era (B-69 to B-670) is kept and reworded for v5 when it is a general need, merged into a v5 task that covers it, or declined with a reason when it names an ev4 path (tools/, core/, pwa/, page/, spec.), asks for a subject-specific feature, or assumes a school shape (course, unit, exam as the only goal); one decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1035"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28. Scope audit 2026-11-06: C16 and B23 done in the scope sweep: B-445 and B-484 declined (subject features), B-486 merged into B-1004, B-699 ended for v5; B-71, B-266, B-443, B-444, B-523, B-536, B-537, B-608 and B-617 reworded. The spec.* paths in B-69, B-70, B-423, B-492, B-603, B-614 and B-170's weeks documents are still to triage.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
  {
   "id": "B-1062",
   "kind": "task",
-  "title": "PLAN and AGENTS lines that still describe ev4 or one subject",
-  "dod": "PLAN.md:16 (the user as a student of one subject and its course codes), PLAN.md:187 (dates kept in ev4 collections and item_props) and PLAN.md:248 (clinical prep as a job kind) are reworded for v5 with no subject; AGENTS.md:97 (staging seeded from ev4's synthetic record), :109 ('Port ev4's tests') and :112 (export in ev4's manifest shape) are reworded to v5's own seed, tests and export kind; README.md says E.V. is a personal knowledge app (not a study app for one student) and its 'Before cutover' line no longer asks the owner to be at the Mac for a Canvas sync (that step moves to the after-cutover notes, D-495). The data/compat lines are the removal sweep's. Slice: write PLAN.md, AGENTS.md, README.md.",
+  "title": "CONTRACT, PLAN, AGENTS and README lines that still describe ev4, one subject or a school app",
+  "dod": "CONTRACT.md, PLAN.md, AGENTS.md and README.md say E.V. is a personal knowledge app for one independent learner with any goal: no 'the student', study plan, mock exam, built-in Canvas step, nursing day logic, class weekdays or course facts, and no ev4 shapes to port (scope audit C1, C3 to C6, C8, C11, C13, A7, A13, A14, A18); ended rules move to docs/contract/ended.md; the rules check is green. Slice: write CONTRACT.md, PLAN.md, AGENTS.md, README.md, docs/contract/ended.md, docs/parked.md and the comment lines that cite a renamed or ended §id",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him. D-497: Matt approves the AGENTS.md part, limited to removing or correcting lines that describe ev4 or one subject; no other AGENTS.md change. 2026-11-06 daily review: README.md:3 still says 'a personal study app for one student' and README.md:94 asks for a Mac Canvas step before cutover; README is not a repo instruction, so its lines need no yes from Matt.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him. D-497: Matt approves the AGENTS.md part, limited to removing or correcting lines that describe ev4 or one subject; no other AGENTS.md change. 2026-11-06 daily review: README.md:3 still says 'a personal study app for one student' and README.md:94 asks for a Mac Canvas step before cutover; README is not a repo instruction, so its lines need no yes from Matt. Scope audit 2026-11-06: slice widened to CONTRACT.md (no hard-limit line changes). Matt approved (2026-11-06) the AGENTS.md study plan, mock exam, exams-with-their-plan and Canvas lines too, beyond D-497.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
