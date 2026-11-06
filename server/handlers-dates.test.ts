@@ -49,15 +49,43 @@ async function setup() {
       .run();
   return { DB, call, doc, put };
 }
-test("a date is added and changed through an override", async () => {
-  const { call, doc } = await setup();
+test("a date is a goals row, linked to objectives, changed in place and read as an exam", async () => {
+  const { DB, call } = await setup();
+  const get = async (path: string, token = "app-t") =>
+    (
+      await app.request(
+        path,
+        { headers: { authorization: `Bearer ${token}` } },
+        { DB, TOKEN_APP: "app-t" } as unknown as Env,
+      )
+    ).json() as Promise<Record<string, any>>;
+  await DB.prepare(
+    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('col_1', 'NUR', NULL, 0, 1, 1)",
+  ).run();
+  await DB.prepare(
+    "INSERT INTO objectives (id, collection_id, num, text, chapters, source_ref, created_by, at, v) VALUES ('obj_1', 'col_1', 1, 'x', '[]', NULL, 'user', 1, 1)",
+  ).run();
   const made = await call("date.create", {
     title: "Skills check",
     date: "2026-11-20",
+    objectives: ["obj_1"],
   });
-  assert.equal(made.status, 200);
+  assert.equal(made.status, 200, JSON.stringify(made.body));
   const { id } = made.body.result;
-  assert.equal((await doc("dates", id))?.addedBy, "Matt");
+  assert.match(id, /^goal_/);
+  const goal = await DB.prepare(
+    "SELECT title, date, status FROM goals WHERE id = ?",
+  )
+    .bind(id)
+    .first<Record<string, string>>();
+  assert.deepEqual(
+    { ...goal },
+    { title: "Skills check", date: "2026-11-20", status: "open" },
+  );
+  const link = await DB.prepare("SELECT from_id FROM links WHERE to_id = ?")
+    .bind(id)
+    .first<{ from_id: string }>();
+  assert.equal(link?.from_id, "obj_1");
   assert.equal(
     (
       await call("date.update", {
@@ -68,13 +96,20 @@ test("a date is added and changed through an override", async () => {
     ).status,
     200,
   );
-  assert.deepEqual((await doc("dateedits", id))?.overrides, {
-    date: "2026-11-21",
-    title: "Skills validation",
-  });
-  assert.equal((await doc("dates", id))?.date, "2026-11-20"); // the entry itself is not rewritten
+  const listed = await get("/api/v1/docs?collection=exams");
+  const shown = listed.docs.find((d: Record<string, any>) => d.id === id);
+  assert.equal(shown.data.title, "Skills validation");
+  assert.equal(shown.data.date, "2026-11-21");
+  assert.equal(
+    (await get(`/api/v1/docs?collection=exams&id=${id}`)).data.title,
+    "Skills validation",
+  );
   assert.equal(
     (await call("date.update", { id: "none", title: "x" })).status,
+    404,
+  );
+  assert.equal(
+    (await call("date.update", { id: "goal_none", title: "x" })).status,
     404,
   );
   assert.equal(
@@ -85,6 +120,41 @@ test("a date is added and changed through an override", async () => {
     (await call("date.create", { title: "x", date: "soon" })).status,
     400,
   );
+  const bad = await call("date.create", {
+    title: "y",
+    date: "2026-12-01",
+    objectives: ["obj_nope"],
+  });
+  assert.equal(bad.status, 404);
+  assert.equal(
+    (
+      await DB.prepare(
+        "SELECT COUNT(*) AS n FROM goals WHERE deleted_at IS NULL",
+      ).first<{ n: number }>()
+    )?.n,
+    1,
+  );
+});
+
+test("an older date entry is still changed through an override", async () => {
+  const { call, doc, put } = await setup();
+  await put("dates", "d1", {
+    schema: 1,
+    writer: "page",
+    at: "2026-11-01T00:00:00.000Z",
+    source: "t",
+    date: "2026-11-20",
+    title: "Old",
+    kind: "other",
+    addedBy: "Matt",
+  });
+  assert.equal(
+    (await call("date.update", { id: "d1", date: "2026-11-21" })).status,
+    200,
+  );
+  assert.deepEqual((await doc("dateedits", "d1"))?.overrides, {
+    date: "2026-11-21",
+  });
 });
 
 test("approving a study plan puts it in force and putting it away retires it", async () => {
@@ -128,10 +198,7 @@ test("approving a plan whose days have all passed is refused with a plain reason
   });
   const r = await call("studyplan.approve", { id: "old" });
   assert.equal(r.status, 409);
-  assert.match(
-    JSON.stringify(r.body),
-    /days have all passed.*Plan again/,
-  );
+  assert.match(JSON.stringify(r.body), /days have all passed.*Plan again/);
   assert.equal(await doc("planedits", "e1"), null);
   assert.equal((await call("studyplan.approve", { id: "live" })).status, 200);
 });
