@@ -12,12 +12,16 @@ function stub(status: number) {
   }) as never;
   return calls;
 }
-const png = () => new File([new Uint8Array([1, 2, 3])], "a.png", { type: "image/png" });
+const png = () =>
+  new File([new Uint8Array([1, 2, 3])], "a.png", { type: "image/png" });
 
 test("api sends a raw body with its content type and no JSON", async () => {
   const calls = stub(200);
   const data = new Blob(["x"]);
-  await api("note-images/k.png", "tok", { method: "PUT", raw: { data, contentType: "image/png" } });
+  await api("note-images/k.png", "tok", {
+    method: "PUT",
+    raw: { data, contentType: "image/png" },
+  });
   const c = calls[0]!;
   expect(c.url).toBe("/api/v1/note-images/k.png");
   expect(c.init.method).toBe("PUT");
@@ -43,16 +47,34 @@ test("uploadPicture puts the file through api() under a key domain accepts", asy
   expect(r.ok).toBe(true);
   if (r.ok) expect(r.key).toMatch(IMG_KEY);
   expect(calls[0]!.init.method).toBe("PUT");
-  expect((calls[0]!.init.headers as Record<string, string>)["content-type"]).toBe("image/png");
+  expect(
+    (calls[0]!.init.headers as Record<string, string>)["content-type"],
+  ).toBe("image/png");
 });
 
 test("uploadPicture turns failures into plain messages", async () => {
   stub(503);
-  expect(await uploadPicture(png())).toEqual({ ok: false, message: NO_STORAGE });
+  expect(await uploadPicture(png())).toEqual({
+    ok: false,
+    message: NO_STORAGE,
+  });
   stub(500);
-  expect(await uploadPicture(png())).toEqual({ ok: false, message: UPLOAD_FAILED });
+  expect(await uploadPicture(png())).toEqual({
+    ok: false,
+    message: UPLOAD_FAILED,
+  });
   globalThis.fetch = (async () => {
     throw new Error("x");
   }) as never;
-  expect(await uploadPicture(png())).toEqual({ ok: false, message: UPLOAD_FAILED });
+  expect(await uploadPicture(png())).toEqual({
+    ok: false,
+    message: UPLOAD_FAILED,
+  });
+});
+
+test("uploadPicture treats 409 (already stored) as success", async () => {
+  stub(409);
+  const r = await uploadPicture(png());
+  expect(r.ok).toBe(true);
+  if (r.ok) expect(r.key).toMatch(IMG_KEY);
 });
