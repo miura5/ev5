@@ -205,6 +205,7 @@ test("every kind lists empty on a fresh database", async () => {
     "sessions",
     "sessionEvents",
     "talk",
+    "files",
   ] as const)
     assert.deepEqual(await repo[k].list(), [], k);
 });
