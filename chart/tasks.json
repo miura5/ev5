@@ -4735,7 +4735,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Run 74 (#462, #467), PARTIAL: Progress bars and trend 'up N points', Today Upcoming/This week/readiness bar, Weekly review row when a weekly-review job needs you. LEFT: Courses in the sidebar and course-tone dot on Today rows. design/mockup.html has neither (it wins over the PNGs, §ui.mockup): update the mock-up first (design agent) or drop them from the done bar. Needs a course list in the shell, a kit NavGroup and per-course token. Light theme and PNG comparison not done. Playtest 7 vs design/screens/progress.png and today.png: big numbers and weekly bars show; the study line repeats ('3m · 2 sessions · 3m in 2 sessions in all', mock-up '28 sessions · 164 answers'); the last accuracy week is labelled '30' where the mock-up labels week starts up to the current week; in light the study-minute bars are nearly invisible (screen 34); Today has Upcoming and This week, no course dots or Courses.",
+  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
@@ -5470,7 +5470,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Current state (run 92): migrations 0006 (goals, objectives, links, notes, sets, set items and versions, weak spots and events, attempts, sessions and events, talk, collections.deleted_at), 0007 (plans, plan_items, repeats, drafts.target_kind) and 0008 (B-1040) are on main, each table checked by the PRAGMA test against its domain row shape and covered by the export and drill. The tables gate (data/tables/kinds.ts) and the plan repository (data/tables/plan.ts) write through domain shapes; WriteRefused answers 422; parseDraftTableRow is exported (D-498 puts the gate in this task). Left: part 1, move collections, memberships, pins and item_props onto the gate with collections.deleted_at; part 2, remove /docs routes and data/docs, the cleanup migration (0009 or later), reseed staging through the gate, rerun the export and restore drill.",
+  "notes": "Run 94: part 1 is not data-only (builder stopped, no code). Needs: (a) server: col_/pin_ id makers, collection callers to snake_case rows (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export), replace memberships.save with the item's own collection_id, item_props become plan_items columns (D-498 drops both tables, so do not move them onto the gate); (b) data: migration backfilling col_ ids and rewriting references, pins gets id, v, deleted_at, target_kind; collections and pins in kindsRepo (one-level parent check, plan.ts style); update tables.test and row-shapes.test. Do (b) before or with (a); then part 2. Earlier state: migrations 0006 to 0008 on main, plan repo and gate in data/tables.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5802,7 +5802,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Group 4. Drafts done (#587, run 93): snake_case draft rows, draft_ ids (domain draftKey), DRAFT_KINDS set-item+suggestion; writers still fill target_c until the contract migration. Left: server SQL for claude_settings and job_plans, WireDoc in areas, old doc-row shapes (wait for B-1037 to B-1043), contract migration dropping target_c. Unprefixed draft ids on staging are not found by id (short-lived).",
+  "notes": "Group 4. Done: drafts (#587); server job_plans and claude_settings reads through domain parsers (#590, domain/job-plan parseStoredPlan, server/job-plans.ts). Left: jobs/runtime/d1-stores.ts job_plans/claude_settings (a jobs/ task), WireDoc in areas, old doc-row shapes (after B-1037 to B-1043), data/docs gate onto parse*Row, plan row shape so commands/ and jobs/ drop PlanSchema, parseCourseTable callers, row-shapes.test gap, contract migration dropping target_c; consider snake_case jobPlanSchema then.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
