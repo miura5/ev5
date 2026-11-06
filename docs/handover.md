@@ -1,9 +1,8 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
 ## Running    nothing. (Node 22 sandbox: `node --test <dir>` fails there; CI is the proof.)
 NOTE: B-1049 grading is untried on staging with a real model call. Fix live.yml's D1 lookup before the live database is made (B-823 notes).
-Staging rebuilt from empty and seeded through commands (B-1009 done); Gate 5 passes 16 of 16 on it.
 ## Waiting on Matt   nothing
-## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). On rewrite keep groups and order: drop done tasks, put new ones in their group. Work groups in order.
+## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). Keep groups and order; drop done tasks.
 Task freeze (D-497): no new task ids until groups 3 to 6 are done; findings go in task notes or docs/parked.md.
 (3) Kit drift: B-1013 done 2026-11-06 (#644); B-1012 Library Back merged (#645), left: its e2e journey's first staging run, see notes. B-942 mostly done (#636; left: light theme/PNG check on staging). B-979 waits on B-974 and B-975 and on two kit-class overrides in areas/ (see its notes); not built.
 (4) Data layer. Build to D-498 (the build manager's decision on docs/proposals/table-design.md; its changes win over the doc and replace D-496).
