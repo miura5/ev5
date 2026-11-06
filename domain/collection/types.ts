@@ -3,7 +3,7 @@ import { z } from 'zod';
 // A collection row (PLAN §5.10 `collections(id, title, parent_id, pos, at, v)`); parent_id is parentId here.
 export const collectionSchema = z
   .strictObject({
-    id: z.string().min(1).refine((id) => !id.startsWith('course:'), 'a real id never starts with "course:"'),
+    id: z.string().min(1),
     title: z.string().min(1),
     /** Another collection's id, or null at the top level. Nesting is one level (§data.membership). */
     parentId: z.string().min(1).nullable(),
@@ -24,14 +24,5 @@ export const membershipSchema = z.strictObject({
 });
 export type Membership = z.infer<typeof membershipSchema>;
 
-/** An ev4 course shown as a read-only collection `course:<key>`; it is never stored. */
-export type VirtualCollection = { id: string; title: string; readOnly: true };
-
-/** What the collection rules read of an item: its ev4 course and when that course last changed. */
-export type ItemCourse = { course?: string | null; courseAt?: string | null };
-
-/** What a move writes: a membership row, the ev4 course field (and drop the row), or just dropping the row. */
-export type MoveWrite =
-  | { kind: 'row'; collectionId: string }
-  | { kind: 'course'; course: string; removeRow: true }
-  | { kind: 'ungroup'; removeRow: true };
+/** What a move writes: a membership row, or just dropping the row. */
+export type MoveWrite = { kind: 'row'; collectionId: string } | { kind: 'ungroup'; removeRow: true };

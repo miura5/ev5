@@ -55,10 +55,7 @@ export function checkRows(
   for (const m of rows.memberships ?? []) {
     if (!items.has(`${m.item_c}\n${m.item_id}`))
       orphans.push(`membership ${m.item_c}/${m.item_id}: item missing`);
-    if (
-      !cols.has(m.collection_id as string) &&
-      !String(m.collection_id).startsWith("course:")
-    )
+    if (!cols.has(m.collection_id as string))
       orphans.push(
         `membership ${m.item_c}/${m.item_id}: collection ${m.collection_id} missing`,
       );
