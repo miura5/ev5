@@ -2189,7 +2189,7 @@
   "depends": [
    "B-753"
   ],
-  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C13: the rule says the user's time zone; today domain/time has one zone constant (America/Chicago); a time zone setting is parked (docs/parked.md).",
+  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C13: the rule says the user's time zone; today domain/time has one zone constant (America/Chicago); a time zone setting is parked (docs/parked.md). Scope sweep #620: server/scheduled.ts comments say local time.",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
@@ -4271,10 +4271,10 @@
   "title": "A course is a collection the user names: the course table and virtual course collections go",
   "dod": "domain/course, the virtual course: collections and the course branch of the collection move are deleted; plan.update takes only a col_ id or none as its collection; no reader of canvasId is left; tests pin plan.update refusing a course: target (§what.framing). Slice: write domain/course, domain/collection, server/ (plan-options, handlers-plan), data/export",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B6: the old bar (make canvasId optional, keep data/compat passing) named removed shapes. Decision: D-500.",
-  "commit": null,
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B6: the old bar (make canvasId optional, keep data/compat passing) named removed shapes. Decision: D-500. Done in the scope sweep, #620: domain/course deleted, no virtual course collections, plan.update takes a col_ id or none, a test pins a course: target refused.",
+  "commit": "4e360b9",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -5733,7 +5733,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498).",
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498). Scope sweep: comments and test titles say the user; the stored values matt (Caller, job by) and by Matt in dayedits (server/handlers-plan.ts, server/handlers-dates.ts) remain for this task and B9.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
@@ -5952,7 +5952,7 @@
    "B-1004",
    "B-1035"
   ],
-  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B10: plan_items origin 'matt' becomes 'user' before the first writer. A9: Matt dropped the 'graded work' plan kind (2026-11-06). B9: planedits, dayedits, item_props and the camelCase plan rows go when plans are written through the gate. Decision: D-503.",
+  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B10: plan_items origin 'matt' becomes 'user' before the first writer. A9: Matt dropped the 'graded work' plan kind (2026-11-06). B9: planedits, dayedits, item_props and the camelCase plan rows go when plans are written through the gate. Decision: D-503. Scope sweep #620 (B10): plan_items origin is user, morning or plan.",
   "commit": null,
   "source": "B-1004 report"
  },
@@ -6037,7 +6037,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots).",
+  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots). Scope sweep #620 (B5): a spot's goal is the soonest upcoming goal its objective links to; examsByCourse gone; goalDate and nearDateWithinDays. Left (B7): createWeakSpot still matches a doc's course against a collection id or title; weakSpotDoc keeps where.exam and where.course for the screens.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6065,7 +6065,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#608): sessions and session_events tables, migration 0012, session-wire routes. Known: columns for source, comments, folder, filing, summary, pending do not exist (rebuilt doc uses defaults); set_id/collection_id not set from docs; PUT not atomic; useSessions still PUTs whole docs. #609 put data/tables and data/staging tests into test:node (they had never run in CI).",
+  "notes": "Run 97 (#608): sessions and session_events tables, migration 0012, session-wire routes. Known: columns for source, comments, folder, filing, summary, pending do not exist (rebuilt doc uses defaults); set_id/collection_id not set from docs; PUT not atomic; useSessions still PUTs whole docs. #609 put data/tables and data/staging tests into test:node (they had never run in CI). Scope sweep #620 (B15): a session's kind is note only and its source is any text. Writers still stamp source E.V. Home.",
   "commit": "0646dc0",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
