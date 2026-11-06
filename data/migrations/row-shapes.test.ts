@@ -17,6 +17,9 @@ import {
   parseSessionTableRow,
   parseSessionEventRow,
   parseTalkRow,
+  parsePlanTableRow,
+  parsePlanItemTableRow,
+  parseRepeatRow,
   parseMembership,
   parsePin,
   parseItemProps,
@@ -52,13 +55,15 @@ const item = { id: 'q1', stem: 'Which finding needs action first?', options: ['a
 // `at` and `v` on every table under §data.protocol). The shape's keys are read from the parser's output (every shape is
 // a strict object), and a key is required when the parser refuses it as null. `expand` splits a key into several
 // columns; `stored` keys live inside a JSON column, so that row has `data` instead.
-// Gap: plans, plan_items and repeats have no row shape yet. The old docs-backed tables stay until the contract migration.
+// `extra` names columns the table has beyond the parser's keys (drafts keeps `target_c` beside the new `target_kind`).
+// The old docs-backed tables stay until the contract migration.
 type Entry = {
   table: string;
   parse: (r: unknown) => object;
   sample: Record<string, unknown>;
   expand?: Record<string, string[]>;
   stored?: string[];
+  extra?: string[];
 };
 const tables: Entry[] = [
   { table: 'collections', parse: parseCollectionRow, sample: { id: 'col_1', title: 't', parent_id: null, pos: 0, at: 1, v: 1, deleted_at: null } },
@@ -103,6 +108,17 @@ const tables: Entry[] = [
     parse: parseTalkRow,
     sample: { id: 'talk_1', chat_id: 'c', scope: 'ask', session_id: null, context_kind: null, context_id: null, role: 'user', text: 't', cites: null, job_id: null, ...S },
   },
+  { table: 'plans', parse: parsePlanTableRow, sample: { id: 'plan_1', goal_id: 'goal_1', job_id: null, state: 'draft', title: null, from_day: '2026-11-05', to_day: '2026-11-12', summary: null, ...S, ...D } },
+  {
+    table: 'plan_items',
+    parse: parsePlanItemTableRow,
+    sample: { id: 'pli_1', plan_id: null, day: '2026-11-05', pos: 0, title: 't', minutes: null, time: null, origin: 'matt', linked_kind: null, linked_id: null, repeat_id: null, done_at: null, ...S, ...D },
+  },
+  {
+    table: 'repeats',
+    parse: parseRepeatRow,
+    sample: { id: 'rep_1', title: 't', minutes: null, time: null, rule: {}, from_day: '2026-11-05', to_day: null, linked_kind: null, linked_id: null, ...S, ...D },
+  },
   { table: 'memberships', parse: parseMembership, sample: { itemC: 'notes', itemId: 'n1', collectionId: 'c1', at: T, v: 1 } },
   { table: 'pins', parse: parsePin, sample: { targetC: 'notes', targetId: 'n1', pos: 0, at: T } },
   {
@@ -122,6 +138,7 @@ const tables: Entry[] = [
     table: 'drafts',
     parse: parseDraft,
     sample: { id: 'd1', jobId: 'j', kind: 'set-item', targetC: 'own_sets', targetId: 's1', body: {}, state: 'pending', at: T, v: 1 },
+    extra: ['target_kind'],
   },
   { table: 'deletions', parse: parseDeletion, sample: { c: 'notes', id: 'n1', at: 1 } },
   { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: 1 } },
@@ -139,11 +156,12 @@ const tables: Entry[] = [
 
 test('every v5 table matches its domain row shape (PRAGMA table_info)', () => {
   const db = built();
-  for (const { table, parse, sample, expand = {}, stored = [] } of tables) {
+  for (const { table, parse, sample, expand = {}, stored = [], extra = [] } of tables) {
     const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string; notnull: number; pk: number }[];
     const keys = Object.keys(parse(sample)).filter((k) => !stored.includes(k));
     const want = keys.flatMap((k) => expand[k] ?? [snake(k)]);
     if (stored.length) want.push('data', 'at');
+    want.push(...extra);
     assert.deepEqual(cols.map((c) => c.name).sort(), [...new Set(want)].sort(), table);
     for (const k of keys) {
       let required = false;
@@ -185,6 +203,9 @@ test('every pointer column is indexed (§data.tables)', () => {
     own_sets: ['source_c,source_id'],
     item_props: ['linked_c,linked_id'],
     drafts: ['job_id', 'target_c,target_id'],
+    plans: ['goal_id', 'job_id'],
+    plan_items: ['day', 'plan_id', 'linked_kind,linked_id'],
+    repeats: ['linked_kind,linked_id'],
     own_set_items: ['set_id,item_id'],
     own_attempts: ['set_id,item_id,key,at'],
     job_plans: ['job_id,kind'],
@@ -199,4 +220,21 @@ test('ADD COLUMN works on a built database (§data.additive)', () => {
   const db = built();
   db.exec('ALTER TABLE pins ADD COLUMN note TEXT');
   assert.ok((db.prepare('PRAGMA table_info(pins)').all() as { name: string }[]).some((c) => c.name === 'note'));
+});
+
+test('plans allow one in force per goal; a repeat puts one row on a day (§data.repeat)', () => {
+  const db = built();
+  const plan = db.prepare("INSERT INTO plans (id, goal_id, state, from_day, to_day, at) VALUES (?, 'goal_1', ?, '2026-11-05', '2026-11-12', 1)");
+  plan.run('plan_1', 'in_force');
+  plan.run('plan_2', 'draft');
+  assert.throws(() => plan.run('plan_3', 'in_force'));
+  db.exec("UPDATE plans SET deleted_at = 2 WHERE id = 'plan_1'");
+  assert.doesNotThrow(() => plan.run('plan_3', 'in_force'));
+  assert.throws(() => plan.run('x_4', 'draft'), /CHECK/); // the id prefix
+  const row = db.prepare("INSERT INTO plan_items (id, day, pos, title, origin, repeat_id, at) VALUES (?, ?, 0, 't', 'morning', ?, 1)");
+  row.run('pli_1', '2026-11-05', 'rep_1');
+  row.run('pli_2', '2026-11-06', 'rep_1');
+  row.run('pli_3', '2026-11-05', null);
+  row.run('pli_4', '2026-11-05', null);
+  assert.throws(() => row.run('pli_5', '2026-11-05', 'rep_1'));
 });

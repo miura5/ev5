@@ -5,7 +5,11 @@ import type { D1Like } from "../jobs/index.ts";
 
 export function sqliteD1(): D1Like {
   const sql = new DatabaseSync(":memory:");
-  for (const f of ["0002_jobs_ceilings.sql", "0004_ceiling_usage.sql"])
+  for (const f of [
+    "0002_jobs_ceilings.sql",
+    "0004_ceiling_usage.sql",
+    "0007_plans_drafts.sql", // the real export selects drafts.target_kind
+  ])
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
     );
