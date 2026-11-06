@@ -1,5 +1,5 @@
-// Executors (CONTRACT §job.executors): a Workflow runs model jobs, a cron runs scheduled commands, a Mac session reports
-// the Canvas sync through report_job. All share the one job record, so the fallback (Durable Object or Queues) is another Executor.
+// Executors (CONTRACT §job.executors): a Workflow runs model jobs, a cron runs scheduled commands, and an executor
+// outside the Worker reports through report_job. All share the one job record, so the fallback (Durable Object or Queues) is another Executor.
 import type { ExecutorKind, JobDef, Starter } from './define.ts';
 import { newJob, transition, update, type JobRecord, type JobStore, type OutputLocation } from './record.ts';
 

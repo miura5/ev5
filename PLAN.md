@@ -4,7 +4,7 @@
 
 **Update 2026-11-05 (D-484):** Matt chose no rollback to ev4. v5 gets its own database with one table per kind, and it starts empty: nothing is copied from ev4. Every part of this plan that exists only for the rollback window or for ev4's shared database (most of §5, rehearsals 1 and 2, the rollback after cutover, C4 and C6) has ended. CONTRACT.md §3 and `ops/CUTOVER.md` hold the current rules.
 
-**Update 2026-11-06 (D-494, D-495, D-499, D-500):** E.V. is a personal knowledge app for one independent learner with any goal (school, a certification, an interview, a career move, or learning for its own sake), not a study app for one subject. Exams are one kind of date, a plan for a date is a prep plan, and Canvas is an optional import after cutover. CONTRACT.md §what.framing holds the framing.
+**Update 2026-11-06 (D-494, D-495, D-499, D-500):** E.V. is a personal knowledge app for one independent learner with any goal (school, a certification, an interview, a career move, or learning for its own sake), not a study app for one subject. Exams are one kind of date, a plan for a date is a prep plan, and no outside import such as Canvas is planned (D-512). CONTRACT.md §what.framing holds the framing.
 
 **How this document relates to the others:**
 - Phase 0 copies the rules in this plan into `CONTRACT.md`, each with a `§id`.
@@ -49,7 +49,7 @@ A design that does Matt's thinking for him is a defect.
 **[Matt: changed 2026-11-02]** CONTRACT.md §1 now holds five hard limits (data never lost, live only on his word, no secrets in files, ev4 only through its own process, no money without him). Items 2, 5 and 6 below became ordinary CONTRACT rules (D-451).
 
 1. ~~No personal data in the repo.~~ **[Matt: removed 2026-11-02]** Matt removed this limit: he is accountable for his own data in the repo. The repo is public (C10), so anything committed is public. Secrets still never go in files (§10), and staging, fixtures, logs and builder prompts stay synthetic or id-only (C15, answered 2026-11-02).
-2. Canvas is read-only: GETs through Matt's signed-in browser, never a token. *(Now §data.canvas: an optional import after cutover.)*
+2. Canvas is read-only: GETs through Matt's signed-in browser, never a token. *(Now §data.canvas: no outside import is planned, D-512.)*
 3. Nothing is deleted, except items Matt deletes himself, which are purged after 30 days (D-425). How the purge is timed is in §5.6.
 4. Live deploys happen only on Matt's word, and only through staging.
 5. ~~Same Cloudflare Worker, same D1 database, same backups. Schema changes are additive only (§5.2) until the rollback window closes.~~ *(Ended: replaced by the fresh-database decision, D-484.)* v5 keeps ev-live's Worker with its own database (§data.same-worker).
@@ -207,7 +207,7 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - **Saved views** (M) *later*: `view.create`, `view.update`.
 - **Jobs** (M): `job.stop`, `job.retry_shorter`, `job.dismiss`. **E direct:** `job_status`.
 - **Ask E.V.** (M): `ask.send`, `ask.just_tell_me` (logged).
-- **Scheduled** (S): `morning`, `evening`, `weekly_review` (Sundays; it ends as a Needs-you item in Activity), `export`, `restore_drill`, `push_summary`. After cutover, **X:** an optional Canvas import, reported through `report_job`.
+- **Scheduled** (S): `morning`, `evening`, `weekly_review` (Sundays; it ends as a Needs-you item in Activity), `export`, `restore_drill`, `push_summary`.
 - **Never callable by E.V.:** delete, restore, pin, approve, keep or drop, mark as learned, and every "just tell me".
 
 ### 6.2 Jobs
@@ -215,8 +215,7 @@ When E.V. calls a command that would change Matt's plan, lists or schedule, it r
 - **`defineJob({...})`** holds the whole contract: kind, title, input and output schemas, model, max tokens, cost cap, steps, wording, and who may start it.
 - **Executors:**
   - a Cloudflare Workflow runs model jobs;
-  - a Worker cron runs scheduled commands;
-  - after cutover, a Mac session runs the optional Canvas import, which needs Matt's signed-in browser, and reports through `report_job`.
+  - a Worker cron runs scheduled commands.
 - **"Needs you" is a D1 state, not a waiting Workflow.** The instance ends there. Matt's answer starts a continuation instance with id `jobId-step-round`, so it is idempotent.
 - **Steps return ids, never content.** Content goes to D1.
 - **One retry layer:**
@@ -314,7 +313,7 @@ v5 goes live, on Matt's word, when these match or beat ev4:
    - pushes to the phone through a thin cloud task that only reads v5's summary **(confirm)**;
    - the export and the restore drill.
 
-**After cutover:** Progress (beyond the accuracy line), FSRS cards, the other job kinds, predictions and calibration, the optional Canvas import through the Mac executor, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
+**After cutover:** Progress (beyond the accuracy line), FSRS cards, the other job kinds, predictions and calibration, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
 
 **[Mock-up: added] Also after cutover, though shown in the mock-up:** card sets and step sets, with due counts and Again / Good (C3); "Make cards" from a note; Learn and Test modes; saved views; rating confidence before approving a prep plan (until then Approve works without ratings, C9); the phone layout (the phone stays as it is, §2.2). The mock-up shows the long-term design, and this list decides what ships first.
 
@@ -390,7 +389,6 @@ v5 goes live, on Matt's word, when these match or beat ev4:
 | The record | Carry `chart/*.json` as data; write a new small writer |
 | Collections, pins, own sets, drafts, item properties | **[Mock-up: added]** New D1 tables through Wrangler migrations (§5.10), each with a `domain/<entity>` Zod schema. No new dependency |
 | Repeat rules (plan items, dates) | **[Mock-up: added]** Write a small rule (daily, weekdays, weekly, every N days) in `domain/time`. No recurrence library |
-| Canvas import (after cutover) | Optional: read-only GETs with pagination, written for v5. The Mac executor reports through the job record |
 | Cut | FTS5; the token generator; the FSRS replay; ev4's release ceremony in `chart.mjs`; the custom harness; the D-/B-id comments |
 
 ## 13. Phases and gates
@@ -456,7 +454,7 @@ Phases run in order, and each ends at a gate. Phases 2 and 3 run in parallel, an
 **Phase 6: Ops**
 - The record writer, carrying `chart/*.json`.
 - Scheduled commands on the 15-minute cron.
-- The push task. (The Mac executor for the optional Canvas import comes after cutover.)
+- The push task.
 - Restore drills: R2 export → scratch D1 with a matching manifest for every table; one Time Travel restore on staging.
 - ~~**Rehearsal 2:** cut over, write in v5, roll back, write in ev4, go forward again.~~ *(Ended: replaced by the fresh-database decision, D-484.)*
 - One real end-to-end run.
