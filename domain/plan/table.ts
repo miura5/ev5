@@ -120,3 +120,60 @@ export function checkOneInForce(plans: readonly PlanTableRow[]): void {
     seen.add(p.goal_id);
   }
 }
+
+/** The id of the plans row for a job: one plan per job, so a retried step writes the same row. */
+export const planTableId = (jobId: string): string => `plan_${jobId}`;
+
+/**
+ * The plans row and plan_items rows for a job's plan (table design 2.9), before the gate adds `at`, `v` and `deleted_at`.
+ * Approve writes the plan in force with one item per task (origin plan, no repeat: a plan task is not a recurring one);
+ * put-away writes the plan as put away with no items. A plan with no tasks spans `today`.
+ */
+export function planTableWrite(input: {
+  jobId: string;
+  goalId: string;
+  goalTitle: string;
+  plan: {
+    summary: string;
+    tasks: readonly {
+      date: string;
+      title: string;
+      minutes: number;
+      weakSpotId?: string;
+    }[];
+  };
+  state: "in_force" | "put_away";
+  today: string;
+}) {
+  const id = planTableId(input.jobId);
+  const days = input.plan.tasks.map((t) => t.date).sort();
+  const items = (input.state === "in_force" ? input.plan.tasks : []).map(
+    (t, n) => ({
+      id: `pli_${input.jobId}-${n + 1}`,
+      plan_id: id,
+      day: t.date,
+      pos: n,
+      title: t.title,
+      minutes: t.minutes,
+      time: null,
+      origin: "plan" as const,
+      linked_kind: t.weakSpotId ? ("weak_spot" as const) : null,
+      linked_id: t.weakSpotId ?? null,
+      repeat_id: null,
+      done_at: null,
+    }),
+  );
+  return {
+    plan: {
+      id,
+      goal_id: input.goalId,
+      job_id: input.jobId,
+      state: input.state,
+      title: `${input.goalTitle}: ${input.plan.summary}`.slice(0, 200),
+      from_day: days[0] ?? input.today,
+      to_day: days[days.length - 1] ?? input.today,
+      summary: input.plan.summary,
+    },
+    items,
+  };
+}
