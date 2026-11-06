@@ -142,7 +142,7 @@
   "id": "B-310",
   "kind": "task",
   "title": "The hard-limit restatements, filed by a build chat with Matt present (guarded changes): B-10 as D-299, B-06 as D-300, B-11 as D-302's amendment. The run prompts re-render from them (D-175).",
-  "dod": "spec.boundaries B-06, B-10 and B-11 read word for word as D-300, D-299 and D-302 say. The rendered prompts change only where those limits appear (diff of dist/prompts/). Matt confirms in the chat that the Anthropic Console spend limit is set to $5 a month. npm test green.",
+  "dod": "The three hard limits (B-06, B-10 and B-11) read word for word as D-300, D-299 and D-302 say. The rendered prompts change only where those limits appear. Matt confirms in the chat that the Anthropic Console spend limit is set to $5 a month. npm test green.",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [
@@ -493,7 +493,7 @@
   "id": "B-515",
   "kind": "task",
   "title": "Proprietary cleanup and token lint: delete the retired aliases and dead legacy rules, drop the legacy layer from page/styles.css, and add the npm test check that view CSS holds no raw colour, font size, radius or duration outside page/ds/tokens.css",
-  "dod": "tools/token-audit.mjs shows at most 7 font sizes, 12 spacings, 7 radii and 5 durations; npm test and smoke GREEN; screenshots at 390 and 1280 unchanged; ship staging GREEN",
+  "dod": "A token audit shows at most 7 font sizes, 12 spacings, 7 radii and 5 durations; npm test and smoke GREEN; screenshots at 390 and 1280 unchanged; ship staging GREEN",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [
@@ -803,7 +803,7 @@
   "id": "B-603",
   "kind": "bug",
   "title": "Bug (reported Oct 30): spec.ui.look.layout and spec.ui.look.theme still describe the retired dark top-bar look; no prompt reads them yet, but they are stale truth in the spec.",
-  "dod": "spec.ui.look.layout and .theme describe the current L-frame, sidebar and neutral themes (or are retired with their readers), and a test fails on the old top-bar words.",
+  "dod": "The layout and theme rules describe the current L-frame, sidebar and neutral themes (or are retired with their readers), and a test fails on the old top-bar words.",
   "milestone": "after-cutover",
   "status": "open",
   "depends": [],
