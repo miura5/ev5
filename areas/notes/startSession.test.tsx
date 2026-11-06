@@ -39,8 +39,14 @@ const services: NotesServices = {
 };
 
 async function openNote(onNavigate: (p: string) => void) {
-  render(<NotesScreen services={services} onNavigate={onNavigate} />);
-  fireEvent.click(await screen.findByText("Fluids"));
+  // The open note is the shell's address, so the test gives the screen the address ?open= would hold.
+  render(
+    <NotesScreen
+      services={services}
+      search="open=n1"
+      onNavigate={onNavigate}
+    />,
+  );
   return screen.findByRole("button", { name: "Start session" });
 }
 

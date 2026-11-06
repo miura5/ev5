@@ -55,7 +55,9 @@ test("after a collection is deleted, Notes shows Undo and Undo restores it", asy
       );
     }),
   );
-  render(<NotesScreen services={services} search="deleted=c1&what=collection" />);
+  render(
+    <NotesScreen services={services} search="deleted=c1&what=collection" />,
+  );
   expect(await screen.findByText("Collection deleted")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Undo" }));
   await waitFor(() => expect(sent.join()).toContain("item.restore"));
@@ -75,4 +77,26 @@ test("a note page has Delete, which shows Undo", async () => {
   render(<NotesScreen services={services} search="open=n1" />);
   fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
   expect(await screen.findByText("Note deleted")).toBeTruthy();
+});
+
+test("deleting the open note moves the shell's address back to the list", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify({ ok: true, mode: "direct", result: {} }), {
+          status: 200,
+        }),
+    ),
+  );
+  const onNavigate = vi.fn();
+  render(
+    <NotesScreen
+      services={services}
+      search="open=n1"
+      onNavigate={onNavigate}
+    />,
+  );
+  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+  await waitFor(() => expect(onNavigate).toHaveBeenCalledWith("/notes"));
 });
