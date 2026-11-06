@@ -4,9 +4,11 @@ import { checkAccount } from './account.ts';
 import { checkChartEv4 } from './chartev4.ts';
 import { checkControls } from './controls.ts';
 import { checkDocsKinds } from './docskinds.ts';
+import { checkDocsWrites } from './docswrites.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
+import { checkMigrationShape } from './migrationshape.ts';
 import { checkModelsAge } from './models.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
@@ -32,8 +34,10 @@ const findings = [
   ...checkChartEv4(root, files),
   ...checkControls(root, files),
   ...checkDocsKinds(root, files),
+  ...checkDocsWrites(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
+  ...checkMigrationShape(root, files),
   ...checkPlanJob(root, files),
   ...checkPresence(root, files),
   ...checkRadix(root, files),
