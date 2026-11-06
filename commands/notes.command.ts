@@ -7,7 +7,7 @@ const id = z.string().min(1);
 // Notes, sessions, saved views, jobs and Ask E.V. (PLAN §6.1). note.make_cards and study.grade ship after cutover.
 export const notesCommands = [
   defineCommand({ name: 'note.create', title: 'New note', input: z.object({ collection: z.string().optional() }), callers: M, effect: 'instant', palette: true, places: ['notes', 'library'] }),
-  defineCommand({ name: 'note.save', title: 'Save a note', input: z.object({ id, body: z.string() }), callers: M, effect: 'instant' }),
+  defineCommand({ name: 'note.save', title: 'Save a note', input: z.object({ id, body: z.string(), if_version: z.number().int().min(0).optional(), title: z.string().max(300).optional(), earlier_of: z.string().optional() }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'note.move', title: 'Move a note', input: z.object({ id, collection: id }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'session.start', title: 'Start a session', input: z.object({ plan: z.string().optional(), noteId: z.string().optional() }), callers: M, effect: 'instant', palette: true, places: ['today', 'sessions'] }),
   defineCommand({ name: 'session.pause', title: 'Pause the session', input: ref, callers: M, effect: 'instant' }),

@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { docsHttp } from "./http.ts";
 
 const reply = (status: number, body: unknown) =>
@@ -81,4 +81,19 @@ test("list returns the documents; 401 says the token was refused", async () => {
     async () => reply(503, {}),
   );
   await expect(bad.list("notes")).rejects.toMatchObject({ status: 503 });
+});
+
+test("a note command answers with the version it wrote", async () => {
+  const seen: string[] = [];
+  vi.stubGlobal("fetch", async (url: string) => (
+    seen.push(url),
+    reply(200, { mode: "direct", result: { id: "n-1", version: 5 } })
+  ));
+  const { transport } = docsHttp(() => "tok");
+  expect(await transport.command("note.save", { id: "n-1" })).toEqual({
+    status: 200,
+    version: 5,
+  });
+  expect(seen[0]).toContain("commands/note.save");
+  vi.unstubAllGlobals();
 });

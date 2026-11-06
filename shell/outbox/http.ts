@@ -59,7 +59,9 @@ export function docsHttp(
     },
     async command(name, input): Promise<PutAnswer> {
       const r = await runCommand(name as CommandName, input, token());
-      return r.ok ? { status: 200 } : { status: r.status, text: r.reason };
+      if (!r.ok) return { status: r.status, text: r.reason };
+      const v = (r.result as { version?: unknown } | null | undefined)?.version;
+      return { status: 200, ...(typeof v === 'number' ? { version: v } : {}) };
     },
     async get(c, id): Promise<GetAnswer> {
       const r = await call(`?${q({ collection: c, id })}`);
