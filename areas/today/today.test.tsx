@@ -27,7 +27,6 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
       meta: "morning set",
       est: "10m",
       done: false,
-      tone: "ok",
     },
     {
       id: "p2",
@@ -35,7 +34,6 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
       meta: "from your plan",
       est: "20m",
       done: true,
-      tone: "info",
     },
   ],
   proposal: { text: "5 dosage-by-weight problems tonight · 10m" },
@@ -46,7 +44,6 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
       kind: "exam",
       meta: "58% ready",
       when: "Thu",
-      tone: "info",
       readiness: { ready: 40, shaky: 20, weak: 40 },
     },
   ],

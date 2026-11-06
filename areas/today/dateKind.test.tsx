@@ -12,7 +12,6 @@ const date: UpcomingDate = {
   kind: "other",
   meta: "in 9 days",
   when: "Nov 15",
-  tone: "info",
   readiness: { ready: 0, shaky: 0, weak: 0 },
 };
 

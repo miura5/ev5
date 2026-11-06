@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { accuracyLine } from "../../domain/index.ts";
-import {
-  dailyMinutes,
-  windowTotals,
-  weeklyAccuracy,
-  type Point,
-} from "./series.ts";
+import { weeklyAccuracy, type Point } from "./series.ts";
 import {
   failureKind,
   failureSentence,
@@ -25,47 +20,18 @@ export interface ProgressData {
   accuracy: string | null;
   /** Any answer at all, so the empty-state sentence shows only for a user with none. */
   hasAnswers: boolean;
-  /** Minutes studied in ended sessions. */
-  minutes: number;
-  /** Ended sessions that carry minutes. */
-  sessions: number;
   /** First-try accuracy per week, 8 weeks, oldest first. */
   weeks: Point[];
-  /** Minutes and ended sessions in the last 7 days. */
-  week: { minutes: number; sessions: number };
-  /** Minutes per day, last 7 days. */
-  days: Point[];
-}
-
-/** Ended-session minutes: sessions with status "ended" and a number of minutes (what End saves, §sessions). */
-export function endedMinutes(docs: readonly WireDoc[]): {
-  minutes: number;
-  sessions: number;
-} {
-  let minutes = 0;
-  let sessions = 0;
-  for (const d of docs) {
-    const s = d.data as { status?: unknown; minutes?: unknown } | null;
-    if (s?.status !== "ended" || typeof s.minutes !== "number") continue;
-    if (!(s.minutes > 0)) continue;
-    minutes += s.minutes;
-    sessions += 1;
-  }
-  return { minutes: Math.round(minutes), sessions };
 }
 
 export function mapProgress(
   answers: readonly WireDoc[],
-  sessions: readonly WireDoc[],
   now: number,
 ): ProgressData {
   return {
     accuracy: accuracyLine(answers, now)?.text ?? null,
     hasAnswers: answers.length > 0,
-    ...endedMinutes(sessions),
     weeks: weeklyAccuracy(answers, now),
-    week: windowTotals(sessions, now),
-    days: dailyMinutes(sessions, now),
   };
 }
 
@@ -76,7 +42,7 @@ export interface ProgressState {
   error?: string;
 }
 
-/** Reads answers and sessions with the app token the user keeps in this browser (the shell holds none). */
+/** Reads answers with the app token the user keeps in this browser (the shell holds none). */
 export function useProgress(copy?: ReadCopyLike): ProgressState {
   const [token] = useState(readToken);
   const [data, setData] = useState<ProgressData>();
@@ -94,16 +60,21 @@ export function useProgress(copy?: ReadCopyLike): ProgressState {
         c,
         (b) => (b as { docs: WireDoc[] }).docs,
       );
-    const load = (c: ReadCopyLike | undefined) =>
-      Promise.all([docs("answers", c), docs("sessions", c)]);
+    const load = (c: ReadCopyLike | undefined) => docs("answers", c);
     const first = warm.current;
     warm.current = false;
     // The screen opens on the last answer kept, then the server's (§ui.instant).
-    savedFirst(copy, first, load, ([answers, sessions]) => {
-      if (!live) return;
-      setData(mapProgress(answers, sessions, Date.now()));
-      setError(undefined);
-    }, () => setData(undefined)).catch((e: unknown) => {
+    savedFirst(
+      copy,
+      first,
+      load,
+      (answers) => {
+        if (!live) return;
+        setData(mapProgress(answers, Date.now()));
+        setError(undefined);
+      },
+      () => setData(undefined),
+    ).catch((e: unknown) => {
       if (!live) return;
       setRefused(failureKind(e) === "refused");
       setError(failureSentence(e));

@@ -11,7 +11,6 @@ import {
 } from "../../domain/index.ts";
 import type { Exam } from "../../domain/index.ts";
 import type {
-  CourseTone,
   PlanItem,
   ThisWeekItem,
   TodayProps,
@@ -31,8 +30,7 @@ export type TodayData = Pick<
 /** A needs-you prep-plan job means a plan waits for Matt. */
 export function prepPlanWaiting(jobs: readonly WireJobLine[]): boolean {
   return jobs.some(
-    (j) =>
-      j.kind.replace(/_/g, "-") === "prep-plan" && j.state === "needs-you",
+    (j) => j.kind.replace(/_/g, "-") === "prep-plan" && j.state === "needs-you",
   );
 }
 
@@ -71,9 +69,6 @@ function whenLabel(date: string, left: number, today: string): string {
   return left < 7 ? (DAYS[at.getUTCDay()] ?? "") : plainDay(date, today);
 }
 
-const toneFor = (left: number): CourseTone =>
-  left <= 3 ? "bad" : left <= 7 ? "warn" : "info";
-
 function planItems(
   doc: WireDoc | undefined,
   sessions: Session[] = [],
@@ -97,7 +92,6 @@ function planItems(
             : `${KINDS[a.kind] ?? a.kind} · added by you`,
       est: a.minutes ? `${a.minutes}m` : "",
       done: !!o.checks?.[k],
-      tone: "ok" as const,
     }));
 }
 
@@ -164,7 +158,6 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       ...(planLine ? { plan: planLine } : {}),
       sessions: examSessions(id, docs),
       when: whenLabel(exam.date as string, left, today),
-      tone: toneFor(left),
       whenFull: weekdayDay(exam.date as string),
       dateLine: `${plainDay(exam.date as string, today)} · ${inDays(left)}`,
       kind: exam.kind,
