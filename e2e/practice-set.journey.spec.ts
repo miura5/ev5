@@ -44,7 +44,7 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
   } else expect(have.status).toBe(200);
 
   await page.goto("/library");
-  await page.getByRole("tab", { name: /Sets/ }).click();
+  await page.getByRole("radio", { name: /Sets/ }).click();
   await page.getByRole("button", { name: new RegExp(TITLE) }).click();
   await expect(
     page.getByRole("heading", { name: TITLE, level: 1 }),
