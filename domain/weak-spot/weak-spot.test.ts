@@ -27,7 +27,6 @@ const ws = (id: string, extra: Record<string, unknown> = {}): WeakSpot =>
     topic: id,
     objective: 'E4-3',
     exam: 'E4',
-    course: 'Biology 101',
     kind: 'concept',
     addedBy: 'test',
     initial: { streak: 0, nextDue: '2026-10-16', recurrence: 1, misses: 0 },

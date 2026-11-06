@@ -50,13 +50,12 @@ const wireKey = (e: WeakSpotEventRow) =>
 
 /**
  * The document the screens read (`GET /docs?collection=weakspots`) built from the rows: the model above, with the events
- * under keys the document schema accepts, the goal (as `exam`) the caller worked out from the objective's links, and the
- * spot's collection title (as `course`).
+ * under keys the document schema accepts, and the goal (as `exam`) the caller worked out from the spot's links. No course.
  */
 export function weakSpotDoc(
   row: WeakSpotTableRow,
   events: WeakSpotEventRow[],
-  where: { exam: string | null; course?: string },
+  where: { exam: string | null },
 ): WeakSpot {
   return {
     ...weakSpotFromRows(row, []),
@@ -64,7 +63,6 @@ export function weakSpotDoc(
       events.map((e) => [wireKey(e), eventFromRow(e)]),
     ),
     exam: where.exam,
-    ...(where.course ? { course: where.course } : {}),
   };
 }
 
