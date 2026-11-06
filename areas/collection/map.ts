@@ -1,3 +1,6 @@
+import type { WireDoc } from "../../domain/index.ts";
+
+export type { WireDoc };
 import { shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
@@ -22,12 +25,6 @@ export interface WirePin {
   at: number;
 }
 
-/** A docs row (GET /docs?collection=c): the item a membership points at. */
-export interface WireDoc {
-  id: string;
-  at?: number;
-  data?: unknown;
-}
 /** Docs by collection name, as read for the members' collections. */
 export type DocsByCollection = Record<string, readonly WireDoc[]>;
 

@@ -117,7 +117,7 @@ export {
 /** @public */
 export { parseSystemDoc } from "./system-doc/index.ts";
 /** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
-export { docRowSchema } from "./doc-row/index.ts";
+export { docRowSchema, type WireDoc } from "./doc-row/index.ts";
 /** @public */
 /** @public */
 export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";

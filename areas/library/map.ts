@@ -19,11 +19,11 @@ import type {
   PlanSession,
   PlanState,
   SetPageData,
-  WireDoc,
   WeakSpot,
 } from "./types.ts";
 
-export type { WireDoc } from "./types.ts";
+export type { WireDoc } from "../../domain/index.ts";
+import type { WireDoc } from "../../domain/index.ts";
 
 export interface LibraryDocs {
   exams: WireDoc[];

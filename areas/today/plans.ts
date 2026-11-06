@@ -1,9 +1,6 @@
-/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
-export interface WireDoc {
-  id: string;
-  data: unknown;
-}
+import type { WireDoc } from "../../domain/index.ts";
 
+export type { WireDoc };
 export interface TodayDocs {
   exams: WireDoc[];
   weakspots: WireDoc[];
