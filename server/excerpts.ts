@@ -45,6 +45,7 @@ export async function findPassages(
         title: n.title,
         kind: "note",
         text: n.text,
+        collection_id: n.collection_id,
       }))
     : [];
   // Sets are still documents until their words move.
