@@ -93,7 +93,7 @@ Questions and release cards come as comments on the pinned issue. Turn on notifi
 - **Only you decide** live deploys, money, accounts and secrets, anything on your Mac, changes to something you use daily, and exceptions to something you asked for (§who.matt).
 - **A live deploy** happens on your word, after staging, through the `live` environment you approve in GitHub (§hard.live-on-matts-word).
 - **Before cutover:** test v5 on staging like a normal day of learning. At cutover, say **"go live"**, approve the deploy in GitHub, and keep your devices online so no unsent notes stay behind.
-- After cutover, E.V. keeps the same app address and the same phone icon. If you want the optional Canvas import, be at your Mac once while the agent makes its task.
+- After cutover, E.V. keeps the same app address and the same phone icon.
 
 ## Keeping this page true
 

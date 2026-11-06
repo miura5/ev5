@@ -1,7 +1,7 @@
-// Task commands: add, set and claim. Each takes the Chart and the parsed flags, changes the Chart in memory and
+// Task commands: add, set, claim and delete. Each takes the Chart and the parsed flags, changes the Chart in memory and
 // returns what it did; the CLI saves. A refusal throws.
 import type { Chart, Task } from './chart.ts';
-import { OWNER, TASK_KINDS, TASK_STATUS, ctDate, list, nextTaskId, allTasks } from './chart.ts';
+import { OWNER, TASK_KINDS, TASK_STATUS, allDecisions, allTasks, ctDate, list, nextTaskId } from './chart.ts';
 import { PLACES } from './render.ts';
 
 export type Opts = Record<string, string | boolean | undefined> & { _: string[] };
@@ -138,4 +138,26 @@ export function taskClaim(rec: Chart, o: Opts, now: string): Done {
   t.claimedBy = by;
   t.claimedAt = now;
   return { what: `claimed by ${by}`, id: t.id };
+}
+
+/** Removes live tasks a decision names, so ids are never reused and no live task points at a removed one. */
+export function taskDelete(rec: Chart, o: Opts): Done {
+  const ids = list(o._[2]),
+    decision = str(o.decision);
+  if (!ids.length) throw new Error('task delete needs <B-id,B-id,...>');
+  if (!decision || !allDecisions(rec).some(d => d.id === decision))
+    throw new Error('task delete needs --decision <D-id> naming a decision in the record');
+  for (const id of ids) one(rec, id);
+  const top = nextTaskId(rec);
+  const gone = new Set(ids);
+  if (gone.has('B-' + String(Number(top.slice(2)) - 1).padStart(2, '0')))
+    throw new Error('the highest task id stays, so the next id never reuses a removed one');
+  for (const t of allTasks(rec)) {
+    if (gone.has(t.id)) continue;
+    const into = (t.triage as { into?: string } | undefined)?.into;
+    for (const d of [...(t.depends || []), ...(into ? [into] : [])])
+      if (gone.has(d)) throw new Error(`${t.id} still names ${d}: change it first`);
+  }
+  rec.tasks = rec.tasks.filter(t => !gone.has(t.id));
+  return { what: `${ids.length} tasks removed (${decision})`, id: ids.join(',') };
 }

@@ -33,7 +33,7 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 0. **Take the run lock** before anything else: `ops/build-lock.sh take`. Exit 3 means another run is working: end this run at once, with no handover, wait branch or PR. After each merged batch, run `ops/build-lock.sh renew`. Run `ops/build-lock.sh release` just before you open the handover or wait PR (step 10), and also when the run ends early. A lock held for more than 75 minutes is stale and the next run takes it. Other sessions (the supervisor, a channel thread) may open PRs at any time, but they merge to main only while the lock is released (`ops/build-lock.sh status`), or they give their Chart filings to the running build manager: each outside merge puts every open build PR behind main.
 1. **Read** `docs/handover.md`, then CONTRACT.md (PLAN.md before Phase 0's gate).
 2. **Check on last run's work:** open PRs, CI results, staging health. A red main, or a red `staging` deploy on main, is fixed first, before anything else.
-3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live"). File each one in the Chart. A bug that breaks studying jumps the queue.
+3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live"). File each one in the Chart, except an "idea: …", which goes to Matt's feature list (§5). A bug that breaks studying jumps the queue.
 4. **Pick the batch:** the lowest open tasks whose dependencies are done, within the current phase, sized so the batch can reach a staging deploy or a gate in this run. A gate held up only by Matt or an outside input doesn't stop the build: start the next phase's tasks that don't need that input, and close the gate when it arrives. Gate 6 (before Matt tests) and anything live still wait for every earlier gate.
 5. **Claim** each task in the Chart (the claim is the lock), then start builders: one task each, with its slice and context (§5). The run lock keeps other runs off these tasks, so the claims, done marks and notes go in the run's handover PR. Open a separate Chart PR first only when the run files new task ids, because ids race.
 6. **Merge:** each builder runs `npm run precheck` (every CI check, the Interface-trailer check included), then opens a PR from a `claude/` branch with auto-merge on. GitHub runs every check, and auto-merge lands it on green. Nothing reaches main any other way. Main takes only branches that are up to date, so land one PR at a time: when a PR merges, update the oldest open PR at once (`gh api -X PUT repos/miura5/ev5/pulls/N/update-branch`; if no CI run starts within a minute, merge main into the branch and push). A green PR that sits behind main is lost time.
@@ -139,7 +139,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 **Phase 6: Ops**
 - S-80 Scheduled commands: morning, evening, weekly.
-- S-81 Optional Canvas import from the Mac, after cutover.
+- S-81 Optional Canvas import from the Mac, after cutover. *(Moved to Matt's feature list 2026-11-06.)*
 - S-82 The push task (C7).
 - S-83 Restore drills, including a Time Travel restore on staging.
 - S-84 Rehearsal 2. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
@@ -160,6 +160,8 @@ The task id, its slice (write and read folders), the done-when bar, and the mock
 - every library and structural rule from the PLAN or CONTRACT sections the task cites, quoted with its §id, not only the section number (for example: §ui.mockup, "unstyled Radix primitives and cmdk for behaviour").
 
 Builders **refuse and report** when a task needs a folder outside its slice. The build manager then splits the task or marks an interface change.
+
+**Feature ideas stay out of the repo.** They live in Matt's feature list, outside the repo, and enter the repo on his yes as a task, a decision and a mock-up update together. Feature work starts only from a Chart task. A finding that is a new feature, not a bug or a fix inside the current structure, goes in no task and not in `docs/parked.md`: the handover says "feature idea, for the supervisor" in one line.
 
 ## 6. What goes to Matt, and how
 

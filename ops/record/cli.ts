@@ -10,7 +10,7 @@ import { decisionAdd, decisionSet } from './decisions.ts';
 import { clearInbox, inboxAdd, inboxFile } from './inbox.ts';
 import { formatLint, lintChart } from './lint.ts';
 import { generatedFiles } from './render.ts';
-import { taskAdd, taskClaim, taskSet } from './tasks.ts';
+import { taskAdd, taskClaim, taskDelete, taskSet } from './tasks.ts';
 import type { Done, Opts } from './tasks.ts';
 
 export const USAGE = `node ops/record/cli.ts <command>
@@ -19,6 +19,7 @@ export const USAGE = `node ops/record/cli.ts <command>
   task set <B-id> [--status open|blocked|done|declined] [--notes <n>] [--commit <sha>] [--title <t>] [--dod <d>]
            [--milestone <m>] [--depends <ids>] [--reason <r>] [--waiting-on owner|none] [--where mac|staging|github|decision]
   task claim <B-id> --by <run>
+  task delete <B-id,B-id,...> --decision <D-id>   (removes live tasks; the decision says why)
   decision add --title <t> [--why <w>] [--status proposed|accepted|superseded|revisit] [--supersedes <ids>]
            [--amends <ids>] [--kind decision|tenet --scope <s> --checked-by <c>] [--source <s>]
   decision set <D-id> [same flags as add]
@@ -46,6 +47,7 @@ const WRITES: Record<string, Write> = {
   'task add': taskAdd,
   'task set': taskSet,
   'task claim': taskClaim,
+  'task delete': taskDelete,
   'decision add': decisionAdd,
   'decision set': decisionSet,
 };
@@ -61,7 +63,7 @@ export function holdsBuildLock(): boolean {
   return r.status === 0 && r.stdout.includes(`LOCK: held by ${me} `);
 }
 // Commands that take a real id, and so need the lock.
-const NEEDS_LOCK = new Set(['task add', 'decision add', 'inbox file']);
+const NEEDS_LOCK = new Set(['task add', 'task delete', 'decision add', 'inbox file']);
 
 const recordDir = (root: string): string => path.join(root, 'docs', 'record');
 
