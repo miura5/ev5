@@ -43,13 +43,15 @@ interface Kind<R> {
   order: string;
 }
 
-const kind = <R>(
+function kind<R>(
   table: string,
   parse: (raw: unknown) => R,
   json: string[] = [],
   order = "id",
   appendOnly = false,
-): Kind<R> => ({ table, parse, json, order, appendOnly });
+): Kind<R> {
+  return { table, parse, json, order, appendOnly };
+}
 
 function columns(table: string): string[] {
   const t = ROW_TABLES.find((x) => x.name === table);
