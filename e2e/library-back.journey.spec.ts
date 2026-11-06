@@ -1,32 +1,16 @@
 import { expect, test } from "./gate5.ts";
+import { cmd } from "./helpers.ts";
 
-// Library: open a set, Back to the list, Forward to the set. The set is the practice-set journey's, written straight
-// to the `sets` collection under a fixed id (no model involved); sets never change and nothing is deleted (§delete.who).
-const SET = "e2e-library-back-set";
-const TITLE = "e2e library back set";
+// Library: open a set, Back to the list, Forward to the set. The set is made through the commands (no model involved).
+const TITLE = `e2e library back ${Date.now()}`;
 
 test("Library: open set, Back, Forward", async ({ page, api }) => {
-  const have = await api("GET", `/api/v1/docs?collection=sets&id=${SET}`);
-  if (have.status === 404) {
-    const put = await api("PUT", `/api/v1/docs?collection=sets&id=${SET}`, {
-      schema: 3,
-      writer: "page",
-      at: "2026-11-06T12:00:00Z",
-      source: "e2e",
-      kind: "drill",
-      title: TITLE,
-      items: [
-        {
-          id: "q1",
-          type: "single",
-          stem: "Which vital sign is the pulse?",
-          options: ["Heart rate", "Body heat"],
-          correct: [0],
-        },
-      ],
-    });
-    expect(put.status, JSON.stringify(put.body)).toBe(200);
-  } else expect(have.status).toBe(200);
+  await cmd(api, "set.create", { title: TITLE }).then((r) =>
+    cmd(api, "set.item_add", {
+      set: (r["set"] as { id: string }).id,
+      text: "Which vital sign is the pulse?\n* Heart rate\n- Body heat",
+    }),
+  );
 
   const list = page.getByRole("heading", { name: "Library", level: 1 });
   const set = page.getByRole("heading", { name: TITLE, level: 1 });
