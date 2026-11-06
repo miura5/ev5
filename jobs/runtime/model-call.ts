@@ -37,7 +37,7 @@ export function outputSchema(schema: z.ZodType): object {
 }
 
 /**
- * Prompt caching (CONTRACT §model.choice). The system prompt is one breakpoint; the first user message (the course
+ * Prompt caching (CONTRACT §model.choice). The system prompt is one breakpoint; the first user message (the material
  * context and task, identical on the repair ask) is the second. Prompts under the model's minimum cacheable length
  * (512 tokens on Sonnet 5.5, per the Anthropic prompt-caching docs) are simply not cached, with no error.
  */

@@ -1,6 +1,6 @@
 # Proposal: v5 on its own database
 
-Status: proposed, 2026-11-05. The Chart decision that carries this proposal is the authority. This file is reference text, never a rule (CONTRACT §drift.one-file). It becomes history once the decision is accepted or declined.
+Status: accepted, 2026-11-05 (v5 on its own database that starts empty, with no rollback to ev4). Its table list is replaced by `table-design.md`, as changed by the accepted table design. History: this file is reference text, never a rule (CONTRACT §drift.one-file).
 
 **Why now.** Matt said on 2026-11-05 that he does not need to go back to ev4 if v5 breaks on switch-over day. The rollback window was the only reason to keep v5 inside ev4's `docs` table, so v5 can keep its record in its own D1 database. ev4's database, buckets and Durable Object stay untouched as an archive. Asked next whether v5 should start with his ev4 notes, sets and weak spots copied in once, or start empty, Matt chose "Start empty". So v5 starts with an empty database and nothing is copied from ev4. A notes-only import can be its own decision later, only if Matt asks.
 

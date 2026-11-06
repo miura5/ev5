@@ -10,7 +10,7 @@ const messages: AskMessage[] = [
   { id: "1", from: "you", at: "9:12 am", text: "preload vs afterload?" },
   { id: "2", from: "ev", text: "Give it a try first.", asksTry: true },
   { id: "3", from: "ev", text: "Yes, both right.", source: "Cardiac output", breakBefore: true },
-  { id: "4", from: "ev", text: "Still writing.", job: { title: "Mock exam", meta: "9 of 15", running: true } },
+  { id: "4", from: "ev", text: "Still writing.", job: { title: "Full practice run", meta: "9 of 15", running: true } },
 ];
 
 test("the chat shows turns, a source, a job row and the try-first button", () => {
@@ -18,7 +18,7 @@ test("the chat shows turns, a source, a job row and the try-first button", () =>
   render(<AskView messages={messages} onSend={() => {}} onJustTell={onJustTell} />);
   expect(screen.getByText("9:12 am")).toBeTruthy();
   expect(screen.getByText("from Note · Cardiac output")).toBeTruthy();
-  expect(screen.getByText("Mock exam")).toBeTruthy();
+  expect(screen.getByText("Full practice run")).toBeTruthy();
   expect(screen.getAllByRole("separator")).toHaveLength(1);
   fireEvent.click(screen.getByText("Just tell me"));
   expect(onJustTell).toHaveBeenCalledWith("2");

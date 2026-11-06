@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// Objective document (schema 1), as the docs gate parses the `objectives` collection. An objective is the user's own
-// or a source's stated one, never invented. The document id is not part of the data.
+// Objective document (schema 1), as the docs gate parses the `objectives` collection.
+// Seeded from the material the user names, never invented (§ev.objectives). The document id is not part of the data.
 export const objectiveSchema = z.strictObject({
   schema: z.literal(1),
   writer: z.enum(['worker', 'page']),

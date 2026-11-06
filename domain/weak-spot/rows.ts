@@ -73,8 +73,8 @@ export type NewWeakSpotRow = Omit<WeakSpotTableRow, "at" | "v" | "deleted_at">;
 
 /**
  * A new weak spot document as its table row (§data.tables). A new spot has no events and no starting counts (the scheduler
- * starts it at zero), and it points at its objective, not at an exam. `collectionId` is the collection's id, worked out by the
- * caller. Throws on a document that carries events or starting counts, which only the scheduler's rules may add.
+ * starts it at zero), and it points at its objective, not at an exam. `collectionId` is the id of the spot's collection, worked out
+ * by the caller. Throws on a document that carries events or starting counts, which only the scheduler's rules may add.
  */
 export function newWeakSpotRow(
   id: string,

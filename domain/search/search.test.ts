@@ -1,32 +1,31 @@
 import { expect, test } from 'vitest';
 import { buildIndex, chunkMaterials, cite, likeMatch, likePatterns, search, type Material } from './index.ts';
 
-// The retrieval test set: a small synthetic corpus (made up) with the passage each query must put first.
-// Ported from ev4 test/library.test.mjs.
+// The retrieval test set: a small synthetic corpus (made up) from mixed learners, with the passage each query must put first.
 const corpus: Material[] = [
   {
-    id: 'NUR112-1',
-    title: 'Ch 42 - Fluid, Electrolyte, and Acid-Base Balance.pdf',
-    course: 'NUR 112',
-    text: '[p1] Fluid balance overview. Body water compartments.\n[p2] Hypokalemia: potassium below 3.5 mEq/L causes muscle weakness and dysrhythmias.\n[p3] Hyperkalemia: peaked T waves.',
+    id: 'bio-ch7',
+    title: 'Ch 7 - Cell Respiration.pdf',
+    collection_id: 'col_biology',
+    text: '[p1] Cell respiration overview. Where cells get their energy.\n[p2] Glycolysis splits glucose into two pyruvate molecules in the cytoplasm.\n[p3] The Krebs cycle runs in the mitochondrial matrix.',
   },
   {
-    id: 'NUR112-2',
-    kind: 'lab',
-    title: 'SKILLS PACKET',
-    course: 'NUR 112',
-    text: '[p1] Head-to-toe assessment. Perform hand hygiene. Verify two identifiers.\n[p2] Auscultate heart sounds at five landmarks: aortic, pulmonic, Erb point, tricuspid, mitral.\n[p3] Sterile gloves: open the package without touching the inner wrapper.',
+    id: 'interview-guide',
+    kind: 'guide',
+    title: 'Interview prep guide',
+    collection_id: 'col_interview',
+    text: '[p1] Research the company. Read the job post twice.\n[p2] Answer behavioral questions with the STAR method: situation, task, action, result.\n[p3] Prepare three questions to ask the interviewer at the end.',
   },
   {
-    id: 'BIO201-9',
-    title: 'Chapter 7 ppt',
-    course: 'BIO 201',
-    text: '[s1] Bones of the skull / Frontal bone\n[s2] Vertebral column',
+    id: 'spanish-u3',
+    title: 'Unit 3 slides',
+    collection_id: 'col_spanish',
+    text: '[s1] Preterite tense / Regular verbs\n[s2] Irregular verbs: ser and ir share the same forms',
   },
   {
     id: 'old',
-    title: 'Ch 30 - Health Assessment.pdf',
-    text: '[Page 1] Inspection first. [Page 2] Palpation of the abdomen comes last; auscultate bowel sounds before palpating.',
+    title: 'Half marathon plan.pdf',
+    text: '[Page 1] Easy runs first. [Page 2] Long run on Sunday; slow the pace before the hills.',
   },
 ];
 
@@ -35,62 +34,64 @@ const idx = buildIndex(chunks);
 const top = (q: string) => search(idx, q)[0];
 
 const EXPECTED: [string, string, number][] = [
-  ['low potassium weakness', 'NUR112-1', 2],
-  ['peaked T waves', 'NUR112-1', 3],
-  ['auscultating heart sound landmarks', 'NUR112-2', 2],
-  ['how do I handle sterile gloves', 'NUR112-2', 3],
-  ['vertebral column', 'BIO201-9', 2],
-  ['skull bones', 'BIO201-9', 1],
-  ['auscultate bowel sounds', 'old', 2],
+  ['glucose split into pyruvate', 'bio-ch7', 2],
+  ['krebs cycle matrix', 'bio-ch7', 3],
+  ['STAR method for behavioral answers', 'interview-guide', 2],
+  ['which questions to ask the interviewer', 'interview-guide', 3],
+  ['irregular verbs ser ir', 'spanish-u3', 2],
+  ['preterite tense', 'spanish-u3', 1],
+  ['long run pace', 'old', 2],
 ];
 
 test.each(EXPECTED)('retrieval: "%s" ranks %s page %i first', (q, id, page) => {
   expect(top(q)).toMatchObject({ id, page });
 });
 
-test('chunks keep their page and unit; citations read like E.V. writes them', () => {
-  expect(chunks.find((c) => /peaked/.test(c.text))?.page).toBe(3);
-  expect(cite(top('auscultating heart sound landmarks')!)).toBe('SKILLS PACKET, p. 2');
-  expect(cite(top('vertebral column')!)).toBe('Chapter 7 ppt, slide 2');
-  expect(cite(top('auscultate bowel sounds')!)).toBe('Ch 30 - Health Assessment, p. 2');
-  expect(top('auscultating heart sound landmarks')?.kind).toBe('lab');
+test('chunks keep their page, unit and collection; citations read like E.V. writes them', () => {
+  expect(chunks.find((c) => /Krebs/.test(c.text))?.page).toBe(3);
+  expect(cite(top('STAR method for behavioral answers')!)).toBe('Interview prep guide, p. 2');
+  expect(cite(top('irregular verbs ser ir')!)).toBe('Unit 3 slides, slide 2');
+  expect(cite(top('long run pace')!)).toBe('Half marathon plan, p. 2');
+  expect(top('STAR method for behavioral answers')?.kind).toBe('guide');
+  expect(top('krebs cycle matrix')?.collection_id).toBe('col_biology');
+  expect(top('long run pace')).toMatchObject({ kind: 'note', collection_id: null });
 });
 
 test('a long page splits into passages that keep the page', () => {
-  const sentence = 'Potassium shifts into cells with insulin. ';
+  const sentence = 'Verbs change their ending with the subject. ';
   const p = chunkMaterials([{ id: 'x', text: `[p4] ${sentence.repeat(60)}` }], 300);
   expect(p.length).toBeGreaterThan(3);
   expect(p.every((c) => c.page === 4 && c.text.length <= 300 * 1.6 + sentence.length)).toBe(true);
 });
 
-test('filters: course, kind, id', () => {
-  expect(search(idx, 'skull bones', { courses: new Set(['NUR 112']) })).toEqual([]);
-  expect(search(idx, 'skull bones', { courses: new Set(['BIO 201']) })[0]?.page).toBe(1);
-  expect(search(idx, 'assessment', { kind: 'lab' }).every((h) => h.kind === 'lab')).toBe(true);
-  expect(search(idx, 'potassium', { id: 'BIO201-9' })).toEqual([]);
+test('filters: collection, kind, id', () => {
+  expect(search(idx, 'irregular verbs', { collections: new Set(['col_biology']) })).toEqual([]);
+  expect(search(idx, 'irregular verbs', { collections: new Set(['col_spanish']) })[0]?.page).toBe(2);
+  expect(search(idx, 'questions', { kind: 'guide' }).every((h) => h.kind === 'guide')).toBe(true);
+  expect(search(idx, 'glucose', { id: 'spanish-u3' })).toEqual([]);
 });
 
 test('stop-word and empty queries find nothing; at most two passages per file and k results', () => {
   expect(search(idx, 'the of and')).toEqual([]);
-  expect(search(buildIndex([]), 'potassium')).toEqual([]);
+  expect(search(buildIndex([]), 'glucose')).toEqual([]);
   const many = chunkMaterials([
     {
       id: 'm',
-      text: '[p1] potassium one.\n[p2] potassium two.\n[p3] potassium three.',
+      text: '[p1] glucose one.\n[p2] glucose two.\n[p3] glucose three.',
     },
   ]);
-  expect(search(buildIndex(many), 'potassium').length).toBe(2);
-  expect(search(idx, 'potassium assessment sounds', { k: 1 }).length).toBe(1);
+  expect(search(buildIndex(many), 'glucose').length).toBe(2);
+  expect(search(idx, 'glucose questions verbs', { k: 1 }).length).toBe(1);
 });
 
-test('similar words do not collide (hyperkalemia vs hyperglycemia)', () => {
-  const i = buildIndex(chunkMaterials([{ id: 'a', text: '[p1] Hyperglycemia means high glucose.' }]));
-  expect(search(i, 'hyperkalemia')).toEqual([]);
+test('similar words do not collide (conjunction vs conjugation)', () => {
+  const i = buildIndex(chunkMaterials([{ id: 'a', text: '[p1] Conjugation changes a verb for its subject.' }]));
+  expect(search(i, 'conjunction')).toEqual([]);
 });
 
 test('LIKE patterns are safe, deduplicated and match like the SQL does', () => {
-  expect(likePatterns('the 50% Potassium potassium')).toEqual(['%50%', '%potassium%']);
+  expect(likePatterns('the 50% Glucose glucose')).toEqual(['%50%', '%glucose%']);
   expect(likePatterns("x'; DROP_%")).toEqual(['%drop%']);
-  expect(likeMatch('Low POTASSIUM level', 'potassium?')).toBe(true);
-  expect(likeMatch('sodium', 'the potassium')).toBe(false);
+  expect(likeMatch('Low GLUCOSE level', 'glucose?')).toBe(true);
+  expect(likeMatch('fructose', 'the glucose')).toBe(false);
 });
