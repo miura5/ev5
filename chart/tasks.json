@@ -4576,7 +4576,7 @@
   "title": "Prep plan output lands as plans and plan_items",
   "dod": "The prep plan job's output goes through domain/plan into plans and plan_items, each plan pointing at a goal; approve and put-away each have one path; plan_items are unique by repeat and day (§model.output, §data.repeat, §data.gate). Slice write: jobs/study-plan, domain/plan",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-955",
    "B-997",
@@ -4584,7 +4584,9 @@
   ],
   "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B9: each plan points at a goal, not an exam id; day items that point at a plan task carry the plan id (from B-486). Scope sweep #619: plans point at a goal (context goal, input goalId). Still named study plan: folder jobs/study-plan, server/handlers-studyplan.ts, studyPlanJob, ExamPlanData, UpcomingDate, the prompt keys study_plan and study_plan_changes, comments in server/job-run.ts, jobs/runtime/d1-stores.ts, domain/plan; rename with this move. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F11: the plans and plan_items tables, migration (0007_plans_drafts.sql) and repository (data/tables/plan.ts, #576; domain/plan/table.ts) are on main; what is left is moving the writers to them. The header of domain/plan/index.ts describes a table that does not exist.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-443",
+  "claimedAt": "2026-11-06T20:18:26.900Z"
  },
  {
   "id": "B-1005",
@@ -5049,15 +5051,15 @@
   "title": "Weak spots and their events move to rows",
   "dod": "Weak spots live in their table and each event is an appended row, so two quick taps never race into 'that changed; try again'; a weak spot points at its objective, not at its own exam and course; writes go through the gate (§data.append-only, §data.tables). Slice: write domain/weak-spot, data/, server/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots). Scope sweep #620 (B5): a spot's goal is the soonest upcoming goal its objective links to; examsByCourse gone; goalDate and nearDateWithinDays. Left (B7): createWeakSpot still matches a doc's course against a collection id or title; weakSpotDoc keeps where.exam and where.course for the screens. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F9 and D-509 (Matt): a weak spot links to its date directly with a link row (weak spot to goal), as the mock-up shows; the prep plan and readiness read that link, so a plan stops getting 0 weak spots; objectives stay optional; D-505's weak-spot-links tool is what offers it. F2: shell/findings.ts still reads documents. F25: drop weak_spots.pre_read and reading_due with no writer. Picker to link a weak spot to a date (D-509), moved here from B-1052. 2026-11-06 run (#643): slice widened to domain/link; weak_spot->goal link pair, links table checks a live spot, goalsByWeakSpot, weakSpotDocs reads the direct link or the objective's. Left: the weak-spot-links command (commands/) that writes the link, the picker (areas/), B7, F2, F25. Claim freed.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
-  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
-  "claimedAt": "2026-11-06T14:29:47.397Z"
+  "claimedBy": "run-443",
+  "claimedAt": "2026-11-06T20:18:26.741Z"
  },
  {
   "id": "B-1040",
