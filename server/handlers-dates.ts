@@ -1,6 +1,5 @@
-// Dates and the prep plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `goals` row (§data.tables),
-// joined to objectives by link rows (§data.links); an older `dates` entry is changed by an override in `dateedits` until
-// the backfill (a Canvas entry's fields are marks only canvas-sync may write). Approving a prep plan makes it the plan in force in `planedits/<exam>`; putting it away marks
+// Dates and the prep plan (CONTRACT §cmd.registry, §data.protocol). Every date is a `goals` row (§data.tables),
+// joined to objectives by link rows (§data.links). Approving a prep plan makes it the plan in force in `planedits/<exam>`; putting it away marks
 // it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
 import {
   addDays,
@@ -159,44 +158,19 @@ export const dateHandlers: Record<string, CommandHandler> = {
     const date = i.date === undefined ? undefined : checkDate(i.date);
     const kind = i.kind === undefined ? undefined : checkKind(i.kind);
     const goals = tablesRepo(x.db, { clock: x.clock }).goals;
-    // An older date copied by the backfill is the goal `goal_<id>`; from then on the goal is the one that changes.
-    const asGoal = i.id.startsWith("goal_")
-      ? i.id
-      : (await goals.get(`goal_${i.id}`))
-        ? `goal_${i.id}`
-        : undefined;
-    if (asGoal) {
-      const cur = await goals.get(asGoal);
-      if (!cur) throw new CommandError(404, `no date ${i.id}`);
-      const { at: _at, v, deleted_at: _d, ...fields } = cur;
-      const r = await goals.save(
-        {
-          ...fields,
-          ...(date ? { date } : {}),
-          ...(i.title ? { title: i.title } : {}),
-          ...(kind ? { kind } : {}),
-        },
-        v,
-      );
-      if (!r.ok) throw new CommandError(409, "that changed; try again");
-      return { id: i.id };
-    }
-    await need(x, "dates", i.id);
-    // An older date not yet copied to a goal keeps its kind; only a goal's kind changes.
-    if (kind) throw new CommandError(409, "this date's kind cannot be changed yet");
-    await edit(
-      x,
-      ["dateedits", i.id],
-      { schema: 1 },
-      "v5/command:date.update",
-      (d) => {
-        d.overrides = {
-          ...d.overrides,
-          ...(date ? { date } : {}),
-          ...(i.title ? { title: i.title } : {}),
-        };
+    const cur = await goals.get(i.id);
+    if (!cur) throw new CommandError(404, `no date ${i.id}`);
+    const { at: _at, v, deleted_at: _d, ...fields } = cur;
+    const r = await goals.save(
+      {
+        ...fields,
+        ...(date ? { date } : {}),
+        ...(i.title ? { title: i.title } : {}),
+        ...(kind ? { kind } : {}),
       },
+      v,
     );
+    if (!r.ok) throw new CommandError(409, "that changed; try again");
     return { id: i.id };
   },
 

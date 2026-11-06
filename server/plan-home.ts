@@ -152,22 +152,7 @@ export function planHome(
         throw new Error(
           `The date ${goal.title} is gone, so the plan has nowhere to attach.`,
         );
-      const e = row.data as Record<string, unknown>;
       // A goal row has no planId of its own: goalDocs (goal-wire.ts) reads it from `planedits/<goal>`, put in force below.
-      if (!goal.id.startsWith("goal_") && e.planId !== planId) {
-        // An exam is a Fact: its writer and source are write-once, so only planId and at change.
-        const next = { ...e, planId, at: doc.at };
-        const r = await docs.save(
-          "exams",
-          goal.id,
-          JSON.stringify(next),
-          row.v,
-        );
-        if (!r.ok)
-          throw new Error(
-            `The date ${goal.title} was not updated (it may have changed while the plan was saved; try again): ${r.error}`,
-          );
-      }
       // Approving the job is the one tap: the plan is also put in force, as the plan.approve command does.
       await putPlanInForce(
         { db: db as never, clock },

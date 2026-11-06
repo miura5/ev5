@@ -1,5 +1,5 @@
 // Goals as the screens read exams (CONTRACT §data.tables): a goals row, shown as the exam document Today, Library and
-// the plan already read. Until the backfill moves the old `exams` documents into goals, the exams list is both.
+// the plan already read. Every date is a goal row; there are no `exams` documents to merge.
 import { docsRepo, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { parseExam } from "../domain/index.ts";
@@ -65,29 +65,12 @@ export async function goalDocs(
   });
 }
 
-/** Every exam as a document, from the old `exams` documents and the goals together (until the backfill). */
-export async function examDocs(
-  db: DocsD1,
-  clock: () => number,
-): Promise<{ id: string; v: number; at: number; data: unknown }[]> {
-  const old = await docsRepo(db, { clock }).list("exams");
-  return [
-    ...old.map((d) => ({ id: d.id, v: d.v, at: d.at, data: d.data })),
-    ...(await goalDocs(db, clock)),
-  ];
-}
-
-/** One exam as a document: the old `exams` document, else the goal with that id. */
+/** One goal as its exam document, by id; an id that is not a goal has none. */
 export async function examDoc(
   db: DocsD1,
   clock: () => number,
   id: string,
-): Promise<{ id: string; v: number; at: number; data: unknown } | undefined> {
-  const old = await db
-    .prepare("SELECT data, at, v FROM docs WHERE c = 'exams' AND id = ?")
-    .bind(id)
-    .first<{ data: string; at: number; v: number }>();
-  if (old) return { id, v: old.v, at: old.at, data: JSON.parse(old.data) };
+): Promise<WireGoal | undefined> {
   if (!id.startsWith("goal_")) return undefined;
   return (await goalDocs(db, clock)).find((g) => g.id === id);
 }

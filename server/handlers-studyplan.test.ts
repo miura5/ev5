@@ -36,14 +36,14 @@ test("date.plan_with_ev starts the prep plan job for that exam", async () => {
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1)",
+      "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_x1', NULL, 'Exam', 'exam', '2026-12-01', 'open', NULL, 'user', 0, 1)",
     )
     .run();
-  const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
+  const r = await cmd(s, "date.plan_with_ev", { id: "goal_x1" });
   assert.equal(r.status, 200);
   assert.equal(r.body.result.job.kind, "prep_plan");
   const params = s.started.at(-1) as unknown as { input: unknown };
-  assert.deepEqual(params.input, { goalId: "x1" });
+  assert.deepEqual(params.input, { goalId: "goal_x1" });
 });
 
 test("date.plan_with_ev refuses an exam that is not there", async () => {
@@ -99,16 +99,16 @@ test("a new plan for an exam puts away its older waiting draft and stops its old
   const s = setup();
   await s.db
     .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('exams', 'x1', '{\"kind\":\"exam\"}', 0, 1), ('exams', 'x2', '{\"kind\":\"exam\"}', 0, 1)",
+      "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_x1', NULL, 'Exam', 'exam', '2026-12-01', 'open', NULL, 'user', 0, 1), ('goal_x2', NULL, 'Exam', 'exam', '2026-12-01', 'open', NULL, 'user', 0, 1)",
     )
     .run();
   await waiting(s.db, "old-draft");
   await waiting(s.db, "old-run", { state: "running", step: undefined });
   await waiting(s.db, "other-exam");
-  await context(s.db, "old-draft", "x1");
-  await context(s.db, "old-run", "x1");
-  await context(s.db, "other-exam", "x2");
-  const r = await cmd(s, "date.plan_with_ev", { id: "x1" });
+  await context(s.db, "old-draft", "goal_x1");
+  await context(s.db, "old-run", "goal_x1");
+  await context(s.db, "other-exam", "goal_x2");
+  const r = await cmd(s, "date.plan_with_ev", { id: "goal_x1" });
   assert.equal(r.status, 200);
   const store = d1JobStore(s.db, () => 1);
   const answers = s.started.map(
