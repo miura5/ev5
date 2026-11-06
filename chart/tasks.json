@@ -6013,7 +6013,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).\nReaders on goals done (date.plan_with_ev, study-plan job load/apply, jobs-done exam titles, weak-wire with objective links, GET /docs?since). Dates backfill done: migration 0011 copies dates docs (+dateedits overrides, deletions, objective links) into goals/links, idempotent, tested; date.update on an old id now changes goal_<id>. There are no exam.* commands in the registry (exams are read from exams docs plus goals), so nothing to move. Left: copy of exams docs into goals (exams docs have no id mapping to read-sides yet), drop dateedits/examedits.\nDates (Matt 2026-11-06; decision queued in chart/inbox until the next run files it): the Library tab exams/Exams becomes dates/Dates (Library.view.tsx, its tests, links that open the tab; design/mockup.html too). Every date is a goal with a kind; exam is one kind. One registry in domain/ maps each kind to its tools; today only exam -> study plan and its weak-spot links. Screens and jobs ask the registry, never check for exams by name. No new kinds or tools now. Internal exam/examsByCourse names go when the old exam reads are dropped.",
+  "notes": "Run 97 (#606): Library tab is Dates, domain/goal has DATE_KINDS/toolsForKind/kindOffers (only exam). Left: nothing consults the registry yet (plan UI and study-plan job still name exams); exams docs into goals; drop dateedits/examedits and examDocs merge; old tab id exams in localStorage falls back to Practice once. The Dates decision (inbox P-1) is still unfiled: the supervisor's PR #607 edits that inbox file, so it is filed after #607 merges.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "builder-goals-readers",
@@ -6029,7 +6029,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Current state (run 92): weak spots and their events live in weak_spots and weak_spot_events; the four commands (confirm, decline, mark_learned, drill) append one event row per tap; reads (server/weak-wire.ts, plan-home) and creation (PUT /docs weakspots goes to createWeakSpot, ws_ ids, through the gate; POST /docs/batch refuses weakspots) use the tables; weakspots is off the docs-kind ALLOWED list. Left: GET /docs?since still returns old weakspots docs; the exam is found by the course-match stopgap until exams link to objectives; data/docs parsers and shell/findings.ts still read weakspots docs; duplicate_of spots are hidden, not credited; nothing proposes weak spots yet.",
+  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6053,12 +6053,12 @@
   "title": "Sessions and their events move to rows",
   "dod": "Sessions live in their table and each session event is an appended row, not a rewrite of the session document; writes go through the gate (§data.append-only, §data.tables). Slice: write domain/session, data/, server/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).",
-  "commit": null,
+  "notes": "Run 97 (#608): sessions and session_events tables, migration 0012, session-wire routes. Known: columns for source, comments, folder, filing, summary, pending do not exist (rebuilt doc uses defaults); set_id/collection_id not set from docs; PUT not atomic; useSessions still PUTs whole docs. #609 put data/tables and data/staging tests into test:node (they had never run in CI).",
+  "commit": "0646dc0",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
  {
@@ -6067,12 +6067,12 @@
   "title": "Notes move to their own table",
   "dod": "Notes live in their table with the plain-text search column (§data.search); writes go through the gate; the note editor round trip still passes (§data.tables, §data.notes). Slice: write domain/note, data/, server/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495).",
-  "commit": null,
+  "notes": "Run 97 (#611): notes table with plain-text search column, migration 0013, note-wire, note.* commands write rows. Known: search reads only the text column (title-only match no longer hits); memberships row still written beside collection_id (two sources); outbox still PUTs /docs?collection=notes (design wants note.save); old notes docs stay until the contract migration.",
+  "commit": "66e741b",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
  {
