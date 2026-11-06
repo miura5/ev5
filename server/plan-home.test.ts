@@ -5,6 +5,9 @@ import { DatabaseSync } from "node:sqlite";
 import type { D1Like } from "../jobs/index.ts";
 import { loadCeilingConfig, DEFAULT_CEILINGS } from "./job-run.ts";
 import { planHome } from "./plan-home.ts";
+import { weakSpotDocs } from "./weak-wire.ts";
+import { deriveWeakSpot, parseWeakSpot } from "../domain/index.ts";
+import type { DocsD1 } from "../data/index.ts";
 
 // A real SQLite behind D1's interface (the baseline and jobs migrations).
 function sqliteD1(): D1Like & { sql: DatabaseSync } {
@@ -13,7 +16,9 @@ function sqliteD1(): D1Like & { sql: DatabaseSync } {
     "0000_baseline.sql",
     "0001_deletions.sql",
     "0002_jobs_ceilings.sql",
+    "0003_collections_pins_own.sql",
     "0004_ceiling_usage.sql",
+    "0006_tables.sql",
   ])
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
@@ -54,17 +59,9 @@ const put = (
     .prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 0, 1)")
     .run(c, id, JSON.stringify(data));
 const meta = { writer: "page", at: "2026-11-01T00:00:00Z", source: "t" };
-const spot = (topic: string, exam: string | null, extra = {}) => ({
-  schema: 2,
-  ...meta,
-  topic,
-  objective: "o",
-  kind: "concept",
-  initial: { streak: 0, nextDue: "2026-11-03" },
-  events: {},
-  exam,
-  ...extra,
-});
+// A weak spot is a row, in the course (collection) its exam names (§data.tables).
+const row = (id: string, topic: string, collection: string, extra = "") =>
+  `INSERT INTO weak_spots (id, collection_id, objective_id, topic, kind, words, source_line, duplicate_of, proposed, created_by, pre_read, reading_due, at, v) VALUES ('${id}', '${collection}', NULL, '${topic}', 'concept', NULL, 't', NULL, 0, 'user', 0, NULL, 0, 1)${extra}`;
 
 function seeded() {
   const db = sqliteD1();
@@ -73,31 +70,29 @@ function seeded() {
     ...meta,
     title: "Unit 3",
     kind: "unit",
+    course: "NUR 112",
     date: "2026-11-10",
   });
-  put(db, "weakspots", "w1", spot("Heart sounds", "e1"));
-  put(
-    db,
-    "weakspots",
-    "w2",
-    spot("Insulin", "e1", { initial: { streak: 1, nextDue: "2026-11-04" } }),
+  db.sql.exec(
+    "INSERT INTO collections (id, title, at) VALUES ('c1', 'NUR 112', 0), ('c2', 'BIO 201', 0)",
   );
-  put(db, "weakspots", "w3", spot("Other exam", "e2"));
-  put(
-    db,
-    "weakspots",
-    "w4",
-    spot("Parked", "e1", {
-      events: {
-        "page-20261102-100000": {
-          type: "park",
-          note: "later",
-          at: "2026-11-02T10:00:00Z",
-        },
-      },
-    }),
+  put(db, "exams", "e2", {
+    schema: 2,
+    ...meta,
+    title: "Other",
+    kind: "unit",
+    course: "BIO 201",
+    date: "2026-11-12",
+  });
+  db.sql.exec(row("ws_w1", "Heart sounds", "c1"));
+  db.sql.exec(row("ws_w2", "Insulin", "c1"));
+  db.sql.exec(row("ws_w3", "Other exam", "c2"));
+  db.sql.exec(row("ws_w4", "Parked", "c1"));
+  db.sql.exec(
+    "INSERT INTO weak_spot_events (id, weak_spot_id, type, \"by\", note, objective_id, \"until\", at, v) VALUES ('wse_1', 'ws_w4', 'park', 'user', 'later', NULL, NULL, " +
+      Date.parse("2026-11-02T10:00:00Z") +
+      ", 1)",
   );
-  put(db, "weakspots", "bad", { nonsense: true });
   return db;
 }
 
@@ -107,8 +102,8 @@ test("load returns the exam, Central today and only this exam's active weak spot
   assert.equal(got.today, "2026-11-03");
   assert.equal(got.exam.id, "e1");
   assert.deepEqual(got.spots.map((s) => [s.id, s.title, s.need]).sort(), [
-    ["w1", "Heart sounds", 2],
-    ["w2", "Insulin", 1],
+    ["ws_w1", "Heart sounds", 2],
+    ["ws_w2", "Insulin", 2],
   ]);
   assert.equal(await home.load("nope"), undefined);
 });
@@ -124,13 +119,13 @@ test("answers on a weak spot count toward its need", async () => {
         "page-20261102-090000": {
           correct: true,
           at: "2026-11-02T09:00:00Z",
-          weakspotId: "w1",
+          weakspotId: "ws_w1",
         },
       },
     },
   });
   const got = (await planHome(db, () => T).load("e1"))!;
-  assert.ok(got.spots.find((s) => s.id === "w1"));
+  assert.ok(got.spots.find((s) => s.id === "ws_w1"));
 });
 
 test("apply puts the plan on Today (plans doc) and points the exam at it; repeating is safe", async () => {
@@ -148,7 +143,7 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
         date: "2026-11-03",
         title: "Heart sounds",
         minutes: 30,
-        weakSpotId: "w1",
+        weakSpotId: "ws_w1",
       },
       { date: "2026-11-03", title: "Insulin", minutes: 20 },
       { date: "2026-11-04", title: "Mixed", minutes: 25 },
@@ -174,7 +169,7 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
       ["2026-11-04", 1],
     ],
   );
-  assert.equal(doc.days[0].tasks[0].ref, "w1");
+  assert.equal(doc.days[0].tasks[0].ref, "ws_w1");
   const exam = db.sql
     .prepare("SELECT data, v FROM docs WHERE c='exams' AND id='e1'")
     .get() as { data: string; v: number };
@@ -213,4 +208,27 @@ test("ceilings use the documented defaults when unset and a stored value wins", 
     daily: 0,
     hourly: 7,
   });
+});
+
+test("weak spots read as documents the screens parse: exam from the course, a tap's event derives its state", async () => {
+  const db = seeded();
+  db.sql.exec(
+    "INSERT INTO weak_spot_events (id, weak_spot_id, type, \"by\", note, objective_id, \"until\", at, v) VALUES ('wse_abc', 'ws_w1', 'solid', 'user', NULL, NULL, NULL, " +
+      Date.parse("2026-11-03T08:00:00Z") +
+      ", 1)",
+  );
+  const docs = await weakSpotDocs(db as unknown as DocsD1, () => T);
+  assert.deepEqual(docs.map((d) => [d.id, d.data.exam]).sort(), [
+    ["ws_w1", "e1"],
+    ["ws_w2", "e1"],
+    ["ws_w3", "e2"],
+    ["ws_w4", "e1"],
+  ]);
+  const w1 = docs.find((d) => d.id === "ws_w1")!;
+  assert.equal(w1.data.course, "NUR 112");
+  assert.equal(
+    deriveWeakSpot(parseWeakSpot(w1.data), []).status,
+    "reviewed",
+    "mark as learned shows",
+  );
 });

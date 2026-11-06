@@ -1,5 +1,5 @@
 // Where the study plan reads its exam and weak spots and where an approved plan lands (ev4 docs collections).
-// load: `exams/<id>` plus the `weakspots` aimed at that exam, derived with their `answers` as of Central today, with
+// load: `exams/<id>` plus the weak spots (rows, §data.tables) of that exam's course, derived with their `answers` as of Central today, with
 // the active ones worst first (the order is code, CONTRACT §cmd.code-first). apply: the plan becomes `plans/plan-<job>`
 // (what Today reads), the exam's `planId` points at it and `planedits/<exam>` puts it in force (as studyplan.approve does). Both writes are safe to repeat when a step retries.
 import {
@@ -7,10 +7,10 @@ import {
   deriveWeakSpot,
   isActive,
   parseExam,
-  parseWeakSpot,
   reviewNeed,
 } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
+import { weakSpotDocs } from "./weak-wire.ts";
 import { putPlanInForce } from "./handlers-dates.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { Attempt } from "../domain/index.ts";
@@ -64,17 +64,10 @@ export function planHome(
       if (!row) return undefined;
       const exam = parseExam(JSON.parse(row.data));
       const today = centralDate(clock());
-      const { results } = await db
-        .prepare("SELECT id, data FROM docs WHERE c = 'weakspots'")
-        .all<Row>();
+      // The weak spots are rows (§data.tables); the ones in this exam's course are aimed at this exam.
       const attempts = await attemptsBySpot(db);
-      const spots = results.flatMap((r) => {
-        let spot;
-        try {
-          spot = parseWeakSpot(JSON.parse(r.data));
-        } catch {
-          return []; // one malformed document must not stop a plan
-        }
+      const spots = (await weakSpotDocs(db as DocsD1, clock)).flatMap((r) => {
+        const spot = r.data;
         if (spot.exam !== examId) return [];
         const model = {
           kind: spot.kind,
