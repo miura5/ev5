@@ -1,7 +1,7 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
 ## Running    nothing. (Node 22 sandbox: CI is the proof.)
 NOTE: deletions made before #580 show twice in Recently deleted (B-1040). B-1049 grading is untried on staging with a real model call.
-Scope sweep 2026-11-06 done (#614 to #621): rules, docs, mock-up and code say any learner; dates have a kind (Exam or Other, D-505); stored names renamed (prep_plan, plan.*, goalId, full_run; migrations 0015, 0016). What is left is in the Chart notes (B-1004, B-1036, B-1038, B-1039, B-1060) and docs/parked.md.
+Scope sweep 2026-11-06 done (#614 to #621): rules, docs, mock-up and code say any learner; dates have a kind (Exam or Other, D-505); stored names renamed (prep_plan, plan.*, goalId, full_run; migrations 0015, 0016). Gate 5 passes 16 of 16 on staging (#622 fixed stale journey locators). What is left is in the Chart notes (B-1004, B-1036, B-1038, B-1039, B-1060) and docs/parked.md.
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). On rewrite keep groups and order: drop done tasks, put new ones in their group. Work groups in order.
 Task freeze (D-497): no new task ids until groups 3 to 6 are done; findings go in task notes or docs/parked.md.
