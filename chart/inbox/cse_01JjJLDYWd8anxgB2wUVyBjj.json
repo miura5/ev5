@@ -1,0 +1,25 @@
+{
+ "session": "cse_01JjJLDYWd8anxgB2wUVyBjj",
+ "entries": [
+  {
+   "id": "P-1",
+   "type": "decision",
+   "flags": {
+    "title": "No Courses section; a course is a collection the user names, and the mock exam becomes a full practice run",
+    "why": "Matt approved (ev-build channel 2026-11-06), so the product does not read as school-only. 1) No Courses section in the sidebar or on Today: B-942 drops them, and the mock-up is not changed to add them. A course is a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them (B-942, B-906). 2) The practice set mode \"mock exam\" is called \"full practice run\" in user-facing text, in E.V.'s prompts (jobs/practice-set prompt.md and job.ts wording) and in design/mockup.html; code ids follow only where B-1040 touches them, no rename sweep (B-1040). No new task ids (D-497).",
+    "status": "accepted",
+    "source": "Matt, ev-build channel 2026-11-06"
+   }
+  },
+  {
+   "id": "P-2",
+   "type": "decision",
+   "flags": {
+    "title": "Practice sets are grounded in any notes or collection the user points at, not course excerpts",
+    "why": "A practice set takes its material from the notes or collection the user picks, so it works for any subject, not only a Canvas course. This is the one input gap found in the any-learner check. Built inside B-1040 with the sets move; no new task id (D-497).",
+    "status": "accepted",
+    "source": "Build manager (technical), ev-build channel 2026-11-06"
+   }
+  }
+ ]
+}
