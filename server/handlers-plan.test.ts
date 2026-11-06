@@ -245,11 +245,11 @@ test("a Suggestion whose command fails goes back to pending with a new version a
   ).body.suggestion.id as string;
   const row = () =>
     DB.prepare("SELECT state, at, v FROM drafts WHERE id = ?")
-      .bind(id)
+      .bind(`draft_${id}`)
       .first<{ state: string; at: string; v: number }>();
   const before = (await row())!;
   await DB.prepare("UPDATE drafts SET body = ? WHERE id = ?")
-    .bind(JSON.stringify({ title: "A", date: "not-a-date" }), id)
+    .bind(JSON.stringify({ title: "A", date: "not-a-date" }), `draft_${id}`)
     .run();
   const failed = await call("proposal.accept", { id });
   assert.notEqual(failed.status, 200);

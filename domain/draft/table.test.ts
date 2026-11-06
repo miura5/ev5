@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { parseDraftTableRow } from './index.ts';
+import { draftKey, parseDraftTableRow } from './index.ts';
 
 const row = {
   id: 'draft_1',
@@ -22,4 +22,9 @@ test('the old target_c column, an unprefixed id and a bad state are refused', ()
   expect(() => parseDraftTableRow({ ...rest, target_c: 'sets' })).toThrow();
   expect(() => parseDraftTableRow({ ...row, id: 'd1' })).toThrow();
   expect(() => parseDraftTableRow({ ...row, state: 'open' })).toThrow();
+});
+
+test('draftKey adds the prefix once', () => {
+  expect(draftKey('job_1:d0')).toBe('draft_job_1:d0');
+  expect(draftKey('draft_job_1:d0')).toBe('draft_job_1:d0');
 });

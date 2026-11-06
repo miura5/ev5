@@ -2,7 +2,9 @@
 // runtime's own, moved here unchanged so jobs/ can swap to these. Writes take `at` from the Worker clock, a job record is
 // pinned to the version read, and the ceiling statements run as atomic batches that a guard can roll back.
 import {
+  draftKey,
   itemKey,
+  parseDraftTableRow,
   setKey,
   parseCeilingHold,
   parseJobRecord,
@@ -22,11 +24,11 @@ export type CeilingReserve =
   | { ok: true }
   | { ok: false; window: CeilingWindow; used: number; limit: number };
 export type SaveDraft = {
-  jobId: string;
+  job_id: string;
   kind: string;
-  targetC: string;
-  targetId: string;
-  body: unknown;
+  target_kind: string;
+  target_id: string;
+  body: Record<string, unknown>;
 };
 
 // After a guarded UPDATE: a statement that fails (so the whole batch rolls back) when that UPDATE changed nothing.
@@ -232,8 +234,16 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
         const items = a.items.map((q) =>
           JSON.stringify(gateRow("own_set_items", () => q)),
         );
-        const drafts = a.drafts.map((d) =>
-          JSON.stringify(gateRow("drafts", () => d.body)),
+        const drafts = a.drafts.map((d, n) =>
+          gateRow("drafts", () =>
+            parseDraftTableRow({
+              ...d,
+              id: draftKey(draftIds[n]!),
+              state: "pending",
+              at,
+              v: 1,
+            }),
+          ),
         );
         await db.batch([
           ...items.map((body, n) =>
@@ -259,13 +269,13 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
                 "INSERT OR IGNORE INTO drafts (id, job_id, kind, target_c, target_kind, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
               )
               .bind(
-                draftIds[n]!,
-                d.jobId,
+                drafts[n]!.id,
+                d.job_id,
                 d.kind,
-                d.targetC,
-                d.targetC,
-                d.targetId,
-                drafts[n]!,
+                d.target_kind,
+                d.target_kind,
+                d.target_id,
+                JSON.stringify(drafts[n]!.body),
                 at,
               ),
           ),

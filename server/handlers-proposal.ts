@@ -3,6 +3,7 @@
 import { byName } from "../commands/index.ts";
 import type { suggest } from "../commands/index.ts";
 import { tablesRepo } from "../data/index.ts";
+import { draftKey } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 
@@ -19,11 +20,11 @@ export async function saveSuggestion(
   const id = x.newId();
   await repo(x).create({
     id,
-    jobId: PROPOSER,
+    job_id: PROPOSER,
     kind: KIND,
-    targetC: "commands",
-    targetId: s.command,
-    body: JSON.stringify(s.input),
+    target_kind: "commands",
+    target_id: s.command,
+    body: s.input as Record<string, unknown>,
   });
   return { ...s, id };
 }
@@ -36,7 +37,7 @@ async function pending(x: HandlerCtx, id: string): Promise<Row> {
     .prepare(
       "SELECT id, target_id, body, v FROM drafts WHERE id = ? AND kind = ? AND state = 'pending'",
     )
-    .bind(id, KIND)
+    .bind(draftKey(id), KIND)
     .first<Row>();
   if (!r) throw new CommandError(404, `no pending Suggestion ${id}`);
   return r;
@@ -87,7 +88,7 @@ export const proposalHandlers = (
       throw new CommandError(400, "that edit does not fit the command");
     if (!(await repo(x).edit(r.id, r.v, JSON.stringify(next.data))))
       throw new CommandError(409, "that Suggestion already changed");
-    return { id: r.id, command: r.target_id, input: next.data };
+    return { id: i.id, command: r.target_id, input: next.data };
   },
 
   "proposal.dismiss": async (i: { id: string }, _c, x) => {

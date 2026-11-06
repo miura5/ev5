@@ -102,10 +102,10 @@ test("job output: items and drafts land in one batch, a retry changes nothing", 
     items: [{ stem: "q1" }, { stem: "q2" }],
     drafts: [
       {
-        jobId: "j1",
+        job_id: "j1",
         kind: "set-item",
-        targetC: "own_sets",
-        targetId: "s1",
+        target_kind: "own_sets",
+        target_id: "s1",
         body: { stem: "q3" },
       },
     ],

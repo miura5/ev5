@@ -97,10 +97,10 @@ export type PracticeOutput = z.infer<typeof OutputSchema>;
 /** An item as it is stored: the domain set-item shape (an id, and a sourceRef starting materials/ or note/). */
 export type StoredItem = PracticeItem & { id: string };
 export type DraftRow = {
-  jobId: string;
+  job_id: string;
   kind: "set-item";
-  targetC: string;
-  targetId: string;
+  target_kind: string;
+  target_id: string;
   body: StoredItem;
 };
 export type PracticeResult =
@@ -247,10 +247,10 @@ export async function writePracticeSet(
   const toDrafts = input.drafts ? r.value.items : unsourced;
   // ids match the save step's: items `<job>:i<n>`, drafts `<job>:d<n>`
   const toDraft = (q: PracticeItem, n: number): DraftRow => ({
-    jobId,
+    job_id: jobId,
     kind: "set-item",
-    targetC: input.drafts ? "own_sets" : "sets",
-    targetId: input.targetId,
+    target_kind: input.drafts ? "own_sets" : "sets",
+    target_id: input.targetId,
     body: asStored(q, `${jobId}:d${n}`),
   });
   return {

@@ -58,7 +58,7 @@ test("sourced items become set items; unsourced ones become drafts and need you"
   assert.equal(r.items.length, 1);
   assert.equal(r.drafts.length, 1);
   assert.deepEqual(
-    [r.drafts[0]!.kind, r.drafts[0]!.targetC, r.drafts[0]!.targetId],
+    [r.drafts[0]!.kind, r.drafts[0]!.target_kind, r.drafts[0]!.target_id],
     ["set-item", "sets", "set-1"],
   );
   assert.ok(r.needsYou && r.costCents > 0 && !r.repaired);
@@ -83,7 +83,7 @@ test("write with E.V. makes every item a draft against the set", async () => {
   assert.ok(r.ok);
   assert.equal(r.items.length, 0);
   assert.deepEqual(
-    r.drafts.map((d) => d.targetC),
+    r.drafts.map((d) => d.target_kind),
     ["own_sets", "own_sets"],
   );
 });

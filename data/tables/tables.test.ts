@@ -164,18 +164,18 @@ test("drafts: a change is pinned to the version read; plans and settings replace
   const t = setup();
   await t.drafts.create({
     id: "d1",
-    jobId: "ev",
+    job_id: "ev",
     kind: "suggestion",
-    targetC: "commands",
-    targetId: "x",
-    body: "{}",
+    target_kind: "commands",
+    target_id: "x",
+    body: {},
   });
-  assert.equal(await t.drafts.edit("d1", 2, "{}"), false);
-  assert.equal(await t.drafts.edit("d1", 1, '{"a":1}'), true);
-  assert.equal(await t.drafts.claim("d1", 1, "kept", "{}"), false);
-  assert.equal(await t.drafts.claim("d1", 2, "kept", '{"a":1}'), true);
-  assert.equal(await t.drafts.reopen("d1", 2), false);
-  assert.equal(await t.drafts.reopen("d1", 3), true);
+  assert.equal(await t.drafts.edit("draft_d1", 2, "{}"), false);
+  assert.equal(await t.drafts.edit("draft_d1", 1, '{"a":1}'), true);
+  assert.equal(await t.drafts.claim("draft_d1", 1, "kept", "{}"), false);
+  assert.equal(await t.drafts.claim("draft_d1", 2, "kept", '{"a":1}'), true);
+  assert.equal(await t.drafts.reopen("draft_d1", 2), false);
+  assert.equal(await t.drafts.reopen("draft_d1", 3), true);
   await t.deletions.markCollection("c1");
   assert.equal(await t.deletions.restore("collections", "c1"), 1);
   await t.jobPlans.put("j", "scope", { a: 1 });
