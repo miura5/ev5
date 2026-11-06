@@ -1,7 +1,11 @@
 // Repositories for the job side tables: a job's saved plan, scope, result or failure (`job_plans`, keyed by job id and kind)
 // and the spend ceilings (`claude_settings`, keyed by name). Neither table carries a version: the latest write wins and its
 // `at` comes from the Worker clock.
-import { parseClaudeSetting, parseJobPlanRow } from "../../domain/index.ts";
+import {
+  parseClaudeSetting,
+  parseJobPlanRow,
+  parseStoredPlanBody,
+} from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
@@ -14,8 +18,8 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
         const r = await db
           .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = ?")
           .bind(jobId, kind)
-          .first<{ body: string }>();
-        return r ? (JSON.parse(r.body) as unknown) : undefined;
+          .first<unknown>();
+        return r ? parseStoredPlanBody(r) : undefined;
       },
       /** Saves `body` as the job's `kind` entry, replacing an earlier one. */
       put: async (
