@@ -10,6 +10,8 @@ export const ATTEMPT_HOWS = [
   "steps",
   "told",
   "skipped",
+  /** Again or Good, his own judgment of a card: kept as `answer.rating`, never as a score (Matt's call A, 2026-11-06). */
+  "self",
 ] as const;
 
 export const attemptRowSchema = z.strictObject({
@@ -21,7 +23,7 @@ export const attemptRowSchema = z.strictObject({
   source: z.enum(ATTEMPT_SOURCES),
   how: z.enum(ATTEMPT_HOWS),
   answer: json.nullable(),
-  /** 0 to 1, or null when ungraded (told, skipped, an open answer not yet read). */
+  /** 0 to 1, or null when ungraded (told, skipped, self, an open answer not yet read). Only a score counts toward accuracy. */
   score: z.number().min(0).max(1).nullable(),
   /** The device clock, for ordering offline answers; `at` stays the Worker's. */
   answered_at: ms,
@@ -35,5 +37,12 @@ export function parseAttemptRow(raw: unknown): AttemptRow {
   if (a.v !== 1) throw new Error("attempts are append-only: v is 1");
   if ((a.how === "told" || a.how === "skipped") && a.score !== null)
     throw new Error(`a ${a.how} answer is not graded`);
+  if (a.how === "self") {
+    // A self-rating is kept as a rating, never as a score, so no reader can take it for a checked answer.
+    if (a.score !== null) throw new Error("a self-rating is not graded");
+    const r = (a.answer as { rating?: unknown } | null)?.rating;
+    if (r !== "again" && r !== "good")
+      throw new Error("a self-rating keeps its rating: again or good");
+  }
   return a;
 }

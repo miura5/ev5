@@ -51,3 +51,19 @@ test("due counts items whose latest answer was wrong or told", () => {
   ];
   expect(dueCounts(docs).get("s")).toBe(2);
 });
+
+const rated = (item: string, at: string, rating: "again" | "good") => ({
+  id: `s-${item}-${at}`,
+  data: { schema: 2, setId: "s", answers: { [item]: { k: { at, rating } } } },
+});
+
+test("a self-rating never counts toward accuracy, but Good keeps the card off the due list", () => {
+  const docs = [
+    rated("q1", "2026-11-01T10:00:00Z", "good"),
+    rated("q2", "2026-11-01T10:00:00Z", "again"),
+    ans("s", "q3", "2026-11-02T10:00:00Z", false),
+  ];
+  expect(accuracyLine(docs, now)).toEqual({ text: "0%" });
+  expect(accuracyLine(docs.slice(0, 2), now)).toBeNull();
+  expect(dueCounts(docs).get("s")).toBe(2);
+});

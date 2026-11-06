@@ -89,6 +89,16 @@ test("attempts: append-only, told and skipped are ungraded", () => {
   expect(() => parseAttemptRow({ ...att, score: 2 })).toThrow();
 });
 
+test("attempts: a self-rating keeps its rating and carries no score", () => {
+  const self = { ...att, how: "self", answer: { rating: "good" }, score: null };
+  expect(parseAttemptRow(self).score).toBeNull();
+  expect(() => parseAttemptRow({ ...self, score: 1 })).toThrow();
+  expect(() => parseAttemptRow({ ...self, answer: null })).toThrow();
+  expect(() =>
+    parseAttemptRow({ ...self, answer: { rating: "easy" } }),
+  ).toThrow();
+});
+
 const talk = {
   id: "talk_1",
   chat_id: "c1",

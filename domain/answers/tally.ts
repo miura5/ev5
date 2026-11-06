@@ -15,8 +15,10 @@ const WINDOW = 14 * DAY;
 
 interface Try {
   at: number;
-  /** undefined for a "just tell me" tap: it is neither right nor wrong. */
+  /** undefined for a "just tell me" tap or a self-rating: neither is checked, so neither counts toward accuracy. */
   correct?: boolean;
+  /** His own Again or Good: it schedules the card (Good is not due) but is never a checked answer. */
+  rating?: "again" | "good";
 }
 
 /** Every attempt in the `answers` documents (ev4 schema 2), by set then item; anything malformed is skipped. */
@@ -32,14 +34,25 @@ function attemptsByItem(
     for (const [itemId, keyed] of Object.entries(doc.answers)) {
       if (!keyed || typeof keyed !== "object") continue;
       for (const a of Object.values(keyed as Record<string, unknown>)) {
-        const r = a as { at?: unknown; correct?: unknown } | null;
+        const r = a as {
+          at?: unknown;
+          correct?: unknown;
+          rating?: unknown;
+        } | null;
         const at = typeof r?.at === "string" ? Date.parse(r.at) : NaN;
         if (Number.isNaN(at)) continue;
         const list = items.get(itemId) ?? [];
-        list.push({
-          at,
-          ...(typeof r?.correct === "boolean" ? { correct: r.correct } : {}),
-        });
+        const rating = r?.rating;
+        list.push(
+          rating === "again" || rating === "good"
+            ? { at, rating }
+            : {
+                at,
+                ...(typeof r?.correct === "boolean"
+                  ? { correct: r.correct }
+                  : {}),
+              },
+        );
         items.set(itemId, list);
       }
     }
@@ -48,14 +61,14 @@ function attemptsByItem(
   return out;
 }
 
-/** How many of a set's items are due: the latest answer was wrong or a "just tell me". Unanswered items are not due. */
+/** How many of a set's items are due: the latest answer was wrong, Again or a "just tell me". Unanswered items are not due. */
 export function dueCounts(docs: readonly AnswerDoc[]): Map<string, number> {
   const due = new Map<string, number>();
   for (const [setId, items] of attemptsByItem(docs)) {
     let n = 0;
     for (const list of items.values()) {
       const last = list.reduce((a, b) => (b.at > a.at ? b : a));
-      if (last.correct !== true) n++;
+      if (last.correct !== true && last.rating !== "good") n++;
     }
     due.set(setId, n);
   }
