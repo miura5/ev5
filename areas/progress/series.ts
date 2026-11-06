@@ -1,9 +1,4 @@
-import {
-  addDays,
-  centralDate,
-  weekday,
-  weekdayShort,
-} from "../../domain/index.ts";
+import { addDays, centralDate, weekday } from "../../domain/index.ts";
 
 interface WireDoc {
   id: string;
@@ -104,66 +99,6 @@ export function weeklyAccuracy(
         ? `Week of ${label} · ${value}%`
         : `Week of ${label} · no answers`,
     });
-  }
-  return out;
-}
-
-/** Ended sessions with minutes and an end time, as Central day and minutes. */
-function endedByDay(
-  sessions: readonly WireDoc[],
-): { day: string; minutes: number }[] {
-  const out: { day: string; minutes: number }[] = [];
-  for (const d of sessions) {
-    const s = d.data as {
-      status?: unknown;
-      minutes?: unknown;
-      endedAt?: unknown;
-    } | null;
-    if (
-      s?.status !== "ended" ||
-      typeof s.minutes !== "number" ||
-      !(s.minutes > 0)
-    )
-      continue;
-    const at = typeof s.endedAt === "string" ? Date.parse(s.endedAt) : NaN;
-    if (!Number.isNaN(at))
-      out.push({ day: centralDate(at), minutes: s.minutes });
-  }
-  return out;
-}
-
-/** Minutes and number of ended sessions in the last `days` Central days, today included. */
-export function windowTotals(
-  sessions: readonly WireDoc[],
-  now: number,
-  days = 7,
-): { minutes: number; sessions: number } {
-  const from = addDays(centralDate(now), -(days - 1));
-  const inWindow = endedByDay(sessions).filter(
-    (s) => s.day >= from && s.day <= centralDate(now),
-  );
-  return {
-    minutes: Math.round(inWindow.reduce((a, s) => a + s.minutes, 0)),
-    sessions: inWindow.length,
-  };
-}
-
-/** Minutes of ended sessions per Central day for the last `days` days (oldest first, the last one labelled "Today"). */
-export function dailyMinutes(
-  sessions: readonly WireDoc[],
-  now: number,
-  days = 7,
-): Point[] {
-  const today = centralDate(now);
-  const per = new Map<string, number>();
-  for (const e of endedByDay(sessions))
-    per.set(e.day, (per.get(e.day) ?? 0) + e.minutes);
-  const out: Point[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const date = addDays(today, -i);
-    const value = Math.round(per.get(date) ?? 0);
-    const label = i === 0 ? "Today" : weekdayShort(date);
-    out.push({ label, value, title: `${label} · ${value} m` });
   }
   return out;
 }

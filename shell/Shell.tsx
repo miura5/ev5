@@ -37,13 +37,13 @@ export interface Pin {
   id: string;
   title: string;
   type: GlyphType;
+  when?: string; // the day of a pinned collection's next linked date
 }
 
 export interface ShellProps {
   path: string;
   onNavigate: (path: string) => void;
   areas?: readonly AreaEntry[];
-  /** Matt's pins, in his order; anything he chose to keep in the sidebar. */
   pins?: readonly Pin[];
   onOpenPin?: (id: string) => void;
   /** Items in Recently deleted; the entry shows it as its one value. */
@@ -247,6 +247,7 @@ export function Shell({
             key={p.id}
             label={p.title}
             icon={<Glyph type={p.type} />}
+            count={p.when}
             onOpen={() => onOpenPin?.(p.id)}
           />
         ))}
