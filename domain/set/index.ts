@@ -38,25 +38,6 @@ export function setShortfall(set: StudySet): string {
     : "";
 }
 
-/**
- * Editing a set never changes it: the edit is a new own set written by the page with the edited items, and the
- * original and its answers stay as they were. The caller picks the new id and hides the original.
- */
-export function editSet(
-  original: StudySet,
-  items: SetItem[],
-  now: string,
-): StudySet {
-  return {
-    ...original,
-    writer: "page",
-    at: now,
-    source: "v5 edit",
-    items,
-    createdAt: now,
-  };
-}
-
 /** A set's id on the sets table: ids made before the table carry no `set_` prefix and gain it (idempotent). */
 export function setKey(id: string): string {
   return id.startsWith("set_") ? id : `set_${id}`;
