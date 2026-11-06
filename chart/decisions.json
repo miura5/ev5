@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-519",
+  "date": "Nov 6",
+  "title": "Seven repo hygiene fixes filed as notes: pinned actions, job-level write tokens, CodeQL, React hooks lint and a Worker size ceiling (B-1036); crash handling in the shell (B-979) and server (B-1001); a deploy health check that fails on an error (B-823)",
+  "why": "From the ev-studio comparison of the repo with tldraw and Excalidraw; the build manager checked each on main. Each closes a gap that mature open-source repos guard: supply chain (tags can move), token scope, static analysis, hook bugs, an unseen Worker size limit, one screen's crash blanking the app, a server error with no log, and a live deploy that reports success on a 503. Second way considered: new tasks; rejected by the task freeze (D-497). Drift risk: new workflows using tags or workflow-level write; the B-1036 checks refuse them once built.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-studio repo hygiene comparison, ev-build channel 2026-11-06"
+ },
+ {
   "id": "D-518",
   "date": "Nov 6",
   "title": "A build run that finds the run lock busy waits up to about 15 minutes for it, trying every 60 seconds, before it ends",
