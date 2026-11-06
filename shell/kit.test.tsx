@@ -1,10 +1,21 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { expect, test } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { afterEach, expect, test } from "vitest";
+
+afterEach(cleanup);
 import { App } from "./App.tsx";
 import { forgetToken, saveToken } from "../commands/client.ts";
 
+const go = (to: string) => window.history.replaceState(null, "", to);
+
 test("/kit renders the tokens gallery and the theme toggle flips data-theme", () => {
-  render(<App path="/kit" />);
+  go("/kit");
+  render(<App />);
   for (const name of [
     "Colour",
     "Text",
@@ -23,14 +34,16 @@ test("/kit renders the tokens gallery and the theme toggle flips data-theme", ()
 
 test("with no token the app shows the token screen, not the shell", () => {
   forgetToken();
-  render(<App path="/today" />);
+  go("/today");
+  render(<App />);
   expect(screen.queryByRole("navigation", { name: "Primary" })).toBeNull();
   expect(document.querySelector("[data-ui='token-screen']")).toBeTruthy();
 });
 
 test("other paths open the shell on Today once a token is saved", async () => {
   saveToken("t");
-  const { unmount } = render(<App path="/" />);
+  go("/");
+  const { unmount } = render(<App />);
   expect(screen.getByRole("navigation", { name: "Primary" })).toBeTruthy();
   await act(async () => {
     await Promise.resolve();

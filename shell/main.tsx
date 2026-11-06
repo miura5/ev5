@@ -3,7 +3,7 @@ import { App } from "./App.tsx";
 import { registerPwa } from "./pwa.ts";
 
 createRoot(document.getElementById("root")!).render(
-  <App path={window.location.pathname} />,
+  <App />,
 );
 
 if (import.meta.env.PROD) registerPwa();

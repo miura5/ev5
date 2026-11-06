@@ -23,6 +23,7 @@ The table names each main part, its packages and why we use it. A check compares
 | Screens | `react`, `react-dom` | The app's views. |
 | Menus and dialogs | `@radix-ui/react-*` | Unstyled parts that handle keys and focus. The kit gives them E.V.'s look. |
 | Command palette | `cmdk` | The ⌘K palette. |
+| Routing | `wouter` | Back, Forward and reload keep the screen and its open item. |
 | Notes editor | `prosemirror-*` | Rich notes that save as plain blocks. |
 | Build | `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` | Fast builds, and the app works offline as an installed app. |
 | Language | `typescript` | Types across server, jobs and screens. |

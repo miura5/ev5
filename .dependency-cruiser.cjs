@@ -34,6 +34,13 @@ module.exports = {
         pathNot: ["^$1/", "^[^/]+/index\\.ts$", "^commands/client\\.ts$", "^areas/registry\\.generated\\.ts$", "^areas/[^/]+/(area\\.ts|[^/]+\\.view\\.tsx)$", "^jobs/[^/]+/[a-z-]*prompt\\.md$"],
       },
     },
+    {
+      name: "wouter-only-in-shell",
+      comment: "routing is the shell's: wouter is imported only in shell/",
+      severity: "error",
+      from: { pathNot: "^shell/" },
+      to: { path: "node_modules/wouter/" },
+    },
     only("areas", ["^kit/", "^domain/", "^commands/client\\.ts$"]),
     only("shell", ["^kit/", "^domain/", "^commands/client\\.ts$", "^areas/"]),
     only("commands", ["^domain/", "^data/", "^jobs/"]),
