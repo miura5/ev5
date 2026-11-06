@@ -37,8 +37,8 @@ export const practiceCommands = [
   defineCommand({ name: 'set.unverified_drop', title: 'Drop an unverified item', input: setItem, callers: M, effect: 'instant' }),
   defineCommand({ name: 'set.save', title: 'Save the set', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'study.start', title: 'Start studying', input: ref, callers: M, effect: 'instant' }),
-  defineCommand({ name: 'study.attempt', title: 'Answer a question', input: z.object({ id, answer: z.string() }), callers: M, effect: 'instant' }),
+  defineCommand({ name: 'study.attempt', title: 'Answer a question', input: z.object({ id, answer: z.string(), attempt: z.string().startsWith('att_').optional() }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'study.reveal', title: 'Show the answer', input: ref, callers: M, effect: 'instant' }),
-  defineCommand({ name: 'study.just_tell_me', title: 'Just tell me', input: ref, callers: M, effect: 'instant' }),
+  defineCommand({ name: 'study.just_tell_me', title: 'Just tell me', input: z.object({ id, attempt: z.string().startsWith('att_').optional() }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'study.leave', title: 'Leave studying', input: ref, callers: M, effect: 'instant' }),
 ] as const;

@@ -1,6 +1,6 @@
 // Studying (CONTRACT §cmd.registry, PLAN §6.1 rule 10): the answer comes after the attempt, and "just tell me" is always
 // there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
-// set's attempt is an append-only `own_attempts` row; an ev4 set's is a new `answers` document (its set is never touched).
+// set's attempt is one append-only `attempts` row (data/tables/attempts.ts); an ev4 set's is a new `answers` document (its set is never touched).
 // Choice items are graded here; numeric items against their tolerance; a typed open answer is graded by the model
 // (jobs/grade, CONTRACT §model.output, §model.ceilings) and its score is kept with the answer.
 import { GRADE_MAX_ANSWER_CHARS } from "../jobs/index.ts";
@@ -57,10 +57,13 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
 
 /** How many attempts the item has: an own set's rows, or the ev4 `answers` documents of the set that name it. */
 async function attempts(x: HandlerCtx, f: Found): Promise<number> {
-  if (f.own)
-    return (await repo(x).ownAttempts.list(f.set)).filter(
-      (a) => a.itemId === f.item.id,
-    ).length;
+  if (f.own) {
+    const r = await x.db
+      .prepare("SELECT COUNT(*) AS n FROM attempts WHERE item_id = ?")
+      .bind(f.item.id)
+      .first<{ n: number }>();
+    return r?.n ?? 0;
+  }
   const { results } = await x.db
     .prepare("SELECT data FROM docs WHERE c = 'answers' AND id LIKE ?")
     .bind(`${f.set.replace(/[%_]/g, "")}-%`)
@@ -103,24 +106,45 @@ async function record(
   x: HandlerCtx,
   f: Found,
   how: "told" | { text: string; g: ReturnType<typeof grade> },
+  attemptId?: string,
 ) {
   const now = x.clock();
   if (f.own) {
-    const n = (await repo(x).ownAttempts.list(f.set)).filter(
-      (a) => a.itemId === f.item.id,
-    ).length;
-    const body =
-      how === "told"
-        ? { text: "told" }
-        : { ...how.g, ...(how.text ? { text: how.text } : {}) };
-    const r = await repo(x).ownAttempts.append({
-      setId: f.set,
-      itemId: f.item.id,
-      key: `a${n + 1}`,
-      body,
+    // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).
+    const id = attemptId ?? `att_${x.newId().replace(/-/g, "")}`;
+    const text = how === "told" ? "" : how.text;
+    const g = how === "told" ? {} : how.g;
+    const typed = itemType(f.item) === "open";
+    const r = await repo(x).attempts.record({
+      id,
+      item_id: f.item.id,
+      set_id: f.set,
+      session_id: null,
+      source: "run",
+      how:
+        how === "told"
+          ? "told"
+          : typed
+            ? "typed"
+            : g.chosen
+              ? "chose"
+              : "typed",
+      answer:
+        how === "told"
+          ? null
+          : {
+              ...(g.chosen ? { chosen: g.chosen } : {}),
+              ...(g.value === undefined ? {} : { value: g.value }),
+              ...(text ? { text } : {}),
+            },
+      score:
+        how === "told"
+          ? null
+          : (g.score ?? (g.correct === undefined ? null : g.correct ? 1 : 0)),
+      answered_at: now,
     });
     if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
-    return `a${n + 1}`;
+    return id;
   }
   const key = eventKey(now, rand(x));
   const at = iso(now).slice(0, 19) + "Z";
@@ -133,7 +157,9 @@ async function record(
           at,
           // An ev4 answer document keeps 600 characters of text; when the answer is longer it says so, with its length.
           ...(how.text ? { text: how.text.slice(0, ANSWER_TEXT_MAX) } : {}),
-          ...(how.text.length > ANSWER_TEXT_MAX ? { textCut: true, textLength: how.text.length } : {}),
+          ...(how.text.length > ANSWER_TEXT_MAX
+            ? { textCut: true, textLength: how.text.length }
+            : {}),
         };
   await put(
     x,
@@ -182,7 +208,11 @@ export const studyHandlers: Record<string, CommandHandler> = {
     return { client: true, set: i.id, items: ids.length };
   },
 
-  "study.attempt": async (i: { id: string; answer: string }, _c, x) => {
+  "study.attempt": async (
+    i: { id: string; answer: string; attempt?: string },
+    _c,
+    x,
+  ) => {
     const f = await find(x, i.id);
     const open = itemType(f.item) === "open";
     if (open && !i.answer.trim())
@@ -204,7 +234,12 @@ export const studyHandlers: Record<string, CommandHandler> = {
       g = { score: r.score, correct: r.score >= PASS };
       note = r.note;
     }
-    const key = await record(x, f, { text: open ? i.answer : "", g });
+    const key = await record(
+      x,
+      f,
+      { text: open ? i.answer : "", g },
+      i.attempt,
+    );
     // Only whether it was right comes back: the answer waits for study.reveal (the attempt comes first).
     return {
       id: i.id,
@@ -223,9 +258,9 @@ export const studyHandlers: Record<string, CommandHandler> = {
   },
 
   // Always available and always logged as its own attempt (outcome "told").
-  "study.just_tell_me": async (i: { id: string }, _c, x) => {
+  "study.just_tell_me": async (i: { id: string; attempt?: string }, _c, x) => {
     const f = await find(x, i.id);
-    const key = await record(x, f, "told");
+    const key = await record(x, f, "told", i.attempt);
     return { id: i.id, key, told: true, reveal: reveal(f.item) };
   },
 
