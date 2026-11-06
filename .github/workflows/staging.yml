@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      rebuild:
+        description: "Delete the ev5-staging D1 first: the migration chain then applies to an empty database and the seed refills it"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,6 +32,9 @@ jobs:
           node-version: 26
       - run: npm ci
       - run: npm run build
+      - name: Rebuild - delete the staging D1 (only ev5-staging, only on demand)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild }}
+        run: npx --yes $WRANGLER d1 delete ev5-staging -y
       - name: Create D1 if missing
         run: |
           npx --yes $WRANGLER d1 create "$NAME" || true
@@ -34,11 +42,10 @@ jobs:
           echo "DBID=$(node -p "JSON.parse(require('fs').readFileSync('d1.json','utf8')).uuid")" >> "$GITHUB_ENV"
       - name: Create the pictures bucket if missing
         run: npx --yes $WRANGLER r2 bucket create "$NAME-images" || npx --yes $WRANGLER r2 bucket info "$NAME-images"
-      - name: Schema and synthetic seed
+      - name: Schema
         run: |
           node -e "const f='wrangler.jsonc',s=require('fs').readFileSync(f,'utf8');require('fs').writeFileSync(f,s.replace('00000000-0000-0000-0000-000000000000',process.env.DBID))"
           npx --yes $WRANGLER d1 migrations apply "$NAME" --remote
-          npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --file data/staging/seed.sql
       - name: Verify every migration table exists
         run: |
           npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --json \
@@ -63,3 +70,9 @@ jobs:
           U=$(cat url.txt); sleep 10
           echo "== $U/api/health"; curl -sS -i "$U/api/health"; echo
           echo "== $U/ (the built app)"; curl -sS -i "$U/" | head -20
+      - name: Synthetic seed through the gate
+        # Commands on the deployed Worker write the rows (§data.gate, §sec.staging-data), only into an empty record.
+        # The app token reaches the script through the environment only (CONTRACT §hard.no-secrets-in-files).
+        env:
+          SEED_TOKEN: ${{ secrets.TOKEN_APP_STAGING }}
+        run: SEED_URL=$(cat url.txt) node data/staging/seed.ts
