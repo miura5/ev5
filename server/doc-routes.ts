@@ -11,6 +11,7 @@ import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { goalDocs } from "./goal-wire.ts";
+import { noteDocById, noteDocs, saveNote } from "./note-wire.ts";
 import { saveSession, sessionDocs } from "./session-wire.ts";
 import { createWeakSpot, weakSpotDocs } from "./weak-wire.ts";
 
@@ -24,6 +25,7 @@ type Ctx = {
 };
 export const docRoutes = new Hono<Ctx>();
 const SESSIONS = "sessions";
+const NOTES = "notes";
 
 const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
 const shape = (d: {
@@ -62,9 +64,18 @@ docRoutes.get("/docs", async (c) => {
     const sessions = (await sessionDocs(c.env.DB, () => Date.now()))
       .filter((s) => s.at > n)
       .map((s) => shape({ c: SESSIONS, ...s }));
+    // Notes are rows too (§data.tables): the older documents are left behind in docs and never sent.
+    const notes = (await noteDocs(c.env.DB, () => Date.now()))
+      .filter((m) => m.at > n)
+      .map((m) => shape({ c: NOTES, ...m }));
     return c.json({
       now: out.now,
-      docs: [...out.docs.map(shape), ...goals, ...sessions],
+      docs: [
+        ...out.docs.filter((d) => d.c !== NOTES).map(shape),
+        ...goals,
+        ...sessions,
+        ...notes,
+      ],
     });
   }
   if (!collection) return c.json({ error: "collection is required" }, 400);
@@ -85,6 +96,19 @@ docRoutes.get("/docs", async (c) => {
     if (id === undefined) return c.json({ docs: all });
     const one = all.find((s) => s.id === id);
     return one ? c.json(one) : c.json({ error: "not found" }, 404);
+  }
+  // Notes are rows (§data.tables); the editor still reads the note document.
+  if (collection === NOTES) {
+    if (id === undefined)
+      return c.json({
+        docs: (await noteDocs(c.env.DB, () => Date.now())).map((m) =>
+          shape({ c: collection, ...m }),
+        ),
+      });
+    const one = await noteDocById(c.env.DB, () => Date.now(), id);
+    return one
+      ? c.json(shape({ c: collection, ...one }))
+      : c.json({ error: "not found" }, 404);
   }
   // Goals are rows (§data.tables); until the backfill, the exams list is the old documents and the goals.
   if (collection === "exams") {
@@ -134,6 +158,18 @@ docRoutes.put("/docs", async (c) => {
     if (done.ok) return c.json({ at: done.at, version: done.version });
     return c.json({ error: done.error }, done.status);
   }
+  if (collection === NOTES) {
+    // A note is a row, never a document (§data.tables); a stale save is a 409 and the screen keeps both (§data.notes).
+    const done = await saveNote(
+      c.env.DB,
+      () => Date.now(),
+      id,
+      text,
+      iv === undefined ? null : Number(iv),
+    );
+    if (done.ok) return c.json({ at: done.at, version: done.version });
+    return c.json({ error: done.error }, done.status);
+  }
   const res = await repo(c.env.DB).save(
     collection,
     id,
@@ -163,11 +199,11 @@ docRoutes.post("/docs/batch", async (c) => {
     Array.isArray(writes) &&
     writes.some((w) => {
       const k = (w as { collection?: unknown })?.collection;
-      return k === "weakspots" || k === "sessions";
+      return k === "weakspots" || k === SESSIONS || k === NOTES;
     })
   )
     return c.json(
-      { error: "weak spots and sessions are written one at a time" },
+      { error: "weak spots, sessions and notes are written one at a time" },
       400,
     );
   const res = await repo(c.env.DB).batch(writes);

@@ -24,17 +24,6 @@ export function eventKey(ms: number, rand: string, prefix = "page"): string {
 export const rand = (x: Pick<HandlerCtx, "newId">) =>
   x.newId().replace(/-/g, "").slice(0, 6);
 
-export async function need(
-  x: HandlerCtx,
-  c: string,
-  id: string,
-): Promise<{ data: Doc; v: number }> {
-  const doc = await docsRepo(x.db, { clock: x.clock }).get(c, id);
-  if (!doc || typeof doc.data !== "object" || doc.data === null)
-    throw new CommandError(404, `no ${c} entry ${id}`);
-  return { data: doc.data as Doc, v: doc.v };
-}
-
 /** Saves `doc` at `v` (null: a new document); a refusal by the protocol or a stale version is a 409/400. */
 export async function put(
   x: HandlerCtx,

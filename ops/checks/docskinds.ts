@@ -12,7 +12,6 @@ export const ALLOWED = new Set<string>([
   'dates',
   'dayedits',
   'exams',
-  'notes',
   'planedits',
   'plans',
   'talk',
