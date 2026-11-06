@@ -8,7 +8,7 @@ import type { WeakSpotEventRow } from "../domain/index.ts";
 import { linkKey } from "./ids.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { talkLine } from "./handlers-edit.ts";
+import { logAttempt, talkLine } from "./handlers-edit.ts";
 
 const tables = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
@@ -104,8 +104,18 @@ export const weakHandlers: Record<string, CommandHandler> = {
     return { id: i.id, goal: i.goal };
   },
   // The reply Matt asked to be told is logged; the answer itself is on the Ask screen.
-  "ask.just_tell_me": async (i: { id: string }, _c, x) => {
-    await talkLine(x, { text: "Just tell me", replyTo: i.id });
-    return { id: i.id, told: true };
+  "ask.just_tell_me": async (i: { id: string; attempt?: string }, _c, x) => {
+    const line = await talkLine(x, { text: "Just tell me", replyTo: i.id });
+    // One log-only attempts row: an ask turn is not a set item, so the turn asked about stands in for it.
+    const attempt = await logAttempt(x, {
+      id: i.attempt,
+      item_id: i.id,
+      set_id: "ask",
+      session_id: null,
+      source: "ask",
+      how: "told",
+      answer: { line },
+    });
+    return { id: i.id, told: true, attempt };
   },
 };

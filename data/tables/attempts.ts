@@ -25,6 +25,13 @@ export function attemptsRepo(db: D1Like, opts: TablesOptions) {
           );
         return k.attempts.add({ ...a, item_v: item.v });
       },
+      /**
+       * Appends one attempts row for a turn that is not a set item (a note check-in line, an Ask E.V. "just tell me"). It names
+       * the turn in `item_id` and its home in `set_id`, with `item_v` 1, and is never graded, so no reader counts it toward
+       * accuracy. Still one row through the gate; a repeated id is a conflict (§data.append-only, §data.gate).
+       */
+      recordLogOnly: (a: Omit<AttemptInput, "score"> & { score?: null }) =>
+        k.attempts.add({ ...a, score: null, item_v: 1 }),
     },
   };
 }

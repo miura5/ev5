@@ -15,7 +15,7 @@ import { tablesRepo } from "../data/index.ts";
 import type { StoredSession } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { eventKey, iso, rand, talkLine } from "./handlers-edit.ts";
+import { eventKey, iso, logAttempt, rand, talkLine } from "./handlers-edit.ts";
 
 const book = (x: HandlerCtx) =>
   tablesRepo(x.db, { clock: x.clock }).sessionBook;
@@ -113,7 +113,11 @@ export const sessionHandlers: Record<string, CommandHandler> = {
   },
 
   // The answer is the user's line, one talk row of the session; the session records that check n was answered.
-  "check.answer": async (i: { id: string; answer: string }, _c, x) => {
+  "check.answer": async (
+    i: { id: string; answer: string; attempt?: string },
+    _c,
+    x,
+  ) => {
     const cur = await open(x, i.id);
     const n = Math.max(1, sessionState(view(cur), x.clock()).checks);
     const msg = await talkLine(x, {
@@ -121,7 +125,17 @@ export const sessionHandlers: Record<string, CommandHandler> = {
       sessionId: cur.row.id,
     });
     await addEvent(x, cur, { type: "answer", n, msgId: msg });
-    return { id: i.id, n };
+    // One log-only attempts row: a check question is not a set item, so the talk line stands in for it and no score is kept.
+    const attempt = await logAttempt(x, {
+      id: i.attempt,
+      item_id: msg,
+      set_id: cur.row.id,
+      session_id: cur.row.id,
+      source: "note",
+      how: "typed",
+      answer: { text: i.answer.slice(0, 4000) },
+    });
+    return { id: i.id, n, attempt };
   },
 
   // Logged as one answer event with no check number: nothing is marked answered by it.

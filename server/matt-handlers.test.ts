@@ -212,3 +212,43 @@ test("ask just tell me is logged as an appended talk row in the chat", async () 
     0,
   );
 });
+
+test("a check answer and an Ask just-tell-me each write one log-only attempts row (§data.append-only, §data.gate)", async () => {
+  const { call, DB } = await setup();
+  const rows = async () =>
+    (
+      await DB.prepare(
+        "SELECT id, item_id, item_v, set_id, session_id, source, how, score, v FROM attempts ORDER BY id",
+      ).all<Record<string, unknown>>()
+    ).results;
+  const a = (await call("session.start", {})).body.result.id as string;
+  const r = await call("check.answer", {
+    id: a,
+    answer: "Na is 135-145",
+    attempt: "att_check1",
+  });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.result.attempt, "att_check1");
+  // a retry under the same id is refused, the row is not doubled
+  const again = await call("check.answer", {
+    id: a,
+    answer: "Na is 135-145",
+    attempt: "att_check1",
+  });
+  assert.equal(again.status, 409);
+  const t = await call("ask.just_tell_me", { id: "talk_x" });
+  assert.equal(t.status, 200);
+  const all = await rows();
+  assert.equal(all.filter((x) => x.source === "note").length, 1);
+  const note = all.find((x) => x.source === "note")!;
+  assert.deepEqual(
+    [note.how, note.score, note.item_v, note.v, note.session_id],
+    ["typed", null, 1, 1, `ses_${a}`],
+  );
+  const ask = all.find((x) => x.source === "ask")!;
+  assert.deepEqual(
+    [ask.how, ask.score, ask.set_id, ask.item_id],
+    ["told", null, "ask", "talk_x"],
+  );
+  assert.equal(all.length, 2);
+});
