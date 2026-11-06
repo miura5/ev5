@@ -39,7 +39,7 @@ export async function startJob<I>(env: Env, def: JobDef<I>, rawInput: unknown, b
   const ex = env.executors[def.executor];
   if (!ex) throw new Error(`no ${def.executor} executor for ${def.kind}`);
   const rec = newJob({
-    id: env.newId(),
+    id: `job_${env.newId()}`,
     kind: def.kind,
     title: def.title,
     at: env.now(),

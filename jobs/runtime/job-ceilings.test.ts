@@ -133,7 +133,7 @@ test("a model call that throws on every attempt leaves no hold open", async () =
       ),
       /network down/,
     );
-    assert.equal(await store.findOpen("j1:hold:"), undefined);
+    assert.equal(await store.findOpen("hold_j1:"), undefined);
   }
   for (const [w, k] of [
     ["hour", "2026-11-04T10"],
@@ -175,7 +175,7 @@ test("a repair call that throws still bills the first call", async () => {
     /boom/,
   );
   assert.ok((await store.used("job", "j1")) > 0, "first call's cost is kept");
-  assert.equal(await store.findOpen("j1:hold:"), undefined);
+  assert.equal(await store.findOpen("hold_j1:"), undefined);
 });
 
 test("a settled hold is closed, found again after a restart, and a repeated key counts once", async () => {
@@ -187,7 +187,7 @@ test("a settled hold is closed, found again after a restart, and a repeated key 
   await b.record("i:s:1", "j1", 4);
   await b.record("i:s:1", "j1", 4);
   assert.equal(await store.used("job", "j1"), 40_000);
-  assert.equal(await store.findOpen("j1:hold:"), undefined);
-  await release(store, "j1:hold:h"); // a late release of a settled hold changes nothing
+  assert.equal(await store.findOpen("hold_j1:"), undefined);
+  await release(store, "hold_j1:h"); // a late release of a settled hold changes nothing
   assert.equal(await store.used("job", "j1"), 40_000);
 });

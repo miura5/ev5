@@ -244,12 +244,13 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
           ...a.drafts.map((d, n) =>
             db
               .prepare(
-                "INSERT OR IGNORE INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
+                "INSERT OR IGNORE INTO drafts (id, job_id, kind, target_c, target_kind, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
               )
               .bind(
                 draftIds[n]!,
                 d.jobId,
                 d.kind,
+                d.targetC,
                 d.targetC,
                 d.targetId,
                 drafts[n]!,

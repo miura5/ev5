@@ -69,8 +69,8 @@ export function jobCeilings(
   newId: () => string,
   onAlert?: (line: string, at: Date) => Promise<void>,
 ): Ceilings {
-  // Holds live in the store (a job's holds start with its id), so a restarted Worker still finds them.
-  const prefix = (jobId: string) => `${jobId}:hold:`;
+  // Holds live in the store (a job's holds start with hold_ and its id), so a restarted Worker still finds them.
+  const prefix = (jobId: string) => `hold_${jobId}:`;
   return {
     async reserve(jobId, maxCents) {
       const stale = await store.findOpen(prefix(jobId));
