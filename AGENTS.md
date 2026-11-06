@@ -193,6 +193,8 @@ Questions are batched. Never more than one message per run, and none while Matt 
 ## Staging    <version · commit · what to try>   ## Live  <ev4 build | v5 version>
 ```
 
+The check caps this file at 4,096 bytes (`ops/checks/handover.ts`). Keep it under about 3,500, and run `npm run checks` before you open the handover PR.
+
 **Next keeps an agreed order.** When Matt (or the supervisor for him) agrees an order for the build, the Next line says so, with the date. When you rewrite Next, read it from the latest main, not from the start of the run, because the supervisor can change it while you work. Keep the agreed groups and their order: drop the tasks that are done and put new tasks in the group they belong to. Only Matt or the supervisor changes the order.
 
 ## 8. The release card (what Matt reads)
