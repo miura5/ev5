@@ -1,4 +1,5 @@
 import type { D1Like } from "../jobs/index.ts";
+import { readJobPlans } from "./job-plans.ts";
 
 /** The exam each live study plan was made for, from the context saved at its gather step. */
 export async function examsOfPlans(
@@ -6,20 +7,10 @@ export async function examsOfPlans(
   ids: string[],
 ): Promise<Map<string, string>> {
   const exam = new Map<string, string>();
-  if (!ids.length) return exam;
-  const { results } = await db
-    .prepare(
-      `SELECT job_id, body FROM job_plans WHERE kind = 'context' AND job_id IN (${ids.map(() => "?").join(",")})`,
-    )
-    .bind(...ids)
-    .all<{ job_id: string; body: string }>();
-  for (const r of results)
-    try {
-      const id = (JSON.parse(r.body) as { exam?: { id?: unknown } }).exam?.id;
-      if (typeof id === "string") exam.set(r.job_id, id);
-    } catch {
-      // a context that does not read is left without an exam
-    }
+  for (const [jobId, body] of await readJobPlans(db, "context", ids)) {
+    const id = (body as { exam?: { id?: unknown } } | null)?.exam?.id;
+    if (typeof id === "string") exam.set(jobId, id);
+  }
   return exam;
 }
 
@@ -32,30 +23,20 @@ export async function draftTasksOfPlans(
     string,
     { date: string; title: string; minutes: number }[]
   >();
-  if (!ids.length) return out;
-  const { results } = await db
-    .prepare(
-      `SELECT job_id, body FROM job_plans WHERE kind = 'draft' AND job_id IN (${ids.map(() => "?").join(",")})`,
-    )
-    .bind(...ids)
-    .all<{ job_id: string; body: string }>();
-  for (const r of results)
-    try {
-      const tasks = (JSON.parse(r.body) as { tasks?: unknown }).tasks;
-      if (!Array.isArray(tasks)) continue;
-      out.set(
-        r.job_id,
-        tasks.flatMap(
-          (t: { date?: unknown; title?: unknown; minutes?: unknown }) =>
-            typeof t?.date === "string" &&
-            typeof t.title === "string" &&
-            typeof t.minutes === "number"
-              ? [{ date: t.date, title: t.title, minutes: t.minutes }]
-              : [],
-        ),
-      );
-    } catch {
-      // a draft that does not read is left without sessions
-    }
+  for (const [jobId, body] of await readJobPlans(db, "draft", ids)) {
+    const tasks = (body as { tasks?: unknown } | null)?.tasks;
+    if (!Array.isArray(tasks)) continue;
+    out.set(
+      jobId,
+      tasks.flatMap(
+        (t: { date?: unknown; title?: unknown; minutes?: unknown }) =>
+          typeof t?.date === "string" &&
+          typeof t.title === "string" &&
+          typeof t.minutes === "number"
+            ? [{ date: t.date, title: t.title, minutes: t.minutes }]
+            : [],
+      ),
+    );
+  }
   return out;
 }

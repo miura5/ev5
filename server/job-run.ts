@@ -1,5 +1,7 @@
 // What a Workflow instance does (CONTRACT §job.steps): pick the job kind's definition and handlers, then runJob.
 // Kept apart from the WorkflowEntrypoint class so tests run it in Node with the fake Workflows and no Cloudflare runtime.
+import { parseClaudeSetting } from "../domain/index.ts";
+import { readJobPlan } from "./job-plans.ts";
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
@@ -68,9 +70,14 @@ const CEILING_KEYS = {
 };
 export async function loadCeilingConfig(db: D1Like): Promise<CeilingConfig> {
   const { results } = await db
-    .prepare("SELECT key, value FROM claude_settings")
-    .all<{ key: string; value: number }>();
-  const by = new Map(results.map((r) => [r.key, r.value]));
+    .prepare("SELECT key, value, at FROM claude_settings")
+    .all<unknown>();
+  const by = new Map(
+    results.map((r) => {
+      const s = parseClaudeSetting(r);
+      return [s.key, s.value] as const;
+    }),
+  );
   const n = (k: keyof CeilingConfig) =>
     by.get(CEILING_KEYS[k]) ?? DEFAULT_CEILINGS[k];
   return {
@@ -106,11 +113,7 @@ export function d1PracticeStore(
     return `${jobId}:${kind}`;
   };
   const get = async <T>(jobId: string, kind: string) => {
-    const r = await db
-      .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = ?")
-      .bind(jobId, kind)
-      .first<{ body: string }>();
-    return r ? (JSON.parse(r.body) as T) : undefined;
+    return (await readJobPlan(db, jobId, kind)) as T | undefined;
   };
   return {
     put: (j, r) => put(j, "result", r),

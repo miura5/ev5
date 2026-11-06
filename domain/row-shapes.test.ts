@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { parseDeletion } from './deletion/index.ts';
-import { parseJobPlanRow } from './job-plan/index.ts';
+import { parseJobPlanRow, parseStoredPlan, parseStoredPlanBody } from './job-plan/index.ts';
 import { parseJobRecord } from './job-record/index.ts';
 import { parseCeilingHold, parseCeilingUsage, parseCeilingUse } from './ceiling/index.ts';
 
@@ -11,6 +11,13 @@ test('a deletions row parses and refuses extras', () => {
   expect(parseDeletion({ c: 'notes', id: 'note-1', at: N }).id).toBe('note-1');
   expect(() => parseDeletion({ c: 'notes', id: '', at: N })).toThrow();
   expect(() => parseDeletion({ c: 'notes', id: 'a', at: N, v: 1 })).toThrow();
+});
+
+test('a stored job_plans row is parsed on read', () => {
+  expect(parseStoredPlan({ job_id: 'j', body: '{"a":1}' })).toEqual({ jobId: 'j', body: { a: 1 } });
+  expect(parseStoredPlanBody({ body: '[1]' })).toEqual([1]);
+  expect(() => parseStoredPlanBody({ body: 5 })).toThrow();
+  expect(() => parseStoredPlan({ body: '{}' })).toThrow();
 });
 
 test('a job_plans row keeps any body', () => {

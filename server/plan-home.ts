@@ -13,6 +13,7 @@ import {
   reviewNeed,
 } from "../domain/index.ts";
 import { docsRepo } from "../data/index.ts";
+import { readJobPlan } from "./job-plans.ts";
 import { weakSpotDocs } from "./weak-wire.ts";
 import { putPlanInForce } from "./handlers-dates.ts";
 import type { DocsD1 } from "../data/index.ts";
@@ -59,13 +60,9 @@ export async function lastDraftDay(
   db: D1Like,
   jobId: string,
 ): Promise<string | undefined> {
-  const row = await db
-    .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = 'draft'")
-    .bind(jobId)
-    .first<{ body: string }>();
-  if (!row) return undefined;
-  const tasks = (JSON.parse(row.body) as { tasks?: { date?: unknown }[] })
-    .tasks;
+  const body = await readJobPlan(db, jobId, "draft");
+  if (body === undefined) return undefined;
+  const tasks = (body as { tasks?: { date?: unknown }[] }).tasks;
   return lastDay(
     (tasks ?? []).flatMap((t) => (typeof t.date === "string" ? [t.date] : [])),
   );
@@ -104,14 +101,10 @@ export function planHome(
     },
 
     async apply(jobId, plan: Plan) {
-      const ctx = await db
-        .prepare(
-          "SELECT body FROM job_plans WHERE job_id = ? AND kind = 'context'",
-        )
-        .bind(jobId)
-        .first<{ body: string }>();
-      if (!ctx) throw new Error(`job ${jobId}: no plan context saved`);
-      const { exam } = JSON.parse(ctx.body) as {
+      const ctx = await readJobPlan(db, jobId, "context");
+      if (ctx === undefined)
+        throw new Error(`job ${jobId}: no plan context saved`);
+      const { exam } = ctx as {
         exam: { id: string; title: string };
       };
       const planId = `plan-${jobId}`;
