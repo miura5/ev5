@@ -53,7 +53,6 @@ export const weakSpotSchema = z
     events: z.record(z.string().regex(EVENT_KEY, 'bad event key'), weakSpotEventSchema),
     words: z.string().optional(),
     exam: z.string().nullable().optional(),
-    course: z.string().optional(),
     proposed: z.boolean().optional(),
     addedBy: z.string().optional(),
     preRead: z.boolean().optional(),

@@ -50,40 +50,25 @@ export async function weakSpotDocs(
   clock: () => number,
 ): Promise<WireSpot[]> {
   const t = tablesRepo(db, { clock });
-  const [spots, events, objectives, collections, exams, linked, direct] =
-    await Promise.all([
-      t.weakSpots.list(),
-      t.weakSpotEvents.list(),
-      t.objectives.list(),
-      t.collectionRows.list(),
-      goalDocs(db, clock),
-      goalsByObjective(db, clock),
-      goalsByWeakSpot(db, clock),
-    ]);
+  const [spots, events, exams, linked, direct] = await Promise.all([
+    t.weakSpots.list(),
+    t.weakSpotEvents.list(),
+    goalDocs(db, clock),
+    goalsByObjective(db, clock),
+    goalsByWeakSpot(db, clock),
+  ]);
   const goalOf = goalOfObjective(exams, new Map([...linked, ...direct]));
-  const objective = new Map(objectives.map((o) => [o.id, o]));
-  const course = new Map(collections.map((c) => [c.id, c]));
   return spots
     .filter((s) => s.duplicate_of === null)
     .map((s) => {
       const own = events.filter((e) => e.weak_spot_id === s.id);
-      const home = course.get(
-        s.collection_id ??
-          (s.objective_id
-            ? objective.get(s.objective_id)?.collection_id
-            : "") ??
-          "",
-      );
       const goal = goalOf([s.id, ...(s.objective_id ? [s.objective_id] : [])]);
       return {
         id: s.id,
         v: s.v,
         // An event is an appended row and does not touch the spot's row, so the spot changed when its newest event came.
         at: own.reduce((m, e) => Math.max(m, e.at), s.at),
-        data: weakSpotDoc(s, own, {
-          exam: goal?.id ?? null,
-          ...(home ? { course: home.title } : {}),
-        }),
+        data: weakSpotDoc(s, own, { exam: goal?.id ?? null }),
         goalDate: goal?.goal.date ?? null,
       };
     });
@@ -96,7 +81,7 @@ export type Created =
 /**
  * Creates a weak spot in its table (§data.tables, §data.gate), from the document the page or a run sends. The id is the row's
  * `ws_` id. It is a create only: a repeat id, or a named version, is a 409. A new spot carries no events and no starting counts;
- * its course comes from the document's `course` (the collection's id or title). Nothing is written to `docs`.
+ * it carries no course: its goal comes from a link row (§data.links). Nothing is written to `docs`.
  */
 export async function createWeakSpot(
   db: DocsD1,
@@ -112,17 +97,7 @@ export async function createWeakSpot(
   const t = tablesRepo(db, { clock });
   try {
     const doc = parseWeakSpot(JSON.parse(body));
-    const course = doc.course?.toLowerCase();
-    const home = course
-      ? (await t.collectionRows.list()).find(
-          (c) =>
-            c.id.toLowerCase() === course || c.title.toLowerCase() === course,
-        )
-      : undefined;
-    const saved = await t.weakSpots.save(
-      newWeakSpotRow(id, doc, home?.id ?? null),
-      null,
-    );
+    const saved = await t.weakSpots.save(newWeakSpotRow(id, doc, null), null);
     return saved.ok
       ? { ok: true, at: saved.row.at, version: saved.row.v }
       : { ok: false, status: 409, error: "that changed; try again" };

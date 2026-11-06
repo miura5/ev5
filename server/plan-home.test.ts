@@ -157,7 +157,7 @@ test("weak spots read as documents the screens parse: goal from the objective's 
     ["ws_w5", null],
   ]);
   const w1 = docs.find((d) => d.id === "ws_w1")!;
-  assert.equal(w1.data.course, "Biology");
+  assert.equal('course' in w1.data, false);
   assert.equal(
     deriveWeakSpot(parseWeakSpot(w1.data), []).status,
     "reviewed",
@@ -180,7 +180,6 @@ test("a weak spot is created in its table, once, with no events and no docs row"
     initial: {},
     events: {},
     proposed: true,
-    course: "Biology",
   };
   const made = await createWeakSpot(
     db as never,
@@ -192,7 +191,8 @@ test("a weak spot is created in its table, once, with no events and no docs row"
   assert.equal(made.ok, true);
   const spots = await weakSpotDocs(db as never, () => T);
   assert.equal(spots.length, 1);
-  assert.equal(spots[0]?.data.course, "Biology");
+  assert.equal('course' in (spots[0]?.data ?? {}), false);
+  assert.equal(spots[0]?.data.exam, null);
   assert.equal(spots[0]?.data.proposed, true);
   assert.equal(db.sql.prepare("SELECT COUNT(*) n FROM docs").get()?.n, 0);
   const again = await createWeakSpot(
