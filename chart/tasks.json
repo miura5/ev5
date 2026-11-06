@@ -2189,7 +2189,7 @@
   "depends": [
    "B-753"
   ],
-  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C13: the rule says the user's time zone; today domain/time has one zone constant (America/Chicago); a time zone setting is parked (docs/parked.md).",
+  "notes": "Run 60 #402: SCHEDULE (morning 05:00, evening 20:00, weekly_review Sun 05:00 Central, my defaults), dueNow with isDue and the 01:00-03:00 quiet window, once per Central date via job records, DST tests. No job kind attached (SCHEDULED_KINDS empty, due commands are returned as skipped:<name>). Left: Matt-facing decision on what morning, evening and weekly_review do and their job kinds (§job.kinds); export, restore_drill, push_summary other than export have no SCHEDULE entry. Matt's ev4 ask B-684 (folded here): the weekly review is structured, not a wall of text: what moved, still weak (nearest exam first), what to do next. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C13: the rule says the user's time zone; today domain/time has one zone constant (America/Chicago); a time zone setting is parked (docs/parked.md). Scope sweep #620: server/scheduled.ts comments say local time.",
   "commit": "645c043",
   "source": "AGENTS.md §4.3"
  },
@@ -3014,7 +3014,7 @@
    "B-731",
    "B-739"
   ],
-  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B4: no LIKE over docs; the source scope is built in B-1040.",
+  "notes": "Merged #257: server/excerpts.ts gathers notes excerpts, caller excerpts dropped. Left: B-844, B-845; excerpts come from notes only. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B4: no LIKE over docs; the source scope is built in B-1040. Scope sweep #616 and #619: a set scoped to a collection or one note gathers only from it (server/job-routes withGathered).",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -4271,10 +4271,10 @@
   "title": "A course is a collection the user names: the course table and virtual course collections go",
   "dod": "domain/course, the virtual course: collections and the course branch of the collection move are deleted; plan.update takes only a col_ id or none as its collection; no reader of canvasId is left; tests pin plan.update refusing a course: target (§what.framing). Slice: write domain/course, domain/collection, server/ (plan-options, handlers-plan), data/export",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B6: the old bar (make canvasId optional, keep data/compat passing) named removed shapes. Decision: D-500.",
-  "commit": null,
+  "notes": "Low priority: take after Gate 5 work, with the tidiness group of Next. Independent of the other any-subject tasks. 2026-11-05 ev4 sweep (#547) removed the nursing flag and course framing; the course table itself (and its canvasId) stays until course facts move onto the collection row (spillover audit T9). Decided 2026-11-06 (Matt, inbox decision on Courses): a course is just a collection the user names; Canvas-fed courses show as ordinary collections, read-only where Canvas owns them. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B6: the old bar (make canvasId optional, keep data/compat passing) named removed shapes. Decision: D-500. Done in the scope sweep, #620: domain/course deleted, no virtual course collections, plan.update takes a col_ id or none, a test pins a course: target refused.",
+  "commit": "4e360b9",
   "source": "Matt in ev-build, 2026-11-04: make E.V. fit any subject, not only nursing (\"File them\")"
  },
  {
@@ -4743,7 +4743,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept. Decided 2026-11-06 (Matt, inbox decision on Courses): drop Courses from the sidebar and course dots from Today; the mock-up is not changed to add them. A course shows as an ordinary collection. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C14, B22, A6: the old design/screens PNGs moved to docs/history/design-rounds/ (history, not a reference); Matt chose the general pinned-collection date rule (2026-11-06); a Details 'Course' property reads 'Collection'. Decisions: D-500, D-503.",
+  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept. Decided 2026-11-06 (Matt, inbox decision on Courses): drop Courses from the sidebar and course dots from Today; the mock-up is not changed to add them. A course shows as an ordinary collection. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C14, B22, A6: the old design/screens PNGs moved to docs/history/design-rounds/ (history, not a reference); Matt chose the general pinned-collection date rule (2026-11-06); a Details 'Course' property reads 'Collection'. Decisions: D-500, D-503. Scope sweep #618: the mock-up shows the next linked date on every pinned collection. #619 removed the Course line from date and weak-spot Details; a Collection line needs a read of the linked collection's title.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
@@ -5572,7 +5572,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B9: each plan points at a goal, not an exam id; day items that point at a plan task carry the plan id (from B-486).",
+  "notes": "Part 1 merged (#543, run 86): domain/plan rows, approvePlan, putAwayPlan, settle. Left: plans and plan_items tables + migration (unique on plan_id, repeat, day) + gated data repository (data/); then d1PlanStore approve/putAway in jobs/runtime switch from server/plan-home.ts home.apply to it. The job folder is jobs/study-plan, not jobs/plan. 2026-11-05: blocked by B-1035 (table design). Part 1 (#543) merged at 22:07Z despite the hold; it adds domain/plan only, with each plan tied to one exam id and no table or migration, so it is reworked to the goal shape after the design's decision. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15, B9: each plan points at a goal, not an exam id; day items that point at a plan task carry the plan id (from B-486). Scope sweep #619: plans point at a goal (context goal, input goalId). Still named study plan: folder jobs/study-plan, server/handlers-studyplan.ts, studyPlanJob, ExamPlanData, UpcomingDate, the prompt keys study_plan and study_plan_changes, comments in server/job-run.ts, jobs/runtime/d1-stores.ts, domain/plan; rename with this move.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5643,7 +5643,7 @@
    "B-955",
    "B-998"
   ],
-  "notes": "Scope audit 2026-11-06: B19: the seed holds docs rows with writer, source and course codes; reseed with neutral titles through the gate.",
+  "notes": "Scope audit 2026-11-06: B19: the seed holds docs rows with writer, source and course codes; reseed with neutral titles through the gate. Scope sweep #619: dates now carry a kind; existing staging dates of kind unit or midterm read as Other until reseeded.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5719,10 +5719,10 @@
   "title": "E.V.'s prompts say you or the user, never 'the student' or a name",
   "dod": "Ask E.V.'s system prompt (server/ask-chat.ts), the prep-plan prompts, the practice-set prompt and user message, the grading prompt and E.V.'s tool descriptions (commands/catalog.ts) name no person and never say 'the student': E.V.'s voice says 'you', and a description of the person says 'the user'; server/prompt-words.test.ts checks every one of them and refuses student(s), mock exam, exam-style and study plan; one real end-to-end Ask and prep-plan run on staging is green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C2, A1, B20: the earlier sweep wrote 'the student' into every prompt because this done bar asked for it; Matt chose 'you' (2026-11-06), which amends D-486's prompt clause. The scope sweep rewords the prompts and widens the guard. Decision: D-502.",
-  "commit": null,
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C2, A1, B20: the earlier sweep wrote 'the student' into every prompt because this done bar asked for it; Matt chose 'you' (2026-11-06), which amends D-486's prompt clause. The scope sweep rewords the prompts and widens the guard. Decision: D-502. Done in the scope sweep, #621 (prompts) with #619 (prep-plan prompts): server/prompt-words.test.ts reads every prompt E.V. sends and every tool description and refuses student, mock exam, exam-style, study plan and subject words.",
+  "commit": "aa23c85",
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
  {
@@ -5733,7 +5733,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498).",
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498). Scope sweep: comments and test titles say the user; the stored values matt (Caller, job by) and by Matt in dayedits (server/handlers-plan.ts, server/handlers-dates.ts) remain for this task and B9.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
@@ -5911,10 +5911,10 @@
   "title": "Clear rollback-era and wrong names from the plan and docs",
   "dod": "PLAN.md and docs/spikes/S-07-workflows.md use jobId-step-round (D-477), not jobId:step; CUTOVER step 6, CONTRACT §deliver.cutover and PLAN.md name ev5-staging, not ev-staging; the rollback-era and ev4-data lines in PLAN.md (§5.10, §12, Phase 3 included), prompts/START-BUILD.md, docs/proposals/ (fresh-database marked accepted and history; table-design edited to D-498), docs/spikes/S-08, ops/CUTOVER.md, ops/RESTORE.md and design/ are marked ended or removed (D-484, D-498)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011. 2026-11-05 ev4 sweep (#550) did part of this: CONTRACT §drift.checks drops compat, docs/guards.md compat rows gone, PLAN compat lines marked ended (D-484). The rest of the list stands. Scope audit 2026-11-06: C7, C9, C10, C12, A15 to A17, B21: slice widened to prompts/START-BUILD.md, docs/proposals/, docs/spikes/, ops/*.md and the design rollback lines.",
-  "commit": null,
+  "notes": "Claims review Wrong 3 and 5 and its rollback-era list (file:line in /mnt/project-files/audits/2026-11-05-claims/report.md, mirrored here): PLAN.md:229 jobId:step; PLAN.md:53, :102-104, :123-160, :343, :351, :360-448, :476-483, :497-520; CONTRACT.md:133; docs/guards.md:23,:27; docs/spikes/S-07-workflows.md:22,:24. AGENTS.md:36 ('go back'), :114 (S-53) and :169 (scratch-copy OK) are repo instructions: change them only with Matt's yes. data/scratch-check/ goes with B-1011. 2026-11-05 ev4 sweep (#550) did part of this: CONTRACT §drift.checks drops compat, docs/guards.md compat rows gone, PLAN compat lines marked ended (D-484). The rest of the list stands. Scope audit 2026-11-06: C7, C9, C10, C12, A15 to A17, B21: slice widened to prompts/START-BUILD.md, docs/proposals/, docs/spikes/, ops/*.md and the design rollback lines. Scope sweep done: #615 (PLAN, CONTRACT ev5-staging) and #617 (proposals, spikes, CUTOVER, RESTORE, time-travel drill, START-BUILD); #618 moved design/screens to history.",
+  "commit": "11f9dab",
   "source": "ops claims review 2026-11-05"
  },
  {
@@ -5952,7 +5952,7 @@
    "B-1004",
    "B-1035"
   ],
-  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B10: plan_items origin 'matt' becomes 'user' before the first writer. A9: Matt dropped the 'graded work' plan kind (2026-11-06). B9: planedits, dayedits, item_props and the camelCase plan rows go when plans are written through the gate. Decision: D-503.",
+  "notes": "2026-11-05: blocked by B-1035: the plans and plan_items tables are part of the table design and its one migration (B-998), so this is rechecked against the design before it starts. D-498: the table design is accepted with changes; build to that decision (its changes win over the doc). Scope audit 2026-11-06: B10: plan_items origin 'matt' becomes 'user' before the first writer. A9: Matt dropped the 'graded work' plan kind (2026-11-06). B9: planedits, dayedits, item_props and the camelCase plan rows go when plans are written through the gate. Decision: D-503. Scope sweep #620 (B10): plan_items origin is user, morning or plan.",
   "commit": null,
   "source": "B-1004 report"
  },
@@ -5993,7 +5993,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build. Scope audit 2026-11-06: A11: about 45 code comments give ev4 as a reason (check 6 refuses them). B16: delete domain/item/upgrade.ts once staging is reseeded (B-1009). B17: test-only exam and ev4 exports go with check 4. A10: extend check 1 to test fixtures so course codes don't return.",
+  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build. Scope audit 2026-11-06: A11: about 45 code comments give ev4 as a reason (check 6 refuses them). B16: delete domain/item/upgrade.ts once staging is reseeded (B-1009). B17: test-only exam and ev4 exports go with check 4. A10: extend check 1 to test fixtures so course codes don't return. Scope sweep: A11 (about 45 ev4 comments) is still open, and 'Matt' still appears in comments of about 78 code files.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6021,7 +6021,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#606): Library tab is Dates, domain/goal has DATE_KINDS/toolsForKind/kindOffers (only exam). Left: nothing consults the registry yet (plan UI and study-plan job still name exams); exams docs into goals; drop dateedits/examedits and examDocs merge; old tab id exams in localStorage falls back to Practice once. The Dates decision (inbox P-1) is still unfiled: the supervisor's PR #607 edits that inbox file, so it is filed after #607 merges. Wording (Matt 2026-11-06, same decision): user-facing \"study plan\" becomes \"prep plan\" (labels, buttons, toasts, E.V.'s messages, mock-up); code names follow only where B-1038 touches them, no rename sweep. \"Study\" stays only as a verb (\"Study this set\"); names of things carry no \"study\" (Dates, Plan, Prep plan, Sets, Notes). Prep plans for other kinds: after the freeze (docs/parked.md). Scope audit 2026-11-06: B1, B2, B3, A2, A3, A5, A6, A7, A9, section 0 (e2e journeys click Dates). Build manager decision 2026-11-06: stored and wire names are renamed now, before cutover (study_plan to prep_plan, studyplan.* to plan.*, examId to goalId), which replaces the 'no rename sweep' clause. Matt chose a Kind picker on each date (Exam or Other), with the prep plan only on exams for now. B3 (goals served in their own shape, domain/exam deleted) and B8 (exam-keyed objective schema deleted) stay here. Decisions: D-499 (Dates), D-503, D-504.",
+  "notes": "Run 97 (#606): Library tab is Dates, domain/goal has DATE_KINDS/toolsForKind/kindOffers (only exam). Left: nothing consults the registry yet (plan UI and study-plan job still name exams); exams docs into goals; drop dateedits/examedits and examDocs merge; old tab id exams in localStorage falls back to Practice once. The Dates decision (inbox P-1) is still unfiled: the supervisor's PR #607 edits that inbox file, so it is filed after #607 merges. Wording (Matt 2026-11-06, same decision): user-facing \"study plan\" becomes \"prep plan\" (labels, buttons, toasts, E.V.'s messages, mock-up); code names follow only where B-1038 touches them, no rename sweep. \"Study\" stays only as a verb (\"Study this set\"); names of things carry no \"study\" (Dates, Plan, Prep plan, Sets, Notes). Prep plans for other kinds: after the freeze (docs/parked.md). Scope audit 2026-11-06: B1, B2, B3, A2, A3, A5, A6, A7, A9, section 0 (e2e journeys click Dates). Build manager decision 2026-11-06: stored and wire names are renamed now, before cutover (study_plan to prep_plan, studyplan.* to plan.*, examId to goalId), which replaces the 'no rename sweep' clause. Matt chose a Kind picker on each date (Exam or Other), with the prep plan only on exams for now. B3 (goals served in their own shape, domain/exam deleted) and B8 (exam-keyed objective schema deleted) stay here. Decisions: D-499 (Dates), D-503, D-504. Scope sweep #619: section 0 (e2e click Dates), B1 (Kind picker, Exam or Other, from DATE_KINDS; D-505: other offers weak-spot links), B2 (prep_plan, plan.*, goalId, goal context, migration 0016), A2, A3, A5, A6 (Course line removed), A7, A9. Left: B3, the objective schema part of B8 (data/docs parses objectives with it), old staging dates of kind unit or midterm read as Other.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "builder-goals-readers",
@@ -6037,7 +6037,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots).",
+  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots). Scope sweep #620 (B5): a spot's goal is the soonest upcoming goal its objective links to; examsByCourse gone; goalDate and nearDateWithinDays. Left (B7): createWeakSpot still matches a doc's course against a collection id or title; weakSpotDoc keeps where.exam and where.course for the screens.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6051,7 +6051,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 578 setBook repo; PR 580 own sets and items read and write sets/set_items (migration 0008 backfills own sets, items, deletions, attempts, placements; ids set_ and item_). KNOWN: deletions rows from before keep old keys, so those entries show twice in Recently deleted (one untitled, unrestorable). Left: E.V.'s docs-based sets into the tables, remove copy-on-first-edit (editSet), sourceRef kinds, data/export and areas/deleted still name own_sets/own_set_items, retire own_* at the contract migration. Decided 2026-11-06: (Matt) the \"mock exam\" mode reads \"full practice run\" in UI text, E.V.'s prompts (jobs/practice-set prompt.md, job.ts wording) and the mock-up; code ids follow only where this task touches them. (Build manager) practice set grounding takes any notes or collection the user points at, not course excerpts; built here. Scope audit 2026-11-06: B2 (variant mock_exam renamed full_run with a migration; the 'no rename sweep' clause is replaced), B4 (a source scope: a collection or a note; domain/search uses collection_id), A4, A12. B7: sets carry no course string. Decisions: D-500, D-501, D-504.",
+  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 578 setBook repo; PR 580 own sets and items read and write sets/set_items (migration 0008 backfills own sets, items, deletions, attempts, placements; ids set_ and item_). KNOWN: deletions rows from before keep old keys, so those entries show twice in Recently deleted (one untitled, unrestorable). Left: E.V.'s docs-based sets into the tables, remove copy-on-first-edit (editSet), sourceRef kinds, data/export and areas/deleted still name own_sets/own_set_items, retire own_* at the contract migration. Decided 2026-11-06: (Matt) the \"mock exam\" mode reads \"full practice run\" in UI text, E.V.'s prompts (jobs/practice-set prompt.md, job.ts wording) and the mock-up; code ids follow only where this task touches them. (Build manager) practice set grounding takes any notes or collection the user points at, not course excerpts; built here. Scope audit 2026-11-06: B2 (variant mock_exam renamed full_run with a migration; the 'no rename sweep' clause is replaced), B4 (a source scope: a collection or a note; domain/search uses collection_id), A4, A12. B7: sets carry no course string. Decisions: D-500, D-501, D-504. Scope sweep #616: full_run variant (migration 0015), sets from a collection or a note (domain/search on collection_id), prompts say the user; #619 passes the asked source to excerpt gathering.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6065,7 +6065,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#608): sessions and session_events tables, migration 0012, session-wire routes. Known: columns for source, comments, folder, filing, summary, pending do not exist (rebuilt doc uses defaults); set_id/collection_id not set from docs; PUT not atomic; useSessions still PUTs whole docs. #609 put data/tables and data/staging tests into test:node (they had never run in CI).",
+  "notes": "Run 97 (#608): sessions and session_events tables, migration 0012, session-wire routes. Known: columns for source, comments, folder, filing, summary, pending do not exist (rebuilt doc uses defaults); set_id/collection_id not set from docs; PUT not atomic; useSessions still PUTs whole docs. #609 put data/tables and data/staging tests into test:node (they had never run in CI). Scope sweep #620 (B15): a session's kind is note only and its source is any text. Writers still stamp source E.V. Home.",
   "commit": "0646dc0",
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },
@@ -6306,7 +6306,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26. Also 2026-11-06: test fixtures with nursing examples (Dosage, NUR 112) get general examples too. Scope audit 2026-11-06: A10, C17, A8: Matt chose 'Rate it honestly' (2026-11-06). Decision: D-503.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26. Also 2026-11-06: test fixtures with nursing examples (Dosage, NUR 112) get general examples too. Scope audit 2026-11-06: A10, C17, A8: Matt chose 'Rate it honestly' (2026-11-06). Decision: D-503. Scope sweep #618: mock-up and DESIGN-BRIEF neutral (mixed learners, prep plan, full practice run, Rate it honestly, date Kind, pinned next date). #619 Tabs and Page stories say Dates. Left: the other A10 kit stories, tests and fixtures.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -6330,10 +6330,10 @@
   "title": "CONTRACT, PLAN, AGENTS and README lines that still describe ev4, one subject or a school app",
   "dod": "CONTRACT.md, PLAN.md, AGENTS.md and README.md say E.V. is a personal knowledge app for one independent learner with any goal: no 'the student', study plan, mock exam, built-in Canvas step, nursing day logic, class weekdays or course facts, and no ev4 shapes to port (scope audit C1, C3 to C6, C8, C11, C13, A7, A13, A14, A18); ended rules move to docs/contract/ended.md; the rules check is green. Slice: write CONTRACT.md, PLAN.md, AGENTS.md, README.md, docs/contract/ended.md, docs/parked.md and the comment lines that cite a renamed or ended §id",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him. D-497: Matt approves the AGENTS.md part, limited to removing or correcting lines that describe ev4 or one subject; no other AGENTS.md change. 2026-11-06 daily review: README.md:3 still says 'a personal study app for one student' and README.md:94 asks for a Mac Canvas step before cutover; README is not a repo instruction, so its lines need no yes from Matt. Scope audit 2026-11-06: slice widened to CONTRACT.md (no hard-limit line changes). Matt approved (2026-11-06) the AGENTS.md study plan, mock exam, exams-with-their-plan and Canvas lines too, beyond D-497. Decision: D-503.",
-  "commit": null,
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T24 and T25. AGENTS.md is a repo instruction: the AGENTS lines go to Matt as one plain question with the build manager's recommendation before they change; the PLAN lines do not need him. D-497: Matt approves the AGENTS.md part, limited to removing or correcting lines that describe ev4 or one subject; no other AGENTS.md change. 2026-11-06 daily review: README.md:3 still says 'a personal study app for one student' and README.md:94 asks for a Mac Canvas step before cutover; README is not a repo instruction, so its lines need no yes from Matt. Scope audit 2026-11-06: slice widened to CONTRACT.md (no hard-limit line changes). Matt approved (2026-11-06) the AGENTS.md study plan, mock exam, exams-with-their-plan and Canvas lines too, beyond D-497. Decision: D-503. Scope sweep done in #615 (CONTRACT §what.framing, §job.prep-plan, Canvas optional, user's time zone; PLAN, AGENTS, README). Left: AGENTS S-40 seed line still says 'Central date' (not in Matt's approved AGENTS lines).",
+  "commit": "c680565",
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
  {

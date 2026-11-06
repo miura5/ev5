@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-505",
+  "date": "Nov 6",
+  "title": "Every date kind offers weak-spot links; only the exam kind offers the prep plan for now",
+  "why": "Practice on any goal makes weak spots, and the mock-up shows weak spots on Other dates; the prep plan stays on exams as Matt chose. The one registry in domain/goal holds this as data: exam offers prep-plan and weak-spot-links, other offers weak-spot-links.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Scope audit sweep 2026-11-06, build manager"
+ },
+ {
   "id": "D-504",
   "date": "Nov 6",
   "title": "Stored and wire names are renamed before cutover, while it is cheap",
