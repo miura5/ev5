@@ -55,6 +55,7 @@ function migrated(withNew: boolean): DatabaseSync {
   db.exec(sql("0004_ceiling_usage.sql"));
   if (withNew) db.exec(NEW_DDL);
   if (withNew) db.exec(sql("0006_tables.sql")); // the per-kind tables, and collections.deleted_at
+  db.exec(sql("0007_plans_drafts.sql")); // drafts.target_kind (the exporter selects it), plans, plan_items, repeats and drafts.target_kind
   return db;
 }
 
@@ -74,7 +75,10 @@ INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes'
 INSERT INTO own_sets VALUES ('s1','Mine','question',NULL,NULL,46,1);
 INSERT INTO own_set_items VALUES ('s1','i1',0,'{"q":"?"}',47,1),('s1','i2',1,'{"q":"!"}',47,1);
 INSERT INTO own_attempts VALUES ('s1','i1','a',48,'{"ok":true}'),('s1','i1','a',49,'{"ok":false}');
-INSERT INTO drafts VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1);
+INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v, target_kind) VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1,'dayedits');
+INSERT INTO plans (id, goal_id, state, from_day, to_day, at) VALUES ('plan_1','goal_1','in_force','2026-11-05','2026-11-12',51);
+INSERT INTO repeats (id, title, rule, from_day, at) VALUES ('rep_1','Flashcards','{"every":"day"}','2026-11-05',52);
+INSERT INTO plan_items (id, plan_id, day, pos, title, origin, repeat_id, at) VALUES ('pli_1','plan_1','2026-11-05',0,'Read','plan',NULL,53),('pli_2',NULL,'2026-11-05',1,'Cards','morning','rep_1',54);
 INSERT INTO job_records VALUES ('j1','{"state":"done"}',60,1);
 INSERT INTO ceiling_use VALUES ('2026-11-03','tokens',500),('2026-11-03','calls',3);
 INSERT INTO ceiling_holds VALUES ('h1',100,'{"day":1}',1);
@@ -95,6 +99,9 @@ test("export then restore into scratch: every table count and hash equal", async
   for (const n of ["job_records", "ceiling_holds", "job_plans"])
     assert.equal(x.tables[n]!.count, 1, n);
   assert.equal(x.tables.ceiling_use!.count, 2);
+  assert.equal(x.tables.plans!.count, 1);
+  assert.equal(x.tables.plan_items!.count, 2);
+  assert.equal(x.tables.repeats!.count, 1);
   assert.match(x.tables.job_plans!.sha256, /^[0-9a-f]{64}$/);
 
   const scratch = migrated(true);

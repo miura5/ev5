@@ -78,6 +78,7 @@ export const NEW_TABLES: TableSpec[] = [
       "state",
       "at",
       "v",
+      "target_kind",
     ],
     ["id"],
   ),
