@@ -33,7 +33,7 @@ Every run starts from a fresh clone, so everything that matters is in the repo.
 0. **Take the run lock** before anything else: `ops/build-lock.sh take`. Exit 3 means another run is working: end this run at once, with no handover, wait branch or PR. After each merged batch, run `ops/build-lock.sh renew`. Run `ops/build-lock.sh release` just before you open the handover or wait PR (step 10), and also when the run ends early. A lock held for more than 75 minutes is stale and the next run takes it. Other sessions (the supervisor, a channel thread) may open PRs at any time, but they merge to main only while the lock is released (`ops/build-lock.sh status`), or they give their Chart filings to the running build manager: each outside merge puts every open build PR behind main.
 1. **Read** `docs/handover.md`, then CONTRACT.md (PLAN.md before Phase 0's gate).
 2. **Check on last run's work:** open PRs, CI results, staging health. A red main, or a red `staging` deploy on main, is fixed first, before anything else.
-3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live", "go back"). File each one in the Chart. A bug that breaks studying jumps the queue.
+3. **Read Matt's input:** new comments on the "For Matt" issue (answers, "bug: …", "idea: …", "ship", "exam week", "go live"). File each one in the Chart. A bug that breaks studying jumps the queue.
 4. **Pick the batch:** the lowest open tasks whose dependencies are done, within the current phase, sized so the batch can reach a staging deploy or a gate in this run. A gate held up only by Matt or an outside input doesn't stop the build: start the next phase's tasks that don't need that input, and close the gate when it arrives. Gate 6 (before Matt tests) and anything live still wait for every earlier gate.
 5. **Claim** each task in the Chart (the claim is the lock), then start builders: one task each, with its slice and context (§5). The run lock keeps other runs off these tasks, so the claims, done marks and notes go in the run's handover PR. Open a separate Chart PR first only when the run files new task ids, because ids race.
 6. **Merge:** each builder runs `npm run precheck` (every CI check, the Interface-trailer check included), then opens a PR from a `claude/` branch with auto-merge on. GitHub runs every check, and auto-merge lands it on green. Nothing reaches main any other way. Main takes only branches that are up to date, so land one PR at a time: when a PR merges, update the oldest open PR at once (`gh api -X PUT repos/miura5/ev5/pulls/N/update-branch`; if no CI run starts within a minute, merge main into the branch and push). A green PR that sits behind main is lost time.
@@ -94,7 +94,7 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-13 Generated files: registries, folder READMEs' interface and must-not lines (§drift.interface), `commands/client.ts`. Then regenerate-and-diff in CI.
 - S-14 Guard-failure fixtures: a PR per guard that goes red, recorded.
 - S-15 CI: branch protection, auto-merge, the staging deploy on merge (Cloudflare credentials only in GitHub), the live workflow behind Matt's approval.
-- S-16 The v5 staging Worker with a synthetic D1 seeded from ev4's synthetic record.
+- S-16 The v5 staging Worker with a synthetic D1: synthetic v5 rows through the gate.
 - S-17 The rollback runbook and rehearsal 1. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
 - **Gate 1.**
 
@@ -106,12 +106,12 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 
 **Phase 3: Domain and data**
 - S-40 `domain/time`, with the DST tests and the "due by Central date" rule.
-- S-41…S-48 Entities, smallest first: exam, objective, weak spot with its scheduler, set, item, session, note, course. Port ev4's tests.
+- S-41…S-48 Entities, smallest first: goal, objective, weak spot, set, item, session, note, collection, with their own tests.
 - S-49 D1 repositories over `docs`, with Zod parsing and the protocol.
 - S-50 The migration baseline, and the `deletions` table.
-- S-51 The export of every table in ev4's manifest shape, plus a restore into scratch.
+- S-51 The export of every table in v5's export kind, plus a restore into scratch.
 - S-52 `domain/search` and its retrieval test set.
-- S-53 The scratch-copy parse check (needs Matt's OK; counts only).
+- S-53 The scratch-copy parse check (needs Matt's OK; counts only). *(Ended 2026-11-05: v5 starts empty, so no copy of live data is checked, §data.own-db.)*
 - **Gate 3.**
 
 **Phase 4: Commands, runtime, server**
@@ -120,8 +120,8 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-62 The Workflows runtime: steps, the single retry layer, needs-you as a D1 state, continuation.
 - S-63 Ceilings: hourly, daily, monthly, per-job, with the pre-flight reservation and the 80% alert.
 - S-64 Structured output plus validation, the repair ask and citation checks; `models.ts` with its "checked on" date.
-- S-65 The practice set job (and the mock exam variant).
-- S-66 The study plan job.
+- S-65 The practice set job (and the full practice run variant).
+- S-66 The prep plan job.
 - S-67 Hono routes, scoped tokens, rate limiting, and ev4-route 410s.
 - **Gate 4.**
 
@@ -129,17 +129,17 @@ The first run files these into the Chart, then the loop takes them in order. Ids
 - S-70 Shell: sidebar from `area.ts`, Detail panel, ⌘K.
 - S-71 Activity.
 - S-72 Today.
-- S-73 Library: practice, weak spots, exams with their plan, sets, the accuracy line.
+- S-73 Library: practice, weak spots, Dates with their prep plan, sets, the accuracy line.
 - S-74 Ask E.V.
 - S-75 The notes editor.
-- S-76 Study sessions and read-along.
+- S-76 Sessions and read-along.
 - S-77 The offline outbox. *(Its ev4-outbox import ended 2026-11-05: v5 starts empty, §data.own-db.)*
 - S-78 The e2e journeys from Gate 5.
 - **Gate 5.**
 
 **Phase 6: Ops**
 - S-80 Scheduled commands: morning, evening, weekly.
-- S-81 The Mac executor for Canvas (needs Matt present to create it).
+- S-81 Optional Canvas import from the Mac, after cutover.
 - S-82 The push task (C7).
 - S-83 Restore drills, including a Time Travel restore on staging.
 - S-84 Rehearsal 2. *(Ended 2026-11-05: no rollback to ev4, §data.own-db.)*
@@ -166,7 +166,7 @@ Builders **refuse and report** when a task needs a folder outside its slice. The
 Only these reach Matt:
 - live deploys and rollbacks;
 - the CONTRACT hard-limits yes;
-- the scratch-copy check OK;
+- ~~the scratch-copy check OK;~~ *(Ended 2026-11-05: v5 starts empty, so no copy of live data is checked, §data.own-db.)*
 - money, accounts and secrets;
 - anything on his Mac (the Mac executor, re-creating tasks);
 - changing something he uses daily;

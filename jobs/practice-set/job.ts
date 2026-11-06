@@ -1,5 +1,5 @@
-// The practice set job (CONTRACT §job.kinds): a set of questions grounded in course excerpts, with the mock exam as a
-// variant. Items with no source are drafts, and "Write with E.V." makes every item a draft (PLAN §6.4).
+// The practice set job (CONTRACT §job.kinds): a set of questions grounded in excerpts from your notes, with the full
+// practice run as a variant. Items with no source are drafts, and "Write with E.V." makes every item a draft (PLAN §6.4).
 // The model call is injected, so tests need no network; the model id and price come from jobs/runtime/models.ts.
 import { z } from "zod";
 import {
@@ -12,8 +12,8 @@ import { parseWith } from "../runtime/define.ts";
 import { ITEM_TYPES, parseSet } from "../../domain/index.ts";
 import { outputSchema } from "../runtime/model-call.ts";
 
-export const VARIANTS = ["practice", "mock_exam"] as const;
-export const MAX_ITEMS = { practice: 30, mock_exam: 75 } as const;
+export const VARIANTS = ["practice", "full_run"] as const;
+export const MAX_ITEMS = { practice: 30, full_run: 75 } as const;
 
 const nonBlank = (what: string) =>
   z.string().refine((t) => t.trim().length > 0, `${what} must not be empty.`);
@@ -26,8 +26,22 @@ const ExcerptSchema = z.object(
 );
 const ScopeShape = {
   variant: z.enum(VARIANTS, {
-    error: "variant must be practice or mock_exam.",
+    error: "variant must be practice or full_run.",
   }),
+  /** The notes to draw from: one collection's notes or one note. Without it, every note matching the objectives. */
+  source: z
+    .object(
+      {
+        kind: z.enum(["collection", "note"], {
+          error: "source kind must be collection or note.",
+        }),
+        id: z
+          .string({ error: "source id is required." })
+          .min(1, "source id is required."),
+      },
+      { error: "source must name a collection or a note." },
+    )
+    .optional(),
   /** Where the items land: a set id. */
   targetId: z
     .string({ error: "targetId is required." })
@@ -202,8 +216,8 @@ export const practiceSet = defineJob({
 /** The user message: what to write and the only excerpts that may be cited. */
 export function buildPrompt(input: PracticeInput): string {
   const head =
-    input.variant === "mock_exam"
-      ? `Write a mock exam of ${input.count} questions.`
+    input.variant === "full_run"
+      ? `Write a full practice run of ${input.count} questions.`
       : `Write ${input.count} practice questions.`;
   const objectives = input.objectives.length
     ? `Objectives:\n${input.objectives.map((o) => `- ${o}`).join("\n")}`

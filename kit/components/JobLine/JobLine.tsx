@@ -1,7 +1,7 @@
 import { Glyph } from '../Glyph/Glyph';
 
 export interface JobLineProps {
-  /** What is running, in plain words, such as "Writing mock exam · 3/4". */
+  /** What is running, in plain words, such as "Writing practice set · 3/4". */
   text: string;
   onOpen?: () => void;
 }

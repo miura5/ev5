@@ -12,7 +12,7 @@ export interface NoteHit {
   id: string;
   title: string;
   text: string;
-  course: string | null;
+  collection_id: string | null;
 }
 
 /** The note rule beyond the row shape: a body holds at most the note budget (§data.notes), whatever wrote it. */
@@ -45,20 +45,20 @@ export function notesRepo(db: D1Like, opts: TablesOptions) {
         const where = patterns.map(() => "text LIKE ?").join(" OR ");
         const { results } = await db
           .prepare(
-            `SELECT id, title, text, json_extract(body, '$.course') AS course FROM notes WHERE deleted_at IS NULL AND (${where}) ORDER BY id`,
+            `SELECT id, title, text, collection_id FROM notes WHERE deleted_at IS NULL AND (${where}) ORDER BY id`,
           )
           .bind(...patterns)
           .all<{
             id: string;
             title: string;
             text: string;
-            course: unknown;
+            collection_id: string | null;
           }>();
         return results.map((r) => ({
           id: r.id,
           title: r.title,
           text: r.text,
-          course: typeof r.course === "string" ? r.course : null,
+          collection_id: r.collection_id ?? null,
         }));
       },
     },

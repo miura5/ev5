@@ -592,7 +592,9 @@ FROM (
     SELECT d.id AS sid, e.key AS key, e.value AS ev,
       (SELECT min(j.value) FROM json_each('[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]') j
         WHERE substr(e.key, j.value - 1, 1) = '-'
-          AND substr(e.key, j.value, 15) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]') AS pos
+          AND substr(e.key, j.value, 8) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+          AND substr(e.key, j.value + 8, 1) = '-'
+          AND substr(e.key, j.value + 9, 6) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9]') AS pos
     FROM docs d, json_each(d.data, '$.events') e
     WHERE d.c = 'sessions' AND json_valid(d.data) AND json_type(e.value) = 'object'
       AND e.key NOT GLOB '*[^A-Za-z0-9-]*'
@@ -676,7 +678,9 @@ FROM (
     SELECT d.id AS sid, CASE WHEN substr(d.id, 1, 3) = 'ws_' THEN d.id ELSE 'ws_' || d.id END AS spot, e.key AS key, e.value AS ev,
       (SELECT min(j.value) FROM json_each('[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]') j
         WHERE substr(e.key, j.value - 1, 1) = '-'
-          AND substr(e.key, j.value, 15) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]') AS pos
+          AND substr(e.key, j.value, 8) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+          AND substr(e.key, j.value + 8, 1) = '-'
+          AND substr(e.key, j.value + 9, 6) GLOB '[0-9][0-9][0-9][0-9][0-9][0-9]') AS pos
     FROM docs d, json_each(d.data, '$.events') e
     WHERE d.c = 'weakspots' AND json_valid(d.data) AND json_type(e.value) = 'object'
       AND d.id NOT GLOB '*[^A-Za-z0-9_-]*' AND e.key NOT GLOB '*[^A-Za-z0-9-]*'
@@ -686,3 +690,9 @@ WHERE y.ms IS NOT NULL AND y.ms >= 0
   AND json_extract(y.ev, '$.type') IN ('park', 'activate', 'solid', 'done', 'move', 'seen', 'reopen', 'accept', 'snooze', 'decline')
   AND (json_extract(y.ev, '$.type') <> 'snooze' OR json_extract(y.ev, '$.until') GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')
   AND EXISTS (SELECT 1 FROM weak_spots s WHERE s.id = y.spot);
+
+-- The full practice run's stored name (§data.migrations): a practice set's saved scope (`job_plans` kind `scope`) that
+-- names the variant "mock_exam" now names "full_run", the name the practice set job reads. Plain equality only, so a
+-- second run changes nothing.
+UPDATE job_plans SET body = json_set(body, '$.variant', 'full_run')
+WHERE kind = 'scope' AND json_valid(body) AND json_extract(body, '$.variant') = 'mock_exam';

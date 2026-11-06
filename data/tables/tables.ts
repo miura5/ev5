@@ -139,7 +139,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
               v,
             }),
         ),
-      /** Drops the row (moving an item into a course or out of a collection, CONTRACT data.membership). */
+      /** Drops the row (moving an item into another collection or out of one, CONTRACT data.membership). */
       remove: async (itemC: string, itemId: string): Promise<boolean> =>
         (
           await db

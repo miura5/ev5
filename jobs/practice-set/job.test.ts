@@ -28,8 +28,8 @@ const input = (over: object = {}) => ({
   variant: "practice",
   targetId: "set-1",
   count: 2,
-  objectives: ["Vital signs"],
-  excerpts: [{ id: "e1", text: "Pulse is measured..." }],
+  objectives: ["Cell respiration"],
+  excerpts: [{ id: "e1", text: "Mitochondria make ATP..." }],
   drafts: false,
   ...over,
 });
@@ -88,11 +88,12 @@ test("write with E.V. makes every item a draft against the set", async () => {
   );
 });
 
-test("mock exam asks for an exam and allows up to 75 items", () => {
+test("a full practice run asks for one and allows up to 75 items", () => {
   assert.match(
-    buildPrompt(parseInput(input({ variant: "mock_exam", count: 75 }))),
-    /mock exam of 75/,
+    buildPrompt(parseInput(input({ variant: "full_run", count: 75 }))),
+    /full practice run of 75/,
   );
+  assert.throws(() => parseInput(input({ variant: "mock_exam" })), /variant/);
   assert.throws(() => parseInput(input({ count: 31 })), /1 to 30/);
   assert.throws(() => parseInput(input({ variant: "quiz" })), /variant/);
 });
@@ -153,6 +154,26 @@ test("the public input names a scope only: a sent excerpts field is dropped, and
   assert.ok(!("excerpts" in pub));
   assert.equal(pub.targetId, "set-1");
   assert.throws(() => parsePublicInput(input({ count: 31 })), /1 to 30/);
+});
+
+test("a scope may name a collection or a note to draw from, with or without objectives", () => {
+  const pub = parsePublicInput(
+    input({
+      objectives: [],
+      source: { kind: "collection", id: "col_spanish" },
+    }),
+  );
+  assert.deepEqual(pub.source, { kind: "collection", id: "col_spanish" });
+  assert.deepEqual(pub.objectives, []);
+  assert.equal(parsePublicInput(input()).source, undefined);
+  assert.throws(
+    () => parsePublicInput(input({ source: { kind: "course", id: "x" } })),
+    /collection or note/,
+  );
+  assert.throws(
+    () => parsePublicInput(input({ source: { kind: "note", id: "" } })),
+    /source id is required/,
+  );
 });
 
 test("citations are checked against the gathered excerpts, not anything the caller named", async () => {
