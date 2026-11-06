@@ -4741,9 +4741,9 @@
   "title": "Today and Progress don't follow the mock-up",
   "dod": "Today matches design/mockup.html #today and Progress matches #progress, in both themes, seen on staging; no Courses section in the sidebar and no course dots on Today; every pinned collection with a linked date shows the day of its next linked date; Progress has the mock-up's sections only, with no Minutes section (§ui.mockup, D-511)",
   "milestone": "Phase 5",
-  "status": "in progress",
+  "status": "open",
   "depends": [],
-  "notes": "Run 94 (#589): Progress study line reads once, accuracy bars bucket by Sunday-start Central weeks with week-start labels, new kit token --bar makes light bars visible (not in the mock-up: add it there or record an exception). LEFT: Courses in the sidebar and course dots on Today (mock-up has neither: design agent updates it or the bar drops them); light theme and PNG comparison on staging. Study minutes section is not in the mock-up #progress; kept. Decided 2026-11-06 (Matt, inbox decision on Courses): drop Courses from the sidebar and course dots from Today; the mock-up is not changed to add them. A course shows as an ordinary collection. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C14, B22, A6: the old design/screens PNGs moved to docs/history/design-rounds/ (history, not a reference); Matt chose the general pinned-collection date rule (2026-11-06); a Details 'Course' property reads 'Collection'. Decisions: D-500, D-503. Scope sweep #618: the mock-up shows the next linked date on every pinned collection. #619 removed the Course line from date and weak-spot Details; a Collection line needs a read of the linked collection's title. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): D-511 (Matt): Progress has no Minutes section; follow the mock-up and remove the one the app shows. F31: CONTRACT §ui.sidebar says counts and no badges, while D-503 and the mock-up put a date's day on pinned collections; reword the CONTRACT line when this lands. F17: no writer sets goals.collection_id yet (B-998).",
+  "notes": "Run 2026-11-06 (#636): course dots gone from Today, Progress Minutes section removed (D-511), sidebar pins show next linked date (shell/usePins.ts; assumes a memberships row with item_c exams links a date; check on staging), CONTRACT §ui.sidebar reworded. LEFT: light theme and PNG comparison on staging; pins refresh only on mount/ev5:jobs-changed; --bar token still not in the mock-up. Claim freed.",
   "commit": null,
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
@@ -5125,15 +5125,15 @@
   "title": "A collection's page draws its rows, head, sections and empty state with the kit",
   "dod": "Collection uses kit Row (actions on hover, the menu on right-click), Page, Section and Empty; its own RowActions copy goes; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#coll); seen on staging",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968",
    "B-1020"
   ],
-  "notes": "Slice: write areas/collection/; read kit/, shell's area-view props. Unclaimed: run 80 was stopped before any work; its branch claude/B-973-collection-kit holds no commits and may be reused or ignored. Waits on B-1020.",
-  "commit": null,
+  "notes": "Done in #634 (run 2026-11-06 ~12:20): Collection uses kit Page, Section, Empty, Row; RowActions.tsx and collection.css deleted. Not checked: both-theme look vs mock-up (renderColl, no #coll anchor) and staging. Move picker filters on typing like Notes.",
+  "commit": "f273dfa",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)",
   "claimedBy": "run-1217",
   "claimedAt": "2026-11-06T12:17:16.940Z"
@@ -5695,11 +5695,11 @@
   "title": "Back and Forward move between screens, through wouter in the shell",
   "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-969"
   ],
-  "notes": "Slice: write shell/, package.json, .dependency-cruiser.cjs, e2e/; read areas/. Interface: shell. Claim after B-969 (same shell files). Read wouter's current README for its API, never from memory. Decision: D-485.",
+  "notes": "Run 2026-11-06 (#637): wouter 3.13.0 pinned, Switch/Route in shell/App.tsx, / -> /today replace, /kit outside shell, dependency-cruiser rule wouter-only-in-shell, routing test. LEFT (belongs with B-1013, needs areas/): pass path/params/search/navigate as props to areas (Library, Notes, Collection, Ask still read window.location; Ask uses location.assign(/activity) which reloads); e2e Library-open-set-Back-Forward; seen on staging. CONTRACT has no routing §id yet. Claim freed.",
   "commit": null,
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
   "claimedBy": "run-1217",
@@ -6023,11 +6023,11 @@
   "title": "Goals and objectives move to their own tables, joined by link rows",
   "dod": "Exams and hand-made dates are one goal record: a goal of kind exam made with date.create shows on Today and Library, and Plan with E.V. finds it and its approved plan stays after Approve; objectives live in their table and reach goals and material through link rows, not one exam id or a split of the objective id; the dateedits and examedits documents are gone; writes go through the gate (§data.tables, §data.links, §data.gate). Slice: write domain/, data/, server/ (split along the layers if over 400 lines).",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-998"
   ],
-  "notes": "Done so far: Library tab Dates (#606); domain/goal kind registry (DATE_KINDS, toolsForKind, kindOffers), read by the Library and Today date Details and server/handlers-studyplan.ts; Kind picker Exam or Other (D-503, D-505); stored names renamed (prep_plan, plan.*, goalId; migration 0016, #619). Dates decision is D-499. Wording: user-facing \"prep plan\"; \"study\" only as a verb. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F1: an approved plan vanished for every date made with date.create, because Today and Library found the plan through exams.planId; fixed in this run by serving each goal's plan from planedits, and the Gate 5 prep plan journey now makes its date with date.create (see the run record). F3/F5 and D-506: no docs-to-goals copy; staging is rebuilt so every date is a goal (B-1009); then drop the examDocs merge, the dateedits/examedits documents and the old-date path in date.update (it 404s on exams docs and refuses a kind change). F20: date.create defaults to kind Other, which offers no prep plan, so the done bar reads \"a goal of kind exam\". F26: areas/today/DateDetail.tsx and areas/library/DatePlan.detail.tsx each restate the registry's wording; read it from domain/goal. Left: B3 (goals in their own shape, domain/exam deleted), B8 (exam-keyed objective schema; data/docs parses objectives with it). Fix sweep 2026-11-06 (#625): each goal is served with the planId its planedits document implies (in force, else the last put away) and its at moves with planedits; the Gate 5 prep plan journey makes its date with date.create.",
+  "notes": "Run 2026-11-06 (#635): examDocs merge, dateedits/examedits paths and date.update old-date path dropped; server reads goals only. LEFT: B3 (goal-shaped read type in domain/goal, move areas/library/map.ts, jobs/study-plan/job.ts, data/docs/parsers.ts exams entry, server/plan-home.ts, weak-wire.ts, goal-wire.ts onto it, then delete domain/exam; needs areas/ and jobs/ in slice), B8; ops/checks/docskinds.ts ALLOWED can drop dates/dateedits (exams only if PUT /docs no longer writes it); data/tables/dates-backfill.test.ts and data/docs/repo.test.ts go with the contract migration. Claim freed.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "run-1217",
