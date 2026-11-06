@@ -1,4 +1,6 @@
 import { useCallback, useState } from "react";
+import type { Services } from "./services.ts";
+import { useRefusedToast } from "./useRefusedToast.ts";
 
 export interface ToastItem {
   id: number;
@@ -12,7 +14,7 @@ export type OnToast = (message: string, onUndo?: () => void) => void;
 let next = 0;
 
 /** The shell's one toast list: views feed it through `show`, each toast drops itself through `drop` when it closes. */
-export function useToasts() {
+export function useToasts(services?: Services) {
   const [toasts, setToasts] = useState<readonly ToastItem[]>([]);
   const show = useCallback<OnToast>((message, onUndo) => {
     setToasts((list) => [
@@ -24,5 +26,6 @@ export function useToasts() {
     (id: number) => setToasts((list) => list.filter((t) => t.id !== id)),
     [],
   );
+  useRefusedToast(services, show); // an outbox entry the server refused for good
   return { toasts, show, drop } as const;
 }

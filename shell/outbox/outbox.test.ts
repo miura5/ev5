@@ -149,15 +149,66 @@ describe('what stays and what is refused', () => {
     expect((await box.replay()).sent).toBe(1);
   });
 
-  test('an answer is a create, and an answer already recorded drops out', async () => {
+  const told = (setId: string, item: string) => ({
+    schema: 2,
+    setId,
+    answers: { [item]: { k: { outcome: 'told', at: 'x' } } },
+  });
+  const rated = (setId: string, item: string, text: string) => ({
+    schema: 2,
+    setId,
+    answers: { [item]: { k: { rating: 'good', at: 'x', text } } },
+  });
+
+  test('an answer queued as an answers document posts as a command under an att_ id, never PUT /docs', async () => {
     const { server, box } = make();
-    await box.queueAnswer('answers', 'a-1', { picked: 2 });
-    await box.queueAnswer('answers', 'a-2', { picked: 1 });
-    server.docs.set('answers/a-2', { v: 1, data: {} });
+    await box.queueAnswer('answers', 'set_1-page-1', rated('set_1', 'item_1', 'my try'));
+    await box.queueAnswer('answers', 'set_1-page-2', told('set_1', 'item_2'));
     const r = await box.replay();
     expect(r.sent).toBe(2);
-    expect(server.docs.get('answers/a-1')?.v).toBe(1);
+    const a = server.docs.get('study.attempt/att_set1page1')?.data;
+    expect(a).toEqual({ id: 'set_1/item_1', answer: 'my try', rating: 'good', attempt: 'att_set1page1' });
+    expect(server.docs.get('study.just_tell_me/att_set1page2')?.data).toEqual({
+      id: 'set_1/item_2',
+      attempt: 'att_set1page2',
+    });
+    expect([...server.docs.keys()].some((k) => k.startsWith('answers/'))).toBe(false);
     expect(await box.waiting()).toEqual([]);
+  });
+
+  test('an answer already recorded (409) drops out; a replay after a lost reply posts the same att_ id', async () => {
+    const { server, box } = make();
+    server.docs.set('study.attempt/att_s1p', { v: 1, data: {} });
+    await box.queueAnswer('answers', 's-1-p', rated('s', '1', 'x'));
+    expect((await box.replay()).sent).toBe(1);
+    expect(await box.count()).toBe(0);
+  });
+
+  test('check.answer and ask.just_tell_me post under their att_ ids; a repeat is already recorded', async () => {
+    const { server, box } = make();
+    await box.queueCommand('check.answer', 'att_c1', { id: 'q1', answer: 'x', attempt: 'att_c1' });
+    await box.queueCommand('ask.just_tell_me', 'att_a1', { id: 'turn1', attempt: 'att_a1' });
+    server.docs.set('ask.just_tell_me/att_a1', { v: 1, data: {} });
+    expect((await box.replay()).sent).toBe(2);
+    expect(server.docs.has('check.answer/att_c1')).toBe(true);
+    expect(await box.waiting()).toEqual([]);
+  });
+
+  test('a refused answer is kept, named to the listener with its reason, and not sent again', async () => {
+    const { server, box } = make();
+    const seen: { key: string; id: string; reason: string }[][] = [];
+    const stop = box.onRefused((r) => void seen.push(r));
+    await box.queueAnswer('answers', 'set_1-page-1', told('set_1', 'item_1'));
+    server.status = 400;
+    expect((await box.replay()).refused).toHaveLength(1);
+    expect(seen).toHaveLength(1);
+    expect(seen[0]?.[0]?.reason).toContain('400');
+    expect(await box.count()).toBe(0);
+    expect(await box.waiting()).toHaveLength(1);
+    stop();
+    await box.queueCommand('study.attempt', 'att_x', { id: 'a/b', attempt: 'att_x' });
+    await box.replay();
+    expect(seen).toHaveLength(1);
   });
 
   test('a command answer is posted under its att_ id; a repeat (409) is already recorded and drops out', async () => {
