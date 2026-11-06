@@ -35,7 +35,7 @@ export function parseGoalRow(raw: unknown): GoalRow {
 /** What a kind of date offers. Today only the study plan and its weak-spot links; more tools arrive as data here. */
 export type DateTool = "study-plan" | "weak-spot-links";
 
-/** The one registry of date kinds (D-499): each kind maps to the tools it offers. Screens and jobs ask here, never by name. */
+/** The one registry of date kinds: each kind maps to the tools it offers. Screens and jobs ask here, never by name. */
 export const DATE_KINDS: Readonly<Record<string, readonly DateTool[]>> = {
   exam: ["study-plan", "weak-spot-links"],
 };
