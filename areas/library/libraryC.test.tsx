@@ -29,7 +29,7 @@ test("an answer is a new answers document with the attempt under its item", () =
     answers: {
       q1: {
         "page-20261104-101530-abc9": {
-          correct: true,
+          rating: "good",
           text: "filling",
           at: "2026-11-04T10:15:30Z",
         },
@@ -39,7 +39,7 @@ test("an answer is a new answers document with the attempt under its item", () =
   expect(
     buildAnswer("s", "q", "again", "", new Date(0), "x").doc.answers,
   ).toMatchObject({
-    q: { "page-19700101-000000-x": { correct: false } },
+    q: { "page-19700101-000000-x": { rating: "again" } },
   });
 });
 

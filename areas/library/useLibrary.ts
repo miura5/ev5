@@ -40,10 +40,7 @@ export interface LibraryState {
 
 export type PlanCommand = Extract<
   CommandName,
-  | "date.plan_with_ev"
-  | "plan.approve"
-  | "plan.ask_changes"
-  | "plan.put_away"
+  "date.plan_with_ev" | "plan.approve" | "plan.ask_changes" | "plan.put_away"
 >;
 
 /** The sentence for a plan command that did not go through; 501 is a handler the server does not have yet. */
@@ -97,25 +94,31 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     const first = warm.current;
     warm.current = false;
     // The screen opens on the last answer kept, then the server's (§ui.instant).
-    savedFirst(copy, first, load, (r) => {
-      if (!live) return;
-      const [exams, weakspots, sets, answers, planedits, plans, jobs] = r;
-      setData(
-        mapLibrary(
-          {
-            exams,
-            weakspots,
-            sets,
-            answers,
-            planedits,
-            plans,
-            jobs: jobs as WireJob[],
-          },
-          Date.now(),
-        ),
-      );
-      setError(undefined);
-    }, () => setData(undefined)).catch((e: unknown) => {
+    savedFirst(
+      copy,
+      first,
+      load,
+      (r) => {
+        if (!live) return;
+        const [exams, weakspots, sets, answers, planedits, plans, jobs] = r;
+        setData(
+          mapLibrary(
+            {
+              exams,
+              weakspots,
+              sets,
+              answers,
+              planedits,
+              plans,
+              jobs: jobs as WireJob[],
+            },
+            Date.now(),
+          ),
+        );
+        setError(undefined);
+      },
+      () => setData(undefined),
+    ).catch((e: unknown) => {
       // A refused token shows nothing here: the shell's token screen takes over.
       if (live && failureKind(e) === "refused") setRefused(true);
       if (live)
@@ -165,7 +168,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       }
       setAgain((n) => n + 1);
       // The sidebar count and Activity read the jobs again now, not at their next poll (restated: areas never import the shell).
-      if (typeof window !== "undefined") window.dispatchEvent(new Event("ev5:jobs-changed"));
+      if (typeof window !== "undefined")
+        window.dispatchEvent(new Event("ev5:jobs-changed"));
       return undefined;
     },
     [token],

@@ -19,7 +19,9 @@ export interface LibraryServices {
     ): Promise<unknown>;
     replay(): Promise<unknown>;
     /** What waits on this device; an entry with `refused` was turned down for good and is not sent again. */
-    waiting?(): Promise<ReadonlyArray<{ key: string; id: string; refused?: string }>>;
+    waiting?(): Promise<
+      ReadonlyArray<{ key: string; id: string; refused?: string }>
+    >;
   };
 }
 

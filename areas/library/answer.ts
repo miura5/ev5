@@ -36,9 +36,8 @@ export function buildAnswer(
         [itemId]: {
           [key]: {
             // "told" is a "just tell me" tap: it has no right or wrong, only the outcome
-            ...(rating === "told"
-              ? { outcome: "told" }
-              : { correct: rating === "good" }),
+            // Again or Good is his own judgment, kept as a rating and never as `correct` (so it never counts toward accuracy).
+            ...(rating === "told" ? { outcome: "told" } : { rating }),
             at: iso,
             ...(text ? { text } : {}),
             ...(full.length > 600

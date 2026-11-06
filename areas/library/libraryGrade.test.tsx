@@ -43,17 +43,15 @@ const answer = (text: string) => {
 };
 
 test("a typed open answer goes to study.attempt whole and shows the score, not Again or Good", async () => {
-  const fetchMock = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          mode: "direct",
-          result: { score: 0.85, correct: true, note: "Name the tissue." },
-        }),
-        { status: 200 },
-      ),
-    );
+  const fetchMock = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        mode: "direct",
+        result: { score: 0.85, correct: true, note: "Name the tissue." },
+      }),
+      { status: 200 },
+    ),
+  );
   vi.stubGlobal("fetch", fetchMock);
   render(<Harness />);
   const long = "x".repeat(900);

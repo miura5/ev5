@@ -54,7 +54,9 @@ export function datePlanDetail(p: ExamPlanDetailProps): DetailProps {
       ...(plans(exam) ? [{ label: "Plan", value: exam.plan }] : []),
     ],
     // Keyed on the plan's state, so a new state starts the body fresh.
-    children: <ExamPlanBody key={`${exam.id}:${exam.kind}:${exam.planState}`} {...p} />,
+    children: (
+      <ExamPlanBody key={`${exam.id}:${exam.kind}:${exam.planState}`} {...p} />
+    ),
   };
 }
 
@@ -191,7 +193,9 @@ function ExamPlanBody({
           ) : null}
         </>
       ) : null}
-      {!draft && exam.proposals.length === 0 && kindOffers(exam.kind, "prep-plan") ? (
+      {!draft &&
+      exam.proposals.length === 0 &&
+      kindOffers(exam.kind, "prep-plan") ? (
         <Button kind="text" onClick={() => onPlanWithEv?.()}>
           Plan with E.V.
         </Button>

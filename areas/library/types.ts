@@ -91,6 +91,10 @@ export interface SetItem {
   back?: string;
   /** A question answered in his own words: the server grades what he types. */
   open?: boolean;
+  /** A choice item's options, in order (absent for open and number items). */
+  options?: readonly string[];
+  /** More than one option may be right. */
+  multi?: boolean;
 }
 
 /** The set page in view mode. */
@@ -118,6 +122,10 @@ export interface StudyItem {
   note?: string;
   /** A typed open answer: it is graded, not self-rated. */
   open?: boolean;
+  /** A choice item's options; he picks by number and the server checks the pick against the key. */
+  options?: readonly string[];
+  /** More than one option may be right (multi select): checkboxes, not radios. */
+  multi?: boolean;
 }
 
 /** An exam as a date with its plan: properties plus E.V.s dashed session proposals. */
