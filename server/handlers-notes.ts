@@ -1,18 +1,22 @@
-// Notes (CONTRACT §cmd.registry, §data.protocol): a note is an ev4 `notes` document written through the docs protocol with
-// the version read, so a stale save is a 409 and the screen keeps both (the outbox's job). A note's collection is a
-// `memberships` row. "New here" makes a note, set, date or collection inside the collection Matt is looking at.
+// Notes (CONTRACT §cmd.registry, §data.protocol): a note is a row of `notes` written on the tables gate with the version
+// read, so a stale save is a 409 and the screen keeps both (the outbox's job). A note's collection is its row's
+// `collection_id`, mirrored in a `memberships` row for the collection screens. "New here" makes a note, set, date or collection inside the collection Matt is looking at.
 import {
   centralDate,
   newNoteId,
+  newNoteRow,
   noteBlocks,
   noteDoc,
+  noteDocOf,
+  noteRowId,
   parseNote,
 } from "../domain/index.ts";
+import type { NoteTableRow } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
-import { iso, need, put } from "./handlers-edit.ts";
+import { iso } from "./handlers-edit.ts";
 
 const SOURCE = "v5/notes";
 
@@ -45,6 +49,17 @@ async function place(x: HandlerCtx, itemC: string, id: string, to: string) {
 /** Puts an item in a collection (the set and note handlers share it). */
 export { place };
 
+/** The row's own columns, for a change that keeps all but one. */
+const fieldsOf = ({ at: _a, v: _v, deleted_at: _d, ...f }: NoteTableRow) => f;
+
+const needNote = async (x: HandlerCtx, id: string) => {
+  const row = await tablesRepo(x.db, { clock: x.clock }).noteBook.get(
+    noteRowId(id),
+  );
+  if (!row) throw new CommandError(404, `no notes entry ${id}`);
+  return row;
+};
+
 export const noteHandlers: Record<string, CommandHandler> = {
   "note.create": async (i: { collection?: string }, _c, x) => {
     const at = iso(x.clock());
@@ -57,36 +72,49 @@ export const noteHandlers: Record<string, CommandHandler> = {
     )
       throw new CommandError(404, `no collection ${i.collection}`);
     const doc = noteDoc(null, { blocks: [], at, source: SOURCE });
-    await put(x, "notes", id, doc, null);
+    const made = await tablesRepo(x.db, { clock: x.clock }).noteBook.create(
+      newNoteRow(id, doc, i.collection ?? null),
+    );
+    if (!made.ok) throw new CommandError(409, "that changed; try again");
     if (i.collection) await place(x, "notes", id, i.collection);
     return { id, ...(i.collection ? { collection: i.collection } : {}) };
   },
 
   "note.save": async (i: { id: string; body: string }, _c, x) => {
-    const cur = await need(x, "notes", i.id);
+    const cur = await needNote(x, i.id);
     let prev;
     try {
-      prev = parseNote(cur.data);
+      prev = noteDocOf(cur);
     } catch {
       throw new CommandError(409, `${i.id} is not a note this app can edit`);
     }
-    let doc;
+    let row;
     try {
-      doc = noteDoc(prev, {
+      const doc = noteDoc(prev, {
         blocks: noteBlocks(blocksOf(i.body)),
         at: iso(x.clock()),
         source: SOURCE,
       });
-      parseNote(doc);
+      row = newNoteRow(i.id, parseNote(doc), cur.collection_id);
     } catch {
       throw new CommandError(400, "that is not a note body");
     }
-    return { id: i.id, version: await put(x, "notes", i.id, doc, cur.v) };
+    const saved = await tablesRepo(x.db, { clock: x.clock }).noteBook.change(
+      row,
+      cur.v,
+    );
+    if (!saved.ok) throw new CommandError(409, "that changed; try again");
+    return { id: i.id, version: saved.row.v };
   },
 
   "note.move": async (i: { id: string; collection: string }, _c, x) => {
-    await need(x, "notes", i.id);
+    const cur = await needNote(x, i.id);
     await place(x, "notes", i.id, i.collection);
+    const moved = await tablesRepo(x.db, { clock: x.clock }).noteBook.change(
+      { ...fieldsOf(cur), collection_id: i.collection },
+      cur.v,
+    );
+    if (!moved.ok) throw new CommandError(409, "that changed; try again");
     return { id: i.id, collection: i.collection };
   },
 };

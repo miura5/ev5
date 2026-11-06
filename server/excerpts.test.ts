@@ -1,13 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { gatherExcerpts } from "./excerpts.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
-
-const note = (title: string, text: string) =>
-  JSON.stringify({
-    title,
-    blocks: [{ id: "b1", type: "p", runs: [{ text }] }],
-  });
+import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
 
 function seeded() {
   const db = sqliteD1();
@@ -26,26 +20,22 @@ function seeded() {
       .prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 0, 1)")
       .bind(c, id, data)
       .run();
-  return { db, put };
+  const note = (id: string, title: string, text: string) =>
+    putNoteRow(db, id, title, text);
+  return { db, put, note };
 }
 
 test("passages come from Matt's notes that match the objectives, never from other collections", async () => {
-  const { db, put } = seeded();
-  await put(
-    "notes",
+  const { db, put, note } = seeded();
+  await note(
     "n1",
-    note(
-      "Vitals",
-      "Pulse is measured at the radial artery for one full minute.",
-    ),
+    "Vitals",
+    "Pulse is measured at the radial artery for one full minute.",
   );
-  await put(
-    "notes",
-    "n2",
-    note("Renal", "Kidneys filter blood and make urine."),
-  );
+  await note("n2", "Renal", "Kidneys filter blood and make urine.");
   await put("sets", "s1", JSON.stringify({ title: "Pulse set", items: [] }));
-  await put("notes", "bad", "not json pulse");
+  // only a note's text column is searched: a pulse in a title or body alone is not a match
+  await note("n3", "Pulse", "Kidneys again.");
   const got = await gatherExcerpts(db, ["Pulse measurement"]);
   assert.deepEqual(
     got.map((e) => e.id),
@@ -55,18 +45,18 @@ test("passages come from Matt's notes that match the objectives, never from othe
 });
 
 test("no objectives, or no match, gathers nothing", async () => {
-  const { db, put } = seeded();
-  await put("notes", "n1", note("Vitals", "Pulse is measured."));
+  const { db, note } = seeded();
+  await note("n1", "Vitals", "Pulse is measured.");
   assert.deepEqual(await gatherExcerpts(db, []), []);
   assert.deepEqual(await gatherExcerpts(db, ["zebra"]), []);
 });
 
 test("a note in Recently deleted is never an excerpt", async () => {
-  const { db, put } = seeded();
-  await put("notes", "n1", note("Vitals", "Pulse is measured at the wrist."));
-  await put("notes", "n2", note("Old", "Pulse pulse pulse pulse measurement."));
+  const { db, note } = seeded();
+  await note("n1", "Vitals", "Pulse is measured at the wrist.");
+  await note("n2", "Old", "Pulse pulse pulse pulse measurement.");
   await db
-    .prepare("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n2', 1)")
+    .prepare("UPDATE notes SET deleted_at = 1 WHERE id = 'note_n2'")
     .run();
   const got = await gatherExcerpts(db, ["Pulse measurement"]);
   assert.deepEqual(
@@ -76,20 +66,17 @@ test("a note in Recently deleted is never an excerpt", async () => {
 });
 
 test("the best match survives more than 60 matches", async () => {
-  const { db, put } = seeded();
+  const { db, note } = seeded();
   for (let i = 0; i < 70; i++)
-    await put(
-      "notes",
+    await note(
       `a${String(i).padStart(2, "0")}`,
-      note("Misc", `A pulse is mentioned in passing ${i}.`),
+      "Misc",
+      `A pulse is mentioned in passing ${i}.`,
     );
-  await put(
-    "notes",
+  await note(
     "zbest",
-    note(
-      "Pulse measurement",
-      "Pulse measurement: take the pulse at the radial artery.",
-    ),
+    "Pulse measurement",
+    "Pulse measurement: take the pulse at the radial artery.",
   );
   const got = await gatherExcerpts(db, ["Pulse measurement"]);
   assert.equal(got[0]!.id, "zbest");

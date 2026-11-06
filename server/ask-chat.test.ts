@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
 import type { ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
 
 const NOTE = {
   title: "Heart rate",
@@ -26,9 +26,7 @@ function setup(
   db.prepare(
     "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
   ).run();
-  db.prepare("INSERT INTO docs (c, id, data, v) VALUES ('notes', 'n-1', ?, 1)")
-    .bind(JSON.stringify(NOTE))
-    .run();
+  void putNoteRow(db, "n-1", NOTE.title, NOTE.blocks[0]!.runs[0]!.text);
   for (const [k, v] of Object.entries(settings))
     db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
       .bind(k, v)

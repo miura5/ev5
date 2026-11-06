@@ -39,9 +39,18 @@ export async function setup() {
       .first<{ data: string }>();
     return r ? (JSON.parse(r.data) as Record<string, any>) : null;
   };
+  /** A note as the editor sees it (title and blocks), read from its row. */
+  const note = async (id: string) => {
+    const r = await DB.prepare("SELECT title, body FROM notes WHERE id = ?")
+      .bind(`note_${id}`)
+      .first<{ title: string; body: string }>();
+    return r
+      ? ({ ...JSON.parse(r.body), title: r.title } as Record<string, any>)
+      : null;
+  };
   const put = (c: string, id: string, data: object) =>
     DB.prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 1, 1)")
       .bind(c, id, JSON.stringify(data))
       .run();
-  return { DB, call, doc, put };
+  return { DB, call, doc, note, put };
 }

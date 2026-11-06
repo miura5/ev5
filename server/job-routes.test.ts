@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
 import { input, setup, T } from "./job-routes-setup.test.ts";
+import { putNoteRow } from "./sqlite-d1.test.ts";
 
 test("GET /jobs fails a study plan past its deadline and lists only live jobs", async () => {
   const { req, db } = setup();
@@ -47,23 +48,12 @@ test("the app starts a practice set, then reads its status", async () => {
 
 test("caller-supplied excerpts are ignored: the job cites only passages the server gathered", async () => {
   const { req, wf, db, started } = setup();
-  await db
-    .prepare(
-      "INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'n9', ?, 0, 1)",
-    )
-    .bind(
-      JSON.stringify({
-        title: "Vitals",
-        blocks: [
-          {
-            id: "b1",
-            type: "p",
-            runs: [{ text: "Pulse is measured at the radial artery." }],
-          },
-        ],
-      }),
-    )
-    .run();
+  await putNoteRow(
+    db,
+    "n9",
+    "Vitals",
+    "Vital signs: pulse is measured at the radial artery.",
+  );
   const res = await req("POST", "/api/v1/jobs/practice-set", "fake-app", {
     input: {
       ...input,
