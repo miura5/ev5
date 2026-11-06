@@ -24,6 +24,7 @@ type Ctx = {
 };
 export const docRoutes = new Hono<Ctx>();
 const SESSIONS = "sessions";
+const WEAK_SPOTS = "weakspots";
 
 const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
 const shape = (d: {
@@ -66,11 +67,11 @@ docRoutes.get("/docs", async (c) => {
     // its row) is sent as its weak spot document.
     const spots = (await weakSpotDocs(c.env.DB, () => Date.now()))
       .filter((s) => s.at > n)
-      .map((s) => shape({ c: "weakspots", ...s }));
+      .map((s) => shape({ c: WEAK_SPOTS, ...s }));
     return c.json({
       now: out.now,
       docs: [
-        ...out.docs.filter((d) => d.c !== "weakspots").map(shape),
+        ...out.docs.filter((d) => d.c !== WEAK_SPOTS).map(shape),
         ...goals,
         ...sessions,
         ...spots,

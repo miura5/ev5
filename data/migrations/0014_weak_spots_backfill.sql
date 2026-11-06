@@ -1,7 +1,7 @@
 -- One-way copy of the older `weakspots` documents into the `weak_spots` and `weak_spot_events` tables (§data.tables,
 -- §data.append-only, §data.additive). A document id `w1` becomes the row `ws_w1` (an id already starting `ws_` is kept); each
 -- entry of its events map becomes one row `wse_<spot>:<key>`, with its own `at` (else the time in its key). The starting
--- counts (`initial`) and the links array are dropped (D-498). The course (an id or a title) becomes `collection_id` when it
+-- counts (`initial`) and the links array are dropped. The course (an id or a title) becomes `collection_id` when it
 -- names a collection. An event whose type or time cannot be read, or a snooze without `until`, is left out. INSERT OR IGNORE,
 -- so a second run adds nothing. A deleted document stays deleted (deleted_at from `deletions`). The documents stay in `docs`
 -- until the contract migration.
