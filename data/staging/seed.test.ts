@@ -1,49 +1,109 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { DOMAIN_PARSERS } from "../docs/parsers.ts";
-import { docsRepo } from "../docs/repo.ts";
-import { fakeD1 } from "../docs/fake-d1.ts";
+import { SEED, seed } from "./seed.ts";
 
-// Collections in the seed that have no domain parser, with the reason each one is not parsed.
-const NO_PARSER: Record<string, string> = {
-  ideas: "ideas has no domain entity yet",
-};
+const NOW = Date.parse("2026-11-06T12:00:00Z");
+const TOKEN = "t-not-real";
 
-// The seed's INSERT rows: ('c', 'id', '<json>', at, v). Single quotes inside the JSON would be doubled.
-function seedRows() {
-  const sql = readFileSync(new URL("./seed.sql", import.meta.url), "utf8");
-  const re = /\('([^']*)', '([^']*)', '((?:[^']|'')*)', (\d+), (\d+)\)/g;
-  return [...sql.matchAll(re)].map((m) => ({
-    c: m[1]!,
-    id: m[2]!,
-    data: m[3]!.replaceAll("''", "'"),
-    at: Number(m[4]),
-    v: Number(m[5]),
-  }));
+interface Call {
+  method: string;
+  path: string;
+  auth: string | undefined;
+  body: { input?: Record<string, unknown> } | undefined;
 }
 
-test("the seed has rows", () => {
-  assert.ok(seedRows().length >= 4);
+/** A fake Worker: answers the two reads with `record`, each command with a plausible result, or `fail` with a 400. */
+function fakeWorker(record: { notes?: unknown[]; exams?: unknown[] }, fail?: string) {
+  const calls: Call[] = [];
+  let n = 0;
+  const fetch = async (
+    url: string,
+    init: { method: string; headers: Record<string, string>; body?: string },
+  ) => {
+    const path = url.replace("https://staging.example", "");
+    const body = init.body ? (JSON.parse(init.body) as Call["body"]) : undefined;
+    calls.push({ method: init.method, path, auth: init.headers["authorization"], body });
+    const name = path.replace("/api/v1/commands/", "");
+    const result: Record<string, unknown> =
+      name === "collection.create"
+        ? { collection: { id: "col_1" } }
+        : name === "note.create"
+          ? { id: `n-${++n}` }
+          : name === "set.create"
+            ? { set: { id: "set_1" } }
+            : {};
+    const answer =
+      path === "/api/v1/docs?collection=notes"
+        ? { docs: record.notes ?? [] }
+        : path === "/api/v1/docs?collection=exams"
+          ? { docs: record.exams ?? [] }
+          : { mode: "direct", result };
+    const status = name === fail ? 400 : 200;
+    return { status, text: async () => JSON.stringify(status === 200 ? answer : { error: "no" }) };
+  };
+  return { calls, fetch, s: { url: "https://staging.example", token: TOKEN, fetch, now: NOW } };
+}
+
+const commands = (calls: Call[]) =>
+  calls.filter((c) => c.method === "POST").map((c) => c.path.replace("/api/v1/commands/", ""));
+
+test("an empty record is seeded through commands only, as the app token", async () => {
+  const w = fakeWorker({});
+  assert.equal(await seed(w.s), true);
+  assert.deepEqual(commands(w.calls), [
+    "collection.create",
+    "note.create", "note.save", "item.rename",
+    "note.create", "note.save", "item.rename",
+    "date.create", "date.create",
+    "set.create", "set.item_add", "set.item_add",
+  ]);
+  for (const c of w.calls) assert.equal(c.auth, `Bearer ${TOKEN}`);
+  // Reads are GETs; every write is a command POST (§data.gate): nothing is PUT to /docs.
+  assert.ok(w.calls.every((c) => c.method === "POST" ? c.path.startsWith("/api/v1/commands/") : c.method === "GET"));
 });
 
-test("every seed document is read by the repository and parses", async () => {
-  const db = fakeD1();
-  for (const r of seedRows()) db.docs.set(`${r.c}\n${r.id}`, r);
-  const repo = docsRepo(db, { clock: () => 1_800_000_000_000 });
-  for (const r of seedRows()) {
-    const doc = await repo.get(r.c, r.id);
-    assert.ok(doc, `${r.c}/${r.id} is read back`);
-    const parse = Object.hasOwn(DOMAIN_PARSERS, r.c) ? DOMAIN_PARSERS[r.c] : undefined;
-    if (parse) assert.doesNotThrow(() => parse(doc.data), `${r.c}/${r.id} parses`);
-    else assert.ok(NO_PARSER[r.c], `${r.c} has no parser and no stated reason`);
+test("the seed's inputs: one date of each kind ahead of today, the set and a note in the collection", async () => {
+  const w = fakeWorker({});
+  await seed(w.s);
+  const input = (name: string) =>
+    w.calls.filter((c) => c.path.endsWith(`/${name}`)).map((c) => c.body?.input);
+  assert.deepEqual(input("date.create"), [
+    { title: SEED.exam, date: "2026-11-27", kind: "exam" },
+    { title: SEED.other, date: "2026-11-16", kind: "other" },
+  ]);
+  assert.deepEqual(input("note.create"), [{ collection: "col_1" }, {}]);
+  assert.deepEqual(input("set.create"), [{ title: SEED.set, collection: "col_1" }]);
+  assert.deepEqual(input("item.rename").map((i) => i?.["title"]), [...SEED.notes]);
+  for (const i of input("set.item_add")) assert.equal(i?.["set"], "set_1");
+});
+
+test("a record with notes, or with the seeded exam, is left alone", async () => {
+  for (const record of [
+    { notes: [{ id: "n-1" }] },
+    { exams: [{ id: "goal_1", data: { title: SEED.exam } }] },
+  ]) {
+    const w = fakeWorker(record);
+    assert.equal(await seed(w.s), false);
+    assert.deepEqual(commands(w.calls), []);
   }
 });
 
-test("a seed document is written back through the repository and its gate", async () => {
-  const repo = docsRepo(fakeD1(), { clock: () => 1_800_000_000_000 });
-  for (const r of seedRows()) {
-    const res = await repo.save(r.c, r.id, r.data, null);
-    assert.ok(res.ok, `${r.c}/${r.id}: ${JSON.stringify(res)}`);
-  }
+test("another date does not stop the seed; a refused command stops it loudly", async () => {
+  const w = fakeWorker({ exams: [{ id: "goal_9", data: { title: "Some other date" } }] });
+  assert.equal(await seed(w.s), true);
+  await assert.rejects(seed(fakeWorker({}, "date.create").s), /date\.create: 400/);
+});
+
+test("the seeded data is synthetic: no course code or name in any title", () => {
+  for (const t of [SEED.collection, ...SEED.notes, SEED.exam, SEED.other, SEED.set])
+    assert.match(t, /^Synthetic /);
+});
+
+test("the Gate 5 journeys that read the seeded exam name it by the seed's title", () => {
+  for (const f of ["today", "library"])
+    assert.ok(
+      readFileSync(new URL(`../../e2e/${f}.journey.spec.ts`, import.meta.url), "utf8").includes(SEED.exam),
+      `e2e/${f}.journey.spec.ts`,
+    );
 });

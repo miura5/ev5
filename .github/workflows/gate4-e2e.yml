@@ -1,5 +1,5 @@
 name: gate4-e2e
-# Gate 4's one real run on v5 staging (never live): starts a practice set and a study plan with the app token and polls them.
+# Gate 4's one real run on v5 staging (never live): starts a practice set and a prep plan with the app token and polls them.
 on:
   workflow_dispatch:
 
@@ -19,7 +19,7 @@ jobs:
         run: |
           SUB=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).result.subdomain")
           echo "U=https://ev5-staging.$SUB.workers.dev" >> "$GITHUB_ENV"
-      - name: Practice set and study plan
+      - name: Practice set and prep plan
         env:
           T: ${{ secrets.TOKEN_APP_STAGING }}
         run: |
@@ -33,11 +33,13 @@ jobs:
           }
           P=$(start practice-set '{"input":{"variant":"practice","targetId":"e2e-set","count":3,"objectives":["Explain the Frank-Starling law"],"drafts":false,"excerpts":[{"id":"e1","text":"The Frank-Starling law states that the more the ventricle fills with blood during diastole, the more forcefully it contracts during systole."}]}}')
           echo "$P"; PID=$(echo "$P" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$PID"
-          S=$(start study-plan '{"input":{"examId":"synthetic-exam"}}'); echo "$S"
+          # The prep plan is for staging's seeded exam (data/staging/seed.ts), found by its title.
+          G=$(curl -fsS -H "Authorization: Bearer $T" "$U/api/v1/docs?collection=exams" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).docs.find(d=>d.data.title==='Synthetic exam').id")
+          S=$(start prep-plan "{\"input\":{\"goalId\":\"$G\"}}"); echo "$S"
           SID=$(echo "$S" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$SID"
       - name: Saved set items landed in D1
         run: |
           API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
           DB=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?name=ev5-staging" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).result[0].uuid")
-          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'content-type: application/json' -d '{"sql":"SELECT set_id, COUNT(*) AS n FROM own_set_items GROUP BY set_id"}' "$API/$DB/query" | tee items.json; echo
-          grep -q '"set_id":"e2e-set"' items.json
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'content-type: application/json' -d '{"sql":"SELECT set_id, COUNT(*) AS n FROM set_items GROUP BY set_id"}' "$API/$DB/query" | tee items.json; echo
+          grep -q '"set_id":"set_e2e-set"' items.json

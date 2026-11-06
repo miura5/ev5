@@ -79,7 +79,7 @@ Each can come back later only with a reason.
 
 ## 5. Screens for a round (keep it to these)
 1. **Today:** the plan as rows, one E.V. line, at most one dashed proposal, and dates coming up (a single short list).
-2. **Library:** the home (recent at the top, then all sets with one filter row by type: Cards · Questions · Steps); a set page (title, count, source, one primary "Study", the modes as quiet text options, a hero card, the item list); study mode (one card in focus, attempt, reveal with source, Again / Good).
+2. **Library:** the home (the accuracy line, then four tabs in this order: **Practice** (recent sets) · **Weak spots** (worst first) · **Dates** (every date, soonest first; each date's Detail has Title, Date, Kind (Exam or Other), Collection and the date's weak spots, and only an exam adds its Prep plan) · **Sets** (all sets with one filter row by type: Cards · Questions · Steps)); a set page (title, count, source, one primary "Study", the modes as quiet text options, a hero card, the item list); study mode (one card in focus, attempt, reveal with source, Again / Good).
 3. **Notes:** collections on the left (Quip-minimal), a doc list, and a clean doc. A session bar appears only while a session runs.
 4. **A collection** the user made (e.g. "Biology"), showing its notes, sets and dates mixed. A second collection from another kind of learning (e.g. "Interview prep", "Spanish" or "Running") shows that any subject fits.
 5. **Ask E.V.:** attempt first, and "is it ready?" answered from a job.

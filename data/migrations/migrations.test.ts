@@ -63,7 +63,7 @@ test('every migration is idempotent and only adds', () => {
 
 test('every LIKE or GLOB pattern fits D1 (50 bytes at most)', () => {
   // D1 refuses a longer pattern ("LIKE or GLOB pattern too complex"); local SQLite allows it, so the apply test above cannot catch it.
-  for (const f of [...migrations, '../staging/seed.sql']) {
+  for (const f of migrations) {
     const sql = read(f).replace(/--.*$/gm, '');
     for (const [, p] of sql.matchAll(/\b(?:LIKE|GLOB)\s+'((?:[^']|'')*)'/gi)) {
       assert.ok(Buffer.byteLength(p.replace(/''/g, "'")) <= 50, `${f}: pattern of ${Buffer.byteLength(p)} bytes: ${p}`);
@@ -78,8 +78,4 @@ test('deletions soft-deletes: a row is added, no document is removed', () => {
   db.exec("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n1', 2)");
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM docs').get()?.n, 1);
   assert.throws(() => db.exec("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n1', 3)"));
-});
-
-test('staging schema is the baseline plus the migrations', () => {
-  assert.equal(read('../staging/schema.sql'), migrations.map(read).join('\n'));
 });

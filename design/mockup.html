@@ -10,6 +10,7 @@
   Built from reference/a-calm-desk.html (A) via round-4 mock-up 4A (E.V. inline, sets as tiles).
   Synthetic content only. Desktop at 1280 × 860.
   Round 7 adds weak spots (Library and a date's Detail), the accuracy line, the weekly review as a job, and a scope board in #system.
+  Since approval (2026-11-06): the Library has tabs (Practice · Weak spots · Dates · Sets); a date's Detail is Title, Date, Kind, Collection and its weak spots, and an exam adds its Prep plan.
   Round 6 gave Notes the Library's shape: a home list with collections as folding rows, and one centred page per note.
   Round 5 added the item rule: anything Matt owns is created, edited and deleted by hand from where it lives;
   where E.V. can help there is one quiet "with E.V." action, and what she writes arrives dashed, cited, kept or dropped.
@@ -542,23 +543,28 @@ button.ring:hover .gl circle{stroke:var(--text)}
   </div>
 </section>
 
-<!-- ================= Library home: recent, then all sets with one filter row by type ================= -->
+<!-- ================= Library home: the accuracy line, then tabs: Practice · Weak spots · Dates · Sets ================= -->
 <section class="col center view" data-screen="library" aria-label="Library" hidden>
   <div class="stack g4">
-    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">the sets you study</span><span class="grow"></span>
+    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">practice, weak spots, dates and sets</span><span class="grow"></span>
       <button class="btn text" data-act="new-set-ev" title="Start a set and let E.V. draft items from a note">Write with E.V.</button>
       <button class="btn primary" data-act="new-set" title="New set">New set<span class="kbd">C</span></button></div>
     <a class="line g2 t-meta" href="#progress" data-go="progress" title="Open Progress"><span class="c-faint">First-try accuracy, last 14 days</span><span class="c-quiet">72%, up from 66%</span></a>
+    <div class="tabs" role="tablist" aria-label="Library" id="lib-tabs"></div>
   </div>
-  <div class="sec">
+  <div class="sec" data-lib-panel="practice">
     <div class="sec-head"><h2 class="t-label">Recent</h2></div>
     <div id="lib-recent"></div>
   </div>
-  <div class="sec">
-    <div class="sec-head"><h2 class="t-label">Weak spots</h2><span class="t-meta" id="lib-weak-n"></span><span class="grow"></span><span class="t-meta">worst first</span></div>
+  <div class="sec" data-lib-panel="weak">
+    <div class="sec-head"><h2 class="t-label">Weak spots</h2><span class="grow"></span><span class="t-meta">worst first</span></div>
     <div id="lib-weak"></div>
   </div>
-  <div class="sec">
+  <div class="sec" data-lib-panel="dates">
+    <div class="sec-head"><h2 class="t-label">Dates</h2><span class="grow"></span><button class="btn text add" data-act="add-lib-date" title="Add a date">Add date</button></div>
+    <div id="lib-dates"></div>
+  </div>
+  <div class="sec" data-lib-panel="sets">
     <div class="sec-head"><h2 class="t-label">All sets</h2><span class="grow"></span><div class="opts" id="lib-filter"></div></div>
     <div id="lib-all"></div>
   </div>
@@ -818,10 +824,10 @@ const kindOffers = (d, tool) => DATE_KINDS[kindOf(d)].offers.includes(tool);
 
 /* Dates: any goal with a date (an exam, an interview, a race, a trip). days = days from today. plan: a prep plan waits. */
 const DATES = [
-  { id: 'd-exam3', type: 'date', kind: 'exam', title: 'Biology exam 3', coll: 'biology', days: 3, short: 'Thu', full: 'Thursday, Nov 5', time: '9:00 am', link: 'n-obj', soon: true, plan: true },
-  { id: 'd-interview', type: 'date', kind: 'other', title: 'Job interview', coll: 'interview', days: 7, short: 'Nov 9', full: 'Monday, Nov 9', time: '1:00 pm', link: 'n-stories', soon: true },
-  { id: 'd-half', type: 'date', kind: 'other', title: 'Half marathon', coll: 'running', days: 20, short: 'Nov 22', full: 'Sunday, Nov 22', time: '7:00 am', link: 'n-log', soon: true },
-  { id: 'd-oax', type: 'date', kind: 'other', title: 'Trip to Oaxaca', coll: 'spanish', days: 132, short: 'Mar 14', full: 'Sunday, Mar 14', time: 'none', link: 'n-market' },
+  { id: 'd-exam3', type: 'date', kind: 'exam', title: 'Biology exam 3', coll: 'biology', days: 3, short: 'Thu', full: 'Thursday, Nov 5', soon: true, plan: true },
+  { id: 'd-interview', type: 'date', kind: 'other', title: 'Job interview', coll: 'interview', days: 7, short: 'Nov 9', full: 'Monday, Nov 9', soon: true },
+  { id: 'd-half', type: 'date', kind: 'other', title: 'Half marathon', coll: 'running', days: 20, short: 'Nov 22', full: 'Sunday, Nov 22', soon: true },
+  { id: 'd-oax', type: 'date', kind: 'other', title: 'Trip to Oaxaca', coll: 'spanish', days: 132, short: 'Mar 14', full: 'Sunday, Mar 14' },
 ];
 /* A date row's meta: its collection, and the waiting prep plan where its kind offers one. */
 const datePlanWaits = d => !!d.plan && kindOffers(d, 'prep-plan');
@@ -877,7 +883,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const app = $('#app'), area = $('#area'), detail = $('#detail'), menu = $('#menu');
 const state = { screen: 'today', param: null, edit: false, session: false, paused: false, seconds: 18 * 60 + 20, undo: null,
-  libFilter: 'all', open: new Set(['interview']), note: 'n-co', hero: { i: 0, flipped: false }, study: null, seq: 0,
+  libFilter: 'all', libTab: 'practice', open: new Set(['interview']), note: 'n-co', hero: { i: 0, flipped: false }, study: null, seq: 0,
   deleted: new Map(DELETED_SEED.map(([id, on, left]) => [id, { on, left }])) };
 
 const BY = {};
@@ -1077,7 +1083,12 @@ function renderLibrary() {
   if (['all', 'questions'].includes(state.libFilter) && BY['j-full'].state === 'running') list.splice(1, 0, BY['j-full']);
   const ws = liveWeak();
   $('#lib-weak').innerHTML = ws.length ? ws.map(w => itemRow(w)).join('') : '<span class="t-meta">None right now. New ones come from your misses; E.V. proposes, you confirm.</span>';
-  $('#lib-weak-n').textContent = ws.length;
+  const ds = live(DATES).sort((a, b) => (a.days ?? 1e9) - (b.days ?? 1e9));
+  $('#lib-dates').innerHTML = ds.length ? ds.map(d => itemRow(d)).join('') : '<span class="t-meta">No dates. Add one for an exam, an interview, a race or a trip.</span>';
+  /* The tabs, in the app's order (areas/library/Library.view.tsx); a count is the size of the tab's list. */
+  $('#lib-tabs').innerHTML = [['practice', 'Practice'], ['weak', 'Weak spots', ws.length], ['dates', 'Dates', ds.length], ['sets', 'Sets', sets.length]]
+    .map(([k, l, n]) => `<button role="tab" data-lib-tab="${k}" aria-selected="${state.libTab === k}" class="${state.libTab === k ? 'on' : ''}">${l}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
+  $$('[data-lib-panel]').forEach(p => (p.hidden = p.dataset.libPanel !== state.libTab));
   $('#lib-all').innerHTML = list.length ? tiles(list, {}) : `<div class="empty"><span>No ${state.libFilter} sets yet.</span><button class="btn secondary" data-act="new-set">New set</button></div>`;
 }
 
@@ -1441,7 +1452,7 @@ function newSet({ coll = null, src = null, ev = false, from = null } = {}) {
   else $('#editor .cell')?.focus();
 }
 function newDate(coll, onToday) {
-  const d = { id: uid('d'), type: 'date', kind: 'other', title: '', coll: coll || null, days: null, short: '—', full: 'none', time: 'none', link: null, soon: !!onToday };
+  const d = { id: uid('d'), type: 'date', kind: 'other', title: '', coll: coll || null, days: null, short: '—', full: 'none', soon: !!onToday };
   DATES.push(d); BY[d.id] = d; paint();
   openDetail(d.id, $(`.view .row[data-id="${d.id}"]`));
   $('#detail [data-title]')?.focus();
@@ -1601,15 +1612,14 @@ function detailFor(id) {
     </div>
     <div class="line g2">${x.done ? `<button class="btn secondary" data-act="toggle-done" data-for="${x.id}">Mark not done</button>` : `<button class="btn primary" data-act="start-item" data-for="${x.id}">Start<span class="kbd">S</span></button><button class="btn text" data-act="toast" data-msg="Moved to tomorrow">Move to tomorrow</button>`}</div>`;
   if (x.type === 'date') return `
-    ${head(x.id, 'Date', x.title, `${x.full === 'none' ? 'no date yet' : x.full}${x.time !== 'none' ? ' · ' + x.time : ''}`, true)}
+    ${head(x.id, 'Date', x.title, x.full === 'none' ? 'no date yet' : x.full, true)}
     <div class="props">
-      ${kv(x, 'Date', x.full, 'full')}${kv(x, 'Time', x.time, 'time')}${kv(x, 'Repeat', x.repeat || 'None', 'repeat')}
+      ${kv(x, 'Date', x.full, 'full')}
       ${kvPick('Kind', DATE_KINDS[kindOf(x)].label, 'pick-kind', x.id)}
       ${kvPick('Collection', linkLabel(x.coll), 'pick-coll', x.id)}
-      ${kvPick('Linked', linkLabel(x.link), 'pick-link', x.id)}
     </div>
     ${liveWeak().some(w => w.date === x.id) ? `<div class="sec"><h2 class="t-label">Weak spots for this date</h2>${liveWeak().filter(w => w.date === x.id).map(w => itemRow(w, { noColl: true })).join('')}</div>` : ''}
-    ${!kindOffers(x, 'prep-plan') ? '' : x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan">Review the prep plan</button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a prep plan · it will wait in Activity for you"><span class="mark quiet"></span>Plan with E.V.</button></div>'}`;
+    ${!kindOffers(x, 'prep-plan') ? '' : `<div class="sec"><h2 class="t-label">Prep plan</h2>${x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan">Review the prep plan</button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a prep plan · it will wait in Activity for you"><span class="mark quiet"></span>Plan with E.V.</button></div>'}</div>`}`;
   if (x.type === 'view') return `
     ${head(null, 'Saved view · filter and sort', titleOf(x), 'Changes apply as you pick.')}
     <div class="sec"><h2 class="t-label">Shows</h2><div class="opts">${Object.entries(SHOWS).map(([k, l]) => `<button data-vshow="${k}" class="${x.shows.includes(k) ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -1897,6 +1907,7 @@ const actions = {
   'toggle-done': b => toggleDone(forId(b)),
   'add-plan': addPlanInline,
   'add-date': () => newDate(null, true),
+  'add-lib-date': () => newDate(null, false),
   'accept-suggest': acceptSuggest,
   'edit-suggest': editSuggest,
   'dismiss-suggest': dismissSuggest,
@@ -1994,6 +2005,8 @@ app.addEventListener('click', e => {
   if (check) return check.classList.toggle('done');
   const f = e.target.closest('[data-filter]');
   if (f) { state.libFilter = f.dataset.filter; return renderLibrary(); }
+  const lt = e.target.closest('[data-lib-tab]');
+  if (lt) { state.libTab = lt.dataset.libTab; return renderLibrary(); }
   const tr = e.target.closest('[data-tree]');
   if (tr) return fold(tr.dataset.tree);
   const hr = e.target.closest('[data-hero]');
