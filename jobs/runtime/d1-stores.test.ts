@@ -182,10 +182,10 @@ test("saveOutput lands items and drafts in one batch and is safe to retry", asyn
     sourceRef: "e1",
   };
   const draft = {
-    jobId: "j",
+    job_id: "j",
     kind: "set-item" as const,
-    targetC: "sets",
-    targetId: "set1",
+    target_kind: "sets",
+    target_id: "set1",
     body: { ...item, sourceRef: null },
   };
   const a = { jobId: "j", targetId: "set1", items: [item], drafts: [draft] };

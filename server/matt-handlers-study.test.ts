@@ -48,7 +48,7 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
   );
   // an unverified item is a pending draft
   await DB.prepare(
-    "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES ('d1', 'j', 'set-item', 'own_sets', ?, ?, 'pending', 1, 1)",
+    "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES ('draft_d1', 'j', 'set-item', 'own_sets', ?, ?, 'pending', 1, 1)",
   )
     .bind(
       set,

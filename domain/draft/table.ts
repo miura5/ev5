@@ -16,5 +16,7 @@ export const draftTableSchema = z.strictObject({
   v: z.number().int().min(1),
 });
 
+/** A draft's id on the drafts table: the same rule with `draft_`, so callers may name a draft by its bare id. */
+export const draftKey = (id: string): string => (id.startsWith('draft_') ? id : `draft_${id}`);
 
 export const parseDraftTableRow = (raw: unknown) => draftTableSchema.parse(raw);

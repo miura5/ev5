@@ -142,7 +142,7 @@ test("a draft is kept into its set exactly once, or dropped; the whole set at on
     DB.prepare(
       "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, 'j', ?, 'own_sets', ?, ?, 'pending', 1, 1)",
     )
-      .bind(id, kind, set, JSON.stringify({ q: id }))
+      .bind(`draft_${id}`, kind, set, JSON.stringify({ q: id }))
       .run();
   await put("sets", "s1", { title: "S" });
   for (const id of ["d1", "d2", "d3", "d4"]) await draft(id, "s1");
@@ -150,7 +150,7 @@ test("a draft is kept into its set exactly once, or dropped; the whole set at on
   const state = async (id: string) =>
     (
       await DB.prepare("SELECT state FROM drafts WHERE id = ?")
-        .bind(id)
+        .bind(`draft_${id}`)
         .first<{ state: string }>()
     )?.state;
   const items = async () =>

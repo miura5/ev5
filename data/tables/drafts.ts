@@ -1,6 +1,12 @@
 // Repositories for E.V.'s set-item drafts and the soft-delete list (CONTRACT data.drafts, delete.soft). Every write takes
 // its `at` from the Worker clock and a draft change is pinned to the version read, so a stale write changes nothing.
-import { itemKey, parseDeletion, setKey } from "../../domain/index.ts";
+import {
+  draftKey,
+  itemKey,
+  parseDeletion,
+  parseDraftTableRow,
+  setKey,
+} from "../../domain/index.ts";
 import type { D1Like } from "../docs/d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
@@ -25,7 +31,8 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
     ).results.map((r) => ({ id: r.id, targetId: r.target_id, v: r.v }));
   return {
     drafts: {
-      pendingById: (id: string, kind: string) => pending("id = ?", id, kind),
+      pendingById: (id: string, kind: string) =>
+        pending("id = ?", draftKey(id), kind),
       pendingForSet: (setId: string, kind: string) =>
         pending("target_id = ?", setId, kind),
       /** Pending draft `id` in set `setId`, or null. */
@@ -35,31 +42,40 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
             .prepare(
               "SELECT id FROM drafts WHERE id = ? AND target_id = ? AND kind = ? AND state = 'pending'",
             )
-            .bind(id, setId, kind)
+            .bind(draftKey(id), setId, kind)
             .first<{ id: string }>()
         )?.id ?? null,
-      /** Saves a new pending draft at version 1. */
+      /** Saves a new pending draft at version 1. `id` may be bare; the row's id carries `draft_`. */
       create: async (d: {
         id: string;
-        jobId: string;
+        job_id: string;
         kind: string;
-        targetC: string;
-        targetId: string;
-        body: string;
+        target_kind: string;
+        target_id: string;
+        body: Record<string, unknown>;
       }): Promise<void> => {
+        const row = gateRow("drafts", () =>
+          parseDraftTableRow({
+            ...d,
+            id: draftKey(d.id),
+            state: "pending",
+            at: opts.clock(),
+            v: 1,
+          }),
+        );
         await db
           .prepare(
             "INSERT INTO drafts (id, job_id, kind, target_c, target_kind, target_id, body, state, at, v) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, 1)",
           )
           .bind(
-            d.id,
-            d.jobId,
-            d.kind,
-            d.targetC,
-            d.targetC,
-            d.targetId,
-            d.body,
-            opts.clock(),
+            row.id,
+            row.job_id,
+            row.kind,
+            row.target_kind,
+            row.target_kind,
+            row.target_id,
+            JSON.stringify(row.body),
+            row.at,
           )
           .run();
       },
@@ -110,7 +126,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
               ? [
                   db
                     .prepare(
-                      "INSERT OR IGNORE INTO set_items (id, set_id, pos, type, body, at, v) SELECT 'item_' || id, ?, " +
+                      "INSERT OR IGNORE INTO set_items (id, set_id, pos, type, body, at, v) SELECT 'item_' || substr(id, 7), ?, " +
                         "(SELECT COALESCE(MAX(pos) + 1, 0) FROM set_items WHERE set_id = ?), " +
                         "COALESCE(json_extract(body, '$.type'), 'single'), json_remove(body, '$.id'), ?, 1 " +
                         "FROM drafts WHERE id = ? AND v = ? AND state = 'pending'",
