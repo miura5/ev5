@@ -1,68 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "./d1-stores.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 import {
   d1CeilingStore,
   d1JobStore,
   d1PlanStore,
   saveOutput,
+  setPlanState,
 } from "./d1-stores.ts";
 import { memoryStore } from "./ceilings-memory.ts";
 import { release, reserve, settle, type CeilingStore } from "./ceilings.ts";
 import { newJob, transition, type JobStore } from "./record.ts";
-
-// A real SQLite behind D1's interface (fake-d1 only knows the docs statements): batch is one transaction.
-function sqliteD1(): D1Like {
-  const sql = new DatabaseSync(":memory:");
-  for (const f of [
-    "0002_jobs_ceilings.sql",
-    "0003_collections_pins_own.sql",
-    "0004_ceiling_usage.sql",
-    "0006_tables.sql",
-    "0007_plans_drafts.sql",
-  ])
-    sql.exec(
-      readFileSync(
-        new URL(`../../data/migrations/${f}`, import.meta.url),
-        "utf8",
-      ),
-    );
-  const run = (text: string, args: (string | number | null)[]) => {
-    const st = sql.prepare(text);
-    return /^\s*(select|with)/i.test(text)
-      ? { rows: st.all(...args), changes: 0 }
-      : { rows: [], changes: Number(st.run(...args).changes) };
-  };
-  const prepare = (text: string): D1Statement => {
-    let args: (string | number | null)[] = [];
-    const st = {
-      bind: (...v: (string | number | null)[]) => ((args = v), st),
-      first: async () => (run(text, args).rows[0] ?? null) as never,
-      all: async () => ({ results: run(text, args).rows as never[] }),
-      run: async () => ({ meta: { changes: run(text, args).changes } }),
-      exec: () => run(text, args),
-    };
-    return st as unknown as D1Statement;
-  };
-  return {
-    prepare,
-    async batch(statements) {
-      sql.exec("BEGIN");
-      try {
-        const out = statements.map((s) =>
-          (s as unknown as { exec: () => unknown }).exec(),
-        );
-        sql.exec("COMMIT");
-        return out;
-      } catch (e) {
-        sql.exec("ROLLBACK");
-        throw e;
-      }
-    },
-  };
-}
 
 const cfg = { hourly: 1000, daily: 5000, monthly: 10000, perJob: 600 };
 const now = new Date("2026-11-03T14:30:00Z");
@@ -220,6 +168,35 @@ test("d1 plan store: approve writes the plan and its items to the tables, once, 
     { id: "plan_j1", state: "put_away" },
     { id: "plan_j2", state: "in_force" },
   ]);
+});
+
+test("d1 plan store: a plan.approve racing the job's approve on one plan leaves one plan in force and no duplicate items", async () => {
+  const db = sqliteD1();
+  const s = d1PlanStore(db, () => 1000, { load: async () => undefined });
+  const plan = { summary: "s", tasks };
+  await s.putContext("j1", ctx("g1"));
+  await s.approve("j1", plan);
+  await s.putContext("j2", ctx("g1"));
+  // plan_j2 is the goal's newer plan; its job approve and a plan.approve (setPlanState) run together.
+  await Promise.allSettled([
+    s.approve("j2", plan),
+    setPlanState(db, () => 1000, "plan_j2", "in_force"),
+    setPlanState(db, () => 1000, "plan_j2", "in_force"),
+  ]);
+  const q = async (sql: string) =>
+    JSON.parse(JSON.stringify((await db.prepare(sql).all()).results));
+  assert.deepEqual(await q("SELECT id, state FROM plans ORDER BY id"), [
+    { id: "plan_j1", state: "put_away" },
+    { id: "plan_j2", state: "in_force" },
+  ]);
+  assert.equal(
+    (await q("SELECT id FROM plan_items WHERE plan_id = 'plan_j2'")).length,
+    tasks.length,
+  );
+  assert.equal(
+    (await q("SELECT DISTINCT id FROM plan_items")).length,
+    2 * tasks.length,
+  );
 });
 
 test("d1 plan store: put-away writes a put-away plan with no items; the opposite decision is refused", async () => {

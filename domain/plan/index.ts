@@ -1,4 +1,4 @@
-// domain/plan: the study plan job's date rules. The tables are `plans` and `plan_items` (migration 0007): their rows are
+// domain/plan: the prep plan job's date rules. The tables are `plans` and `plan_items` (migration 0007): their rows are
 // ./table.ts, which also builds them from a job's plan (`planTableWrite`); the data gate writes them (§data.gate) and a plan
 // item is unique by repeat and day (§data.repeat). The code validates and the model only arranges (§model.output). Pure: no SQL here.
 

@@ -41,7 +41,7 @@ export type JobRunEnv = {
     study_plan: string;
     study_plan_changes: string;
   };
-  /** Where the study plan reads its exam and weak spots (server/plan-home.ts). */
+  /** Where the prep plan reads its exam and weak spots (server/plan-home.ts). */
   planHome: {
     load: PlanStore["load"];
   };
@@ -52,7 +52,7 @@ export type JobRunEnv = {
 /**
  * Ceiling amounts live in D1 settings (micro-dollars, 1,000,000 = $1). An unset key uses DEFAULT_CEILINGS, so jobs
  * run before Matt has set anything; a stored value (even 0, which stops every call) always wins.
- * The defaults are a builder's guesses, chosen to be low: one study plan (60 cents) or practice
+ * The defaults are a builder's guesses, chosen to be low: one prep plan (60 cents) or practice
  * set (50 cents) fits the per-job cap, a few fit the day.
  */
 export const DEFAULT_CEILINGS: CeilingConfig = {
