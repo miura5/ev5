@@ -7,7 +7,7 @@ import type { ReadCopyLike } from "../../commands/client.ts";
 const EMPTY =
   "Your accuracy over time will show here once you have answered some practice questions.";
 
-/** Progress: weekly first-try accuracy with its big number and bars (the mock-up's one section, D-511) (read-only, no writes). */
+/** Progress: weekly first-try accuracy with its big number and bars (the mock-up's one section) (read-only, no writes). */
 export function ProgressScreen({
   services,
 }: {
