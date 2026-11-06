@@ -54,10 +54,10 @@ export const sessionSchema = z
     schema: z.literal(2),
     writer: z.enum(['page', 'filing']),
     at: z.string().min(1),
-    source: z.enum(['Study Watch', 'E.V. Home']),
+    source: z.string().min(1),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     status: z.enum(STATUSES).optional(),
-    kind: z.enum(['note', 'skill']).optional(),
+    kind: z.literal('note').optional(),
     startedAt: z.string().nullable().optional(),
     endedAt: z.string().nullable().optional(),
     topic: z.string().optional(),
@@ -98,7 +98,7 @@ export type SessionWrite = {
   data: Record<string, unknown>;
 };
 
-/** ev4's Study Watch constants (spec.constants.studyWatch defaults) that the session clock and read-along use. */
+/** The constants the session clock and read-along use. */
 export type SessionRules = {
   checkMinutes: number;
   idleChecksToEnd: number;
