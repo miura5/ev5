@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
+import { weakSpotDocs } from "./weak-wire.ts";
 
 export interface DocRoutesEnv {
   DB: DocsD1;
@@ -53,6 +54,15 @@ docRoutes.get("/docs", async (c) => {
     return c.json({ now: out.now, docs: out.docs.map(shape) });
   }
   if (!collection) return c.json({ error: "collection is required" }, 400);
+  // Weak spots live in their tables (§data.tables); the screens still read them as documents.
+  if (collection === "weakspots") {
+    const spots = (await weakSpotDocs(c.env.DB, () => Date.now())).map((s) =>
+      shape({ c: collection, id: s.id, data: s.data, at: s.at, v: s.v }),
+    );
+    if (id === undefined) return c.json({ docs: spots });
+    const one = spots.find((s) => s.id === id);
+    return one ? c.json(one) : c.json({ error: "not found" }, 404);
+  }
   if (id === undefined)
     return c.json({ docs: (await r.list(collection)).map(shape) });
   const doc = await r.get(collection, id);

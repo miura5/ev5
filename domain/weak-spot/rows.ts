@@ -40,3 +40,29 @@ export function weakSpotFromRows(
     readingDue: row.reading_due,
   };
 }
+
+/** An event row's key in the document shape: its type, its instant and its id's own letters, as ev4's event keys read. */
+const wireKey = (e: WeakSpotEventRow) =>
+  `${e.type}-${iso(e.at)
+    .replace(/[-:]/g, "")
+    .replace("T", "-")
+    .replace(/\.(\d{3})Z$/, "$1")}-${e.id.replace(/[^a-z0-9]/g, "")}`;
+
+/**
+ * The document the screens read (`GET /docs?collection=weakspots`) built from the rows: the model above, with the events
+ * under keys the document schema accepts and the exam and course the caller worked out from the spot's objective.
+ */
+export function weakSpotDoc(
+  row: WeakSpotTableRow,
+  events: WeakSpotEventRow[],
+  where: { exam: string | null; course?: string },
+): WeakSpot {
+  return {
+    ...weakSpotFromRows(row, []),
+    events: Object.fromEntries(
+      events.map((e) => [wireKey(e), eventFromRow(e)]),
+    ),
+    exam: where.exam,
+    ...(where.course ? { course: where.course } : {}),
+  };
+}
