@@ -5999,7 +5999,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 577 data/tables/attempts.ts record(); PR 583 own sets: study.attempt and study.just_tell_me write one attempts row (optional att_ id on the command for retries), own_attempts no longer written there; reveal counts from attempts. Left: E.V.'s docs-based sets (ev4 answers docs), outbox answer kind posting att_ ids and showing refusals, Library study run, note-session check-ins, Ask E.V. just tell me, removal of own_attempts.",
+  "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 577 data/tables/attempts.ts record(); PR 583 own sets: study.attempt and study.just_tell_me write one attempts row (optional att_ id on the command for retries), own_attempts no longer written there; reveal counts from attempts. Run 96: study.attempt takes a rating (again or good), the Library run posts ratings and typed grades as study.attempt under a client att_ id, a refused outbox entry is shown as a toast on Library. Left: E.V.'s docs-based sets (ev4 answers docs), check.answer in note sessions, ask.just_tell_me, removal of own_attempts.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
  },

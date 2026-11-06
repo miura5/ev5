@@ -18,6 +18,8 @@ export interface LibraryServices {
       input: Record<string, unknown>,
     ): Promise<unknown>;
     replay(): Promise<unknown>;
+    /** What waits on this device; an entry with `refused` was turned down for good and is not sent again. */
+    waiting?(): Promise<ReadonlyArray<{ key: string; id: string; refused?: string }>>;
   };
 }
 
@@ -32,6 +34,22 @@ function useWriter(setId: string, services?: LibraryServices) {
     (itemId: string, rating: "again" | "good" | "told", attempt: string) => {
       const q = services?.outbox.queueAnswer;
       if (!services || !q) return Promise.resolve(false);
+      const cmd = services.outbox.queueCommand;
+      // A rating posts as study.attempt under a client att_ id (a replay after a lost reply is a 409, never a second row).
+      if (cmd && rating !== "told") {
+        const att = attemptId();
+        return cmd
+          .call(services.outbox, "study.attempt", att, {
+            id: `${setId}/${itemId}`,
+            answer: attempt,
+            rating,
+            attempt: att,
+          })
+          .then(
+            () => (void services.outbox.replay(), true),
+            () => false,
+          );
+      }
       const a = buildAnswer(setId, itemId, rating, attempt, new Date(), rand());
       return q.call(services.outbox, "answers", a.id, a.doc).then(
         () => (void services.outbox.replay(), true),
@@ -101,7 +119,7 @@ export function useGrade(setId: string) {
     async (itemId: string, answer: string): Promise<GradeOutcome> => {
       const r = await call(
         "study.attempt",
-        { id: `${setId}/${itemId}`, answer },
+        { id: `${setId}/${itemId}`, answer, attempt: attemptId() },
         readToken(),
       );
       if (!r.ok) return { ok: false, message: gradeFailure(r.status) };

@@ -210,11 +210,22 @@ export const studyHandlers: Record<string, CommandHandler> = {
   },
 
   "study.attempt": async (
-    i: { id: string; answer: string; attempt?: string },
+    i: {
+      id: string;
+      answer: string;
+      rating?: "again" | "good";
+      attempt?: string;
+    },
     _c,
     x,
   ) => {
     const f = await find(x, i.id);
+    // A self-rating (Again or Good) is his own judgment of a card: kept as the score, nothing graded.
+    if (i.rating) {
+      const g = { correct: i.rating === "good" };
+      const key = await record(x, f, { text: i.answer, g }, i.attempt);
+      return { id: i.id, key, correct: g.correct };
+    }
     const open = itemType(f.item) === "open";
     if (open && !i.answer.trim())
       throw new CommandError(400, "write an answer first");
