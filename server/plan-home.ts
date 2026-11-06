@@ -1,25 +1,21 @@
-// Where the prep plan reads its date and weak spots and where an approved plan lands (ev4 docs collections).
-// load: the date (`exams/<id>` or its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
-// the active ones worst first (the order is code, CONTRACT §cmd.code-first). apply: the plan becomes `plans/plan-<job>`
-// (what Today reads), an older exam document's `planId` points at it and `planedits/<date>` puts it in force (as plan.approve does). Both writes are safe to repeat when a step retries.
+// Where the prep plan reads its date and weak spots.
+// load: the date (its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
+// the active ones worst first (the order is code, CONTRACT §cmd.code-first). An approved plan lands as `plans` and `plan_items`
+// rows through d1PlanStore (jobs/runtime), not here.
 import {
   centralDate,
   deriveWeakSpot,
-  endedReason,
   lastDay,
-  planEnded,
   isActive,
   parseGoal,
   reviewNeed,
 } from "../domain/index.ts";
-import { docsRepo } from "../data/index.ts";
 import { readJobPlan } from "./job-plans.ts";
 import { goalDoc } from "./goal-wire.ts";
 import { weakSpotDocs } from "./weak-wire.ts";
-import { putPlanInForce } from "./handlers-dates.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { Attempt } from "../domain/index.ts";
-import type { D1Like, Plan } from "../jobs/index.ts";
+import type { D1Like } from "../jobs/index.ts";
 import type { JobRunEnv } from "./job-run.ts";
 
 type Row = { id: string; data: string; v: number };
@@ -96,71 +92,6 @@ export function planHome(
           : [];
       });
       return { exam: { ...exam, id: goalId }, spots, today };
-    },
-
-    async apply(jobId, plan: Plan) {
-      const ctx = await readJobPlan(db, jobId, "context");
-      if (ctx === undefined)
-        throw new Error(`job ${jobId}: no plan context saved`);
-      const { goal } = ctx as {
-        goal: { id: string; title: string };
-      };
-      const planId = `plan-${jobId}`;
-      const at = clock();
-      // A retried save after the plan's days passed must not put a dead plan in force.
-      const last = lastDay(plan.tasks.map((t) => t.date));
-      if (last !== undefined && planEnded([last], centralDate(at)))
-        throw new Error(endedReason(last));
-      const days = [...new Set(plan.tasks.map((t) => t.date))]
-        .sort()
-        .map((date) => ({
-          date,
-          tasks: plan.tasks
-            .map((t, n) => ({ t, n }))
-            .filter(({ t }) => t.date === date)
-            .map(({ t, n }) => ({
-              id: `${jobId}-${n + 1}`,
-              text: t.title,
-              kind: "study",
-              minutes: t.minutes,
-              ...(t.weakSpotId ? { ref: t.weakSpotId } : {}),
-            })),
-        }));
-      const doc = {
-        schema: 1,
-        writer: "worker",
-        at: new Date(at).toISOString(),
-        source: `v5/job:${jobId}`,
-        exam: goal.id,
-        title: `${goal.title}: ${plan.summary}`.slice(0, 200),
-        days,
-      };
-      // Both writes go through the docs protocol: canonical JSON and the version guard (§data.protocol).
-      const docs = docsRepo(db as DocsD1, { clock });
-      if (!(await docs.get("plans", planId))) {
-        const made = await docs.save(
-          "plans",
-          planId,
-          JSON.stringify(doc),
-          null,
-        );
-        if (!made.ok)
-          throw new Error(`plan ${planId} was not saved: ${made.error}`);
-      }
-      const row = await goalDoc(db as DocsD1, clock, goal.id);
-      if (!row)
-        throw new Error(
-          `The date ${goal.title} is gone, so the plan has nowhere to attach.`,
-        );
-      // A goal row has no planId of its own: goalDocs (goal-wire.ts) reads it from `planedits/<goal>`, put in force below.
-      // Approving the job is the one tap: the plan is also put in force, as the plan.approve command does.
-      await putPlanInForce(
-        { db: db as never, clock },
-        goal.id,
-        planId,
-        `v5/job:${jobId}`,
-      );
-      return planId;
     },
   };
 }

@@ -12,8 +12,8 @@ export interface WireGoal {
   data: ReturnType<typeof parseGoal>;
 }
 
-/** The plan a goal's `planedits/<goal>` document points it at, as an old exam's `planId` does: the plan in force, else
- * the plan put away last (so a put-away plan reads as put away). Approving a plan writes only `planedits`, never the row. */
+/** The plan the goal's `planedits/<goal>` wire document (built from its plans rows) points it at, as an old exam's `planId` does: the plan in force, else
+ * the plan put away last (so a put-away plan reads as put away). Approving a plan changes its plans row, never the goal row. */
 function planIdOf(edit: unknown): string | undefined {
   const e = (edit ?? {}) as { plan?: unknown; retired?: unknown };
   if (typeof e.plan === "string" && e.plan) return e.plan;

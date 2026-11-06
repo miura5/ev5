@@ -61,7 +61,12 @@ const put = (
     .run(c, id, JSON.stringify(data));
 const meta = { writer: "page", at: "2026-11-01T00:00:00Z", source: "t" };
 // A weak spot is a row pointing at an objective; the objective is linked to its goal (§data.tables, §data.links).
-const row = (id: string, topic: string, collection: string, objective: string) =>
+const row = (
+  id: string,
+  topic: string,
+  collection: string,
+  objective: string,
+) =>
   `INSERT INTO weak_spots (id, collection_id, objective_id, topic, kind, words, source_line, duplicate_of, proposed, created_by, pre_read, reading_due, at, v) VALUES ('${id}', '${collection}', '${objective}', '${topic}', 'concept', NULL, 't', NULL, 0, 'user', 0, NULL, 0, 1)`;
 const objective = (id: string, collection: string, goal: string) =>
   `INSERT INTO objectives (id, collection_id, num, text, chapters, source_ref, created_by, at, v) VALUES ('${id}', '${collection}', 1, 'x', NULL, NULL, 'user', 0, 1);
@@ -123,66 +128,6 @@ test("answers on a weak spot count toward its need", async () => {
   assert.ok(got.spots.find((s) => s.id === "ws_w1"));
 });
 
-test("apply puts the plan on Today (plans doc) and puts it in force; repeating is safe", async () => {
-  const db = seeded();
-  db.sql
-    .prepare(
-      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('j1', 'context', ?, 0)",
-    )
-    .run(JSON.stringify({ goal: { id: "goal_e1", title: "Unit 3" } }));
-  const home = planHome(db, () => T);
-  const plan = {
-    summary: "Cells first",
-    tasks: [
-      {
-        date: "2026-11-03",
-        title: "Cell division",
-        minutes: 30,
-        weakSpotId: "ws_w1",
-      },
-      { date: "2026-11-03", title: "Photosynthesis", minutes: 20 },
-      { date: "2026-11-04", title: "Mixed", minutes: 25 },
-    ],
-  };
-  assert.equal(await home.apply("j1", plan), "plan-j1");
-  assert.equal(await home.apply("j1", plan), "plan-j1");
-  const doc = JSON.parse(
-    (
-      db.sql
-        .prepare("SELECT data FROM docs WHERE c='plans' AND id='plan-j1'")
-        .get() as { data: string }
-    ).data,
-  );
-  assert.equal(doc.exam, "goal_e1");
-  assert.deepEqual(
-    doc.days.map((d: { date: string; tasks: unknown[] }) => [
-      d.date,
-      d.tasks.length,
-    ]),
-    [
-      ["2026-11-03", 2],
-      ["2026-11-04", 1],
-    ],
-  );
-  assert.equal(doc.days[0].tasks[0].ref, "ws_w1");
-  // Stored as canonical JSON (compact, as ev4 stores it; §data.protocol) and as a v5 write; an exam keeps its envelope
-  // (a Fact's writer and source are write-once). The ev4 contract check on this output needs a Node-only test door.
-  const text = (id: string, c: string) =>
-    (
-      db.sql.prepare("SELECT data FROM docs WHERE c=? AND id=?").get(c, id) as {
-        data: string;
-      }
-    ).data;
-  assert.equal(text("plan-j1", "plans"), JSON.stringify(doc));
-  assert.equal(doc.source, "v5/job:j1");
-  // One tap: the plan is in force, written once (the repeat left it alone).
-  const pe = db.sql
-    .prepare("SELECT data, v FROM docs WHERE c='planedits' AND id='goal_e1'")
-    .get() as { data: string; v: number };
-  assert.equal(JSON.parse(pe.data).plan, "plan-j1");
-  assert.equal(pe.v, 1);
-});
-
 test("ceilings use the documented defaults when unset and a stored value wins", async () => {
   const db = sqliteD1();
   assert.deepEqual(await loadCeilingConfig(db), DEFAULT_CEILINGS);
@@ -237,14 +182,26 @@ test("a weak spot is created in its table, once, with no events and no docs row"
     proposed: true,
     course: "Biology",
   };
-  const made = await createWeakSpot(db as never, () => T, "ws_1", JSON.stringify(doc), null);
+  const made = await createWeakSpot(
+    db as never,
+    () => T,
+    "ws_1",
+    JSON.stringify(doc),
+    null,
+  );
   assert.equal(made.ok, true);
   const spots = await weakSpotDocs(db as never, () => T);
   assert.equal(spots.length, 1);
   assert.equal(spots[0]?.data.course, "Biology");
   assert.equal(spots[0]?.data.proposed, true);
   assert.equal(db.sql.prepare("SELECT COUNT(*) n FROM docs").get()?.n, 0);
-  const again = await createWeakSpot(db as never, () => T, "ws_1", JSON.stringify(doc), null);
+  const again = await createWeakSpot(
+    db as never,
+    () => T,
+    "ws_1",
+    JSON.stringify(doc),
+    null,
+  );
   assert.equal(again.ok, false);
   const bad = await createWeakSpot(db as never, () => T, "x", "{}", null);
   assert.equal(!bad.ok && bad.status, 400);

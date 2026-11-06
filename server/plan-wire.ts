@@ -1,7 +1,7 @@
 // Plans as the screens read them (CONTRACT §data.tables, §data.gate): the `plans` and `plan_items` rows, shown as the older
 // `plans` document (days of tasks) and the `planedits/<goal>` document (which plan is in force, which are put away) that Today and
-// Library already read. A goal with a plan row is read from rows alone; a goal without one still reads its older documents.
-import { docsRepo, tablesRepo } from "../data/index.ts";
+// Library already read. Rows only: staging was rebuilt from empty on 2026-11-06, so no older document is merged.
+import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 
 export interface WirePlan {
@@ -14,18 +14,16 @@ export interface WirePlan {
 /** A plan item's id as the day's ticks key it: the row id without its `pli_` prefix (the id the older document gave). */
 const taskId = (id: string) => id.replace(/^pli_/, "");
 
-/** Every live plan as its document, then the older `plans` documents the rows do not replace, in id order. */
+/** Every live plan as its document, in id order. */
 export async function planDocs(
   db: DocsD1,
   clock: () => number,
 ): Promise<WirePlan[]> {
   const t = tablesRepo(db, { clock });
-  const [plans, items, old] = await Promise.all([
+  const [plans, items] = await Promise.all([
     t.plans.list(),
     t.planItems.list(),
-    docsRepo(db, { clock }).list("plans"),
   ]);
-  const goals = new Set(plans.map((p) => p.goal_id));
   const rows = plans.map((p) => {
     const mine = items
       .filter((i) => i.plan_id === p.id)
@@ -57,12 +55,7 @@ export async function planDocs(
       },
     };
   });
-  const have = new Set(rows.map((r) => r.id));
-  const legacy = old
-    .filter((d) => !have.has(d.id))
-    .filter((d) => !goals.has(String((d.data as { exam?: unknown }).exam)))
-    .map((d) => ({ id: d.id, v: d.v, at: d.at, data: d.data }));
-  return [...rows, ...legacy].sort((a, b) => a.id.localeCompare(b.id));
+  return rows.sort((a, b) => a.id.localeCompare(b.id));
 }
 
 /** Which plan is in force per goal, as `planedits/<goal>`: `plan` for the plan in force, `retired` for those put away. */
@@ -70,10 +63,7 @@ export async function planeditDocs(
   db: DocsD1,
   clock: () => number,
 ): Promise<WirePlan[]> {
-  const [plans, old] = await Promise.all([
-    tablesRepo(db, { clock }).plans.list(),
-    docsRepo(db, { clock }).list("planedits"),
-  ]);
+  const plans = await tablesRepo(db, { clock }).plans.list();
   const byGoal = new Map<string, typeof plans>();
   for (const p of plans)
     byGoal.set(p.goal_id, [...(byGoal.get(p.goal_id) ?? []), p]);
@@ -95,11 +85,5 @@ export async function planeditDocs(
       },
     };
   });
-  const have = new Set(rows.map((r) => r.id));
-  return [
-    ...rows,
-    ...old
-      .filter((d) => !have.has(d.id))
-      .map((d) => ({ id: d.id, v: d.v, at: d.at, data: d.data })),
-  ].sort((a, b) => a.id.localeCompare(b.id));
+  return rows.sort((a, b) => a.id.localeCompare(b.id));
 }

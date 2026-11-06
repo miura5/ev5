@@ -172,7 +172,6 @@ test("d1 plan store: approve writes the plan and its items to the tables, once, 
   const db = sqliteD1();
   const s = d1PlanStore(db, () => 1000, {
     load: async () => undefined,
-    apply: async (j) => `plan-${j}`,
   });
   const plan = { summary: "s", tasks };
   await s.putContext("j1", ctx("g1"));
@@ -227,7 +226,6 @@ test("d1 plan store: put-away writes a put-away plan with no items; the opposite
   const db = sqliteD1();
   const s = d1PlanStore(db, () => 1000, {
     load: async () => undefined,
-    apply: async (j) => `plan-${j}`,
   });
   const plan = { summary: "s", tasks };
   await s.putContext("j", ctx("g1"));
@@ -243,10 +241,8 @@ test("d1 plan store: put-away writes a put-away plan with no items; the opposite
 });
 
 test("d1 plan store keeps content by job id and marks the decision", async () => {
-  const applied: string[] = [];
   const s = d1PlanStore(sqliteD1(), () => 1, {
     load: async () => undefined,
-    apply: async (j) => (applied.push(j), `plan-${j}`),
   });
   const plan = { summary: "s", tasks: [] };
   assert.equal(await s.putDraft("j", plan), "j:draft");
@@ -257,12 +253,11 @@ test("d1 plan store keeps content by job id and marks the decision", async () =>
   assert.equal(await s.getFailure("j"), "nope");
   await assert.rejects(s.getContext("j"), /no context/);
   await s.putContext("j", ctx("g1"));
-  assert.equal(await s.approve("j", plan), "plan-j");
+  assert.equal(await s.approve("j", plan), "plan_j");
   await assert.rejects(s.putAway("j"), /already approved/);
   await s.putContext("k", ctx("g2"));
   await s.putDraft("k", plan);
   assert.equal(await s.putAway("k"), "k:status");
-  assert.deepEqual(applied, ["j"]);
 });
 
 test("saveOutput lands items and drafts in one batch and is safe to retry", async () => {

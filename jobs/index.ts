@@ -3,6 +3,7 @@ export {
   d1JobStore,
   d1CeilingStore,
   d1PlanStore,
+  setPlanState,
   saveOutput,
 } from "./runtime/d1-stores.ts";
 export type { D1Like } from "./runtime/d1-stores.ts";
@@ -27,7 +28,11 @@ export type { CeilingConfig, CeilingStore } from "./runtime/ceilings.ts";
 export { practiceSet, parsePublicInput } from "./practice-set/job.ts";
 export { practiceSetHandlers } from "./practice-set/handlers.ts";
 export type { PracticeStore } from "./practice-set/handlers.ts";
-export { noPlanReason, studyPlanJob, studyPlanHandlers } from "./study-plan/job.ts";
+export {
+  noPlanReason,
+  studyPlanJob,
+  studyPlanHandlers,
+} from "./study-plan/job.ts";
 export { askChanges } from "./study-plan/changes.ts";
 export type { PlanStore, Plan } from "./study-plan/job.ts";
 export {
