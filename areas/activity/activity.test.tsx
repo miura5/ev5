@@ -22,9 +22,9 @@ const jobs: ActivityJob[] = [
   },
   {
     id: "b",
-    title: "Mock exam",
+    title: "Full practice run",
     state: "running",
-    summary: "Writing mock exam",
+    summary: "Writing full practice run",
   },
   {
     id: "c",
@@ -64,7 +64,7 @@ test("empty sections say None and rows open", () => {
   const onOpen = vi.fn();
   render(<ActivityView jobs={[jobs[1]!]} onOpen={onOpen} />);
   expect(screen.getAllByText("None.")).toHaveLength(2);
-  fireEvent.click(screen.getByText("Mock exam"));
+  fireEvent.click(screen.getByText("Full practice run"));
   expect(onOpen).toHaveBeenCalledWith("b");
 });
 

@@ -25,40 +25,50 @@ function seeded() {
   return { db, put, note };
 }
 
-test("passages come from Matt's notes that match the objectives, never from other collections", async () => {
+const inCollection = (
+  db: ReturnType<typeof sqliteD1>,
+  id: string,
+  col: string,
+) =>
+  db
+    .prepare("UPDATE notes SET collection_id = ? WHERE id = ?")
+    .bind(col, `note_${id}`)
+    .run();
+
+test("passages come from the user's notes that match the objectives, never from other collections", async () => {
   const { db, put, note } = seeded();
   await note(
     "n1",
-    "Vitals",
-    "Pulse is measured at the radial artery for one full minute.",
+    "Cells",
+    "Glycolysis splits glucose into pyruvate in the cytoplasm.",
   );
-  await note("n2", "Renal", "Kidneys filter blood and make urine.");
-  await put("sets", "s1", JSON.stringify({ title: "Pulse set", items: [] }));
-  // only a note's text column is searched: a pulse in a title or body alone is not a match
-  await note("n3", "Pulse", "Kidneys again.");
-  const got = await gatherExcerpts(db, ["Pulse measurement"]);
+  await note("n2", "Verbs", "Ser and ir share the same preterite forms.");
+  await put("sets", "s1", JSON.stringify({ title: "Glucose set", items: [] }));
+  // only a note's text column is searched: glucose in a title or body alone is not a match
+  await note("n3", "Glucose", "Verbs again.");
+  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
   assert.deepEqual(
     got.map((e) => e.id),
     ["n1"],
   );
-  assert.match(got[0]!.text, /radial artery/);
+  assert.match(got[0]!.text, /pyruvate/);
 });
 
 test("no objectives, or no match, gathers nothing", async () => {
   const { db, note } = seeded();
-  await note("n1", "Vitals", "Pulse is measured.");
+  await note("n1", "Cells", "Glucose is split.");
   assert.deepEqual(await gatherExcerpts(db, []), []);
   assert.deepEqual(await gatherExcerpts(db, ["zebra"]), []);
 });
 
 test("a note in Recently deleted is never an excerpt", async () => {
   const { db, note } = seeded();
-  await note("n1", "Vitals", "Pulse is measured at the wrist.");
-  await note("n2", "Old", "Pulse pulse pulse pulse measurement.");
+  await note("n1", "Cells", "Glucose is split in the cytoplasm.");
+  await note("n2", "Old", "Glucose glucose glucose glucose breakdown.");
   await db
     .prepare("UPDATE notes SET deleted_at = 1 WHERE id = 'note_n2'")
     .run();
-  const got = await gatherExcerpts(db, ["Pulse measurement"]);
+  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
   assert.deepEqual(
     got.map((e) => e.id),
     ["n1"],
@@ -71,13 +81,55 @@ test("the best match survives more than 60 matches", async () => {
     await note(
       `a${String(i).padStart(2, "0")}`,
       "Misc",
-      `A pulse is mentioned in passing ${i}.`,
+      `Glucose is mentioned in passing ${i}.`,
     );
   await note(
     "zbest",
-    "Pulse measurement",
-    "Pulse measurement: take the pulse at the radial artery.",
+    "Glucose breakdown",
+    "Glucose breakdown: glycolysis splits glucose into pyruvate.",
   );
-  const got = await gatherExcerpts(db, ["Pulse measurement"]);
+  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
   assert.equal(got[0]!.id, "zbest");
+});
+
+test("a set scoped to a collection draws only that collection's notes, with or without objectives", async () => {
+  const { db, note } = seeded();
+  await note("es1", "Preterite", "The preterite tells a finished action.");
+  await note("es2", "Ser and ir", "Ser and ir share the same preterite forms.");
+  await note("bio", "Cells", "The preterite of glucose is not a thing.");
+  await note("gone", "Old verbs", "Preterite preterite preterite.");
+  for (const id of ["es1", "es2", "gone"])
+    await inCollection(db, id, "col_spanish");
+  await inCollection(db, "bio", "col_biology");
+  await db
+    .prepare("UPDATE notes SET deleted_at = 1 WHERE id = 'note_gone'")
+    .run();
+  const spanish = { kind: "collection", id: "col_spanish" } as const;
+  const ranked = await gatherExcerpts(db, ["ser ir forms"], spanish);
+  assert.equal(ranked[0]!.id, "es2");
+  assert.ok(ranked.every((e) => e.id === "es1" || e.id === "es2"));
+  // no objectives, or none that match: the collection's passages are enough
+  for (const objectives of [[], ["zebra"]]) {
+    const got = await gatherExcerpts(db, objectives, spanish);
+    assert.deepEqual(got.map((e) => e.id).sort(), ["es1", "es2"]);
+  }
+});
+
+test("a set scoped to a note draws only that note", async () => {
+  const { db, note } = seeded();
+  await note(
+    "n1",
+    "STAR answers",
+    "Answer with situation, task, action, result.",
+  );
+  await note("n2", "Questions", "Ask the interviewer about the team.");
+  const got = await gatherExcerpts(db, [], { kind: "note", id: "n1" });
+  assert.deepEqual(
+    got.map((e) => e.id),
+    ["n1"],
+  );
+  assert.deepEqual(
+    await gatherExcerpts(db, [], { kind: "note", id: "missing" }),
+    [],
+  );
 });

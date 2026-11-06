@@ -8,8 +8,8 @@ afterEach(cleanup);
 
 test('the job line shows its text and opens on click', () => {
   const onOpen = vi.fn();
-  render(createElement(JobLine, { text: 'Writing mock exam · 3/4', onOpen }));
-  fireEvent.click(screen.getByRole('button', { name: /Writing mock exam/ }));
+  render(createElement(JobLine, { text: 'Writing practice set · 3/4', onOpen }));
+  fireEvent.click(screen.getByRole('button', { name: /Writing practice set/ }));
   expect(onOpen).toHaveBeenCalledOnce();
 });
 
