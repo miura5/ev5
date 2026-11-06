@@ -45,7 +45,7 @@ async function setup() {
   return { call, doc, DB };
 }
 
-test("an E.V. plan.create makes a Suggestion that Matt accepts into his day", async () => {
+test("an E.V. plan.create makes a Suggestion that the user accepts into their day", async () => {
   const { call, doc } = await setup();
   const made = await call(
     "plan.create",
@@ -134,7 +134,7 @@ test("update, move to tomorrow and toggle keep every write one ev4 accepts", asy
   );
 });
 
-test("no command Matt calls directly answers 501 for the commands these handlers cover", async () => {
+test("no command the user calls directly answers 501 for the commands these handlers cover", async () => {
   const covered = Object.keys(commandHandlers).filter((n) =>
     /^(plan|proposal)\./.test(n),
   );
@@ -167,7 +167,7 @@ test("a repeat is saved and materializes into dayedits.added under rep-<id>-<dat
   assert.equal(fri?.added[`rep-${id}-2026-11-06`].minutes, 15);
   assert.equal(await doc("dayedits", "2026-11-07"), null); // a Saturday
   assert.ok((await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`]);
-  // an update re-runs it: nothing doubles, and Matt's edit to an occurrence stays
+  // an update re-runs it: nothing doubles, and the user's edit to an occurrence stays
   const before = (await doc("dayedits", "2026-11-06"))?.v;
   assert.equal((await call("plan.update", { id, estimateMinutes: 20 })).status, 200);
   assert.equal(
@@ -243,7 +243,7 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
   assert.equal(await doc("dayedits", "2026-11-08"), null);
 });
 
-test("a repeat is a Suggestion until Matt accepts it", async () => {
+test("a repeat is a Suggestion until the user accepts it", async () => {
   const { call, doc } = await setup();
   const s = await call("plan.create", { title: "R", date: "2026-11-05", repeat: "daily" }, "ev");
   assert.equal(s.status, 202);
