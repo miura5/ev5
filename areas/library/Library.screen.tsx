@@ -71,7 +71,7 @@ export function LibraryScreen({
     setOpen(id);
     setOpenKey((k) => k + 1);
   };
-  // An exam opened by a link (Today's Review the study plan) shows its proposal at once.
+  // An exam opened by a link (Today's Review the prep plan) shows its proposal at once.
   const [openedByLink] = useState(() => !!openFromUrl());
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
@@ -106,7 +106,6 @@ export function LibraryScreen({
             id: exam.id,
             title: exam.title,
             when: exam.when,
-            course: exam.course,
             readiness: exam.readiness || "none yet",
             plan: PLAN_TEXT[exam.planState ?? "none"],
             planState: exam.planState,
@@ -125,13 +124,13 @@ export function LibraryScreen({
             void (exam.waiting
               ? last.current.answer(id, "approve")
               : last.current.plan(
-                  "studyplan.approve",
+                  "plan.approve",
                   { id },
                   "Plan approved",
                 )),
           onAskChanges: (id, note) =>
             void last.current.plan(
-              "studyplan.ask_changes",
+              "plan.ask_changes",
               { id, note },
               "Changes sent",
             ),
@@ -139,7 +138,7 @@ export function LibraryScreen({
             void (exam.waiting
               ? last.current.answer(id, "put_away")
               : last.current.plan(
-                  "studyplan.put_away",
+                  "plan.put_away",
                   { id },
                   "Plan put away",
                 )),
@@ -150,10 +149,8 @@ export function LibraryScreen({
       onDetail({
         title: spot.title,
         onClose: close,
-        properties: [
-          { label: "Course", value: spot.meta },
-          { label: "Next", value: spot.due },
-        ],
+        // A linked collection's title is not read here yet, so the spot shows no Collection line.
+        properties: [{ label: "Next", value: spot.due }],
       });
   }, [page, exam, spot, openedByLink, openKey, onDetail]);
   // No token, or one the server refused: the shell's token screen asks for it; show nothing, never an empty library.

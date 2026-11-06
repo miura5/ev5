@@ -1,4 +1,4 @@
-// The study plan job (CONTRACT §job.study-plan, §job.kinds): starts only from Matt's tap, never from chat words.
+// The prep plan job (CONTRACT §job.study-plan, §job.kinds): starts only from Matt's tap, never from chat words.
 // Steps: gather (code only), draft (one Sonnet call), approve (needs you), save. Dates and the weak-spot order are code
 // in domain (§cmd.code-first); the model only arranges them into tasks. The model call and the store are injected.
 import { z } from 'zod';
@@ -22,7 +22,7 @@ const text = (what: string, max = 200) =>
     .string({ error: `${what}: needs 1 to ${max} characters` })
     .refine((t) => t.trim().length > 0 && t.length <= max, `${what}: needs 1 to ${max} characters`);
 
-export const InputSchema = z.object({ examId: text('examId', 128) }, { error: 'study plan input: not an object' });
+export const InputSchema = z.object({ goalId: text('goalId', 128) }, { error: 'prep plan input: not an object' });
 export const PlanSchema = planBodySchema;
 const DecisionSchema = z.object({
   decision: z.enum(['approve', 'put_away'], {
@@ -42,7 +42,7 @@ export type Task = Plan['tasks'][number];
 export type Plan = z.infer<typeof PlanSchema>;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
-  exam: { id: string; title: string; kind: Exam['kind']; date: string; course?: string };
+  goal: { id: string; title: string; kind: Exam['kind']; date: string };
   today: string;
   days: string[];
   weakSpots: PlanSpot[];
@@ -50,8 +50,8 @@ export type PlanContext = {
 
 /** Where plan content lives (D1 in production). Keyed by job id, so a retried step writes the same row. */
 export interface PlanStore {
-  /** The exam and its active weak spots as of `today` (Central date). */
-  load(examId: string): Promise<{ exam: Exam & { id: string }; spots: PlanSpot[]; today: string } | undefined>;
+  /** The goal (a dated goal, read as an exam document) and its active weak spots as of `today` (Central date). */
+  load(goalId: string): Promise<{ exam: Exam & { id: string }; spots: PlanSpot[]; today: string } | undefined>;
   putContext(jobId: string, ctx: PlanContext): Promise<string>;
   getContext(jobId: string): Promise<PlanContext>;
   putDraft(jobId: string, plan: Plan): Promise<string>;
@@ -78,17 +78,17 @@ export function parseAnswer(raw: unknown): Decision {
   return rec(raw, 'answer').decision === 'change' ? parseWith(ChangeSchema)(raw) : parseDecision(raw);
 }
 
-/** The deterministic part: study days from today to the day before the exam (at most 28), weak spots worst first. */
+/** The deterministic part: the days from today to the day before the goal's date (at most 28), weak spots worst first. */
 export function buildContext(found: NonNullable<Awaited<ReturnType<PlanStore['load']>>>): PlanContext {
   const { exam, spots, today } = found;
   const left = examDaysLeft(exam, today);
   if (left === null || !exam.date)
     throw new Error(`${exam.title} has no date yet, so there is nothing to plan toward.`);
-  if (left < 1) throw new Error(`${exam.title} is today or past, so a study plan no longer fits.`);
+  if (left < 1) throw new Error(`${exam.title} is today or past, so a prep plan no longer fits.`);
   const days = Array.from({ length: Math.min(left, MAX_DAYS) }, (_, i) => addDays(today, i));
   const weakSpots = [...spots].sort((a, b) => b.need - a.need || a.title.localeCompare(b.title));
   return {
-    exam: { id: exam.id, title: exam.title, kind: exam.kind, date: exam.date, ...(exam.course ? { course: exam.course } : {}) },
+    goal: { id: exam.id, title: exam.title, kind: exam.kind, date: exam.date },
     today,
     days,
     weakSpots,
@@ -102,11 +102,11 @@ export function checkPlan(plan: Plan, ctx: PlanContext): string[] {
   if (plan.tasks.length > MAX_TASKS) out.push(`The plan has more than ${MAX_TASKS} tasks.`);
   const days = new Set(ctx.days);
   const dates = [...new Set(plan.tasks.map((t) => t.date))];
-  // Plain ISO dates compare as text. A past day is refused by name; the exam day and later are outside ctx.days.
+  // Plain ISO dates compare as text. A past day is refused by name; the goal's day and later are outside ctx.days.
   const past = dates.filter((d) => d < ctx.today);
   if (past.length) out.push(`These dates have already passed: ${past.join(', ')}. Start from ${ctx.today}.`);
   const bad = dates.filter((d) => !days.has(d) && !past.includes(d));
-  if (bad.length) out.push(`These dates are not study days: ${bad.join(', ')}.`);
+  if (bad.length) out.push(`These dates are not plan days: ${bad.join(', ')}.`);
   const per = new Map<string, number>();
   for (const t of plan.tasks) per.set(t.date, (per.get(t.date) ?? 0) + t.minutes);
   for (const [d, m] of per) if (m > MAX_DAY_MINUTES) out.push(`${d} has ${m} minutes; the most is ${MAX_DAY_MINUTES}.`);
@@ -127,8 +127,8 @@ export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
 );
 
 export const studyPlanJob = defineJob({
-  kind: 'study_plan',
-  title: 'Study plan',
+  kind: 'prep_plan',
+  title: 'Prep plan',
   input: InputSchema,
   output: PlanSchema,
   model: MODEL,
@@ -136,10 +136,10 @@ export const studyPlanJob = defineJob({
   costCapCents: COST_CAP_CENTS,
   steps: ['gather', 'draft', 'approve', ...REVISE_STEPS, 'save'],
   wording: {
-    running: 'E.V. is building your study plan.',
-    needsYou: 'Your study plan is ready. Approve it or put it away.',
-    done: 'Your study plan is saved.',
-    failed: 'The study plan could not be made.',
+    running: 'E.V. is building your prep plan.',
+    needsYou: 'Your prep plan is ready. Approve it or put it away.',
+    done: 'Your prep plan is saved.',
+    failed: 'The prep plan could not be made.',
   },
   startedBy: ['matt'],
   executor: 'workflow',
@@ -153,7 +153,7 @@ export type Deps = {
   call: ModelCall;
   system: string;
   changesSystem?: string;
-  /** studyplan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
+  /** plan.ask_changes (changes.ts); passed in because changes.ts imports this file. */
   askChanges?: (
     d: { call: ModelCall; system: string },
     input: { draft: Plan; ctx: PlanContext; note: string },
@@ -168,8 +168,8 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
     const failed = await store.getFailure(c.jobId);
     if (failed) throw new Error(failed);
     // The days were fixed when the first draft was made; a change round rebuilds them from the day it runs.
-    const found = await store.load((await store.getContext(c.jobId)).exam.id);
-    if (!found) throw new Error('That exam was not found.');
+    const found = await store.load((await store.getContext(c.jobId)).goal.id);
+    if (!found) throw new Error('That date was not found.');
     const ctx = buildContext(found);
     await store.putContext(c.jobId, ctx);
     await c.reserve(COST_CAP_CENTS);
@@ -186,14 +186,14 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
     }
     await store.putDraft(c.jobId, r.plan);
     return {
-      needsYou: `Your study plan for ${ctx.exam.title} was changed. Approve it or put it away.`,
+      needsYou: `Your prep plan for ${ctx.goal.title} was changed. Approve it or put it away.`,
     };
   };
 
   return {
     gather: async (c) => {
-      const found = await store.load(parseInput(c.input).examId);
-      if (!found) throw new Error('That exam was not found.');
+      const found = await store.load(parseInput(c.input).goalId);
+      if (!found) throw new Error('That date was not found.');
       return { ids: [await store.putContext(c.jobId, buildContext(found))] };
     },
     draft: async (c) => {
@@ -223,7 +223,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
     approve: async (c) => {
       const ctx = await store.getContext(c.jobId);
       return {
-        needsYou: `Your study plan for ${ctx.exam.title} is ready. Approve it or put it away.`,
+        needsYou: `Your prep plan for ${ctx.goal.title} is ready. Approve it or put it away.`,
       };
     },
     ...Object.fromEntries(REVISE_STEPS.map((name) => [name, revise])),

@@ -1,6 +1,6 @@
-// Dates and the study plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `goals` row (§data.tables),
+// Dates and the prep plan (CONTRACT §cmd.registry, §data.protocol). A date Matt adds is a `goals` row (§data.tables),
 // joined to objectives by link rows (§data.links); an older `dates` entry is changed by an override in `dateedits` until
-// the backfill (a Canvas entry's fields are marks only canvas-sync may write). Approving a study plan makes it the plan in force in `planedits/<exam>`; putting it away marks
+// the backfill (a Canvas entry's fields are marks only canvas-sync may write). Approving a prep plan makes it the plan in force in `planedits/<exam>`; putting it away marks
 // it retired there (§delete.soft: the plan document stays). Every write carries the document's version, so a stale one is a 409.
 import {
   addDays,
@@ -64,11 +64,11 @@ async function need(x: HandlerCtx, c: string, id: string): Promise<Doc> {
   return doc.data as Doc;
 }
 
-/** The plan's exam, whose `planedits` document says which plan is in force and which are put away. */
+/** The plan's date, whose `planedits` document says which plan is in force and which are put away. */
 async function examOf(x: HandlerCtx, id: string): Promise<string> {
   const exam = (await need(x, "plans", id)).exam;
   if (typeof exam !== "string" || !exam)
-    throw new CommandError(400, `plan ${id} has no exam`);
+    throw new CommandError(400, `plan ${id} has no date`);
   return exam;
 }
 
@@ -79,7 +79,7 @@ const planEdit = (
   change: (d: Doc) => void,
 ) => edit(x, ["planedits", exam], { schema: 2, ticks: {} }, source, change);
 
-/** Puts a plan in force in `planedits/<exam>` (un-retiring it). Shared with the study-plan job's apply step, so one tap
+/** Puts a plan in force in `planedits/<exam>` (un-retiring it). Shared with the prep-plan job's apply step, so one tap
  * on the job's Approve does what the command does. Repeating it changes nothing. */
 export async function putPlanInForce(
   x: Pick<HandlerCtx, "db" | "clock">,
@@ -187,7 +187,7 @@ export const dateHandlers: Record<string, CommandHandler> = {
     return { id: i.id };
   },
 
-  "studyplan.approve": async (i: { id: string }, _c, x) => {
+  "plan.approve": async (i: { id: string }, _c, x) => {
     const exam = await examOf(x, i.id);
     const days = (await need(x, "plans", i.id)).days;
     const last = lastDay(
@@ -199,13 +199,13 @@ export const dateHandlers: Record<string, CommandHandler> = {
     );
     if (last !== undefined && planEnded([last], centralDate(x.clock())))
       throw new CommandError(409, endedReason(last));
-    await putPlanInForce(x, exam, i.id, "v5/command:studyplan.approve");
+    await putPlanInForce(x, exam, i.id, "v5/command:plan.approve");
     return { id: i.id, exam, inForce: true };
   },
 
-  "studyplan.put_away": async (i: { id: string }, _c, x) => {
+  "plan.put_away": async (i: { id: string }, _c, x) => {
     const exam = await examOf(x, i.id);
-    await planEdit(x, exam, "v5/command:studyplan.put_away", (d) => {
+    await planEdit(x, exam, "v5/command:plan.put_away", (d) => {
       if (d.plan === i.id) delete d.plan;
       d.retired = { ...d.retired, [i.id]: { at: iso(x.clock()), by: "Matt" } };
     });

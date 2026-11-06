@@ -12,12 +12,12 @@ import {
 
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
-  "study-plan": "Study plan",
+  "prep-plan": "Prep plan",
   "spend-alert": "Monthly spend",
-  "study-session": "Study session",
+  "study-session": "Session",
 };
 
-/** Job kinds arrive as keys (study_plan); the row shows plain words. */
+/** Job kinds arrive as keys (prep_plan); the row shows plain words. */
 const titleOf = (kind: string): string =>
   TITLES[kind.replace(/_/g, "-")] ??
   kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
@@ -53,16 +53,16 @@ interface WireJob {
   /** Newer servers send the generic line and the reason apart (jobs/runtime/status.ts); older ones only `summary`. */
   lead?: string;
   reason?: string;
-  /** A study plan's exam, in Matt's words, when the server names it (the exam's title). */
-  examTitle?: string;
+  /** A prep plan's date, in Matt's words, when the server names it (the date's title). */
+  goalTitle?: string;
 }
 
 export const toActivityJob = (j: WireJob): ActivityJob => ({
   id: j.id,
   title:
     titleOf(j.kind) +
-    (j.kind.replace(/_/g, "-") === "study-plan" && j.examTitle
-      ? ` \u00b7 ${j.examTitle}`
+    (j.kind.replace(/_/g, "-") === "prep-plan" && j.goalTitle
+      ? ` \u00b7 ${j.goalTitle}`
       : ""),
   state: j.state,
   summary: j.lead ?? oneSentence(j.summary, j.state),

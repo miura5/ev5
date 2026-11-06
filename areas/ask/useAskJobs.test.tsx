@@ -47,7 +47,7 @@ test("a 5xx stays quiet and shows nothing", async () => {
 
 test("open jobs use the plain title and one sentence", async () => {
   const { toAskJob } = await import("./useAskJobs.ts");
-  const r = toAskJob({ id: "a", kind: "study_plan", state: "needs-you", summary: "Your study plan is ready. Approve it or put it away. It is waiting in Activity." });
-  expect(r.job.title).toBe("Study plan");
-  expect(r.job.meta).toBe("Your study plan is ready.");
+  const r = toAskJob({ id: "a", kind: "prep_plan", state: "needs-you", summary: "Your prep plan is ready. Approve it or put it away. It is waiting in Activity." });
+  expect(r.job.title).toBe("Prep plan");
+  expect(r.job.meta).toBe("Your prep plan is ready.");
 });

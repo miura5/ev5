@@ -1,5 +1,5 @@
 // The two study-plan commands that run the job (CONTRACT §job.study-plan, §cmd.registry): "plan this date with E.V."
-// starts the plan job for an exam, and "ask for changes" answers the waiting plan with Matt's note so the job's own
+// starts the plan job for a date, and "ask for changes" answers the waiting plan with Matt's note so the job's own
 // revise step does the work. Spend and ceilings are the job runtime's (§model.ceilings); nothing here calls a model.
 import {
   continueJob,
@@ -21,8 +21,8 @@ const def = studyPlanJob as JobDef;
 const MAX_NOTE = 2000;
 const PLAN_PREFIX = "plan-";
 
-/** One exam keeps one plan in the making: the older drafts for it are put away and the older runs stopped. */
-async function replaceOlder(x: HandlerCtx, examId: string, keep: string) {
+/** One date keeps one plan in the making: the older drafts for it are put away and the older runs stopped. */
+async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
   const store = d1JobStore(x.db as never, x.clock);
   const live = (await store.list()).filter(
     (r) => r.kind === def.kind && r.id !== keep && !isTerminal(r.state),
@@ -32,7 +32,7 @@ async function replaceOlder(x: HandlerCtx, examId: string, keep: string) {
     live.map((r) => r.id),
   );
   for (const rec of live) {
-    if (exams.get(rec.id) !== examId) continue;
+    if (exams.get(rec.id) !== goalId) continue;
     try {
       if (rec.state === "needs-you")
         await continueJob(
@@ -46,7 +46,7 @@ async function replaceOlder(x: HandlerCtx, examId: string, keep: string) {
           transition(r, {
             to: "failed",
             at: new Date(x.clock()).toISOString(),
-            reason: "Replaced by a newer plan for the same exam.",
+            reason: "Replaced by a newer plan for the same date.",
           }),
         );
     } catch (e) {
@@ -60,11 +60,11 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
     const exam = await examDoc(x.db as never, x.clock, i.id);
-    if (!exam) throw new CommandError(404, `no exam ${i.id}`);
+    if (!exam) throw new CommandError(404, `no date ${i.id}`);
     const job = await startJob(
       startEnv({ DB: x.db as never, JOBS: x.jobs }, def),
       def,
-      { examId: i.id },
+      { goalId: i.id },
       "matt",
     );
     if (job.state === "failed")
@@ -77,7 +77,7 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
   },
 
   // The id is the plan's job, or the plan id `plan-<job>` the screen carries; the plan must be waiting for an answer.
-  "studyplan.ask_changes": async (i: { id: string; note: string }, _c, x) => {
+  "plan.ask_changes": async (i: { id: string; note: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
     const note = i.note.trim();
     if (!note) throw new CommandError(400, "say what to change");
@@ -90,7 +90,7 @@ export const studyPlanHandlers: Record<string, CommandHandler> = {
         ? await store.get(i.id.slice(PLAN_PREFIX.length))
         : undefined);
     if (!rec || rec.kind !== def.kind)
-      throw new CommandError(404, `no study plan ${i.id}`);
+      throw new CommandError(404, `no prep plan ${i.id}`);
     if (rec.state !== "needs-you")
       throw new CommandError(409, "that plan is not waiting for your answer");
     try {

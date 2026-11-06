@@ -28,11 +28,11 @@ export type TodayData = Pick<
   "say" | "plan" | "upcoming" | "thisWeek" | "alert"
 >;
 
-/** A needs-you study-plan job means a plan waits for Matt. */
-export function studyPlanWaiting(jobs: readonly WireJobLine[]): boolean {
+/** A needs-you prep-plan job means a plan waits for Matt. */
+export function prepPlanWaiting(jobs: readonly WireJobLine[]): boolean {
   return jobs.some(
     (j) =>
-      j.kind.replace(/_/g, "-") === "study-plan" && j.state === "needs-you",
+      j.kind.replace(/_/g, "-") === "prep-plan" && j.state === "needs-you",
   );
 }
 
@@ -52,7 +52,6 @@ const KINDS: Record<string, string> = {
   practice: "practice",
   review: "review",
   notes: "notes",
-  graded: "graded work",
 };
 
 function tryParse<T>(
@@ -92,7 +91,7 @@ function planItems(
       title: a.text,
       meta:
         a.kind === "plan"
-          ? "from your study plan"
+          ? "from your prep plan"
           : a.kind === "todo"
             ? "added by you"
             : `${KINDS[a.kind] ?? a.kind} · added by you`,
@@ -158,7 +157,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
           : `${Math.round((100 * ready) / mine.length)}% ready`,
         ...(planLine
           ? [
-              `study plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`,
+              `prep plan ${planLine === "waiting" ? "waiting for you" : planLine === "working" ? "being saved" : "approved"}`,
             ]
           : []),
       ].join(" · "),
@@ -168,7 +167,6 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       tone: toneFor(left),
       whenFull: weekdayDay(exam.date as string),
       dateLine: `${plainDay(exam.date as string, today)} · ${inDays(left)}`,
-      course: exam.course,
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });

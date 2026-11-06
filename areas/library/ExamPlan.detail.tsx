@@ -19,7 +19,7 @@ export interface ExamPlanDetailProps {
   onEdit?: (proposalId: string) => void;
   onDismiss?: (proposalId: string) => void;
   onClose?: () => void;
-  /** "Plan with E.V.": asks E.V. to draft a study plan for this exam. */
+  /** "Plan with E.V.": asks E.V. to draft a prep plan for this exam. */
   onPlanWithEv?: () => void;
   /** The draft plan's three answers: approve it, ask for changes (with his note), or put it away. */
   onApprove?: (planId: string) => void;
@@ -29,7 +29,7 @@ export interface ExamPlanDetailProps {
   startOpen?: boolean;
 }
 
-/** The shell Detail for an exam date: its properties, then the study plan's actions and E.V.'s session proposals. */
+/** The shell Detail for an exam date: its properties, then the prep plan's actions and E.V.'s session proposals. */
 export function examPlanDetail(p: ExamPlanDetailProps): DetailProps {
   const { exam } = p;
   return {
@@ -37,7 +37,6 @@ export function examPlanDetail(p: ExamPlanDetailProps): DetailProps {
     onClose: p.onClose,
     properties: [
       { label: "Date", value: exam.when },
-      { label: "Course", value: exam.course },
       { label: "Readiness", value: exam.readiness },
       { label: "Plan", value: exam.plan },
     ],
@@ -78,7 +77,7 @@ function ExamPlanBody({
           onReviewPlan?.();
         }}
       >
-        Review the study plan
+        Review the prep plan
       </Button>
       {exam.planState === "working" ? (
         <div data-part="working">
@@ -119,7 +118,7 @@ function ExamPlanBody({
             ) : (
               <Empty line="The sessions are not shown here yet." />
             )}
-            <Empty line="Built from: this exam's date and your weak spots for it" />
+            <Empty line="Built from: this date and your weak spots for it" />
           </Section>
         </div>
       ) : null}

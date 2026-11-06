@@ -24,6 +24,6 @@ test('a context built on a later day starts that day', () => {
 test('checkPlan refuses past days and the exam day', () => {
   const ctx = ctxOn('2026-11-05');
   assert.match(checkPlan(one('2026-11-03'), ctx).join(' '), /already passed/);
-  assert.match(checkPlan(one('2026-11-08'), ctx).join(' '), /not study days/);
+  assert.match(checkPlan(one('2026-11-08'), ctx).join(' '), /not plan days/);
   assert.deepEqual(checkPlan(one('2026-11-06'), ctx), []);
 });

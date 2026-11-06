@@ -9,8 +9,8 @@ const rec = (
   updatedAt: string,
 ) => ({
   id,
-  kind: "study_plan",
-  title: "Study plan",
+  kind: "prep_plan",
+  title: "Prep plan",
   state,
   ...(state === "failed" ? { reason: "No passages." } : {}),
   costCents: 0,
@@ -87,26 +87,26 @@ test("putting a plan away ends it done at once, never running, and Done today wo
   };
   assert.equal(
     done.jobs.find((j) => j.id === "sp-a")?.lead,
-    "Your study plan is saved.",
+    "Your prep plan is saved.",
   );
   assert.equal(
     done.jobs.find((j) => j.id === "sp-b")?.lead,
-    "Your study plan was put away.",
+    "Your prep plan was put away.",
   );
 });
 
-test("a finished study plan's Done today entry carries its exam's title, and none when the exam is gone", async () => {
+test("a finished prep plan's Done today entry carries its exam's title, and none when the exam is gone", async () => {
   const { req, db } = setup();
   const store = d1JobStore(db, () => 1);
   const now = new Date().toISOString();
   await store.put(rec("sp-t", "done", now));
   await store.put(rec("sp-x", "done", now));
-  const ctx = (job: string, examId: string) =>
+  const ctx = (job: string, goalId: string) =>
     db
       .prepare(
         "INSERT INTO job_plans (job_id, kind, body, at) VALUES (?, 'context', ?, 0)",
       )
-      .bind(job, JSON.stringify({ exam: { id: examId } }))
+      .bind(job, JSON.stringify({ goal: { id: goalId } }))
       .run();
   await ctx("sp-t", "ex-1");
   await ctx("sp-x", "ex-gone");
@@ -128,8 +128,8 @@ test("a finished study plan's Done today entry carries its exam's title, and non
     .run();
   const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");
   const { jobs } = (await res.json()) as {
-    jobs: { id: string; examTitle?: string }[];
+    jobs: { id: string; goalTitle?: string }[];
   };
-  assert.equal(jobs.find((j) => j.id === "sp-t")?.examTitle, "NUR 112 Exam 2");
-  assert.equal(jobs.find((j) => j.id === "sp-x")?.examTitle, undefined);
+  assert.equal(jobs.find((j) => j.id === "sp-t")?.goalTitle, "NUR 112 Exam 2");
+  assert.equal(jobs.find((j) => j.id === "sp-x")?.goalTitle, undefined);
 });

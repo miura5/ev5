@@ -90,7 +90,7 @@ export function SessionsScreen({
         </p>
       ) : !data ? (
         // No running session: the empty line only, no bar, Pause or End (design/mockup.html).
-        <Page title="Study session">
+        <Page title="Session">
           <Empty line="No session yet." />
         </Page>
       ) : (

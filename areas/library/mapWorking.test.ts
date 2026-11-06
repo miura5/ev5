@@ -42,9 +42,9 @@ test("the Detail lists the plan the exam points at, not another approved plan", 
 test("right after Approve, while the plan job still runs, no earlier plan shows", () => {
   const running = {
     id: "j2",
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "running",
-    examId: "x1",
+    goalId: "x1",
   };
   const [e] = mapLibrary(docs("plan-old", [running]), now).exams;
   expect(e?.planState).toBe("working");

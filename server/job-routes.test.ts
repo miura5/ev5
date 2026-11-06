@@ -4,13 +4,13 @@ import { d1JobStore } from "../jobs/index.ts";
 import { input, setup, T } from "./job-routes-setup.test.ts";
 import { putNoteRow } from "./sqlite-d1.test.ts";
 
-test("GET /jobs fails a study plan past its deadline and lists only live jobs", async () => {
+test("GET /jobs fails a prep plan past its deadline and lists only live jobs", async () => {
   const { req, db } = setup();
   const put = (id: string, updatedAt: string) =>
     d1JobStore(db, () => 1).put({
       id,
-      kind: "study_plan",
-      title: "Study plan",
+      kind: "prep_plan",
+      title: "Prep plan",
       state: "running",
       costCents: 0,
       createdAt: updatedAt,
@@ -104,14 +104,14 @@ test("an unknown kind or job is 404, a job not waiting cannot continue", async (
   assert.equal(c.status, 409);
 });
 
-test("a study plan waits for Matt, and his answer continues it once", async () => {
+test("a prep plan waits for Matt, and his answer continues it once", async () => {
   const { req, wf, db } = setup();
-  // A study-plan job record parked at needs-you, as the draft step leaves it.
+  // A prep-plan job record parked at needs-you, as the draft step leaves it.
   const { d1JobStore } = await import("../jobs/index.ts");
   await d1JobStore(db, () => T.getTime()).put({
     id: "sp1",
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",
@@ -135,13 +135,13 @@ test("a study plan waits for Matt, and his answer continues it once", async () =
   await wf.idle().catch(() => undefined);
 });
 
-test("a waiting study plan in the job list names its exam", async () => {
+test("a waiting prep plan in the job list names its exam", async () => {
   const { req, db } = setup();
   const { d1JobStore } = await import("../jobs/index.ts");
   await d1JobStore(db, () => T.getTime()).put({
     id: "sp2",
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",
@@ -154,22 +154,22 @@ test("a waiting study plan in the job list names its exam", async () => {
     .prepare(
       "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('sp2', 'context', ?, 0)",
     )
-    .bind(JSON.stringify({ exam: { id: "x1", title: "Exam" } }))
+    .bind(JSON.stringify({ goal: { id: "x1", title: "Exam" } }))
     .run();
   const res = await req("GET", "/api/v1/jobs", "fake-app");
   const { jobs } = (await res.json()) as {
-    jobs: { id: string; examId?: string }[];
+    jobs: { id: string; goalId?: string }[];
   };
-  assert.equal(jobs.find((j) => j.id === "sp2")?.examId, "x1");
+  assert.equal(jobs.find((j) => j.id === "sp2")?.goalId, "x1");
 });
 
-test("a waiting study plan in the job list carries its draft sessions", async () => {
+test("a waiting prep plan in the job list carries its draft sessions", async () => {
   const { req, db } = setup();
   const { d1JobStore } = await import("../jobs/index.ts");
   await d1JobStore(db, () => T.getTime()).put({
     id: "sp3",
-    kind: "study_plan",
-    title: "Study plan",
+    kind: "prep_plan",
+    title: "Prep plan",
     state: "needs-you",
     step: "approve",
     reason: "Approve it.",

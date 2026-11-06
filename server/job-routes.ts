@@ -202,13 +202,13 @@ jobRoutes.get("/jobs/:id", async (c) => {
   }
 });
 
-/** A live study plan names its exam (waiting or running: right after Matt answers it is still being put in force); a waiting one also carries its sessions. */
+/** A live prep plan names its date (waiting or running: right after Matt answers it is still being put in force); a waiting one also carries its sessions. */
 async function withExams<T extends { id: string; kind: string; state: string }>(
   db: D1Like,
   jobs: T[],
 ): Promise<
   (T & {
-    examId?: string;
+    goalId?: string;
     tasks?: { date: string; title: string; minutes: number }[];
   })[]
 > {
@@ -226,7 +226,7 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
   );
   return jobs.map((j) => ({
     ...j,
-    ...(exam.has(j.id) ? { examId: exam.get(j.id) } : {}),
+    ...(exam.has(j.id) ? { goalId: exam.get(j.id) } : {}),
     ...(tasks.has(j.id) ? { tasks: tasks.get(j.id) } : {}),
   }));
 }

@@ -16,7 +16,7 @@ const fields = {
 const planItem = z.object(fields);
 const planPatch = z.object({ id, ...Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v.optional()])) });
 
-// Plan items, proposals and drafts, dates and the study plan (PLAN §6.1). E.V. proposes; Matt accepts.
+// Plan items, proposals and drafts, dates and the prep plan (PLAN §6.1). E.V. proposes; Matt accepts.
 export const planCommands = [
   defineCommand({ name: 'plan.create', title: 'Add a plan item', input: planItem, callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
   defineCommand({ name: 'plan.update', title: 'Change a plan item', input: planPatch, callers: MP, effect: 'instant', changesPlan: true }),
@@ -34,7 +34,7 @@ export const planCommands = [
   defineCommand({ name: 'date.create', title: 'Add a date', input: z.object({ title: z.string().min(1), date: z.string().min(1), objectives: z.array(id).optional() }), callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
   defineCommand({ name: 'date.update', title: 'Change a date', input: z.object({ id, title: z.string().optional(), date: z.string().optional() }), callers: MP, effect: 'instant', changesPlan: true }),
   defineCommand({ name: 'date.plan_with_ev', title: 'Plan this date with E.V.', input: ref, callers: M, effect: 'job' }),
-  defineCommand({ name: 'studyplan.approve', title: 'Approve the study plan', input: ref, callers: M, effect: 'instant' }),
-  defineCommand({ name: 'studyplan.ask_changes', title: 'Ask for changes to the study plan', input: z.object({ id, note: z.string().min(1) }), callers: M, effect: 'job' }),
-  defineCommand({ name: 'studyplan.put_away', title: 'Put the study plan away', input: ref, callers: M, effect: 'instant' }),
+  defineCommand({ name: 'plan.approve', title: 'Approve the prep plan', input: ref, callers: M, effect: 'instant' }),
+  defineCommand({ name: 'plan.ask_changes', title: 'Ask for changes to the prep plan', input: z.object({ id, note: z.string().min(1) }), callers: M, effect: 'job' }),
+  defineCommand({ name: 'plan.put_away', title: 'Put the prep plan away', input: ref, callers: M, effect: 'instant' }),
 ] as const;

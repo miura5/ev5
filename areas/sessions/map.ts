@@ -83,7 +83,7 @@ export function mapSessions(
     v: pick.v,
     raw: pick.raw,
     noteId: pick.noteId || undefined,
-    title: pick.topic ?? "Study session",
+    title: pick.topic ?? "Session",
     meta: pick.date ? plainDay(pick.date, centralDate(now)) : "",
     seconds:
       ended && st.activeMs === 0 && (pick.minutes ?? 0) > 0
