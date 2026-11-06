@@ -1,6 +1,6 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next). Rehearsal 2 (B-758) and the scratch-copy check (B-732) are declined (D-484).
-## Running    nothing. Last merged: B-1036 (docs-kind check; ALLOWED list in ops/checks/docskinds.ts shrinks as kinds move), B-1022 slices 1 and 2, B-998 part 1 (migration 0006). The hourly routine is off; a separate thread runs the ev4 and subject-code removal sweep (B-900 to B-906, B-1011 removals) and files its own Chart edits.
-Builders use their own worktree. Run lock: ops/build-lock.sh. Local `npm test` fails on directory entries in this sandbox (environmental): CI judges. The sandbox cannot reach developers.cloudflare.com (live.yml unproven).
+## Running    nothing. Last merged: B-1036 (docs-kind check; ALLOWED list in ops/checks/docskinds.ts shrinks as kinds move), B-1022 slices 1 and 2, B-998 part 1 (migration 0006). A separate thread runs the ev4 and subject-code removal sweep (B-900 to B-906) and files its own Chart edits.
+Builders use their own worktree. Run lock: ops/build-lock.sh. The sandbox cannot reach developers.cloudflare.com (live.yml unproven).
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). When you rewrite this, keep the groups and their order: drop done tasks, put new tasks in their group. Work the groups in order; inside a group, in the order listed.
 Task freeze (D-497): no new task ids until groups 3 to 6 are done. Findings go in an existing task's notes or docs/parked.md.
