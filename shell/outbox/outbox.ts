@@ -1,4 +1,5 @@
 // The offline outbox: note saves and practice answers wait here until a replay sends them (PLAN §5.9).
+// A note is sent by the note.save command, never PUT /docs (§data.gate: one gate; §data.protocol: pinned to `if_version`).
 // A note goes pinned to the version it was read at. A stale one (409) is never merged: the record's version stays the
 // note and the saved words become a second note, "<title> (earlier)" (domain/note resolveStale). Nothing is lost.
 import { resolveStale, type Note } from '../../domain/index.ts';
@@ -40,6 +41,18 @@ export function answerCommand(o: Pick<OutboxEntry, 'id' | 'doc'>): { name: strin
   };
 }
 
+/** A note entry as the note.save command takes it, pinned to the version it was read at (0: a new note). */
+export function noteSaveInput(o: OutboxEntry): Record<string, unknown> {
+  const n = o.doc as Note;
+  return {
+    id: o.id,
+    body: JSON.stringify(n.blocks),
+    if_version: o.base ?? 0,
+    title: n.title,
+    ...(n.earlierOf ? { earlier_of: n.earlierOf } : {}),
+  };
+}
+
 export const entryKey = (c: string, id: string): string => `${c}\n${id}`;
 
 export function createOutbox(opts: OutboxOptions) {
@@ -78,6 +91,8 @@ export function createOutbox(opts: OutboxOptions) {
         ? await transport.command(o.c, o.doc)
         : legacy
           ? await transport.command(legacy.name, legacy.input)
+          : o.kind === 'note'
+            ? await transport.command('note.save', noteSaveInput(o))
           : await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
     if (r.status >= 200 && r.status < 300) {
       out.sent++;

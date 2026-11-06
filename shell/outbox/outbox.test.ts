@@ -15,12 +15,20 @@ const note = (title: string, text: string): Note => ({
 /** A record that pins writes to a version, as the Worker does (409 when stale), and can be switched offline. */
 function fakeServer() {
   const docs = new Map<string, { v: number; data: unknown }>();
-  const s: { online: boolean; status: number; docs: typeof docs; transport: Transport } = {
+  const s: {
+    online: boolean;
+    status: number;
+    docs: typeof docs;
+    noteCalls: Record<string, unknown>[];
+    transport: Transport;
+  } = {
     online: true,
+    noteCalls: [],
     status: 0, // forces this answer to the next put when set
     docs,
     transport: {
       async put(c, id, body, ifVersion) {
+        if (c === 'notes') throw new Error('a note is saved by note.save, not PUT /docs');
         if (!s.online) throw new Error('offline');
         if (s.status) return { status: s.status, text: 'no' };
         const cur = docs.get(`${c}/${id}`);
@@ -31,6 +39,18 @@ function fakeServer() {
       },
       async command(name, input) {
         if (!s.online) throw new Error('offline');
+        if (name === 'note.save') {
+          // as the command does: pinned to if_version (0: new), 409 when stale
+          s.noteCalls.push(input as Record<string, unknown>);
+          const i = input as { id: string; body: string; if_version: number; title: string; earlier_of?: string };
+          if (s.status) return { status: s.status, text: 'no' };
+          const cur = docs.get(`notes/${i.id}`);
+          if ((cur?.v ?? 0) !== i.if_version) return { status: 409 };
+          const v = (cur?.v ?? 0) + 1;
+          const data = { title: i.title, blocks: JSON.parse(i.body), ...(i.earlier_of ? { earlierOf: i.earlier_of } : {}) };
+          docs.set(`notes/${i.id}`, { v, data });
+          return { status: 200, version: v };
+        }
         const id = (input as { attempt: string }).attempt;
         if (s.status) return { status: s.status, text: 'no' };
         if (docs.has(`${name}/${id}`)) return { status: 409 };
@@ -107,6 +127,18 @@ describe('the offline note journey', () => {
     expect(earlier.title).toBe('Fluids (earlier)');
     expect(earlier.earlierOf).toBe(ID);
     expect(await box.count()).toBe(0);
+    expect(earlier.blocks).toEqual(note('Fluids', 'edited on the phone').blocks);
+  });
+
+  test('a note goes by note.save, pinned to the version read (0 for a new note)', async () => {
+    const { server, box } = make();
+    await box.queueNote(ID, note('Fluids', 'one'), null);
+    await box.replay();
+    await box.queueNote(ID, note('Fluids', 'two'), 1);
+    await box.replay();
+    expect(server.noteCalls.map((c) => c.if_version)).toEqual([0, 1]);
+    expect(server.noteCalls[1]).toMatchObject({ id: ID, title: 'Fluids' });
+    expect(JSON.parse(server.noteCalls[1]!.body as string)).toEqual(note('Fluids', 'two').blocks);
   });
 
   test('a stale save of the same words writes nothing twice', async () => {

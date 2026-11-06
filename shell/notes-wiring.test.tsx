@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { notesArea } from "../areas/notes/area.ts";
 import { createOutbox, docsHttp, memoryStore } from "./outbox/index.ts";
 import type { Services } from "./services.ts";
@@ -23,7 +23,10 @@ const NotesInShell = ({ services }: { services?: Services }) => (
   />
 );
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 const note = (title: string) => ({
   schema: 1,
@@ -45,22 +48,28 @@ function fakeServer() {
     v: 1,
     data: note("Fluids") as Record<string, unknown>,
     online: true,
-    puts: [] as string[],
+    puts: [] as { id: string; if_version: number }[],
   };
   const fetch = async (url: string, init?: RequestInit) => {
     if (!s.online) throw new TypeError("offline");
     const u = new URL(url, "http://x");
-    if (init?.method === "PUT") {
-      s.puts.push(u.search);
-      if (Number(u.searchParams.get("if_version")) !== s.v)
-        return new Response("{}", { status: 409 });
-      s.data = JSON.parse(String(init.body));
-      return Response.json({ at: 2, version: ++s.v });
+    if (u.pathname.endsWith("/commands/note.save")) {
+      // a note is saved by the note.save command, pinned to if_version
+      const i = (JSON.parse(String(init?.body)) as { input: Record<string, unknown> })
+        .input as { id: string; body: string; if_version: number; title: string };
+      s.puts.push({ id: i.id, if_version: i.if_version });
+      if (i.if_version !== s.v) return new Response("{}", { status: 409 });
+      s.data = { ...s.data, title: i.title, blocks: JSON.parse(i.body) };
+      return Response.json({
+        mode: "direct",
+        result: { id: i.id, version: ++s.v },
+      });
     }
     return Response.json({
       docs: [{ id: "n-1", v: s.v, at: 1, data: s.data }],
     });
   };
+  vi.stubGlobal("fetch", fetch);
   const http = docsHttp(() => "tok", fetch);
   const outbox = createOutbox({
     store: memoryStore(),
@@ -92,7 +101,7 @@ test("notes load from the docs routes and a title edit saves, pinned to the vers
   const { s, services } = fakeServer();
   await openAndRename(services, "Fluids and electrolytes");
   await waitFor(() => expect(s.v).toBe(2));
-  expect(s.puts).toEqual(["?collection=notes&id=n-1&if_version=1"]);
+  expect(s.puts).toEqual([{ id: "n-1", if_version: 1 }]);
   expect((s.data as { title: string }).title).toBe("Fluids and electrolytes");
   await waitFor(() => expect(screen.getByText("saved")).toBeTruthy());
   expect(screen.getAllByDisplayValue("Fluids and electrolytes")).toHaveLength(
@@ -156,7 +165,6 @@ test("a block edit saves through the outbox, and New note queues a create", asyn
   fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
   fireEvent.click(screen.getByRole("button", { name: /New note/ }));
   await waitFor(() => expect(s.puts.length).toBe(2));
-  expect(s.puts[1]).toMatch(
-    /^\?collection=notes&id=n-\d{8}-\d{6}-[A-Za-z0-9]+$/,
-  );
+  expect(s.puts[1]!.id).toMatch(/^n-\d{8}-\d{6}-[A-Za-z0-9]+$/);
+  expect(s.puts[1]!.if_version).toBe(0);
 });

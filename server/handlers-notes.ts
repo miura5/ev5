@@ -9,9 +9,10 @@ import {
   noteDoc,
   noteDocOf,
   noteRowId,
+  noteWriteProblem,
   parseNote,
 } from "../domain/index.ts";
-import type { NoteTableRow } from "../domain/index.ts";
+import type { Note, NoteTableRow } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -19,6 +20,16 @@ import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
 
 const SOURCE = "v5/notes";
+/** A note document id, as server/note-wire.ts accepts it. */
+const NOTE_ID = /^n-[A-Za-z0-9-]{1,120}$/;
+
+interface NoteSaveInput {
+  id: string;
+  body: string;
+  if_version?: number;
+  title?: string;
+  earlier_of?: string;
+}
 
 /** The body as blocks: a JSON list of blocks as the editor sends, else plain text with a paragraph per line. */
 function blocksOf(body: string): unknown {
@@ -80,14 +91,23 @@ export const noteHandlers: Record<string, CommandHandler> = {
     return { id, ...(i.collection ? { collection: i.collection } : {}) };
   },
 
-  "note.save": async (i: { id: string; body: string }, _c, x) => {
-    const cur = await needNote(x, i.id);
-    let prev;
-    try {
-      prev = noteDocOf(cur);
-    } catch {
-      throw new CommandError(409, `${i.id} is not a note this app can edit`);
-    }
+  // Pinned saves (§data.protocol): `if_version` is the version read, 409 when stale; 0 means "a new note" (409 when it
+  // exists). With no `if_version` a note that exists is saved on its current version and a missing one is a 404.
+  "note.save": async (i: NoteSaveInput, _c, x) => {
+    const book = tablesRepo(x.db, { clock: x.clock }).noteBook;
+    const cur = await book.get(noteRowId(i.id));
+    const stale = new CommandError(409, "that changed; try again");
+    if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0)) throw stale;
+    if (!cur && i.if_version === undefined)
+      throw new CommandError(404, `no notes entry ${i.id}`);
+    let prev: Note | null = null;
+    if (cur) {
+      try {
+        prev = noteDocOf(cur);
+      } catch {
+        throw new CommandError(409, `${i.id} is not a note this app can edit`);
+      }
+    } else if (!NOTE_ID.test(i.id)) throw new CommandError(400, `${i.id} is not a note id`);
     let row;
     try {
       const doc = noteDoc(prev, {
@@ -95,15 +115,19 @@ export const noteHandlers: Record<string, CommandHandler> = {
         at: iso(x.clock()),
         source: SOURCE,
       });
-      row = newNoteRow(i.id, parseNote(doc), cur.collection_id);
+      if (i.title !== undefined) doc.title = i.title;
+      if (!prev && i.earlier_of) doc.earlierOf = i.earlier_of;
+      const checked = parseNote(doc);
+      const why = noteWriteProblem(checked, prev);
+      if (why) throw new Error(why);
+      row = newNoteRow(i.id, checked, cur?.collection_id ?? null);
     } catch {
       throw new CommandError(400, "that is not a note body");
     }
-    const saved = await tablesRepo(x.db, { clock: x.clock }).noteBook.change(
-      row,
-      cur.v,
-    );
-    if (!saved.ok) throw new CommandError(409, "that changed; try again");
+    const saved = cur
+      ? await book.change(row, cur.v)
+      : await book.create(row);
+    if (!saved.ok) throw stale;
     return { id: i.id, version: saved.row.v };
   },
 
