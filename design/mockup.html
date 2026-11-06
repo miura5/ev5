@@ -16,7 +16,7 @@
   Layout of this file: <style> (A's kit verbatim, A's additions, then "Round 4" and "Round 5"), shell, screens, Detail,
   ⌘K, menu, toast, then <script>: synthetic data, forms, screens, create / delete / edit, Detail, menu, palette, keys,
   #system, #phone.
-  Deep links: #today #ask #library #set/s-co #set/s-co/edit #study/s-co #notes #note/n-co #note/n-co/session #c/nur112 #c/spanish
+  Deep links: #today #ask #library #set/s-co #set/s-co/edit #study/s-co #notes #note/n-co #note/n-co/session #c/biology #c/interview #c/spanish
   #v/due #deleted #progress #activity #system #phone
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -242,7 +242,7 @@ html,body{height:100%;margin:0}
 .field{display:block;width:100%;min-height:40px;padding:9px var(--sp-3);border:0;border-radius:var(--r-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--text);font-size:var(--fs-body);line-height:var(--lh);resize:none}
 .field::placeholder{color:var(--faint)}
 
-/* Segmented control: a short choice (confidence, course). */
+/* Segmented control: a short choice (confidence, keep or drop). */
 .seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
 .seg button{all:unset;height:24px;line-height:24px;padding:0 var(--sp-2);border-radius:4px;font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
 .seg button:hover{color:var(--text)}
@@ -487,7 +487,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
   <div class="navgrp">Pinned</div>
   <div id="pins"></div>
   <div class="foot">
-    <div class="jobline" data-go="activity" data-job="j-mock" role="button" tabindex="0" title="Open in Activity"><span id="jobline-gl"></span>Writing mock exam · 3/4</div>
+    <div class="jobline" data-go="activity" data-job="j-full" role="button" tabindex="0" title="Open in Activity"><span id="jobline-gl"></span>Writing full practice run · 3/4</div>
     <a class="nav small" href="#deleted" data-go="deleted"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>Recently deleted<span class="n" id="deleted-count">2</span></a>
     <button class="btn text themebtn" data-act="theme" id="themebtn" title="Switch theme"><span id="themelabel">Light theme</span><span class="kbd">\</span></button>
     <div class="links"><a href="#system" data-go="system">Design system</a><a href="#phone" data-go="phone">Phone</a></div>
@@ -507,7 +507,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
   <div class="sec" id="plan">
     <div class="sec-head"><h2 class="t-label">Plan</h2><span class="t-meta" id="plan-count">4</span><span class="grow"></span><button class="btn text add" data-act="add-plan" title="Add to today (C)">Add<span class="kbd">C</span></button></div>
     <div id="plan-rows"></div>
-    <div class="suggest" id="today-suggest"><span class="c-faint" aria-hidden="true">+</span><span class="grow" id="today-suggest-text">5 dosage-by-weight problems tonight · 10m</span><button class="btn text" data-act="accept-suggest" title="Accept">Accept<span class="kbd">A</span></button><button class="btn text" data-act="edit-suggest" title="Edit">Edit<span class="kbd">E</span></button><button class="btn text icon" data-act="dismiss-suggest" title="Not now" aria-label="Not now"><svg viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg></button></div>
+    <div class="suggest" id="today-suggest"><span class="c-faint" aria-hidden="true">+</span><span class="grow" id="today-suggest-text">5 genetics problems tonight · 10m</span><button class="btn text" data-act="accept-suggest" title="Accept">Accept<span class="kbd">A</span></button><button class="btn text" data-act="edit-suggest" title="Edit">Edit<span class="kbd">E</span></button><button class="btn text icon" data-act="dismiss-suggest" title="Not now" aria-label="Not now"><svg viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg></button></div>
   </div>
   <div class="sec">
     <div class="sec-head"><h2 class="t-label">Coming up</h2><span class="grow"></span><button class="btn text add" data-act="add-date" title="Add a date">Add date</button></div>
@@ -530,7 +530,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
       <div><span class="cite" data-cite="n-co" tabindex="0">from Note · Ch 9 · Cardiac output</span></div>
     </div></div>
     <div class="chat-break" role="separator"></div>
-    <div class="msg me"><div class="say"><div class="who">You<time>11:40 am</time></div><div>is the mock exam ready?</div></div></div>
+    <div class="msg me"><div class="say"><div class="who">You<time>11:40 am</time></div><div>is the full practice run ready?</div></div></div>
     <div class="msg"><span class="mark"></span><div class="say">
       <div>Not yet: it's on step 3 of 4, writing question 9 of 15. It lands in Library when it's done.</div>
       <div id="ask-job"></div>
@@ -648,14 +648,14 @@ button.ring:hover .gl circle{stroke:var(--text)}
 
 <script>
 /* ================= Synthetic content (no personal data) ================= */
-/* Collections are Matt's own. None is built in; NUR 112 is one he made, next to Spanish and Running.
+/* Collections are the user's own. None is built in; Biology is one they made, next to Interview prep, Spanish and Running.
    An item sits in at most one collection; collections nest one level. */
 const COLLS = {
-  nur112:  { id: 'nur112',  type: 'collection', title: 'NUR 112' },
-  lecture: { id: 'lecture', type: 'collection', title: 'Lecture notes', parent: 'nur112' },
-  bio201:  { id: 'bio201',  type: 'collection', title: 'BIO 201' },
-  spanish: { id: 'spanish', type: 'collection', title: 'Spanish' },
-  running: { id: 'running', type: 'collection', title: 'Running' },
+  interview: { id: 'interview', type: 'collection', title: 'Interview prep' },
+  answers:   { id: 'answers',   type: 'collection', title: 'Practice answers', parent: 'interview' },
+  biology:   { id: 'biology',   type: 'collection', title: 'Biology' },
+  spanish:   { id: 'spanish',   type: 'collection', title: 'Spanish' },
+  running:   { id: 'running',   type: 'collection', title: 'Running' },
 };
 /* Saved views: a filter plus a sort. */
 const VIEWS = {
@@ -663,25 +663,25 @@ const VIEWS = {
 };
 
 const NOTES = [
-  { id: 'n-co',     t: 99, ago: 0,  title: 'Ch 9 · Cardiac output', coll: 'bio201', when: 'now', preview: 'Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume.' },
-  { id: 'n-math',   t: 90, ago: 1,  title: 'Med math rules', coll: 'nur112', when: 'yesterday', preview: 'Weight-based: dose = kg × mg/kg. Split a daily dose by the number of doses.' },
-  { id: 'n-verbs',  t: 86, ago: 2,  title: 'Verb endings: -ar, -er, -ir', coll: 'spanish', when: 'Sat', preview: 'hablo, hablas, habla. The -er and -ir sets match except for nosotros and vosotros.' },
-  { id: 'n-log',    t: 85, ago: 2,  title: 'Training log', coll: 'running', when: 'Sat', preview: 'Sat · 9 km easy at 6:05/km. Legs fine after the first 3 km.' },
-  { id: 'n-fluid',  t: 80, ago: 3,  title: 'Fluid balance · I&amp;O', coll: 'lecture', when: 'Fri', preview: 'Intake is anything that enters as fluid: drinks, IV fluids, tube feeds; ice chips count at half.' },
-  { id: 'n-muscle', t: 70, ago: 5,  title: 'Muscle · crossbridge cycle', coll: 'bio201', when: 'Oct 28', preview: 'Calcium binds troponin, tropomyosin shifts, and the myosin heads bind actin.' },
-  { id: 'n-obj',    t: 68, ago: 6,  title: 'Exam 3 objectives', coll: 'nur112', when: 'Oct 27', preview: 'Calculate oral liquid doses. Describe the fluid compartments. Explain I&amp;O.' },
-  { id: 'n-skills', t: 60, ago: 11, title: 'Skills lab 4 · sterile field', coll: 'lecture', when: 'Oct 22', preview: 'Anything below the waist or out of sight is not sterile. Keep a one-inch border.' },
-  { id: 'n-lab6',   t: 58, ago: 12, title: 'Lab 6 · upper limb', coll: 'bio201', when: 'Oct 21', preview: 'Humerus, then radius on the thumb side and ulna. Carpals, proximal row first.' },
-  { id: 'n-market', t: 55, ago: 13, title: 'Phrases for the market', coll: 'spanish', when: 'Oct 20', preview: '¿Cuánto cuesta? · Me da medio kilo, por favor.' },
-  { id: 'n-fuel',   t: 50, ago: 15, title: 'Fueling on long runs', coll: 'running', when: 'Oct 18', preview: 'One gel every 40 minutes after the first hour; water at every station.' },
+  { id: 'n-co',      t: 99, ago: 0,  title: 'Ch 9 · Cardiac output', coll: 'biology', when: 'now', preview: 'Cardiac output is the blood the heart pumps in a minute: CO = heart rate × stroke volume.' },
+  { id: 'n-punnett', t: 90, ago: 1,  title: 'Punnett squares', coll: 'biology', when: 'yesterday', preview: 'Cross each parent’s alleles in a 2 × 2 grid. Each box is one equally likely child.' },
+  { id: 'n-verbs',   t: 86, ago: 2,  title: 'Verb endings: -ar, -er, -ir', coll: 'spanish', when: 'Sat', preview: 'hablo, hablas, habla. The -er and -ir sets match except for nosotros and vosotros.' },
+  { id: 'n-log',     t: 85, ago: 2,  title: 'Training log', coll: 'running', when: 'Sat', preview: 'Sat · 9 km easy at 6:05/km. Legs fine after the first 3 km.' },
+  { id: 'n-hash',    t: 80, ago: 3,  title: 'Hash maps', coll: 'interview', when: 'Fri', preview: 'A hash map turns a key into an array index. Lookups average O(1); when keys collide the worst case is O(n).' },
+  { id: 'n-muscle',  t: 70, ago: 5,  title: 'Muscle · crossbridge cycle', coll: 'biology', when: 'Oct 28', preview: 'Calcium binds troponin, tropomyosin shifts, and the myosin heads bind actin.' },
+  { id: 'n-obj',     t: 68, ago: 6,  title: 'Exam 3 objectives', coll: 'biology', when: 'Oct 27', preview: 'Solve one-gene crosses. Explain cardiac output and what sets it. Order the crossbridge cycle.' },
+  { id: 'n-stories', t: 60, ago: 11, title: 'Behavioural stories', coll: 'answers', when: 'Oct 22', preview: 'Five stories cover most questions: a conflict, a failure, a hard project, leading without the title, learning fast.' },
+  { id: 'n-lab6',    t: 58, ago: 12, title: 'Lab 6 · upper limb', coll: 'biology', when: 'Oct 21', preview: 'Humerus, then radius on the thumb side and ulna. Carpals, proximal row first.' },
+  { id: 'n-market',  t: 55, ago: 13, title: 'Phrases for the market', coll: 'spanish', when: 'Oct 20', preview: '¿Cuánto cuesta? · Me da medio kilo, por favor.' },
+  { id: 'n-fuel',    t: 50, ago: 15, title: 'Fueling on long runs', coll: 'running', when: 'Oct 18', preview: 'One gel every 40 minutes after the first hour; water at every station.' },
   /* Already in Recently deleted when the mock-up opens. */
-  { id: 'n-old',    t: 10, ago: 20, title: 'Wk 7 vitals (draft)', coll: 'lecture', when: 'Oct 19', preview: 'Duplicate of the cleaner vitals note.' },
+  { id: 'n-old',     t: 10, ago: 20, title: 'Old resume bullets (draft)', coll: 'answers', when: 'Oct 19', preview: 'Duplicate of the cleaner resume note.' },
 ];
 
 /* Sets. Cards and questions hold { f: front, b: back }; steps hold { s: step } in order.
    The count always comes from the items, so editing a set changes its count. */
 const SETS = [
-  { id: 's-co', t: 97, type: 'cards', title: 'Cardiac output terms', coll: 'bio201', src: 'n-co', due: 4, recent: 'stopped at card 5', rv: '5/8',
+  { id: 's-co', t: 97, type: 'cards', title: 'Cardiac output terms', coll: 'biology', src: 'n-co', due: 4, recent: 'stopped at card 5', rv: '5/8',
     items: [
       { f: 'Stroke volume', b: 'The blood the left ventricle ejects in one beat, about 70 mL at rest. Preload, afterload and contractility set it.', ev: 'Last time you left out afterload. Did you name all three this time?' },
       { f: 'Afterload', b: 'The pressure the ventricle has to beat to eject. It rises with arterial pressure.', ev: 'This is the one you swap with preload. Which word in yours tells them apart?' },
@@ -692,13 +692,13 @@ const SETS = [
       { f: 'Venous return', b: 'Blood flowing back to the heart; the main driver of preload.' },
       { f: 'Ejection fraction', b: 'The share of the filled volume ejected per beat; about 55–70%.' },
     ] },
-  { id: 's-dose', t: 92, type: 'questions', title: 'Dosage by weight', coll: 'nur112', src: 'n-math', last: '3/5', recent: 'stopped at question 2', rv: '2/5',
+  { id: 's-genes', t: 92, type: 'questions', title: 'Genetics problems', coll: 'biology', src: 'n-punnett', last: '3/5', recent: 'stopped at question 2', rv: '2/5',
     items: [
-      { f: 'A child who weighs 22 kg is ordered amoxicillin 25 mg/kg/day, divided every 12 hours. The suspension is 250 mg per 5 mL. How many mL per dose?', b: '5.5 mL. 22 kg × 25 mg/kg = 550 mg a day; two doses is 275 mg each; 275 ÷ 250 × 5 mL = 5.5 mL.', ev: 'Yesterday the slip was mg to mL. Check that step in yours first.' },
-      { f: 'Ordered: acetaminophen 160 mg. On hand: 80 mg per 2.5 mL. How many mL?', b: '5 mL. 160 ÷ 80 × 2.5 mL = 5 mL.' },
-      { f: 'Ordered: digoxin 0.25 mg. On hand: 0.125 mg tablets. How many tablets?', b: '2 tablets. 0.25 ÷ 0.125 = 2.' },
-      { f: 'Ordered: furosemide 20 mg. On hand: 10 mg per mL. How many mL?', b: '2 mL. 20 ÷ 10 = 2.' },
-      { f: 'A 15 kg child is ordered 10 mg/kg once. How many mg?', b: '150 mg. 15 × 10 = 150.' },
+      { f: 'Two carriers (Aa × Aa) have a child who shows the dominant trait. What is the chance the child is a carrier?', b: '2 in 3. The child is AA, Aa or aA, all equally likely; two of the three carry a.', ev: 'Yesterday the slip was counting Aa once instead of twice. Check that step in yours first.' },
+      { f: 'Two carriers (Aa × Aa) have a child. What is the chance the child is aa?', b: '1 in 4. Each parent passes a half the time: ½ × ½ = ¼.' },
+      { f: 'Aa × aa. What share of the children are Aa?', b: 'Half. Every child gets a from one parent, and A or a from the other.' },
+      { f: 'AA × aa. What share of the children show the dominant trait?', b: 'All of them. Every child is Aa.' },
+      { f: 'Two carriers have three children. What is the chance all three are aa?', b: '1 in 64. ¼ × ¼ × ¼.' },
     ] },
   { id: 's-verbs', t: 88, type: 'cards', title: 'Everyday verbs', coll: 'spanish', src: 'n-verbs', due: 4, recent: 'yesterday', rv: '4 due',
     items: [
@@ -709,24 +709,24 @@ const SETS = [
       { f: 'escribir', b: 'to write · escribo, escribes, escribe, escribimos, escriben' },
       { f: 'trabajar', b: 'to work · trabajo, trabajas, trabaja, trabajamos, trabajan' },
     ] },
-  { id: 's-glove', t: 75, type: 'steps', title: 'Sterile gloving', coll: 'nur112', src: 'n-skills', last: '5/7',
+  { id: 's-star', t: 75, type: 'steps', title: 'Answering with STAR', coll: 'interview', src: 'n-stories', last: '5/7',
     items: [
-      { s: 'Perform hand hygiene.' },
-      { s: 'Check the package: right size, dry, intact, in date.' },
-      { s: 'Open the outer wrap and peel it back.' },
-      { s: 'Open the inner wrap by its tabs without touching the inside.' },
-      { s: 'Glove the dominant hand, touching only the folded cuff.', ev: 'You put this after the next step last time. Which hand goes first, and why?' },
-      { s: 'Slide the gloved fingers under the second cuff and glove the other hand.' },
-      { s: 'Adjust the fit with gloved hands only.' },
+      { s: 'Hear the whole question; ask if it’s unclear.' },
+      { s: 'Pick the story that fits it best.' },
+      { s: 'Situation: set the scene in a sentence or two.' },
+      { s: 'Task: say what you were responsible for.' },
+      { s: 'Action: what you did, step by step, in “I”, not “we”.', ev: 'You jumped to the result before this last time. What did you do, and in what order?' },
+      { s: 'Result: how it ended, with a number if you have one.' },
+      { s: 'Close with what you’d keep or change next time.' },
     ] },
-  { id: 's-fluid', t: 72, type: 'cards', title: 'Fluid &amp; electrolyte basics', coll: 'nur112', src: null, due: 2,
+  { id: 's-bigo', t: 72, type: 'cards', title: 'Big-O basics', coll: 'interview', src: null, due: 2,
     items: [
-      { f: 'Normal serum sodium', b: '135–145 mEq/L' },
-      { f: 'Normal serum potassium', b: '3.5–5.0 mEq/L' },
-      { f: 'Minimum adult urine output', b: 'About 30 mL an hour.' },
-      { f: 'Insensible loss', b: 'About 800 mL a day, through skin and breath.' },
+      { f: 'Array access by index', b: 'O(1)' },
+      { f: 'Binary search', b: 'O(log n), on sorted data.' },
+      { f: 'Comparison sort', b: 'O(n log n) at best.' },
+      { f: 'Two nested loops over n', b: 'O(n²)' },
     ] },
-  { id: 's-bones', t: 57, type: 'cards', title: 'Bones of the upper limb', coll: 'bio201', src: 'n-lab6',
+  { id: 's-bones', t: 57, type: 'cards', title: 'Bones of the upper limb', coll: 'biology', src: 'n-lab6',
     items: [
       { f: 'Humerus', b: 'The upper arm bone, shoulder to elbow.' },
       { f: 'Radius', b: 'The forearm bone on the thumb side.' },
@@ -755,7 +755,7 @@ const SETS = [
       { f: 'quince', b: '15' },
     ] },
   /* Already in Recently deleted when the mock-up opens. */
-  { id: 's-old', t: 5, type: 'cards', title: 'Cranial nerves (old)', coll: 'bio201', src: null,
+  { id: 's-old', t: 5, type: 'cards', title: 'Cranial nerves (old)', coll: 'biology', src: null,
     items: [{ f: 'CN I', b: 'Olfactory' }, { f: 'CN II', b: 'Optic' }] },
 ];
 
@@ -771,12 +771,12 @@ const DRAFTS = {
     ['Stroke volume, three factors', 'Preload, afterload, contractility.'],
     ['CO formula', 'CO = HR × SV.'],
   ],
-  'n-math': [
-    ['Daily dose by weight', 'kg × mg/kg per day.'],
-    ['Divided doses', 'Daily dose ÷ number of doses in the day.'],
-    ['Liquid dose', '(dose ÷ have) × volume.'],
-    ['Every 12 hours', 'Two doses a day.'],
-    ['Every 8 hours', 'Three doses a day.'],
+  'n-punnett': [
+    ['Allele', 'One version of a gene.'],
+    ['Homozygous', 'Two copies of the same allele: AA or aa.'],
+    ['Heterozygous', 'Two different alleles: Aa.'],
+    ['Carrier', 'Aa for a recessive trait: carries it without showing it.'],
+    ['Aa × Aa', '1 AA : 2 Aa : 1 aa.'],
   ],
   'n-verbs': [
     ['-ar, yo form', 'Drop -ar, add -o: hablo.'],
@@ -785,21 +785,21 @@ const DRAFTS = {
     ['-er and -ir, él / ella', '-e: come, vive.'],
     ['-ar, ellos', '-an: hablan.'],
   ],
-  'n-fluid': [
-    ['Intake', 'Anything that enters as fluid: drinks, IV fluids, tube feeds.'],
-    ['Ice chips', 'Count at half their volume.'],
-    ['Output', 'Urine, emesis, drains, stool.'],
-    ['Why strict I&amp;O on a diuretic', 'Output can outrun intake; watch for dehydration and low potassium.'],
+  'n-hash': [
+    ['Hash map lookup', 'O(1) on average; O(n) when every key collides.'],
+    ['Collision', 'Two keys land on the same index.'],
+    ['Load factor', 'Entries ÷ buckets; past a set point the map grows.'],
+    ['Two-sum in one pass', 'Look up target − x before you store x.'],
   ],
 };
 
 /* Plan items (Today). Properties live in Detail, not on the row. */
 const PLAN = [
-  { id: 'p-review', type: 'plan', title: 'Review · 6 cards', meta: 'due today from 2 sets', est: '10m', done: true, coll: 'bio201', link: 's-co',
+  { id: 'p-review', type: 'plan', title: 'Review · 6 cards', meta: 'due today from 2 sets', est: '10m', done: true, coll: 'biology', link: 's-co',
     date: 'Today', time: '7:00 am', repeat: 'Every day', from: 'Morning run · E.V.' },
-  { id: 'p-dose', type: 'plan', title: 'Oral liquid doses · 5 questions', meta: 'from your plan for Exam 3', est: '20m', coll: 'nur112', link: 's-dose',
-    date: 'Today', time: 'none', repeat: 'None', from: 'Study plan for Exam 3 · you approved it Sat' },
-  { id: 'p-write', type: 'plan', title: 'Write up the Ch 9 lecture', meta: 'note · study session', est: '30m', coll: 'bio201', link: 'n-co',
+  { id: 'p-genes', type: 'plan', title: 'Two-carrier crosses · 5 questions', meta: 'from your plan for Biology exam 3', est: '20m', coll: 'biology', link: 's-genes',
+    date: 'Today', time: 'none', repeat: 'None', from: 'Prep plan for Biology exam 3 · you approved it Sat' },
+  { id: 'p-write', type: 'plan', title: 'Write up the Ch 9 lecture', meta: 'note · session', est: '30m', coll: 'biology', link: 'n-co',
     date: 'Today', time: 'none', repeat: 'None', from: 'You · added Sun' },
   { id: 'p-verbs', type: 'plan', title: 'Everyday verbs · 4 due', meta: 'Spanish', est: '10m', coll: 'spanish', link: 's-verbs',
     date: 'Today', time: 'none', repeat: 'Every day', from: 'You' },
@@ -807,52 +807,67 @@ const PLAN = [
     date: 'Today', time: '6:30 pm', repeat: 'Mon, Wed, Sat', from: 'You' },
 ];
 
-/* Dates: an exam, a deadline, any goal with a date. days = days from today. */
+/* The one registry of date kinds: each kind lists what it offers. Screens ask here, never by a date's title.
+   Only an exam offers a prep plan for now; more tools arrive as data here. */
+const DATE_KINDS = {
+  exam:  { label: 'Exam',  offers: ['prep-plan'] },
+  other: { label: 'Other', offers: [] },
+};
+const kindOf = d => (DATE_KINDS[d.kind] ? d.kind : 'other');
+const kindOffers = (d, tool) => DATE_KINDS[kindOf(d)].offers.includes(tool);
+
+/* Dates: any goal with a date (an exam, an interview, a race, a trip). days = days from today. plan: a prep plan waits. */
 const DATES = [
-  { id: 'd-exam3', type: 'date', title: 'Exam 3', coll: 'nur112', days: 3, short: 'Thu', full: 'Thursday, Nov 5', time: '9:00 am', meta: 'NUR 112 · study plan waiting for you', link: 'n-obj', soon: true, plan: true },
-  { id: 'd-lab2', type: 'date', title: 'Lab practical 2', coll: 'bio201', days: 7, short: 'Nov 9', full: 'Monday, Nov 9', time: '1:00 pm', meta: 'BIO 201', link: 'n-lab6', soon: true },
-  { id: 'd-half', type: 'date', title: 'Half marathon', coll: 'running', days: 20, short: 'Nov 22', full: 'Sunday, Nov 22', time: '7:00 am', meta: 'Running', link: 'n-log', soon: true },
-  { id: 'd-oax', type: 'date', title: 'Trip to Oaxaca', coll: 'spanish', days: 132, short: 'Mar 14', full: 'Sunday, Mar 14', time: 'none', meta: 'Spanish', link: 'n-market' },
+  { id: 'd-exam3', type: 'date', kind: 'exam', title: 'Biology exam 3', coll: 'biology', days: 3, short: 'Thu', full: 'Thursday, Nov 5', time: '9:00 am', link: 'n-obj', soon: true, plan: true },
+  { id: 'd-interview', type: 'date', kind: 'other', title: 'Job interview', coll: 'interview', days: 7, short: 'Nov 9', full: 'Monday, Nov 9', time: '1:00 pm', link: 'n-stories', soon: true },
+  { id: 'd-half', type: 'date', kind: 'other', title: 'Half marathon', coll: 'running', days: 20, short: 'Nov 22', full: 'Sunday, Nov 22', time: '7:00 am', link: 'n-log', soon: true },
+  { id: 'd-oax', type: 'date', kind: 'other', title: 'Trip to Oaxaca', coll: 'spanish', days: 132, short: 'Mar 14', full: 'Sunday, Mar 14', time: 'none', link: 'n-market' },
 ];
+/* A date row's meta: its collection, and the waiting prep plan where its kind offers one. */
+const datePlanWaits = d => !!d.plan && kindOffers(d, 'prep-plan');
+const dateMeta = d => [collName(d.coll) || 'no collection', datePlanWaits(d) ? 'prep plan waiting for you' : ''].filter(Boolean).join(' · ');
+/* A collection's next linked date (its own or a nested collection's), soonest first; none when it has no dated date. */
+const nextDateOf = id => live(DATES).filter(d => d.days != null && d.days >= 0 && (d.coll === id || (COLLS[d.coll] && COLLS[d.coll].parent === id)))
+  .sort((a, b) => a.days - b.days)[0];
 
 /* Jobs: E.V.'s dotted ring with a step count. Jobs are never deleted; they end done or failed. */
 const JOBS = [
-  { id: 'j-plan', type: 'job', state: 'needs', kind: 'study plan', title: 'Study plan for Exam 3', meta: 'ready to approve · rate your confidence first', step: [3, 3] },
+  { id: 'j-plan', type: 'job', state: 'needs', kind: 'prep plan', title: 'Prep plan for Biology exam 3', meta: 'ready to approve · rate your confidence first', step: [3, 3] },
   { id: 'j-weekly', type: 'job', state: 'needs', kind: 'weekly review', title: 'Weekly review', meta: 'Sun · 2 weak spots to confirm · 5 h 10 m studied, accuracy 72%', step: [3, 3],
     steps: [['ok', 'Gathered the week', '28 sessions, 5 h 10 m, 164 answers'], ['ok', 'Wrote the summary', 'accuracy 72%, up from 69% · saved to Progress'], ['warn', 'Found 2 new weak spots', 'waiting for you to confirm']],
     by: 'Schedule · Sunday', out: 'Progress · weekly review; Library · Weak spots', cost: 'under 1¢' },
-  { id: 'j-src', type: 'job', state: 'needs', kind: 'practice set', title: 'Practice set · Fluid balance', meta: '2 questions have no source · keep or drop them', step: [3, 4],
-    steps: [['ok', 'Read the note', 'Note · Fluid balance · I&amp;O'], ['ok', 'Wrote 12 questions', 'from 3 sections'], ['warn', 'Checked each against its source', '10 cited · 2 have no source'], ['faint', 'Save to Library', 'waits for you']],
-    by: 'You · Library', out: 'Library · NUR 112, when you decide', cost: 'about 1¢' },
-  { id: 'j-mock', type: 'job', state: 'running', kind: 'mock exam', title: 'Mock exam · Chapter 9', meta: 'writing questions · 9 of 15 · you asked in Ask E.V.', step: [3, 4],
+  { id: 'j-src', type: 'job', state: 'needs', kind: 'practice set', title: 'Practice set · Hash maps', meta: '2 questions have no source · keep or drop them', step: [3, 4],
+    steps: [['ok', 'Read the note', 'Note · Hash maps'], ['ok', 'Wrote 12 questions', 'from 3 sections'], ['warn', 'Checked each against its source', '10 cited · 2 have no source'], ['faint', 'Save to Library', 'waits for you']],
+    by: 'You · Library', out: 'Library · Interview prep, when you decide', cost: 'about 1¢' },
+  { id: 'j-full', type: 'job', state: 'running', kind: 'full practice run', title: 'Full practice run · Chapter 9', meta: 'writing questions · 9 of 15 · you asked in Ask E.V.', step: [3, 4],
     steps: [['ok', 'Read the chapter', '3 notes, Exam 3 objectives'], ['ok', 'Planned 15 questions', 'weak spots first, 12 objectives'], ['run', 'Writing questions', '9 of 15'], ['faint', 'Checking each answer against its source', 'next']],
-    by: 'You · Ask E.V.', out: 'Library · NUR 112, when done', cost: 'about 2¢ so far' },
+    by: 'You · Ask E.V.', out: 'Library · Biology, when done', cost: 'about 2¢ so far' },
   { id: 'j-today', type: 'job', state: 'done', kind: 'daily plan', title: 'Plan for today', meta: '4:25 am · 5 items and 1 proposal → Today', step: [2, 2],
-    steps: [['ok', 'Read your plans, dates and due cards', 'Exam 3 plan, 3 dates, 2 sets'], ['ok', 'Wrote today’s list', '5 items, 1 proposal']],
+    steps: [['ok', 'Read your plans, dates and due cards', 'Biology exam 3 plan, 3 dates, 2 sets'], ['ok', 'Wrote today’s list', '5 items, 1 proposal']],
     by: 'Schedule · morning', out: 'Today · Plan', cost: 'under 1¢' },
   { id: 'j-verbs', type: 'job', state: 'done', kind: 'card set', title: 'Cards from “Verb endings”', meta: '8:02 am · you kept 6 of 8 → Everyday verbs', step: [3, 3],
     steps: [['ok', 'Read the note', 'Note · Verb endings'], ['ok', 'Wrote 8 cards', 'one per verb'], ['ok', 'Checked each against the note', '8 of 8 cited']],
     by: 'You · set editor', out: 'Library · Everyday verbs', cost: 'under 1¢' },
-  { id: 'j-guide', type: 'job', state: 'failed', kind: 'study guide', title: 'Study guide · Fluid balance', meta: 'failed: the answer ran out of room · nothing was saved', step: [2, 3],
-    steps: [['ok', 'Read the note', 'Note · Fluid balance · I&amp;O'], ['bad', 'Wrote the guide', 'failed: the answer ran out of room'], ['faint', 'Saved', 'nothing was saved']],
+  { id: 'j-guide', type: 'job', state: 'failed', kind: 'guide', title: 'Guide · Hash maps', meta: 'failed: the answer ran out of room · nothing was saved', step: [2, 3],
+    steps: [['ok', 'Read the note', 'Note · Hash maps'], ['bad', 'Wrote the guide', 'failed: the answer ran out of room'], ['faint', 'Saved', 'nothing was saved']],
     by: 'Schedule · nightly', out: 'none', cost: 'under 1¢' },
 ];
 
-/* Weak spots: derived from Matt's misses (rebuildable from the answer log). E.V. proposes them, Matt confirms;
-   he can mark one learned. Each points at the set he drills it from and the date it matters for. */
+/* Weak spots: derived from the user's misses (rebuildable from the answer log). E.V. proposes them, the user confirms
+   and can mark one learned. Each points at the set it is drilled from and the date it matters for. */
 const WEAK = [
-  { id: 'w-oral', type: 'weak', title: 'Oral liquid doses', coll: 'nur112', right: [4, 9], next: 'today', set: 's-dose', date: 'd-exam3', miss: 'converting mg to mL' },
-  { id: 'w-after', type: 'weak', title: 'Afterload', coll: 'bio201', right: [5, 9], next: 'tomorrow', set: 's-co', date: 'd-lab2', miss: 'swapping it with preload' },
-  { id: 'w-io', type: 'weak', title: 'Fluid balance · I&amp;O', coll: 'nur112', right: [6, 10], next: 'Thu', set: 's-fluid', date: 'd-exam3', miss: 'counting ice chips at full volume' },
+  { id: 'w-carriers', type: 'weak', title: 'Two-carrier crosses', coll: 'biology', right: [4, 9], next: 'today', set: 's-genes', date: 'd-exam3', miss: 'counting Aa once instead of twice' },
+  { id: 'w-after', type: 'weak', title: 'Afterload', coll: 'biology', right: [5, 9], next: 'tomorrow', set: 's-co', date: 'd-exam3', miss: 'swapping it with preload' },
+  { id: 'w-collide', type: 'weak', title: 'Hash map collisions', coll: 'interview', right: [6, 10], next: 'Thu', set: 's-bigo', date: 'd-interview', miss: 'forgetting the O(n) worst case' },
 ];
-/* Proposed by Sunday's weekly review; they join WEAK only when Matt confirms. */
+/* Proposed by Sunday's weekly review; they join WEAK only when the user confirms. */
 const WEAK_PROPOSED = [
-  { id: 'w-cross', type: 'weak', title: 'Crossbridge cycle', coll: 'bio201', right: [3, 7], next: 'tomorrow', set: null, date: 'd-lab2', miss: 'the order of the four steps' },
+  { id: 'w-cross', type: 'weak', title: 'Crossbridge cycle', coll: 'biology', right: [3, 7], next: 'tomorrow', set: null, date: 'd-exam3', miss: 'the order of the four steps' },
   { id: 'w-verbs', type: 'weak', title: '-er verbs, nosotros', coll: 'spanish', right: [2, 5], next: 'tomorrow', set: 's-verbs', date: 'd-oax', miss: 'using -imos for -er verbs' },
 ];
 
-/* Matt's pins: anything he chooses. */
-const PINS = ['nur112', 'bio201', 'spanish', 'running', 'due', 'n-math'];
+/* The user's pins: anything they choose. */
+const PINS = ['biology', 'interview', 'spanish', 'running', 'due', 'n-punnett'];
 
 /* Recently deleted: id → when, and days left of the 30. */
 const DELETED_SEED = [['n-old', 'Oct 29', 26], ['s-old', 'Oct 20', 17]];
@@ -862,7 +877,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const app = $('#app'), area = $('#area'), detail = $('#detail'), menu = $('#menu');
 const state = { screen: 'today', param: null, edit: false, session: false, paused: false, seconds: 18 * 60 + 20, undo: null,
-  libFilter: 'all', open: new Set(['nur112']), note: 'n-co', hero: { i: 0, flipped: false }, study: null, seq: 0,
+  libFilter: 'all', open: new Set(['interview']), note: 'n-co', hero: { i: 0, flipped: false }, study: null, seq: 0,
   deleted: new Map(DELETED_SEED.map(([id, on, left]) => [id, { on, left }])) };
 
 const BY = {};
@@ -923,10 +938,10 @@ function itemRow(x, opt = {}) {
       return row({ id: x.id, g: gl(x.type), title: setTitle(x), meta: opt.recent ? x.recent : setMeta(x, opt.inColl), val: opt.recent ? x.rv : setVal(x) });
     case 'plan': return row({ id: x.id, cls: x.done ? 'done' : '', g: `<button class="ring" data-act="toggle-done" title="Done (X)" aria-label="Mark done">${glyphFor(x)}</button>`, title: titleOf(x), meta: x.meta, val: x.est,
       act: x.done ? '' : '<button class="btn text act" data-act="start-item">Start</button>' });
-    case 'date': return row({ id: x.id, g: gl('date'), title: titleOf(x), meta: opt.meta ?? x.meta, val: x.short });
+    case 'date': return row({ id: x.id, g: gl('date'), title: titleOf(x), meta: opt.meta ?? dateMeta(x), val: x.short });
     case 'job': return row({ id: x.id, g: glyphFor(x), title: x.title, meta: x.meta, val: `${x.step[0]}/${x.step[1]}`, dot: jobDot(x),
       act: x.state === 'failed' ? '<button class="btn text act" data-act="retry">Retry</button>' : '' });
-    case 'collection': return row({ id: x.id, g: gl('collection'), title: titleOf(x), meta: `${allIn(x.id).length} items` });
+    case 'collection': { const n = allIn(x.id).length; return row({ id: x.id, g: gl('collection'), title: titleOf(x), meta: `${n} item${n === 1 ? '' : 's'}` }); }
     case 'view': return row({ id: x.id, g: gl('view'), title: titleOf(x), meta: 'saved view' });
     case 'weak': return row({ id: x.id, title: x.title, meta: `${opt.noColl ? '' : collName(topColl(x.coll)) + ' · '}${x.right[0]} of ${x.right[1]} right lately`, val: x.next === 'today' ? 'due today' : x.next,
       act: '<button class="btn text act" data-act="drill">Drill</button>' });
@@ -945,7 +960,8 @@ const tiles = (list, opt) => `<div class="tiles">${list.map(x => tile(x, opt)).j
 function renderPins() {
   $('#pins').innerHTML = PINS.filter(id => BY[id] && !isDel(id)).map(id => {
     const x = BY[id];
-    const n = id === 'nur112' ? '<span class="n">Thu</span>' : '';
+    const d = COLLS[id] ? nextDateOf(id) : null;
+    const n = d ? `<span class="n">${d.short}</span>` : '';
     return `<a class="nav" href="#" data-pin="${id}" data-id="${id}">${glyphFor(x)}<span class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${titleOf(x)}</span>${n}</a>`;
   }).join('');
   markNav();
@@ -967,7 +983,7 @@ function updateCounts() {
 $('#jobline-gl').innerHTML = gl('job', 'run');
 
 /* ================= Today ================= */
-const SAY_TODAY = '<b>Exam 3 is Thursday.</b> You missed 2 of 3 weight-based doses yesterday, so I’ve proposed five more for tonight. <span class="cite" data-cite="s-dose" tabindex="0">from Set · Dosage by weight</span>';
+const SAY_TODAY = '<b>Biology exam 3 is Thursday.</b> You missed 2 of 3 two-carrier crosses yesterday, so I’ve proposed five more for tonight. <span class="cite" data-cite="s-genes" tabindex="0">from Set · Genetics problems</span>';
 function renderToday() {
   $('#plan-rows').innerHTML = live(PLAN).map(p => itemRow(p)).join('');
   $('#date-rows').innerHTML = live(DATES).filter(d => d.soon).map(d => itemRow(d)).join('') || '<span class="t-meta">No dates coming up.</span>';
@@ -1012,10 +1028,10 @@ function commitPlanInline() {
 function acceptSuggest() {
   const s = $('#today-suggest'); if (!s || s.hidden) return;
   const [title, est] = $('#today-suggest-text').textContent.split(' · ');
-  const p = { id: uid('p'), type: 'plan', title, meta: 'you accepted E.V.’s proposal', est: est || '', coll: 'nur112', link: 's-dose', date: 'Today', time: 'tonight', repeat: 'None', from: 'E.V.’s proposal · you accepted it' };
+  const p = { id: uid('p'), type: 'plan', title, meta: 'you accepted E.V.’s proposal', est: est || '', coll: 'biology', link: 's-genes', date: 'Today', time: 'tonight', repeat: 'None', from: 'E.V.’s proposal · you accepted it' };
   PLAN.push(p); BY[p.id] = p;
   s.hidden = true; paint();
-  $('#today-say').innerHTML = '<b>Exam 3 is Thursday.</b> Five dosage problems are on tonight’s plan.';
+  $('#today-say').innerHTML = '<b>Biology exam 3 is Thursday.</b> Five genetics problems are on tonight’s plan.';
   toast('Added to today', () => { PLAN.pop(); s.hidden = false; paint(); $('#today-say').innerHTML = SAY_TODAY; });
 }
 function editSuggest() {
@@ -1030,7 +1046,7 @@ function dismissSuggest() {
 }
 
 /* ================= Ask E.V. ================= */
-$('#ask-job').innerHTML = itemRow(BY['j-mock']);
+$('#ask-job').innerHTML = itemRow(BY['j-full']);
 const clock = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }).toLowerCase();
 function addMsg(html, me) {
   const m = document.createElement('div');
@@ -1058,7 +1074,7 @@ function renderLibrary() {
   $('#lib-filter').innerHTML = [['all', 'All'], ['cards', 'Cards'], ['questions', 'Questions'], ['steps', 'Steps']]
     .map(([k, l]) => `<button data-filter="${k}" class="${state.libFilter === k ? 'on' : ''}">${l}<span class="n">${counts[k]}</span></button>`).join('');
   const list = sets.filter(s => state.libFilter === 'all' || s.type === state.libFilter).sort((a, b) => b.t - a.t);
-  if (['all', 'questions'].includes(state.libFilter) && BY['j-mock'].state === 'running') list.splice(1, 0, BY['j-mock']);
+  if (['all', 'questions'].includes(state.libFilter) && BY['j-full'].state === 'running') list.splice(1, 0, BY['j-full']);
   const ws = liveWeak();
   $('#lib-weak').innerHTML = ws.length ? ws.map(w => itemRow(w)).join('') : '<span class="t-meta">None right now. New ones come from your misses; E.V. proposes, you confirm.</span>';
   $('#lib-weak-n').textContent = ws.length;
@@ -1241,7 +1257,7 @@ function renderStudy() {
   }
   const it = s.items[st.i], f = front(s, st.i);
   const kick = { cards: 'Term', questions: 'Question', steps: 'Step ' + (st.i + 1) }[s.type];
-  const ev = it.ev || 'Rate it as the exam would: Good only if you’d have it cold.';
+  const ev = it.ev || 'Rate it honestly: Good only if you’d have it cold.';
   const shown = st.phase === 'shown';
   sec.innerHTML = `${top}
   <div class="study-body"><div class="study-wrap"><div class="card" id="studycard">
@@ -1345,7 +1361,7 @@ function renderDocMeta() {
   const n = BY[state.param]; if (!n) return;
   $('#docmeta').innerHTML = `${gl('collection')}<button class="pick" data-act="pick-coll" data-for="${n.id}">${collName(n.coll) || 'no collection'}</button><span>edited ${n.when}</span><span class="line g2" title="Saved on this device; sending to the server"><i class="dot d-faint"></i>saved</span><span class="grow"></span>
     <button class="btn text" data-act="cards-from-note" title="Start a set from this note; E.V. drafts, you keep or drop"><span class="mark quiet"></span>Make cards</button>
-    ${state.session ? '' : '<button class="btn text" data-act="start-session" title="Start a study session">Start session</button>'}${MORE(n.id)}`;
+    ${state.session ? '' : '<button class="btn text" data-act="start-session" title="Start a session">Start session</button>'}${MORE(n.id)}`;
 }
 function renderNote() {
   const n = BY[state.param]; if (!n || isDel(n.id)) return go('notes');
@@ -1425,7 +1441,7 @@ function newSet({ coll = null, src = null, ev = false, from = null } = {}) {
   else $('#editor .cell')?.focus();
 }
 function newDate(coll, onToday) {
-  const d = { id: uid('d'), type: 'date', title: '', coll: coll || null, days: null, short: '—', full: 'none', time: 'none', meta: collName(coll) || 'no collection', link: null, soon: !!onToday };
+  const d = { id: uid('d'), type: 'date', kind: 'other', title: '', coll: coll || null, days: null, short: '—', full: 'none', time: 'none', link: null, soon: !!onToday };
   DATES.push(d); BY[d.id] = d; paint();
   openDetail(d.id, $(`.view .row[data-id="${d.id}"]`));
   $('#detail [data-title]')?.focus();
@@ -1513,7 +1529,7 @@ function renderColl(id) {
     <div class="phead">${gl('collection')}<div class="stack g1 grow"><h1 class="t-title" contenteditable="true" data-title="${id}" data-ph="Untitled collection">${c.title}</h1><span class="t-meta">Collection · ${items.length} items${PINS.includes(id) ? ' · pinned' : ''}</span></div>
       <button class="btn text" data-act="new-in" title="New in this collection (C)">New<span class="kbd">C</span></button>${MORE(id)}</div>
   </div>
-  ${dates.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Coming up</h2></div>${dates.map(d => itemRow(d, { meta: d.plan ? 'study plan waiting for you' : d.full === 'none' ? 'no date yet' : d.full })).join('')}</div>` : ''}
+  ${dates.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Coming up</h2></div>${dates.map(d => itemRow(d, { meta: datePlanWaits(d) ? 'prep plan waiting for you' : d.full === 'none' ? 'no date yet' : d.full })).join('')}</div>` : ''}
   ${kids.length || rest.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Everything</h2><span class="t-meta">newest first</span></div>
     ${kids.map(k => itemRow(k)).join('')}${rest.map(x => itemRow(x, { inColl: true })).join('')}</div>`
     : `<div class="empty"><span>Nothing here yet. New adds a note, a set or a date here; or move things in from their menu.</span></div>`}`;
@@ -1588,11 +1604,12 @@ function detailFor(id) {
     ${head(x.id, 'Date', x.title, `${x.full === 'none' ? 'no date yet' : x.full}${x.time !== 'none' ? ' · ' + x.time : ''}`, true)}
     <div class="props">
       ${kv(x, 'Date', x.full, 'full')}${kv(x, 'Time', x.time, 'time')}${kv(x, 'Repeat', x.repeat || 'None', 'repeat')}
+      ${kvPick('Kind', DATE_KINDS[kindOf(x)].label, 'pick-kind', x.id)}
       ${kvPick('Collection', linkLabel(x.coll), 'pick-coll', x.id)}
       ${kvPick('Linked', linkLabel(x.link), 'pick-link', x.id)}
     </div>
     ${liveWeak().some(w => w.date === x.id) ? `<div class="sec"><h2 class="t-label">Weak spots for this date</h2>${liveWeak().filter(w => w.date === x.id).map(w => itemRow(w, { noColl: true })).join('')}</div>` : ''}
-    ${x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan">Review the study plan</button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a plan · it will wait in Activity for you"><span class="mark quiet"></span>Plan with E.V.</button></div>'}`;
+    ${!kindOffers(x, 'prep-plan') ? '' : x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan">Review the prep plan</button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a prep plan · it will wait in Activity for you"><span class="mark quiet"></span>Plan with E.V.</button></div>'}`;
   if (x.type === 'view') return `
     ${head(null, 'Saved view · filter and sort', titleOf(x), 'Changes apply as you pick.')}
     <div class="sec"><h2 class="t-label">Shows</h2><div class="opts">${Object.entries(SHOWS).map(([k, l]) => `<button data-vshow="${k}" class="${x.shows.includes(k) ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -1613,8 +1630,8 @@ function detailFor(id) {
     const dot = { ok: 'd-ok', bad: 'd-bad', warn: 'd-warn', faint: 'd-faint' };
     const steps = (x.steps || []).map(([s, t, m]) => `<div class="st">${s === 'run' ? '<i class="spin"></i>' : `<i class="dot ${dot[s]}"></i>`}<div>${t}<div class="t-meta">${m}</div></div></div>`).join('');
     const extra = x.id === 'j-src' ? `<div class="sec"><h2 class="t-label">No source found</h2>
-        <div class="stack g2" style="padding:8px 0"><span>Ice chips count at half their volume.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div>
-        <div class="stack g2" style="padding:8px 0"><span>Adults lose about 800 mL a day unseen.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div></div>` : '';
+        <div class="stack g2" style="padding:8px 0"><span>Most hash maps resize when about three-quarters full.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div>
+        <div class="stack g2" style="padding:8px 0"><span>A good hash function spreads keys evenly across buckets.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div></div>` : '';
     const weekly = x.id === 'j-weekly' && x.state === 'needs' ? `<div class="sec"><h2 class="t-label">Confirm weak spots</h2>
         ${WEAK_PROPOSED.map(w => `<div class="stack g2" style="padding:8px 0"><span>${w.title} <span class="t-meta">· ${w.right[0]} of ${w.right[1]} right · missed ${w.miss}</span></span><span class="seg" data-pick data-w="${w.id}" style="align-self:flex-start"><button data-val="yes">Confirm</button><button data-val="no">Not now</button></span></div>`).join('')}</div>` : '';
     const acts = x.state === 'failed' ? '<button class="btn secondary" data-act="retry">Retry, shorter</button><button class="btn text" data-close>Dismiss</button>'
@@ -1630,18 +1647,18 @@ function detailFor(id) {
   return '';
 }
 const PLAN_PROPOSAL = `
-  ${head(null, 'Proposal · study plan', 'Study plan for Exam 3', 'NUR 112 · Thursday, Nov 5 · 3 sessions, 1&nbsp;h&nbsp;20&nbsp;m')}
+  ${head(null, 'Proposal · prep plan', 'Prep plan for Biology exam 3', 'Biology · Thursday, Nov 5 · 3 sessions, 1&nbsp;h&nbsp;20&nbsp;m')}
   <div class="sec">
     <h2 class="t-label">Your confidence</h2>
     <span class="t-meta" id="conf-note">Rate these first. E.V. shapes the plan around them.</span>
-    <div class="lrow"><span class="grow">Oral liquid doses</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
-    <div class="lrow"><span class="grow">Dosage by weight</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
-    <div class="lrow"><span class="grow">Fluid balance · I&amp;O</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Two-carrier crosses</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Cardiac output</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
+    <div class="lrow"><span class="grow">Crossbridge cycle</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
   </div>
   <div class="sec" id="plan-items">
     <h2 class="t-label">Proposed</h2>
-    <div class="suggest"><span class="t-meta" style="width:32px">Tue</span><span class="grow">Dosage by weight · mixed set</span><span class="t-meta">25m</span></div>
-    <div class="suggest"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Mock exam · Chapter 9</span><span class="t-meta">45m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Tue</span><span class="grow">Genetics problems · mixed set</span><span class="t-meta">25m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Full practice run · Chapter 9</span><span class="t-meta">45m</span></div>
     <div class="suggest"><span class="t-meta" style="width:32px">Thu</span><span class="grow">Misses only, before the exam</span><span class="t-meta">10m</span></div>
   </div>
   <div><div class="kv"><span>Built from</span><b>Exam 3 objectives · Ch 8–9 notes</b></div><div class="kv"><span>Weighted by</span><b>your answers · your ratings</b></div></div>
@@ -1797,7 +1814,6 @@ function moveMenu(id, x, y) {
     .map(c => ({ k: c.id, label: c.parent ? `${collName(c.parent)} / ${c.title}` : titleOf(c), g: gl('collection'), on: it.coll === c.id }))];
   menuAt(x, y, opts, k => {
     const was = it.coll; it.coll = k || null;
-    if (it.type === 'date') it.meta = collName(it.coll) || 'no collection';
     paint(); if (!detail.hidden && detail.dataset.id === id) openDetail(id, null, true);
     if (state.screen === 'set' && state.edit) renderSetEdit(BY[state.param]);
     toast(k ? `Moved to ${collName(k)}` : 'Removed from its collection', () => { it.coll = was; paint(); if (state.screen === 'set' && state.edit) renderSetEdit(BY[state.param]); });
@@ -1808,6 +1824,14 @@ function linkMenu(el, id) {
   const opts = [{ k: '', label: 'None', on: !it.link }, { head: 'Sets' }, ...live(SETS).map(s => ({ k: s.id, label: titleOf(s), g: gl(s.type), on: it.link === s.id })),
     { head: 'Notes' }, ...live(NOTES).map(n => ({ k: n.id, label: titleOf(n), g: gl('note'), on: it.link === n.id }))];
   pickAt(el, opts, k => { it.link = k || null; paint(); openDetail(id, null, true); });
+}
+/* A date's kind, picked from the one registry; what the date offers follows from it. */
+function kindMenu(el, id) {
+  const it = BY[id], was = kindOf(it);
+  pickAt(el, Object.entries(DATE_KINDS).map(([k, v]) => ({ k, label: v.label, on: was === k })), k => {
+    it.kind = k; paint(); openDetail(id, null, true);
+    toast(`Kind · ${DATE_KINDS[k].label}`, () => { it.kind = was; paint(); openDetail(id, null, true); });
+  });
 }
 function noteMenu(el, cur, cb) {
   pickAt(el, [{ k: '', label: 'None', on: !cur }, ...live(NOTES).map(n => ({ k: n.id, label: titleOf(n), g: gl('note'), on: cur === n.id }))], cb);
@@ -1894,6 +1918,7 @@ const actions = {
   'pick-coll': b => { const r = b.getBoundingClientRect(); moveMenu(forId(b), r.left, r.bottom + 4); },
   'pick-src': b => { const s = BY[forId(b)]; noteMenu(b, s.src, k => { s.src = k || null; renderSetEdit(s); }); },
   'pick-link': b => linkMenu(b, forId(b)),
+  'pick-kind': b => kindMenu(b, forId(b)),
   'item-menu': b => { const r = b.getBoundingClientRect(); itemMenu(forId(b), r.right - 220, r.bottom + 4); },
   'new-in': b => newInMenu(b),
   'new-coll': () => newColl(),
@@ -1927,9 +1952,9 @@ const actions = {
   'end-session': endSession,
   'new-note': () => newNote(),
   'approve-plan': approvePlan,
-  'plan-changes': () => askEV('Changes to the Exam 3 plan: '),
+  'plan-changes': () => askEV('Changes to the Biology exam 3 plan: '),
   'put-away': () => { closeDetail(); toast('Put away · it stays in Activity'); },
-  'save-set': () => { $('[data-act="save-set"]', detail).outerHTML = '<span class="t-meta">Saved to Library · NUR 112</span>'; area.classList.remove('panel-leads'); toast('Set saved'); },
+  'save-set': () => { $('[data-act="save-set"]', detail).outerHTML = '<span class="t-meta">Saved to Library · Interview prep</span>'; area.classList.remove('panel-leads'); toast('Set saved'); },
   retry: () => toast('Retrying, shorter · see Running'),
   toast: b => toast(b.dataset.msg),
   undo: () => { const u = state.undo; $('#toast').hidden = true; u?.(); },
@@ -2140,7 +2165,7 @@ function renderSystem() {
       ${m('Plan item', 'Today · Add, or C', 'Title and properties in Detail', 'Menu, or ⌫', 'Her one dashed proposal')}
       ${m('Note', 'Notes · New note, or C', 'Type on its page', 'Menu, or ⌫', 'Make cards from it; checks in a session')}
       ${m('Set', 'Library · New set, or C', 'Edit on the set page (E)', 'Menu, or ⌫', 'Write with E.V.: dashed drafts from a note')}
-      ${m('Date', 'Today · Add date; a collection’s New', 'Title and properties in Detail', 'Menu, or ⌫', 'Plan with E.V. (a job)')}
+      ${m('Date', 'Today · Add date; a collection’s New', 'Title and properties in Detail', 'Menu, or ⌫', 'Plan with E.V. (a job), on an exam')}
       ${m('Weak spot', 'From your misses: E.V. proposes, you confirm', 'none; it follows your answers', 'Mark as learned (a status)', 'is how they appear')}
       ${m('Collection', 'Notes · New collection; ⌘K; inside a collection', 'Title in place', 'Menu; its items stay, ungrouped', 'none')}
       ${m('Saved view', '⌘K · New saved view', 'Title in place; Edit view in Detail', 'Menu', 'none')}
@@ -2150,9 +2175,8 @@ function renderSystem() {
   <div class="sec g4"><h2 class="t-label">Scope · what this mock-up shows vs. what goes live first</h2>
     <span class="c-quiet">The mock-up is the long-term design. The plan’s cutover list decides what ships first; everything else waits, without changing how it looks.</span>
     <div class="kit matrix">
-      ${m('At cutover', 'Today (plan, one proposal, dates) · Library: question sets with the set editor, weak spots, the accuracy line, the Dates tab, where an exam is one kind of date with its study plan · Notes with sessions · Ask E.V. · Activity, including the weekly review · collections and pins · Recently deleted · the practice-set and study-plan jobs')}
-      ${m('After cutover', 'Card sets and step sets, with due counts and Again / Good (they arrive with spaced scheduling; Quizlet stays the card tool until then) · Learn and Test modes · saved views · rating confidence before approving a study plan (Matt-first planning) · Progress beyond the accuracy line · the phone layout (the phone stays as it is until then)')}
-      ${m('Architect', 'Where each new thing is stored without changing ev4’s data: collections beyond courses, nesting, pins, saved views, plan-item time / repeat / link, non-exam dates, set items typed by hand, E.V.’s drafts · whether “Write with E.V.” is the practice-set job or a new kind')}
+      ${m('At cutover', 'Today (plan, one proposal, dates) · Library: question sets with the set editor, weak spots, the accuracy line, the Dates tab, where each date has a kind and an exam offers its prep plan · Notes with sessions · Ask E.V. · Activity, including the weekly review · collections and pins · Recently deleted · the practice-set and prep-plan jobs')}
+      ${m('After cutover', 'Card sets and step sets, with due counts and Again / Good (they arrive with spaced scheduling) · Learn and Test modes · saved views · rating confidence before approving a prep plan (Matt-first planning) · Progress beyond the accuracy line · the phone layout (the phone stays as it is until then)')}
     </div>
   </div>
   <div class="sec g4"><h2 class="t-label">Tokens · dark first, light matches</h2>
@@ -2186,7 +2210,7 @@ function renderSystem() {
       ${comp('Glyph', 'Eight line glyphs. The plan ring doubles as status; the job ring as progress.')}
       ${comp('E.V. line', 'Dotted mark, one sentence, its source. In the column, under the title or inside the card.')}
       ${comp('Suggestion', 'A dashed row in the list it would change: a proposal on Today, a draft in the set editor. Keep or drop.')}
-      ${comp('Source', 'Every fact names where it came from: <span class="cite">from Note · Med math rules</span> or ' + UNVERIFIED + '.')}
+      ${comp('Source', 'Every fact names where it came from: <span class="cite">from Note · Punnett squares</span> or ' + UNVERIFIED + '.')}
       ${comp('Study card', 'Face, your attempt, then the reveal with its source, then Again / Good. Also the set page’s hero card.')}
       ${comp('Text options', 'Filters, set types and study modes as quiet words, not chips.')}
       ${comp('Detail', 'One panel for any item. Title and properties edit in place; ⋯ for the item menu.')}

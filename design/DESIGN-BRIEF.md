@@ -6,9 +6,9 @@ This file is the one source for anyone designing E.V.'s UI, and it replaces ever
 
 ## 1. What E.V. is now
 A **personal knowledge app with a study partner built in**.
-- Matt uses it for school first, and for the rest of his life too.
-- It must never force a workflow or a worldview on him: no built-in "courses", no "semester", no "student mode".
-- School is just what he puts in it.
+- E.V. serves one independent learner: school, a certification, an interview, a career move, or learning for its own sake.
+- It must never force a workflow or a worldview on the user: no built-in courses, semesters or student mode.
+- A subject is just what the user puts in it.
 
 The skeleton from the plan stays: **Today · Ask E.V. · Library · Notes · Progress · Activity**, plus ⌘K and a Detail panel.
 - The words are deliberately general.
@@ -33,7 +33,7 @@ The coach rules from `PLAN.md` §1 still hold:
 1. The six skeleton sections, a sidebar, one centred column, and a Detail panel that opens on demand. No new top-level sections.
 2. The sidebar holds the six sections plus Matt's **pins**. A pin can be anything he chooses: a note, a set, a collection, a saved view.
    - There are no built-in domain sections.
-   - If he wants "NUR 112" in his sidebar, it's a collection he made and pinned, next to "Running" or "Spanish" if he likes.
+   - A collection in the sidebar is one the user made and pinned: "Biology" next to "Spanish", "Interview prep" or "Running". No course code is needed.
 
 **Customization comes from a few general primitives, not from settings:**
 - **Collections:** one way to group anything. They nest at most one level.
@@ -80,8 +80,8 @@ Each can come back later only with a reason.
 ## 5. Screens for a round (keep it to these)
 1. **Today:** the plan as rows, one E.V. line, at most one dashed proposal, and dates coming up (a single short list).
 2. **Library:** the home (recent at the top, then all sets with one filter row by type: Cards · Questions · Steps); a set page (title, count, source, one primary "Study", the modes as quiet text options, a hero card, the item list); study mode (one card in focus, attempt, reveal with source, Again / Good).
-3. **Notes:** collections on the left (Quip-minimal), a doc list, and a clean doc. A study session bar appears only while a session runs.
-4. **A collection** Matt made (e.g. "NUR 112"), showing its notes, sets and dates mixed. A second, non-school collection (e.g. "Spanish" or "Running") proves it isn't a school app.
+3. **Notes:** collections on the left (Quip-minimal), a doc list, and a clean doc. A session bar appears only while a session runs.
+4. **A collection** the user made (e.g. "Biology"), showing its notes, sets and dates mixed. A second collection from another kind of learning (e.g. "Interview prep", "Spanish" or "Running") shows that any subject fits.
 5. **Ask E.V.:** attempt first, and "is it ready?" answered from a job.
 6. **Activity:** jobs: needs you, running, done, failed with a reason.
 7. **Detail panel** on a plan item, showing its properties.
@@ -89,7 +89,7 @@ Each can come back later only with a reason.
 9. **`#system`:** tokens, type, spacing, the eight glyphs, and the few components (aim for 15 components or fewer).
 10. Optionally, **one phone frame** of the Library home and a card in study mode (the phone will centre on the Library later).
 
-Synthetic content only. Desktop at 1280 × 860.
+Synthetic content only. Sample content is any subject (§what.framing). Desktop at 1280 × 860.
 
 ## 6. How a round works
 - **2–3 mock-ups, not more,** that differ on **named dimensions** only, so the differences are visible but purposeful. Pick from: dark vs light first; how sets appear in the Library (tiles vs rows); where E.V. speaks (an inline line vs the Detail margin); how strong the glyph and form language is (minimal vs slightly richer).

@@ -45,18 +45,18 @@
 | Plan › Add, `C` | Inline new plan item; `↵` adds, `Esc` cancels |
 | Proposal: Accept `A` · Edit `E` · ✕ | Add to the plan · edit the text · not now (Undo) |
 | E.V.'s line › source | Detail: the source set |
-| Coming up row | Detail (date properties, the weak spots for that date, Review the study plan / Plan with E.V.) |
+| Coming up row | Detail (date properties with its kind, the weak spots for that date; on an exam, Review the prep plan / Plan with E.V.) |
 | Coming up › Add date | New date row; Detail opens with the title ready to type |
 
 ### Detail panel (one panel; contents by type)
 | Type | Controls |
 |---|---|
 | Plan item | Title in place · Status (toggle) · Date, Time, Estimate, Repeat (edit in place, `↵` saves) · Linked (picker: sets and notes) · Collection (picker) · Start / Mark not done · Move to tomorrow · ⋯ |
-| Date | Title in place · Date, Time, Repeat · Collection · Linked · weak spots for this date · Review the study plan or Plan with E.V. · ⋯ |
+| Date | Title in place · Date, Time, Repeat · Kind (picker: Exam, Other) · Collection · Linked · weak spots for this date · on an exam only: Review the prep plan or Plan with E.V. · ⋯ |
 | Weak spot | Lately, Missed on, Next review · Drill from (opens set) · Matters for (opens date) · Drill `S` · Mark as learned · menu: Drill / Mark as learned |
 | Saved view | Shows (plan items / sets with cards due / dates / notes edited) · Within 7/14/30 days · Sort by date / newest. Applies live |
 | Job | Steps with status dots · Started by, Output, Cost · by state: Stop (running) · Retry, shorter / Dismiss (failed) · Open the set (drafts waiting) |
-| Study plan proposal | Rate confidence (Low / Some / Sure) first · Approve `⌘↵` (disabled until all rated) · Ask for changes (to Ask E.V.) · Put away |
+| Prep plan proposal | Rate confidence (Low / Some / Sure) first · Approve `⌘↵` (disabled until all rated) · Ask for changes (to Ask E.V.) · Put away |
 | Practice set with unsourced items | Keep marked unverified / Drop, per item · Save the set `⌘↵` (disabled until all decided) |
 | Weekly review | Confirm / Not now, per proposed weak spot · Done `⌘↵` (disabled until all decided) |
 | Source (note or set) | Excerpt · Open note / Open set |
@@ -161,8 +161,8 @@ Status: **OK** = matches a source · **NEW** = added in rounds 5–7 at Matt's r
 | Weekly review as a "Needs you" job on Sundays, not a line on Today | PLAN §8.1 · brief §3 | RESOLVED (Matt: job in Activity) |
 | Library: practice with cited feedback, sets, accuracy line | PLAN §8.2 | OK (accuracy line added in round 7) |
 | Library: weak spots, worst first, Drill · weak spots on a date's Detail | PLAN §8.2 | OK (added in round 7) |
-| Exams with their study plan | PLAN §8.2, §6.4 | OK (a date plus the study-plan proposal) |
-| Study plan: rate confidence first, then Approve | PLAN §8 "Matt-first planning", C9 | LATER. At cutover, Approve works without ratings; the ratings arrive with Matt-first planning |
+| Dates, where an exam offers its prep plan | PLAN §8.2, §6.4 | OK (a date of kind Exam plus the prep-plan proposal) |
+| Prep plan: rate confidence first, then Approve | PLAN §8 "Matt-first planning", C9 | LATER. At cutover, Approve works without ratings; the ratings arrive with Matt-first planning |
 | Ask E.V. with job status | PLAN §8.3 | OK |
 | Notes: editor, image, two-column rows, read-along, checks, writing time (session timer), outbox ("saved on this device") | PLAN §8.4 | OK. Session comments appear as E.V.'s reply under a check |
 | Notes home with folding collections; one centred page per note | Matt, round 6 · replaces brief §5.3 | NEW / RESOLVED |
@@ -173,10 +173,10 @@ Status: **OK** = matches a source · **NEW** = added in rounds 5–7 at Matt's r
 | One "with E.V." action beside manual create; her output arrives as dashed drafts, kept or dropped | Matt, round 5 · PLAN §1, §6.1 (propose mode) | NEW |
 | Set editor (Edit mode on the set page) | Matt, round 5 | NEW |
 | Write with E.V. / Make cards (drafts from a note) | Matt, round 5 | NEW (see C2) |
-| Collections beyond courses, nested one level, one per item | PLAN C12 · brief §3 | NEW data (see C1) |
+| Collections of any kind, nested one level, one per item | §data.membership · brief §3 | SETTLED: v5's own tables (see C1) |
 | Saved views | brief §3 | NEW data (see C1) · LATER (proposed) |
 | Plan-item properties: time, estimate, repeat, linked item | brief §3 | NEW data (see C1) |
-| Dates that aren't exams (half marathon, a trip) | PLAN C12 ("an exam as a dated goal") | NEW data (see C1) |
+| Dates of any kind (an exam, a half marathon, a trip), each with a kind | §what.framing ("an exam is a dated goal") | SETTLED: v5's own tables (see C1); the kind picks what a date offers |
 | Weak spots: E.V. proposes, Matt confirms; Mark as learned is a status | PLAN §5.7 (derived, rebuildable) | OK. Weak spots have no glyph: they aren't one of the eight types |
 | Card sets and step sets, with due counts and Again / Good | brief §3 · PLAN §5.7, C3 | LATER (RESOLVED: shown as the long-term design) |
 | Learn / Test modes | brief §3 | LATER |
@@ -205,18 +205,18 @@ Status: **OK** = matches a source · **NEW** = added in rounds 5–7 at Matt's r
 | Canvas read-only | Not touched by the UI |
 | Nothing deleted except Matt's own deletes, after 30 days | Recently deleted, 30 days, Restore; no purge button |
 | Live deploys on Matt's word | Not a UI matter |
-| Same D1, additive schema | Depends on C1: new things need new tables, never new fields in ev4 collections |
+| Own database, additive schema | Settled (C1): every new thing has its own table in v5's own database (§data.own-db, §data.additive) |
 | Model ids and prices from docs | Not a UI matter |
 
 ---
 
 ## Part C · For the architect
 
-1. **Where new things are stored.** PLAN §5.2 forbids new fields or enum values inside ev4's collections while rollback is possible. Each NEW data item above needs a home in new tables, and each table needs export and restore-drill coverage before it goes live (§5.4):
-   - collections that aren't courses, and nesting;
+1. **Where new things are stored: settled.** v5 keeps its record in its own database, one table per kind (§data.own-db, §data.tables), so each NEW data item above has its own table, with export and restore-drill coverage before it goes live:
+   - collections of any kind, and nesting;
    - pins and saved views;
    - plan-item time, repeat and linked item;
-   - dates that aren't exams;
+   - dates of any kind, each with its kind;
    - set items typed by hand, and step sets;
    - E.V.'s drafts awaiting keep or drop;
    - "Mark as learned" on a weak spot.
