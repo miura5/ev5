@@ -73,11 +73,23 @@ test("new here makes a note, a set, a date and a collection", async () => {
 });
 
 test("a session starts, pauses, answers a check, and ends", async () => {
-  const { call, doc, DB } = await setup();
+  const { call, DB } = await setup();
+  const row = (id: string) =>
+    DB.prepare("SELECT * FROM sessions WHERE id = ?")
+      .bind(`ses_${id}`)
+      .first<Record<string, unknown>>();
+  const events = async (id: string) =>
+    (
+      await DB.prepare(
+        "SELECT type FROM session_events WHERE session_id = ? ORDER BY at, id",
+      )
+        .bind(`ses_${id}`)
+        .all<{ type: string }>()
+    ).results.map((e) => e.type);
   const a = (await call("session.start", { noteId: "n-1" })).body.result
     .id as string;
-  const s1 = await doc("sessions", a);
-  assert.equal(s1?.noteId, "n-1");
+  assert.equal((await row(a))?.note_id, "n-1");
+  assert.deepEqual(await events(a), ["start"]);
   const p = await call("session.pause", { id: a });
   assert.equal(p.body.result.paused, true);
   assert.equal(
@@ -89,10 +101,28 @@ test("a session starts, pauses, answers a check, and ends", async () => {
     200,
   );
   assert.equal((await call("check.just_tell_me", { id: a })).status, 200);
-  assert.ok(await doc("sessions", a));
+  // each tap is one appended row; nothing is stored as a document
+  assert.deepEqual(await events(a), [
+    "start",
+    "break",
+    "resume",
+    "answer",
+    "answer",
+  ]);
+  assert.equal(
+    (
+      await DB.prepare(
+        "SELECT count(*) AS n FROM docs WHERE c = 'sessions'",
+      ).first<{
+        n: number;
+      }>()
+    )?.n,
+    0,
+  );
   // a second session ends the first
   const b = (await call("session.start", {})).body.result.id as string;
-  assert.equal((await doc("sessions", a))?.status, "ended");
+  assert.equal((await row(a))?.status, "ended");
+  assert.deepEqual((await events(a)).slice(-1), ["end"]);
   assert.equal((await call("session.end", { id: b })).status, 200);
   assert.equal((await call("session.end", { id: b })).status, 409);
   assert.equal((await call("session.pause", { id: "nope" })).status, 404);

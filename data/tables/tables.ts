@@ -26,6 +26,7 @@ import { linkRepo } from "./links.ts";
 import { kindsRepo } from "./kinds.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
+import { sessionsRepo } from "./sessions.ts";
 
 type Collection = ReturnType<typeof parseCollection>;
 type Membership = ReturnType<typeof parseMembership>;
@@ -248,6 +249,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...planRepo(db, opts),
     ...attemptsRepo(db, opts),
     ...setsRepo(db, opts),
+    ...sessionsRepo(db, opts),
   };
 }
 /** @public Used by the first consumer, a later task. */

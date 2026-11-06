@@ -11,6 +11,7 @@ import { docsRepo, MAX_BODY, NO_DELETE } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { goalDocs } from "./goal-wire.ts";
+import { saveSession, sessionDocs } from "./session-wire.ts";
 import { createWeakSpot, weakSpotDocs } from "./weak-wire.ts";
 
 export interface DocRoutesEnv {
@@ -22,6 +23,7 @@ type Ctx = {
   Variables: AuthVars;
 };
 export const docRoutes = new Hono<Ctx>();
+const SESSIONS = "sessions";
 
 const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
 const shape = (d: {
@@ -56,7 +58,14 @@ docRoutes.get("/docs", async (c) => {
     const goals = (await goalDocs(c.env.DB, () => Date.now()))
       .filter((g) => g.at > n)
       .map((g) => shape({ c: "exams", ...g }));
-    return c.json({ now: out.now, docs: [...out.docs.map(shape), ...goals] });
+    // Sessions are rows too: one changed since then (a new event bumps its row) is sent as its session document.
+    const sessions = (await sessionDocs(c.env.DB, () => Date.now()))
+      .filter((s) => s.at > n)
+      .map((s) => shape({ c: SESSIONS, ...s }));
+    return c.json({
+      now: out.now,
+      docs: [...out.docs.map(shape), ...goals, ...sessions],
+    });
   }
   if (!collection) return c.json({ error: "collection is required" }, 400);
   // Weak spots live in their tables (§data.tables); the screens still read them as documents.
@@ -66,6 +75,15 @@ docRoutes.get("/docs", async (c) => {
     );
     if (id === undefined) return c.json({ docs: spots });
     const one = spots.find((s) => s.id === id);
+    return one ? c.json(one) : c.json({ error: "not found" }, 404);
+  }
+  // Sessions and their events are rows (§data.tables); the screens still read the session document.
+  if (collection === "sessions") {
+    const all = (await sessionDocs(c.env.DB, () => Date.now())).map((s) =>
+      shape({ c: collection, ...s }),
+    );
+    if (id === undefined) return c.json({ docs: all });
+    const one = all.find((s) => s.id === id);
     return one ? c.json(one) : c.json({ error: "not found" }, 404);
   }
   // Goals are rows (§data.tables); until the backfill, the exams list is the old documents and the goals.
@@ -104,6 +122,18 @@ docRoutes.put("/docs", async (c) => {
     if (made.ok) return c.json({ at: made.at, version: made.version });
     return c.json({ error: made.error }, made.status);
   }
+  if (collection === "sessions") {
+    // A session is a row and its events are appended rows, never a document (§data.append-only).
+    const done = await saveSession(
+      c.env.DB,
+      () => Date.now(),
+      id,
+      text,
+      iv === undefined ? null : Number(iv),
+    );
+    if (done.ok) return c.json({ at: done.at, version: done.version });
+    return c.json({ error: done.error }, done.status);
+  }
   const res = await repo(c.env.DB).save(
     collection,
     id,
@@ -131,11 +161,15 @@ docRoutes.post("/docs/batch", async (c) => {
   }
   if (
     Array.isArray(writes) &&
-    writes.some(
-      (w) => (w as { collection?: unknown })?.collection === "weakspots",
-    )
+    writes.some((w) => {
+      const k = (w as { collection?: unknown })?.collection;
+      return k === "weakspots" || k === "sessions";
+    })
   )
-    return c.json({ error: "weak spots are written one at a time" }, 400);
+    return c.json(
+      { error: "weak spots and sessions are written one at a time" },
+      400,
+    );
   const res = await repo(c.env.DB).batch(writes);
   if (res.ok)
     return c.json({

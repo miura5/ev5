@@ -27,20 +27,21 @@ test("GET /jobs?finished=today lists jobs finished today and sessions ended toda
   await store.put(rec("f1", "failed", now));
   await store.put(rec("old", "done", "2020-01-01T00:00:00.000Z"));
   await store.put(rec("live", "running", now));
-  const ins = (id: string, data: object) =>
+  const ins = (
+    id: string,
+    status: string,
+    endedAt: string | null,
+    minutes: number | null,
+  ) =>
     db
       .prepare(
-        "INSERT INTO docs (c, id, data, at, v) VALUES ('sessions', ?, ?, 0, 1)",
+        "INSERT INTO sessions (id, kind, day, status, ended_at, minutes, at, v) VALUES (?, 'note', '2026-01-01', ?, ?, ?, 0, 1)",
       )
-      .bind(id, JSON.stringify(data))
+      .bind(id, status, endedAt === null ? null : Date.parse(endedAt), minutes)
       .run();
-  await ins("ss-a", { status: "ended", endedAt: now, minutes: 25 });
-  await ins("ss-old", {
-    status: "ended",
-    endedAt: "2020-01-01T00:00:00.000Z",
-    minutes: 5,
-  });
-  await ins("ss-on", { status: "active" });
+  await ins("ses_ss-a", "ended", now, 25);
+  await ins("ses_ss-old", "ended", "2020-01-01T00:00:00.000Z", 5);
+  await ins("ses_ss-on", "active", null, null);
   const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");
   const { jobs } = (await res.json()) as {
     jobs: { id: string; state: string; lead: string }[];
