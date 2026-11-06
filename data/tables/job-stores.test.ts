@@ -94,6 +94,36 @@ test("job plans: get returns the saved body or undefined", async () => {
   assert.deepEqual(await repo.jobPlans.get("j1", "draft"), { a: 1 });
 });
 
+test("job plans: a stored body that is not JSON is refused on read", async () => {
+  const { repo, sql } = make();
+  sql
+    .prepare(
+      "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('j1', 'draft', 'not json', 1)",
+    )
+    .run();
+  await assert.rejects(repo.jobPlans.get("j1", "draft"));
+});
+
+test("settings: putNumbers saves each name, replaces earlier values, refuses a bad value", async () => {
+  const { repo, sql } = make();
+  await repo.settings.putNumbers({ hourly: 5, daily: 9 });
+  await repo.settings.putNumbers({ hourly: 7 });
+  const rows = sql
+    .prepare("SELECT key, value FROM claude_settings ORDER BY key")
+    .all();
+  assert.deepEqual(
+    rows.map((r) => [r.key, r.value]),
+    [
+      ["daily", 9],
+      ["hourly", 7],
+    ],
+  );
+  await assert.rejects(
+    repo.settings.putNumbers({ x: Number.NaN }),
+    WriteRefused,
+  );
+});
+
 test("job output: items and drafts land in one batch, a retry changes nothing", async () => {
   const { repo, sql } = make();
   const a = {
