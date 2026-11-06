@@ -17,6 +17,7 @@ import type { DocsD1 } from "../data/index.ts";
 import { askFromEnv } from "./ask-chat.ts";
 import type { HandlerCtx } from "./handlers-core.ts";
 import type { AskEnv } from "./ask-chat.ts";
+import { gradeFromEnv } from "./study-grade.ts";
 
 /** A command with no handler here answers 501: the scheduled and job commands attach with their own tasks. */
 export { commandHandlers };
@@ -72,6 +73,11 @@ commandRoutes.post("/commands/:name", async (c) => {
       const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text);
       if (!r.ok) throw new CommandError(r.status, r.reason);
       return { reply: r.reply, costCents: r.costCents };
+    },
+    grade: async (input: { question: string; reference: string; answer: string }) => {
+      const r = await gradeFromEnv({ ...c.env, DB: c.env.DB as never }, input);
+      if (!r.ok) throw new CommandError(r.status, r.reason);
+      return { ...r.grade, costCents: r.costCents };
     },
   };
   if (call.mode === "propose")
