@@ -50,6 +50,14 @@ export default [
           selector: "MemberExpression[object.name='Intl'][property.name='DateTimeFormat']",
           message: "Format dates and times through domain/time, not Intl.DateTimeFormat (§job.schedule).",
         },
+        {
+          selector: "MemberExpression[object.name='window'][property.name=/^(location|history)$/]",
+          message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never window.location or window.history (wouter-only-in-shell).",
+        },
+        {
+          selector: "MemberExpression[object.name=/^(location|history)$/][property.name=/^(assign|replace|search|href|pathname|pushState|replaceState|back|forward)$/]",
+          message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never location or history (wouter-only-in-shell).",
+        },
       ],
     },
   },

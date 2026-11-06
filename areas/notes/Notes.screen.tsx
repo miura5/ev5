@@ -12,11 +12,13 @@ import { SHORTCUTS, SHORTCUTS_EVENT, onMac } from "./parts/shortcuts.ts";
 /** The mounted view: notes from the document routes; the title is the note's first heading, edited in place in the editor, and saves through the outbox, so it works offline. */
 export function NotesScreen({
   services,
+  search,
   onNavigate,
   onDetail,
   onToast,
 }: {
   services?: NotesServices;
+  search?: string;
   onNavigate?: (path: string) => void;
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string, onUndo?: () => void) => void;
@@ -51,7 +53,7 @@ export function NotesScreen({
   }, [showShortcuts]);
   // The palette opens a note with /notes?open=<id>; an unknown id just shows the list.
   const [open, setOpen] = useState<string | undefined>(
-    () => new URLSearchParams(window.location.search).get("open") || undefined,
+    () => new URLSearchParams(search ?? "").get("open") || undefined,
   );
   const setStartError = (message?: string) => {
     if (message) onToast?.(message);
@@ -73,7 +75,7 @@ export function NotesScreen({
     );
   // Set after a delete on a collection page that sent us with ?deleted=: Undo restores it.
   useEffect(() => {
-    const q = new URLSearchParams(window.location.search);
+    const q = new URLSearchParams(search ?? "");
     const id = q.get("deleted");
     if (id)
       undoToast({

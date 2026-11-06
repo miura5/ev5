@@ -97,8 +97,7 @@ export function Shell({
         (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
       if (e.key === "\\" && !e.metaKey && !e.ctrlKey && !e.altKey && !typing) {
         e.preventDefault();
-        live.current.toggleTheme();
-        return;
+        return live.current.toggleTheme();
       }
       if (!(e.metaKey || e.ctrlKey)) return;
       const k = e.key.toLowerCase();
@@ -278,6 +277,7 @@ export function Shell({
               services={services}
               onNavigate={onNavigate}
               path={bare}
+              search={path.split("?").slice(1).join("?")}
               onDetail={setOpened}
               onToast={showToast}
             />

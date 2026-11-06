@@ -4,12 +4,14 @@ import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 import { PLAN_POLL_MS } from "./useLibrary.ts";
 
+/** The address query the shell hands the screen. */
+const SEARCH = "open=x1";
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   localStorage.clear();
-  window.history.replaceState(null, "", "/");
 });
 
 const base = {
@@ -48,7 +50,6 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
     return real(f, ms);
   }) as never);
   localStorage.setItem("ev5.token", "t");
-  window.history.replaceState(null, "", "/library?open=x1");
   let jobs: unknown[] = [];
   vi.stubGlobal(
     "fetch",
@@ -61,7 +62,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
       );
     }),
   );
-  render(<LibraryScreen />);
+  render(<LibraryScreen search={SEARCH} />);
   await screen.findByText("Plan with E.V.");
   expect(screen.queryByText("Approve")).toBeNull();
   jobs = [

@@ -19,13 +19,8 @@ interface WireReply {
 let turns = 0;
 
 /** The palette's Tab sends /ask?text=<query>; it prefills the input and never sends. */
-const readDraft = (): string => {
-  try {
-    return new URLSearchParams(window.location.search).get("text") ?? "";
-  } catch {
-    return "";
-  }
-};
+const readDraft = (search = ""): string =>
+  new URLSearchParams(search).get("text") ?? "";
 
 async function askServer(
   token: string,
@@ -52,16 +47,20 @@ async function askServer(
 /** The mounted view. Unfinished jobs from /api/v1/jobs show as turns that link to Activity; typed messages stay local. */
 export function AskScreen({
   services,
+  search,
+  onNavigate,
   onToast,
 }: {
   services?: { readCopy?: ReadCopyLike };
+  search?: string;
+  onNavigate?: (path: string) => void;
   onToast?: (message: string) => void;
 }) {
   const [sent, setSent] = useState<AskMessage[]>([]);
   const [told, setTold] = useState<readonly string[]>([]);
   const [failed, setFailed] = useState(false);
   const jobs = useAskJobs(services?.readCopy);
-  const [draft] = useState(readDraft);
+  const [draft] = useState(() => readDraft(search));
   useEffect(() => {
     if (failed)
       onToast?.(
@@ -103,7 +102,7 @@ export function AskScreen({
           setSent((m) => [...m, { id: `m${n}-ev`, ...r }]),
         );
       }}
-      onOpenJob={() => window.location.assign("/activity")}
+      onOpenJob={() => onNavigate?.("/activity")}
     />
   );
 }

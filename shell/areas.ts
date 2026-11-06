@@ -18,6 +18,8 @@ export interface AreaEntry {
     services?: Services;
     onNavigate?: (path: string) => void;
     path?: string;
+    /** The address query without its "?"; screens read it here, never from window.location (dependency-cruiser wouter-only-in-shell). */
+    search?: string;
     onDetail?: OnDetail;
     onToast?: OnToast;
   }>;

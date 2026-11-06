@@ -13,12 +13,8 @@ import {
 } from "./useStudy.ts";
 
 /** The id the palette asks to open: /library?open=<id> (shell/findings.ts); anything else is nothing. */
-function openFromUrl(): string | undefined {
-  try {
-    return new URLSearchParams(window.location.search).get("open") || undefined;
-  } catch {
-    return undefined;
-  }
+function openFromSearch(search = ""): string | undefined {
+  return new URLSearchParams(search).get("open") || undefined;
 }
 
 const PLAN_TEXT = {
@@ -33,10 +29,12 @@ const PLAN_TEXT = {
 /** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
 export function LibraryScreen({
   services,
+  search,
   onDetail,
   onToast,
 }: {
   services?: LibraryServices;
+  search?: string;
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
@@ -63,7 +61,7 @@ export function LibraryScreen({
       })
       .catch(() => undefined);
   }, [waiting, services, onToast]);
-  const [open, setOpen] = useState<string | undefined>(openFromUrl);
+  const [open, setOpen] = useState<string | undefined>(() => openFromSearch(search));
   // Bumped on every open, so the Detail shows again after the shell closed it with Esc.
   const [openKey, setOpenKey] = useState(0);
   const openIt = (id: string) => {
@@ -71,7 +69,7 @@ export function LibraryScreen({
     setOpenKey((k) => k + 1);
   };
   // An exam opened by a link (Today's Review the prep plan) shows its proposal at once.
-  const [openedByLink] = useState(() => !!openFromUrl());
+  const [openedByLink] = useState(() => !!openFromSearch(search));
   const [studying, setStudying] = useState(false);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
