@@ -5470,7 +5470,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 94: part 1 is not data-only (builder stopped, no code). Needs: (a) server: col_/pin_ id makers, collection callers to snake_case rows (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export), replace memberships.save with the item's own collection_id, item_props become plan_items columns (D-498 drops both tables, so do not move them onto the gate); (b) data: migration backfilling col_ ids and rewriting references, pins gets id, v, deleted_at, target_kind; collections and pins in kindsRepo (one-level parent check, plan.ts style); update tables.test and row-shapes.test. Do (b) before or with (a); then part 2. Earlier state: migrations 0006 to 0008 on main, plan repo and gate in data/tables.",
+  "notes": "Run 95: data step done (#592): migration 0009 expand (pins id/target_kind/v/deleted_at), 0010 backfill (col_ ids, references, pin ids; UPDATE allowed only in *_backfill files), collectionRows (one-level check) and pinRows in kindsRepo. LEFT, server step: col_/pin_ id makers (until then new collections created via the legacy path have unprefixed ids and fail collectionRows parsing), move callers (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export) to collectionRows/pinRows, replace memberships.save with item collection_id, item_props become plan_items columns (D-498). Then part 2 contract migration: drop pins.target_c and mirror, rename repos, drop memberships/item_props, CHECK on col_ prefix, remove /docs routes and data/docs, reseed staging, rerun drill.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5802,7 +5802,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Group 4. Done: drafts (#587); server job_plans and claude_settings reads through domain parsers (#590, domain/job-plan parseStoredPlan, server/job-plans.ts). Left: jobs/runtime/d1-stores.ts job_plans/claude_settings (a jobs/ task), WireDoc in areas, old doc-row shapes (after B-1037 to B-1043), data/docs gate onto parse*Row, plan row shape so commands/ and jobs/ drop PlanSchema, parseCourseTable callers, row-shapes.test gap, contract migration dropping target_c; consider snake_case jobPlanSchema then.",
+  "notes": "Group 4. Done: drafts (#587); server job_plans/claude_settings reads (#590). Run 95: jobs/runtime/d1-stores.ts has no shapes of its own (thin adapter since #542). LEFT: data/tables/jobs.ts jobPlans.get JSON.parse cast -> domain parseStoredPlanBody (data slice), then drop 'as T' in d1-stores.ts; server/job-run.ts and job-routes.ts claude_settings reads to the domain row parser (server slice); WireDoc in areas, old doc-row shapes (after B-1037 to B-1043), data/docs gate onto parse*Row, plan row shape so commands/ and jobs/ drop PlanSchema, parseCourseTable callers, row-shapes.test gap, contract migration dropping target_c.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5985,7 +5985,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Part 1 done (#586, run 93): item type ids are multi_select and grid; domain/item/upgrade.ts maps stored old names on read (drop it at the contract step). Checks 1-9 still to build.",
+  "notes": "Part 1 done (#586). Run 95: checks 4, 5, 9 already exist (unusedexports, sourceids, chartev4, with red fixtures in ops/guards/guards.test.ts). Checks 1 and 6 would go red on existing code: check 1 has 12 files (comments in areas/library/types.ts, domain/objective, domain/item/upgrade.ts; data/staging/seed.sql; data/protocol/canonical.samples.json; 7 kit stories: Detail, Doc, MovePicker, NavItem, Row, Suggestion, Tile), check 6 has 84 lines in 63 non-test files (mostly comments; plus server/index.ts importing ev4-routes and vite.config.ts retire-ev4.js, which should join the allow list, and ops/checks/chartev4.ts, migrationshape.ts). Needs a reword sweep per folder (widened slices) before they land. Checks 2 (second half), 3, 7, 8 wait for docs removal.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
