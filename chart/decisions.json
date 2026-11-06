@@ -39,11 +39,12 @@
   "id": "D-509",
   "date": "Nov 6",
   "title": "A weak spot links to a date directly, with link rows, as the mock-up shows",
-  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call B). Today a weak spot reaches a date only through an objective, nothing writes objectives, and Other dates have none, so a prep plan always gets 0 weak spots. A weak spot gets a link row to its goal (§data.links), which the prep plan and readiness read; objectives stay optional. Built in B-1039, with the picker in B-1052.",
+  "why": "Matt approved the build manager's pick (ev-build channel 2026-11-06, post-sweep audit call B). Today a weak spot reaches a date only through an objective, nothing writes objectives, and Other dates have none, so a prep plan always gets 0 weak spots. A weak spot gets a link row to its goal (§data.links), which the prep plan and readiness read; objectives stay optional. Built in B-1039, picker included. (Amended 2026-11-06: the picker moved from B-1052, now a feature idea in Matt's list, to B-1039; D-512.)",
   "status": "accepted",
   "supersedes": [],
   "amends": [],
-  "source": "Matt, ev-build channel 2026-11-06"
+  "source": "Matt, ev-build channel 2026-11-06",
+  "restated": "Nov 6"
  },
  {
   "id": "D-508",
