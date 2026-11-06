@@ -5719,10 +5719,10 @@
   "title": "E.V.'s prompts say you or the user, never 'the student' or a name",
   "dod": "Ask E.V.'s system prompt (server/ask-chat.ts), the prep-plan prompts, the practice-set prompt and user message, the grading prompt and E.V.'s tool descriptions (commands/catalog.ts) name no person and never say 'the student': E.V.'s voice says 'you', and a description of the person says 'the user'; server/prompt-words.test.ts checks every one of them and refuses student(s), mock exam, exam-style and study plan; one real end-to-end Ask and prep-plan run on staging is green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C2, A1, B20: the earlier sweep wrote 'the student' into every prompt because this done bar asked for it; Matt chose 'you' (2026-11-06), which amends D-486's prompt clause. The scope sweep rewords the prompts and widens the guard. Decision: D-502.",
-  "commit": null,
+  "notes": "Slice: write server/, jobs/; read none. Decision: D-486. The model's behaviour changes slightly, hence the staging runs. 2026-11-05 ev4 sweep (#547): every model prompt now says the student and names no person (server/prompt-words.test.ts guards it). Left: the done bar's real end-to-end Ask and study-plan run on staging; code comments naming the owner are B-1015's. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C2, A1, B20: the earlier sweep wrote 'the student' into every prompt because this done bar asked for it; Matt chose 'you' (2026-11-06), which amends D-486's prompt clause. The scope sweep rewords the prompts and widens the guard. Decision: D-502. Done in the scope sweep, #621 (prompts) with #619 (prep-plan prompts): server/prompt-words.test.ts reads every prompt E.V. sends and every tool description and refuses student, mock exam, exam-style, study plan and subject words.",
+  "commit": "aa23c85",
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
  {
