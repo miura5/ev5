@@ -23,7 +23,7 @@ interface WireDoc {
 export interface ProgressData {
   /** First-try accuracy over the last 14 days; null when there are no answers in the window. */
   accuracy: string | null;
-  /** Any answer at all, so the empty-state sentence shows only for a student with none. */
+  /** Any answer at all, so the empty-state sentence shows only for a user with none. */
   hasAnswers: boolean;
   /** Minutes studied in ended sessions. */
   minutes: number;
@@ -76,7 +76,7 @@ export interface ProgressState {
   error?: string;
 }
 
-/** Reads answers and sessions with the app token Matt keeps in this browser (the shell holds none). */
+/** Reads answers and sessions with the app token the user keeps in this browser (the shell holds none). */
 export function useProgress(copy?: ReadCopyLike): ProgressState {
   const [token] = useState(readToken);
   const [data, setData] = useState<ProgressData>();

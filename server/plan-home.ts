@@ -1,5 +1,5 @@
 // Where the prep plan reads its date and weak spots and where an approved plan lands (ev4 docs collections).
-// load: the date (`exams/<id>` or its goal row) plus the weak spots (rows, §data.tables) aimed at it, derived with their `answers` as of Central today, with
+// load: the date (`exams/<id>` or its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
 // the active ones worst first (the order is code, CONTRACT §cmd.code-first). apply: the plan becomes `plans/plan-<job>`
 // (what Today reads), an older exam document's `planId` points at it and `planedits/<date>` puts it in force (as plan.approve does). Both writes are safe to repeat when a step retries.
 import {
@@ -79,7 +79,7 @@ export function planHome(
       if (!row) return undefined;
       const exam = parseExam(row.data);
       const today = centralDate(clock());
-      // The weak spots are rows (§data.tables); only the ones aimed at this date count.
+      // The weak spots are rows (§data.tables); the ones whose objective is linked to this goal are aimed at it.
       const attempts = await attemptsBySpot(db);
       const spots = (await weakSpotDocs(db as DocsD1, clock)).flatMap((r) => {
         const spot = r.data;
@@ -87,7 +87,7 @@ export function planHome(
         const model = {
           kind: spot.kind,
           derived: deriveWeakSpot(spot, attempts.get(r.id) ?? [], {
-            examDate: exam.date ?? null,
+            goalDate: exam.date ?? null,
             id: r.id,
           }),
         };

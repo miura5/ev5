@@ -23,11 +23,10 @@ const msOrNull = (s: string | null | undefined) => {
 };
 
 /**
- * A session document as its `sessions` row. Only note sessions are stored; a skill session is refused. The document's other
+ * A session document as its `sessions` row (every session is a note session). The document's other
  * fields (source, comments, folder, filing) are not columns: the clock is rebuilt from the events, never kept.
  */
 export function newSessionRow(docId: string, doc: Session): NewSessionRow {
-  if (doc.kind === "skill") throw new Error("only note sessions are stored");
   const driverAt = doc.driver ? msOrNull(doc.driver.at) : null;
   return {
     id: sessionRowId(docId),

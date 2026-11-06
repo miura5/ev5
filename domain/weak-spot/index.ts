@@ -102,8 +102,8 @@ function applyEvent(st: Derived, e: WeakSpotEvent, at: string, date: string): vo
 }
 
 export type DeriveOpts = {
-  /** The date of this spot's exam, for the near-exam interval. */
-  examDate?: string | null;
+  /** The date of this spot's goal, for the near-date interval. */
+  goalDate?: string | null;
   duplicateOf?: string | null;
   /** A duplicate's `seen` events, credited to this survivor. */
   credited?: Record<string, WeakSpotEvent>;
@@ -138,7 +138,7 @@ export function deriveWeakSpot(f: WeakSpot, attempts: Attempt[], opts: DeriveOpt
     right: 0,
     history: [],
   };
-  const examDate = opts.examDate ?? null;
+  const goalDate = opts.goalDate ?? null;
   const concept = f.kind === 'concept';
   type Entry = { at: string; e?: WeakSpotEvent; a?: Attempt };
   const timeline: Entry[] = [
@@ -197,10 +197,10 @@ export function deriveWeakSpot(f: WeakSpot, attempts: Attempt[], opts: DeriveOpt
         });
         continue;
       }
-      const toExam = examDate && examDate >= date ? daysBetween(date, examDate) : null;
-      const near = toExam != null && toExam <= R.nearExamWithinDays;
-      let next = addDays(date, near ? R.intervalNearExamDays : R.intervalDays);
-      if (examDate && toExam != null && toExam > 1 && next >= examDate) next = addDays(examDate, -1);
+      const toDate = goalDate && goalDate >= date ? daysBetween(date, goalDate) : null;
+      const near = toDate != null && toDate <= R.nearDateWithinDays;
+      let next = addDays(date, near ? R.intervalNearDateDays : R.intervalDays);
+      if (goalDate && toDate != null && toDate > 1 && next >= goalDate) next = addDays(goalDate, -1);
       st.nextDue = next;
     } else {
       Object.assign(st, wrong(date), { misses: st.misses + 1 });

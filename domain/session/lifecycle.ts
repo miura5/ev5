@@ -80,7 +80,7 @@ export function switchSession(s: SessionDoc | null, i: { at: string; key: string
 
 /** The switch that ended this session, while it waits to be filed: {at, view}; else null. */
 function switchedEnd(s: SessionDoc | null): { at: string; view: string | null } | null {
-  if (!s || s.status !== 'ended' || s.filedAt || s.kind === 'skill') return null;
+  if (!s || s.status !== 'ended' || s.filedAt) return null;
   const [k, last] = lastOf(s, ['end', 'reopen']);
   return k && last?.type === 'end' && last.why === 'switched' ? { at: isoOf(entryTime(k, last)), view: last.view ?? null } : null;
 }
@@ -131,7 +131,7 @@ export function filingOf(s: SessionDoc | null): { at: string; wrap: object } | n
 
 /** A session left wrapping up (status ending, not filed): its end event {at, why, view}; else null. */
 export function endingOf(s: SessionDoc | null): { at: string | null; why: string; view: string | null } | null {
-  if (!s || s.status !== 'ending' || s.filedAt || s.kind === 'skill') return null;
+  if (!s || s.status !== 'ending' || s.filedAt) return null;
   const [k, e] = lastOf(s, ['end']);
   return e && k ? { at: isoOf(entryTime(k, e)), why: e.why ?? 'ended', view: e.view ?? null } : { at: null, why: 'ended', view: null };
 }

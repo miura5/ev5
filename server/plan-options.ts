@@ -1,5 +1,5 @@
 // The options of a plan item: time, repeat, linked item (item_props) and collection. A repeat materializes each
-// day's occurrence into `dayedits.added` under `rep-<id>-<date>` (PLAN §5.10), so ev4 sees it after a rollback.
+// day's occurrence into `dayedits.added` under `rep-<id>-<date>` (PLAN §5.10).
 import {
   addDays,
   materialize,
@@ -111,15 +111,14 @@ async function materializeRepeat(
   );
   if (!cur?.repeat) return;
   item = (await findItem(x, id)).day.added![id]!;
-  const { text, kind, minutes, course } = item as {
+  const { text, kind, minutes } = item as {
     text: string;
     kind: "todo";
     minutes?: number;
-    course?: string;
   };
   const found = materialize(
     cur,
-    { text, kind, ...(minutes ? { minutes } : {}), ...(course ? { course } : {}) },
+    { text, kind, ...(minutes ? { minutes } : {}) },
     addDays(date, 1),
     addDays(date, HORIZON),
     iso(x.clock()),
@@ -140,7 +139,7 @@ async function materializeRepeat(
   }
 }
 
-/** Puts the item in a collection (a membership row), in a course (`course:<key>`: ev4's field) or out ("none"). */
+/** Puts the item in a collection (a membership row for a live `col_` id) or out ("none"); anything else is refused. */
 async function moveOf(x: HandlerCtx, target: string) {
   const goal = target.trim() === "none" || target.trim() === "" ? null : target.trim();
   const live = new Set(
@@ -166,14 +165,6 @@ async function placeItem(x: HandlerCtx, id: string, target: string) {
     return;
   }
   await t.memberships.remove("dayedits", id);
-  if (w.kind === "course") {
-    const course = w.course;
-    const f = await findItem(x, id);
-    await saveDay(x, "v5/command:plan.update", f.date, f, (d) => {
-      const e = (d.added as Record<string, Record<string, unknown>>)[id];
-      if (e) e.course = course;
-    });
-  }
 }
 
 export type Options = { patch: Patch; collection?: string };

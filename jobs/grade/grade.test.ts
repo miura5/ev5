@@ -23,6 +23,6 @@ test("a score outside 0 to 1 is asked again once, then fails", async () => {
 test("the prompt carries the three parts and names no subject", () => {
   const p = gradePrompt(i);
   assert.match(p, /Question: Why\?/);
-  assert.match(p, /Student answer: Since\./);
+  assert.match(p, /^Answer: Since\.$/m);
   assert.doesNotMatch(GRADE_SYSTEM + p, /nurs|NUR|BIO/i);
 });

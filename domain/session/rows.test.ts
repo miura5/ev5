@@ -46,10 +46,8 @@ test("a session document becomes valid rows and reads back with its events and c
   );
 });
 
-test("a skill session is not stored, and an event with no readable time is refused", () => {
-  expect(() => newSessionRow("ss-1", { ...doc, kind: "skill" })).toThrow(
-    /only note sessions/,
-  );
+test("a session of another kind is refused, and an event with no readable time is refused", () => {
+  expect(() => parseSession({ ...doc, kind: "skill" })).toThrow();
   expect(() => newSessionEventRow("ss-1", "page-x", { type: "start" })).toThrow(
     /no readable time/,
   );
