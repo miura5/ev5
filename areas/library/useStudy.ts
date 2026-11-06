@@ -12,9 +12,17 @@ export interface LibraryServices {
       id: string,
       doc: Record<string, unknown>,
     ): Promise<unknown>;
+    queueCommand?(
+      name: string,
+      id: string,
+      input: Record<string, unknown>,
+    ): Promise<unknown>;
     replay(): Promise<unknown>;
   };
 }
+
+const attemptId = () =>
+  `att_${Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, "0")).join("")}`;
 
 const rand = () => Math.random().toString(36).slice(2, 6).padEnd(4, "0");
 
@@ -46,7 +54,25 @@ export function useStudy(setId: string, services?: LibraryServices) {
 /** "Just tell me": queued as its own append-only answer (outcome "told"); resolves true once it is on the outbox. */
 export function useTellMe(setId: string, services?: LibraryServices) {
   const write = useWriter(setId, services);
-  return useCallback((itemId: string) => write(itemId, "told", ""), [write]);
+  return useCallback(
+    (itemId: string) => {
+      const q = services?.outbox.queueCommand;
+      // The command writes the attempt for both kinds of set (the server routes by the set's kind); the att_ id is made
+      // here so a replay after a lost reply is a 409, never a second row. No command path: the old answers document.
+      if (!services || !q) return write(itemId, "told", "");
+      const att = attemptId();
+      return q
+        .call(services.outbox, "study.just_tell_me", att, {
+          id: `${setId}/${itemId}`,
+          attempt: att,
+        })
+        .then(
+          () => (void services.outbox.replay(), true),
+          () => false,
+        );
+    },
+    [setId, services, write],
+  );
 }
 
 /** What grading a typed open answer came to: the model's score and one line, or the sentence for why it did not. */

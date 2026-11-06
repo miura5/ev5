@@ -18,7 +18,7 @@ export interface Services {
   };
   /** The saved copy of reads: lets the shell say when the screen shows it. */
   readCopy?: ReadCopy;
-  outbox: Pick<Outbox, "queueNote" | "queueAnswer" | "replay" | "count">;
+  outbox: Pick<Outbox, "queueNote" | "queueAnswer" | "queueCommand" | "replay" | "count">;
 }
 
 export function createServices(): Services {

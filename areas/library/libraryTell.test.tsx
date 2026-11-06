@@ -42,6 +42,20 @@ function Harness({ services }: { services: LibraryServices }) {
   );
 }
 
+test("Just tell me posts study.just_tell_me under a client att_ id when the outbox can", async () => {
+  const queueCommand = vi.fn().mockResolvedValue(undefined);
+  const queueAnswer = vi.fn();
+  const replay = vi.fn().mockResolvedValue(undefined);
+  render(<Harness services={{ outbox: { queueCommand, queueAnswer, replay } }} />);
+  fireEvent.click(screen.getByText("Just tell me"));
+  await waitFor(() => expect(screen.getByText("The back")).toBeTruthy());
+  expect(queueAnswer).not.toHaveBeenCalled();
+  const [name, id, input] = queueCommand.mock.calls[0] ?? [];
+  expect(name).toBe("study.just_tell_me");
+  expect(id).toMatch(/^att_[0-9a-f]{24}$/);
+  expect(input).toEqual({ id: "set-1/q1", attempt: id });
+});
+
 test("Just tell me queues one told answer, then shows the back", async () => {
   const queueAnswer = vi.fn().mockResolvedValue(undefined);
   const replay = vi.fn().mockResolvedValue(undefined);
