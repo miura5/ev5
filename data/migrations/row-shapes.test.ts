@@ -112,7 +112,7 @@ const tables: Entry[] = [
   {
     table: 'plan_items',
     parse: parsePlanItemTableRow,
-    sample: { id: 'pli_1', plan_id: null, day: '2026-11-05', pos: 0, title: 't', minutes: null, time: null, origin: 'matt', linked_kind: null, linked_id: null, repeat_id: null, done_at: null, ...S, ...D },
+    sample: { id: 'pli_1', plan_id: null, day: '2026-11-05', pos: 0, title: 't', minutes: null, time: null, origin: 'user', linked_kind: null, linked_id: null, repeat_id: null, done_at: null, ...S, ...D },
   },
   {
     table: 'repeats',

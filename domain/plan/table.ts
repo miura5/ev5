@@ -55,7 +55,7 @@ export const planItemTableSchema = pairedLink(
     title: text,
     minutes,
     time: clock,
-    origin: z.enum(["matt", "morning", "plan"]),
+    origin: z.enum(["user", "morning", "plan"]),
     linked_kind: z.enum(LINKED).nullable(),
     linked_id: opt,
     repeat_id: opt,
