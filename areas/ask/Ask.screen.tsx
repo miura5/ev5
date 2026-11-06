@@ -1,7 +1,7 @@
 import { clockTime } from "../../domain/index.ts";
 import { useEffect, useState } from "react";
 import { api, failureSentence, readToken } from "../../commands/client.ts";
-import { logTellMe } from "./tellLog.ts";
+import { loadChat, tellMe } from "./chat.ts";
 import { AskView } from "./Ask.view.tsx";
 import type { AskMessage } from "./types.ts";
 import { useAskJobs, type ReadCopyLike } from "./useAskJobs.ts";
@@ -14,6 +14,7 @@ interface WireReply {
   source?: string;
   unverified: boolean;
   asksTry: boolean;
+  chatId?: string;
 }
 
 let turns = 0;
@@ -25,9 +26,14 @@ const readDraft = (search = ""): string =>
 async function askServer(
   token: string,
   text: string,
-): Promise<Omit<Extract<AskMessage, { from: "ev" }>, "id">> {
+  chatId: string | null,
+): Promise<
+  Omit<Extract<AskMessage, { from: "ev" }>, "id"> & { chatId?: string }
+> {
   try {
-    const r = await api("ask", token, { body: { text } });
+    const r = await api("ask", token, {
+      body: chatId ? { text, chat_id: chatId } : { text },
+    });
     // Never the server's own text: a refused or failed reply reads as the client's plain sentence.
     if (!r.ok) return { from: "ev", text: failureSentence(r.status) };
     const b = (await r.json()) as { reply?: WireReply };
@@ -38,6 +44,7 @@ async function askServer(
       text: reply.unverified ? `Unverified: ${reply.text}` : reply.text,
       ...(reply.source ? { source: reply.source } : {}),
       ...(reply.asksTry ? { asksTry: true } : {}),
+      ...(reply.chatId ? { chatId: reply.chatId } : {}),
     };
   } catch (e) {
     return { from: "ev", text: failureSentence(e) };
@@ -59,6 +66,22 @@ export function AskScreen({
   const [sent, setSent] = useState<AskMessage[]>([]);
   const [told, setTold] = useState<readonly string[]>([]);
   const [failed, setFailed] = useState(false);
+  const [saved, setSaved] = useState<AskMessage[]>([]);
+  const [chatId, setChatId] = useState<string | null>(null);
+  // A reload keeps the chat: the newest saved conversation comes back from the server.
+  useEffect(() => {
+    let live = true;
+    const token = readToken();
+    if (!token) return;
+    void loadChat(token).then((c) => {
+      if (!live) return;
+      setSaved(c.messages);
+      setChatId((cur) => cur ?? c.chatId);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
   const jobs = useAskJobs(services?.readCopy);
   const [draft] = useState(() => readDraft(search));
   useEffect(() => {
@@ -69,7 +92,7 @@ export function AskScreen({
   }, [failed, onToast]);
   // The tap is logged first (one append-only talk message); only then does the answer show (§ui.attempt-first).
   const onJustTell = (id: string) => {
-    void logTellMe(readToken(), id).then(
+    void tellMe(readToken(), id).then(
       (ok) =>
         ok ? (setFailed(false), setTold((t) => [...t, id])) : setFailed(true),
       () => setFailed(true),
@@ -87,7 +110,7 @@ export function AskScreen({
   }));
   return (
     <AskView
-      messages={[...jobTurns, ...sent].map(reveal)}
+      messages={[...jobTurns, ...saved, ...sent].map(reveal)}
       onJustTell={onJustTell}
       initialDraft={draft}
       onSend={(text) => {
@@ -97,10 +120,15 @@ export function AskScreen({
           { id: `m${n}-you`, from: "you", at: clock(), text },
         ]);
         const token = readToken();
-        const reply = askServer(token, text);
-        void reply.then((r) =>
-          setSent((m) => [...m, { id: `m${n}-ev`, ...r }]),
-        );
+        void askServer(token, text, chatId).then(async (r) => {
+          const { chatId: cid, ...turn } = r;
+          if (cid) setChatId(cid);
+          // The saved line's id is what "Just tell me" names: read it back once the turn is saved.
+          const id = cid ?? chatId;
+          const last = id ? (await loadChat(token, id)).messages.at(-1) : null;
+          const lineId = last?.from === "ev" ? last.id : `m${n}-ev`;
+          setSent((m) => [...m, { id: lineId, ...turn }]);
+        });
       }}
       onOpenJob={() => onNavigate?.("/activity")}
     />
