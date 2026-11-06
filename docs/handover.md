@@ -9,7 +9,12 @@ Task freeze (D-497): no new task ids until groups 3 to 6 are done; findings go i
 Order: B-1022 remainder (WireDoc in areas, old doc-row shapes after B-1037 to B-1043, plan row shape so jobs drop PlanSchema, contract migration dropping target_c),
 B-998 remainder (notes and plan items on memberships.save need their tables; item_props to plan_items columns; item.move/pin on old repos; part 2 ONLY after every docs reader and writer has moved: remove /docs routes and data/docs, contract migration with the next free number, 0018 (D-506), rerun drill),
 B-1036 (checks 1, 2 second half, 6, 7 wait for the docs removal).
-Done 2026-11-06 21:40 (#671-#679): plan commands and job write plans rows, home.apply gone; outbox answers and notes post commands; study reads set tables only; B-1039 B7; image overwrite refused. Left per task is in the Chart notes. Next builders: B-1004 reader move (Today/Library read rows, then drop planedits from /docs; rename study plan), B-1037 UI callers (areas/notes, areas/ask) and reader F7, B-1040 own_* retire list, B-1043 areas/ask tellLog (B-1007), B-1045 files table (0018 free), B-1044 (deps now met in part), B-1038 B8. Then the squash.
+Done 2026-11-06 22:20 (#681 to #683): files table 0018 and picture row, magic-number check, CSP (B-1045 first half; D-506 contract migration now takes 0019);
+Ask loads GET /ask/chat and tells via ask.just_tell_me (B-1043); Today/Library read plans and plan_items rows, planedits gone from /docs (B-1004).
+Earlier 21:40 (#671-#679): plan commands, outbox answers and notes as commands, study reads set tables only.
+Left per task is in the Chart notes. Next builders: B-1004 study-plan rename and handlers-dates.ts check,
+B-1045 export bytes/hashes + drill + orphan report, B-1037 check.answer UI (needs a mock-up/kit piece first, so it may wait),
+B-1040 own_* retire list, B-1044, B-1038 B8. Then the squash.
 Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; slice jobs/runtime). B-1006 to B-1008 wait for group 3. Follow-up: pass onBad to the table repos.
 Small ev4-trace cleanups: B-1059 (after B-1009); B-1060 left: mockup-audit.md, canonical.samples.json, kit baselines (notes).
 (5) Cutover steps: B-822, B-754, B-757, B-756, B-759, B-823, B-1026, B-1027 (after B-1005), B-1028, B-1029.
