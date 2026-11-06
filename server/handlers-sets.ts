@@ -33,6 +33,25 @@ function itemBody(id: string, text: string) {
   };
 }
 
+/** An edit changes the typed fields only: rationale, objective, sourceRef, matrix and the like stay. */
+function edited(
+  old: unknown,
+  typed: ReturnType<typeof itemBody>,
+): Record<string, unknown> {
+  const was = (old ?? {}) as Record<string, unknown>;
+  const kept: Record<string, unknown> = { ...was, ...typed };
+  // per-option rationales only stay while the options they explain are the same count
+  if (
+    Array.isArray(was.rationales) &&
+    was.rationales.length !== typed.options.length
+  )
+    delete kept.rationales;
+  // a table (or other non-choice) item keeps its type; only choice items switch between single and sata
+  if (was.type && was.type !== "single" && was.type !== "sata")
+    kept.type = was.type;
+  return kept;
+}
+
 async function ownSet(x: HandlerCtx, id: string) {
   const s = await repo(x).ownSets.get(id);
   if (!s) throw new CommandError(404, `no set ${id}`);
@@ -140,7 +159,7 @@ export const setHandlers: Record<string, CommandHandler> = {
         setId: i.set,
         itemId: i.item,
         pos: cur.pos,
-        body: itemBody(i.item, i.text) as never,
+        body: edited(cur.body, itemBody(i.item, i.text)) as never,
       },
       cur.v,
     );
