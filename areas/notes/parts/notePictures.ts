@@ -41,7 +41,8 @@ export async function uploadPicture(file: File): Promise<Upload> {
       method: "PUT",
       raw: { data: file, contentType: file.type },
     });
-    if (r.ok) return { ok: true, key };
+    // 409: the Worker refuses to overwrite (§data.note-images), so the key is already stored; a retry succeeded earlier.
+    if (r.ok || r.status === 409) return { ok: true, key };
     return {
       ok: false,
       message: r.status === 503 ? NO_STORAGE : UPLOAD_FAILED,

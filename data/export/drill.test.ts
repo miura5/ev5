@@ -171,3 +171,40 @@ test("drill: each table's listed columns and key order are the migrated schema's
     );
   }
 });
+
+test("drill: restoreInto with a bucket reads each picture back and reports a changed one and an orphan", async () => {
+  const body = new TextEncoder().encode("pixels");
+  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", body))]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const src = migratedDb();
+  const put = (id: string, sha: string) =>
+    src
+      .prepare(
+        "INSERT INTO files (id, kind, type, size, sha256, r2_key, owner_kind, owner_id, at, v) VALUES (?, 'note_image', 'image/png', ?, ?, ?, 'unclaimed', '', 1, 1)",
+      )
+      .run(`file_${id}`, body.byteLength, sha, `note-images/${id}.png`);
+  put("a", hash);
+  put("b", "0".repeat(64));
+  const x = JSON.parse(JSON.stringify(await exportAll(sqliteD1(src))));
+  const objects: Record<string, Uint8Array> = {
+    "note-images/a.png": body,
+    "note-images/b.png": body,
+    "note-images/z.png": body,
+  };
+  const bucket = {
+    list: async () => ({
+      objects: Object.keys(objects).map((key) => ({ key })),
+      truncated: false,
+    }),
+    get: async (k: string) =>
+      objects[k]
+        ? { arrayBuffer: async () => objects[k]!.slice().buffer as ArrayBuffer }
+        : null,
+  };
+  const report = await restoreInto(sqliteD1(migratedDb()), x, bucket);
+  assert.deepEqual(report.diffs, []);
+  assert.deepEqual(report.problems, ["picture file_b: the SHA-256 differs"]);
+  assert.deepEqual(report.orphans, ["picture note-images/z.png: no files row"]);
+  assert.equal(report.ok, false);
+});
