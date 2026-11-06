@@ -39,7 +39,7 @@ function edited(
   typed: ReturnType<typeof itemBody>,
 ): Record<string, unknown> {
   const was = (old ?? {}) as Record<string, unknown>;
-  const kept = { ...was, ...typed };
+  const kept: Record<string, unknown> = { ...was, ...typed };
   // per-option rationales only stay while the options they explain are the same count
   if (
     Array.isArray(was.rationales) &&
