@@ -56,7 +56,6 @@ test("exam plan detail shows proposals dashed and acts on them", () => {
         id: "x",
         title: "Exam 3",
         when: "Thursday, Nov 5",
-        course: "NUR 112",
         readiness: "58%",
         plan: "waiting for you",
         proposals: [{ id: "p", text: "Dosage drill, 25 min" }],
@@ -71,7 +70,7 @@ test("exam plan detail shows proposals dashed and acts on them", () => {
   expect(onAccept).toHaveBeenCalledWith("p");
   fireEvent.click(screen.getByLabelText("Not now"));
   expect(onDismiss).toHaveBeenCalledWith("p");
-  fireEvent.click(screen.getByText("Review the study plan"));
+  fireEvent.click(screen.getByText("Review the prep plan"));
   expect(onReviewPlan).toHaveBeenCalled();
 });
 

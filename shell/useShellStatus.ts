@@ -17,10 +17,10 @@ export interface ShellStatus {
   runningJob?: { id: string; text: string };
 }
 
-/** What a running job is doing, in Matt's words (the mock-up's job line); kinds arrive as keys (study_plan). */
+/** What a running job is doing, in Matt's words (the mock-up's job line); kinds arrive as keys (prep_plan). */
 const DOING: Record<string, string> = {
   "practice-set": "Writing your practice set",
-  "study-plan": "Building your study plan",
+  "prep-plan": "Building your prep plan",
 };
 
 const doing = (kind: string): string =>

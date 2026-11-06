@@ -35,12 +35,10 @@ export interface LibraryExam {
   meta: string;
   /** The date and days left, e.g. "Thu, Nov 5 · in 2 days"; "no date" when unset. */
   when: string;
-  /** The course the exam belongs to; empty when unset. */
-  course: string;
   mastery: Mastery;
   /** Readiness, e.g. "58%". */
   readiness: string;
-  /** The study plan's state: none yet, a draft waiting, in force, or put away. */
+  /** The prep plan's state: none yet, a draft waiting, in force, or put away. */
   planState?: PlanState;
   /** The plan document the state is about (absent when there is none yet). */
   planId?: string;
@@ -50,7 +48,7 @@ export interface LibraryExam {
   sessions?: readonly PlanSession[];
 }
 
-/** One proposed study session: a Central date (YYYY-MM-DD), what to do and how long. */
+/** One proposed session: a Central date (YYYY-MM-DD), what to do and how long. */
 export interface PlanSession {
   date: string;
   title: string;
@@ -126,7 +124,6 @@ export interface ExamPlanData {
   title: string;
   /** Date and time, e.g. "Thursday, Nov 5 · 9:00 am". */
   when: string;
-  course: string;
   readiness: string;
   /** Plan state, e.g. "plan waiting for you". */
   plan: string;

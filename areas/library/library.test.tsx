@@ -36,7 +36,6 @@ const exams: LibraryExam[] = [
     title: "NUR 112 · Exam 3",
     meta: "Thursday",
     when: "Thursday",
-    course: "",
     mastery,
     readiness: "58%",
   },

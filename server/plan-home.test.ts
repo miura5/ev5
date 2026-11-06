@@ -134,7 +134,7 @@ test("apply puts the plan on Today (plans doc) and points the exam at it; repeat
     .prepare(
       "INSERT INTO job_plans (job_id, kind, body, at) VALUES ('j1', 'context', ?, 0)",
     )
-    .run(JSON.stringify({ exam: { id: "e1", title: "Unit 3" } }));
+    .run(JSON.stringify({ goal: { id: "e1", title: "Unit 3" } }));
   const home = planHome(db, () => T);
   const plan = {
     summary: "Heart first",

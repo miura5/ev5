@@ -17,7 +17,7 @@ const session = {
     ...base,
     source: "E.V. Home",
     date: "2026-11-04",
-    topic: "Study session",
+    topic: "Session",
     noteId: "n1",
     status: "active",
     startedAt: new Date(Date.now() - 60_000).toISOString(),
@@ -70,7 +70,7 @@ test("a session over a note shows the note's title once, with no session heading
   render(<SessionsScreen />);
   await screen.findByRole("heading", { name: "Heart" });
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-  expect(screen.queryByText("Study session")).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Session" })).toBeNull();
   expect(document.querySelector(".kit-doc-meta")).toBeNull();
 });
 

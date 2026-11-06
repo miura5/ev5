@@ -51,7 +51,7 @@ export function mapPins(
     id: p.id,
     type: TYPES[p.collection] ?? "note",
     title: docTitle(docs[p.collection]?.find((d) => d.id === p.id)),
-    meta: KINDS[p.collection] ?? p.collection,
+    meta: kindLine(p.collection, docs[p.collection]?.find((d) => d.id === p.id)),
     to: openPath(p.collection, p.id),
   }));
 }
@@ -75,10 +75,20 @@ const KINDS: Record<string, string> = {
   plans: "Plan",
   jobs: "Job",
   goals: "Date",
-  exams: "Exam",
+  exams: "Date",
   sets: "Set",
   weakspots: "Weak spot",
 };
+
+/** What kind of item it is: every date reads "Date", with its own kind (exam, other) after it when it has one. */
+function kindLine(collection: string, doc: WireDoc | undefined): string {
+  const label = KINDS[collection] ?? collection;
+  const kind =
+    collection === "exams" || collection === "goals"
+      ? field(doc?.data, "kind")
+      : undefined;
+  return kind ? `${label} · ${kind}` : label;
+}
 
 /** Where Open goes: the area that holds the kind, naming the item (?open=), as the palette does. */
 export function openPath(kind: string, id: string): string | undefined {
@@ -143,7 +153,7 @@ export function mapCollection(
           id: m.id,
           type: TYPES[m.collection] ?? "note",
           title: docTitle(doc),
-          meta: `${KINDS[m.collection] ?? m.collection} · ${shortDate(doc?.at ?? m.at)}`,
+          meta: `${kindLine(m.collection, doc)} · ${shortDate(doc?.at ?? m.at)}`,
           to: openPath(m.collection, m.id),
         };
       }),

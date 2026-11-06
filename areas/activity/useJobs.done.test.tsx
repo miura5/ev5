@@ -23,10 +23,10 @@ test("Done today shows jobs and sessions finished today, with plain names", asyn
             jobs: [
               {
                 id: "j1",
-                kind: "study_plan",
+                kind: "prep_plan",
                 state: "done",
-                summary: "Study plan is done.",
-                lead: "Study plan is done.",
+                summary: "Prep plan is done.",
+                lead: "Prep plan is done.",
               },
               {
                 id: "ss-1",
@@ -44,8 +44,8 @@ test("Done today shows jobs and sessions finished today, with plain names", asyn
   await waitFor(() => expect(result.current.jobs).toHaveLength(2));
   expect(result.current.jobs.map((j) => [j.title, j.state, j.summary])).toEqual(
     [
-      ["Study plan", "done", "Study plan is done."],
-      ["Study session", "done", "Studied 25 minutes."],
+      ["Prep plan", "done", "Prep plan is done."],
+      ["Session", "done", "Studied 25 minutes."],
     ],
   );
 });
@@ -61,7 +61,7 @@ test("if the finished read fails, the unfinished jobs still show", async () => {
             jobs: [
               {
                 id: "j2",
-                kind: "study_plan",
+                kind: "prep_plan",
                 state: "running",
                 summary: "Working",
                 lead: "Working",
@@ -77,13 +77,13 @@ test("if the finished read fails, the unfinished jobs still show", async () => {
 
 test("Done today lists every finished job, even ones that read alike, and names a plan's exam", async () => {
   localStorage.setItem("ev5.token", "t");
-  const plan = (id: string, examTitle?: string) => ({
+  const plan = (id: string, goalTitle?: string) => ({
     id,
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "done",
-    summary: "Your study plan is ready.",
-    lead: "Your study plan is ready.",
-    examTitle,
+    summary: "Your prep plan is ready.",
+    lead: "Your prep plan is ready.",
+    goalTitle,
   });
   vi.stubGlobal(
     "fetch",
@@ -102,8 +102,8 @@ test("Done today lists every finished job, even ones that read alike, and names 
   const { result } = renderHook(() => useJobs());
   await waitFor(() => expect(result.current.jobs).toHaveLength(3));
   expect(result.current.jobs.map((j) => j.title)).toEqual([
-    "Study plan · e2e plan exam",
-    "Study plan · e2e plan exam",
-    "Study plan",
+    "Prep plan · e2e plan exam",
+    "Prep plan · e2e plan exam",
+    "Prep plan",
   ]);
 });

@@ -15,7 +15,7 @@ afterEach(cleanup);
 const TABS = [
   { id: "a", label: "Practice", count: 3 },
   { id: "b", label: "Sets" },
-  { id: "c", label: "Exams", count: 0 },
+  { id: "c", label: "Dates", count: 0 },
 ] as const;
 
 test("the lit tab is marked, counts show, and a tap reports the id", () => {
@@ -29,7 +29,7 @@ test("the lit tab is marked, counts show, and a tap reports the id", () => {
       .getByRole("radio", { name: "Practice3" })
       .getAttribute("aria-checked"),
   ).toBe("true");
-  expect(screen.getByRole("radio", { name: "Exams0" })).toBeTruthy();
+  expect(screen.getByRole("radio", { name: "Dates0" })).toBeTruthy();
   expect(screen.getByRole("radio", { name: "Sets" }).textContent).toBe("Sets");
   fireEvent.click(screen.getByRole("radio", { name: "Sets" }));
   expect(onChange).toHaveBeenCalledWith("b");

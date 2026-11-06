@@ -4,12 +4,12 @@ import type { UpcomingDate } from "./types.ts";
 
 export interface ExamDetailHandlers {
   onReviewPlan?: () => void;
-  /** "Plan with E.V.": asks E.V. to draft a study plan for this exam. */
+  /** "Plan with E.V.": asks E.V. to draft a prep plan for this exam. */
   onPlanWithEv?: () => void;
   onClose: () => void;
 }
 
-/** The shell Detail for a Coming up exam: its date, course and readiness, its study plan line, and the way to review it. */
+/** The shell Detail for a Coming up exam: its date and readiness, its prep plan line, and the way to review it. */
 export function examDetail(
   exam: UpcomingDate,
   { onReviewPlan, onPlanWithEv, onClose }: ExamDetailHandlers,
@@ -22,7 +22,6 @@ export function examDetail(
     // The same words as Library's exam Detail (areas cannot share code, so the wording is restated).
     properties: [
       { label: "Date", value: exam.dateLine ?? exam.whenFull ?? exam.when },
-      { label: "Course", value: exam.course ?? "" },
       {
         label: "Readiness",
         value: total ? `${Math.round((ready / total) * 100)}%` : "none yet",
@@ -42,7 +41,7 @@ export function examDetail(
     children: (
       <>
         {onReviewPlan ? (
-          <Button onClick={onReviewPlan}>Review the study plan</Button>
+          <Button onClick={onReviewPlan}>Review the prep plan</Button>
         ) : null}
         {exam.plan === "waiting" || exam.plan === "approved" ? (
           <Section

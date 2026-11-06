@@ -42,12 +42,12 @@ export function formatTimer(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-/** A study session over a note: the bar (timer, read-along, Pause, End), the page, a check, and the note's checks. */
+/** A session over a note: the bar (timer, read-along, Pause, End), the page, a check, and the note's checks. */
 export function SessionView(p: SessionViewProps) {
   return (
     <section
       className="ev-session"
-      aria-label="Study session"
+      aria-label="Session"
       ref={p.rootRef}
       tabIndex={-1}
     >

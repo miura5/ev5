@@ -51,9 +51,9 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
   boot([
     {
       id: "j",
-      kind: "study_plan",
+      kind: "prep_plan",
       state: "needs-you",
-      examId: "e3",
+      goalId: "e3",
       summary: "x",
       tasks: [
         { date: "2099-01-04", title: "Misses only", minutes: 10 },
@@ -61,7 +61,7 @@ test("the exam Detail lists the waiting plan's sessions with weekday and date", 
       ],
     },
   ]);
-  fireEvent.click(await screen.findByText(/study plan waiting for you/));
+  fireEvent.click(await screen.findByText(/prep plan waiting for you/));
   await screen.findByText("Proposed sessions");
   const rows = [
     ...document.querySelectorAll("[data-ui='detail'] [data-ui='row']"),

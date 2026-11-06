@@ -39,9 +39,9 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
             jobs: [
               {
                 id: "j",
-                kind: "study_plan",
+                kind: "prep_plan",
                 state: "needs-you",
-                examId: "e3",
+                goalId: "e3",
                 summary: "Plan ready.",
               },
             ],
@@ -55,7 +55,7 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
   );
   const onNavigate = vi.fn();
   render(<TodayHosted onNavigate={onNavigate} />);
-  const row = await screen.findByText(/study plan waiting for you/);
+  const row = await screen.findByText(/prep plan waiting for you/);
   expect(document.querySelector("[data-ui='detail']")).toBeNull();
   fireEvent.click(row);
   const detail = await waitFor(() => {
@@ -64,8 +64,8 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
     return d as HTMLElement;
   });
   expect(detail.textContent).toContain("Exam 3");
-  expect(detail.textContent).toContain("NUR 112");
-  fireEvent.click(screen.getByText("Review the study plan"));
+  expect(detail.textContent).not.toContain("Course");
+  fireEvent.click(screen.getByText("Review the prep plan"));
   expect(onNavigate).toHaveBeenCalledWith("/library?open=e3");
   fireEvent.keyDown(window, { key: "Escape" });
   expect(document.querySelector("[data-ui='detail']")).toBeNull();
@@ -98,17 +98,17 @@ test("a waiting plan shows only on the exam its job names", async () => {
     feed([
       {
         id: "j",
-        kind: "study_plan",
+        kind: "prep_plan",
         state: "needs-you",
-        examId: "e4",
+        goalId: "e4",
         summary: "x",
       },
     ]),
   );
   render(<TodayHosted />);
-  await screen.findByText(/study plan waiting for you/);
-  expect(screen.getAllByText(/study plan waiting for you/)).toHaveLength(1);
-  fireEvent.click(screen.getByText(/study plan waiting for you/));
+  await screen.findByText(/prep plan waiting for you/);
+  expect(screen.getAllByText(/prep plan waiting for you/)).toHaveLength(1);
+  fireEvent.click(screen.getByText(/prep plan waiting for you/));
   const detail = document.querySelector("[data-ui='detail']") as HTMLElement;
   expect(detail.textContent).toContain("Exam 4");
   expect(detail.textContent).toContain("waiting for you");
@@ -124,8 +124,8 @@ test("an exam whose plan is in force reads approved", async () => {
     }),
   );
   render(<TodayHosted />);
-  await screen.findByText(/study plan approved/);
-  expect(screen.getAllByText(/study plan approved/)).toHaveLength(1);
+  await screen.findByText(/prep plan approved/);
+  expect(screen.getAllByText(/prep plan approved/)).toHaveLength(1);
   expect(screen.queryByText(/waiting for you/)).toBeNull();
 });
 
@@ -142,7 +142,7 @@ test("Today's exam Detail uses Library's words: date with days left, readiness, 
   expect(detail.textContent).toContain("in 3 days");
   expect(detail.textContent).toContain("none yet");
   expect(detail.textContent).toContain("no plan yet");
-  expect(screen.getByText("Review the study plan")).toBeTruthy();
+  expect(screen.getByText("Review the prep plan")).toBeTruthy();
 });
 
 test("an approved plan's session dated today lists on Today's Plan, and Start next starts it", async () => {

@@ -4,10 +4,10 @@ import { jobApi, readToken, savedFirst } from "../../commands/client.ts";
 
 const TITLES: Record<string, string> = {
   "practice-set": "Practice set",
-  "study-plan": "Study plan",
+  "prep-plan": "Prep plan",
 };
 
-/** Job kinds arrive as keys (study_plan); the row shows plain words. */
+/** Job kinds arrive as keys (prep_plan); the row shows plain words. */
 const titleOf = (kind: string): string =>
   TITLES[kind.replace(/_/g, "-")] ?? kind.replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
 

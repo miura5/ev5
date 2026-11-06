@@ -65,7 +65,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
   await screen.findByText("Plan with E.V.");
   expect(screen.queryByText("Approve")).toBeNull();
   jobs = [
-    { id: "j1", kind: "study-plan", state: "needs-you", examId: "x1", tasks },
+    { id: "j1", kind: "prep-plan", state: "needs-you", goalId: "x1", tasks },
   ];
   await act(async () => {
     fns.forEach((f) => f());
