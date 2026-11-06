@@ -6,7 +6,9 @@ import type { TablesOptions } from "./core.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";
 
 const inOrder = (a: TalkRow, b: TalkRow) =>
-  a.at - b.at || a.id.localeCompare(b.id);
+  a.at - b.at ||
+  (a.role === b.role ? 0 : a.role === "user" ? -1 : 1) ||
+  a.id.localeCompare(b.id);
 
 export function talkRepo(db: D1Like, opts: TablesOptions) {
   const k = kindsRepo(db, opts);
