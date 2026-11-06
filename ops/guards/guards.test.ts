@@ -68,6 +68,7 @@ const GUARDS: Guard[] = [
   { name: 'a kit menu without Radix (ops/checks radix)', command: checks, files: { 'kit/components/Pop/Pop.tsx': 'export const Pop = () => <ul role="menu" />;\n' }, expect: /radix: kit\/components\/Pop\/Pop\.tsx: draws or handles role="menu itself; import @radix-ui\/\* or cmdk/ },
   { name: 'a raw button in a view (ops/checks controls)', command: checks, files: { 'areas/x/X.view.tsx': 'export const X = () => <button type="button">go</button>;\n' }, expect: /controls: areas\/x\/X\.view\.tsx: renders a raw <button>; use the kit component/ },
   { name: 'a decision id in a comment (ops/checks ids)', command: checks, files: { 'domain/why.ts': `// kept because of ${['D', '123'].join('-')}\nexport const why = 1;\n` }, expect: /ids: domain\/why\.ts: line 1 gives D.123/ },
+  { name: 'a new kind written to the docs table (ops/checks docs-kinds)', command: checks, files: { 'server/flash.ts': 'await docs.save("flashcards", id, text, null);\n' }, expect: /docs-kinds: server\/flash\.ts: line 1 writes kind "flashcards" to the generic docs table/ },
   { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },
 ];
 

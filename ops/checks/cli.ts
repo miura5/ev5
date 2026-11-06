@@ -2,6 +2,7 @@
 // The trailer check needs a base (defaults to origin/$GITHUB_BASE_REF in a pull request, otherwise it is skipped).
 import { checkAccount } from './account.ts';
 import { checkControls } from './controls.ts';
+import { checkDocsKinds } from './docskinds.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
@@ -26,6 +27,7 @@ const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
   ...checkControls(root, files),
+  ...checkDocsKinds(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
   ...checkPlanJob(root, files),
