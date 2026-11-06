@@ -32,14 +32,14 @@ export interface LibraryViewProps {
   onOpenExam?: (id: string) => void;
   onOpenSet?: (id: string) => void;
   onOpenAccuracy?: () => void;
-  /** The tab to light first (an exam opened by a link lights Exams); else the one he left on. */
+  /** The tab to light first (an exam opened by a link lights Dates); else the one he left on. */
   initialTab?: Tab;
 }
 
-export type Tab = "practice" | "weak" | "exams" | "sets";
+export type Tab = "practice" | "weak" | "dates" | "sets";
 
 const TAB_KEY = "ev5.library.tab";
-const TABS: readonly Tab[] = ["practice", "weak", "exams", "sets"];
+const TABS: readonly Tab[] = ["practice", "weak", "dates", "sets"];
 
 function savedTab(): Tab {
   try {
@@ -50,7 +50,7 @@ function savedTab(): Tab {
   }
 }
 
-/** Library home, first slice: practice, weak spots and exams. Sets, the accuracy line and exam plans follow. */
+/** Library home, first slice: practice, weak spots and dates. Sets, the accuracy line and exam plans follow. */
 export function LibraryView({
   practice,
   weakSpots,
@@ -69,7 +69,7 @@ export function LibraryView({
   const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: "practice", label: "Practice" },
     { id: "weak", label: "Weak spots", count: weakSpots.length },
-    { id: "exams", label: "Exams", count: exams.length },
+    { id: "dates", label: "Dates", count: exams.length },
     { id: "sets", label: "Sets", count: sets.length },
   ];
   const pick = (id: string) => {
@@ -81,7 +81,7 @@ export function LibraryView({
     }
   };
   return (
-    <Page title="Library" meta="practice, weak spots, exams and sets">
+    <Page title="Library" meta="practice, weak spots, dates and sets">
       {accuracy ? (
         <Row
           title="First-try accuracy, last 14 days"
@@ -114,10 +114,10 @@ export function LibraryView({
               />
             ))
           : null}
-        {tab === "exams" && exams.length === 0 ? (
-          <Empty line="No exams." />
+        {tab === "dates" && exams.length === 0 ? (
+          <Empty line="No dates." />
         ) : null}
-        {tab === "exams"
+        {tab === "dates"
           ? exams.map((x) => (
               <Row
                 key={x.id}

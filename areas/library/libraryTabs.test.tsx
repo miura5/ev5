@@ -24,8 +24,8 @@ test("the open tab is the only one marked selected, and moves on click", () => {
       .filter((t) => t.getAttribute("aria-checked") === "true")
       .map((t) => t.textContent);
   expect(selected()).toEqual(["Practice"]);
-  fireEvent.click(screen.getByRole("radio", { name: /Exams/ }));
-  expect(selected()).toEqual(["Exams0"]);
+  fireEvent.click(screen.getByRole("radio", { name: /Dates/ }));
+  expect(selected()).toEqual(["Dates0"]);
 });
 
 test("a count reads beside its tab, zero included", () => {
@@ -46,7 +46,7 @@ test("a count reads beside its tab, zero included", () => {
       ]}
     />,
   );
-  expect(screen.getByRole("radio", { name: "Exams1" })).toBeTruthy();
+  expect(screen.getByRole("radio", { name: "Dates1" })).toBeTruthy();
   expect(screen.getByRole("radio", { name: "Weak spots0" })).toBeTruthy();
 });
 
