@@ -22,6 +22,7 @@ import { jobsRepo } from "./jobs.ts";
 import { jobStoresRepo } from "./job-stores.ts";
 import { attemptsRepo } from "./attempts.ts";
 import { collectionRepo } from "./collections.ts";
+import { linkRepo } from "./links.ts";
 import { kindsRepo } from "./kinds.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
@@ -243,6 +244,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...jobStoresRepo(db, opts),
     ...kindsRepo(db, opts),
     ...collectionRepo(db, opts),
+    ...linkRepo(db, opts),
     ...planRepo(db, opts),
     ...attemptsRepo(db, opts),
     ...setsRepo(db, opts),
