@@ -46,3 +46,25 @@ test("a view opens, replaces and clears the Detail through onDetail; Esc, close 
   rerender(<Shell path="/ask" onNavigate={vi.fn()} areas={withView} />);
   expect(detail()).toBeNull();
 });
+
+test("Esc on the Detail clears ?open= from the address, and leaves it when there is none", () => {
+  const view = ({
+    onDetail,
+  }: {
+    onDetail?: (d: ReturnType<typeof panel> | null) => void;
+  }) => <button onClick={() => onDetail?.(panel("First"))}>open one</button>;
+  const withView = [{ ...areas[0]!, view }, areas[1]!];
+  const onNavigate = vi.fn();
+  const { unmount } = render(
+    <Shell path="/?open=abc" onNavigate={onNavigate} areas={withView} />,
+  );
+  fireEvent.click(screen.getByText("open one"));
+  fireEvent.keyDown(window, { key: "Escape" });
+  expect(onNavigate).toHaveBeenCalledWith("/");
+  unmount();
+  const other = vi.fn();
+  render(<Shell path="/" onNavigate={other} areas={withView} />);
+  fireEvent.click(screen.getByText("open one"));
+  fireEvent.keyDown(window, { key: "Escape" });
+  expect(other).not.toHaveBeenCalled();
+});

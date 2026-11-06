@@ -52,9 +52,18 @@ export function NotesScreen({
     return () => window.removeEventListener(SHORTCUTS_EVENT, showShortcuts);
   }, [showShortcuts]);
   // The palette opens a note with /notes?open=<id>; an unknown id just shows the list.
-  const [open, setOpen] = useState<string | undefined>(
+  // The open note is the shell's address (?open=), so Back and Forward move between the list and a note.
+  const [local, setLocal] = useState<string | undefined>(
     () => new URLSearchParams(search ?? "").get("open") || undefined,
   );
+  const open = onNavigate
+    ? new URLSearchParams(search ?? "").get("open") || undefined
+    : local;
+  const setOpen = (id: string | undefined) => {
+    if (onNavigate)
+      onNavigate(id ? `/notes?open=${encodeURIComponent(id)}` : "/notes");
+    else setLocal(id);
+  };
   const setStartError = (message?: string) => {
     if (message) onToast?.(message);
   };
