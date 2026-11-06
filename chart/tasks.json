@@ -5017,13 +5017,15 @@
   "title": "Every practice answer lands as one attempts row through one command",
   "dod": "The Library study run, the study.attempt command (own sets and E.V.'s sets), check-ins in a note session and Ask E.V.'s 'just tell me' each write one attempts row through the gate by one command; the outbox's answer kind posts to that command, not PUT /docs; own_attempts rows and answers documents are no longer written; a refused answer in the outbox is shown, not kept silently; tests pin each writer (§data.append-only, §data.gate, §data.item-versions). Slice: write data/, server/, commands/, shell/outbox (split along the layers if over 400 lines).",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 577 data/tables/attempts.ts record(); PR 583 own sets: study.attempt and study.just_tell_me write one attempts row (optional att_ id on the command for retries), own_attempts no longer written there; reveal counts from attempts. Run 96: study.attempt takes a rating (again or good), the Library run posts ratings and typed grades as study.attempt under a client att_ id, a refused outbox entry is shown as a toast on Library. Left: E.V.'s docs-based sets (ev4 answers docs), check.answer in note sessions, ask.just_tell_me, removal of own_attempts. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F2: the outbox's note path (PUT /docs, shell/outbox/http.ts:45-58) has no owner since B-1042 closed; it moves here with the outbox's answer kind. F7 and D-508: answers sit in three stores (attempts, own_attempts, answers documents) and Progress, the Library accuracy line and plan-home read only answers; give every screen one reader over attempts. Self-ratings (Again, Good) are stored as self-ratings and stay out of accuracy; a choice item is checked against its key; built in this run (see the run record). Fix sweep 2026-11-06 (#628, D-508): a rating is stored as how self with the rating in the answer and no score; domain/answers/tally.ts and plan-home skip ratings for accuracy and weak-spot state, Again still comes back tomorrow. A choice item answered with option numbers is checked by its key; one answered in words with a rating is a self-rating. Left (client): the Library study card shows only the stem for a choice item, so it should show the options and send option numbers; areas/library/answer.ts buildAnswer (offline fallback) still writes correct for a rating instead of rating. 2026-11-06 run (#648): Library study card shows a choice item's options and sends option numbers; buildAnswer writes rating. Client part done. Export and restore audit 2026-11-06 (D-516), unconfirmed: an offline note edit may be lost if the page reloads while still offline (shell/outbox). Test first: edit offline, reload offline, go online, expect the edit saved; fix only if it fails (§data.offline).",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "run-443",
+  "claimedAt": "2026-11-06T20:09:17.956Z"
  },
  {
   "id": "B-1038",
@@ -5031,15 +5033,15 @@
   "title": "Goals and objectives move to their own tables, joined by link rows",
   "dod": "Exams and hand-made dates are one goal record: a goal of kind exam made with date.create shows on Today and Library, and Plan with E.V. finds it and its approved plan stays after Approve; objectives live in their table and reach goals and material through link rows, not one exam id or a split of the objective id; the dateedits and examedits documents are gone; writes go through the gate (§data.tables, §data.links, §data.gate). Slice: write domain/, data/, server/ (split along the layers if over 400 lines).",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Run 2026-11-06 (#635): examDocs merge, dateedits/examedits paths and date.update old-date path dropped; server reads goals only. LEFT: B3 (goal-shaped read type in domain/goal, move areas/library/map.ts, jobs/study-plan/job.ts, data/docs/parsers.ts exams entry, server/plan-home.ts, weak-wire.ts, goal-wire.ts onto it, then delete domain/exam; needs areas/ and jobs/ in slice), B8; ops/checks/docskinds.ts ALLOWED can drop dates/dateedits (exams only if PUT /docs no longer writes it); data/tables/dates-backfill.test.ts and data/docs/repo.test.ts go with the contract migration. Claim freed.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
-  "claimedBy": "run-1217",
-  "claimedAt": "2026-11-06T12:17:17.293Z"
+  "claimedBy": "run-443",
+  "claimedAt": "2026-11-06T20:09:18.160Z"
  },
  {
   "id": "B-1039",
@@ -5063,13 +5065,15 @@
   "title": "Sets and items move to one set table and one item table",
   "dod": "Own sets and E.V.'s sets share one set table and one item table with item v (§data.item-versions); copy-on-first-edit goes; a sourceRef names only kinds that have a table; writes go through the gate (§data.tables, §data.gate). Slice: write domain/set, data/, server/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Group 4 (D-489 order as amended by D-495). 2026-11-06 run 92: PR 578 setBook repo; PR 580 own sets and items read and write sets/set_items (migration 0008 backfills own sets, items, deletions, attempts, placements; ids set_ and item_). KNOWN: deletions rows from before keep old keys, so those entries show twice in Recently deleted (one untitled, unrestorable). Left: E.V.'s docs-based sets into the tables, remove copy-on-first-edit (editSet), sourceRef kinds, data/export and areas/deleted still name own_sets/own_set_items, retire own_* at the contract migration. Decided 2026-11-06: (Matt) the \"mock exam\" mode reads \"full practice run\" in UI text, E.V.'s prompts (jobs/practice-set prompt.md, job.ts wording) and the mock-up; code ids follow only where this task touches them. (Build manager) practice set grounding takes any notes or collection the user points at, not course excerpts; built here. Scope audit 2026-11-06: B2 (variant mock_exam renamed full_run with a migration; the 'no rename sweep' clause is replaced), B4 (a source scope: a collection or a note; domain/search uses collection_id), A4, A12. B7: sets carry no course string. Decisions: D-500, D-501, D-504. Scope sweep #616: full_run variant (migration 0015), sets from a collection or a note (domain/search on collection_id), prompts say the user; #619 passes the asked source to excerpt gathering. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F6: collection pages break for sets and dates: 0008 left the own_sets membership beside the sets one (each own set shows twice, Untitled), titles come from GET /docs?collection=sets, set.create writes no membership so a new set never shows on its collection page, and item.pin, unpin, move and rename answer 404 for set_ and goal_ ids (collectionOf looks only in docs and notes, server/command-handlers.ts:28-45). F8: the user's own sets are stored as kind adhoc (handlers-sets.ts:106-123, 0008); adhoc is for E.V.'s holders, so the user's sets need their own kind before B-1037 and B-1043 make holders. 2026-11-06 run (#649): F6 done (own sets listed once; set.create needs no membership row; pin/unpin/move/rename reach set_ and goal_ ids). Left: F8 (user sets still kind adhoc), type icons for sets and exams in areas/collection/map.ts, F17 goal collection_id.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "run-443",
+  "claimedAt": "2026-11-06T20:09:18.328Z"
  },
  {
   "id": "B-1041",
