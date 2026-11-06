@@ -10,6 +10,7 @@ import { imageRoutes } from "./image-routes.ts";
 import type { R2Like } from "./image-routes.ts";
 import { isEv4PageFile, isEv4Route, MOVED_TEXT } from "./ev4-routes.ts";
 import type { D1Like } from "../jobs/index.ts";
+import { WriteRefused } from "../data/index.ts";
 
 export interface Env extends AuthEnv {
   DB: D1Like;
@@ -53,6 +54,13 @@ app.get("/api/health", async (c) => {
     db === "ok" ? 200 : 503,
   );
 });
+
+// A write the data gate refused (§data.gate) is the caller's mistake, never a crash: 422 with the plain reason.
+app.onError((e, c) =>
+  e instanceof WriteRefused
+    ? c.json({ error: "refused", message: e.message }, 422)
+    : c.text("Internal Server Error", 500),
+);
 
 // v5 routes live under /api/v1 behind a scoped bearer token; commands plug in here as handlers.
 app.use("/api/v1/*", bearerAuth());

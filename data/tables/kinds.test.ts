@@ -208,3 +208,64 @@ test("every kind lists empty on a fresh database", async () => {
   ] as const)
     assert.deepEqual(await repo[k].list(), [], k);
 });
+
+const plan = {
+  id: "plan_1",
+  goal_id: "goal_1",
+  job_id: null,
+  state: "in_force",
+  title: null,
+  from_day: "2026-11-05",
+  to_day: "2026-11-12",
+  summary: null,
+} as const;
+const planItem = {
+  id: "pli_1",
+  plan_id: null,
+  day: "2026-11-06",
+  pos: 1,
+  title: "Read",
+  minutes: null,
+  time: null,
+  origin: "morning",
+  linked_kind: null,
+  linked_id: null,
+  repeat_id: "rep_1",
+  done_at: null,
+} as const;
+
+test("plans: one in force per goal is a refusal, not a 409; items likewise per repeat and day", async () => {
+  const { repo, db } = make();
+  assert.ok((await repo.plans.save(plan, null)).ok);
+  await assert.rejects(
+    repo.plans.save({ ...plan, id: "plan_2" }, null),
+    WriteRefused,
+  );
+  assert.ok(
+    (await repo.plans.save({ ...plan, id: "plan_2", state: "draft" }, null)).ok,
+  );
+  const r = await repo.repeats.save(
+    {
+      id: "rep_1",
+      title: "Read",
+      minutes: null,
+      time: null,
+      rule: { every: "day" },
+      from_day: "2026-11-05",
+      to_day: null,
+      linked_kind: null,
+      linked_id: null,
+    },
+    null,
+  );
+  assert.ok(r.ok);
+  assert.deepEqual((await repo.repeats.get("rep_1"))?.rule, { every: "day" });
+  assert.ok((await repo.planItems.save(planItem, null)).ok);
+  await assert.rejects(
+    repo.planItems.save({ ...planItem, id: "pli_2" }, null),
+    WriteRefused,
+  );
+  const same = await repo.planItems.save({ ...planItem, title: "Again" }, 1);
+  assert.ok(same.ok && same.row.v === 2);
+  assert.equal(db.prepare("SELECT count(*) AS n FROM plan_items").get()?.n, 1);
+});
