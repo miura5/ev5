@@ -50,3 +50,21 @@ test("right after Approve, while the plan job still runs, no earlier plan shows"
   expect(e?.planState).toBe("working");
   expect(e?.sessions).toBeUndefined();
 });
+
+test("a plan in force whose days have all passed reads as ended, not approved", () => {
+  const past = {
+    ...docs("plan-old"),
+    plans: [
+      {
+        id: "plan-old",
+        data: {
+          days: [{ date: "2026-11-04", tasks: [{ text: "Old", minutes: 30 }] }],
+        },
+      },
+    ],
+  };
+  expect(mapLibrary(past, now).exams[0]?.planState).toBe("ended");
+  // The last day is still today (Central): the plan is not over.
+  const same = Date.parse("2026-11-04T18:00:00Z");
+  expect(mapLibrary(past, same).exams[0]?.planState).toBe("approved");
+});

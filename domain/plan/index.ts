@@ -64,6 +64,23 @@ export function checkUnique(items: readonly PlanItemRow[]): void {
   }
 }
 
+/** The last day a plan has a task on, or undefined when it has none. Days are Central dates (YYYY-MM-DD), which sort as text. */
+export const lastDay = (days: readonly string[]): string | undefined =>
+  days.reduce<string | undefined>(
+    (m, d) => (m === undefined || d > m ? d : m),
+    undefined,
+  );
+
+/** True when every day of the plan is before `today` (Central): nothing in it can still be done. A plan with no days is not ended. */
+export const planEnded = (days: readonly string[], today: string): boolean => {
+  const last = lastDay(days);
+  return last !== undefined && last < today;
+};
+
+/** What Matt is told when he approves a plan that has already ended (an offer to plan again follows it). */
+export const endedReason = (last: string): string =>
+  `This plan's days have all passed (its last day was ${last}), so it cannot be approved. Plan again to get a plan from today.`;
+
 export type PlanWrite = { plan: PlanRow; items: PlanItemRow[] };
 
 /** The one approve path: the plan row plus one item per task, each with a repeat key from its place in the plan. */

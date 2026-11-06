@@ -5,6 +5,9 @@
 import {
   centralDate,
   deriveWeakSpot,
+  endedReason,
+  lastDay,
+  planEnded,
   isActive,
   parseExam,
   reviewNeed,
@@ -49,6 +52,23 @@ async function attemptsBySpot(db: D1Like): Promise<Map<string, Attempt[]>> {
       }
   }
   return out;
+}
+
+/** The last day of a job's saved draft plan (Central date), or undefined when it has no draft or no tasks. */
+export async function lastDraftDay(
+  db: D1Like,
+  jobId: string,
+): Promise<string | undefined> {
+  const row = await db
+    .prepare("SELECT body FROM job_plans WHERE job_id = ? AND kind = 'draft'")
+    .bind(jobId)
+    .first<{ body: string }>();
+  if (!row) return undefined;
+  const tasks = (JSON.parse(row.body) as { tasks?: { date?: unknown }[] })
+    .tasks;
+  return lastDay(
+    (tasks ?? []).flatMap((t) => (typeof t.date === "string" ? [t.date] : [])),
+  );
 }
 
 export function planHome(
@@ -96,6 +116,10 @@ export function planHome(
       };
       const planId = `plan-${jobId}`;
       const at = clock();
+      // A retried save after the plan's days passed must not put a dead plan in force.
+      const last = lastDay(plan.tasks.map((t) => t.date));
+      if (last !== undefined && planEnded([last], centralDate(at)))
+        throw new Error(endedReason(last));
       const days = [...new Set(plan.tasks.map((t) => t.date))]
         .sort()
         .map((date) => ({
