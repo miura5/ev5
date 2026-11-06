@@ -1,9 +1,9 @@
 // Weak spots as the screens and the plan read them (CONTRACT §data.tables, §data.gate): the `weak_spots` and
 // `weak_spot_events` rows, read through the tables gate, shown as the weak spot document. A spot has no goal of its own:
-// it points at an objective, and the objective is linked to goals (§data.links), so a spot's goal is the soonest upcoming
-// goal its objective is linked to (a goal with no date comes after the dated ones). No name is matched.
+// it links to a goal directly or through its objective (§data.links), so a spot's goal is the soonest upcoming
+// goal it is linked to (a goal with no date comes after the dated ones). No name is matched.
 import { tablesRepo } from "../data/index.ts";
-import { goalDocs, goalsByObjective } from "./goal-wire.ts";
+import { goalDocs, goalsByObjective, goalsByWeakSpot } from "./goal-wire.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
   newWeakSpotRow,
@@ -21,7 +21,7 @@ export interface WireSpot {
   goalDate: string | null;
 }
 
-/** A spot's goal: the soonest upcoming goal its objective is linked to (§data.links), else none. */
+/** A spot's goal: the soonest upcoming goal it is linked to, directly or through its objective (§data.links), else none. */
 function goalOfObjective(
   rows: { id: string; data: unknown }[],
   linked: Map<string, string[]>,
@@ -36,9 +36,9 @@ function goalOfObjective(
       return []; // one malformed goal must not hide the spots
     }
   });
-  return (objectiveId: string | null) =>
+  return (ids: string[]) =>
     upcoming
-      .filter((u) => (linked.get(objectiveId ?? "") ?? []).includes(u.id))
+      .filter((u) => ids.some((i) => (linked.get(i) ?? []).includes(u.id)))
       .sort((a, b) =>
         (a.goal.date ?? "9999").localeCompare(b.goal.date ?? "9999"),
       )[0];
@@ -50,7 +50,7 @@ export async function weakSpotDocs(
   clock: () => number,
 ): Promise<WireSpot[]> {
   const t = tablesRepo(db, { clock });
-  const [spots, events, objectives, collections, exams, linked] =
+  const [spots, events, objectives, collections, exams, linked, direct] =
     await Promise.all([
       t.weakSpots.list(),
       t.weakSpotEvents.list(),
@@ -58,8 +58,9 @@ export async function weakSpotDocs(
       t.collectionRows.list(),
       goalDocs(db, clock),
       goalsByObjective(db, clock),
+      goalsByWeakSpot(db, clock),
     ]);
-  const goalOf = goalOfObjective(exams, linked);
+  const goalOf = goalOfObjective(exams, new Map([...linked, ...direct]));
   const objective = new Map(objectives.map((o) => [o.id, o]));
   const course = new Map(collections.map((c) => [c.id, c]));
   return spots
@@ -73,7 +74,7 @@ export async function weakSpotDocs(
             : "") ??
           "",
       );
-      const goal = goalOf(s.objective_id);
+      const goal = goalOf([s.id, ...(s.objective_id ? [s.objective_id] : [])]);
       return {
         id: s.id,
         v: s.v,

@@ -78,4 +78,37 @@ test("a link needs both ends to exist; objectives reach goals through link rows"
   await r.goals.remove("goal_2", 1);
   assert.deepEqual(await r.goalIdsOfObjective("obj_1"), []);
   assert.deepEqual(await r.goalIdsOfObjective("obj_2"), ["goal_1"]);
+  // a weak spot is linked to a goal directly, and needs a live spot
+  await assert.rejects(
+    r.links.save(
+      { ...link("link_5", "ws_9", "goal_1"), from_kind: "weak_spot" },
+      null,
+    ),
+    WriteRefused,
+  );
+  await r.weakSpots.save(
+    {
+      id: "ws_1",
+      collection_id: null,
+      objective_id: null,
+      topic: "T",
+      kind: "concept",
+      words: null,
+      source_line: "s",
+      duplicate_of: null,
+      proposed: 0,
+      created_by: "user",
+      pre_read: 0,
+      reading_due: null,
+    },
+    null,
+  );
+  assert.ok(
+    (
+      await r.links.save(
+        { ...link("link_5", "ws_1", "goal_1"), from_kind: "weak_spot" },
+        null,
+      )
+    ).ok,
+  );
 });
