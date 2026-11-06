@@ -31,9 +31,9 @@ export interface LibraryDocs {
   sets: WireDoc[];
   /** Practice answers; absent reads as none. */
   answers?: WireDoc[];
-  /** Which study plan is in force or put away per exam; absent reads as none. */
+  /** Which prep plan is in force or put away per exam; absent reads as none. */
   planedits?: WireDoc[];
-  /** The unfinished jobs (GET /jobs); a study plan waiting at needs-you names its exam. */
+  /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: WireJob[];
   /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
   plans?: WireDoc[];
@@ -44,18 +44,18 @@ export interface WireJob {
   id: string;
   kind: string;
   state: string;
-  examId?: string;
+  goalId?: string;
   /** The draft's sessions, if the server sends them. */
   tasks?: unknown;
 }
 
-/** The study plan job waiting for this exam, if any. */
+/** The prep plan job waiting for this exam, if any. */
 function waitingPlan(jobs: WireJob[] | undefined, exam: string) {
   return jobs?.find(
     (j) =>
-      j.kind.replace(/-/g, "_") === "study_plan" &&
+      j.kind.replace(/-/g, "_") === "prep_plan" &&
       j.state === "needs-you" &&
-      j.examId === exam,
+      j.goalId === exam,
   );
 }
 
@@ -108,13 +108,13 @@ function planIdOf(exams: WireDoc[], id: string): string | undefined {
   return typeof d?.planId === "string" && d.planId ? d.planId : undefined;
 }
 
-/** A study plan job E.V. is still running for this exam: after Matt's answer the plan is not in force yet. */
+/** A prep plan job E.V. is still running for this exam: after Matt's answer the plan is not in force yet. */
 function workingPlan(jobs: WireJob[] | undefined, exam: string): boolean {
   return !!jobs?.some(
     (j) =>
-      j.kind.replace(/-/g, "_") === "study_plan" &&
+      j.kind.replace(/-/g, "_") === "prep_plan" &&
       j.state === "running" &&
-      j.examId === exam,
+      j.goalId === exam,
   );
 }
 
@@ -186,7 +186,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       return {
         id,
         title: v.topic,
-        meta: [v.course, `${d.misses} missed`].filter(Boolean).join(" · "),
+        meta: `${d.misses} missed`,
         mastery,
         due,
       };
@@ -226,9 +226,9 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       return {
         id,
         title: v.title,
-        meta: [v.course, when].filter(Boolean).join(" · "),
+        meta: when,
         when,
-        course: v.course ?? "",
+        kind: v.kind,
         mastery: {
           right: share(ready, mine.length),
           shaky: share(shaky, mine.length),

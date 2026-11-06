@@ -10,7 +10,7 @@ const exam = {
   at: '2026-11-03T12:00:00Z',
   source: 't',
   title: 'Unit 3',
-  kind: 'unit' as const,
+  kind: 'exam' as const,
   date: '2026-11-08',
 };
 const ctxOn = (today: string) => buildContext({ exam, spots: [], today });
@@ -24,6 +24,13 @@ test('a context built on a later day starts that day', () => {
 test('checkPlan refuses past days and the exam day', () => {
   const ctx = ctxOn('2026-11-05');
   assert.match(checkPlan(one('2026-11-03'), ctx).join(' '), /already passed/);
-  assert.match(checkPlan(one('2026-11-08'), ctx).join(' '), /not study days/);
+  assert.match(checkPlan(one('2026-11-08'), ctx).join(' '), /not plan days/);
   assert.deepEqual(checkPlan(one('2026-11-06'), ctx), []);
+});
+
+test('a date whose kind offers no prep plan is refused in plain words', () => {
+  assert.throws(
+    () => buildContext({ exam: { ...exam, kind: 'other' as 'exam' }, spots: [], today: '2026-11-05' }),
+    /Unit 3 has no prep plan/,
+  );
 });

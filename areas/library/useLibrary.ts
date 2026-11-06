@@ -24,12 +24,14 @@ export interface LibraryState {
   error?: string;
   /** The server refused the token: the shell asks for a new one. */
   refused?: boolean;
-  /** Runs a study-plan command, then reads the library again; resolves to a plain sentence when it fails. */
+  /** Runs a prep-plan command, then reads the library again; resolves to a plain sentence when it fails. */
   runPlan(
     name: PlanCommand,
     input: Record<string, string>,
   ): Promise<string | undefined>;
-  /** Answers a study plan that is still waiting (approve or put away), then reads again. */
+  /** Sets a date's kind (date.update), then reads again; resolves to a plain sentence when it fails. */
+  setKind(id: string, kind: string): Promise<string | undefined>;
+  /** Answers a prep plan that is still waiting (approve or put away), then reads again. */
   answerPlan(
     jobId: string,
     decision: "approve" | "put_away",
@@ -39,9 +41,9 @@ export interface LibraryState {
 export type PlanCommand = Extract<
   CommandName,
   | "date.plan_with_ev"
-  | "studyplan.approve"
-  | "studyplan.ask_changes"
-  | "studyplan.put_away"
+  | "plan.approve"
+  | "plan.ask_changes"
+  | "plan.put_away"
 >;
 
 /** The sentence for a plan command that did not go through; 501 is a handler the server does not have yet. */
@@ -124,7 +126,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     };
   }, [token, copy, again]);
   const working = !!data?.exams.some((e) => e.planState === "working");
-  // A study plan job changes state on its own (drafted, revised): follow it without a reload.
+  // A prep plan job changes state on its own (drafted, revised): follow it without a reload.
   useEffect(() => {
     if (!token) return;
     const t = setInterval(
@@ -138,6 +140,15 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const runPlan = useCallback(
     async (name: PlanCommand, input: Record<string, string>) => {
       const r = await call(name, input, token);
+      if (!r.ok) return planFailure(r.status, r.reason);
+      setAgain((n) => n + 1);
+      return undefined;
+    },
+    [token],
+  );
+  const setKind = useCallback(
+    async (id: string, kind: string) => {
+      const r = await call("date.update", { id, kind }, token);
       if (!r.ok) return planFailure(r.status, r.reason);
       setAgain((n) => n + 1);
       return undefined;
@@ -159,5 +170,5 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     },
     [token],
   );
-  return { data, token, error, refused, runPlan, answerPlan };
+  return { data, token, error, refused, runPlan, setKind, answerPlan };
 }

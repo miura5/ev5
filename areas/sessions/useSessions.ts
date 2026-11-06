@@ -35,7 +35,7 @@ export type SessionWrite =
 export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
-/** Reads study sessions with the app token Matt keeps in this browser (the shell holds none). */
+/** Reads sessions with the app token Matt keeps in this browser (the shell holds none). */
 export function useSessions(copy?: ReadCopyLike): SessionsState {
   const token = readToken();
   const [data, setData] = useState<SessionData>();

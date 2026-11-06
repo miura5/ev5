@@ -10,7 +10,7 @@ import type { DocRow } from "./outbox/index.ts";
 /** The collections ⌘K looks in, in the order their groups show, with the area that opens each (§ui.palette). */
 export const FOUND = [
   { collection: "notes", group: "Notes", area: "notes" },
-  { collection: "exams", group: "Exams", area: "library" },
+  { collection: "exams", group: "Dates", area: "library" },
   { collection: "sets", group: "Sets", area: "library" },
   { collection: "weakspots", group: "Weak spots", area: "library" },
 ] as const;
@@ -26,7 +26,7 @@ export interface Found {
 
 const MAX_PER_GROUP = 5;
 
-/** The words a document is found by: a note's or exam's or set's title, a weak spot's topic. */
+/** The words a document is found by: a note's, date's or set's title, a weak spot's topic. */
 export function titleOf(data: unknown): string {
   const d = (data ?? {}) as { title?: unknown; topic?: unknown };
   const t = typeof d.title === "string" && d.title.trim() ? d.title : d.topic;

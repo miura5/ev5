@@ -20,14 +20,14 @@ test("a job maps to a chat job row", () => {
   expect(
     toAskJob({
       id: "j1",
-      kind: "study-plan",
+      kind: "prep-plan",
       state: "needs-you",
       summary: "Approve",
     }),
   ).toEqual({
     id: "j1",
     job: {
-      title: "Study plan",
+      title: "Prep plan",
       meta: "Approve",
       value: "needs you",
       running: false,

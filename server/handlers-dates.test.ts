@@ -157,7 +157,21 @@ test("an older date entry is still changed through an override", async () => {
   });
 });
 
-test("approving a study plan puts it in force and putting it away retires it", async () => {
+test("a date's kind comes from the registry: other by default, set on create or update, anything else refused", async () => {
+  const { DB, call } = await setup();
+  const kindOf = async (id: string) =>
+    (await DB.prepare("SELECT kind FROM goals WHERE id = ?").bind(id).first<{ kind: string }>())?.kind;
+  const plain = (await call("date.create", { title: "Trip", date: "2026-12-01" })).body.result.id;
+  assert.equal(await kindOf(plain), "other");
+  const exam = (await call("date.create", { title: "Unit 3", date: "2026-12-02", kind: "exam" })).body.result.id;
+  assert.equal(await kindOf(exam), "exam");
+  assert.equal((await call("date.update", { id: plain, kind: "exam" })).status, 200);
+  assert.equal(await kindOf(plain), "exam");
+  assert.equal((await call("date.update", { id: plain, kind: "quiz" })).status, 400);
+  assert.equal((await call("date.create", { title: "x", date: "2026-12-03", kind: "quiz" })).status, 400);
+});
+
+test("approving a prep plan puts it in force and putting it away retires it", async () => {
   const { call, doc, put } = await setup();
   await put("plans", "p1", {
     schema: 1,
@@ -166,15 +180,15 @@ test("approving a study plan puts it in force and putting it away retires it", a
     source: "t",
     exam: "e1",
   });
-  assert.equal((await call("studyplan.approve", { id: "p1" })).status, 200);
+  assert.equal((await call("plan.approve", { id: "p1" })).status, 200);
   assert.equal((await doc("planedits", "e1"))?.plan, "p1");
-  assert.equal((await call("studyplan.put_away", { id: "p1" })).status, 200);
+  assert.equal((await call("plan.put_away", { id: "p1" })).status, 200);
   const edits = await doc("planedits", "e1");
   assert.equal(edits?.plan, undefined);
   assert.ok(edits?.retired.p1.at);
-  assert.equal((await call("studyplan.approve", { id: "p1" })).status, 200); // back in force, no longer retired
+  assert.equal((await call("plan.approve", { id: "p1" })).status, 200); // back in force, no longer retired
   assert.equal((await doc("planedits", "e1"))?.retired, undefined);
-  assert.equal((await call("studyplan.approve", { id: "nope" })).status, 404);
+  assert.equal((await call("plan.approve", { id: "nope" })).status, 404);
   assert.equal((await doc("plans", "p1"))?.exam, "e1"); // the plan itself is untouched
 });
 
@@ -196,11 +210,11 @@ test("approving a plan whose days have all passed is refused with a plain reason
     ...base,
     days: [day("2000-01-01"), day("2999-01-01")],
   });
-  const r = await call("studyplan.approve", { id: "old" });
+  const r = await call("plan.approve", { id: "old" });
   assert.equal(r.status, 409);
   assert.match(JSON.stringify(r.body), /days have all passed.*Plan again/);
   assert.equal(await doc("planedits", "e1"), null);
-  assert.equal((await call("studyplan.approve", { id: "live" })).status, 200);
+  assert.equal((await call("plan.approve", { id: "live" })).status, 200);
 });
 
 test("a draft is kept into its set exactly once, or dropped; the whole set at once", async () => {

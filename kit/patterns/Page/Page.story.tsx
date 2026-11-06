@@ -35,8 +35,8 @@ export function Story() {
             onAction={() => undefined}
           />
         </Section>
-        <Section label="Exams">
-          <Empty line="No exams yet." />
+        <Section label="Dates">
+          <Empty line="No dates yet." />
         </Section>
       </Page>
     </div>

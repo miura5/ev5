@@ -14,7 +14,7 @@ export interface NotePageProps {
   note: NotePageData;
   /** Replaces the read-only blocks while the note is being edited. */
   editor?: ReactNode;
-  /** Present only while a study session runs. */
+  /** Present only while a session runs. */
   session?: NoteSessionState;
   onBack?: () => void;
   /** Present: the title is a field Matt types in; Enter or leaving it saves, Esc cancels. */
@@ -139,7 +139,7 @@ export function NotePageView({
               {session ? null : (
                 <Button
                   kind="text"
-                  title="Start a study session"
+                  title="Start a session"
                   onClick={onStartSession}
                 >
                   Start session

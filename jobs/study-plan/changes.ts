@@ -1,4 +1,4 @@
-// studyplan.ask_changes: Matt's note about a draft plan goes to Haiku, which proposes small patches (remove, add,
+// plan.ask_changes: Matt's note about a draft plan goes to Haiku, which proposes small patches (remove, add,
 // update). Code applies them to a copy of the draft and re-validates the result with the same checks as the first
 // draft (§cmd.code-first). The model call is injected; a bad patch gets one repair ask via runStructured.
 import { z } from "zod";

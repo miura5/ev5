@@ -28,7 +28,7 @@ const exam = (extra: Record<string, unknown>) => ({
   data: {
     ...base,
     title: "Exam Three",
-    kind: "unit",
+    kind: "exam",
     date: "2099-01-05",
     course: "NUR 112",
     ...extra,
@@ -83,7 +83,7 @@ test("a draft plan can be approved", async () => {
   fireEvent.click(await screen.findByText("Approve"));
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
-    name: "studyplan.approve",
+    name: "plan.approve",
     input: { id: "plan-j1" },
   });
 });
@@ -93,7 +93,7 @@ test("a draft plan can be put away", async () => {
   fireEvent.click(await screen.findByText("Put away"));
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
-    name: "studyplan.put_away",
+    name: "plan.put_away",
     input: { id: "plan-j1" },
   });
 });
@@ -111,14 +111,14 @@ test("changes go with his note, and need one", async () => {
   fireEvent.click(send);
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
-    name: "studyplan.ask_changes",
+    name: "plan.ask_changes",
     input: { id: "plan-j1", note: "fewer evenings" },
   });
 });
 
 test("a plan already in force shows no approve controls", async () => {
   boot(exam({ planId: "plan-j1" }), [{ id: "x1", data: { plan: "plan-j1" } }]);
-  await screen.findByText("Review the study plan");
+  await screen.findByText("Review the prep plan");
   expect(screen.getByText("in force")).toBeTruthy();
   expect(screen.queryByText("Approve")).toBeNull();
 });
@@ -148,8 +148,8 @@ test("the detail alone offers the plan actions through its handlers", () => {
       exam={{
         id: "x",
         title: "E",
+        kind: "exam",
         when: "",
-        course: "",
         readiness: "",
         plan: "",
         proposals: [],

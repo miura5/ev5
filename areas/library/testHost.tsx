@@ -5,9 +5,9 @@ import { withToasts } from "../testToasts.tsx";
 
 const LibraryScreen = withToasts(RawLibraryScreen);
 import {
-  examPlanDetail,
+  datePlanDetail,
   type ExamPlanDetailProps,
-} from "./ExamPlan.detail.tsx";
+} from "./DatePlan.detail.tsx";
 
 /** Stands in for the shell in tests: holds the Detail the screen opens, closes it on Esc like the shell's host. */
 export function LibraryHosted(props: Parameters<typeof LibraryScreen>[0]) {
@@ -38,5 +38,5 @@ export function LibraryHosted(props: Parameters<typeof LibraryScreen>[0]) {
 
 /** The exam plan Detail drawn as the shell's host draws it. */
 export function ExamPlanDetail(props: ExamPlanDetailProps) {
-  return <Detail {...examPlanDetail(props)} />;
+  return <Detail {...datePlanDetail(props)} />;
 }

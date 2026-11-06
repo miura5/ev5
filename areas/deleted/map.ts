@@ -28,7 +28,7 @@ const KINDS: Record<string, string> = {
   cards: "Flashcard",
   questions: "Question",
   steps: "Step",
-  plans: "Study plan",
+  plans: "Prep plan",
   jobs: "Job",
   goals: "Date",
   own_set_items: "Set question",

@@ -60,7 +60,7 @@ test("every handler belongs to a registry command Matt calls directly", () => {
           "ask.just_tell_me",
           "job.retry_shorter",
           "date.plan_with_ev",
-          "studyplan.ask_changes",
+          "plan.ask_changes",
         ].includes(name),
       name,
     );

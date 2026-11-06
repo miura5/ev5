@@ -5,7 +5,7 @@ export function minutesText(minutes: number): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-/** "5h 10m in 3 sessions": the minutes of ended study sessions. */
+/** "5h 10m in 3 sessions": the minutes of ended sessions. */
 export function endedMinutesText(minutes: number, sessions: number): string {
   return `${minutesText(minutes)} in ${sessions} ${sessions === 1 ? "session" : "sessions"}`;
 }

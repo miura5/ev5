@@ -122,7 +122,7 @@ test("job.retry_shorter refuses what it cannot shorten", async () => {
   assert.equal((await cmd(s, "job.retry_shorter", "run")).status, 409);
   await seed(s.db, {
     id: "plan",
-    kind: "study_plan",
+    kind: "prep_plan",
     state: "failed",
     reason: "x",
   });

@@ -181,9 +181,9 @@ test("Today follows a plan job that changes while it is open", async () => {
   jobs = [
     {
       id: "j1",
-      kind: "study-plan",
+      kind: "prep-plan",
       state: "needs-you",
-      examId: "x1",
+      goalId: "x1",
       summary: "",
     },
   ];

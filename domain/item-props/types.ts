@@ -48,8 +48,8 @@ export const itemPropsSchema = z.strictObject({
 });
 export type ItemProps = z.infer<typeof itemPropsSchema>;
 
-/** The kinds an added plan item may have; general study work, no subject built in ('graded' is graded coursework). */
-export type AddedKind = 'todo' | 'reading' | 'learn' | 'practice' | 'review' | 'notes' | 'graded';
+/** The kinds an added plan item may have: general work for any goal, no subject built in. */
+export type AddedKind = 'todo' | 'reading' | 'learn' | 'practice' | 'review' | 'notes';
 
 /** What a repeating plan item looks like each day: a day's `added` entry minus `at` and `by`. */
 export type PlanTemplate = {
