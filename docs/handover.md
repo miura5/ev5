@@ -4,10 +4,10 @@ NOTE: deletions made before #580 show twice in Recently deleted (B-1040). B-1049
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). On rewrite keep groups and order: drop done tasks, put new ones in their group. Work groups in order.
 Task freeze (D-497): no new task ids until groups 3 to 6 are done; findings go in task notes or docs/parked.md.
-FIRST: node ops/record/cli.ts inbox file (the Dates decision; supervisor PR #607 edits the inbox and adds 2 more, merge it first), then put the D- ids in B-1038's notes.
+FIRST: node ops/record/cli.ts inbox file (3 decisions: Dates with prep plan wording; no Courses and full practice run; sets from any notes), then put each D- id in the notes of the tasks it names.
 (2) Record drift: done (run 83; B-1023 run 84).
 (3) Kit drift: most merged.
-Open: B-942 (run 94 #589 done: study line, week labels, light bars; left: Today/Progress vs mock-up; Courses in the sidebar and course dots are not in the mock-up: design agent updates it or the bar drops them), B-973 (with B-940; its branch is empty), then B-979, with Back B-1012 and B-1013.
+Open: B-942 (run 94 #589 done: study line, week labels, light bars; left: Today/Progress vs mock-up; the bar drops Courses in the sidebar and course dots, Matt 2026-11-06), B-973 (with B-940; its branch is empty), then B-979, with Back B-1012 and B-1013.
 (4) Data layer. Build to D-498 (the build manager's decision on docs/proposals/table-design.md; its changes win over the doc and replace D-496).
 Order: B-1022 remainder (drafts, job reads, jobPlans.get #594 done; left: WireDoc in areas, old doc-row shapes after B-1037 to B-1043, plan row shape so jobs drop PlanSchema, contract migration dropping target_c),
 B-998 remainder (data #592 and server #595 steps done. Left: notes and plan items on memberships.save need their tables first; item_props to plan_items columns; item.move/pin on old repos; then part 2: remove /docs routes and data/docs, migration, reseed staging, rerun drill),
