@@ -4243,7 +4243,7 @@
    "B-977",
    "B-978"
   ],
-  "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first.",
+  "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first. 2026-11-06 run: not built. Depends B-974 and B-975 are still open. Today's areas/ would fail the guards: .kit- rules at areas/notes/notes.css:139 and areas/today/today.css:32 (need Row/Field kit behaviour first), an empty-state placeholder selector at notes.css:111 (not a real screen empty state), kit Detail imported by areas/library/testHost.tsx and areas/today/dateKind.test.tsx (tests; guard must allow type and test imports). No row-token uses in areas/. Claim freed.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -4705,11 +4705,11 @@
   "depends": [
    "B-969"
   ],
-  "notes": "Run 2026-11-06 (#637): wouter 3.13.0 pinned, Switch/Route in shell/App.tsx, / -> /today replace, /kit outside shell, dependency-cruiser rule wouter-only-in-shell, routing test. LEFT (belongs with B-1013, needs areas/): pass path/params/search/navigate as props to areas (Library, Notes, Collection, Ask still read window.location; Ask uses location.assign(/activity) which reloads); e2e Library-open-set-Back-Forward; seen on staging. CONTRACT has no routing §id yet. Claim freed.",
+  "notes": "Run 2026-11-06 (#637): wouter 3.13.0 pinned, Switch/Route in shell/App.tsx, / -> /today replace, /kit outside shell, dependency-cruiser rule wouter-only-in-shell, routing test. LEFT (belongs with B-1013, needs areas/): pass path/params/search/navigate as props to areas (Library, Notes, Collection, Ask still read window.location; Ask uses location.assign(/activity) which reloads); e2e Library-open-set-Back-Forward; seen on staging. CONTRACT has no routing §id yet. Claim freed. 2026-11-06 run (#645): Library derives its open set from ?open= and moves with onNavigate; e2e journey library-back added (needs its first staging run: seen on staging). Left: Notes, Collection address writes; Esc on Detail leaves ?open= in the address. Claim freed.",
   "commit": null,
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
-  "claimedBy": "run-1217",
-  "claimedAt": "2026-11-06T12:43:28.637Z"
+  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
+  "claimedAt": "2026-11-06T14:29:47.768Z"
  },
  {
   "id": "B-1013",
@@ -4717,13 +4717,15 @@
   "title": "Screens read their address from the shell, never from the browser",
   "dod": "the five window.location.search reads in areas/ (collection, library, ask, notes) use the address props from the shell; any screen-to-screen move uses the shell's navigate prop; ESLint refuses window.location and window.history in areas/, with a red guard fixture recorded; precheck green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-1012"
   ],
-  "notes": "Slice: write areas/, eslint.config.js, ops/guards/; read shell/. Decision: D-485.",
-  "commit": null,
-  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT"
+  "notes": "Slice: write areas/, eslint.config.js, ops/guards/; read shell/. Decision: D-485. Done 2026-11-06 (#644): areas read the search prop, Ask uses onNavigate, ESLint refuses window.location/history in areas/ with two red fixtures. Cited wouter-only-in-shell (no CONTRACT §id for routing yet).",
+  "commit": "2a96091",
+  "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
+  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
+  "claimedAt": "2026-11-06T14:29:47.030Z"
  },
  {
   "id": "B-1014",
@@ -5049,9 +5051,11 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots). Scope sweep #620 (B5): a spot's goal is the soonest upcoming goal its objective links to; examsByCourse gone; goalDate and nearDateWithinDays. Left (B7): createWeakSpot still matches a doc's course against a collection id or title; weakSpotDoc keeps where.exam and where.course for the screens. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F9 and D-509 (Matt): a weak spot links to its date directly with a link row (weak spot to goal), as the mock-up shows; the prep plan and readiness read that link, so a plan stops getting 0 weak spots; objectives stay optional; D-505's weak-spot-links tool is what offers it. F2: shell/findings.ts still reads documents. F25: drop weak_spots.pre_read and reading_due with no writer. Picker to link a weak spot to a date (D-509), moved here from B-1052.",
+  "notes": "Run 97 (#610): GET /docs?since serves weak spots from the tables, migration 0014 backfills old weakspots docs, weakspots parser removed. Left: shell/findings.ts still reads GET /docs?collection=weakspots (served from tables; move off the doc shape later); course-match is fallback when no goal link; duplicate_of spots hidden not credited; nothing proposes weak spots. Old docs stay until the contract migration. Scope audit 2026-11-06: B5 (drop the course-match fallback and examsByCourse; rename examDate, nearExamWithinDays, intervalNearExamDays to goalDate, nearDateWithinDays, intervalNearDateDays) and B7 (no course string on weak spots). Scope sweep #620 (B5): a spot's goal is the soonest upcoming goal its objective links to; examsByCourse gone; goalDate and nearDateWithinDays. Left (B7): createWeakSpot still matches a doc's course against a collection id or title; weakSpotDoc keeps where.exam and where.course for the screens. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F9 and D-509 (Matt): a weak spot links to its date directly with a link row (weak spot to goal), as the mock-up shows; the prep plan and readiness read that link, so a plan stops getting 0 weak spots; objectives stay optional; D-505's weak-spot-links tool is what offers it. F2: shell/findings.ts still reads documents. F25: drop weak_spots.pre_read and reading_due with no writer. Picker to link a weak spot to a date (D-509), moved here from B-1052. 2026-11-06 run (#643): slice widened to domain/link; weak_spot->goal link pair, links table checks a live spot, goalsByWeakSpot, weakSpotDocs reads the direct link or the objective's. Left: the weak-spot-links command (commands/) that writes the link, the picker (areas/), B7, F2, F25. Claim freed.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
+  "claimedAt": "2026-11-06T14:29:47.397Z"
  },
  {
   "id": "B-1040",
