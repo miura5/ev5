@@ -39,6 +39,8 @@ jobs:
         run: npx --yes $WRANGLER d1 delete ev5-staging -y
       - name: Create D1 if missing
         run: |
+          # Outside the repo, as for the delete: inside it wrangler reads the placeholder id from wrangler.jsonc.
+          cd "$RUNNER_TEMP"
           npx --yes $WRANGLER d1 create "$NAME" || true
           # A database made a moment ago can take a few seconds to show by name: wait for its id, and stop if it never shows.
           for i in 1 2 3 4 5 6 7 8 9 10; do
