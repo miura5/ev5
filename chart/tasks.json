@@ -1,103 +1,11 @@
 [
  {
-  "id": "B-69",
-  "kind": "task",
-  "title": "Adaptive intervals, step 1 (D-117): solid stays two right days; a solid weak spot's due date doubles with each further right day (spec.study.params: base 3, cap 14, nearExam 1), the exam-day rule kept; pickReviews draws due solid spots after the open ones within the day budget; a miss reopens it as today (recurrence + 1); the switch flips to adaptive on Matt's OK after one shadow week",
-  "dod": null,
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-68"
-  ],
-  "notes": "Oct 23: e115c56 is live in v4.5.0, so the review set now picks through spec.study.scheduler; the flip after Sunday's weekly is clear on that count. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone M10).",
-  "commit": null,
-  "source": "BACKLOG.md",
-  "jobs": [
-   "job-20261022-021545-b-69"
-  ],
-  "ask": "After Sunday's weekly (Oct 25) writes the first full shadow week: flip reviews to adaptive intervals, or stay fixed?",
-  "choices": [
-   "Flip to adaptive",
-   "Stay fixed"
-  ]
- },
- {
-  "id": "B-70",
-  "kind": "task",
-  "title": "Learned parameters (D-118): a weekly code step fits per-weak-spot stability and difficulty from his answers (a small FSRS-style model with few parameters, fitted by a seeded search in code, no library) into models/current (Derived, producer weekly, rebuildable from answers; the one new collection: schema, spec row, budget, rebuild entry); the adaptive scheduler reads it when present and falls back to spec.study.params when not",
-  "dod": null,
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-69"
-  ],
-  "dependsText": "B-69, and 300 answers in the record",
-  "notes": "Blocked on evidence, not on anyone (D-188): learned parameters need 300 answers in the record; B-165 puts the count in the weekly's health line, and triage reads it there. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone M10).",
-  "commit": null,
-  "source": "BACKLOG.md"
- },
- {
-  "id": "B-71",
-  "kind": "task",
-  "title": "Calibration into readiness: after two dates of kind exam with a prediction and a score, readiness carries a calibrated estimate (the coverage number adjusted by the mean signed error, bounded), shown beside the coverage number and never replacing it; the weekly review reports calibration error",
-  "dod": null,
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-47",
-   "B-48"
-  ],
-  "notes": "Blocked on evidence, not on anyone (D-188): calibration needs two exams that carry both a prediction (D-094) and a score (examedits); B-165 puts the count in the weekly's health line, and triage reads it there. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone M10).",
-  "commit": null,
-  "source": "BACKLOG.md"
- },
- {
-  "id": "B-170",
-  "kind": "task",
-  "title": "The morning targets the weakest objective from the latest weeks document (D-120's morning half, behind D-190): the morning's spare practice and drill items aim at weeks/<latest>.insights.weakestObjective; it ships behind a comparison first (the morning writes what it would target beside what it does, a week runs, the weekly compares), and flips on Matt's word",
-  "dod": "a core test: with insights naming E4-3 the morning's target is E4-3, without them today's rule; days/<date>.shadow (or its equivalent) carries the would-be target for a week on staging and the weekly's study comparison reports it; Matt reads the week and says flip; the flip is its own staging-proved deploy; npm test green",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-72",
-   "B-230"
-  ],
-  "notes": "Oct 23: the shadow is live in v4.5.0; from tomorrow's 4:25 run each live day carries days/<date>.aim, and the weekly writes weeks/<date>.study.aim. A week from now Matt reads it and says flip or not. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone v4.3 study).",
-  "commit": null,
-  "source": "B-72 split (D-190)",
-  "waitingOn": "owner"
- },
- {
-  "id": "B-266",
-  "kind": "bug",
-  "title": "Bug (reported Oct 23): e.v. Center aligned on phone",
-  "dod": "E.V. records a score he gives her on a date of kind exam, where goal scores live, including dates with no day set, and never says Logged for something she did not store",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [],
-  "notes": "Parked for the post-freeze review (Matt, Oct 23): a design question, not a freeze fix. Scores live in examedits, written only by Progress's score card, which skips dateless exams; E.V. has no tool for it and wrote ideas/idea-2026-10-23-nur-112-self-reported-exam-sco instead ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone v4.6 triage).",
-  "commit": null,
-  "source": "build chat",
-  "words": "e.v. Center aligned on phone",
-  "reportedAt": "2026-10-23T22:54:47.074Z",
-  "board": {
-   "row": "v4 B-266: e.v. Center aligned on",
-   "why": "e.v. Center aligned on phone",
-   "notes": "Reported Oct 23 from build chat"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-23T23:58:35.523Z"
-  },
-  "waitingOn": "owner"
- },
- {
   "id": "B-268",
   "kind": "bug",
   "title": "Bug (reported Oct 23): Rollback's keep list (ROLLBACK_KEEP in tools/chart.mjs) keeps chart/, BACKLOG.md, CLAUDE.md and the skills but not DECISIONS.md or CHANGELOG.md, which build.mjs's BOOKKEEPING lists. A rollback restore would bring back old copies of those two generated files while chart/ stays current, and the drift test would fail.",
   "dod": "A rollback restore keeps the current DECISIONS.md and CHANGELOG.md beside chart/ (the keep list follows build.mjs's BOOKKEEPING list, one source); a chart test plants a restore and finds no drift",
   "milestone": "after-cutover",
-  "status": "open",
+  "status": "declined",
   "depends": [],
   "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone v4.5.x ops).",
   "commit": null,
@@ -108,35 +16,10 @@
    "row": "v4 B-268: Rollback's keep list (ROLLBACK_KEEP in tools/chart.mjs) keeps chart/,…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-24T04:13:14.685Z"
+   "outcome": "declined",
+   "reason": "Deleted in D-512; kept as a declined row because ev4's frozen history links to it.",
+   "at": "2026-11-06T13:09:40.399Z"
   }
- },
- {
-  "id": "B-304",
-  "kind": "task",
-  "title": "Task descriptions with their source: a task carries a short description and the material it came from (such as \"from Tuesday's lab handout\"), shown in the task panel",
-  "dod": "A schema and spec change for the field; the task panel shows it at 390 and 1280 in both themes; the planner fills it from the material it read; npm test green; staging GREEN",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-296"
-  ],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Later).",
-  "commit": null,
-  "source": "plan Xgb1Kq2RxdE4uRL4VQZLyG (parked)"
- },
- {
-  "id": "B-307",
-  "kind": "task",
-  "title": "Concise rewrite on save (D-295, amending D-233): a note or idea he types is stored as E.V.'s concise rewrite, every point kept, with his original beside it; ticks, date titles and the journal are untouched",
-  "dod": "Saving a planted note stores her rewrite as the text and his original beside it, through his own save (the D-233 guard still refuses any run, worker or builder writing the field); a journal entry, a tick and a date title save exactly as typed; with sampling off, his text saves as typed; npm test green; npm run smoke; staging GREEN",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone freeze exit).",
-  "commit": null,
-  "source": "build chat (Matt, Oct 24)"
  },
  {
   "id": "B-310",
@@ -144,159 +27,17 @@
   "title": "The hard-limit restatements, filed by a build chat with Matt present (guarded changes): B-10 as D-299, B-06 as D-300, B-11 as D-302's amendment. The run prompts re-render from them (D-175).",
   "dod": "The three hard limits (B-06, B-10 and B-11) read word for word as D-300, D-299 and D-302 say. The rendered prompts change only where those limits appear. Matt confirms in the chat that the Anthropic Console spend limit is set to $5 a month. npm test green.",
   "milestone": "after-cutover",
-  "status": "open",
+  "status": "declined",
   "depends": [
    "B-283"
   ],
   "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone app (data, pipelines, ops)).",
   "commit": null,
-  "source": "plan 1eW5FgG9VNzhCySbL1uWuo"
- },
- {
-  "id": "B-323",
-  "kind": "task",
-  "title": "A larger model for deeper asks (Go deeper, longer chats), at a cost Matt sets.",
-  "dod": "Defined with Matt when the task is taken.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-320"
-  ],
-  "notes": "Waiting on Matt to scope it: its definition of done is written with him when he does (hand-off 3). ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone app (data, pipelines, ops)).",
-  "commit": null,
   "source": "plan 1eW5FgG9VNzhCySbL1uWuo",
-  "waitingOn": "owner"
- },
- {
-  "id": "B-413",
-  "kind": "request",
-  "title": "Notes: version history and revert",
-  "dod": "Each note keeps its past versions in the record (a version at most every few minutes of editing, at session end and before any revert or (earlier) swap; nothing is ever deleted, older versions are kept, capped by count with the oldest folded into daily ones). The note's menu opens History: versions by time with a word-count change, a read-only view of one, and Restore, which saves it as the newest version so restoring is itself undoable. Backups and the mirror carry versions. Designed against the Notes canvas look; core tests, the notes harness at 1280 and 1706, its own review, ship staging GREEN.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-409"
-  ],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone PWA).",
-  "commit": null,
-  "source": "chat, Oct 26",
-  "words": "Lightweight version history for notes: see a note's past versions and revert to one, before any note-based insights.",
-  "reportedAt": "2026-10-26T08:31:44.968Z",
-  "board": {
-   "row": "v4 B-413: Lightweight version history for notes: see a note's past versions and…"
-  },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-26T08:32:02.271Z"
-  }
- },
- {
-  "id": "B-415",
-  "kind": "request",
-  "title": "Architecture probe at the latest version",
-  "dod": "A read-only review writes docs/design/review/structure.md, in four parts. (1) A map of E.V.'s systems and dependencies as they stand: the standard tools (Cloudflare Workers and D1, GitHub Actions, Playwright, node:test, prettier) and the owned pieces (the Chart, Proprietary, skills and workflows, measures, the harnesses, deploy, both runtimes), each with its size, owner, checks and what depends on it. (2) The target structure: about five standard tools and about five small owned pieces, each gap tested as adopt (generic, widely used, removable) or build small (specific to E.V., one page, one owner, enforced by a check). (3) A removal sweep for what fits no target: code no harness run reaches, two ways of doing one thing, checks pinning retired behaviour, and the dead parts docs/trim/scan already lists; each removal is proved by an unchanged-behaviour check. (4) The consolidation plan: tasks that move code onto the target, each with before and after numbers (lines, places E.V. runs, ship steps, check time), and no rewrite for its own sake. Plus a one-page overview for Matt in everyday words.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-409"
-  ],
-  "notes": "Top candidate (Matt, Oct 30): a data-vocabulary layer, Proprietary's pattern applied to data. One vocabulary section in the spec (kinds, courses, statuses, item types, labels); one generated module that the page, core, the job runners and E.V.'s prompts all read; a lint that fails on hard-coded vocabulary lists or literals in code; a small reference page. Evidence: B-607 (the New task menu kept a 6-kind list) and B-599 (a deck stored the placeholder course 'Course'). It is also the first concrete piece of D-404's ontology. The review maps today's duplicated vocabularies and sizes the work. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "chat, Oct 26 (D-337)",
-  "words": "Architecture probe at the latest version",
-  "reportedAt": "2026-10-26T08:59:52.530Z",
-  "board": {
-   "row": "v4 B-415: Architecture probe at the latest"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-26T08:59:53.306Z"
-  }
- },
- {
-  "id": "B-417",
-  "kind": "request",
-  "title": "E.V. course: lesson 1",
-  "dod": "The first lesson of the E.V. and engineering course, built on the consolidation: how one feature he uses (practice questions) runs from tap to record, then one small change he makes himself with guidance, reviewed like any other; format and home decided with Matt when it starts (D-337).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-415"
-  ],
-  "notes": "Reframed with Matt (Oct 30): the course trains him to lead D-404 (the model E.V. keeps of him), not to code it himself. Outcomes: read and question E.V.'s architecture; data modelling (entities, evidence, ontology); measurement and calibration (Brier score, base rates, updating); AI components over structured memory (context, retrieval, structured output, tool use); evals for AI judgments; learning science worth modelling (spacing, retrieval practice, forgetting curves); directing agents (specs, reviews). Each module ends in an artifact for D-404 built on his record's shape. The outcomes are set in the build chat; a Fable research agent writes the final curriculum from current research shortly before it starts; D-404 planning comes at winter break. Overview: https://claude.ai/artifact/XyjeerMNbAzinQLvzer9DH ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "chat, Oct 26 (D-337)",
-  "words": "E.V. course: lesson 1",
-  "reportedAt": "2026-10-26T08:59:55.006Z",
-  "board": {
-   "row": "v4 B-417: E.V. course: lesson"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-26T08:59:55.653Z"
-  }
- },
- {
-  "id": "B-422",
-  "kind": "request",
-  "title": "Delete with a 30-day trash (D-345)",
-  "dod": "Matt can delete a note, task or other item he made; it moves to a Trash list he can restore from; items older than 30 days are cleared by the Worker; runs and agents have no delete path; B-11 and the run prompts say so; staging GREEN",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone after Notes).",
-  "commit": null,
-  "source": "chat, Oct 26 (D-345)",
-  "words": "Let Matt delete his own notes, tasks and other items in the app; deleted items go to a trash list kept 30 days, restorable from there, and are cleared after that.",
-  "reportedAt": "2026-10-26T21:58:54.003Z",
-  "board": {
-   "row": "v4 B-422: Let Matt delete his own notes, tasks and other items in the app;…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-26T21:59:01.003Z"
-  }
- },
- {
-  "id": "B-423",
-  "kind": "request",
-  "title": "Development tier switch, Pro or Max (last sprint)",
-  "dod": "docs/tiers.md describes each tier from Matt's outline; one spec value names the current tier; CLAUDE.md, the lane builder and reviewer prompts read it; switching pauses or resumes sprint-only scheduled tasks; a test fails if a sprint-only task is enabled under Pro; the Pro run schedule is set",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone last sprint).",
-  "commit": null,
-  "source": "chat, Oct 26 (D-347)",
-  "words": "Keep one development tier switch in the repository (Pro or Max) that the build manager, lane builders, reviewers and the scheduled tasks read before starting, so a session on the Pro plan never runs Max-sized work; switching tier pauses or resumes the sprint-only tasks, and a test proves nothing sprint-only stays on under Pro. The Pro tier also slims E.V.'s own scheduled runs.",
-  "reportedAt": "2026-10-27T01:13:23.090Z",
-  "board": {
-   "row": "v4 B-423: Keep one development tier switch in the repository (Pro or Max) that…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-27T01:13:23.586Z"
-  }
- },
- {
-  "id": "B-436",
-  "kind": "bug",
-  "title": "Bug (reported Oct 27): UI review of 02066e6 fixes: on the phone Back to now keeps a floating shadow and squeezes the header status to a stub; the Study exam card's separator can hang at the end of the title line; Study plan rows show their date twice; the scrolled-up E.V. thread on the phone leaves a large empty gap above the start of today.",
-  "dod": "Each of the four is fixed and seen in the look pass at 390x844 and 1280; npm test and smoke green.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "UI review 02066e6",
-  "words": "UI review of 02066e6 fixes: on the phone Back to now keeps a floating shadow and squeezes the header status to a stub; the Study exam card's separator can hang at the end of the title line; Study plan rows show their date twice; the scrolled-up E.V. thread on the phone leaves a large empty gap above the start of today.",
-  "reportedAt": "2026-10-27T22:57:22.868Z",
-  "board": {
-   "row": "v4 B-436: UI review of 02066e6 fixes: on the phone Back to now keeps a floating…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-27T22:57:23.089Z"
+   "outcome": "declined",
+   "reason": "Deleted in D-512; kept as a declined row because ev4's frozen history links to it.",
+   "at": "2026-11-06T13:09:40.596Z"
   }
  },
  {
@@ -305,7 +46,7 @@
   "title": "Request (reported Oct 27): Keep weak spots from past dates as a separate history pool that never counts toward upcoming dates",
   "dod": "Weak spots split by a derived current/past rule (no data change): the badge, practice sets and morning reviews count current only; a collapsed 'From past units' section in Study > Weak spots with each row's exam, Drill, and a 'Review old material' set; answers credit history; core unit tests per branch; harness check at 390 and 1280; npm test green.",
   "milestone": "after-cutover",
-  "status": "blocked",
+  "status": "declined",
   "depends": [],
   "notes": "Parked by the phase plan (D-347): features wait until after the architecture review (B-415) and consolidation; input to that review. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
   "commit": null,
@@ -316,29 +57,9 @@
    "row": "v4 B-443: Keep weak spots from past exams and past units as a separate history…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T01:24:42.128Z"
-  }
- },
- {
-  "id": "B-444",
-  "kind": "request",
-  "title": "Request (reported Oct 27): Let him mark text in a note as need to know (terminology, rationales, figures, formulas) so quizzes and practice sets include it; E.V. may suggest such points from the note and probe them sparingly, proposing a weak spot when he misses one, without a flood of distractions.",
-  "dod": "Plan from the design (k run mark as the single truth; suggestions only on demand or at session end, accepted per quote; practice weights key points about 2 of 5; probes only on marked points at most one per 15 minutes; misses proposed as weak spots); split into build tasks before building; each with tests; npm test green.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [],
-  "notes": "Parked by the phase plan (D-347): features wait until after the architecture review (B-415) and consolidation; input to that review. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "Matt, chat, Oct 27",
-  "words": "Let him mark text in a note as need to know (terminology, rationales, figures, formulas) so quizzes and practice sets include it; E.V. may suggest such points from the note and probe them sparingly, proposing a weak spot when he misses one, without a flood of distractions; nursing courses framed NCLEX, others exam-style.",
-  "reportedAt": "2026-10-28T01:24:43.458Z",
-  "board": {
-   "row": "v4 B-444: Let him mark text in a note as need to know (terminology, rationales,…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T01:24:44.517Z"
+   "outcome": "declined",
+   "reason": "Deleted in D-512; kept as a declined row because ev4's frozen history links to it.",
+   "at": "2026-11-06T13:09:40.811Z"
   }
  },
  {
@@ -361,70 +82,6 @@
    "outcome": "declined",
    "reason": "A subject-specific feature (clinical link types); kinds are data, not built in (§what.framing). Scope audit 2026-11-06",
    "at": "2026-11-06T07:57:07.566Z"
-  }
- },
- {
-  "id": "B-451",
-  "kind": "bug",
-  "title": "Bug (reported Oct 27): With a session running on one note, the Ask E.V. chip in another note quotes the words into the first note's chat; and a pasted heading 1 that is not first in a note has no space above it.",
-  "dod": "The chip opens the chat of the note the words came from (as the suggestion does, POP.th set to that note's thread), with a harness check of two notes; a heading 1 after other blocks has top margin; npm test and smoke green.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "UI review 219358d",
-  "words": "With a session running on one note, the Ask E.V. chip in another note quotes the words into the first note's chat; and a pasted heading 1 that is not first in a note has no space above it.",
-  "reportedAt": "2026-10-28T03:09:38.380Z",
-  "board": {
-   "row": "v4 B-451: With a session running on one note, the Ask E.V. chip in another note…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T03:09:38.651Z"
-  }
- },
- {
-  "id": "B-457",
-  "kind": "bug",
-  "title": "Bug (reported Oct 28): When a prep plan's Sonnet request drops before its reply arrives, or comes back without usage, the Worker can give the ask back or count nothing, so a billed answer may not count toward the 2-ask cap or the token ceilings.",
-  "dod": "Every Sonnet ask that is not a refusal Claude returned (4xx/5xx) keeps its claim and counts a conservative estimate (input at ~3.5 chars/token plus max_tokens, at the model's weight) toward the ceilings: a throw before headers after the request was sent, a 200 with a non-JSON body or no usage, and a Worker cancelled mid-ask; a max_tokens-cut answer gets no fix and writes nothing, with a test; npm test green.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone After Notes).",
-  "commit": null,
-  "source": "final review of B-449's release fix wave",
-  "words": "When a study plan's Sonnet request drops before its reply arrives, or comes back without usage, the Worker can give the ask back or count nothing, so a billed answer may not count toward the 2-ask cap or the token ceilings.",
-  "reworded": true,
-  "reportedAt": "2026-10-28T10:33:33.529Z",
-  "board": {
-   "row": "v4 B-457: When a study plan's Sonnet request drops before its reply arrives, or…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T10:33:46.102Z"
-  }
- },
- {
-  "id": "B-468",
-  "kind": "bug",
-  "title": "Bug (reported Oct 28): brief's health read (D-180) still points at the record's ArtifactData copy of health/current, which froze at the Oct 27 move to the Worker and D1, so brief calls live health stale (44 h) while the Worker's health/current is 2 h old and clean; brief should print the Worker pull (api pull health) as the read.",
-  "dod": "brief reads live health/current through the Worker (api pull with the saved system/worker file) and names that read when none is saved; its age line matches the Worker's document; npm test covers the read it prints.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "build manager, Oct 28 evening",
-  "words": "brief's health read (D-180) still points at the record's ArtifactData copy of health/current, which froze at the Oct 27 move to the Worker and D1, so brief calls live health stale (44 h) while the Worker's health/current is 2 h old and clean; brief should print the Worker pull (api pull health) as the read.",
-  "reportedAt": "2026-10-28T21:21:36.410Z",
-  "board": {
-   "row": "v4 B-468: brief's health read (D-180) still points at the record's ArtifactData…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-28T21:21:39.920Z"
   }
  },
  {
@@ -472,446 +129,23 @@
   }
  },
  {
-  "id": "B-492",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): The staging deploy's read-back of served page files ran seconds after deploy and saw stale edge copies (app.js, icons, spec.json), failing a good deploy; a re-run passed.",
-  "dod": "The read-back of served files retries for up to about 2 minutes before calling a file different; test for a file that matches on the second try.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Flashcards (D-368)).",
-  "commit": null,
-  "source": "pwa-staging run 40892976707",
-  "words": "The staging deploy's read-back of served page files ran seconds after deploy and saw stale edge copies (app.js, icons, spec.json), failing a good deploy; a re-run passed.",
-  "reportedAt": "2026-10-29T14:38:47.352Z",
-  "board": {
-   "row": "v4 B-492: The staging deploy's read-back of served page files ran seconds after…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T14:38:54.173Z"
-  }
- },
- {
   "id": "B-515",
   "kind": "task",
   "title": "Proprietary cleanup and token lint: delete the retired aliases and dead legacy rules, drop the legacy layer from page/styles.css, and add the npm test check that view CSS holds no raw colour, font size, radius or duration outside page/ds/tokens.css",
   "dod": "A token audit shows at most 7 font sizes, 12 spacings, 7 radii and 5 durations; npm test and smoke GREEN; screenshots at 390 and 1280 unchanged; ship staging GREEN",
   "milestone": "after-cutover",
-  "status": "open",
+  "status": "declined",
   "depends": [
    "B-514"
   ],
   "notes": "Matt (Oct 30): the cleanup goes live once it's tested and he has checked it on staging and approved it. Nothing is held for a date or his exam (D-390). ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Consolidation: Proprietary).",
   "commit": null,
-  "source": "plan Lf1aKShdVK5ojjjgwk5yfv"
- },
- {
-  "id": "B-523",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): A weak-spot drill asks about a different topic than the spot it was started from.",
-  "dod": "A drill started from a weak spot uses that spot's objective; test.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "A weak-spot drill asks about a different topic than the spot it was started from.",
-  "reportedAt": "2026-10-29T15:59:50.497Z",
-  "board": {
-   "row": "v4 B-523: A weak-spot drill asks about a different topic than the spot it was…"
-  },
+  "source": "plan Lf1aKShdVK5ojjjgwk5yfv",
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T15:59:55.172Z"
+   "outcome": "declined",
+   "reason": "Deleted in D-512; kept as a declined row because ev4's frozen history links to it.",
+   "at": "2026-11-06T13:09:40.952Z"
   }
- },
- {
-  "id": "B-528",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): In notes, \"On this page\" ignores headings and \"Reading along\" shows nothing beside the note.",
-  "dod": "On this page lists the note's headings and Reading along shows E.V.'s notes beside it, or the label is not shown; test. (F-48)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "In notes, \"On this page\" ignores headings and \"Reading along\" shows nothing beside the note.",
-  "reportedAt": "2026-10-29T16:00:41.889Z",
-  "board": {
-   "row": "v4 B-528: In notes, \"On this page\" ignores headings and \"Reading along\" shows…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:00:46.163Z"
-  }
- },
- {
-  "id": "B-529",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): E.V.'s answers in Record and elsewhere misstate the record (an approved change called pending, today's quiz and notes skipped).",
-  "dod": "Checked first on a one-user record (the probe shared one record between two testers); where real, E.V.'s record answers read the current state; test. (F-55, F-64)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "E.V.'s answers in Record and elsewhere misstate the record (an approved change called pending, today's quiz and notes skipped).",
-  "reportedAt": "2026-10-29T16:00:53.218Z",
-  "board": {
-   "row": "v4 B-529: E.V.'s answers in Record and elsewhere misstate the record (an…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:00:58.424Z"
-  }
- },
- {
-  "id": "B-530",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): A \"Studying\" pill and the E.V. window title stay after a session ends.",
-  "dod": "Checked first on a one-user record; where real, both clear when the session ends; test. (F-33, F-61)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "A \"Studying\" pill and the E.V. window title stay after a session ends.",
-  "reportedAt": "2026-10-29T16:01:03.933Z",
-  "board": {
-   "row": "v4 B-530: A \"Studying\" pill and the E.V. window title stay after a session"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:01:08.069Z"
-  }
- },
- {
-  "id": "B-533",
-  "kind": "request",
-  "title": "Request (reported Oct 29): Ask for changes as a field on the plan card instead of switching to the conversation.",
-  "dod": "The plan card has an Ask for changes field whose reply and See changes show in place; test; staging run. (F-16, F-17)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "Ask for changes as a field on the plan card instead of switching to the conversation.",
-  "reportedAt": "2026-10-29T16:01:28.089Z",
-  "board": {
-   "row": "v4 B-533: Ask for changes as a field on the plan card instead of switching to…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:01:31.826Z"
-  }
- },
- {
-  "id": "B-534",
-  "kind": "request",
-  "title": "Request (reported Oct 29): Start buttons on the tasks E.V. names in its answers.",
-  "dod": "When E.V. names a task in a reply it carries a Start or Open chip; test. (F-57)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "Start buttons on the tasks E.V. names in its answers.",
-  "reportedAt": "2026-10-29T16:01:35.659Z",
-  "board": {
-   "row": "v4 B-534: Start buttons on the tasks E.V. names in its"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:01:39.523Z"
-  }
- },
- {
-  "id": "B-535",
-  "kind": "request",
-  "title": "Request (reported Oct 29): A web address per view and arrow keys between views, so Back works.",
-  "dod": "Each view has its own address and Back moves between views; Up/Down move between sidebar tabs; test. (F-04, F-66)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Needs a v5 check (playtest 2026-11-04): an open note in v5 has no address of its own, so reload or Back returns to the Notes list. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "UX map probe (D-369), Oct 29",
-  "words": "A web address per view and arrow keys between views, so Back works.",
-  "reportedAt": "2026-10-29T16:01:43.267Z",
-  "board": {
-   "row": "v4 B-535: A web address per view and arrow keys between views, so Back"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T16:01:48.154Z"
-  }
- },
- {
-  "id": "B-536",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): quiz_me's collection enum is empty when no collection is picked, which could fail the whole chat call; two add-to-deck folds in the same second could reuse card ids; a deck past its size limit is refused with a plain error.",
-  "dod": "quiz_me omits the tool or the enum when nothing is picked; new card ids can't collide within a second; a deck near its size limit says so plainly; tests.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "release review of aa177a1",
-  "words": "Release review of aa177a1 backlog: 'give me the drug card for X' starts a flashcards job; quiz_me's course enum is empty once no course is active, which could fail the whole chat call; two add-to-deck folds in the same second could reuse card ids; a deck past 256 KiB is refused with a plain error.",
-  "reportedAt": "2026-10-29T19:26:43.134Z",
-  "board": {
-   "row": "v4 B-536: Release review of aa177a1 backlog: 'give me the drug card for X'…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T19:26:46.471Z"
-  }
- },
- {
-  "id": "B-537",
-  "kind": "bug",
-  "title": "Bug (reported Oct 29): Staging e2e oddities: E.V. tells him to tap 'Make a new plan' (the button is Remake); a mini quiz re-serves its 3 answered questions and its teaser shows a question it never asks; a task's Open lands on the overview, not its set, and the set isn't listed under Practice sets; the import preview lists repeat terms it says it leaves out; Pick an objective offers every objective unfiltered.",
-  "dod": "Each listed oddity fixed or split into its own task; tests where behaviour changes.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UX probe fixes).",
-  "commit": null,
-  "source": "staging e2e of aa177a1",
-  "words": "Staging e2e oddities (aa177a1): E.V. tells him to tap 'Make a new plan' (the button is Remake); the BIO mini quiz re-serves its 3 answered questions and its teaser shows a question it never asks; a pediatric dosing task's Open lands on the Study overview, not its set, and the set isn't listed under Practice sets; at 390 the last quiz card stays pinned above the composer over the newest reply; the import preview lists repeat terms it says it leaves out; Pick an objective offers every course objective unfiltered.",
-  "reportedAt": "2026-10-29T20:05:20.455Z",
-  "board": {
-   "row": "v4 B-537: Staging e2e oddities (aa177a1): E.V. tells him to tap 'Make a new…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-29T20:05:23.686Z"
-  }
- },
- {
-  "id": "B-583",
-  "kind": "bug",
-  "title": "Bug (reported Oct 30): In a draft plan's ⋯, Put away is hidden for his own exams (!ex.own); the old draft row always offered it.",
-  "dod": "Fixed and seen on staging.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "release review f24fcc5",
-  "words": "In a draft plan's ⋯, Put away is hidden for his own exams (!ex.own); the old draft row always offered it.",
-  "reportedAt": "2026-10-30T11:33:59.841Z",
-  "board": {
-   "row": "v4 B-583: In a draft plan's ⋯, Put away is hidden for his own exams (!ex.own);…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T11:34:14.283Z"
-  }
- },
- {
-  "id": "B-584",
-  "kind": "bug",
-  "title": "Bug (reported Oct 30): Only the latest tick carries Undo; ticking a second row replaces the first one's Undo.",
-  "dod": "Fixed and seen on staging.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "release review f24fcc5",
-  "words": "Only the latest tick carries Undo; ticking a second row replaces the first one's Undo.",
-  "reportedAt": "2026-10-30T11:34:03.196Z",
-  "board": {
-   "row": "v4 B-584: Only the latest tick carries Undo; ticking a second row replaces the…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T11:34:17.532Z"
-  }
- },
- {
-  "id": "B-587",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Conversation lacks the reference's suggestion chips under the input, and Study's Coming up uses bullets instead of a plain dated list.",
-  "dod": "Matches the reference at 1280 and 390 on staging.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "UI review, release card 2",
-  "words": "Conversation lacks the reference's suggestion chips under the input, and Study's Coming up uses bullets instead of a plain dated list.",
-  "reportedAt": "2026-10-30T13:22:28.188Z",
-  "board": {
-   "row": "v4 B-587: Conversation lacks the reference's suggestion chips under the input,…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T13:22:40.425Z"
-  }
- },
- {
-  "id": "B-590",
-  "kind": "request",
-  "title": "Request (reported Oct 30): At 1280 Today's rows stretch very wide, with each title far from its minutes, and a short list leaves a large empty area.",
-  "dod": "Matches the reference at 1280 and 390 on staging.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "UI review, release card 2",
-  "words": "At 1280 Today's rows stretch very wide, with each title far from its minutes, and a short list leaves a large empty area.",
-  "reportedAt": "2026-10-30T13:22:37.083Z",
-  "board": {
-   "row": "v4 B-590: At 1280 Today's rows stretch very wide, with each title far from its…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T13:22:49.481Z"
-  }
- },
- {
-  "id": "B-597",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Change the kind badge on an existing item (including ones E.V. assigned) from a Picker on the row; a plan remake or Canvas run may overwrite it.",
-  "dod": "From any item's row a Picker changes its kind; seen on staging.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-596"
-  ],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Later).",
-  "commit": null,
-  "source": "Matt, build chat Oct 30",
-  "words": "Change the kind badge on an existing item (including ones E.V. assigned) from a Picker on the row; a plan remake or Canvas run may overwrite it.",
-  "reportedAt": "2026-10-30T16:51:31.108Z",
-  "board": {
-   "row": "v4 B-597: Change the kind badge on an existing item (including ones E.V.…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T16:51:35.638Z"
-  }
- },
- {
-  "id": "B-603",
-  "kind": "bug",
-  "title": "Bug (reported Oct 30): spec.ui.look.layout and spec.ui.look.theme still describe the retired dark top-bar look; no prompt reads them yet, but they are stale truth in the spec.",
-  "dod": "The layout and theme rules describe the current L-frame, sidebar and neutral themes (or are retired with their readers), and a test fails on the old top-bar words.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "B-602 builder",
-  "words": "spec.ui.look.layout and spec.ui.look.theme still describe the retired dark top-bar look; no prompt reads them yet, but they are stale truth in the spec.",
-  "reportedAt": "2026-10-30T19:12:27.849Z",
-  "board": {
-   "row": "v4 B-603: spec.ui.look.layout and spec.ui.look.theme still describe the retired…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T19:12:33.679Z"
-  }
- },
- {
-  "id": "B-605",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Design a dedicated, stripped-down phone layout (Linear-mobile style) with only the basics he uses on the go, after the consolidation.",
-  "dod": "A design round for a phone-only layout with the basics Matt picks, approved by him, then built; until then the phone is frozen under D-407.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Later).",
-  "commit": null,
-  "source": "Matt, build chat Oct 30",
-  "words": "Design a dedicated, stripped-down phone layout (Linear-mobile style) with only the basics he uses on the go, after the consolidation.",
-  "reportedAt": "2026-10-30T19:45:37.596Z",
-  "board": {
-   "row": "v4 B-605: Design a dedicated, stripped-down phone layout (Linear-mobile style)…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T19:46:01.410Z"
-  }
- },
- {
-  "id": "B-608",
-  "kind": "request",
-  "title": "Request (reported Oct 30): When E.V. creates a plan task, flashcard deck or note, it also records which existing objective or topic it is about (no new UI), so concept-level tracking for D-404 has linked data from now on.",
-  "dod": "Plan tasks, decks and notes E.V. creates carry an objective or topic reference from the existing objectives or weak-spot topics; nothing visible changes; a test covers each creator.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-415"
-  ],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone Later).",
-  "commit": null,
-  "source": "Matt, build chat Oct 30",
-  "words": "When E.V. creates a plan task, flashcard deck or note, it also records which existing objective or topic it is about (no new UI), so concept-level tracking for D-404 has linked data from now on.",
-  "reportedAt": "2026-10-30T21:42:59.594Z",
-  "board": {
-   "row": "v4 B-608: When E.V. creates a plan task, flashcard deck or note, it also…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-30T21:43:02.517Z"
-  }
- },
- {
-  "id": "B-614",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Data vocabulary: one source (spec) for kinds, statuses and fields; the JSON schemas, core LIST_KINDS, DS.kind and the page's pickers are generated or checked from it, so two lists can never drift (the Learn-can't-save bug).",
-  "dod": "One vocabulary in spec; schemas, LIST_KINDS, DS.kind and pickers generated or tested from it; a test fails when any list differs.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [],
-  "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "workflow gaps, Matt Oct 30",
-  "words": "Data vocabulary: one source (spec) for kinds, statuses and fields; the JSON schemas, core LIST_KINDS, DS.kind and the page's pickers are generated or checked from it, so two lists can never drift (the Learn-can't-save bug).",
-  "reportedAt": "2026-10-31T01:04:36.524Z",
-  "board": {
-   "row": "v4 B-614: Data vocabulary: one source (spec) for kinds, statuses and fields;…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:04:58.074Z"
-  },
-  "waitingOn": "owner"
- },
- {
-  "id": "B-615",
-  "kind": "request",
-  "title": "Request (reported Oct 30): One write path: a single core module through which every feature reads and writes the record, with schema validation, undo and history built in; existing writers move onto it; it is what Undo everywhere (B-584) and the trash (B-422) build on.",
-  "dod": "Every record write goes through one core module with validation, undo and history; no feature writes the record directly (a test greps for it).",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-614"
-  ],
-  "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "workflow gaps, Matt Oct 30",
-  "words": "One write path: a single core module through which every feature reads and writes the record, with schema validation, undo and history built in; existing writers move onto it; it is what Undo everywhere (B-584) and the trash (B-422) build on.",
-  "reportedAt": "2026-10-31T01:04:39.087Z",
-  "board": {
-   "row": "v4 B-615: One write path: a single core module through which every feature…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:05:00.423Z"
-  },
-  "waitingOn": "owner"
  },
  {
   "id": "B-616",
@@ -919,7 +153,7 @@
   "title": "Request (reported Oct 30): Behaviour kit in Proprietary: shared behaviours for confirm or undo, optimistic save, loading, empty and error states, keyboard and closing a window, as block behaviours every view uses (drag closing New task and Undo only on the latest tick were this).",
   "dod": "Proprietary holds the shared behaviours (undo, optimistic save, loading, empty, error, keyboard, close) and the views use them; the Gallery shows each.",
   "milestone": "after-cutover",
-  "status": "blocked",
+  "status": "declined",
   "depends": [],
   "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
   "commit": null,
@@ -930,207 +164,9 @@
    "row": "v4 B-616: Behaviour kit in Proprietary: shared behaviours for confirm or undo,…"
   },
   "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:05:02.763Z"
-  },
-  "waitingOn": "owner"
- },
- {
-  "id": "B-617",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Jobs kit: one way to define a model job, with framing from the chosen material, grounding, counts and length limits handled by the kit",
-  "dod": "Every model job is defined through the jobs kit; framing from the chosen material, grounding and counts are the kit's, with one test per rule.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-614"
-  ],
-  "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "workflow gaps, Matt Oct 30",
-  "words": "Jobs kit: one way to define a model job, with course framing, grounding, counts and length limits handled by the kit, not each job (NCLEX in BIO notes and the 101-card deck were this).",
-  "reportedAt": "2026-10-31T01:04:43.908Z",
-  "board": {
-   "row": "v4 B-617: Jobs kit: one way to define a model job, with course framing,…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:05:05.180Z"
-  },
-  "waitingOn": "owner"
- },
- {
-  "id": "B-618",
-  "kind": "request",
-  "title": "Request (reported Oct 30): State-aware style diff: the computed-style and pixel diffs also open hover, focus, read-only, folded and dark states, so style changes can't break states nobody looks at (Oct 30's three late breaks).",
-  "dod": "csdiff and pixdiff open hover, focus, read-only, folded and dark states; a strip that breaks one of them fails the diff.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [],
-  "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "workflow gaps, Matt Oct 30",
-  "words": "State-aware style diff: the computed-style and pixel diffs also open hover, focus, read-only, folded and dark states, so style changes can't break states nobody looks at (Oct 30's three late breaks).",
-  "reportedAt": "2026-10-31T01:04:46.351Z",
-  "board": {
-   "row": "v4 B-618: State-aware style diff: the computed-style and pixel diffs also open…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:05:07.549Z"
-  },
-  "waitingOn": "owner"
- },
- {
-  "id": "B-619",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Add-a-feature recipe skill: the checklist a small feature follows (vocabulary entry, write path, Worker route, page module, Proprietary block and behaviour, jobs kit if it calls a model, one harness check, the Gallery), kept true by the skills drift test.",
-  "dod": "A skill (ev-add-feature) lists every touch point, uses the kits above, and the skills drift test keeps it true.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [
-   "B-615",
-   "B-616",
-   "B-617"
-  ],
-  "notes": "Paused by Matt (Oct 30) to save usage for bugs and tweaks while he trials the skill-based workflow; he resumes it. ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "workflow gaps, Matt Oct 30",
-  "words": "Add-a-feature recipe skill: the checklist a small feature follows (vocabulary entry, write path, Worker route, page module, Proprietary block and behaviour, jobs kit if it calls a model, one harness check, the Gallery), kept true by the skills drift test.",
-  "reportedAt": "2026-10-31T01:04:48.761Z",
-  "board": {
-   "row": "v4 B-619: Add-a-feature recipe skill: the checklist a small feature follows…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:05:09.852Z"
-  },
-  "waitingOn": "owner"
- },
- {
-  "id": "B-620",
-  "kind": "request",
-  "title": "Request (reported Oct 30): Sweep the remaining pre-Proprietary tenets under D-411: recheck D-124, D-126, D-129, D-327, D-243, D-200, D-201, D-185 and D-190 against Proprietary, D-366, D-367 and D-407; supersede what conflicts and fix or retire their checks.",
-  "dod": "Each listed decision is kept, restated or superseded with a reason; every check that pinned a superseded one is fixed or retired; skills-drift green.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone workflow (ops)).",
-  "commit": null,
-  "source": "cold-start dry run, Oct 31",
-  "words": "Sweep the remaining pre-Proprietary tenets under D-411: recheck D-124, D-126, D-129, D-327, D-243, D-200, D-201, D-185 and D-190 against Proprietary, D-366, D-367 and D-407; supersede what conflicts and fix or retire their checks.",
-  "reportedAt": "2026-10-31T01:38:58.770Z",
-  "board": {
-   "row": "v4 B-620: Sweep the remaining pre-Proprietary tenets under D-411: recheck…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T01:39:05.401Z"
-  }
- },
- {
-  "id": "B-622",
-  "kind": "request",
-  "title": "Request (reported Oct 30): UI review of the cleanup release (88/100): Picker chips hint what each sets, distinct hues for Learn vs Reading and Practice vs Study, a calmer long note title (H1 size or line-height), a neutral disabled Add task button, and an H3 plus a graded task in the synthetic record.",
-  "dod": "Each of the five is done or declined with a reason; shots at 1280.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "ev4-era, reviewed 2026-11-04: deferred to after cutover (was milestone UI polish).",
-  "commit": null,
-  "source": "release UI review, Oct 31",
-  "words": "UI review of the cleanup release (88/100): Picker chips hint what each sets, distinct hues for Learn vs Reading and Practice vs Study, a calmer long note title (H1 size or line-height), a neutral disabled Add task button, and an H3 plus a graded task in the synthetic record.",
-  "reportedAt": "2026-10-31T02:58:50.567Z",
-  "board": {
-   "row": "v4 B-622: UI review of the cleanup release (88/100): Picker chips hint what…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T02:58:53.065Z"
-  }
- },
- {
-  "id": "B-637",
-  "kind": "request",
-  "title": "Request (reported Oct 31): Stream practice and plan answers from the Worker to the page (TransformStream SSE pass-through, usage counted as it flows, bridge reads SSE) so nothing sits silent and the page can show progress; today the Worker buffers the whole stream before answering",
-  "dod": "A streamed ask reaches the page as it is written (SSE through the Worker and bridge), usage counted once, a cut-off detected; a test; one real practice ask on staging shows progress.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Was Release review follow-ups (v4). v5: practice and plan are Workflow jobs with a status line; Ask E.V.'s chat route still answers whole, so streaming its reply is the part left. Not needed for cutover.",
-  "commit": null,
-  "source": "B-624 spike Oct 31",
-  "words": "Stream practice and plan answers from the Worker to the page (TransformStream SSE pass-through, usage counted as it flows, bridge reads SSE) so nothing sits silent and the page can show progress; today the Worker buffers the whole stream before answering",
-  "reportedAt": "2026-10-31T09:37:52.155Z",
-  "board": {
-   "row": "v4 B-637: Stream practice and plan answers from the Worker to the page…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T09:57:02.781Z"
-  }
- },
- {
-  "id": "B-656",
-  "kind": "request",
-  "title": "Request (reported Oct 31): B-653 review backlog: images GET returns 500 on a malformed % key (should be 400); add nosniff to image reads; a picture inserted while typing during the upload lands at the old position; a tampered img block falls back to an empty paragraph; upload reads the whole body before the 8 MB check",
-  "dod": "Each listed B-653 review item is fixed or declined with a reason",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Was Notes images (v4). v5's picture routes already send nosniff and check the size before reading. Left to check in v5: a picture pasted while typing during the upload, and a broken picture block. Not needed for cutover.",
-  "commit": null,
-  "source": "B-653 release review",
-  "words": "B-653 review backlog: images GET returns 500 on a malformed % key (should be 400); add nosniff to image reads; a picture inserted while typing during the upload lands at the old position; a tampered img block falls back to an empty paragraph; upload reads the whole body before the 8 MB check",
-  "reportedAt": "2026-10-31T23:35:47.638Z",
-  "board": {
-   "row": "v4 B-656: B-653 review backlog: images GET returns 500 on a malformed % key…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-10-31T23:50:02.530Z"
-  }
- },
- {
-  "id": "B-657",
-  "kind": "request",
-  "title": "Request (reported Oct 31): B-654 review backlog: canonical() ignores data-col so a column change may skip a repaint; tidy() indexes cols without a col check; a picture dropped onto a block already in a row goes to the column top, not beside the line; no keyboard way or hint to make or undo a row; deleting a selection across both columns collapses the layout into one column (no text lost)",
-  "dod": "Each listed B-654 review item is fixed or declined with a reason",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Was Notes images (v4). v5's editor keeps a two-column row (areas/notes/parts/editorSchema.ts). Left to check in v5: a keyboard way to make or undo a row, and a delete across both columns. Not needed for cutover.",
-  "commit": null,
-  "source": "B-654 release review",
-  "words": "B-654 review backlog: canonical() ignores data-col so a column change may skip a repaint; tidy() indexes cols without a col check; a picture dropped onto a block already in a row goes to the column top, not beside the line; no keyboard way or hint to make or undo a row; deleting a selection across both columns collapses the layout into one column (no text lost)",
-  "reportedAt": "2026-11-01T00:12:13.949Z",
-  "board": {
-   "row": "v4 B-657: B-654 review backlog: canonical() ignores data-col so a column change…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-11-01T00:31:55.283Z"
-  }
- },
- {
-  "id": "B-670",
-  "kind": "request",
-  "title": "Request (reported Nov 1): Other fixed dates in the harness seed (for example the journal entry at 2026-10-01) can fall behind the synthetic record's dates relative to today, as B-661's long note did; date them relative to today too.",
-  "dod": "No harness seed record carries a fixed calendar date that the synthetic record's today-relative dates can pass; the harness passes on any run date (a test runs it with a date a month ahead).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Was Ops (v4 harness). v5's staging seed (data/staging/seed.sql) also has fixed dates (2026-11-01); check that no journey needs them in the future. Not needed for cutover.",
-  "commit": null,
-  "source": "B-661 builder, Nov 1",
-  "words": "Other fixed dates in the harness seed (for example the journal entry at 2026-10-01) can fall behind the synthetic record's dates relative to today, as B-661's long note did; date them relative to today too.",
-  "reportedAt": "2026-11-02T00:41:22.570Z",
-  "board": {
-   "row": "v4 B-670: Other fixed dates in the harness seed (for example the journal entry…"
-  },
-  "triage": {
-   "outcome": "task",
-   "at": "2026-11-02T00:41:31.172Z"
+   "outcome": "declined",
+   "reason": "Deleted in D-512; kept as a declined row because ev4's frozen history links to it.",
+   "at": "2026-11-06T13:09:41.099Z"
   }
  },
  {
@@ -2194,20 +1230,6 @@
   "source": "AGENTS.md §4.3"
  },
  {
-  "id": "B-755",
-  "kind": "task",
-  "title": "S-81: Optional Canvas import from the Mac (needs Matt present)",
-  "dod": "The Canvas sync runs on the Mac in small read-only parts, follows pagination past 100 items, and reports through report_job over the executor token (CONTRACT §job.executors, §data.canvas)",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [
-   "B-753"
-  ],
-  "notes": "2026-11-05: off the cutover list (build-order decision of 21:46Z); an optional import after cutover. Gate 6 no longer waits on it.",
-  "commit": null,
-  "source": "AGENTS.md §4.3"
- },
- {
   "id": "B-756",
   "kind": "task",
   "title": "S-82: The push task (C7)",
@@ -2283,7 +1305,7 @@
    "B-757",
    "B-759"
   ],
-  "notes": "2026-11-05: B-755 (Canvas) left the gate; it is an optional import after cutover.",
+  "notes": "2026-11-05: B-755 (Canvas) left the gate. 2026-11-06: the Canvas import is a feature idea in Matt's list (D-512).",
   "commit": null,
   "source": "AGENTS.md §4.3"
  },
@@ -5003,22 +4025,6 @@
   "reportedAt": "2026-11-05T13:40:11.556Z"
  },
  {
-  "id": "B-965",
-  "kind": "request",
-  "title": "Decide with Matt: how a note shows and sets line styles, links and pictures (lead proposal: a line style indicator beside the active line)",
-  "dod": "Matt has chosen one: (1) lead proposal, a line style indicator in the note page's right margin, as in his Quip screenshots of 2026-11-05 13:47Z, showing the active line's block style (H1, H2, H3, paragraph, list) and opening a kit Menu of styles with each key beside it on click; a new kit part with its story first (§ui.kit-leads); it may replace B-963's separate hint; (2) a formatting toolbar; (3) a menu on selected text; (4) neither. He also says whether links and pictures get a control (ev4's note editor has a toolbar with link and image). The choice is a Chart decision; build tasks are filed from it.",
-  "milestone": "after-cutover",
-  "status": "blocked",
-  "depends": [],
-  "notes": "Matt's decision. Do not build without his word. Not before cutover. Matt 2026-11-05 13:47Z: 'Okay I'm actually not opposed to the no toolbar choice', and proposed the Quip-like line style indicator.",
-  "commit": null,
-  "source": "Matt in the ev-build channel 2026-11-05 13:37Z (screenshot of an empty Untitled note)",
-  "words": "Besides the delay fix, I find working in an actual note in the notes view a little underwhelming. There are no formatting options and the two buttons at the top right \"Make cards\" and \"Start session\" feel a little redundant. I dont know if there are any formatting shortcuts or what. and I'm not insisting on features now or by any point",
-  "reportedAt": "2026-11-05T13:40:11.713Z",
-  "waitingOn": "owner",
-  "waitingWhere": "decision"
- },
- {
   "id": "B-966",
   "kind": "task",
   "title": "The kit has a status dot, a meter and underline tabs, and exports its segmented choice",
@@ -6207,90 +5213,6 @@
   "source": "Matt, ev-build channel 2026-11-05 21:46Z"
  },
  {
-  "id": "B-1052",
-  "kind": "task",
-  "title": "Pick what counts toward a goal, and accept E.V. suggestions",
-  "dod": "A picker adds material to a goal by pick or bulk-add, and E.V.'s suggestions wait in drafts until accepted; each adds link rows (D-490).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): D-509: the picker's link rows include weak spot to goal.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1053",
-  "kind": "task",
-  "title": "Link a note to another note",
-  "dod": "A note can link to another note by its id; the link survives a rename and shows where it points (§data.links).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1054",
-  "kind": "task",
-  "title": "Sources: add PDFs, slides and web pages, and quote them by page",
-  "dod": "A source file or page is stored under the files table, and E.V. and notes can quote it by page (§ev.cites).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1055",
-  "kind": "task",
-  "title": "New practice formats: label a picture, and steps checked one by one",
-  "dod": "Two new item formats, each one entry in the item formats, with its attempts in the one attempts table.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1056",
-  "kind": "task",
-  "title": "Audio: listen and answer aloud",
-  "dod": "Notes can be read aloud and answers given by voice; attempts record that they were spoken.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1057",
-  "kind": "task",
-  "title": "Rate confidence before answering",
-  "dod": "An optional confidence rating before an answer, one scale for answers and plan ratings, stored on the attempts row.",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
-  "id": "B-1058",
-  "kind": "task",
-  "title": "Pages reflow at 200% zoom",
-  "dod": "Every screen reads and works at 200% browser zoom with no sideways scroll (§ui.access).",
-  "milestone": "after-cutover",
-  "status": "open",
-  "depends": [],
-  "notes": "Filed from the shape-fixes review and the learner tester probe, 2026-11-05.",
-  "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
- },
- {
   "id": "B-1059",
   "kind": "task",
   "title": "The e2e journeys create their data through commands, not hand-written ev4 documents",
@@ -6319,14 +5241,14 @@
  {
   "id": "B-1061",
   "kind": "task",
-  "title": "Triage the ev4-era tasks: keep, merge or drop",
-  "dod": "Each open or blocked after-cutover task from the ev4 era (B-69 to B-670) is kept and reworded for v5 when it is a general need, merged into a v5 task that covers it, or declined with a reason when it names an ev4 path (tools/, core/, pwa/, page/, spec.), asks for a subject-specific feature, or assumes a school shape (course, unit, exam as the only goal); one decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
+  "title": "Name the done tasks the table design superseded",
+  "dod": "One decision names the done tasks whose work was ev4 document code under a new name (B-715 to B-722, B-728, B-729, B-751, B-778, B-782, B-834) as superseded by the table design, so the Chart does not overstate readiness (§drift.record). Chart only.",
   "milestone": "Phase 6",
   "status": "open",
   "depends": [
    "B-1035"
   ],
-  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28. Scope audit 2026-11-06: C16 and B23 done in the scope sweep: B-445 and B-484 declined (subject features), B-486 merged into B-1004, B-699 ended for v5; B-71, B-266, B-443, B-444, B-523, B-536, B-537, B-608 and B-617 reworded. The spec.* paths in B-69, B-70, B-423, B-492, B-603, B-614 and B-170's weeks documents are still to triage.",
+  "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T27 and T28. The open ev4-era after-cutover tasks were deleted in D-512 (2026-11-06); the superseded decision is what is left.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },

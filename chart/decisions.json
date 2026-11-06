@@ -1,5 +1,17 @@
 [
  {
+  "id": "D-512",
+  "date": "Nov 6",
+  "title": "Feature ideas live in Matt's feature list outside the repo; the 61 after-cutover tasks are deleted",
+  "why": "Matt, ev-build channel 2026-11-06. A feature idea is not a task: feature ideas live in Matt's feature list outside the repo, at most five, each with the two feature questions, a harder check, a mock-up and an audit of the code it touches before it may become a task. A feature enters the repo only on Matt's yes, as a task, a decision and a mock-up update together (AGENTS.md §5); docs/parked.md holds findings only. Matt asked to delete the 61 open after-cutover tasks that D-480 and D-487 moved there, in one sweep. Feature ideas, moved to Matt's list (24): B-69, B-70, B-71, B-170, B-304, B-307, B-323, B-413, B-417, B-443, B-444, B-533, B-534, B-605, B-608, B-637, B-755, B-965, B-1052, B-1053, B-1054, B-1055, B-1056, B-1057. ev4-era bugs, tooling and design work whose code or design v5 replaced; the B-1051 playtest catches anything still real (36): B-266, B-268, B-310, B-415, B-422, B-423, B-436, B-451, B-457, B-468, B-492, B-515, B-523, B-528, B-529, B-530, B-535, B-536, B-537, B-583, B-584, B-587, B-590, B-597, B-603, B-614, B-615, B-616, B-617, B-618, B-619, B-620, B-622, B-656, B-657, B-670. B-1058 (pages reflow at 200% zoom) is a fix, kept as a line in docs/parked.md. B-268, B-310, B-443, B-515 and B-616 stay as declined rows only because ev4's frozen history links to them.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-480"
+  ],
+  "source": "Matt, ev-build channel 2026-11-06"
+ },
+ {
   "id": "D-511",
   "date": "Nov 6",
   "title": "Progress has no Minutes section; it follows the mock-up",

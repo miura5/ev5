@@ -1,7 +1,6 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
-## Running    nothing. (Node 22 sandbox: CI is the proof.) Run 2026-11-06 12:16 to 13:00 merged #634 (B-973), #635 (B-1038 part), #636 (B-942), #637 (B-1012 core); staging green after each, not tried in a browser.
+## Running    nothing. (Node 22 sandbox: CI is the proof.)
 NOTE: B-1049 grading is untried on staging with a real model call. Fix live.yml's D1 lookup before the live database is made (B-823 notes).
-Post-sweep fix sweep 2026-11-06 (#624 to #632): every audit finding is in its task's notes or docs/parked.md; decisions D-506 to D-511.
 Staging rebuilt from empty and seeded through commands (B-1009 done); Gate 5 passes 16 of 16 on it.
 ## Waiting on Matt   nothing
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). On rewrite keep groups and order: drop done tasks, put new ones in their group. Work groups in order.
@@ -21,5 +20,5 @@ Small ev4-trace cleanups (group 4): B-1059 (after B-1009), B-1060 (kit stories a
 (6) Gate 6 B-760.
 (7) B-1051: review, then fix bugs, repeated until Matt says the app is right. Only then Phase 7 (B-825, review, UX pass, release card).
 Then leftovers, only in folders the current group does not write: B-980, B-982 to B-992, B-1015, B-1016, B-803 and B-808 (B-803 needs ANTHROPIC_API_KEY), Library practice session and Edit/Study hookups, weeklyreview.done, set.write_with_ev (501). Sweep thread (B-900 to B-906) files its own Chart edits.
-Not in this order: feature ideas, which live in Matt's feature list outside the repo (D-NEW).
+Not in this order: feature ideas, which live in Matt's feature list outside the repo (D-512).
 ## Staging    ev5-staging, deploys on push to main; rebuilt from empty 2026-11-06 (run the staging workflow with rebuild=true to do it again). The shell shows a token screen first (paste once; stored as localStorage `ev5.token`). To try: Today, Library (Dates tab: pick a date's Kind; Plan with E.V. on the exam), Activity, the theme button at the sidebar foot.   ## Live  ev4 build (unchanged)
