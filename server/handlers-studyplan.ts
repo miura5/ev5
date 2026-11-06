@@ -16,7 +16,7 @@ import { kindOffers } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { startEnv } from "./job-routes.ts";
-import { examDoc } from "./goal-wire.ts";
+import { goalDoc } from "./goal-wire.ts";
 import { examsOfPlans } from "./plan-context.ts";
 
 const def = studyPlanJob as JobDef;
@@ -61,7 +61,7 @@ async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
 export const studyPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
-    const exam = await examDoc(x.db as never, x.clock, i.id);
+    const exam = await goalDoc(x.db as never, x.clock, i.id);
     if (!exam) throw new CommandError(404, `no date ${i.id}`);
     const d = exam.data as { title?: unknown; kind?: unknown };
     if (typeof d.kind !== "string" || !kindOffers(d.kind, "prep-plan"))

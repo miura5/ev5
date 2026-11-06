@@ -2,7 +2,7 @@
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { tablesRepo } from "../data/index.ts";
 import { centralDate, sessionDocId } from "../domain/index.ts";
-import { examDoc } from "./goal-wire.ts";
+import { goalDoc } from "./goal-wire.ts";
 import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
 import { examsOfPlans } from "./plan-context.ts";
@@ -33,7 +33,7 @@ async function goalTitles(
   const byExam = new Map<string, string | undefined>();
   for (const [job, goalId] of examOf) {
     if (!byExam.has(goalId)) {
-      const d = await examDoc(db as never, () => Date.now(), goalId).catch(
+      const d = await goalDoc(db as never, () => Date.now(), goalId).catch(
         () => undefined,
       );
       const t = (d?.data as { title?: unknown } | undefined)?.title;
