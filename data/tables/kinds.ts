@@ -5,6 +5,7 @@
 import {
   parseAttemptRow,
   parseCollectionRow,
+  parseFileRow,
   parseGoalRow,
   parseLinkRow,
   parseNoteTableRow,
@@ -263,23 +264,11 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
       ),
     ),
     setItemVersions: a(
-      kind(
-        "set_item_versions",
-        parseSetItemVersionRow,
-        ["body"],
-        "item_id, item_v",
-        true,
-      ),
+      kind("set_item_versions", parseSetItemVersionRow, ["body"], "item_id, item_v", true),
     ),
     weakSpots: t(kind("weak_spots", parseWeakSpotTableRow)),
     weakSpotEvents: a(
-      kind(
-        "weak_spot_events",
-        parseWeakSpotEventRow,
-        [],
-        "weak_spot_id, at, id",
-        true,
-      ),
+      kind("weak_spot_events", parseWeakSpotEventRow, [], "weak_spot_id, at, id", true),
     ),
     attempts: a(kind("attempts", parseAttemptRow, ["answer"], "at, id", true)),
     sessions: t(kind("sessions", parseSessionTableRow, ["driver"])),
@@ -295,6 +284,7 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
     plans: t(kind("plans", parsePlanTableRow, [], "from_day, id")),
     planItems: t(kind("plan_items", parsePlanItemTableRow, [], "day, pos, id")),
     repeats: t(kind("repeats", parseRepeatRow, ["rule"], "from_day, id")),
+    files: t(kind("files", parseFileRow)),
     talk: a(kind("talk", parseTalkRow, ["cites"], "chat_id, at, id", true)),
   };
 }

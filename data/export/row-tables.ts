@@ -197,6 +197,23 @@ export const ROW_TABLES: RowTable[] = [
   ),
   t("session_events", ["id", "session_id", "type", "body", "at", "v"], ["id"]),
   t(
+    "files",
+    [
+      "id",
+      "kind",
+      "type",
+      "size",
+      "sha256",
+      "r2_key",
+      "owner_kind",
+      "owner_id",
+      "at",
+      "v",
+      "deleted_at",
+    ],
+    ["id"],
+  ),
+  t(
     "talk",
     [
       "id",

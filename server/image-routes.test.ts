@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { DatabaseSync } from "node:sqlite";
+import { readFileSync } from "node:fs";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
 
-function setup() {
+function setup(DB?: unknown) {
   const store = new Map<string, ArrayBuffer>();
   const IMAGES = {
     async put(
@@ -22,6 +24,7 @@ function setup() {
   };
   const env = {
     IMAGES,
+    DB,
     TOKEN_APP: "app-t",
     TOKEN_SCHEDULE: "sch-t",
   } as unknown as Env;
@@ -33,10 +36,12 @@ function setup() {
     );
 }
 const NAME = "abcdEFGH12345678.png";
+const PNG = (...rest: number[]) =>
+  new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, ...rest]);
 
 test("a picture round-trips with its type and nosniff", async () => {
   const call = setup();
-  const bytes = new Uint8Array([137, 80, 78, 71, 1, 2, 3]);
+  const bytes = PNG(1, 2, 3);
   const p = await call("PUT", NAME, bytes);
   assert.equal(p.status, 200);
   assert.deepEqual(await p.json(), { key: "note-images/" + NAME });
@@ -44,15 +49,16 @@ test("a picture round-trips with its type and nosniff", async () => {
   assert.equal(g.status, 200);
   assert.equal(g.headers.get("content-type"), "image/png");
   assert.equal(g.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(g.headers.get("content-security-policy"), "default-src 'none'");
   assert.deepEqual(new Uint8Array(await g.arrayBuffer()), bytes);
   assert.equal((await call("GET", "zzzzzzzzzzzzzzzz.png")).status, 404);
 });
 
 test("a second upload to the same key is refused and the first stays", async () => {
   const call = setup();
-  const first = new Uint8Array([137, 80, 78, 71, 1]);
+  const first = PNG(1);
   assert.equal((await call("PUT", NAME, first)).status, 200);
-  assert.equal((await call("PUT", NAME, new Uint8Array([9, 9]))).status, 409);
+  assert.equal((await call("PUT", NAME, PNG(9, 9))).status, 409);
   const g = await call("GET", NAME);
   assert.deepEqual(new Uint8Array(await g.arrayBuffer()), first);
 });
@@ -133,4 +139,94 @@ test("no picture route can write or overwrite a key under exports/", async () =>
     assert.ok(r.status >= 400);
   }
   assert.equal(store.size, 0);
+});
+
+test("the bytes' magic number must match the key's type", async () => {
+  const call = setup();
+  assert.equal(
+    (
+      await call(
+        "PUT",
+        NAME,
+        new Uint8Array([60, 115, 118, 103, 62, 1, 2, 3, 4]),
+      )
+    ).status,
+    415,
+  );
+  assert.equal((await call("PUT", "abcdEFGH12345678.jpg", PNG(1))).status, 415);
+  assert.equal(
+    (
+      await call(
+        "PUT",
+        "abcdEFGH12345678.jpg",
+        new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await call(
+        "PUT",
+        "abcdEFGH12345679.gif",
+        new TextEncoder().encode("GIF89a.."),
+      )
+    ).status,
+    200,
+  );
+  const webp = new Uint8Array([
+    ...new TextEncoder().encode("RIFF"),
+    1,
+    0,
+    0,
+    0,
+    ...new TextEncoder().encode("WEBPVP8 "),
+  ]);
+  assert.equal((await call("PUT", "abcdEFGH1234567A.webp", webp)).status, 200);
+  assert.equal(
+    (await call("GET", NAME)).status,
+    404,
+    "a refused picture is not stored",
+  );
+});
+
+test("a picture upload writes one files row with its size and SHA-256", async () => {
+  const sql = new DatabaseSync(":memory:");
+  sql.exec(
+    readFileSync(
+      new URL("../data/migrations/0018_files.sql", import.meta.url),
+      "utf8",
+    ),
+  );
+  const DB = {
+    prepare: (t: string) => {
+      let a: (string | number | null)[] = [];
+      const st = {
+        bind: (...v: (string | number | null)[]) => ((a = v), st),
+        first: async () => sql.prepare(t).get(...a) ?? null,
+        all: async () => ({ results: sql.prepare(t).all(...a) }),
+        run: async () => ({
+          meta: { changes: Number(sql.prepare(t).run(...a).changes) },
+        }),
+      };
+      return st;
+    },
+  };
+  const call = setup(DB);
+  const bytes = PNG(1, 2, 3);
+  assert.equal((await call("PUT", NAME, bytes)).status, 200);
+  assert.equal((await call("PUT", NAME, bytes)).status, 409);
+  const rows = sql.prepare("SELECT * FROM files").all() as Record<
+    string,
+    unknown
+  >[];
+  assert.equal(rows.length, 1);
+  const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("");
+  assert.equal(rows[0]!.sha256, sha);
+  assert.equal(rows[0]!.size, bytes.byteLength);
+  assert.equal(rows[0]!.type, "image/png");
+  assert.equal(rows[0]!.r2_key, "note-images/" + NAME);
+  assert.equal(rows[0]!.id, "file_abcdEFGH12345678");
 });
