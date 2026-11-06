@@ -2,7 +2,8 @@
 // there and always logged. An item is named `<set>/<item>`, or by its bare id when it is in one of Matt's own sets. An own
 // set's attempt is one append-only `attempts` row (data/tables/attempts.ts); an ev4 set's is a new `answers` document (its set is never touched).
 // Choice items are graded here; numeric items against their tolerance; a typed open answer is graded by the model
-// (jobs/grade, CONTRACT §model.output, §model.ceilings) and its score is kept with the answer.
+// (jobs/grade, CONTRACT §model.output, §model.ceilings) and its score is kept with the answer. Again or Good on an open
+// card is a self-rating (how "self", no score): only checked answers count toward accuracy.
 import { GRADE_MAX_ANSWER_CHARS } from "../jobs/index.ts";
 import {
   itemKey,
@@ -17,11 +18,10 @@ import { docsRepo, tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { eventKey, iso, put, rand } from "./handlers-edit.ts";
+import { entryOf, rowOf, type Entry, type Graded } from "./study-entry.ts";
 
 type Item = ReturnType<typeof parseSet>["items"][number];
 type Found = { own: boolean; set: string; item: Item };
-
-const ANSWER_TEXT_MAX = 600;
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
@@ -79,10 +79,7 @@ async function attempts(x: HandlerCtx, f: Found): Promise<number> {
 }
 
 /** The answer as indexes ("0" or "0,2"), or the number (and unit, if any) a number answer asks for. */
-function grade(
-  q: Item,
-  answer: string,
-): { correct?: boolean; score?: number; chosen?: number[]; value?: number } {
+function grade(q: Item, answer: string): Graded {
   const t = itemType(q);
   if (t === "open") return {};
   if (t === "numeric") {
@@ -103,45 +100,33 @@ function grade(
   return { chosen, ...scoreAnswer(q, chosen) };
 }
 
+/** A choice or number answer checked against its key; null when it names no option or number and a rating came instead. */
+function check(q: Item, answer: string, rated: boolean) {
+  try {
+    return grade(q, answer);
+  } catch (e) {
+    if (rated && e instanceof CommandError && e.status === 400) return null;
+    throw e;
+  }
+}
+
 async function record(
   x: HandlerCtx,
   f: Found,
-  how: "told" | { text: string; g: ReturnType<typeof grade> },
+  how: Entry,
   attemptId?: string,
 ) {
   const now = x.clock();
   if (f.own) {
     // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).
     const id = attemptId ?? `att_${x.newId().replace(/-/g, "")}`;
-    const text = how === "told" ? "" : how.text;
-    const g = how === "told" ? {} : how.g;
-    const typed = itemType(f.item) === "open";
     const r = await repo(x).attempts.record({
       id,
       item_id: f.item.id,
       set_id: f.set,
       session_id: null,
       source: "run",
-      how:
-        how === "told"
-          ? "told"
-          : typed
-            ? "typed"
-            : g.chosen
-              ? "chose"
-              : "typed",
-      answer:
-        how === "told"
-          ? null
-          : {
-              ...(g.chosen ? { chosen: g.chosen } : {}),
-              ...(g.value === undefined ? {} : { value: g.value }),
-              ...(text ? { text } : {}),
-            },
-      score:
-        how === "told"
-          ? null
-          : (g.score ?? (g.correct === undefined ? null : g.correct ? 1 : 0)),
+      ...rowOf(itemType(f.item) === "open", how),
       answered_at: now,
     });
     if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
@@ -149,19 +134,7 @@ async function record(
   }
   const key = eventKey(now, rand(x));
   const at = iso(now).slice(0, 19) + "Z";
-  const entry =
-    how === "told"
-      ? { outcome: "told", at }
-      : {
-          ...(how.g.correct === undefined ? {} : { correct: how.g.correct }),
-          ...(how.g.score === undefined ? {} : { score: how.g.score }),
-          at,
-          // An ev4 answer document keeps 600 characters of text; when the answer is longer it says so, with its length.
-          ...(how.text ? { text: how.text.slice(0, ANSWER_TEXT_MAX) } : {}),
-          ...(how.text.length > ANSWER_TEXT_MAX
-            ? { textCut: true, textLength: how.text.length }
-            : {}),
-        };
+  const entry = entryOf(how, at);
   await put(
     x,
     "answers",
@@ -220,16 +193,19 @@ export const studyHandlers: Record<string, CommandHandler> = {
     x,
   ) => {
     const f = await find(x, i.id);
-    // A self-rating (Again or Good) is his own judgment of a card: kept as the score, nothing graded.
-    if (i.rating) {
-      const g = { correct: i.rating === "good" };
-      const key = await record(x, f, { text: i.answer, g }, i.attempt);
-      return { id: i.id, key, correct: g.correct };
-    }
     const open = itemType(f.item) === "open";
+    // A choice or number answer is checked against its key; a rating sent with it never replaces the check.
+    const checked = open ? null : check(f.item, i.answer, !!i.rating);
+    // Again or Good with nothing to check (an open card, or a choice card answered in words) is his own judgment: kept
+    // as a self-rating, never a score, so it counts as studied but never toward accuracy (Matt's call A, 2026-11-06).
+    if (i.rating && !checked) {
+      const rating = { text: i.answer, rating: i.rating };
+      const key = await record(x, f, rating, i.attempt);
+      return { id: i.id, key, rating: i.rating };
+    }
     if (open && !i.answer.trim())
       throw new CommandError(400, "write an answer first");
-    let g = grade(f.item, i.answer);
+    let g = checked ?? grade(f.item, i.answer);
     let note: string | undefined;
     if (open) {
       if (i.answer.length > GRADE_MAX_ANSWER_CHARS)
