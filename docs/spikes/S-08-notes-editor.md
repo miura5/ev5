@@ -2,6 +2,8 @@
 
 **Status:** done (model level, headless). The code is on the branch `claude/spike-s-08-editor` (folder `spikes/s-08-editor/`). That branch is never merged. To run it: `npm ci && node --test test/ && node report.ts` in that folder, on Node 26.
 
+**Now:** ev4 byte parity ended with §data.own-db; the block format and the round trip stand (§data.notes). The byte-equal bar, ev4's key order on export and the U+200D rule below were for parity only.
+
 ## Question
 Can ProseMirror or Tiptap round-trip ev4's JSON note blocks with no loss? The test is blocks → editor doc → blocks, and the result must be deep-equal to the input. The cases cover every block type and mark in `spec/schemas/notes.schema.json`, the pure note model (`core/notes.mjs`, including the save allowlist `noteDoc` at lines 948–964), and the behaviours ev4's notes tests and harness check (`test/notes-editor.test.mjs`, `test/note-images.test.mjs`, `test/harness/notes.cjs`).
 
@@ -81,14 +83,14 @@ Can ProseMirror or Tiptap round-trip ev4's JSON note blocks with no loss? The te
 
 ## Lossy cases and their causes
 1. **Runs joined past ev4's 20,000-character cap** (`direct-raw`). ProseMirror merges neighbouring text with the same marks into one text node, so a 45,000-character run ev4 stored as 3 runs comes back as 1. That breaks the schema (`maxLength` 20000). *Fix:* re-split at the cap on export (`capRuns`).
-2. **Run key order** (`direct-raw`, deep-equal but not byte-equal). ProseMirror lists marks in schema rank order, so a run with a link plus another mark comes out as `{text, href, b}` instead of ev4's `{text, b, i, u, s, href}`. Because ev4 stores and compares `JSON.stringify`, this would change the stored bytes and backup hashes, and could trigger needless "(earlier)" copies through `sameWords`. *Fix:* rebuild the keys in ev4's order on export (`ev4Order`).
+2. **Run key order** (`direct-raw`, deep-equal but not byte-equal). ProseMirror lists marks in schema rank order, so a run with a link plus another mark comes out as `{text, href, b}` instead of ev4's `{text, b, i, u, s, href}`. Because ev4 stores and compares `JSON.stringify`, this would change the stored bytes and backup hashes, and could trigger needless "(earlier)" copies through `sameWords`. *Fix:* rebuild the keys in ev4's order on export (`ev4Order`). (Ended with byte parity.)
 3. **Nested lists can't hold ev4's indents** (`stock-tiptap`). ev4 lets an item sit more than one level deeper than the line before it: after a 0→3 jump, as the note's first line, or straight after a paragraph. A nested tree needs a parent item for each level, so empty items are invented: 2 blocks became 4, and 4,000 became 5,334. *Fix:* keep lists flat with an `indent` attribute, as the direct schema does. That means **not** using Tiptap's stock list extensions.
 4. **Loose documents fed in without ev4's normaliser** (13 of 15 differ, 5 throw). The ones that throw are a one-column row, a row with no `col`, a row split by another block, a picture with no key, and zero blocks. ProseMirror's own content rules (`column: block+`, the required `key`, `doc: …+`) refuse them. The rest change silently: runs merge, stray `checked` and `indent` drop, columns reorder. *Fix:* load through ev4's `noteBlocks` first. ev4 does the same, so the result then matches ev4 exactly (15 / 15).
 5. **A one-column row after an edit** (edit sample). ev4's rule is that a row with one column left goes full width. ProseMirror instead fills the empty column. *Fix:* a translated command, or an `appendTransaction`, that unwraps a row once a column is empty.
 
 Not lossy, but worth knowing:
-- ev4's `cleanText` removes U+200D, which breaks ZWJ emoji such as 👩‍⚕️ into two. v5 must keep that rule for byte parity.
-- Tiptap's stock `link` adds `target`, `rel` and `class` attributes, and add-ons such as unique block ids add more. The export must drop anything with no ev4 field, because ev4's block and run schemas are `additionalProperties: false` and ev4 drops unknown note fields when it saves (PLAN §5.2).
+- ev4's `cleanText` removes U+200D, which breaks ZWJ emoji such as 👩‍⚕️ into two. v5 needed that rule only for byte parity, which ended.
+- Tiptap's stock `link` adds `target`, `rel` and `class` attributes, and add-ons such as unique block ids add more. The export drops anything with no field in the note block format, because ev4's block and run schemas are `additionalProperties: false` and ev4 drops unknown note fields when it saves (PLAN §5.2).
 
 ## Licences (read from the installed `package.json` and `LICENSE` files, and from npm metadata, on 2026-11-02)
 | Package | Version | Licence |
@@ -113,8 +115,8 @@ Not lossy, but worth knowing:
 Why not Tiptap: its stock extensions are what make it worth having, and they don't fit. Its nested lists lose data (cause 3), it has no two-column row, and its image has no R2 `key`. So the schema has to be custom either way. Tiptap with a custom schema passes exactly like ProseMirror (63 / 63), so it remains viable if its command API or React bindings are wanted. But it adds about 25 packages and a fast release cadence for little gain.
 
 What must be translated from ev4:
-1. **`noteBlocks` on load and `noteDoc` on save.** Every block leaving the editor goes through ev4's normaliser and save allowlist. The envelope (title, course, label, `earlierOf`, `archivedAt`, `discardedAt`, `createdAt`) never enters the editor doc.
-2. **Two export rules:** re-split runs at 20,000 characters, and write keys in ev4's order.
+1. **`noteBlocks` on load and `noteDoc` on save.** Every block leaving the editor goes through ev4's normaliser and save allowlist. The envelope (title, collection, label, `earlierOf`, `archivedAt`, `discardedAt`, `createdAt`) never enters the editor doc.
+2. **Export rules:** re-split runs at 20,000 characters (writing keys in ev4's order ended with byte parity).
 3. **The schema shape:** flat list items with `indent` 0–6 (indents only on lists), `todo.checked`, `image{key,width,alt}` as an atom, rows as `row{id} > column × 2`, and only the five marks. Editor-only attributes or marks never reach storage.
 4. **Commands that carry ev4's rules:**
    - Enter makes an unticked todo (`typesAfter`), and Enter on an empty list item ends the list;
