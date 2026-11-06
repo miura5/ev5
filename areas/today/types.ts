@@ -1,6 +1,4 @@
 /** The shapes Today shows, restated here: areas never import data or jobs. */
-export type CourseTone = "ok" | "info" | "warn" | "bad";
-
 export interface PlanItem {
   id: string;
   title: string;
@@ -8,7 +6,6 @@ export interface PlanItem {
   /** "10m": the one value on the right. */
   est: string;
   done: boolean;
-  tone: CourseTone;
 }
 
 export interface Readiness {
@@ -24,7 +21,6 @@ export interface UpcomingDate {
   meta: string;
   /** "Thu" or "Nov 9". */
   when: string;
-  tone: CourseTone;
   readiness: Readiness;
   /** "Thursday, Nov 5", for the Detail panel. */
   whenFull?: string;

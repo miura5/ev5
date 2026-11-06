@@ -85,7 +85,6 @@ export function TodayView(p: TodayProps) {
             meta={i.meta}
             value={i.est}
             done={i.done}
-            status={{ tone: i.tone }}
             selected={p.selectedId === i.id}
             onOpen={() => p.onOpen(i.id)}
             glyph={
@@ -132,7 +131,6 @@ export function TodayView(p: TodayProps) {
               title={d.title}
               meta={d.meta}
               value={d.when}
-              status={{ tone: d.tone }}
               glyph={<Glyph type="date" />}
               selected={p.selectedId === d.id}
               onOpen={() => p.onOpen(d.id)}

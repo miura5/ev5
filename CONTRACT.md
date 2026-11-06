@@ -89,7 +89,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §ui.access · Text meets 4.5:1 contrast in both themes, and one reduced-motion setting zeroes every duration. <!-- D-273, D-379 -->
 - §ui.instant · A tap paints its new state at once; a refused write reverts and shows "not saved". <!-- D-208, D-227 -->
 - §ui.layout · Five regions, each generated from its folder: sidebar, area (one centred column, at most 720 px), Detail panel, ⌘K, Activity; Notes is a home list plus one centred page per note, never side by side, and a set has one page with view and Edit modes. <!-- PLAN §7 -->
-- §ui.sidebar · The sidebar lists Today, Ask E.V., Library, Notes, Progress, Activity, then Matt's pins, with counts and no badges, and at its foot the running job as one quiet line, then Recently deleted. <!-- PLAN §7 -->
+- §ui.sidebar · The sidebar lists Today, Ask E.V., Library, Notes, Progress, Activity, then Matt's pins (a pinned collection shows the day of its next linked date), with counts and no badges, and no Courses section, and at its foot the running job as one quiet line, then Recently deleted. <!-- PLAN §7 -->
 - §ui.palette · ⌘K shows the registry filtered by place, found items and pins, and Tab hands the request to E.V.; ⌘J toggles Ask E.V. <!-- PLAN §2.2, §7 -->
 - §ui.two-surfaces · Two surfaces only, sidebar and content; no boxes inside boxes. <!-- PLAN §7.1 -->
 - §ui.three-sizes · Three text sizes (20, 14, 12) and three greys; weight 600 only for titles; the study card face at 24 is the one exception. <!-- PLAN §7.2 -->

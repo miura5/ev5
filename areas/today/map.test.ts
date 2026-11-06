@@ -61,9 +61,9 @@ test("exams, weak spots and today's plan map to the view's props", () => {
     rest: "Your weakest spot is Oral liquid doses.",
     source: "from Weak spots",
   });
-  expect(d.upcoming.map((u) => [u.id, u.when, u.tone])).toEqual([
-    ["e4", "Thu", "bad"],
-    ["e5", "Nov 20", "info"],
+  expect(d.upcoming.map((u) => [u.id, u.when])).toEqual([
+    ["e4", "Thu"],
+    ["e5", "Nov 20"],
   ]);
   expect(d.upcoming[0]!.readiness).toEqual({ ready: 0, shaky: 0, weak: 1 });
   // e4 has one open weak spot and none reviewed; e5 has none yet: "none yet", not 0%.
@@ -77,7 +77,6 @@ test("exams, weak spots and today's plan map to the view's props", () => {
       meta: "review · added by you",
       est: "10m",
       done: true,
-      tone: "ok",
     },
   ]);
 });
