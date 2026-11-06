@@ -65,7 +65,19 @@ test("approving a prep plan puts it in force and putting it away retires it", as
         )
       ).json()) as { docs: { id: string; data: Record<string, any> }[] }
     ).docs;
-  const edit = async () => (await read("planedits"))[0]?.data;
+  // Which plan is in force and which are put away, read from the plans rows.
+  const edit = async () => {
+    const rows = await read("plans");
+    const retired = Object.fromEntries(
+      rows
+        .filter((p) => p.data.state === "put_away")
+        .map((p) => [p.id, { at: 1 }]),
+    );
+    return {
+      plan: rows.find((p) => p.data.state === "in_force")?.id,
+      retired,
+    } as Record<string, any>;
+  };
   await seedPlan(DB, "plan_p1", "e1", ["2999-01-01", "2999-01-02"]);
   await seedPlan(DB, "plan_p2", "e1", ["2999-01-03"]);
   const a = await call("plan.approve", { id: "plan_p1" });
@@ -88,9 +100,11 @@ test("approving a prep plan puts it in force and putting it away retires it", as
   assert.equal((await call("plan.approve", { id: "nope" })).status, 404);
   assert.equal((await call("plan.put_away", { id: "nope" })).status, 404);
   // The plan's sessions stay listed, put away or not (§delete.soft).
-  const plans = await read("plans");
-  assert.equal(plans.find((p) => p.id === "plan_p2")?.data.days.length, 1);
-  assert.equal(plans.find((p) => p.id === "plan_p1")?.data.days.length, 2);
+  const items = await read("plan_items");
+  const count = (plan: string) =>
+    items.filter((i) => i.data.plan_id === plan).length;
+  assert.equal(count("plan_p2"), 1);
+  assert.equal(count("plan_p1"), 2);
 });
 
 test("approving a plan whose days have all passed is refused with a plain reason", async () => {

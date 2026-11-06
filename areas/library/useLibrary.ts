@@ -91,9 +91,9 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
         list("sets", token, c),
         list("answers", token, c),
         // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
-        list("planedits", token, c).catch((): WireDoc[] => []),
-        // The approved plan's sessions live in its document; unreadable, the Detail just lists none.
         list("plans", token, c).catch((): WireDoc[] => []),
+        // A plan's sessions are its plan_items rows; unreadable, the Detail just lists none.
+        list("plan_items", token, c).catch((): WireDoc[] => []),
         // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
         jobApi.list(token, c).catch((): unknown[] => []),
       ]);
@@ -106,7 +106,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       load,
       (r) => {
         if (!live) return;
-        const [exams, weakspots, sets, answers, planedits, plans, jobs] = r;
+        const [exams, weakspots, sets, answers, plans, planItems, jobs] = r;
         setData(
           mapLibrary(
             {
@@ -114,8 +114,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
               weakspots,
               sets,
               answers,
-              planedits,
               plans,
+              planItems,
               jobs: jobs as WireJob[],
             },
             Date.now(),

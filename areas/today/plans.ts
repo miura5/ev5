@@ -11,10 +11,10 @@ export interface TodayDocs {
   dayedit?: WireDoc;
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: readonly WireJobLine[];
-  /** Which prep plan is in force per exam; absent reads as none. */
-  planedits?: WireDoc[];
-  /** The approved plans (ev4 `plans` documents): days of tasks, which an exam's planId points at. */
+  /** The plans rows (goal, state); a goal's plan in force is its approved plan. Absent reads as none. */
   plans?: WireDoc[];
+  /** The plan_items rows (plan, day, title, minutes): the days of tasks of a plan. */
+  planItems?: WireDoc[];
 }
 
 /** One entry of GET /api/v1/jobs, restated: only what the spend alert line needs. */
@@ -62,26 +62,46 @@ export function examSessions(id: string, docs: TodayDocs): ExamSession[] {
     return sessionsOf(job?.tasks);
   }
   if (state !== "approved") return [];
-  const planId = (
-    docs.exams.find((d) => d.id === id)?.data as { planId?: string }
-  ).planId;
-  const days = (
-    docs.plans?.find((p) => p.id === planId)?.data as
-      | { days?: unknown }
-      | undefined
-  )?.days;
-  if (!Array.isArray(days)) return [];
+  const plan = inForce(docs, id);
   return sessionsOf(
-    days.flatMap((day: { date?: unknown; tasks?: unknown }) =>
-      Array.isArray(day?.tasks)
-        ? day.tasks.map((t: { text?: unknown; minutes?: unknown }) => ({
-            date: day.date,
-            title: t?.text,
-            minutes: t?.minutes,
-          }))
-        : [],
-    ),
+    itemsOf(docs, plan).map((i) => ({
+      date: i.day,
+      title: i.title,
+      minutes: i.minutes,
+    })),
   );
+}
+
+type Item = { id: string; day: string; title: string; minutes?: number };
+
+/** The plan in force for a goal: its plans row in state in_force. */
+function inForce(docs: TodayDocs, goalId: string): string | undefined {
+  return docs.plans?.find((p) => {
+    const d = p.data as { goal_id?: unknown; state?: unknown } | undefined;
+    return d?.goal_id === goalId && d.state === "in_force";
+  })?.id;
+}
+
+/** A plan's items, by day. The id is the row id without its `pli_` prefix: the key a tick sticks to. */
+function itemsOf(docs: TodayDocs, planId: string | undefined): Item[] {
+  if (!planId) return [];
+  return (docs.planItems ?? []).flatMap((i) => {
+    const d = i.data as
+      | { plan_id?: unknown; day?: unknown; title?: unknown; minutes?: unknown }
+      | undefined;
+    return d?.plan_id === planId &&
+      typeof d.day === "string" &&
+      typeof d.title === "string"
+      ? [
+          {
+            id: i.id.replace(/^pli_/, ""),
+            day: d.day,
+            title: d.title,
+            ...(typeof d.minutes === "number" ? { minutes: d.minutes } : {}),
+          },
+        ]
+      : [];
+  });
 }
 
 /** The exam's plan line: waiting when a prep plan job names this exam, approved when its plan is in force. */
@@ -104,19 +124,7 @@ export function planOf(
       j.goalId === id,
   );
   if (working) return "working";
-  const planId = (
-    docs.exams.find((d) => d.id === id)?.data as
-      | { planId?: unknown }
-      | undefined
-  )?.planId;
-  const inForce = (
-    docs.planedits?.find((d) => d.id === id)?.data as
-      | { plan?: unknown }
-      | undefined
-  )?.plan;
-  return typeof planId === "string" && planId && inForce === planId
-    ? "approved"
-    : undefined;
+  return inForce(docs, id) ? "approved" : undefined;
 }
 
 export type Session = {
@@ -134,33 +142,13 @@ export function planSessions(
 ): Session[] {
   return goalIds.flatMap((goalId) => {
     if (planOf(goalId, docs) !== "approved") return [];
-    const planId = (
-      docs.exams.find((d) => d.id === goalId)?.data as { planId?: string }
-    ).planId;
-    const days = (
-      docs.plans?.find((p) => p.id === planId)?.data as
-        | { days?: unknown }
-        | undefined
-    )?.days;
-    if (!Array.isArray(days)) return [];
-    return days.flatMap((day: { date?: unknown; tasks?: unknown }) =>
-      day?.date === today && Array.isArray(day.tasks)
-        ? day.tasks.flatMap(
-            (t: { id?: unknown; text?: unknown; minutes?: unknown }) =>
-              typeof t?.id === "string" && typeof t.text === "string"
-                ? [
-                    {
-                      id: t.id,
-                      text: t.text,
-                      kind: "plan",
-                      ...(typeof t.minutes === "number"
-                        ? { minutes: t.minutes }
-                        : {}),
-                    },
-                  ]
-                : [],
-          )
-        : [],
-    );
+    return itemsOf(docs, inForce(docs, goalId))
+      .filter((i) => i.day === today)
+      .map((i) => ({
+        id: i.id,
+        text: i.title,
+        kind: "plan",
+        ...(i.minutes !== undefined ? { minutes: i.minutes } : {}),
+      }));
   });
 }

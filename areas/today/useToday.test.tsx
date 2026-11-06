@@ -240,7 +240,10 @@ test("Today sends every read at once, and a second visit opens on the saved answ
   first.unmount();
 
   // Second visit: the server never answers, yet the screen has its data.
-  vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => undefined)));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise<Response>(() => undefined)),
+  );
   const second = renderHook(() => useToday(copy));
   await waitFor(() => expect(second.result.current.data).toEqual(seen));
 });

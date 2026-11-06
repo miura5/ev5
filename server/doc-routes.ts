@@ -11,7 +11,7 @@ import { docsRepo, MAX_BODY, NO_DELETE, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import type { AuthVars } from "./auth.ts";
 import { goalDocs } from "./goal-wire.ts";
-import { planDocs, planeditDocs } from "./plan-wire.ts";
+import { planItemDocs, planRowDocs } from "./plan-wire.ts";
 import { noteDocById, noteDocs, saveNote } from "./note-wire.ts";
 import { saveSession, sessionDocs } from "./session-wire.ts";
 import { createWeakSpot, weakSpotDocs } from "./weak-wire.ts";
@@ -28,6 +28,7 @@ export const docRoutes = new Hono<Ctx>();
 const SESSIONS = "sessions";
 const WEAK_SPOTS = "weakspots";
 const NOTES = "notes";
+const PLAN_ITEMS = "plan_items";
 
 const repo = (db: DocsD1) => docsRepo(db, { clock: () => Date.now() });
 const shape = (d: {
@@ -76,12 +77,12 @@ docRoutes.get("/docs", async (c) => {
       .filter((m) => m.at > n)
       .map((m) => shape({ c: NOTES, ...m }));
     // Plans are rows (§data.tables): a plan, or a goal's plan in force, changed since then is sent as its document.
-    const plans = (await planDocs(c.env.DB, () => Date.now()))
+    const plans = (await planRowDocs(c.env.DB, () => Date.now()))
       .filter((p) => p.at > n)
       .map((p) => shape({ c: "plans", ...p }));
-    const planedits = (await planeditDocs(c.env.DB, () => Date.now()))
+    const planItems = (await planItemDocs(c.env.DB, () => Date.now()))
       .filter((p) => p.at > n)
-      .map((p) => shape({ c: "planedits", ...p }));
+      .map((p) => shape({ c: PLAN_ITEMS, ...p }));
     return c.json({
       now: out.now,
       docs: [
@@ -91,11 +92,11 @@ docRoutes.get("/docs", async (c) => {
               d.c !== NOTES &&
               d.c !== WEAK_SPOTS &&
               d.c !== "plans" &&
-              d.c !== "planedits",
+              d.c !== PLAN_ITEMS,
           )
           .map(shape),
         ...plans,
-        ...planedits,
+        ...planItems,
         ...goals,
         ...sessions,
         ...notes,
@@ -144,12 +145,12 @@ docRoutes.get("/docs", async (c) => {
     const goal = goals.find((g) => g.id === id);
     return goal ? c.json(goal) : c.json({ error: "not found" }, 404);
   }
-  // Plans are rows (§data.tables): each plan is read as its document and a goal's plan in force as `planedits`.
-  if (collection === "plans" || collection === "planedits") {
+  // Plans and their items are rows (§data.tables): the screens read the rows themselves.
+  if (collection === "plans" || collection === PLAN_ITEMS) {
     const all = (
       collection === "plans"
-        ? await planDocs(c.env.DB, () => Date.now())
-        : await planeditDocs(c.env.DB, () => Date.now())
+        ? await planRowDocs(c.env.DB, () => Date.now())
+        : await planItemDocs(c.env.DB, () => Date.now())
     ).map((p) => shape({ c: collection, ...p }));
     if (id === undefined) return c.json({ docs: all });
     const one = all.find((p) => p.id === id);

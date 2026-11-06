@@ -1,6 +1,5 @@
-// Plans as the screens read them (CONTRACT §data.tables, §data.gate): the `plans` and `plan_items` rows, shown as the older
-// `plans` document (days of tasks) and the `planedits/<goal>` document (which plan is in force, which are put away) that Today and
-// Library already read. Rows only: staging was rebuilt from empty on 2026-11-06, so no older document is merged.
+// Plans as the screens read them (CONTRACT §data.tables, §data.gate): the `plans` and `plan_items` rows, served as rows (the
+// `plans` and `plan_items` collections). `planeditDocs` is only the goal wire's way to find a goal's plan (server/goal-wire.ts).
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 
@@ -11,51 +10,45 @@ export interface WirePlan {
   data: unknown;
 }
 
-/** A plan item's id as the day's ticks key it: the row id without its `pli_` prefix (the id the older document gave). */
-const taskId = (id: string) => id.replace(/^pli_/, "");
-
-/** Every live plan as its document, in id order. */
-export async function planDocs(
+/** Every live plan as its row (goal, state, title), in id order: Today and Library read rows, not a plan document. */
+export async function planRowDocs(
   db: DocsD1,
   clock: () => number,
 ): Promise<WirePlan[]> {
-  const t = tablesRepo(db, { clock });
-  const [plans, items] = await Promise.all([
-    t.plans.list(),
-    t.planItems.list(),
-  ]);
-  const rows = plans.map((p) => {
-    const mine = items
-      .filter((i) => i.plan_id === p.id)
-      .sort((a, b) => a.day.localeCompare(b.day) || a.pos - b.pos);
-    const days = [...new Set(mine.map((i) => i.day))].map((date) => ({
-      date,
-      tasks: mine
-        .filter((i) => i.day === date)
-        .map((i) => ({
-          id: taskId(i.id),
-          text: i.title,
-          kind: "study",
-          ...(i.minutes === null ? {} : { minutes: i.minutes }),
-          ...(i.linked_kind === "weak_spot" && i.linked_id
-            ? { ref: i.linked_id }
-            : {}),
-        })),
-    }));
-    return {
+  const plans = await tablesRepo(db, { clock }).plans.list();
+  return plans
+    .map((p) => ({
       id: p.id,
       v: p.v,
-      at: Math.max(p.at, ...mine.map((i) => i.at)),
+      at: p.at,
+      data: { goal_id: p.goal_id, state: p.state, title: p.title ?? "" },
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** Every live plan item as its row (plan, day, title, minutes, linked weak spot), by day then position. */
+export async function planItemDocs(
+  db: DocsD1,
+  clock: () => number,
+): Promise<WirePlan[]> {
+  const items = await tablesRepo(db, { clock }).planItems.list();
+  return [...items]
+    .sort((a, b) => a.day.localeCompare(b.day) || a.pos - b.pos)
+    .map((i) => ({
+      id: i.id,
+      v: i.v,
+      at: i.at,
       data: {
-        schema: 1,
-        exam: p.goal_id,
-        title: p.title ?? "",
-        state: p.state,
-        days,
+        plan_id: i.plan_id,
+        day: i.day,
+        title: i.title,
+        minutes: i.minutes,
+        pos: i.pos,
+        ...(i.linked_kind === "weak_spot" && i.linked_id
+          ? { weak_spot_id: i.linked_id }
+          : {}),
       },
-    };
-  });
-  return rows.sort((a, b) => a.id.localeCompare(b.id));
+    }));
 }
 
 /** Which plan is in force per goal, as `planedits/<goal>`: `plan` for the plan in force, `retired` for those put away. */

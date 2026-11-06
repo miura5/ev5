@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { Detail } from "../../kit/index.ts";
 import { weakSpotDetail } from "./WeakSpot.detail.tsx";
@@ -24,29 +30,43 @@ const date = (id: string, kind: string): LibraryExam => ({
   mastery,
   readiness: "",
 });
-const dates = [date("goal_a", "exam"), date("goal_b", "exam"), date("goal_c", "mystery")];
+const dates = [
+  date("goal_a", "exam"),
+  date("goal_b", "exam"),
+  date("goal_c", "mystery"),
+];
 
 const openPicker = () =>
-  fireEvent.keyDown(screen.getByRole("button", { name: "Change date" }), { key: "Enter" });
+  fireEvent.keyDown(screen.getByRole("button", { name: "Change date" }), {
+    key: "Enter",
+  });
 
 test("the weak spot Detail shows its date and offers only dates that take weak spots, plus the current one", async () => {
   render(<Detail {...weakSpotDetail({ spot, dates, onLink: vi.fn() })} />);
   expect(screen.getByText("Date goal_a")).toBeTruthy();
   openPicker();
-  await waitFor(() => expect(screen.getAllByRole("menuitemradio").length).toBe(3));
-  expect(screen.queryByRole("menuitemradio", { name: "Date goal_c" })).toBeNull();
+  await waitFor(() =>
+    expect(screen.getAllByRole("menuitemradio").length).toBe(3),
+  );
+  expect(
+    screen.queryByRole("menuitemradio", { name: "Date goal_c" }),
+  ).toBeNull();
 });
 
 test("picking another date or No date reports it", async () => {
   const onLink = vi.fn();
   render(<Detail {...weakSpotDetail({ spot, dates, onLink })} />);
   openPicker();
-  fireEvent.click(await screen.findByRole("menuitemradio", { name: "Date goal_b" }));
+  fireEvent.click(
+    await screen.findByRole("menuitemradio", { name: "Date goal_b" }),
+  );
   expect(onLink).toHaveBeenCalledWith("goal_b");
   cleanup();
   const none = vi.fn();
   render(<Detail {...weakSpotDetail({ spot, dates, onLink: none })} />);
   openPicker();
-  fireEvent.click(await screen.findByRole("menuitemradio", { name: "No date" }));
+  fireEvent.click(
+    await screen.findByRole("menuitemradio", { name: "No date" }),
+  );
   expect(none).toHaveBeenCalledWith(null);
 });
