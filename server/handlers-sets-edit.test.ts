@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { setup } from "./matt-handlers-setup.test.ts";
 
-test("editing an item keeps its rationale, objective, source and table (B-1048)", async () => {
+test("editing an item keeps its rationale, objective, source and table", async () => {
   const { call, DB } = await setup();
   const set = (await call("set.create", { title: "Fluids" })).body.result.set
     .id as string;

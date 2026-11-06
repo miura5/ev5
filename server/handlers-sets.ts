@@ -33,7 +33,7 @@ function itemBody(id: string, text: string) {
   };
 }
 
-/** An edit changes the typed fields only: rationale, objective, sourceRef, matrix and the like stay (B-1048). */
+/** An edit changes the typed fields only: rationale, objective, sourceRef, matrix and the like stay. */
 function edited(
   old: unknown,
   typed: ReturnType<typeof itemBody>,
