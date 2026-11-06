@@ -135,57 +135,8 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
     true,
   );
 
-  // an ev4 set: the answer is a new `answers` document
-  const ev4 = {
-    schema: 3,
-    writer: "worker",
-    at: "2026-11-01T10:00:00.000Z",
-    source: "test",
-    kind: "review",
-    title: "T",
-    items: [
-      {
-        id: "q1",
-        stem: "Which is the normal sodium?",
-        type: "single",
-        options: ["100", "140", "180"],
-        correct: [1],
-        rationales: ["a", "b", "c"],
-      },
-      {
-        id: "q2",
-        stem: "Dose in mg for 5 mL at 2 mg/mL?",
-        type: "numeric",
-        answer: 10,
-        unit: "mg",
-        tolerance: 0.5,
-      },
-    ],
-  };
-  await put("sets", "s1", ev4);
-  assert.equal((await call("study.start", { id: "s1" })).body.result.items, 2);
-  assert.equal((await call("study.reveal", { id: "s1/q1" })).status, 409);
-  assert.equal(
-    (await call("study.attempt", { id: "s1/q1", answer: "1" })).body.result
-      .correct,
-    true,
-  );
-  assert.equal(
-    (await call("study.attempt", { id: "s1/q2", answer: "10.2" })).body.result
-      .correct,
-    true,
-  );
-  assert.equal(
-    (await call("study.attempt", { id: "s1/q2", answer: "10 mL" })).body.result
-      .correct,
-    false,
-  );
-  assert.equal((await call("study.reveal", { id: "s1/q1" })).status, 200);
-  assert.equal((await call("study.just_tell_me", { id: "s1/q2" })).status, 200);
-  const all = await DB.prepare("SELECT id FROM docs WHERE c = 'answers'").all<{
-    id: string;
-  }>();
-  assert.equal(all.results.length, 4);
+  // a set the page has no row for is a 404
+  assert.equal((await call("study.start", { id: "s1" })).status, 404);
   assert.equal(
     (await call("study.attempt", { id: "s1/zz", answer: "1" })).status,
     404,

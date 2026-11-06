@@ -3,7 +3,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
-import { accuracyLine, dueCounts } from "../domain/index.ts";
 import { setup } from "./matt-handlers-setup.test.ts";
 
 const openBody = {
@@ -87,35 +86,4 @@ test("a rating on a choice item does not replace the check against its key", asy
   // with no rating, an answer that names no option is still refused
   const bare = { id: item, answer: "the middle one" };
   assert.equal((await call("study.attempt", bare)).status, 400);
-});
-
-test("an ev4 open card's rating is kept as a rating, never as correct, so accuracy skips it", async () => {
-  const { call, put, DB } = await setup();
-  await put("sets", "s1", {
-    schema: 3,
-    writer: "worker",
-    at: "2026-11-01T10:00:00.000Z",
-    source: "test",
-    kind: "review",
-    title: "T",
-    items: [{ id: "o1", ...openBody }],
-  });
-  const r = await call("study.attempt", {
-    id: "s1/o1",
-    answer: "leak",
-    rating: "good",
-  });
-  assert.equal(r.status, 200);
-  const { results } = await DB.prepare(
-    "SELECT id, data FROM docs WHERE c = 'answers'",
-  ).all<{ id: string; data: string }>();
-  const docs = results.map((d) => ({ id: d.id, data: JSON.parse(d.data) }));
-  const entry = Object.values(docs[0]?.data.answers.o1)[0] as Record<
-    string,
-    unknown
-  >;
-  assert.equal(entry.rating, "good");
-  assert.equal("correct" in entry, false);
-  assert.equal(accuracyLine(docs, Date.now()), null);
-  assert.equal(dueCounts(docs).get("s1"), 0);
 });
