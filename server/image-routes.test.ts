@@ -6,8 +6,14 @@ import type { Env } from "./index.ts";
 function setup() {
   const store = new Map<string, ArrayBuffer>();
   const IMAGES = {
-    async put(k: string, v: ArrayBuffer) {
+    async put(
+      k: string,
+      v: ArrayBuffer,
+      o?: { onlyIf?: { etagDoesNotMatch?: string } },
+    ) {
+      if (o?.onlyIf?.etagDoesNotMatch === "*" && store.has(k)) return null;
       store.set(k, v);
+      return {};
     },
     async get(k: string) {
       const v = store.get(k);
@@ -40,6 +46,15 @@ test("a picture round-trips with its type and nosniff", async () => {
   assert.equal(g.headers.get("x-content-type-options"), "nosniff");
   assert.deepEqual(new Uint8Array(await g.arrayBuffer()), bytes);
   assert.equal((await call("GET", "zzzzzzzzzzzzzzzz.png")).status, 404);
+});
+
+test("a second upload to the same key is refused and the first stays", async () => {
+  const call = setup();
+  const first = new Uint8Array([137, 80, 78, 71, 1]);
+  assert.equal((await call("PUT", NAME, first)).status, 200);
+  assert.equal((await call("PUT", NAME, new Uint8Array([9, 9]))).status, 409);
+  const g = await call("GET", NAME);
+  assert.deepEqual(new Uint8Array(await g.arrayBuffer()), first);
 });
 
 test("only the app token reaches pictures", async () => {
