@@ -1,6 +1,7 @@
 // /api/v1/note-images: note pictures in the environment's R2 bucket under note-images/ (CONTRACT §data.note-images).
 // Auth is applied by index.ts; only the app token's scope reaches this prefix (auth.ts SCOPES).
-//   PUT /note-images/<name>   raw picture bytes, stored under note-images/<name>; 400 on a malformed key, 413 when too big
+//   PUT /note-images/<name>   raw picture bytes, stored under note-images/<name>; 400 on a malformed key, 413 when too big,
+//                             409 when the key already holds a picture (never overwritten, CONTRACT §hard.data-never-lost)
 //   GET /note-images/<name>   the picture, 404 when absent
 // The key format is domain/note's IMG_KEY.
 import { Hono } from "hono";
@@ -11,8 +12,11 @@ export interface R2Like {
   put(
     key: string,
     value: ArrayBuffer,
-    o?: { httpMetadata?: { contentType?: string } },
-  ): Promise<unknown>;
+    o?: {
+      httpMetadata?: { contentType?: string };
+      onlyIf?: { etagDoesNotMatch?: string };
+    },
+  ): Promise<unknown | null>;
   get(key: string): Promise<{
     body: ReadableStream;
     httpMetadata?: { contentType?: string };
@@ -52,9 +56,13 @@ imageRoutes.put("/note-images/:name", async (c) => {
   if (bytes.byteLength === 0) return c.json({ error: "empty picture" }, 400);
   if (bytes.byteLength > MAX_IMAGE)
     return c.json({ error: "picture is over 5 MB" }, 413);
-  await c.env.IMAGES.put(key, bytes, {
+  // onlyIf etagDoesNotMatch "*" makes R2 refuse (null) when the key exists, as the nightly export does.
+  const put = await c.env.IMAGES.put(key, bytes, {
     httpMetadata: { contentType: typeOf(key) },
+    onlyIf: { etagDoesNotMatch: "*" },
   });
+  if (put === null)
+    return c.json({ error: "a picture with this key already exists" }, 409);
   return c.json({ key });
 });
 
