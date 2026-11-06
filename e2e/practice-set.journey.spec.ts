@@ -68,7 +68,8 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
     page.getByRole("heading", { name: TITLE, level: 1 }),
   ).toBeVisible();
 
-  // The rating went through the outbox: it lands as an `answers` document of this set, with the attempt text.
+  // The rating went through the outbox: it lands as an `answers` document of this set, with the attempt text, kept as a
+  // self-rating (Good), never as a checked `correct`, so it stays out of accuracy.
   await expect
     .poll(
       async () => {
@@ -81,11 +82,18 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
           };
           return (
             x.setId === SET &&
-            Object.values(x.answers?.["q1"] ?? {}).some(
-              (a) =>
-                (a as { text?: string; correct?: boolean }).text === attempt &&
-                (a as { correct?: boolean }).correct === true,
-            )
+            Object.values(x.answers?.["q1"] ?? {}).some((a) => {
+              const e = a as {
+                text?: string;
+                rating?: string;
+                correct?: boolean;
+              };
+              return (
+                e.text === attempt &&
+                e.rating === "good" &&
+                e.correct === undefined
+              );
+            })
           );
         });
       },
