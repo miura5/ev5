@@ -1,4 +1,4 @@
-// A course rule: one row of the course table. Course facts are data: no course is named in code (§data.course-facts).
+// A course rule: one row of the course table. Course facts are data: no course is named in code (§what.framing).
 export type LibraryRule = { module: string; kind: string; only?: string };
 
 export type CourseRule = {
