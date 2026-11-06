@@ -1,4 +1,4 @@
-// The per-kind tables migration 0006 creates (table design 2.2 to 2.11); rows are hashed in id order.
+// The per-kind tables migrations 0006 and 0007 create (table design 2.2 to 2.11); rows are hashed in id order.
 
 interface RowTable {
   name: string;
@@ -211,6 +211,62 @@ export const ROW_TABLES: RowTable[] = [
       "job_id",
       "at",
       "v",
+    ],
+    ["id"],
+  ),
+  t(
+    "plans",
+    [
+      "id",
+      "goal_id",
+      "job_id",
+      "state",
+      "title",
+      "from_day",
+      "to_day",
+      "summary",
+      "at",
+      "v",
+      "deleted_at",
+    ],
+    ["id"],
+  ),
+  t(
+    "plan_items",
+    [
+      "id",
+      "plan_id",
+      "day",
+      "pos",
+      "title",
+      "minutes",
+      "time",
+      "origin",
+      "linked_kind",
+      "linked_id",
+      "repeat_id",
+      "done_at",
+      "at",
+      "v",
+      "deleted_at",
+    ],
+    ["id"],
+  ),
+  t(
+    "repeats",
+    [
+      "id",
+      "title",
+      "minutes",
+      "time",
+      "rule",
+      "from_day",
+      "to_day",
+      "linked_kind",
+      "linked_id",
+      "at",
+      "v",
+      "deleted_at",
     ],
     ["id"],
   ),
