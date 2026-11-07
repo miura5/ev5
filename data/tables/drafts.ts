@@ -29,26 +29,38 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         .bind(arg, kind)
         .all<{ id: string; target_id: string; v: number }>()
     ).results.map((r) => ({ id: r.id, targetId: r.target_id, v: r.v }));
+  /**
+   * Hides row `rowId` of `table` and lists it in Recently deleted in ONE batch (§data.protocol, §delete.soft): the list
+   * row is written only when the hide applied, and if either statement fails neither applies.
+   */
+  const softDelete = async (
+    table: "sets" | "goals" | "sessions" | "notes",
+    c: string,
+    listId: string,
+    at: number,
+    rowId: string,
+  ): Promise<boolean> => {
+    const res = (await db.batch([
+      db
+        .prepare(
+          `UPDATE ${table} SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL`,
+        )
+        .bind(at, at, rowId),
+      db
+        .prepare(
+          `INSERT INTO deletions (c, id, at) SELECT ?, ?, ? WHERE EXISTS (SELECT 1 FROM ${table} WHERE id = ? AND deleted_at = ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at`,
+        )
+        .bind(c, listId, at, rowId, at),
+    ])) as { meta: { changes: number } }[];
+    return (res[0]?.meta.changes ?? 0) > 0;
+  };
   const markRow = async (
     table: "sets" | "goals" | "sessions",
     c: string,
     id: string,
   ): Promise<boolean> => {
     const row = del(c, id);
-    const r = await db
-      .prepare(
-        `UPDATE ${table} SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL`,
-      )
-      .bind(row.at, row.at, id)
-      .run();
-    if (r.meta.changes === 0) return false;
-    await db
-      .prepare(
-        "INSERT INTO deletions (c, id, at) VALUES (?, ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-      )
-      .bind(row.c, row.id, row.at)
-      .run();
-    return true;
+    return softDelete(table, c, row.id, row.at, id);
   };
   return {
     drafts: {
@@ -194,20 +206,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       /** Soft delete of a note by its document id: a deletions row, and the row's `deleted_at` (reads hide it, §delete.soft). */
       markNote: async (docId: string): Promise<boolean> => {
         const row = del("notes", docId);
-        const r = await db
-          .prepare(
-            "UPDATE notes SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL",
-          )
-          .bind(row.at, row.at, `note_${docId}`)
-          .run();
-        if (r.meta.changes === 0) return false;
-        await db
-          .prepare(
-            "INSERT INTO deletions (c, id, at) VALUES ('notes', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-          )
-          .bind(row.id, row.at)
-          .run();
-        return true;
+        return softDelete("notes", "notes", row.id, row.at, `note_${docId}`);
       },
       /** Soft delete of a set by its id (`set_…`): a deletions row under `sets`, and the row's `deleted_at`. False when it is missing or already deleted. */
       markSet: (id: string): Promise<boolean> => markRow("sets", "sets", id),
@@ -230,41 +229,39 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
       /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
       restore: async (c: string, id: string): Promise<number> => {
-        const n = (
-          await db
+        // The list row and the row's `deleted_at` change in ONE batch (§delete.soft). A set item's deletion is also its
+        // row's `deleted_at`; `set_items` is keyed by the item id, `own_set_items` is the older `<set>/<item>` key.
+        const at = opts.clock();
+        const target: [string, string] | null =
+          c === "set_items" || c === "own_set_items"
+            ? ["set_items", itemKey(id.slice(id.indexOf("/") + 1))]
+            : c === "notes"
+              ? ["notes", `note_${id}`]
+              : c === "sets"
+                ? ["sets", id]
+                : c === "exams"
+                  ? ["goals", id]
+                  : c === "sessions"
+                    ? ["sessions", id]
+                    : null;
+        const res = (await db.batch([
+          db
             .prepare("DELETE FROM deletions WHERE c = ? AND id = ?")
-            .bind(c, id)
-            .run()
-        ).meta.changes;
-        // A set item's deletion is also its row's `deleted_at`: the item comes back with it.
-        // `set_items` is keyed by the item id; `own_set_items` is the older `<set>/<item>` key, still cleared the same way.
-        if (c === "set_items" || c === "own_set_items")
-          await db
-            .prepare(
-              "UPDATE set_items SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",
-            )
-            .bind(opts.clock(), itemKey(id.slice(id.indexOf("/") + 1)))
-            .run();
-        if (c === "notes")
-          await db
-            .prepare(
-              "UPDATE notes SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",
-            )
-            .bind(opts.clock(), `note_${id}`)
-            .run();
-        for (const [cc, table] of [
-          ["sets", "sets"],
-          ["exams", "goals"],
-          ["sessions", "sessions"],
-        ] as const)
-          if (c === cc)
-            await db
-              .prepare(
-                `UPDATE ${table} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
-              )
-              .bind(opts.clock(), id)
-              .run();
-        return n;
+            .bind(c, id),
+          ...(target
+            ? [
+                db
+                  .prepare(
+                    `UPDATE ${target[0]} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
+                  )
+                  .bind(at, target[1]),
+              ]
+            : []),
+        ])) as { meta: { changes: number } }[];
+        // Restored when the list row went or the hidden row came back, so a retry after a half-finished restore succeeds.
+        return res.reduce((n, r) => n + r.meta.changes, 0) > 0
+          ? Math.max(res[0]?.meta.changes ?? 0, 1)
+          : 0;
       },
     },
   };

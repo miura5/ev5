@@ -269,3 +269,18 @@ test("a session is deleted, listed with its topic in Recently deleted, and resto
   assert.equal((await call("item.restore", { id: "ses_s1" })).status, 200);
   assert.equal((await call("item.restore", { id: "ses_s1" })).status, 404);
 });
+
+test("item.restore succeeds when the row is hidden but its Recently deleted entry is already gone", async () => {
+  const call = await setup();
+  await call.db
+    .prepare(
+      "INSERT INTO goals (id, title, kind, status, created_by, at, v, deleted_at) VALUES ('goal_h', 'Exam', 'exam', 'open', 'user', 1, 2, 5)",
+    )
+    .run();
+  assert.equal((await call("item.restore", { id: "goal_h" })).status, 200);
+  const g = await call.db
+    .prepare("SELECT deleted_at FROM goals WHERE id = 'goal_h'")
+    .all<{ deleted_at: number | null }>();
+  assert.equal(g.results[0]?.deleted_at, null);
+  assert.equal((await call("item.restore", { id: "goal_h" })).status, 404);
+});
