@@ -4538,13 +4538,15 @@
   "title": "Server routes and commands read and write through the gate",
   "dod": "No LIKE over JSON, no bare-id lookup without its kind, list reads are paged; drafts restore by kind and id; every route and command writes through data/ (§data.gate, §data.tables). Slice write: server/",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-955"
   ],
   "notes": "Run 2026-11-07 04:4x (#724): onError logs one JSON line with request id (no message), returns it in the 500; F24 done (GET /docs?since no longer sends old sessions twice). Left: docsRepo in ~10 files and raw SQL over docs (B11, B13); moves write created_by/by only. Claim freed. Data-loss audit (D-526), before cutover, L6: multi-statement writes that are not one batch: set.item_delete (server/handlers-sets.ts), collection delete and restore (server/command-handlers.ts), check.answer (server/handlers-session.ts); each becomes one db.batch.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-20261107T1537Z",
+  "claimedAt": "2026-11-07T16:01:11.460Z"
  },
  {
   "id": "B-1002",
