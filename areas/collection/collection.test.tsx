@@ -49,7 +49,12 @@ const note: CollectionEntry = {
   title: "Cardiac drugs",
 };
 const sub: CollectionEntry = { id: "c2", type: "collection", title: "Labs" };
-const base = { title: "Biology 101", dates: [exam], nested: [sub], items: [note] };
+const base = {
+  title: "Biology 101",
+  dates: [exam],
+  nested: [sub],
+  items: [note],
+};
 
 test("dates come first, then nested collections and items", () => {
   const onOpen = vi.fn();
@@ -128,8 +133,8 @@ test("pinned items are listed under Pinned, named from their docs", async () => 
   const body = (path: string) =>
     path.includes("pins")
       ? { pins: [{ collection: "notes", id: "n9", pos: 0, at: 3 }] }
-      : path.startsWith("docs")
-        ? { docs: [{ id: "n9", data: { title: "Insulin types" } }] }
+      : path.startsWith("notes")
+        ? { rows: [{ id: "n9", title: "Insulin types" }] }
         : path.includes("memberships")
           ? { memberships: [] }
           : {
@@ -183,8 +188,8 @@ test("no menu without an action handler", () => {
 
 test("a note row opens the note, and the collection shows its name and notes", async () => {
   const body = (path: string) =>
-    path.startsWith("docs")
-      ? { docs: [{ id: "n1", data: {} }] }
+    path.startsWith("notes")
+      ? { rows: [{ id: "n1" }] }
       : path.includes("pins")
         ? { pins: [] }
         : path.includes("memberships")

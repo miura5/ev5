@@ -4,7 +4,7 @@ import type {
   CollectionData,
   DocsByCollection,
   WireCollection,
-  WireDoc,
+  NamedRow,
   WireMembership,
   WirePin,
 } from "./map.ts";
@@ -40,6 +40,25 @@ export interface ReadCopyLike {
 function get<T>(path: string, token: string, copy?: ReadCopyLike): Promise<T> {
   return readJson<T>(path, token, `collection:/api/v1/${path}`, copy);
 }
+
+/** The row route that names each kind of member; a kind with no route keeps "Untitled". */
+const ROUTES: Record<string, string> = {
+  notes: "notes",
+  sets: "sets",
+  goals: "goals",
+  exams: "goals",
+  weakspots: "weak-spots",
+};
+/** A weak spot's name is its topic; the rest carry a title. */
+const named = (r: Record<string, unknown>): NamedRow => {
+  const t = typeof r.title === "string" ? r.title : r.topic;
+  return {
+    id: String(r.id),
+    title: typeof t === "string" ? t : undefined,
+    kind: typeof r.kind === "string" ? r.kind : undefined,
+    at: typeof r.at === "number" ? r.at : undefined,
+  };
+};
 
 /** Reads collections, memberships and pins with the app token Matt keeps in this browser. */
 export function useCollection(
@@ -91,9 +110,14 @@ export function useCollection(
       await Promise.all(
         kinds.map(async (k) => {
           try {
-            docs[k] = (
-              await get<{ docs: WireDoc[] }>(`docs?collection=${k}`, token, c)
-            ).docs;
+            const route = ROUTES[k];
+            if (!route) return;
+            const body = await get<{ rows: Record<string, unknown>[] }>(
+              route,
+              token,
+              c,
+            );
+            docs[k] = body.rows.map(named);
           } catch {
             // titles fall back to ids for a kind that will not load
           }
