@@ -1,27 +1,23 @@
 import {
   addDays,
   centralDate,
+  daysBetween,
   inDays,
-  deriveWeakSpot,
-  goalDaysLeft,
-  parseGoal,
-  parseWeakSpot,
   plainDay,
   weekdayDay,
 } from "../../domain/index.ts";
-import type { Goal } from "../../domain/index.ts";
 import type {
   PlanItem,
   ThisWeekItem,
   TodayProps,
   UpcomingDate,
 } from "./types.ts";
-import { attemptsBySpot } from "./attempts.ts";
+import { spotsOf } from "./spots.ts";
 import { addedSessions, examSessions, planOf, planSessions } from "./plans.ts";
 import type { Session } from "./plans.ts";
-import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
+import type { TodayDocs, WireJobLine } from "./plans.ts";
 
-export type { TodayDocs, WireDoc, WireJobLine };
+export type { TodayDocs, WireJobLine };
 
 export type TodayData = Pick<
   TodayProps,
@@ -44,17 +40,6 @@ export function spendAlertLine(
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function tryParse<T>(
-  parse: (raw: unknown) => T,
-  d: WireDoc,
-): { id: string; v: T }[] {
-  try {
-    return [{ id: d.id, v: parse(d.data) }];
-  } catch {
-    return []; // a document outside the schema is left out, never an error on Today
-  }
-}
 
 /** "Thu" inside the next week, else "Nov 9". */
 function whenLabel(date: string, left: number, today: string): string {
@@ -90,28 +75,18 @@ function planSay(plan: PlanItem[]): TodayData["say"] | undefined {
 /** Maps the documents Today reads to the view's props; no data gives the empty state, never an error. */
 export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
   const today = centralDate(now);
-  const exams = docs.exams
-    .flatMap((d) => tryParse(parseGoal, d))
-    .map((e) => ({
-      id: e.id,
-      exam: e.v as Goal,
-      left: goalDaysLeft(e.v, today),
-    }))
-    .filter(
-      (e): e is { id: string; exam: Goal; left: number } =>
-        e.left !== null && e.left >= 0,
+  // A date is a goals row; one still open and dated today or later is coming up.
+  const exams = docs.goals
+    .flatMap((exam) =>
+      exam.status === "open" && exam.date !== null
+        ? [{ id: exam.id, exam, left: daysBetween(today, exam.date) }]
+        : [],
     )
-    .filter((e) => (e.exam.status ?? "upcoming") === "upcoming")
+    .filter((e) => e.left >= 0)
     .sort(
       (a, b) => a.left - b.left || a.exam.title.localeCompare(b.exam.title),
     );
-  const answered = attemptsBySpot(docs.attempts, docs.items);
-  const derived = docs.weakspots
-    .flatMap((d) => tryParse(parseWeakSpot, d))
-    .map((s) => ({
-      ...s,
-      d: deriveWeakSpot(s.v, answered.get(s.id) ?? [], { id: s.id }),
-    }));
+  const derived = spotsOf(docs);
   const open = derived.filter((s) => s.d.status === "open");
   const upcoming: UpcomingDate[] = exams.map(({ id, exam, left }) => {
     const mine = derived.filter(
@@ -148,7 +123,7 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
   const plan = planItems([
     ...planSessions(
       docs,
-      docs.exams.map((d) => d.id),
+      docs.goals.map((g) => g.id),
       today,
     ),
     ...addedSessions(docs, today),

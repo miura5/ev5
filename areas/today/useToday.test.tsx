@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { centralDate } from "../../domain/index.ts";
 import { useToday } from "./useToday.ts";
+import { goalRow, itemRow, rowsAnswer } from "./testHost.tsx";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -13,23 +14,10 @@ afterEach(() => {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status });
 
-/** One item Matt added for today, as GET /docs?collection=plan_items serves it. */
-const itemRows = () => ({
-  docs: [
-    {
-      id: "pli_a",
-      v: 3,
-      data: {
-        plan_id: null,
-        day: centralDate(Date.now()),
-        title: "Review",
-        minutes: null,
-        origin: "user",
-        done_at: null,
-      },
-    },
-  ],
-});
+/** One item Matt added for today, as GET /plan-items serves it. */
+const itemRows = () => [
+  itemRow({ id: "pli_a", v: 3, day: centralDate(Date.now()), title: "Review" }),
+];
 
 function tickWorld(answer: Response | (() => Response)) {
   localStorage.setItem("ev5.token", "t");
@@ -44,9 +32,8 @@ function tickWorld(answer: Response | (() => Response)) {
         posts.push(String(init.body));
         return typeof answer === "function" ? answer() : answer;
       }
-      if (url.includes("collection=plan_items")) return json(itemRows());
       if (url.includes("jobs")) return json({ jobs: [] });
-      return json({ docs: [] });
+      return rowsAnswer(url, { "plan-items": itemRows() });
     }),
   );
   return posts;
@@ -101,12 +88,11 @@ function fakeCopy(kept: Record<string, unknown> = {}) {
   };
 }
 
-const exam = {
-  id: "e1",
-  v: 1,
-  at: 1,
-  data: { title: "Biology 101 exam", date: "2099-01-01" },
-};
+const exam = goalRow({
+  id: "goal_e1",
+  title: "Biology 101 exam",
+  date: "2099-01-01",
+});
 
 test("offline, Today shows the saved exams and weak spots", async () => {
   localStorage.setItem("ev5.token", "t");
@@ -117,8 +103,8 @@ test("offline, Today shows the saved exams and weak spots", async () => {
     }),
   );
   const copy = fakeCopy({
-    "today:exams": [exam],
-    "today:weakspots": [],
+    "today:goals": [exam],
+    "today:weak-spots": [],
   });
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() => expect(result.current.data).toBeTruthy());
@@ -132,13 +118,13 @@ test("a 5xx shows the error, not the saved copy, and keeps the copy", async () =
     vi.fn(async () => json({}, 503)),
   );
   const saved = [exam];
-  const copy = fakeCopy({ "today:exams": saved, "today:weakspots": [] });
+  const copy = fakeCopy({ "today:goals": saved, "today:weak-spots": [] });
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() =>
     expect(result.current.error).toBe(failureSentence("server")),
   );
   expect(result.current.data).toBeUndefined();
-  expect(copy.kept["today:exams"]).toBe(saved);
+  expect(copy.kept["today:goals"]).toBe(saved);
 });
 
 test("a 401 shows no data and no sentence, and tells the shell", async () => {
@@ -184,7 +170,7 @@ test("Today follows a plan job that changes while it is open", async () => {
         ? json({ jobs })
         : url.includes("dayedits")
           ? json({}, 404)
-          : json({ docs: [] }),
+          : rowsAnswer(url),
     ),
   );
   const { result } = renderHook(() => useToday());
@@ -235,8 +221,8 @@ test("Today sends every read at once, and a second visit opens on the saved answ
       ? json({ jobs: [] })
       : url.includes("dayedits")
         ? json({}, 404)
-        : json({ docs: [] });
-  // The server holds every answer until all eight reads have gone out.
+        : rowsAnswer(url);
+  // The server holds every answer until all nine reads have gone out.
   vi.stubGlobal(
     "fetch",
     vi.fn(
@@ -245,7 +231,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
     ),
   );
   const first = renderHook(() => useToday(copy));
-  await waitFor(() => expect(pending).toHaveLength(7));
+  await waitFor(() => expect(pending).toHaveLength(9));
   pending.forEach((go) => go(new Response()));
   await waitFor(() => expect(first.result.current.data).toBeTruthy());
   const seen = first.result.current.data;
