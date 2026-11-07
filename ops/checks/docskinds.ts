@@ -8,7 +8,6 @@ import { read } from './lib.ts';
 // Kinds still written to docs, each until its own table lands. Remove a name when its move merges; never add one.
 export const ALLOWED = new Set<string>([
   'answers',
-  'dayedits',
   'exams',
   'plans',
   'talk',
