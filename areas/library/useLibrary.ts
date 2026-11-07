@@ -11,7 +11,7 @@ import type {
   WeakSpotTableRow,
 } from "../../domain/index.ts";
 import {
-  readJson,
+  readRows,
   call,
   jobApi,
   type CommandName,
@@ -73,13 +73,7 @@ function rows<T>(
   token: string,
   copy?: ReadCopyLike,
 ): Promise<T[]> {
-  return readJson(
-    path,
-    token,
-    `rows:${path}`,
-    copy,
-    (b) => (b as { rows: T[] }).rows,
-  );
+  return readRows<T>(path, token, `rows:${path}`, copy);
 }
 
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */

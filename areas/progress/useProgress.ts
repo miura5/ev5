@@ -5,7 +5,7 @@ import { weeklyAccuracy, type Point } from "./series.ts";
 import {
   failureKind,
   failureSentence,
-  readJson,
+  readRows,
   readToken,
   savedFirst,
   type ReadCopyLike,
@@ -50,13 +50,7 @@ export function useProgress(copy?: ReadCopyLike): ProgressState {
     if (!token) return;
     let live = true;
     const load = (c: ReadCopyLike | undefined) =>
-      readJson<AttemptRow[]>(
-        "attempts",
-        token,
-        "progress:attempts",
-        c,
-        (b) => (b as { rows: AttemptRow[] }).rows,
-      );
+      readRows<AttemptRow>("attempts", token, "progress:attempts", c);
     const first = warm.current;
     warm.current = false;
     // The screen opens on the last answer kept, then the server's (§ui.instant).

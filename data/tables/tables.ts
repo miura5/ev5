@@ -18,6 +18,7 @@ import { jobsRepo } from "./jobs.ts";
 import { jobStoresRepo } from "./job-stores.ts";
 import { attemptsRepo } from "./attempts.ts";
 import { collectionRepo } from "./collections.ts";
+import { collectionReadsRepo } from "./collection-reads.ts";
 import { linkRepo } from "./links.ts";
 import { kindsRepo } from "./kinds.ts";
 import { planRepo } from "./plan.ts";
@@ -186,6 +187,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...jobStoresRepo(db, opts),
     ...kindsRepo(db, opts),
     ...collectionRepo(db, opts),
+    ...collectionReadsRepo(db),
     ...linkRepo(db, opts),
     ...planRepo(db, opts),
     ...attemptsRepo(db, opts),
