@@ -12,7 +12,7 @@ import {
   type GlyphType,
   type PaletteGroup,
 } from "../kit/index.ts";
-import { call } from "../commands/client.ts";
+import { runPaletteCommand } from "./runPaletteCommand.ts";
 import {
   FOUND,
   findInRecord,
@@ -27,6 +27,7 @@ import { commandsFor } from "./commandsFor.ts";
 import { useTheme } from "./theme.ts";
 import { DetailSlot } from "./DetailSlot.tsx";
 import { useOpenedDetail } from "./useOpenedDetail.ts";
+import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { ToastHost } from "./ToastHost.tsx";
 import { useToasts } from "./useToasts.ts";
 import "./shell.css";
@@ -208,8 +209,7 @@ export function Shell({
     else if (kind === "cmd" && id === "theme.toggle") toggleTheme();
     else if (kind === "cmd" && id === "notes.shortcuts")
       window.dispatchEvent(new Event("ev5:note-shortcuts"));
-    else if (kind === "cmd")
-      void call(id as Parameters<typeof call>[0], {}, storedToken());
+    else if (kind === "cmd") void runPaletteCommand(id, showToast);
   };
   // Tab: the typed request goes to Ask E.V. as ?text= for it to pick up.
   const ask = (text: string) => {
@@ -268,14 +268,16 @@ export function Shell({
         <div className="shell-col">
           <SavedCopyNotice copy={services?.readCopy} />
           {View ? (
-            <View
-              services={services}
-              onNavigate={onNavigate}
-              path={bare}
-              search={path.split("?").slice(1).join("?")}
-              onDetail={od[1]}
-              onToast={showToast}
-            />
+            <ErrorBoundary resetKey={path}>
+              <View
+                services={services}
+                onNavigate={onNavigate}
+                path={bare}
+                search={path.split("?").slice(1).join("?")}
+                onDetail={od[1]}
+                onToast={showToast}
+              />
+            </ErrorBoundary>
           ) : null}
         </div>
       </main>
