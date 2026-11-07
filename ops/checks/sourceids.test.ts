@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { checkSourceIds } from './sourceids.ts';
 
 test('source-ids: a cited id that is ended or not in CONTRACT fails; live ids and tests pass', () => {

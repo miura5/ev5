@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 
 const REAL = path.resolve(import.meta.dirname, '../..');
 const CONFIGS = ['eslint.config.js', '.dependency-cruiser.cjs', 'stylelint.config.js', 'knip.json', 'knip.production.json', 'tsconfig.json', 'CONTRACT.md'];

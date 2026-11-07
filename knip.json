@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6.44.1/schema.json",
-  "entry": ["**/*.test.{ts,tsx}", "server/index.ts", "server/worker.ts", "areas/registry.generated.ts", "commands/client.ts", "data/export/index.ts", "shell/outbox/index.ts", "e2e/*.spec.ts", "ops/restore-drill/manifest.mjs"],
+  "entry": ["**/*.test.{ts,tsx}", "server/index.ts", "server/worker.ts", "areas/registry.generated.ts", "commands/client.ts", "data/export/index.ts", "shell/outbox/index.ts", "e2e/*.spec.ts", "ops/restore-drill/manifest.mjs", "ops/record/index.ts"],
   "project": ["{areas,shell,kit,domain,commands,jobs,data,server,ops,e2e}/**/*.{ts,tsx}"],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": ["@babel/preset-typescript", "@swc/core"]

@@ -1,5 +1,5 @@
 // task delete against a scratch copy of the carried ev4 Chart.
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';

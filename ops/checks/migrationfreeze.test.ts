@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { BASELINE, checkMigrationFreeze, hashBaseline } from './migrationfreeze.ts';
 
 const tmp = (text?: string): string => {

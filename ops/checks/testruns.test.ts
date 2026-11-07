@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { checkTestRuns, nodeCollects } from './testruns.ts';
 
 test('node --test folders and globs collect test files', () => {

@@ -1,4 +1,4 @@
-// Every test file runs in CI: a *.test.* file must be collected by `npm run test:node` or by vitest's include list.
+// Every test file runs in CI: a *.test.* file must be collected by `npm run test:node` or by the include lists of vitest's projects.
 import path from 'node:path';
 import type { Finding } from './lib.ts';
 import { read } from './lib.ts';
@@ -16,8 +16,8 @@ export function checkTestRuns(root: string, files: string[]): Finding[] {
   if (!files.includes('package.json') || !files.includes('vite.config.ts')) return [];
   const scripts = (JSON.parse(read(root, 'package.json')) as { scripts: Record<string, string> }).scripts;
   const node = scripts['test:node'] ?? '';
-  const include = /include:\s*\[([^\]]*)\]/.exec(read(root, 'vite.config.ts'))?.[1] ?? '';
-  const vitest = quoted(include);
+  const config = read(root, 'vite.config.ts').replace(/^\s*\/\/.*$/gm, '');
+  const vitest = [...config.matchAll(/\binclude:\s*\[([^\]]*)\]/g)].flatMap(m => quoted(m[1] as string));
   return files
     .filter(f => TEST.test(f) && !f.startsWith('e2e/'))
     .filter(f => !nodeCollects(node, f) && !vitest.some(g => path.matchesGlob(f, g)))
