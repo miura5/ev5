@@ -96,6 +96,14 @@ collectionRoutes.get("/memberships", async (c) => {
     [],
   );
   const own = new Set(sets.map((r) => r.item_id));
+  // A note keeps its collection on its own row too (`notes.collection_id`, the id minus its `note_` prefix is the
+  // document id the screens use), so a `notes` membership row is read only for a note that has no row yet.
+  const noteRows = await rows<MembershipRow & { deleted_at: number | null }>(
+    c.env.DB,
+    `SELECT 'notes' AS item_c, substr(id, 6) AS item_id, collection_id, at, v, deleted_at FROM notes LIMIT ${LIMIT}`,
+    [],
+  );
+  const noted = new Set(noteRows.map((r) => r.item_id));
   const placed = await rows<MembershipRow>(
     c.env.DB,
     `SELECT item_c, item_id, collection_id, at, v FROM memberships WHERE NOT EXISTS (SELECT 1 FROM collections d WHERE d.id = memberships.collection_id AND d.deleted_at IS NOT NULL)${id === undefined ? "" : " AND collection_id = ?"} ORDER BY at DESC, item_c, item_id LIMIT ${LIMIT}`,
@@ -113,7 +121,16 @@ collectionRoutes.get("/memberships", async (c) => {
   const out = [
     ...placed.filter(
       (r) =>
-        r.item_c !== "own_sets" && !(r.item_c === "sets" && own.has(r.item_id)),
+        r.item_c !== "own_sets" &&
+        !(r.item_c === "sets" && own.has(r.item_id)) &&
+        !(r.item_c === "notes" && noted.has(r.item_id)),
+    ),
+    ...noteRows.filter(
+      (r) =>
+        r.deleted_at === null &&
+        r.collection_id != null &&
+        !gone.has(r.collection_id) &&
+        (id === undefined || r.collection_id === id),
     ),
     ...sets.filter(
       (r) =>

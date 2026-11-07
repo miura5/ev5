@@ -113,19 +113,24 @@ export const commandHandlers: Record<string, CommandHandler> = {
       if (!m.ok) throw new CommandError(409, "that item changed; try again");
       return { set: { id: i.id, collectionId: i.collection } };
     }
+    if (c === "notes") {
+      // A note keeps its collection on its own row; GET /memberships reads it from there.
+      const note = await t.noteBook.get(noteRowId(i.id));
+      if (!note) throw new CommandError(404, `no item ${i.id}`);
+      const { at: _a, v: _v, deleted_at: _d, ...f } = note;
+      const m = await t.noteBook.change(
+        { ...f, collection_id: i.collection },
+        note.v,
+      );
+      if (!m.ok) throw new CommandError(409, "that item changed; try again");
+      return { note: { id: i.id, collectionId: i.collection } };
+    }
     const cur = await t.memberships.get(c, i.id);
     const r = await t.memberships.save(
       { itemC: c, itemId: i.id, collectionId: i.collection },
       cur ? cur.v : null,
     );
     if (!r.ok) throw new CommandError(409, "that item changed; try again");
-    if (c === "notes") {
-      const note = await t.noteBook.get(noteRowId(i.id));
-      if (note) {
-        const { at: _a, v: _v, deleted_at: _d, ...f } = note;
-        await t.noteBook.change({ ...f, collection_id: i.collection }, note.v);
-      }
-    }
     return { membership: r.row };
   },
   // A collection lives in its own table: deleting it writes one deletions row for it and no row for its items, which

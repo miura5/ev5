@@ -69,13 +69,15 @@ test("new here makes a note, a set, a date and a collection", async () => {
       .status,
     404,
   );
-  const m = await DB.prepare(
-    "SELECT item_c FROM memberships ORDER BY item_c",
-  ).all<{ item_c: string }>();
-  assert.deepEqual(
-    m.results.map((r) => r.item_c),
-    ["notes"],
+  // a note and a set carry their own collection_id; neither has a membership row
+  assert.equal(
+    (await DB.prepare("SELECT 1 FROM memberships").all()).results.length,
+    0,
   );
+  const note = await DB.prepare("SELECT 1 FROM notes WHERE collection_id = ?")
+    .bind(cid)
+    .all();
+  assert.equal(note.results.length, 1);
   // a set carries its own collection_id; it has no membership row
   const set = await DB.prepare(
     "SELECT collection_id FROM sets WHERE collection_id = ?",
@@ -258,7 +260,10 @@ test("note.save pins to if_version, creates at 0, and sets a title", async () =>
   const id = "n-20261106-120000-abcdefghijkl";
   const body = JSON.stringify([{ type: "p", runs: [{ text: "hello" }] }]);
   // a missing note with a version is a stale pin; with 0 it is a create
-  assert.equal((await call("note.save", { id, body, if_version: 3 })).status, 409);
+  assert.equal(
+    (await call("note.save", { id, body, if_version: 3 })).status,
+    409,
+  );
   const made = await call("note.save", {
     id,
     body,
@@ -274,11 +279,17 @@ test("note.save pins to if_version, creates at 0, and sets a title", async () =>
     .first<{ earlier_of: string }>();
   assert.equal(row?.earlier_of, "note_n-20261106-110000-zzzzzzzzzzzz");
   // a create over an existing note is stale
-  assert.equal((await call("note.save", { id, body, if_version: 0 })).status, 409);
+  assert.equal(
+    (await call("note.save", { id, body, if_version: 0 })).status,
+    409,
+  );
   // a pinned change lands once; the same pin again is stale and writes nothing
   const ok = await call("note.save", { id, body: "again", if_version: 1 });
   assert.equal(ok.status, 200);
   assert.equal(ok.body.result.version, 2);
-  assert.equal((await call("note.save", { id, body: "late", if_version: 1 })).status, 409);
+  assert.equal(
+    (await call("note.save", { id, body: "late", if_version: 1 })).status,
+    409,
+  );
   assert.equal((await note(id))?.blocks[0]?.runs[0]?.text, "again");
 });

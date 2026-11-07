@@ -48,12 +48,13 @@ async function setup(withTables: boolean) {
     TOKEN_APP: "app-t",
     TOKEN_SCHEDULE: "sch-t",
   } as unknown as Env;
-  return (method: string, url: string, token: string | null = "app-t") =>
+  const call = (method: string, url: string, token: string | null = "app-t") =>
     app.request(
       "/api/v1" + url,
       { method, headers: token ? { authorization: `Bearer ${token}` } : {} },
       env,
     );
+  return Object.assign(call, { db: DB });
 }
 
 test("collections read by position, with parent ids", async () => {
@@ -69,6 +70,31 @@ test("collections read by position, with parent ids", async () => {
       ["col_c1", null],
       ["col_c3", "col_c1"],
       ["col_c2", null],
+    ],
+  );
+});
+
+test("a note's collection is read from its own row, not from a stale membership", async () => {
+  const call = await setup(true);
+  const DB = call.db;
+  await DB.prepare(
+    "INSERT INTO notes (id, collection_id, title, body, text, at, v, deleted_at) VALUES ('note_n1','col_c2','t','{}','',20,2,NULL),('note_n3','col_c1','t','{}','',15,1,NULL),('note_n4','col_c1','t','{}','',16,1,10)",
+  ).run();
+  const one = (await (
+    await call("GET", "/memberships?collection_id=col_c1")
+  ).json()) as { memberships: { collection: string; id: string }[] };
+  assert.deepEqual(
+    one.memberships.map((m) => [m.collection, m.id]),
+    [["notes", "n3"]],
+  );
+  const to = (await (
+    await call("GET", "/memberships?collection_id=col_c2")
+  ).json()) as { memberships: { collection: string; id: string }[] };
+  assert.deepEqual(
+    to.memberships.map((m) => [m.collection, m.id]),
+    [
+      ["notes", "n1"],
+      ["sets", "s1"],
     ],
   );
 });
