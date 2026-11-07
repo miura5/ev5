@@ -47,8 +47,14 @@ test("a note becomes a row whose text is the words, and reads back as the same d
     deleted_at: null,
   });
   const back = noteDocOf(stored);
-  // nothing is dropped: the blocks and every mark survive; only the envelope's `at` is the row's own
-  expect({ ...back, at: T0 }).toEqual(doc);
+  // the blocks and every mark survive; the body keeps the block format only, so the old document fields are gone
+  expect(row.body).toEqual({
+    blocks: doc.blocks,
+    createdAt: doc.createdAt,
+    editedAt: T0,
+  });
+  const { course: _c, label: _l, archivedAt: _a, ...kept } = doc;
+  expect({ ...back, at: T0 }).toEqual(kept);
   expect(back.at).toBe("2026-10-20T00:00:00.000Z");
 });
 
