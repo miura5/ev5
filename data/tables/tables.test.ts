@@ -96,7 +96,7 @@ test("pins keep order and move by writing a position", async () => {
 test("item properties round trip repeat, link and overrides", async () => {
   const r = setup();
   const p = {
-    c: "dayedits",
+    c: "notes",
     id: "p1",
     time: "08:30",
     repeat: null,
@@ -104,7 +104,7 @@ test("item properties round trip repeat, link and overrides", async () => {
     overrides: { minutes: 20 },
   };
   assert.ok((await r.itemProps.save(p, null)).ok);
-  const got = await r.itemProps.get("dayedits", "p1");
+  const got = await r.itemProps.get("notes", "p1");
   assert.deepEqual(got && { ...got, at: 0, v: 0 }, { ...p, at: 0, v: 0 });
   assert.equal((await r.itemProps.save({ ...p, time: null }, 1)).ok, true);
 });
