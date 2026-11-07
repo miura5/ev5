@@ -29,7 +29,7 @@ async function rig(text: string) {
     ceiling_monthly: 5e9,
     ceiling_per_job: 5e9,
   }))
-    await s.DB.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)").bind(k, v).run();
+    await s.DB.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)").bind(k, v).run();
   const book = tablesRepo(s.DB, { clock: () => 1000 }).setBook;
   await book.create({
     id: "set_s1",

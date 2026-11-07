@@ -111,7 +111,6 @@ export { parseDraftTableRow, draftKey } from "./draft/index.ts";
 export {
   parseClaudeUsage,
   parseClaudeRead,
-  parseClaudeSetting,
   parseClaudePlanAsk,
 } from "./claude/index.ts";
 /** @public */

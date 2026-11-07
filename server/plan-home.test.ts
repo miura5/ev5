@@ -20,6 +20,7 @@ function sqliteD1(): D1Like & { sql: DatabaseSync } {
     "0004_ceiling_usage.sql",
     "0006_tables.sql",
     "0007_plans_drafts.sql",
+    "0019_settings.sql",
   ])
     sql.exec(
       readFileSync(new URL(`../data/migrations/${f}`, import.meta.url), "utf8"),
@@ -132,7 +133,7 @@ test("ceilings use the documented defaults when unset and a stored value wins", 
   const db = sqliteD1();
   assert.deepEqual(await loadCeilingConfig(db), DEFAULT_CEILINGS);
   db.sql.exec(
-    "INSERT INTO claude_settings VALUES ('ceiling_daily', 0, 0), ('ceiling_hourly', 7, 0)",
+    "INSERT INTO settings (key, value, at) VALUES ('ceiling_daily', 0, 0), ('ceiling_hourly', 7, 0)",
   );
   assert.deepEqual(await loadCeilingConfig(db), {
     ...DEFAULT_CEILINGS,

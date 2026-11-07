@@ -42,7 +42,7 @@ function setup(
       ["ceiling_per_job", over.ceiling ?? 5_000_000],
     ] as const)
       db.prepare(
-        "INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)",
+        "INSERT INTO settings (key, value, at) VALUES (?, ?, 0)",
       )
         .bind(k, v)
         .run();

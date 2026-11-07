@@ -53,7 +53,7 @@ export function setup() {
     "Vital signs: pulse is measured at the wrist.",
   );
   for (const k of ["hourly", "daily", "monthly", "per_job"])
-    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
+    db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
       .bind(`ceiling_${k}`, 5_000_000)
       .run();
   const call: ModelCall = async () => ({
