@@ -1,69 +1,55 @@
-// Registers the service worker that caches the app shell so it opens offline (CONTRACT §data.offline, §ui.targets).
-// A new build must reach the open app: the browser re-checks /sw.js on every focus, and when the new worker takes
-// over (autoUpdate = skipWaiting + clientsClaim) the page reloads once so it runs the new build.
-type SwNav = Pick<Navigator, "serviceWorker">;
-type Doc = Pick<Document, "addEventListener" | "visibilityState">;
-type Reloader = () => void;
-type Waiter = { postMessage?: (m: unknown) => void } | null | undefined;
-type StateWorker = NonNullable<Waiter> & {
-  state?: string;
-  addEventListener?: (n: string, f: () => void) => void;
-};
-type Reg = {
-  update?: () => Promise<unknown>;
-  waiting?: Waiter;
-  installing?: StateWorker | null;
-  addEventListener?: (n: string, f: () => void) => void;
-};
+// Keeps the installed app on the newest build (CONTRACT §data.offline, §ui.targets). The generated worker takes over at
+// once (registerType autoUpdate = skipWaiting + clientsClaim); the page re-checks it on window focus. When the new
+// worker takes over, the page reloads, but never while a study attempt is open: a takeover must not reset a study run.
+import type { RegisterSWOptions } from "vite-plugin-pwa/types";
 
-// The generated worker only skips waiting on this message, so the shell sends it: a waiting worker then takes over
-// and the reload-once on controllerchange runs the new build.
-function skipWaiting(w: Waiter): void {
-  w?.postMessage?.({ type: "SKIP_WAITING" });
-}
-function takeOverUpdates(
-  reg: Reg | undefined,
-  hasController: () => boolean,
-): void {
-  if (!reg) return;
-  if (hasController()) skipWaiting(reg.waiting);
-  reg.addEventListener?.("updatefound", () => {
-    const w = reg.installing;
-    w?.addEventListener?.("statechange", () => {
-      if (w.state === "installed" && hasController())
-        skipWaiting(reg.waiting ?? w);
-    });
-  });
-}
+export type RegisterSW = (options?: RegisterSWOptions) => unknown;
+type Win = Pick<Window, "addEventListener">;
+type Reg = { update?: () => Promise<unknown> } | undefined;
 
-export function registerPwa(
-  nav: SwNav | undefined = globalThis.navigator,
-  doc: Doc | undefined = globalThis.document,
-  reload: Reloader = () => globalThis.location?.reload(),
-): boolean {
-  if (!nav || !("serviceWorker" in nav)) return false;
-  const sw = nav.serviceWorker;
-  // Only a takeover of a page that already had a worker is an update; the first install must not reload.
-  let hadController = Boolean(sw.controller);
-  let reloaded = false;
-  sw.addEventListener?.("controllerchange", () => {
-    if (!hadController) {
-      hadController = true;
-      return;
+/** Open attempts. A screen calls `hold()` when an attempt opens and the returned `release()` when it ends. */
+export function createReloadHold(reload: () => void) {
+  let open = 0;
+  let pending = false;
+  const settle = () => {
+    if (open === 0 && pending) {
+      pending = false;
+      reload();
     }
-    if (reloaded) return;
-    reloaded = true;
-    reload();
+  };
+  return {
+    hold(): () => void {
+      open += 1;
+      let released = false;
+      return () => {
+        if (released) return;
+        released = true;
+        open -= 1;
+        settle();
+      };
+    },
+    /** A new build is ready: reload now, or when the last attempt closes. */
+    requestReload(): void {
+      pending = true;
+      settle();
+    },
+  };
+}
+
+export const reloadHold = createReloadHold(() => globalThis.location?.reload());
+
+export function startPwa(
+  register: RegisterSW,
+  win: Win | undefined = globalThis.window,
+  gate: Pick<typeof reloadHold, "requestReload"> = reloadHold,
+): void {
+  let reg: Reg;
+  register({
+    immediate: true,
+    onNeedReload: () => gate.requestReload(),
+    onRegisteredSW: (_url, r) => {
+      reg = r;
+    },
   });
-  void sw
-    .register("/sw.js", { scope: "/" })
-    .then((reg: Reg | undefined) => {
-      takeOverUpdates(reg, () => Boolean(sw.controller));
-      doc?.addEventListener("visibilitychange", () => {
-        if (doc.visibilityState === "visible")
-          void reg?.update?.().catch(() => undefined);
-      });
-    })
-    .catch(() => undefined);
-  return true;
+  win?.addEventListener("focus", () => void reg?.update?.().catch(() => undefined));
 }
