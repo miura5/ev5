@@ -193,7 +193,7 @@ export const practiceSet = defineJob({
   model: "haiku",
   maxTokens: 32_000,
   costCapCents: 50,
-  steps: ["plan", "call", "save"],
+  steps: ["plan", "call", "keep", "save"],
   wording: {
     running: "E.V. is writing your questions.",
     needsYou: "Some questions have no source. Keep or drop each one.",

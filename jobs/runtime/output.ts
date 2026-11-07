@@ -61,20 +61,6 @@ export async function billedOnThrow<T>(
   }
 }
 
-/**
- * Keeps a paid model result: a put that throws is tried again here, with the result still in memory, so a write that
- * never landed does not send the step back to the model (which would bill it twice). The last error is rethrown.
- */
-export async function putKept<T>(put: () => Promise<T>, tries = 3): Promise<T> {
-  for (let i = 1; ; i++) {
-    try {
-      return await put();
-    } catch (e) {
-      if (i >= tries) throw e;
-    }
-  }
-}
-
 /** Plain-words problems for ids cited that were not in the excerpts given. */
 export function checkCitations(cited: Iterable<string>, given: Iterable<string>): string[] {
   const allowed = new Set(given);
