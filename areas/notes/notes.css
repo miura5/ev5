@@ -37,7 +37,7 @@
   flex-direction: column;
   gap: var(--sp-3);
   font-size: var(--fs-body);
-  line-height: var(--lh-body);
+  line-height: var(--lh);
 }
 
 .ev-notes-doc p,
@@ -46,7 +46,7 @@
 .ev-notes-doc h4 {
   margin: 0;
   font-size: var(--fs-body);
-  font-weight: var(--fw-body);
+  font-weight: var(--fw-regular);
 }
 
 .ev-notes-doc .ev-notes-h1 {
