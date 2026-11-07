@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { parseItemProps, materialize, missingOccurrences } from './index.ts';
+import { parseItemProps, materialize } from './index.ts';
 
 const at = '2026-11-03T10:00:00Z';
 const base = {
@@ -68,12 +68,4 @@ test('materializes one occurrence per matching day under rep-<id>-<date>', () =>
     entry: { text: 'Flashcards', kind: 'review', minutes: 15, at, by: 'Matt' },
   });
   expect(materialize(row(), plan, '2026-11-06', '2026-11-10', at)).toEqual([]);
-});
-
-test('re-running adds no duplicates and keeps skips', () => {
-  const found = materialize(row({ repeat: { kind: 'daily' } }), plan, '2026-11-03', '2026-11-03', at);
-  expect(missingOccurrences(null, found)).toEqual(found);
-  expect(missingOccurrences({ added: {} }, found)).toEqual(found);
-  expect(missingOccurrences({ added: { 'rep-x1-2026-11-03': {} } }, found)).toEqual([]);
-  expect(missingOccurrences({ skipped: { 'rep-x1-2026-11-03': {} } }, found)).toEqual([]);
 });

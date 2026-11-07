@@ -26,6 +26,20 @@ const spot = (topic: string, over: object = {}) => ({
   ...over,
 });
 
+/** A plan_items row Matt added, as the wire serves it (no plan, today unless `day` says otherwise). */
+const item = (id: string, title: string, over: object = {}) => ({
+  id,
+  data: {
+    plan_id: null,
+    day: "2026-11-03",
+    title,
+    minutes: null,
+    origin: "user",
+    done_at: null,
+    ...over,
+  },
+});
+
 test("no data is the empty day, not an error", () => {
   const d = mapToday({ exams: [], weakspots: [] }, now);
   expect(d.say.lead).toBe("Nothing planned yet.");
@@ -42,17 +56,10 @@ test("exams, weak spots and today's plan map to the view's props", () => {
         { id: "bad", data: { nope: 1 } },
       ],
       weakspots: [{ id: "w1", data: spot("Oral liquid doses") }],
-      dayedit: {
-        id: "2026-11-03",
-        data: {
-          added: {
-            a: { text: "Review doses", kind: "review", minutes: 10 },
-            b: { text: "Skipped", kind: "todo" },
-          },
-          checks: { a: { at: "x" } },
-          skipped: { b: { at: "x", by: "Matt" } },
-        },
-      },
+      planItems: [
+        item("a", "Review doses", { minutes: 10, done_at: 5 }),
+        item("b", "Another day", { day: "2026-11-04" }),
+      ],
     },
     now,
   );
@@ -74,7 +81,7 @@ test("exams, weak spots and today's plan map to the view's props", () => {
     {
       id: "a",
       title: "Review doses",
-      meta: "review · added by you",
+      meta: "added by you",
       est: "10m",
       done: true,
     },
@@ -98,31 +105,21 @@ test("Today's spend line is gone once the alert is acknowledged", () => {
 });
 
 test("a plan with items never says Nothing planned yet, and rows read as added by you", () => {
-  const dayedit = (checks: object) => ({
-    id: "2026-11-03",
-    data: {
-      added: {
-        a: { text: "Review doses", kind: "review", minutes: 10 },
-        b: { text: "Call clinic", kind: "todo" },
-      },
-      checks,
-    },
-  });
+  const items = (a: number | null, b: number | null) => [
+    item("a", "Review doses", { minutes: 10, done_at: a }),
+    item("b", "Call clinic", { done_at: b }),
+  ];
   const one = mapToday(
-    { exams: [], weakspots: [], dayedit: dayedit({ a: { at: "x" } }) },
+    { exams: [], weakspots: [], planItems: items(5, null) },
     now,
   );
   expect(one.say.lead).toBe("1 item is left on today's plan.");
   expect(one.plan.map((p) => [p.done, p.meta])).toEqual([
-    [true, "review · added by you"],
+    [true, "added by you"],
     [false, "added by you"],
   ]);
   const all = mapToday(
-    {
-      exams: [],
-      weakspots: [],
-      dayedit: dayedit({ a: { at: "x" }, b: { at: "x" } }),
-    },
+    { exams: [], weakspots: [], planItems: items(5, 6) },
     now,
   );
   expect(all.say.lead).toBe("Today's plan is done.");

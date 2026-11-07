@@ -13,17 +13,3 @@ export function materialize(props: ItemProps, plan: PlanTemplate, from: string, 
     entry: { ...plan, at, by: 'Matt' },
   }));
 }
-
-/** What one day's dayedits doc holds that matters here. */
-export type DayDoc = {
-  added?: Record<string, unknown>;
-  skipped?: Record<string, unknown>;
-};
-
-/**
- * The occurrences of one day still to add. Idempotent: a key already in `added` is left as it is (Matt's edits to it
- * stay), and a key in `skipped` is not brought back, so re-running after a restore adds no duplicates.
- */
-export function missingOccurrences(day: DayDoc | null, found: readonly Occurrence[]): Occurrence[] {
-  return found.filter((o) => !(day?.added && o.key in day.added) && !(day?.skipped && o.key in day.skipped));
-}

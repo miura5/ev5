@@ -36,17 +36,24 @@ async function setup() {
     );
     return { status: r.status, body: (await r.json()) as Record<string, any> };
   };
-  const doc = async (c: string, id: string) => {
-    const r = await DB.prepare("SELECT data FROM docs WHERE c = ? AND id = ?")
-      .bind(c, id)
-      .first<{ data: string }>();
-    return r ? (JSON.parse(r.data) as Record<string, any>) : null;
-  };
-  return { call, doc, DB };
+  /** The plan_items rows of one day, by position. */
+  const day = async (d: string) =>
+    (
+      await DB.prepare(
+        "SELECT * FROM plan_items WHERE day = ? ORDER BY pos, id",
+      )
+        .bind(d)
+        .all<Record<string, any>>()
+    ).results;
+  const item = async (id: string) =>
+    DB.prepare("SELECT * FROM plan_items WHERE id = ?")
+      .bind(id)
+      .first<Record<string, any>>();
+  return { call, day, item, DB };
 }
 
 test("an E.V. plan.create makes a Suggestion that the user accepts into their day", async () => {
-  const { call, doc } = await setup();
+  const { call, day } = await setup();
   const made = await call(
     "plan.create",
     {
@@ -58,18 +65,24 @@ test("an E.V. plan.create makes a Suggestion that the user accepts into their da
     "ev",
   );
   assert.equal(made.status, 202);
-  assert.equal(await doc("dayedits", "2026-11-05"), null);
+  assert.deepEqual(await day("2026-11-05"), []);
   const id = made.body.suggestion.id as string;
   const ok = await call("proposal.accept", { id });
   assert.equal(ok.status, 200);
-  const day = await doc("dayedits", "2026-11-05");
-  assert.equal(day?.added[ok.body.result.result.id].text, "Read ch 4");
-  assert.equal(day?.added[ok.body.result.result.id].by, "Matt");
+  const [row] = await day("2026-11-05");
+  assert.equal(row?.id, ok.body.result.result.id);
+  assert.match(row?.id, /^pli_/);
+  assert.equal(row?.title, "Read ch 4");
+  assert.equal(row?.minutes, 30);
+  assert.equal(row?.time, "09:00");
+  assert.equal(row?.origin, "user");
+  assert.equal(row?.plan_id, null);
+  assert.equal(row?.done_at, null);
   assert.equal((await call("proposal.accept", { id })).status, 404); // applies once
 });
 
 test("a Suggestion is edited, or dismissed and never applied", async () => {
-  const { call, doc } = await setup();
+  const { call, day } = await setup();
   const a = (
     await call("plan.create", { title: "A", date: "2026-11-06" }, "ev")
   ).body.suggestion.id;
@@ -82,22 +95,17 @@ test("a Suggestion is edited, or dismissed and never applied", async () => {
     400,
   );
   await call("proposal.accept", { id: a });
-  assert.equal(
-    (await doc("dayedits", "2026-11-06"))?.added[
-      Object.keys((await doc("dayedits", "2026-11-06"))?.added)[0] as string
-    ].text,
-    "B",
-  );
+  assert.equal((await day("2026-11-06"))[0]?.title, "B");
   const d = (
     await call("plan.create", { title: "C", date: "2026-11-07" }, "ev")
   ).body.suggestion.id;
   assert.equal((await call("proposal.dismiss", { id: d })).status, 200);
   assert.equal((await call("proposal.accept", { id: d })).status, 404);
-  assert.equal(await doc("dayedits", "2026-11-07"), null);
+  assert.deepEqual(await day("2026-11-07"), []);
 });
 
-test("update, move to tomorrow and toggle keep every write one ev4 accepts", async () => {
-  const { call, doc } = await setup();
+test("update, move to tomorrow and toggle change the item's own row", async () => {
+  const { call, item } = await setup();
   const { id } = (
     await call("plan.create", { title: "Skills", date: "2026-11-05" })
   ).body.result;
@@ -111,19 +119,21 @@ test("update, move to tomorrow and toggle keep every write one ev4 accepts", asy
     ).status,
     200,
   );
+  assert.equal((await item(id))?.v, 2);
   assert.equal((await call("plan.toggle_done", { id })).body.result.done, true);
+  assert.equal(typeof (await item(id))?.done_at, "number");
   assert.equal(
     (await call("plan.toggle_done", { id })).body.result.done,
     false,
   );
+  assert.equal((await item(id))?.done_at, null);
   const moved = await call("plan.move_tomorrow", { id });
   assert.equal(moved.body.result.date, "2026-11-06");
-  assert.equal(
-    (await doc("dayedits", "2026-11-06"))?.added[id].text,
-    "Skills lab",
-  );
-  assert.ok((await doc("dayedits", "2026-11-05"))?.skipped[id]);
-  assert.equal((await call("plan.toggle_done", { id })).status, 200); // finds the new day
+  const row = await item(id);
+  assert.equal(row?.day, "2026-11-06");
+  assert.equal(row?.title, "Skills lab");
+  assert.equal(row?.minutes, 45);
+  assert.equal((await call("plan.toggle_done", { id })).status, 200);
   assert.equal(
     (await call("plan.update", { id: "none", title: "x" })).status,
     404,
@@ -145,8 +155,8 @@ test("no command the user calls directly answers 501 for the commands these hand
     assert.ok(covered.includes(c.name), `${c.name} has no handler`);
 });
 
-test("a repeat is saved and materializes into dayedits.added under rep-<id>-<date>", async () => {
-  const { call, doc, DB } = await setup();
+test("a repeat is a repeats row, and each day's occurrence is a plan item with its repeat_id", async () => {
+  const { call, day, item, DB } = await setup();
   const made = await call("plan.create", {
     title: "Flashcards",
     date: "2026-11-05",
@@ -156,41 +166,39 @@ test("a repeat is saved and materializes into dayedits.added under rep-<id>-<dat
   });
   assert.equal(made.status, 200);
   const { id } = made.body.result;
-  const props = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
-    .bind(id)
+  const first = await item(id);
+  assert.equal(first?.time, "20:00");
+  assert.match(first?.repeat_id, /^rep_/);
+  const rep = await DB.prepare("SELECT * FROM repeats WHERE id = ?")
+    .bind(first?.repeat_id)
     .first<Record<string, any>>();
-  assert.equal(props?.time, "20:00");
-  assert.deepEqual(JSON.parse(props?.repeat), { kind: "weekdays" });
+  assert.deepEqual(JSON.parse(rep?.rule), { kind: "weekdays" });
+  assert.equal(rep?.from_day, "2026-11-05");
   // 2026-11-05 is a Thursday: Fri 6, then Mon 9 .. Fri 13, Mon 16 .. Thu 19 (14 days ahead)
-  const fri = await doc("dayedits", "2026-11-06");
-  assert.equal(fri?.added[`rep-${id}-2026-11-06`].text, "Flashcards");
-  assert.equal(fri?.added[`rep-${id}-2026-11-06`].minutes, 15);
-  assert.equal(await doc("dayedits", "2026-11-07"), null); // a Saturday
-  assert.ok(
-    (await doc("dayedits", "2026-11-09"))?.added[`rep-${id}-2026-11-09`],
-  );
+  const [fri] = await day("2026-11-06");
+  assert.equal(fri?.title, "Flashcards");
+  assert.equal(fri?.minutes, 15);
+  assert.equal(fri?.repeat_id, first?.repeat_id);
+  assert.equal(fri?.done_at, null);
+  assert.deepEqual(await day("2026-11-07"), []); // a Saturday
+  assert.equal((await day("2026-11-09")).length, 1);
   // an update re-runs it: nothing doubles, and the user's edit to an occurrence stays
-  const before = (await doc("dayedits", "2026-11-06"))?.v;
+  await call("plan.toggle_done", { id: fri?.id });
   assert.equal(
     (await call("plan.update", { id, estimateMinutes: 20 })).status,
     200,
   );
-  assert.equal(
-    Object.keys((await doc("dayedits", "2026-11-06"))?.added).length,
-    1,
-  );
-  assert.equal((await doc("dayedits", "2026-11-06"))?.v, before);
+  assert.equal((await day("2026-11-06")).length, 1);
+  assert.equal(typeof (await item(fri?.id))?.done_at, "number");
   // clearing the repeat keeps the time
   assert.equal((await call("plan.update", { id, repeat: "none" })).status, 200);
-  const cleared = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
-    .bind(id)
-    .first<Record<string, any>>();
-  assert.equal(cleared?.repeat, null);
+  const cleared = await item(id);
+  assert.equal(cleared?.repeat_id, null);
   assert.equal(cleared?.time, "20:00");
 });
 
 test("a link and a collection are kept, and a bad option writes nothing", async () => {
-  const { call, doc, DB } = await setup();
+  const { call, day, item, DB } = await setup();
   await DB.prepare(
     "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('col_c1', 'Skills', NULL, 0, 1, 1)",
   ).run();
@@ -202,10 +210,8 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
       collection: "col_c1",
     })
   ).body.result;
-  const p = await DB.prepare("SELECT * FROM item_props WHERE id = ?")
-    .bind(id)
-    .first<Record<string, any>>();
-  assert.equal(p?.linked_c, "exams");
+  const p = await item(id);
+  assert.equal(p?.linked_kind, "goal");
   assert.equal(p?.linked_id, "e1");
   const m = await DB.prepare("SELECT * FROM memberships WHERE item_id = ?")
     .bind(id)
@@ -223,10 +229,6 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
         .first<Record<string, any>>()
     )?.collection_id,
     "col_c1",
-  );
-  assert.equal(
-    (await doc("dayedits", "2026-11-05"))?.added[id].course,
-    undefined,
   );
   // "none" takes it out
   assert.equal(
@@ -251,23 +253,23 @@ test("a link and a collection are kept, and a bad option writes nothing", async 
       400,
       JSON.stringify(bad),
     );
-  assert.equal(await doc("dayedits", "2026-11-08"), null);
+  assert.deepEqual(await day("2026-11-08"), []);
 });
 
 test("a repeat is a Suggestion until the user accepts it", async () => {
-  const { call, doc } = await setup();
+  const { call, day } = await setup();
   const s = await call(
     "plan.create",
     { title: "R", date: "2026-11-05", repeat: "daily" },
     "ev",
   );
   assert.equal(s.status, 202);
-  assert.equal(await doc("dayedits", "2026-11-06"), null);
+  assert.deepEqual(await day("2026-11-06"), []);
   assert.equal(
     (await call("proposal.accept", { id: s.body.suggestion.id })).status,
     200,
   );
-  assert.ok(await doc("dayedits", "2026-11-06"));
+  assert.equal((await day("2026-11-06")).length, 1);
 });
 
 test("a Suggestion whose command fails goes back to pending with a new version and time", async () => {

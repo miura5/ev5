@@ -17,7 +17,7 @@ import type {
   UpcomingDate,
 } from "./types.ts";
 import { attemptsBySpot } from "./attempts.ts";
-import { examSessions, planOf, planSessions } from "./plans.ts";
+import { addedSessions, examSessions, planOf, planSessions } from "./plans.ts";
 import type { Session } from "./plans.ts";
 import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
 
@@ -44,14 +44,6 @@ export function spendAlertLine(
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const KINDS: Record<string, string> = {
-  todo: "to do",
-  reading: "reading",
-  learn: "learn",
-  practice: "practice",
-  review: "review",
-  notes: "notes",
-};
 
 function tryParse<T>(
   parse: (raw: unknown) => T,
@@ -70,30 +62,14 @@ function whenLabel(date: string, left: number, today: string): string {
   return left < 7 ? (DAYS[at.getUTCDay()] ?? "") : plainDay(date, today);
 }
 
-function planItems(
-  doc: WireDoc | undefined,
-  sessions: Session[] = [],
-): PlanItem[] {
-  const o = (doc?.data ?? {}) as {
-    added?: Record<string, { text: string; kind: string; minutes?: number }>;
-    checks?: Record<string, unknown>;
-    skipped?: Record<string, unknown>;
-  };
-  const fromPlan = Object.fromEntries(sessions.map((x) => [x.id, x]));
-  return Object.entries({ ...fromPlan, ...(o.added ?? {}) })
-    .filter(([k]) => !o.skipped?.[k])
-    .map(([k, a]) => ({
-      id: k,
-      title: a.text,
-      meta:
-        a.kind === "plan"
-          ? "from your prep plan"
-          : a.kind === "todo"
-            ? "added by you"
-            : `${KINDS[a.kind] ?? a.kind} · added by you`,
-      est: a.minutes ? `${a.minutes}m` : "",
-      done: !!o.checks?.[k],
-    }));
+function planItems(sessions: Session[]): PlanItem[] {
+  return sessions.map((a) => ({
+    id: a.id,
+    title: a.text,
+    meta: a.kind === "plan" ? "from your prep plan" : "added by you",
+    est: a.minutes ? `${a.minutes}m` : "",
+    done: a.done,
+  }));
 }
 
 /** The E.V. line from the day's plan, open or done; none when the plan is empty. */
@@ -132,7 +108,10 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
   const answered = attemptsBySpot(docs.attempts, docs.items);
   const derived = docs.weakspots
     .flatMap((d) => tryParse(parseWeakSpot, d))
-    .map((s) => ({ ...s, d: deriveWeakSpot(s.v, answered.get(s.id) ?? [], { id: s.id }) }));
+    .map((s) => ({
+      ...s,
+      d: deriveWeakSpot(s.v, answered.get(s.id) ?? [], { id: s.id }),
+    }));
   const open = derived.filter((s) => s.d.status === "open");
   const upcoming: UpcomingDate[] = exams.map(({ id, exam, left }) => {
     const mine = derived.filter(
@@ -166,14 +145,14 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
       readiness: { ready, shaky, weak: mine.length - ready - shaky },
     };
   });
-  const plan = planItems(
-    docs.dayedit,
-    planSessions(
+  const plan = planItems([
+    ...planSessions(
       docs,
       docs.exams.map((d) => d.id),
       today,
     ),
-  );
+    ...addedSessions(docs, today),
+  ]);
   const weekEnd = addDays(today, 6);
   const thisWeek: ThisWeekItem[] = exams
     .filter((e) => (e.exam.date as string) <= weekEnd)

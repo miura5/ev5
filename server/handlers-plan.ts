@@ -1,90 +1,97 @@
-// The plan-item commands (CONTRACT §cmd.registry, §data.protocol): a manual item is a `dayedits.added` entry made by
-// the user (PLAN §5.10), a tick is a `dayedits.checks` entry, and a time goes to `item_props`. Every write goes through
-// the docs protocol with the document's version, so a stale write is a 409. A repeat, a link and a time go to
-// `item_props`; a repeat also materializes the next days' occurrences into `dayedits.added` under `rep-<id>-<date>`
-// (PLAN §5.10); a collection is a membership row for a live `col_` id, and "none" takes the item out.
+// The plan-item commands (CONTRACT §cmd.registry, §data.gate): a plan item is a `plan_items` row made by the user (origin
+// user), its time, link and repeat are columns of that row, and a tick is its `done_at`. Every write goes through the
+// gate with the row's version, so a stale write is a 409. A repeat is a `repeats` row, and its next days' occurrences are
+// rows of their own (PLAN §5.10); a collection is a membership row for a live `col_` id, and "none" takes the item out.
 import { addDays, centralDate } from "../domain/index.ts";
-import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler } from "./handlers-core.ts";
-import { checkDate, findItem, iso, loadDay, saveDay } from "./plan-days.ts";
-import type { Day } from "./plan-days.ts";
-import { applyOptions, optionsOf } from "./plan-options.ts";
+import {
+  checkDate,
+  fieldsOf,
+  findItem,
+  nextPos,
+  saveItem,
+} from "./plan-days.ts";
+import {
+  materializeRepeat,
+  optionsOf,
+  placeItem,
+  saveRepeat,
+} from "./plan-options.ts";
 import type { Fields } from "./plan-options.ts";
 
 export const planHandlers: Record<string, CommandHandler> = {
   "plan.create": async (i: Fields & { title: string }, _c, x) => {
     const date = checkDate(i.date ?? centralDate(x.clock()));
-    const options = await optionsOf(x, i, date);
-    const id = x.newId();
-    await saveDay(
-      x,
-      "v5/command:plan.create",
-      date,
-      await loadDay(x, date),
-      (d) => {
-        d.added = {
-          ...d.added,
-          [id]: {
-            text: i.title,
-            kind: "todo",
-            ...(i.estimateMinutes ? { minutes: i.estimateMinutes } : {}),
-            at: iso(x.clock()),
-            by: "Matt",
-          },
-        };
-      },
-    );
-    await applyOptions(x, id, date, options);
-    return { id, date };
+    const o = await optionsOf(x, i, date);
+    const base = {
+      id: `pli_${x.newId()}`,
+      plan_id: null,
+      day: date,
+      pos: await nextPos(x, date),
+      title: i.title,
+      minutes: i.estimateMinutes ?? null,
+      time: o.time ?? null,
+      origin: "user" as const,
+      linked_kind: o.linked?.kind ?? null,
+      linked_id: o.linked?.id ?? null,
+      repeat_id: null,
+      done_at: null,
+    };
+    const repeat_id = o.repeat
+      ? await saveRepeat(x, base, o.repeat, null, x.newId())
+      : null;
+    const row = await saveItem(x, { ...base, repeat_id }, null);
+    await materializeRepeat(x, row);
+    if (o.collection !== undefined) await placeItem(x, row.id, o.collection);
+    return { id: row.id, date };
   },
 
   "plan.update": async (i: Fields & { id: string }, _c, x) => {
-    const from = await findItem(x, i.id);
-    const to = i.date === undefined ? from.date : checkDate(i.date);
-    const options = await optionsOf(x, i, to);
-    const item = {
-      ...(from.day.added as Record<string, Record<string, unknown>>)[i.id],
+    const cur = await findItem(x, i.id);
+    const to = i.date === undefined ? cur.day : checkDate(i.date);
+    const o = await optionsOf(x, i, to);
+    const next = {
+      ...fieldsOf(cur),
+      day: to,
+      pos: to === cur.day ? cur.pos : await nextPos(x, to),
+      title: i.title ?? cur.title,
+      minutes: i.estimateMinutes ?? cur.minutes,
+      time: o.time === undefined ? cur.time : o.time,
+      linked_kind:
+        o.linked === undefined ? cur.linked_kind : (o.linked?.kind ?? null),
+      linked_id:
+        o.linked === undefined ? cur.linked_id : (o.linked?.id ?? null),
     };
-    if (i.title !== undefined) item.text = i.title;
-    if (i.estimateMinutes !== undefined) item.minutes = i.estimateMinutes;
-    const put = (d: Day) => void (d.added = { ...d.added, [i.id]: item });
-    // A move writes the new day first, so a failure between the two leaves the item twice, never lost.
-    if (to !== from.date)
-      await saveDay(x, "v5/command:plan.update", to, await loadDay(x, to), put);
-    await saveDay(x, "v5/command:plan.update", from.date, from, (d) => {
-      if (to === from.date) return put(d);
-      // Nothing is removed (§delete.soft): the old day marks the item skipped and the new day holds it.
-      d.skipped = {
-        ...(d.skipped as object),
-        [i.id]: { at: iso(x.clock()), by: "Matt" },
-      };
-    });
-    await applyOptions(x, i.id, to, options);
-    return { id: i.id, date: to };
+    next.repeat_id =
+      o.repeat === undefined
+        ? cur.repeat_id
+        : o.repeat === null
+          ? null
+          : await saveRepeat(x, next, o.repeat, cur.repeat_id, x.newId());
+    const row = await saveItem(x, next, cur.v);
+    // A repeat is topped up on every change, so a date change reaches the days not yet written.
+    await materializeRepeat(x, row);
+    if (o.collection !== undefined) await placeItem(x, row.id, o.collection);
+    return { id: row.id, date: to };
   },
 
   "plan.move_tomorrow": async (i: { id: string }, c, x) => {
     const from = await findItem(x, i.id);
     return planHandlers["plan.update"]?.(
-      { id: i.id, date: addDays(from.date, 1) } as never,
+      { id: i.id, date: addDays(from.day, 1) } as never,
       c,
       x,
     );
   },
 
   "plan.toggle_done": async (i: { id: string }, _c, x) => {
-    const f = await findItem(x, i.id);
-    let done = false;
-    await saveDay(x, "v5/command:plan.toggle_done", f.date, f, (d) => {
-      const { [i.id]: was, ...rest } = (d.checks ?? {}) as Record<
-        string,
-        unknown
-      >;
-      done = was === undefined;
-      d.checks = done
-        ? { ...rest, [i.id]: { at: iso(x.clock()), by: "Matt" } }
-        : rest;
-    });
+    const cur = await findItem(x, i.id);
+    const done = cur.done_at === null;
+    await saveItem(
+      x,
+      { ...fieldsOf(cur), done_at: done ? x.clock() : null },
+      cur.v,
+    );
     return { id: i.id, done };
   },
 
