@@ -129,14 +129,14 @@
   text-decoration: line-through;
 }
 
-/* Beside a kit Row: its menu button, which Row does not draw. */
+/* Beside a kit Row: its menu button, which Row does not draw. The Row is the first child and takes the width. */
 .ev-notes-line {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
 }
 
-.ev-notes-line > .kit-row {
+.ev-notes-line > :first-child {
   flex: 1;
   min-width: 0;
 }
