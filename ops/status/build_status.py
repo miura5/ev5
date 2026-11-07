@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build one status snapshot of the E.V. v5 build (public repo miura5/ev5) as JSON on stdout.
+"""Build one status snapshot of the E.V. v5 build (a public GitHub repo) as JSON on stdout.
 
 Reads only public GitHub data: about 7 to 13 REST calls plus two raw files. It needs no
 token; in GitHub Actions it sends GH_TOKEN (the workflow's own read token) to avoid the
@@ -10,11 +10,27 @@ branch status-feed as status.json; the "ev5 build" page shows it as its db docum
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-REPO = "miura5/ev5"
+def repo_name():
+    """owner/name from GITHUB_REPOSITORY, else from the git remote of the clone."""
+    env = os.environ.get("GITHUB_REPOSITORY")
+    if env:
+        return env
+    url = subprocess.run(
+        ["git", "remote", "get-url", "origin"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+    m = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    if not m:
+        sys.exit(f"cannot read owner/name from the git remote: {url}")
+    return m.group(1)
+
+
+REPO = repo_name()
+QUESTIONS_ISSUE = int(os.environ.get("QUESTIONS_ISSUE", "1"))
 API = f"https://api.github.com/repos/{REPO}"
 RAW = f"https://raw.githubusercontent.com/{REPO}/main"
 CENTRAL = timezone(timedelta(hours=-6))  # America/Chicago, standard time (Nov to Mar)
@@ -173,11 +189,11 @@ def main():
     handover = {"phase": line("Phase"), "running": line("Running"), "waiting": line("Waiting on Matt"),
                 "next": next_items, "staging": staging_line}
 
-    # 6. Comments a person wrote on issue #1 ("For Matt") in the last 24 hours
+    # 6. Comments a person wrote on the questions issue ("For Matt", QUESTIONS_ISSUE, default 1) in the last 24 hours
     since = iso(NOW - timedelta(hours=24))
     matt = [
         {"at": c["created_at"], "url": c["html_url"], "text": c["body"][:300]}
-        for c in get(f"{API}/issues/1/comments?since={since}&per_page=50")
+        for c in get(f"{API}/issues/{QUESTIONS_ISSUE}/comments?since={since}&per_page=50")
         if c["user"]["type"] == "User" and ts(c["created_at"]) >= ts(since)
     ]
 
