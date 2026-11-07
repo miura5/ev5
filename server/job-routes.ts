@@ -11,7 +11,7 @@ import {
   parsePublicInput,
   practiceSet,
   startJob,
-  studyPlanJob,
+  prepPlanJob,
   sweepStale,
   transition,
   update,
@@ -36,7 +36,7 @@ export interface JobRoutesEnv {
 /** The job kinds this Worker starts; each URL slug is its kind with dashes (practice_set is /jobs/practice-set). */
 const JOB_DEFS: readonly JobDef[] = [
   practiceSet as JobDef,
-  studyPlanJob as JobDef,
+  prepPlanJob as JobDef,
 ];
 export const DEFS = new Map(JOB_DEFS.map((d) => [d.kind, d]));
 const KINDS: Record<string, JobDef> = Object.fromEntries(
@@ -139,7 +139,7 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   }
   // A draft whose days have all passed (Central) is refused, with a plain reason and an offer to plan again.
   if (
-    def.kind === studyPlanJob.kind &&
+    def.kind === prepPlanJob.kind &&
     (answer as { decision?: unknown } | undefined)?.decision === "approve"
   ) {
     const last = await lastDraftDay(c.env.DB, rec.id);
@@ -148,7 +148,7 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   }
   // Putting a plan away needs no Workflow: it ends now as done, so it never shows as running and lands in Done today.
   if (
-    def.kind === studyPlanJob.kind &&
+    def.kind === prepPlanJob.kind &&
     (answer as { decision?: unknown } | undefined)?.decision === "put_away"
   ) {
     const clock = () => Date.now();
@@ -209,7 +209,7 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
 > {
   const named = jobs.filter(
     (j) =>
-      j.kind === studyPlanJob.kind &&
+      j.kind === prepPlanJob.kind &&
       (j.state === "needs-you" || j.state === "running"),
   );
   if (!named.length) return jobs;

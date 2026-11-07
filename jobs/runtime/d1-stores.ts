@@ -8,7 +8,7 @@ import {
 } from "../../domain/index.ts";
 import type { CeilingStore } from "./ceilings.ts";
 import type { JobStore } from "./record.ts";
-import type { Plan, PlanContext, PlanStore } from "../study-plan/job.ts";
+import type { Plan, PlanContext, PlanStore } from "../prep-plan/job.ts";
 import type { DraftRow, PracticeItem } from "../practice-set/job.ts";
 
 /** The slice of D1 the stores use; the data folder defines it. */

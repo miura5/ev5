@@ -15,8 +15,8 @@ import {
   practiceSetHandlers,
   runJob,
   saveOutput,
-  studyPlanHandlers,
-  studyPlanJob,
+  prepPlanHandlers,
+  prepPlanJob,
 } from "../jobs/index.ts";
 import type {
   CeilingConfig,
@@ -38,8 +38,8 @@ export type JobRunEnv = {
   /** Each kind's system prompt (prompt.md), loaded by the Worker as a wrangler Text module. */
   prompts: {
     practice_set: string;
-    study_plan: string;
-    study_plan_changes: string;
+    prep_plan: string;
+    prep_plan_changes: string;
   };
   /** Where the prep plan reads its exam and weak spots (server/plan-home.ts). */
   planHome: {
@@ -147,13 +147,13 @@ export function jobKinds(
         system: env.prompts.practice_set,
       }),
     },
-    [studyPlanJob.kind]: {
-      def: studyPlanJob as JobDef,
-      handlers: studyPlanHandlers({
+    [prepPlanJob.kind]: {
+      def: prepPlanJob as JobDef,
+      handlers: prepPlanHandlers({
         store: d1PlanStore(env.db, clock, env.planHome),
         call: env.call,
-        system: env.prompts.study_plan,
-        changesSystem: env.prompts.study_plan_changes,
+        system: env.prompts.prep_plan,
+        changesSystem: env.prompts.prep_plan_changes,
         askChanges,
       }),
     },

@@ -4,8 +4,8 @@ import { WorkflowEntrypoint } from "cloudflare:workers";
 import { sdkModelCall } from "../jobs/index.ts";
 import type { InstanceParams, StepConfig, StepRunner } from "../jobs/index.ts";
 import practiceSetPrompt from "../jobs/practice-set/prompt.md";
-import studyPlanPrompt from "../jobs/study-plan/prompt.md";
-import studyPlanChangesPrompt from "../jobs/study-plan/changes-prompt.md";
+import prepPlanPrompt from "../jobs/prep-plan/prompt.md";
+import prepPlanChangesPrompt from "../jobs/prep-plan/changes-prompt.md";
 import type { Env } from "./index.ts";
 import { runWorkflow } from "./job-run.ts";
 import { planHome } from "./plan-home.ts";
@@ -35,8 +35,8 @@ export class JobWorkflow extends WorkflowEntrypoint<Env, InstanceParams> {
         call: sdkModelCall({ apiKey: this.env.ANTHROPIC_API_KEY }),
         prompts: {
           practice_set: practiceSetPrompt,
-          study_plan: studyPlanPrompt,
-          study_plan_changes: studyPlanChangesPrompt,
+          prep_plan: prepPlanPrompt,
+          prep_plan_changes: prepPlanChangesPrompt,
         },
         planHome: planHome(this.env.DB, () => Date.now()),
       },
