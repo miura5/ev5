@@ -211,14 +211,9 @@ collectionRoutes.get("/deletions", async (c) => {
       (a, b) =>
         b.at - a.at || a.c.localeCompare(b.c) || a.id.localeCompare(b.id),
     );
-  // Titles come from the kept document (the delete is soft, §delete.soft); each lookup is its own read so a database
+  // Titles come from the kept row (the delete is soft, §delete.soft); each lookup is its own read so a database
   // without that table still lists its deletions.
   const titles = new Map<string, string>();
-  const named = await rows<{ k: string; t: string | null }>(
-    c.env.DB,
-    "SELECT d.c || '/' || d.id AS k, COALESCE(json_extract(x.data, '$.title'), json_extract(x.data, '$.name')) AS t FROM deletions d JOIN docs x ON x.c = d.c AND x.id = d.id",
-    [],
-  );
   const items = await rows<{ k: string; t: string | null }>(
     c.env.DB,
     "SELECT 'set_items/' || i.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN set_items i ON (d.c = 'set_items' AND d.id = i.id) OR (d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.id)",
@@ -239,7 +234,7 @@ collectionRoutes.get("/deletions", async (c) => {
     "SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN sets x ON d.c = 'sets' AND x.id = d.id UNION ALL SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN goals x ON d.c = 'goals' AND x.id = d.id UNION ALL SELECT 'sessions/' || d.id AS k, x.topic AS t FROM deletions d JOIN sessions x ON d.c = 'sessions' AND x.id = d.id",
     [],
   );
-  for (const r of [...named, ...items, ...colls, ...notes, ...setsAndGoals]) {
+  for (const r of [...items, ...colls, ...notes, ...setsAndGoals]) {
     if (typeof r.t === "string" && r.t.trim()) titles.set(r.k, r.t.trim());
   }
   return c.json({
