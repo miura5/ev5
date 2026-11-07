@@ -10,6 +10,8 @@ type Written = Extract<PracticeResult, { ok: true }>;
 export interface PracticeStore {
   put(jobId: string, r: Written): Promise<string>;
   get(jobId: string): Promise<Written>;
+  /** The kept result if the call step already stored it (its step result was lost), else undefined. */
+  find?(jobId: string): Promise<Written | undefined>;
   /** A model failure noted once, so a step retry does not pay for the same failing call again. */
   putFailure(jobId: string, reason: string): Promise<void>;
   getFailure(jobId: string): Promise<string | undefined>;
@@ -33,6 +35,8 @@ export function practiceSetHandlers({
     call: async (c) => {
       const earlier = await store.getFailure(c.jobId);
       if (earlier) throw new Error(earlier);
+      // The result is already kept (a retry after the write landed): the model is not paid for again.
+      if (await store.find?.(c.jobId)) return { ids: [`${c.jobId}:result`] };
       await c.reserve(practiceSet.costCapCents);
       const r = await billedOnThrow(c.spend, () =>
         writePracticeSet(c.jobId, c.input, { call, system }),

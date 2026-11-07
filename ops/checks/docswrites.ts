@@ -7,9 +7,8 @@ const SCANNED = /^(?:e2e|data\/staging|ops)\//;
 const SKIPPED = /^ops\/(?:checks|guards)\/|^ops\/record\/fixtures/;
 const PUT = /["'`]PUT["'`]|-X\s*PUT|--request\s+PUT|method:\s*["'`]PUT/;
 
-// Existing violations found 2026-11-06, each moved to a command by the task that moves its kind.
-// Remove a file when it is clean; never add one.
-const ALLOWED = new Set(['e2e/notes.journey.spec.ts', 'e2e/practice-set.journey.spec.ts', 'e2e/prep-plan.journey.spec.ts']);
+// No file is allowed: every journey and script writes through a command. Never add one.
+const ALLOWED = new Set<string>();
 
 export function checkDocsWrites(root: string, files: string[]): Finding[] {
   const out: Finding[] = [];
