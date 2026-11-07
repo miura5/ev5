@@ -3,16 +3,17 @@
 NOTE B-1036 (a) action pins, (e) size check blocked: sandbox cannot reach other repos' tags or developers.cloudflare.com.
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, D-495). Keep groups and order. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
+NOTE Sandbox has Node 22 (wants >=26): builders cannot run precheck; CI checks.
 (3) Kit drift: B-1012 left only: library-back e2e journey's first staging run, seen on staging (code done). B-942 left: light theme/PNG check on staging. B-979 waits on B-974, B-975 and two kit-class overrides in areas/ (notes); not built.
 (4) Data layer, built to D-498 (wins over docs/proposals/table-design.md; replaces D-496). No contract migration: after B-998 part 2 one squash baseline replaces the chain 0000 to 0018 (D-514).
 Order: B-1022 remainder (old doc-row shapes after B-1037 to B-1043; row routes for item versions, session events; one shared attempts adapter in domain/answers for library, progress, today),
 B-998 remainder (notes and plan items on memberships.save need their tables; plan_items.collection_id column (squash baseline) then placeItem drops memberships; item_props drops with the squash; scan jobs/morning for dayedits users; item.move/pin/unpin on old repos (needs pins id/v/deleted_at/target_kind: squash baseline); part 2 ONLY after every docs reader and writer has moved: remove /docs routes and data/docs, then the squash, staging rebuild, rerun drill),
-B-1036 (left: check 2 after the docs removal; check 3 columns-equal-row-shape and deleted_at; check 4 short test-only allow-list; 7 done #780).
-Done 2026-11-07 (#723 to #780; B-1036 checks 1, 6, 7, 8, 9; B-1060 fixtures #779): row routes and row reads for most kinds; plan items are plan_items rows (#768); notes place by notes.collection_id; e2e uses commands and rows.
+B-1036 (left: check 2 after the docs removal; checks 3 and 4 done #784).
+Done 2026-11-07 (#723 to #784; B-1036 checks 1, 6, 7, 8, 9; B-1060 fixtures #779): row routes and row reads for most kinds; plan items are plan_items rows (#768); notes place by notes.collection_id; e2e uses commands and rows.
 Blocked: B-1044 and B-1038 B8 need B-1037 attempts reader and a was_due column in the squash baseline. B-1060 left: kit baselines (Docker); check design/mockup.html, DESIGN-BRIEF.md; stray biology strings (prep-plan-names.test.ts, domain/search).
 Left from B-1037: no open check reaches the session screen (needs a server/commands source for the question); decide whether check.just_tell_me writes an attempts row. data/staging/seed.ts still reads /docs. 
 Next builders: B-1022 WireDoc left in areas/today (useToday, map, plans) and the domain/doc-row export, row routes for item versions, session events, plan rows; B-1036 (e)/(a) if hosts reachable; B-1037 check.answer UI (needs kit piece); B-1038 other parts. Ask Matt later: should a self-rated 'again' count as a miss (now it does not). Then the squash. Builders: one git worktree each; the Interface trailer must be on the commit that touches an interface (a missing one cannot be fixed without force-push: re-squash to a new branch).
-Then rest of B-955, B-1001, B-1005. B-1006 to B-1008 wait for group 3. Follow-up: pass onBad to the table repos.
+Then rest of B-955, B-1001, B-1005. B-1006 to B-1008 wait for group 3.
 Small ev4-trace cleanups: B-1059 (after B-1009); B-1060 (see notes).
 (5) Cutover steps: B-822, B-754, B-757, B-756, B-759, B-823, B-1026, B-1027 (after B-1005), B-1028, B-1029.
 (6) Gate 6 B-760.

@@ -4488,7 +4488,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed.",
+  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4826,7 +4826,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: sessions area reads session and session-event rows (#771); progress reads attempts rows (#772); shell/usePins and areas/collection off WireDoc (#773, #774). Left: WireDoc in areas/today (useToday, map, plans) and domain/doc-row export; item-versions has no area reader (no UI wants it); old doc-row shapes after B-1037 to B-1043; collection column (B-998). Optional: share the attempts adapter of library and progress in domain/answers (Interface trailer). Claim freed.",
+  "notes": "Run 2026-11-07 0800Z: sessions area reads session and session-event rows (#771); progress reads attempts rows (#772); shell/usePins and areas/collection off WireDoc (#773, #774). Left: WireDoc in areas/today (useToday, map, plans) and domain/doc-row export; item-versions has no area reader (no UI wants it); old doc-row shapes after B-1037 to B-1043; collection column (B-998). Optional: share the attempts adapter of library and progress in domain/answers (Interface trailer). Claim freed. Run 2026-11-07 0930Z: WireDoc already gone from areas/today (#777); comment fixed (#782). Left: objective, weak-spot, session, note rows still import docRowSchema (moves with B-1037 to B-1043), then remove domain/doc-row; item-versions reader; collection column (B-998). Claim freed.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5009,7 +5009,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0900Z: checks 1, 6, 8, 9 (#776), 7 (#780) on main; 3, 4, 5 first parts already on main. Left: 2 (after docs removal); 3 columns-equal-row-shape and deleted_at for deletable tables; 4 short allow-list of test-only exports.",
+  "notes": "Run 2026-11-07 0900Z: checks 1, 6, 8, 9 (#776), 7 (#780) on main; 3, 4, 5 first parts already on main. Left: 2 (after docs removal); 3 columns-equal-row-shape and deleted_at for deletable tables; 4 short allow-list of test-only exports. Run 2026-11-07 0930Z: check 3 deleted_at for deletable tables and check 4 stale allow-list entry (#784). Left: check 2 after the docs removal. Claim freed.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
