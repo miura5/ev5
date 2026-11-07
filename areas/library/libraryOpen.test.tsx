@@ -6,7 +6,11 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryHosted as LibraryScreen, goalRow } from "./testHost.tsx";
+import {
+  LibraryHosted as LibraryScreen,
+  goalRow,
+  spotRow,
+} from "./testHost.tsx";
 import { LibraryScreen as RawScreen } from "./Library.screen.tsx";
 
 afterEach(() => {
@@ -21,20 +25,6 @@ const base = {
   source: "test",
 };
 const docs: Record<string, unknown[]> = {
-  weakspots: [
-    {
-      id: "w1",
-      data: {
-        ...base,
-        topic: "Oral doses",
-        objective: "E4-3",
-        exam: "x1",
-        kind: "concept",
-        initial: { streak: 0, nextDue: "2026-11-03", recurrence: 1, misses: 2 },
-        events: {},
-      },
-    },
-  ],
   sets: [
     {
       id: "s1",
@@ -61,6 +51,14 @@ function stub() {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (u: string) => {
+      if (/\/weak-spots$/.test(String(u)))
+        return new Response(
+          JSON.stringify({
+            rows: [spotRow({ id: "w1", topic: "Oral doses" })],
+          }),
+        );
+      if (/\/(weak-spot-events|links)$/.test(String(u)))
+        return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(String(u)))
         return new Response(JSON.stringify({ rows: [goalRow()] }));
       const c = /collection=(\w+)/.exec(String(u))?.[1] ?? "";

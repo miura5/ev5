@@ -4,6 +4,7 @@
 //   GET /goals              every live goal, in date order     GET /goals/:id
 //   GET /objectives         every live objective               GET /objectives/:id
 //   GET /weak-spots         every live weak spot               GET /weak-spots/:id
+//   GET /weak-spot-events   every event, by spot, time         GET /weak-spot-events/:id
 //   GET /sets               every live set                     GET /sets/:id
 //   GET /items              every live set item, by set, pos   GET /items/:id
 //   GET /sessions           every live session                 GET /sessions/:id
@@ -26,6 +27,7 @@ const KINDS = [
   ["goals", "goals", "goals"],
   ["objectives", "objectives", "objectives"],
   ["weak-spots", "weakSpots", "weak_spots"],
+  ["weak-spot-events", "weakSpotEvents", "weak_spot_events"],
   ["sets", "sets", "sets"],
   ["items", "setItems", "set_items"],
   ["sessions", "sessions", "sessions"],

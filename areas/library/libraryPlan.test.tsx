@@ -43,6 +43,8 @@ function boot(examDoc: GoalRow, plans: unknown[] = [], status = 200) {
           status,
         });
       }
+      if (/\/(weak-spots|weak-spot-events|links)$/.test(url))
+        return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [examDoc] }));
       const c = /collection=(\w+)/.exec(url)?.[1] ?? "";

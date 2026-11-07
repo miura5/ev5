@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { mapLibrary } from "./map.ts";
-import { goalRow } from "./testHost.tsx";
+import { goalRow, linkRow, eventRow, spotRow } from "./testHost.tsx";
 
 const now = Date.parse("2026-11-03T18:00:00Z");
 const base = {
@@ -9,15 +9,6 @@ const base = {
   at: "2026-10-01T15:00:00Z",
   source: "test",
 };
-const spot = (topic: string) => ({
-  ...base,
-  topic,
-  objective: "E4-3",
-  exam: "e4",
-  kind: "concept",
-  initial: { streak: 0, nextDue: "2026-11-03", recurrence: 1, misses: 2 },
-  events: {},
-});
 const set = {
   ...base,
   schema: 3,
@@ -50,7 +41,9 @@ test("exams, weak spots and sets map to the views' props; finished dates and inv
         }),
         goalRow({ id: "done", status: "done", score: 0.9 }),
       ],
-      weakspots: [{ id: "w1", data: spot("Oral liquid doses") }],
+      weakspots: [spotRow({ id: "w1", topic: "Oral liquid doses" })],
+      weakSpotEvents: [eventRow("w1", 1)],
+      links: [linkRow("weak_spot", "w1", "e4")],
       sets: [
         { id: "s1", data: set },
         { id: "s2", data: { nope: 1 } },
@@ -62,7 +55,7 @@ test("exams, weak spots and sets map to the views' props; finished dates and inv
     {
       id: "w1",
       title: "Oral liquid doses",
-      meta: "2 missed",
+      meta: "0 missed",
       mastery: { right: 0, shaky: 0, wrong: 1 },
       due: "due today",
       goalId: "e4",

@@ -27,7 +27,7 @@ afterEach(() => {
 
 const saved = {
   "library:goals": [],
-  "library:weakspots": [],
+  "library:weak-spots": [],
   "library:sets": [],
   "library:answers": [],
 };
@@ -93,9 +93,11 @@ test("a good read refreshes the copy", async () => {
     "jobs",
     "library:answers",
     "library:goals",
+    "library:links",
     "library:plan_items",
     "library:plans",
     "library:sets",
-    "library:weakspots",
+    "library:weak-spot-events",
+    "library:weak-spots",
   ]);
 });
