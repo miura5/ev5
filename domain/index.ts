@@ -189,7 +189,7 @@ export {
 /** @public */
 export { parseNoteTableRow, type NoteTableRow } from "./note/table.ts";
 /** @public Plan body (the job's output) and the new-table row shapes for plans, plan_items and repeats. */
-export { planBodySchema } from "./plan/body.ts";
+export { planBodySchema, type PlanBody, type PlanTask } from "./plan/body.ts";
 /** @public */
 export {
   parsePlanTableRow,

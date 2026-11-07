@@ -6,7 +6,7 @@ import { defineJob, parseWith } from '../runtime/define.ts';
 import { outputSchema } from '../runtime/model-call.ts';
 import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
-import { addDays, goalDaysLeft, kindOffers, planBodySchema, type Goal } from '../../domain/index.ts';
+import { addDays, goalDaysLeft, kindOffers, planBodySchema, type Goal, type PlanBody, type PlanTask } from '../../domain/index.ts';
 
 export const MODEL = 'sonnet';
 export const MAX_TOKENS = 8000;
@@ -23,7 +23,6 @@ const text = (what: string, max = 200) =>
     .refine((t) => t.trim().length > 0 && t.length <= max, `${what}: needs 1 to ${max} characters`);
 
 export const InputSchema = z.object({ goalId: text('goalId', 128) }, { error: 'prep plan input: not an object' });
-export const PlanSchema = planBodySchema;
 const DecisionSchema = z.object({
   decision: z.enum(['approve', 'put_away'], {
     error: 'decision must be approve or put_away',
@@ -38,8 +37,8 @@ export type Decision = {
   decision: 'approve' | 'put_away' | 'change';
   note?: string;
 };
-export type Task = Plan['tasks'][number];
-export type Plan = z.infer<typeof PlanSchema>;
+export type Task = PlanTask;
+export type Plan = PlanBody;
 export type PlanSpot = { id: string; title: string; need: number };
 export type PlanContext = {
   goal: { id: string; title: string; kind: Goal['kind']; date: string };
@@ -70,7 +69,7 @@ const rec = (v: unknown, what: string): Record<string, unknown> => {
 };
 
 export const parseInput = parseWith(InputSchema);
-export const parsePlan = parseWith(PlanSchema);
+export const parsePlan = parseWith(planBodySchema);
 export const parseDecision = parseWith(DecisionSchema) as (raw: unknown) => Decision;
 
 /** The continuation from `approve`: a change request (decision 'change' plus Matt's note) or an approve/put away. */
@@ -137,7 +136,7 @@ export const prepPlanJob = defineJob({
   kind: 'prep_plan',
   title: 'Prep plan',
   input: InputSchema,
-  output: PlanSchema,
+  output: planBodySchema,
   model: MODEL,
   maxTokens: MAX_TOKENS,
   costCapCents: COST_CAP_CENTS,
@@ -215,7 +214,7 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
           system,
           prompt: JSON.stringify(ctx),
           maxTokens: MAX_TOKENS,
-          schema: outputSchema(PlanSchema),
+          schema: outputSchema(planBodySchema),
           parse: prepPlanJob.output,
           check: (p) => checkPlan(p, ctx),
         }),
