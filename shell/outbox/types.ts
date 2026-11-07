@@ -38,8 +38,8 @@ export interface GetAnswer {
 
 /** The two calls a replay makes. Both reject when there is no connection. */
 export interface Transport {
-  put(c: string, id: string, body: string, ifVersion: number | null): Promise<PutAnswer>;
-  get(c: string, id: string): Promise<GetAnswer>;
+  /** The note as the record holds it now (the notes row route), for a stale save. */
+  get(id: string): Promise<GetAnswer>;
   /** Posts a command (commands/client `call`); a refusal answers with its status, no connection rejects. */
   command(name: string, input: unknown): Promise<PutAnswer>;
 }

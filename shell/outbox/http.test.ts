@@ -4,62 +4,41 @@ import { docsHttp } from "./http.ts";
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status });
 
-test("put sends the whole body with the bearer token and the pinned version", async () => {
+test("get reads the note row by its row id and returns the version and the note, or only the status", async () => {
   const seen: { url: string; init?: RequestInit }[] = [];
-  const { transport } = docsHttp(
-    () => "tok",
-    async (url, init) => (
-      seen.push({ url, init }),
-      reply(200, { at: 1, version: 4 })
-    ),
-  );
-  const a = await transport.put("notes", "n-1", '{"a":1}', 3);
-  expect(a.status).toBe(200);
-  expect(a.version).toBe(4);
-  expect(seen[0]?.url).toBe(
-    "/api/v1/docs?collection=notes&id=n-1&if_version=3",
-  );
-  expect(seen[0]?.init?.method).toBe("PUT");
-  expect(seen[0]?.init?.body).toBe('{"a":1}');
-  expect((seen[0]?.init?.headers as Record<string, string>).authorization).toBe(
-    "Bearer tok",
-  );
-  await transport.put("notes", "n-2", "{}", null);
-  expect(seen[1]?.url).toBe("/api/v1/docs?collection=notes&id=n-2");
-});
-
-test("put keeps a refusal's status and text; a rejected fetch rejects (offline)", async () => {
-  const { transport } = docsHttp(
-    () => "",
-    async () => reply(409, { error: "stale" }),
-  );
-  const r = await transport.put("notes", "n", "{}", 1);
-  expect(r.status).toBe(409);
-  expect(r.text).toContain("stale");
-  const off = docsHttp(
-    () => "",
-    async () => {
-      throw new TypeError("offline");
-    },
-  );
-  await expect(off.transport.put("notes", "n", "{}", 1)).rejects.toThrow();
-});
-
-test("get returns the version and data, or only the status", async () => {
+  const row = {
+    id: "note_n",
+    collection_id: null,
+    title: "Fluids",
+    body: { blocks: [{ type: "p", runs: [{ text: "x" }] }], createdAt: "2026-11-03T15:00:00.000Z" },
+    text: "x",
+    earlier_of: null,
+    at: 1762182000000,
+    v: 7,
+    deleted_at: null,
+  };
   const ok = docsHttp(
     () => "t",
-    async () => reply(200, { v: 7, data: { x: 1 } }),
+    async (url, init) => (seen.push({ url, init }), reply(200, row)),
   );
-  expect(await ok.transport.get("notes", "n")).toEqual({
-    status: 200,
-    version: 7,
-    data: { x: 1 },
-  });
+  const got = await ok.transport.get("n");
+  expect(seen[0]?.url).toBe("/api/v1/notes/note_n");
+  expect((seen[0]?.init?.headers as Record<string, string>).authorization).toBe("Bearer t");
+  expect(got.status).toBe(200);
+  expect(got.version).toBe(7);
+  expect(got.data).toMatchObject({ title: "Fluids", blocks: row.body.blocks });
   const gone = docsHttp(
     () => "t",
     async () => reply(404, { error: "not found" }),
   );
-  expect(await gone.transport.get("notes", "n")).toEqual({ status: 404 });
+  expect(await gone.transport.get("n")).toEqual({ status: 404 });
+  const off = docsHttp(
+    () => "t",
+    async () => {
+      throw new TypeError("offline");
+    },
+  );
+  await expect(off.transport.get("n")).rejects.toThrow();
 });
 
 test("list returns the documents; 401 says the token was refused", async () => {

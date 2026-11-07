@@ -1,5 +1,5 @@
 // The offline outbox: note saves and practice answers wait here until a replay sends them (PLAN §5.9).
-// A note is sent by the note.save command, never PUT /docs (§data.gate: one gate; §data.protocol: pinned to `if_version`).
+// Every entry is sent as a command, never PUT /docs (§data.gate: one gate; §data.protocol: pinned to `if_version`).
 // A note goes pinned to the version it was read at. A stale one (409) is never merged: the record's version stays the
 // note and the saved words become a second note, "<title> (earlier)" (domain/note resolveStale). Nothing is lost.
 import { resolveStale, type Note } from '../../domain/index.ts';
@@ -91,7 +91,7 @@ export function createOutbox(opts: OutboxOptions) {
           ? await transport.command(legacy.name, legacy.input)
           : o.kind === 'note'
             ? await transport.command('note.save', noteSaveInput(o))
-          : await transport.put(o.c, o.id, JSON.stringify(o.doc), o.base);
+            : { status: 400, text: 'an old answer entry with no item to post to' }; // kept, shown, never sent
     if (r.status >= 200 && r.status < 300) {
       out.sent++;
       await store.remove(o.key, o.tag);
@@ -115,7 +115,7 @@ export function createOutbox(opts: OutboxOptions) {
   }
 
   async function keepBoth(o: OutboxEntry, out: ReplayResult) {
-    const got = await transport.get(o.c, o.id);
+    const got = await transport.get(o.id);
     if (got.status === 404) return void (await store.put({ ...o, base: null })); // never written: send as a create
     if (got.status !== 200) throw new Error(`get answered ${got.status}`);
     const at = new Date(now()).toISOString();
