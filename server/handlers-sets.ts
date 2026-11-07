@@ -149,11 +149,13 @@ export const setHandlers: Record<string, CommandHandler> = {
       type?: string;
       collection?: string;
       source?: string;
+      if_version?: number;
     },
     _c,
     x,
   ) => {
     const cur = (await ownSet(x, i.id)).set;
+    if (i.if_version !== undefined && i.if_version !== cur.v) throw refuse();
     if (i.type && i.type !== "question")
       throw new CommandError(
         400,
@@ -205,11 +207,12 @@ export const setHandlers: Record<string, CommandHandler> = {
   },
 
   "set.item_update": async (
-    i: { set: string; item: string; text: string },
+    i: { set: string; item: string; text: string; if_version?: number },
     _c,
     x,
   ) => {
     const cur = await ownItem(x, i.set, i.item);
+    if (i.if_version !== undefined && i.if_version !== cur.v) throw refuse();
     const r = await repo(x).setBook.editItem(
       cur.id,
       rowBody(edited(cur.body, itemBody(cur.id, i.text))),

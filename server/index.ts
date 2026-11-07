@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { bearerAuth } from "./auth.ts";
 import type { AuthEnv, AuthVars } from "./auth.ts";
 import { jobRoutes } from "./job-routes.ts";
-import { docRoutes } from "./doc-routes.ts";
 import { collectionRoutes } from "./collection-routes.ts";
 import { commandRoutes } from "./command-routes.ts";
 import { rowRoutes } from "./row-routes.ts";
@@ -81,7 +80,6 @@ app.use("/api/v1/*", bearerAuth());
 app.get("/api/v1/whoami", (c) => c.json({ caller: c.get("caller") }));
 
 app.route("/api/v1", jobRoutes);
-app.route("/api/v1", docRoutes);
 app.route("/api/v1", collectionRoutes);
 app.route("/api/v1", rowRoutes);
 app.route("/api/v1", commandRoutes);

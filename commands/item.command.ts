@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { defineCommand, ref } from './define.ts';
 
 const M = { matt: 'direct' } as const;
-const to = z.object({ id: z.string().min(1), collection: z.string().min(1) });
+const ifV = z.number().int().min(1).optional();
+const to = z.object({ id: z.string().min(1), collection: z.string().min(1), if_version: ifV });
 
 // Any item (PLAN §6.1). Delete goes to Recently deleted; nothing here purges (§hard.data-never-lost).
 export const itemCommands = [
@@ -15,7 +16,7 @@ export const itemCommands = [
   defineCommand({
     name: 'item.rename',
     title: 'Rename',
-    input: z.object({ id: z.string().min(1), title: z.string().min(1) }),
+    input: z.object({ id: z.string().min(1), title: z.string().min(1), if_version: ifV }),
     callers: M,
     effect: 'instant',
   }),

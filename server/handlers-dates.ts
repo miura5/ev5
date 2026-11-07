@@ -92,7 +92,13 @@ export const dateHandlers: Record<string, CommandHandler> = {
   },
 
   "date.update": async (
-    i: { id: string; title?: string; date?: string; kind?: string },
+    i: {
+      id: string;
+      title?: string;
+      date?: string;
+      kind?: string;
+      if_version?: number;
+    },
     _c,
     x,
   ) => {
@@ -101,6 +107,8 @@ export const dateHandlers: Record<string, CommandHandler> = {
     const goals = tablesRepo(x.db, { clock: x.clock }).goals;
     const cur = await goals.get(i.id);
     if (!cur) throw new CommandError(404, `no date ${i.id}`);
+    if (i.if_version !== undefined && i.if_version !== cur.v)
+      throw new CommandError(409, "that changed; try again");
     const { at: _at, v, deleted_at: _d, ...fields } = cur;
     const r = await goals.save(
       {

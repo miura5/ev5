@@ -1,6 +1,5 @@
 // The domain barrel: the parsers for the kinds v5 stores, so data/ and ops/ reach them through one door.
 export { parseGoal } from "./goal/read.ts";
-export { parseObjective } from "./objective/index.ts";
 export {
   parseWeakSpot,
   deriveWeakSpot,
@@ -17,12 +16,12 @@ export {
   upgradeItem,
 } from "./item/index.ts";
 export { parseSession, type SessionEvent } from "./session/index.ts";
+/** @public newSessionRow builds a session row for the tests' seeds; the server no longer creates sessions from documents. */
 export {
   newSessionEventRow,
   newSessionRow,
   sessionDoc,
   sessionDocId,
-  sessionEventId,
   sessionRowId,
   type NewSessionEventRow,
   type NewSessionRow,
