@@ -85,7 +85,7 @@ test("an answer to a missing, deleted or foreign item is refused", async () => {
     repo.attempts.record({ ...att, set_id: "set_2" }),
     WriteRefused,
   );
-  assert.ok((await repo.setItems.remove("item_1", 1)).ok);
+  assert.ok((await repo.setBook.removeItem("item_1", 1)).ok);
   await assert.rejects(repo.attempts.record(att), WriteRefused);
   await assert.rejects(
     repo.attempts.record({ ...att, id: "x_1" }),
