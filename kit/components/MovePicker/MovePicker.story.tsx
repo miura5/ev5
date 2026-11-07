@@ -3,8 +3,8 @@ import { Button } from "../Button/Button";
 import { MovePicker, type MoveTarget } from "./MovePicker";
 
 const TARGETS: MoveTarget[] = [
-  { id: "bio", title: "Biology 101" },
-  { id: "cells", title: "Cell biology", parentId: "bio" },
+  { id: "course", title: "Course 101" },
+  { id: "cells", title: "Chapter notes", parentId: "course" },
   { id: "econ", title: "Economics 101" },
 ];
 

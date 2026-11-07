@@ -18,7 +18,7 @@ export function Story() {
     <div data-ui="story-row">
       <Row
         title="Photosynthesis and respiration"
-        meta="12 cards · Biology 101"
+        meta="12 cards · Course 101"
         value="3 due"
         onOpen={() => undefined}
         actions={
@@ -37,7 +37,7 @@ export function Story() {
       />
       <Row title="Read chapter 4" done />
       <Row
-        title="Cell biology"
+        title="Chapter notes"
         fold={{ open, onToggle: () => setOpen(!open) }}
       />
       {open ? <Row title="Irregular verbs" level={1} /> : null}

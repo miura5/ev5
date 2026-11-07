@@ -29,21 +29,21 @@ afterEach(async () => {
 });
 
 const TARGETS: MoveTarget[] = [
-  { id: "bio", title: "Economics 101" },
-  { id: "nur", title: "Biology 101" },
-  { id: "ph", title: "Cell biology", parentId: "nur" },
+  { id: "econ", title: "Economics 101" },
+  { id: "course", title: "Course 101" },
+  { id: "chap", title: "Chapter notes", parentId: "course" },
 ];
 
 test("collections are listed by name, children under their parent, the current one ticked", () => {
-  const items = moveItems(TARGETS, "ph", "No collection");
+  const items = moveItems(TARGETS, "chap", "No collection");
   expect(items.map((i) => i.label)).toEqual([
     "No collection",
     "Economics 101",
-    "Biology 101",
-    "Cell biology",
+    "Course 101",
+    "Chapter notes",
   ]);
-  expect(items.find((i) => i.checked)?.label).toBe("Cell biology");
-  expect(items.find((i) => i.label === "Cell biology")?.indent).toBe(1);
+  expect(items.find((i) => i.checked)?.label).toBe("Chapter notes");
+  expect(items.find((i) => i.label === "Chapter notes")?.indent).toBe(1);
   expect(moveItems(TARGETS, null, "No collection")[0]?.checked).toBe(true);
 });
 
@@ -57,7 +57,7 @@ test("picking a collection moves; picking the current one does nothing", async (
   render(
     createElement(MovePicker, {
       targets: TARGETS,
-      current: "nur",
+      current: "course",
       onMove,
       label: "Move to",
       trigger: createElement("button", null, "Move"),
@@ -66,7 +66,7 @@ test("picking a collection moves; picking the current one does nothing", async (
   fireEvent.keyDown(screen.getByRole("button", { name: "Move" }), {
     key: "Enter",
   });
-  const cur = await screen.findByRole("menuitemradio", { name: /Biology 101/ });
+  const cur = await screen.findByRole("menuitemradio", { name: /Course 101/ });
   expect(cur.getAttribute("aria-checked")).toBe("true");
   fireEvent.click(cur);
   expect(onMove).not.toHaveBeenCalled();
@@ -77,7 +77,7 @@ test("picking another collection reports its id, and None reports null", async (
   render(
     createElement(MovePicker, {
       targets: TARGETS,
-      current: "nur",
+      current: "course",
       onMove,
       label: "Move to",
       noneLabel: "No collection",
@@ -90,7 +90,7 @@ test("picking another collection reports its id, and None reports null", async (
   fireEvent.click(
     await screen.findByRole("menuitemradio", { name: /Economics 101/ }),
   );
-  expect(onMove).toHaveBeenCalledWith("bio");
+  expect(onMove).toHaveBeenCalledWith("econ");
   fireEvent.keyDown(screen.getByRole("button", { name: "Move" }), {
     key: "Enter",
   });
@@ -102,5 +102,5 @@ test("picking another collection reports its id, and None reports null", async (
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("In: Cell biology")).toBeTruthy();
+  expect(screen.getByText("In: Chapter notes")).toBeTruthy();
 });
