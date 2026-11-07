@@ -59,9 +59,10 @@ jobs:
           node -e "const f='wrangler.jsonc',s=require('fs').readFileSync(f,'utf8');require('fs').writeFileSync(f,s.replace('00000000-0000-0000-0000-000000000000',process.env.DBID))"
           npx --yes $WRANGLER d1 migrations apply "$NAME" --remote
       - name: Verify every migration table exists
+        # D1 refuses pragma_table_info on its own _cf_ tables (SQLITE_AUTH), so the column half skips them.
         run: |
           npx --yes $WRANGLER d1 execute "$NAME" --remote --yes --json \
-            --command "SELECT name FROM sqlite_master WHERE type IN ('table','index')" | node ops/verify-staging-schema.mjs
+            --command "SELECT name, type, '' AS col FROM sqlite_master WHERE type IN ('table','index') UNION ALL SELECT m.name, 'column', p.name FROM sqlite_master m, pragma_table_info(m.name) p WHERE m.type = 'table' AND m.name NOT LIKE '\\_cf\\_%' ESCAPE '\\'" | node ops/verify-staging-schema.mjs
       - name: Deploy
         run: |
           set -o pipefail

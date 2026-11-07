@@ -2242,7 +2242,7 @@
   "milestone": "Phase 7",
   "status": "open",
   "depends": [],
-  "notes": "Audit (review F32): these were deferred on purpose (PLAN §8, D-435) but no Chart item will bring them back.",
+  "notes": "Audit (review F32): these were deferred on purpose (PLAN §8, D-435) but no Chart item will bring them back. Studio UI port 2026-11-07, after-cutover items to file here: the KeySheet overlay (the Keys row opens ⌘K for now), the wide Horizon on Progress, Horizon load bars, Progress Drill next, Undo on ratings and talk (append-only needs a void row), a stopped job keeping its output as a draft (with Undo on Stop and Open the draft), saved views' home in the sidebar (pin data keeps its other kinds), and the confidence rating before Approve.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -3901,16 +3901,14 @@
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-997",
    "B-998"
   ],
-  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022. Run 1718Z: #875 every job-store list in server/ passes onBad (get/put-only callers still none). Left: merge the two gates.",
-  "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.247Z"
+  "notes": "Run 1753Z: one gate already (data/tables/gate.ts); no docs-gate code left. Stale comments only (gate.ts l1, tables.ts l2, staging/seed.ts l48, seed.test.ts l64). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): M5: two ways to batch writes: server/defer-writes.ts (its own SQL guard in server/, fakes run() as changes 1; used by set.item_delete, check.answer, weakspot.unlink, ask.just_tell_me) and data/tables/links.ts createGoalWithLinks. Make one batch helper in data/tables, port both, delete server/defer-writes.ts. M7 (from #863): the Gate 5 journeys e2e/collection, e2e/question-set and e2e/prep-plan send no if_version on item.move, set.item_update and date.update, so they get 400; gate5-e2e runs only on dispatch. Pass each row's v, then run gate5-e2e once. Run 1812Z: M7 done #891 (gate5-e2e run 19 predates the fix: dispatch it again on main). M5 in PR #902 (replaces closed #897; trailer must read exactly \"Interface: data\").",
+  "commit": "e42f5aa",
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
   "id": "B-956",
@@ -3920,7 +3918,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 lane B: PR #879 (testruns check, tsconfig.tests.json, typecheck-tests.sh). Part for lane A: 10 lane A test files with type errors sit in a TEMPORARY exclude list in tsconfig.tests.json; fix each and delete its line (list in #879 body).",
+  "notes": "Run 1753Z: lane A test files fixed (#885, #886); tsconfig.tests.json exclude list is empty.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -4245,7 +4243,7 @@
    "B-977",
    "B-978"
   ],
-  "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first. 2026-11-06 run: not built. Depends B-974 and B-975 are still open. Today's areas/ would fail the guards: .kit- rules at areas/notes/notes.css:139 and areas/today/today.css:32 (need Row/Field kit behaviour first), an empty-state placeholder selector at notes.css:111 (not a real screen empty state), kit Detail imported by areas/library/testHost.tsx and areas/today/dateKind.test.tsx (tests; guard must allow type and test imports). No row-token uses in areas/. Claim freed. Rules-to-guards audit 2026-11-06 (D-517): shell/Shell.tsx's palette runs void call(id, {}, storedToken()) and drops the result, so a refused write shows nothing. Show the refusal or error with the kit toast, as other command callers do, and add a test. Slice for this item: shell/Shell.tsx (B-1013, which last owned it, is done). Repo hygiene comparison 2026-11-06 (D-519): the shell has no React error boundary, so one screen's crash blanks the app. Add one at the shell that shows a kit empty state with a reload, with a test. Slice for this item: shell/. Keys in the registry (D-522), after this task's guards. Done when: CommandSpec has optional key and keywords; one key listener in the shell, with one typing check and one \"can it run now\" check, dispatches keys through the registry; item menus are lists of command ids, with label, key hint and enabled state from the registry through the one kit Menu; ⌘K matches keywords and in-order letters with a short matcher in the kit (no fuzzy package) and shows each row's key hint as the mock-up does; a test fails when two commands in the same place share a key, and when a hint names a key no command owns; ESLint refuses keydown listeners in areas/ (fixture recorded); the suggestion keys A and E are resolved against §ui.keymap (E stays \"edits a set\"; the suggestion's second action gets a free key, the mock-up's if it shows one). Rules touched: §cmd.generated, §ui.keys, §ui.keymap, §ui.palette, §ui.kit-leads, reworded only where a rule must name the registry as the one home. Slice for this item: commands/define.ts, shell/, kit/, areas/ (the 11 files with their own key handlers). Key map from the design proposal (Matt, ev-build 2026-11-07 03:27Z: keep C and E): new keys D drills, R tries again, Cmd+J opens Ask E.V., Cmd+Enter finishes, each bound only where its command exists; C creates and E edits a set stay as §ui.keymap says; this task adds D, R, Cmd+J and Cmd+Enter to §ui.keymap. Traps to test: a key that ⌘K shows works on every row it lists, and no hint names a command that does not exist (for example Z undo in Study). The '?' key sheet is parked (docs/parked.md).",
+  "notes": "Slice: write stylelint.config.js, eslint.config.js, ops/guards/; read areas/, shell/. Enforces §ui.kit-leads as written; it adds no rule. If an area still needs a local look, that look moves into kit/ first. 2026-11-06 run: not built. Depends B-974 and B-975 are still open. Today's areas/ would fail the guards: .kit- rules at areas/notes/notes.css:139 and areas/today/today.css:32 (need Row/Field kit behaviour first), an empty-state placeholder selector at notes.css:111 (not a real screen empty state), kit Detail imported by areas/library/testHost.tsx and areas/today/dateKind.test.tsx (tests; guard must allow type and test imports). No row-token uses in areas/. Claim freed. Rules-to-guards audit 2026-11-06 (D-517): shell/Shell.tsx's palette runs void call(id, {}, storedToken()) and drops the result, so a refused write shows nothing. Show the refusal or error with the kit toast, as other command callers do, and add a test. Slice for this item: shell/Shell.tsx (B-1013, which last owned it, is done). Repo hygiene comparison 2026-11-06 (D-519): the shell has no React error boundary, so one screen's crash blanks the app. Add one at the shell that shows a kit empty state with a reload, with a test. Slice for this item: shell/. Keys in the registry (D-522), after this task's guards. Done when: CommandSpec has optional key and keywords; one key listener in the shell, with one typing check and one \"can it run now\" check, dispatches keys through the registry; item menus are lists of command ids, with label, key hint and enabled state from the registry through the one kit Menu; ⌘K matches keywords and in-order letters with a short matcher in the kit (no fuzzy package) and shows each row's key hint as the mock-up does; a test fails when two commands in the same place share a key, and when a hint names a key no command owns; ESLint refuses keydown listeners in areas/ (fixture recorded); the suggestion keys A and E are resolved against §ui.keymap (E stays \"edits a set\"; the suggestion's second action gets a free key, the mock-up's if it shows one). Rules touched: §cmd.generated, §ui.keys, §ui.keymap, §ui.palette, §ui.kit-leads, reworded only where a rule must name the registry as the one home. Slice for this item: commands/define.ts, shell/, kit/, areas/ (the 11 files with their own key handlers). Key map from the design proposal (Matt, ev-build 2026-11-07 03:27Z: keep C and E): new keys D drills, R tries again, Cmd+J opens Ask E.V., Cmd+Enter finishes, each bound only where its command exists; C creates and E edits a set stay as §ui.keymap says; this task adds D, R, Cmd+J and Cmd+Enter to §ui.keymap. Traps to test: a key that ⌘K shows works on every row it lists, and no hint names a command that does not exist (for example Z undo in Study). The '?' key sheet is parked (docs/parked.md). Studio UI port 2026-11-07: the shell port task (same inbox) counts the keyboard audit H1 to H6 once with this key map work: one key listener and one Detail focus helper, not two. The done bar adds the final key map (S starts the next plan item, ⌘↵ finishes, Y accepts and N dismisses a suggestion, no A, W, ⇧C and ⇧D as drawn) and a test that one letter has one meaning in each place. ⌘K matching is word-start (see B-991), not in-order letters only.",
   "commit": null,
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
@@ -4340,7 +4338,7 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload). 2026-11-07 18:08Z: an open tab in Matt's Chrome still ran a build from before 16:46Z (old n- note ids, Open on the note menu), so focus alone did not bring the new build. Thread fix PR: the page also checks for a new build every 10 minutes (shell/pwa.ts UPDATE_CHECK_MS). Cause found 2026-11-07: with injectRegister false the plugin left skipWaiting and clientsClaim off, and autoUpdate registerSW sends no skip-waiting message, so each new worker waited until every tab closed; a reload kept the old build. Fixed: workbox skipWaiting and clientsClaim set in vite.config.ts, with a test. Left: the staging check after this lands: the new worker skips waiting itself, so an open tab should take it on its next update check.",
+  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload). 2026-11-07 18:08Z: an open tab in Matt's Chrome still ran a build from before 16:46Z (old n- note ids, Open on the note menu), so focus alone did not bring the new build. Thread fix PR: the page also checks for a new build every 10 minutes (shell/pwa.ts UPDATE_CHECK_MS). Cause found 2026-11-07: with injectRegister false the plugin left skipWaiting and clientsClaim off, and autoUpdate registerSW sends no skip-waiting message, so each new worker waited until every tab closed; a reload kept the old build. Fixed: workbox skipWaiting and clientsClaim set in vite.config.ts, with a test. Left: the staging check after this lands: the new worker skips waiting itself, so an open tab should take it on its next update check. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) low: areas/library/reloadHold.test.tsx (#847) re-implements the hold instead of testing the real holdReload in shell/, so a regression there would pass. Test the real function.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",
@@ -4390,8 +4388,8 @@
   "milestone": "Phase 6",
   "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: trailer asked only when a folder's generated Interface line changes; Imports line no longer generated (#826).",
-  "commit": "c5587d5",
+  "notes": "Run 2026-11-07 1358Z: trailer asked only when a folder's generated Interface line changes; Imports line no longer generated (#826). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) M9 reopens it: #826 dropped the generated Imports line, which was the README's must-not list, and CONTRACT §drift.interface still wants a generated must-not list. Decided: restore a generated must-not line from .dependency-cruiser.cjs; the trailer stays asked only when the Interface line changes; no CONTRACT change. Slice write: ops/generate and the generated README blocks. Run 1812Z: #898 generated must-not line restored as \"Must not import (§drift.imports)\".",
+  "commit": "5fe7157",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4404,7 +4402,7 @@
   "depends": [
    "B-983"
   ],
-  "notes": "Slice: write kit/components/Palette/; read none. Today shouldFilter is off and a hand-written substring filter replaces cmdk's.",
+  "notes": "Slice: write kit/components/Palette/; read none. Today shouldFilter is off and a hand-written substring filter replaces cmdk's. Studio UI port 2026-11-07 (inbox decision, filed by lane A as the next D- id): the plan changes. cmdk filtering stays off; ⌘K uses one short kit matcher, word-start for 1 or 2 letters and in-order letters after that, with no fuzzy package. The kit Palette keeps one filter for every group (Places, Commands, found items) and shows each row's key hint. The shell port task (from the same inbox) uses it.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4494,7 +4492,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Run 1718Z: (d) done: #877 one baseline 0000 (docs, deletions, own_attempts, system_docs, claude_* tables gone), #880 attempts.was_due. Staging rebuilt from empty 17:50Z (staging run 42398210091 green). Left: rerun the restore drill (no workflow; needs Cloudflare).",
+  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Run 1718Z: (d) done: #877 one baseline 0000 (docs, deletions, own_attempts, system_docs, claude_* tables gone), #880 attempts.was_due. Staging rebuilt from empty 17:50Z (staging run 42398210091 green). Left: rerun the restore drill (no workflow; needs Cloudflare). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H1: #880 edited 0000_baseline.sql 14 min after the squash #877, and D-517's freeze guard did not land in the squash PR. Checked 1810Z: the staging rebuild (run 42398210091, 1749Z, commit 6dea48b, rebuild step ran) already holds #880, so staging has attempts.was_due; the audit's 'staging answers fail' does not hold. Decided: #880 stays in the baseline (nothing live applied it); no restore, no forward migration. Left, first in lane A: (1) an ops/checks freeze guard: a pinned hash of data/migrations/0000_baseline.sql, so any later change goes in a new numbered file (D-517, §data.migrations); (2) ops/verify-staging-schema.mjs compares each table's columns, not only table names. D-524 closed in this filing (the squash folded 0019 in). Run 1812Z: #894 freeze guard (ops/checks/migrationfreeze.ts, pinned sha256) and column-level staging schema check done; .github/workflows/staging.yml changed and not yet run on D1: watch the first staging run. Left: restore drill rerun (needs Cloudflare).",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4544,7 +4542,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept. Run 1718Z: #878 date.create is one batch (createGoalWithLinks). Left: nothing known; check raw SQL and bare ids in routes once more.",
+  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept. Run 1718Z: #878 date.create is one batch (createGoalWithLinks). Left: nothing known; check raw SQL and bare ids in routes once more. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): H3: still several writes per command: plan.update with a repeat (server/handlers-plan.ts saveRepeat, saveItem, materializeRepeat up to 14 inserts, placeItem) can leave a stray repeat after a 409; session.end (handlers-session.ts change, then append) can end a session with no end event. Make each one batch through the one data/ batch helper (B-955). M4: server/plan-days.ts maps only WriteRefused, so moving a repeating item onto a day its repeat already holds hits the plan_items_repeat_day unique index and returns 500: merge or skip the clash in the same batch, map it to 409, add a test. M6: server/row-routes.ts sets more from parsed rows only, so one bad row in a full page drops next and readRows (commands/client.ts) stops early: count left_out in more, test a bad row in a full page. M8: plan.toggle_done flips on the server (done = cur.done_at === null) with no if_version, and areas/today/useToday.ts skips the call when its stale copy matches: take done and if_version and set the value. Run 1812Z: H3 done #895 (plan.update repeat and session.end one batch each). Left: M4 (repeat clashing with its own day, no test for the unique-index 409), M6, M8, raw SQL and bare ids in routes.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4608,8 +4606,8 @@
   "depends": [
    "B-997"
   ],
-  "notes": "Run 1631Z (#865): putKept retries the store put inside the step, so a put that throws without landing no longer re-pays the model; zodOutputFormat already in use.",
-  "commit": "dc377d1",
+  "notes": "Run 1631Z (#865): putKept retries the store put inside the step, so a put that throws without landing no longer re-pays the model; zodOutputFormat already in use. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H2 reopens it: §job.steps wants the Claude call and the D1 write as separate steps, with the step retry as the only retry layer. putKept (jobs/runtime/output.ts, #865) is a second retry layer inside the paid step; prep-plan's change round (jobs/prep-plan/job.ts, putDraft) has no find guard, so a failed write re-pays the model; find and findDraft are optional on the store type. Fix: a call step that returns the result, then a write step (practice-set handlers and prep-plan job); delete putKept. Slice write: jobs/. Run 1812Z: #896 merged (call step returns carry, separate write step; putKept deleted). Contract note maybe needed: carry is a small exception to steps-return-ids (§job.steps).",
+  "commit": "967790b",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
   "claimedAt": "2026-11-07T16:48:08.593Z"
@@ -4833,16 +4831,16 @@
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
   "dod": "domain/ has row shapes for every table in docs/proposals/table-design.md as changed by D-498 (goal, objective, link, weak spot, set, item, session, note, collection, settings and the rest); no exam, course, claude_* or system_docs row shapes; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form. Run 1718Z: #876 item sourceRef is note_ form. weakSpots.ts already uses the domain rule. Left: row routes for item versions and session events; plan-home raw SQL in server/.",
-  "commit": null,
+  "notes": "Run 1753Z: all parts already on main; row routes (server/row-routes.ts), plan-home via tablesRepo, commands/jobs use domain plan shapes. LLM-output shapes in jobs/prep-plan/changes.ts stay local on purpose.",
+  "commit": "e42f5aa",
   "source": "run 82 B-997 report",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:39.694Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:50.736Z"
  },
  {
   "id": "B-1023",
@@ -5019,15 +5017,15 @@
   "title": "Checks so ev4 traces cannot come back",
   "dod": "ops/checks, ESLint, dependency-cruiser or ops/record lint refuse, each with a red fixture PR recorded (§drift.checks): (1) subject words as whole words in any case (nursing, NCLEX, SATA, clinical, dosage, cjStep, patient, course codes like NUR 112, ATI) in non-test source, prompts and seeds, no allow list; (2) a kind written to the generic docs table that is not on a shrinking list of kinds still moving, and once docs is gone, SQL naming docs, the ev4 collection names (dayedits, planedits, dateedits, examedits, answers) or the ev4 envelope (writer, a source starting v5, schema numbers), and any import of data/compat; (3) a table without a kind-prefixed id, at, v and, where deletable, deleted_at, or out of step with its domain row shape, in place of the ev4-equality migration test; (4) an export used only by its tests (knip --production with tests excluded, short allow list); (5) a §id in source that is ended or not in CONTRACT; (6) the word ev4 in non-test source outside the cutover allow list (server/ev4-routes.ts, server/worker.ts, public/retire-ev4.js, ops/checks/planjob.ts, ops/checks/account.ts, ops/record/); (7) a restore of an ev4 export kind; (8) e2e, seeds or staging scripts that write by PUT /docs instead of commands; (9) an open Chart task whose done bar names an ev4 path (tools/, core/, pwa/, page/, spec.). Before check (1) lands, the item type ids are plain words: 'sata' becomes 'multi_select' and 'matrix' becomes 'grid' (with its matrix field) in domain/item, server/handlers-sets.ts and every caller and test, stored staging rows are reseeded or mapped on read, and jobs/practice-set/job.ts builds its type enum from domain/item's ITEM_TYPES instead of its own copy. Slice: write ops/checks, ops/guards, eslint.config.js, the dependency-cruiser config, knip.json, ops/record/lint.ts; for the rename also domain/item, domain/set, domain/own-set, server/, jobs/practice-set, data/tables.",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 1631Z: #861 jobs barrel trimmed, maxCost deleted, knip jobs/** replaced by 5 single-file entries (ignoreIssues now 9 entries but no folder wildcard); unusedexports accepts file keys. #870 tests with red fixtures for checks 5 (sourceids) and 9 (chartev4); check 6 (ev4word) existed. Left in knip ignore: domain/session (S-76 feature), own-set (editing feature not wired), collection nesting (§data.membership: decide or amend CONTRACT), note test-only exports, ceiling parse fns (check 3), executors.reportJob (Mac, Matt's call), models.modelsStaleWarning (wire or delete). Checks 1, 2, 3, 4 left: check 1 needs sata→multi_select, matrix→grid rename first; check 2 after docs table goes. 'Red fixture PR recorded' not done.",
+  "notes": "Run 1753Z: checks (2) #883 and (3) red fixture #884 done; checks (5) to (9) already exist with fixtures. Left: (1) subject words (needs rewording of existing source), (4) knip production; domain/goal/read.ts still writes the old envelope (writer, source v5/goals; on TO_REWORD in ops/checks/ev4word.ts or oldshapes.ts): reword. 'sata'/'matrix' remain only in domain/item/upgrade.ts as a deliberate legacy-read mapping. The red fixture PR record is not done. Run 1812Z: check 4 red fixture #900; checks 1 and 4 were already in. Left: (a) action pins and (e) size check, blocked by sandbox.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.815Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:51.224Z"
  },
  {
   "id": "B-1037",
@@ -5039,7 +5037,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). Correction to the 06Z note: #813 gave Library, Progress and Today one attempts adapter (domain/answers), but plan-home still reads attempts by raw SQL and areas/library/weakSpots.ts keeps its own copy of the rule; filed on B-1022 (H3, F6). Group 4. Done: data/tables/attempts.ts record(); study.attempt and study.just_tell_me write one attempts row (client att_ id, rating again or good, 409 on repeat); self-ratings stay out of accuracy and a choice item is checked by its key (D-508, #628); the Library study card shows a choice item's options (#648); check.answer and ask.just_tell_me write log-only attempts rows with no set item (#672); outbox answers post as commands and refused entries toast (#674); study reads set tables only (#677); notes save through note.save and the outbox no longer uses PUT /docs for notes (#678); an offline note edit across a reload is checked fine by a test (D-516, #664). Left: no UI caller of check.answer or ask.just_tell_me yet (areas/notes, areas/ask); remove the queueAnswer/buildAnswer fallback in areas/library; one attempts reader for Progress, the Library accuracy line and plan-home attemptsBySpot (F7, D-508); check.just_tell_me writes no attempts row (decide); the PUT /docs note branch and saveNote go at B-998 part 2; own_attempts leaves in the squash baseline (D-514), not a migration. Run 2026-11-07 06Z (2nd): queueAnswer removed from shell; answers queue only as commands; legacy answer entries still replay as commands (#747). Left: no UI caller of check.answer (areas/notes) or ask.just_tell_me (areas/ask); decide check.just_tell_me attempts row; PUT /docs note branch and saveNote at B-998 part 2; own_attempts leaves in the squash. Attempts reader for Library, Today and plan-home done under B-1022. Claim freed. Run 2026-11-07 0800Z: not worked. Claim freed. Data-loss audit (D-526), before cutover, M5: offline answers get the replay time, because server/handlers-study.ts sets answered_at from the server clock; the client sends when the answer was made (areas/library/useStudy.ts) and the server keeps it, within a sane bound.",
+  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). Correction to the 06Z note: #813 gave Library, Progress and Today one attempts adapter (domain/answers), but plan-home still reads attempts by raw SQL and areas/library/weakSpots.ts keeps its own copy of the rule; filed on B-1022 (H3, F6). Group 4. Done: data/tables/attempts.ts record(); study.attempt and study.just_tell_me write one attempts row (client att_ id, rating again or good, 409 on repeat); self-ratings stay out of accuracy and a choice item is checked by its key (D-508, #628); the Library study card shows a choice item's options (#648); check.answer and ask.just_tell_me write log-only attempts rows with no set item (#672); outbox answers post as commands and refused entries toast (#674); study reads set tables only (#677); notes save through note.save and the outbox no longer uses PUT /docs for notes (#678); an offline note edit across a reload is checked fine by a test (D-516, #664). Left: no UI caller of check.answer or ask.just_tell_me yet (areas/notes, areas/ask); remove the queueAnswer/buildAnswer fallback in areas/library; one attempts reader for Progress, the Library accuracy line and plan-home attemptsBySpot (F7, D-508); check.just_tell_me writes no attempts row (decide); the PUT /docs note branch and saveNote go at B-998 part 2; own_attempts leaves in the squash baseline (D-514), not a migration. Run 2026-11-07 06Z (2nd): queueAnswer removed from shell; answers queue only as commands; legacy answer entries still replay as commands (#747). Left: no UI caller of check.answer (areas/notes) or ask.just_tell_me (areas/ask); decide check.just_tell_me attempts row; PUT /docs note branch and saveNote at B-998 part 2; own_attempts leaves in the squash. Attempts reader for Library, Today and plan-home done under B-1022. Claim freed. Run 2026-11-07 0800Z: not worked. Claim freed. Data-loss audit (D-526), before cutover, M5: offline answers get the replay time, because server/handlers-study.ts sets answered_at from the server clock; the client sends when the answer was made (areas/library/useStudy.ts) and the server keeps it, within a sane bound. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) low: areas/sessions/Sessions.screen.tsx passes checks={[]} and no question, so the check answer wiring (#763) never shows on screen; tests cover only the hook. Areas part, lane B can take it.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "cse_01JjJLDYyqkA9BFinc1B2Hsd",
@@ -5333,5 +5331,93 @@
    "reason": "Task freeze (D-497): the docs store cleanup is B-998 part 2 (D-498).",
    "at": "2026-11-05T23:31:20.666Z"
   }
+ },
+ {
+  "id": "B-1065",
+  "kind": "task",
+  "title": "The final mock-up and its rule edits replace round 7: design/mockup.html, CONTRACT §ui lines, PLAN §7 and §8",
+  "dod": "design/mockup.html is the final mock-up of record with the compat brief's §5 changes (no load bars, Keys row opens ⌘K, Progress without wide Horizon and Drill next, Stop shows Stopped by you., Approve always enabled, no Undo after ratings or talk, no Mark modes, collection page Pinned section kept); CONTRACT §ui.mockup (final mock-up), §ui.first-set (no Tile; Mark, Trend, StepMeter, Horizon added), §ui.keymap (S starts, ⌘↵ finishes, Y accepts and N dismisses a suggestion, no A; W, ⇧C, ⇧D as drawn), §ui.glyphs and §ui.status (seven glyphs, a job shows the glyph of what it makes), §ui.sidebar (Pinned holds folders and notes, no jobline), §ui.palette (word-start matching) are edited; PLAN §7 (sidebar) and §8 (Progress 'Ready for', Library weak-spot line) are edited; design/CHANGELIST.md lists the changes; npm run precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Lane B. First in lane B's Next. Size: one builder, about 1 run hour. Slice: write design/, CONTRACT.md, PLAN.md; read none. Sources (data, unblocked 2026-11-07): design/final-reference/ holds ev-design's frozen copy: design/mockup.html (214,896 bytes, sha256 28475da72c6f7da68ad0ead9223ded5bd44de43d8c0436038b422b1d6903bfd3; the mock-up of record, checked by the supervisor against ev-design), DESIGN.md, PRODUCT.md, README.md, kit/tokens/tokens.css and kit/components Mark, Dot, Horizon, JobLine, WorkspaceLine. The folder is reference only: no app or kit code imports it, and ops/checks skips it. Replace design/mockup.html with design/final-reference/design/mockup.html, then check that it has the brief's §5 changes. Keep B-1060's neutral sample content (main's mock-up) where the new file has older content. The frozen kit is not final: build rules from mockup.html and DESIGN.md, not from its kit folder. Every removed part is 'after cutover' (KeySheet, wide Horizon, load bars, Drill next, Undo on ratings and talk, stopped-job draft, saved views' home), listed on B-825.",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
+  "id": "B-1066",
+  "kind": "task",
+  "title": "The kit gains the final mock-up's parts: tokens, Mark, pulsing Dot, seven glyphs, Trend, StepMeter, Horizon, Meter and Toast changes",
+  "dod": "Each part below is merged with its story, test and /kit gallery entry, the /kit baselines are retaken through the visual-baselines workflow, and the kit unit tests for Horizon and Mark pass (ev-design never ran them); the kit matches the final design/mockup.html in both themes; npm run precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1065"
+  ],
+  "notes": "Lane B. Size: 5 builder parts, about 2 run hours with 5 builders (guess). Port by diff from design/final-reference/kit/ (tokens.css, Mark, Dot, Horizon, JobLine, WorkspaceLine), design/final-reference/DESIGN.md and the final mock-up (B-1065); move the Horizon and Mark unit tests from design/final-reference/kit/ into kit/ with their parts and run them; never copy ev-design's frozen kit over main (main changed 31 kit files since base 5ed85bc, including B-1060). Parts: (a) tokens, write kit/tokens/, shell/kit-gallery.css, shell/KitGallery.tsx: add --her-hover (#e8834d dark, #a24a18 light), --r-xs 4px, --dur-think 1.4s, tabular-nums, ::selection, scrollbar-color; light --quiet #4a4a4f, --faint #6b6b70, --lh-title 1.25, --track-title -0.02em. Its second PR, after (c), removes --her2, --info, --mono, --r-pill, --dur-3, --dur-spin and --spin-timing and moves their callers (shell/kit-gallery.css 77, 98, 105, 125; KitGallery.tsx). No --line-edge (the studio port decision). (b) Mark, write kit/components/Mark/, EvLine/, WorkspaceLine/, kit/index.ts: one SVG Mark with no modes (no thinking, step or arrive), used by EvLine and WorkspaceLine. (c) status, write kit/components/Dot/, Glyph/, JobLine/: Dot pulse (still under reduced motion; 'Step n of N' for assistive tech), no info tone (Dot.css:25); Glyph has seven types, no job type and no spin rules (Glyph.css:29-30); JobLine shows a pulsing Dot and the glyph of what the job makes, from a small job-kind to glyph map in the kit. The job glyph and info tone are used in areas/activity/Activity.view.tsx, areas/ask/parts/Message.tsx, areas/notes/NotePage.view.tsx and areas/today/Today.view.tsx: change those call sites in the same PR (one line each), or wait if an area task holds the file. (d) data parts, write kit/components/Trend/, StepMeter/, Horizon/, Meter/, kit/index.ts, after (b) merges (both add kit/index.ts lines): Trend (replaces Bars), StepMeter, Horizon (rail size, date dots only, no load bars), Meter neutral parts and risk flag. Bars and Tile are removed by the two area port tasks, which hold their last callers (areas/progress, areas/library/parts/SetsPanel.tsx). (e) Toast and keys, write kit/components/Toast/, Button/, Row/: Toast stays 8 s, Z undoes, it holds on hover and focus; key boxes on Button and Row only where §ui.keymap names a key.",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
+  "id": "B-1067",
+  "kind": "task",
+  "title": "The shell matches the final mock-up: Pinned holds folders and notes, a Horizon rail of dates, ⌘K word-start matching and a Keys row, one key listener, rename in place in Detail, Stop shows 'Stopped by you.'",
+  "dod": "Sidebar Pinned lists folders and notes only (pin data keeps its other kinds; the collection page's Pinned section stays, D-526) and has no jobline; the Horizon rail shows the next 14 days' dated items from Today's dates read (no forecast read, no load bars); ⌘K uses the kit matcher (word-start for 1 or 2 letters, in-order letters after, cmdk filtering off, the studio port decision) and the Keys row opens ⌘K with key hints; one shell key listener and one Detail focus helper serve every key (keyboard audit H1 to H6, counted once with B-979's key map work), with a test that one letter has one meaning in each place; Detail renames in place (item.rename) and its × reads 'Put away (Esc)' (plan.put_away); a stopped job shows failed with 'Stopped by you.' and drafts that landed before the Stop stay in Library; npm run precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1066",
+   "B-979",
+   "B-983",
+   "B-991"
+  ],
+  "notes": "Lane B. Size: about 3 builder parts, 2 to 3 run hours (guess). Parts free now (after the kit port): (a) sidebar Pinned scope and no jobline, write shell/ sidebar files; (b) Detail rename in place and Put away (Esc), write shell/ Detail host. Parts that wait: (c) Horizon rail, after B-1006 (Today's typed dates read) and the kit port's part (d); (d) ⌘K matcher, Keys row and the one key listener, after B-979, B-983 and B-991 (merge with B-979's key map work; do not build a second listener). (e) Stop: check jobs/runtime/workflow.ts and server/handlers-jobs.ts (handler at about line 37) that drafts written before a Stop stay in Library; if they do, only the area text changes; if not, the fix is a part for lane A (jobs/ and server/ are lane A folders). Undo on Stop and 'Open the draft' are after cutover.",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
+  "id": "B-1068",
+  "kind": "task",
+  "title": "Pictures shrink before they upload into a note",
+  "dod": "A pasted or dropped picture larger than the size the mock-up or DESIGN.md names is scaled down in the browser before PUT /api/v1/note-images (gif and small pictures are sent as they are), so a phone photo no longer meets the 5 MB server limit; a unit test covers a large picture, a small one and a gif; npm run precheck is green",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [],
+  "notes": "Lane B: the upload is client-side in areas/notes/parts/notePictures.ts (uploadPicture); the server limit stays MAX_IMAGE in server/image-routes.ts, unchanged. Size: one builder, under 1 run hour. Slice: write areas/notes/parts/notePictures.ts and its test; read commands/client.ts. B-1008 also writes areas/notes: do not run both builders on notePictures.ts at once. Matt's feature list E2, approved for the port (the studio port decision).",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
+  "id": "B-1069",
+  "kind": "task",
+  "title": "Today and Progress match the final mock-up: Trend, 'Ready for', no meter on Coming up, job glyphs and keys",
+  "dod": "Progress shows Trend (replacing Bars) and 'Ready for' per date from Today's readiness numbers (areas/today/map.ts:95-120) as Meter bars with the legend ready, shaky, weak; Today's Coming up has no meter, ⇧D adds a date (date.create), S starts the next plan item, jobs show the glyph of what they make; the kit's Bars is removed with its last caller; npm run precheck is green and the /kit and area baselines are retaken",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1066",
+   "B-1006"
+  ],
+  "notes": "Lane B. Area port group 1. Size: 2 builder parts (today, progress), about 1 run hour (guess). Slice: write areas/today, areas/progress, kit/components/Bars (delete), kit/index.ts; read kit/. Waits for B-1006 (typed reads in areas/today) and the kit port (Trend, Meter, glyphs).",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
+  "id": "B-1070",
+  "kind": "task",
+  "title": "Library, Study, Ask, Notes, Collection, Activity and Recently deleted match the final mock-up",
+  "dod": "Part (a) Library, Study and Ask: tab style, weak-spot line under the title in place of the accuracy line (PLAN §8), C adds a plan line from a weak spot (plan.create with linked), W on Write with E.V., Y and E on a suggestion, ⌘↵ ends a session, Approve always enabled with no rating row, no Undo after ratings or talk, the 'it' copy in Ask, Tile removed with its last caller (SetsPanel.tsx). Part (b) Notes, Collection, Activity and Recently deleted: no meta line on Notes, ⇧C on Notes, the crumb in the note's toolbar line, the note's session dot uses ok, the collection page's Pinned section stays (D-526), Activity's Stop button (job.stop) and its 'Stopped by you.' state, the undo toast on kit parts for registry commands with undo. npm run precheck is green and the baselines are retaken",
+  "milestone": "Phase 6",
+  "status": "open",
+  "depends": [
+   "B-1066",
+   "B-1007",
+   "B-1044",
+   "B-1008",
+   "B-823"
+  ],
+  "notes": "Lane B. Area port groups 2 and 3, one id with two parts (the six-id cap, the studio port decision). Size: 2 to 4 builder parts, 2 to 3 run hours (guess). Part (a) write areas/library, areas/ask, areas/sessions (Study), kit/components/Tile (delete), kit/index.ts; waits for B-1007 and B-1044. Part (b) write areas/notes, areas/collection, areas/activity, areas/deleted; waits for B-1008 and the data-loss gate on B-823. W stays a dead key until set.write_with_ev has a server handler (lane A leftover).",
+  "commit": null,
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
  }
 ]

@@ -69,9 +69,7 @@ test("approving a prep plan puts it in force and putting it away retires it", as
   const edit = async () => {
     const rows = await read("plans");
     const retired = Object.fromEntries(
-      rows
-        .filter((p) => p.state === "put_away")
-        .map((p) => [p.id, { at: 1 }]),
+      rows.filter((p) => p.state === "put_away").map((p) => [p.id, { at: 1 }]),
     );
     return {
       plan: rows.find((p) => p.state === "in_force")?.id,

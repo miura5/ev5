@@ -3,6 +3,7 @@
 // gate with the row's version, so a stale write is a 409. A repeat is a `repeats` row, and its next days' occurrences are
 // rows of their own (PLAN §5.10); a collection is a membership row for a live `col_` id, and "none" takes the item out.
 import { addDays, centralDate } from "../domain/index.ts";
+import { deferWrites } from "./defer-writes.ts";
 import type { CommandHandler } from "./handlers-core.ts";
 import {
   checkDate,
@@ -46,10 +47,13 @@ export const planHandlers: Record<string, CommandHandler> = {
     return { id: row.id, date };
   },
 
-  "plan.update": async (i: Fields & { id: string }, _c, x) => {
-    const cur = await findItem(x, i.id);
+  "plan.update": async (i: Fields & { id: string }, _c, ctx) => {
+    const cur = await findItem(ctx, i.id);
     const to = i.date === undefined ? cur.day : checkDate(i.date);
-    const o = await optionsOf(x, i, to);
+    const o = await optionsOf(ctx, i, to);
+    // The repeat, the item, its topped-up days and the collection are ONE batch: all land or none does (§data.gate).
+    const w = deferWrites(ctx.db);
+    const x = { ...ctx, db: w.db };
     const next = {
       ...fieldsOf(cur),
       day: to,
@@ -70,8 +74,9 @@ export const planHandlers: Record<string, CommandHandler> = {
           : await saveRepeat(x, next, o.repeat, cur.repeat_id, x.newId());
     const row = await saveItem(x, next, cur.v);
     // A repeat is topped up on every change, so a date change reaches the days not yet written.
-    await materializeRepeat(x, row);
+    await materializeRepeat(x, row, o.repeat ?? undefined);
     if (o.collection !== undefined) await placeItem(x, row.id, o.collection);
+    await w.flush("that item or its repeat changed; try again");
     return { id: row.id, date: to };
   },
 

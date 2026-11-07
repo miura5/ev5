@@ -31,7 +31,11 @@ function setup(DB?: unknown) {
   return (method: string, name: string, body?: Uint8Array, token = "app-t") =>
     app.request(
       "/api/v1/note-images/" + name,
-      { method, headers: { authorization: `Bearer ${token}` }, body },
+      {
+        method,
+        headers: { authorization: `Bearer ${token}` },
+        body: body as BodyInit | undefined,
+      },
       env,
     );
 }

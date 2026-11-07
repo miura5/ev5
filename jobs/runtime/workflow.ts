@@ -76,7 +76,12 @@ export interface Ceilings {
   record(key: string, jobId: string, cents: number): Promise<void>;
 }
 
-export type StepResult = { ids: string[] } | { needsYou: string };
+/**
+ * A step returns ids. `carry` is the one exception: the paid call step hands its result to the very next step of the
+ * same instance in the Workflow's own durable step state, so the D1 write is a separate step (§job.steps) and a failed
+ * write retries without paying the model again. It is never stored by the runtime and does not cross a needs-you.
+ */
+export type StepResult = { ids: string[]; carry?: unknown } | { needsYou: string };
 export type StepCtx = {
   jobId: string;
   instanceId: string;
@@ -86,6 +91,8 @@ export type StepCtx = {
   input: unknown;
   /** Ids returned by earlier steps of this instance. */
   prior: Readonly<Record<string, readonly string[]>>;
+  /** What the earlier steps of this instance carried (see StepResult). */
+  carried?: Readonly<Record<string, unknown>>;
   reserve(maxCents: number): Promise<void>;
   /** Usage keyed by instance, step and attempt. */
   spend(cents: number): Promise<void>;
@@ -127,6 +134,7 @@ export async function runJob(
     await move('begin', { to: 'running', at: env.now() });
   }
   const prior: Record<string, string[]> = {};
+  const carried: Record<string, unknown> = {};
   for (const name of names) {
     const run = async (c: { attempt: number }): Promise<StepResult | { stopped: true }> => {
       if (!(await stillRunning())) return { stopped: true };
@@ -137,6 +145,7 @@ export async function runJob(
         attempt: c.attempt,
         input: p.input,
         prior,
+        carried,
         reserve: (cents) => env.ceilings.reserve(p.jobId, cents),
         spend: async (cents) => {
           await env.ceilings.record(`${instanceId}:${name}:${c.attempt}`, p.jobId, cents);
@@ -166,6 +175,7 @@ export async function runJob(
       return;
     }
     prior[name] = r.ids;
+    if (r.carry !== undefined) carried[name] = r.carry;
   }
   const out = prior[names[names.length - 1]!]?.[0];
   if (!out) return void (await fail(`${def.title} finished without saying where its output went.`));

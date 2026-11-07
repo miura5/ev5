@@ -68,11 +68,10 @@ test("sourced items become set items; unsourced ones become drafts and need you"
 });
 
 test("a fully sourced set does not need you", async () => {
-  const r = await writePracticeSet(
-    "j",
-    input(),
-    script(reply([q("note_e1"), q("note_e1")])),
-  );
+  const r = await writePracticeSet("j", input(), {
+    ...script(reply([q("note_e1"), q("note_e1")])),
+    system,
+  });
   assert.ok(r.ok && !r.needsYou && r.drafts.length === 0);
 });
 
@@ -125,7 +124,10 @@ test("wrong answer keys fail the semantic check", async () => {
     q("note_e1", { correct: [9] }),
     q("note_e1", { type: "multi_select", correct: [1] }),
   ]);
-  const r = await writePracticeSet("j", input(), script(bad, bad));
+  const r = await writePracticeSet("j", input(), {
+    ...script(bad, bad),
+    system,
+  });
   assert.ok(!r.ok);
   assert.match(r.reason, /do not exist|multi_select but has 1/);
 });

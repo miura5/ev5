@@ -13,6 +13,7 @@ import { checkSubjectWords } from './subjectwords.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
+import { checkMigrationFreeze } from './migrationfreeze.ts';
 import { checkMigrationNames } from './migrationnames.ts';
 import { checkMigrationShape } from './migrationshape.ts';
 import { checkModelsAge } from './models.ts';
@@ -37,7 +38,8 @@ const hasRef = (ref: string): boolean =>
 const base =
   arg('base') ??
   (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : hasRef('origin/main') ? 'origin/main' : undefined);
-const files = listFiles(root);
+// design/final-reference/ is ev-design's frozen copy, kept as reference for the studio UI port: data, not source.
+const files = listFiles(root).filter(f => !f.startsWith('design/final-reference/'));
 const findings = [
   ...checkAccount(root, files),
   ...checkChartEv4(root, files),
@@ -47,6 +49,7 @@ const findings = [
   ...checkOldShapes(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
+  ...checkMigrationFreeze(root, files),
   ...checkMigrationNames(files),
   ...checkMigrationShape(root, files),
   ...checkPlanJob(root, files),

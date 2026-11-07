@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { defineJob, parseWith } from '../runtime/define.ts';
 import { NonRetryableError } from '../runtime/non-retryable.ts';
 import { outputSchema } from '../runtime/model-call.ts';
-import { billedOnThrow, checkCitations, putKept, runStructured, type ModelCall } from '../runtime/output.ts';
+import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
 import { addDays, goalDaysLeft, kindOffers, planBodySchema, type Goal, type PlanBody, type PlanTask } from '../../domain/index.ts';
 
@@ -56,8 +56,6 @@ export interface PlanStore {
   getContext(jobId: string): Promise<PlanContext>;
   putDraft(jobId: string, plan: Plan): Promise<string>;
   getDraft(jobId: string): Promise<Plan>;
-  /** The draft if the draft step already stored it (its step result was lost), else undefined. */
-  findDraft?(jobId: string): Promise<Plan | undefined>;
   /** A model failure noted once, so a step retry does not pay for the same failing call again. */
   /** Approve: the plan's tasks go onto Today. Put away: the draft is kept, marked put away. Returns the plan id. */
   approve(jobId: string, plan: Plan): Promise<string>;
@@ -132,6 +130,8 @@ export const MAX_CHANGE_ROUNDS = 5;
 export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
   i === 0 ? 'revise' : `revise_${i + 1}`,
 );
+/** The write step after each round's Claude call (§job.steps); it is where the round asks Matt. */
+export const reviseWrite = (name: string) => `${name}_write`;
 
 export const prepPlanJob = defineJob({
   kind: 'prep_plan',
@@ -141,7 +141,7 @@ export const prepPlanJob = defineJob({
   model: MODEL,
   maxTokens: MAX_TOKENS,
   costCapCents: COST_CAP_CENTS,
-  steps: ['gather', 'draft', 'approve', ...REVISE_STEPS, 'save'],
+  steps: ['gather', 'draft', 'draft_write', 'approve', ...REVISE_STEPS.flatMap((n) => [n, reviseWrite(n)]), 'save'],
   wording: {
     running: 'E.V. is building your prep plan.',
     needsYou: 'Your prep plan is ready. Approve it or put it away.',
@@ -186,11 +186,16 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
     );
     await c.spend(r.costCents);
     if (!r.ok) throw new NonRetryableError(r.reason);
-    await store.putDraft(c.jobId, r.plan);
-    return {
-      needsYou: `Your prep plan for ${ctx.goal.title} was changed. Approve it or put it away.`,
-    };
+    return { ids: [`${c.jobId}:revision`], carry: { plan: r.plan, title: ctx.goal.title } };
   };
+  const reviseSave =
+    (call: string): StepHandlers[string] =>
+    async (c) => {
+      const k = c.carried?.[call] as { plan: Plan; title: string } | undefined;
+      if (!k) return { ids: [] }; // no change was asked this round
+      await store.putDraft(c.jobId, k.plan);
+      return { needsYou: `Your prep plan for ${k.title} was changed. Approve it or put it away.` };
+    };
 
   return {
     gather: async (c) => {
@@ -199,8 +204,6 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
       return { ids: [await store.putContext(c.jobId, buildContext(found))] };
     },
     draft: async (c) => {
-      // The draft is already kept (a retry after the write landed): the model is not paid for again.
-      if (await store.findDraft?.(c.jobId)) return { ids: [`${c.jobId}:draft`] };
       const ctx = await store.getContext(c.jobId);
       await c.reserve(COST_CAP_CENTS);
       const r = await billedOnThrow(c.spend, async () =>
@@ -217,7 +220,13 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
       );
       await c.spend(r.costCents);
       if (!r.ok) throw new NonRetryableError(r.reason);
-      return { ids: [await putKept(() => store.putDraft(c.jobId, r.value))] };
+      // No D1 write here: draft_write puts it (§job.steps).
+      return { ids: [`${c.jobId}:draft`], carry: r.value };
+    },
+    draft_write: async (c) => {
+      const plan = c.carried?.draft as Plan | undefined;
+      if (!plan) throw new Error('The draft step carried no plan.');
+      return { ids: [await store.putDraft(c.jobId, plan)] };
     },
     approve: async (c) => {
       const ctx = await store.getContext(c.jobId);
@@ -225,7 +234,12 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
         needsYou: `Your prep plan for ${ctx.goal.title} is ready. Approve it or put it away.`,
       };
     },
-    ...Object.fromEntries(REVISE_STEPS.map((name) => [name, revise])),
+    ...Object.fromEntries(
+      REVISE_STEPS.flatMap((name) => [
+        [name, revise],
+        [reviseWrite(name), reviseSave(name)],
+      ]),
+    ),
     save: async (c) => {
       const answer = rec(c.input, 'answer');
       if (answer.decision === 'change')
