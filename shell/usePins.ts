@@ -1,11 +1,5 @@
-import type { WireDoc } from "../domain/index.ts";
 import { useEffect, useState } from "react";
-import {
-  centralDate,
-  goalDaysLeft,
-  parseGoal,
-  plainDay,
-} from "../domain/index.ts";
+import { centralDate, daysBetween, plainDay } from "../domain/index.ts";
 import { readJson, readToken } from "../commands/client.ts";
 import type { ReadCopy } from "./readCopy.ts";
 import type { GlyphType } from "../kit/index.ts";
@@ -20,12 +14,34 @@ export interface SidebarPin {
   to?: string;
 }
 
+/** What a pin needs of a row: its id and the words it shows. */
+export interface PinRowTitle {
+  id: string;
+  title: string;
+}
+
+/** The pins, the collections, and the goal rows (dates) read from the row routes. */
 export interface PinWire {
   pins: { collection: string; id: string }[];
   collections: { id: string; title: string; parentId: string | null }[];
-  memberships: { collection: string; id: string; collectionId: string }[];
-  docs: Record<string, WireDoc[]>;
+  goals: {
+    id: string;
+    title: string;
+    collection_id: string | null;
+    date: string | null;
+    status: string;
+  }[];
+  /** Titles by the pin's kind ("notes", "sets", "weakspots"); goals come from `goals`. */
+  titles: Record<string, PinRowTitle[]>;
 }
+
+/** The row route that holds each pinned kind; a pin names the document id, the row id may carry a prefix. */
+const ROUTES: Record<string, { path: string; prefix: string }> = {
+  notes: { path: "notes", prefix: "note_" },
+  sets: { path: "sets", prefix: "set_" },
+  weakspots: { path: "weak-spots", prefix: "ws_" },
+};
+const GOAL_KINDS = new Set(["exams", "goals"]);
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TYPES: Record<string, GlyphType> = {
@@ -43,13 +59,13 @@ function whenLabel(date: string, left: number, today: string): string {
     : plainDay(date, today);
 }
 
-const title = (d: WireDoc | undefined): string => {
-  const o = (d?.data ?? {}) as Record<string, unknown>;
-  for (const k of ["title", "name", "text"]) {
-    const v = o[k];
-    if (typeof v === "string" && v.trim()) return v.trim();
-  }
-  return "Untitled";
+const titled = (
+  rows: PinRowTitle[] | undefined,
+  id: string,
+  prefix: string,
+) => {
+  const row = rows?.find((r) => r.id === id || r.id === `${prefix}${id}`);
+  return row?.title.trim() || "Untitled";
 };
 
 const openAt = (c: string, id: string): string | undefined => {
@@ -67,23 +83,18 @@ export function sidebarPins(w: PinWire, now: Date | number): SidebarPin[] {
   const today = centralDate(now);
   const parent = new Map(w.collections.map((c) => [c.id, c.parentId]));
   const next = new Map<string, { date: string; left: number }>();
-  for (const m of w.memberships) {
-    if (m.collection !== "exams") continue;
-    const doc = w.docs.exams?.find((d) => d.id === m.id);
-    if (!doc) continue;
-    try {
-      const exam = parseGoal(doc.data);
-      const left = goalDaysLeft(exam, today);
-      if (left === null || left < 0 || !exam.date || exam.status === "done")
-        continue;
-      // The collection it is in, and the one that holds that (one level, as the mock-up does).
-      for (const cid of [m.collectionId, parent.get(m.collectionId)]) {
-        if (!cid) continue;
-        const had = next.get(cid);
-        if (!had || left < had.left) next.set(cid, { date: exam.date, left });
-      }
-    } catch {
-      // a date outside the schema is left out
+  for (const g of w.goals) {
+    if (!g.date || g.status === "done") continue;
+    const left = daysBetween(today, g.date);
+    if (left < 0) continue;
+    // The collection it is in, and the one that holds that (one level, as the mock-up does).
+    for (const cid of [
+      g.collection_id,
+      g.collection_id && parent.get(g.collection_id),
+    ]) {
+      if (!cid) continue;
+      const had = next.get(cid);
+      if (!had || left < had.left) next.set(cid, { date: g.date, left });
     }
   }
   return w.pins.flatMap((p) => {
@@ -96,7 +107,13 @@ export function sidebarPins(w: PinWire, now: Date | number): SidebarPin[] {
         title:
           p.collection === "collections"
             ? (coll?.title ?? "Untitled")
-            : title(w.docs[p.collection]?.find((d) => d.id === p.id)),
+            : GOAL_KINDS.has(p.collection)
+              ? titled(w.goals, p.id, "goal_")
+              : titled(
+                  w.titles[p.collection],
+                  p.id,
+                  ROUTES[p.collection]?.prefix ?? "",
+                ),
         type: TYPES[p.collection] ?? "note",
         ...(p.collection === "collections" && n
           ? { when: whenLabel(n.date, n.left, today) }
@@ -119,32 +136,32 @@ export function usePins(copy?: ReadCopy): SidebarPin[] {
     }
     const load = async () => {
       try {
-        const [pins, collections, memberships] = await Promise.all([
+        function rows<R>(path: string): Promise<R[]> {
+          return get(path, (b) => (b as { rows?: R[] }).rows ?? []);
+        }
+        const [pins, collections, goals] = await Promise.all([
           get("pins", (b) => (b as { pins?: PinWire["pins"] }).pins ?? []),
           get(
             "collections",
             (b) =>
               (b as { collections?: PinWire["collections"] }).collections ?? [],
           ),
-          get(
-            "memberships",
-            (b) =>
-              (b as { memberships?: PinWire["memberships"] }).memberships ?? [],
+          // The dates: a pinned collection shows its next one. Unreadable, no day shows.
+          rows<PinWire["goals"][number]>("goals").catch(
+            (): PinWire["goals"] => [],
           ),
         ]);
-        const kinds = new Set(
-          pins.map((p) => p.collection).filter((c) => c !== "collections"),
-        );
-        if (memberships.some((m) => m.collection === "exams"))
-          kinds.add("exams");
-        const docs: PinWire["docs"] = {};
+        const titles: PinWire["titles"] = {};
         await Promise.all(
-          [...kinds].map(async (k) => {
+          [...new Set(pins.map((p) => p.collection))].map(async (k) => {
+            const route = ROUTES[k];
+            if (!route) return;
             try {
-              docs[k] = await get(
-                `docs?collection=${k}`,
-                (b) => (b as { docs: WireDoc[] }).docs,
-              );
+              const rs = await rows<Record<string, unknown>>(route.path);
+              titles[k] = rs.map((r) => ({
+                id: String(r.id),
+                title: String(r.title ?? r.topic ?? ""),
+              }));
             } catch {
               // a kind that will not load names its pins "Untitled"
             }
@@ -152,7 +169,7 @@ export function usePins(copy?: ReadCopy): SidebarPin[] {
         );
         if (live)
           setPins(
-            sidebarPins({ pins, collections, memberships, docs }, Date.now()),
+            sidebarPins({ pins, collections, goals, titles }, Date.now()),
           );
       } catch {
         // offline or refused: keep what the sidebar last showed
