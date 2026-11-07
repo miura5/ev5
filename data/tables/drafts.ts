@@ -7,7 +7,7 @@ import {
   parseDraftTableRow,
   setKey,
 } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
 

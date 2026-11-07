@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { gateProblem } from '../docs/gate.ts';
+import { gateProblem } from './gate-problem.ts';
 import { memoryAdapter } from './memory-adapter.ts';
 import { PROTOCOL_CASES, registerProtocolSuite, testClock } from './protocol-suite.ts';
 import type { ProtocolAdapter } from './protocol.ts';

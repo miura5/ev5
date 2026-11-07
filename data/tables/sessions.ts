@@ -6,7 +6,7 @@ import type {
   SessionEventRow,
   SessionTableRow,
 } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";

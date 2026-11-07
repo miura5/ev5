@@ -1,6 +1,6 @@
 // The document size budget (CONTRACT §data.size): each stored document is measured against its platform
 // ceiling, D1's 2 MB row limit. At 75% a write goes through with a warning; at 90% it is refused with a plain reason.
-import { canonicalText, type Json } from "../protocol/canonical.ts";
+import { canonicalText, type Json } from "./protocol/canonical.ts";
 
 export const DOC_CEILING = 2_000_000;
 export const WARN_AT = 0.75;

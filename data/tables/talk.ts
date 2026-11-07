@@ -1,7 +1,7 @@
 // The one writer of talk rows (§data.tables, §data.gate, §data.append-only): every line said in an Ask E.V. chat or a session
 // check-in is one appended `talk` row. Nothing is rewritten, summarised or deleted; a chat is the rows that share a chat_id.
 import type { TalkRow } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";
 

@@ -2,7 +2,7 @@
 // E.V.'s share `sets` and `set_items`. Every change to an item first files the version it replaces in `set_item_versions`
 // (id `<item_id>@<item_v>`), then bumps the item's `v`, so an attempt's item_v always names a body that can be read back.
 import type { SetItemRow, SetTableRow } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { Saved, TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";

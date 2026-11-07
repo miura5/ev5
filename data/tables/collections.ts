@@ -1,6 +1,6 @@
 // The collections table's cross-row rule on top of the generic gate (§data.gate, §data.membership): nesting is one level.
 // A parent must exist, be live and have no parent of its own, and a collection that has children cannot take a parent.
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo } from "./kinds.ts";

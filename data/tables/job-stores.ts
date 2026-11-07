@@ -10,7 +10,7 @@ import {
   parseJobRecord,
   type JobRecordRow,
 } from "../../domain/index.ts";
-import type { D1Like, D1Statement } from "../docs/d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 import { insertConflict, type TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
 

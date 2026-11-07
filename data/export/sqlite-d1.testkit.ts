@@ -1,7 +1,7 @@
 // Test-only: a D1 stand-in over node:sqlite (real SQL), so exports and restores run against real tables.
 import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "../docs/d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 
 export function sqliteD1(db: DatabaseSync): D1Like {
   const prepare = (sql: string): D1Statement => {
