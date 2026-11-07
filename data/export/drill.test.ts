@@ -53,7 +53,6 @@ function seed(db: DatabaseSync, spec: TableSpec): boolean {
       if (JSON_COLS.includes(c))
         return `{"z":${n},"a":{"é":"ü ${n}","list":[1,"two",null]}}`;
       if (c === "id" && prefix) return `${prefix}${n}`;
-      if (c === "c" && spec.name === "docs") return n === 1 ? "notes" : "exams";
       return types.get(c) === "INTEGER" ? n : `${spec.name}-${c}-${n}`;
     });
     db.prepare(
@@ -90,7 +89,6 @@ for (const spec of ALL_TABLES) {
 
     const back = await exportAll(sqliteD1(scratch), Date.UTC(2026, 10, 5));
     assert.deepEqual(back.tables, x.tables);
-    assert.deepEqual(back.collections, x.collections);
     assert.equal(
       canon(back.rows),
       canon(x.rows),
@@ -113,9 +111,7 @@ test("drill: one record holding every table restores as written, collection by c
   );
   assert.equal(report.ok, true);
   const back = await exportAll(sqliteD1(scratch));
-  assert.deepEqual(back.collections, x.collections);
   assert.equal(canon(back.rows), canon(x.rows));
-  assert.equal(canon(back.docs), canon(x.docs));
 });
 
 test("drill: restoring into a scratch that already holds rows is refused by the keys, never merged", async () => {
@@ -125,7 +121,7 @@ test("drill: restoring into a scratch that already holds rows is refused by the 
   const scratch = migratedDb();
   await restoreInto(sqliteD1(scratch), x);
   await assert.rejects(restoreInto(sqliteD1(scratch), x));
-  assert.equal(countOf(scratch, "docs"), ROWS_PER_TABLE);
+  assert.equal(countOf(scratch, ALL_TABLES[0]!.name), ROWS_PER_TABLE);
 });
 
 test("drill: a row changed in any table is caught by that table's hash before a restore", async () => {

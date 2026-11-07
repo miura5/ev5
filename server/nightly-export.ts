@@ -17,7 +17,6 @@ export interface ExportBucket {
 
 /** The part of data's export this reads: the manifests, which carry the counts. */
 export interface ExportResult {
-  collections: Record<string, { count: number }>;
   tables: Record<string, { count: number }>;
 }
 

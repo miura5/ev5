@@ -63,8 +63,6 @@ function migrated(withNew: boolean): DatabaseSync {
 }
 
 const SEED = `
-INSERT INTO docs VALUES ('notes','n1','{"a":1}',10,2),('notes','n2','{"b":"é"}',11,1),('exams','e1','{}',12,1),
- ('system','one','{}',13,1),('system','other','{}',14,1);
 INSERT INTO deletions VALUES ('notes','gone',20);
 INSERT INTO claude_usage VALUES (100,'2026-11-03',50,2);
 INSERT INTO claude_reads VALUES ('n1','h1',30);
@@ -72,7 +70,7 @@ INSERT INTO claude_settings VALUES ('claude.hourTokens',1000,31);
 INSERT INTO claude_plan_asks VALUES ('job1',2,32);
 INSERT INTO system_docs VALUES ('one','{}',33),('two','{}',34);
 INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
-INSERT INTO memberships VALUES ('notes','n1','k2',42,1);
+INSERT INTO memberships VALUES ('sets','set_1','k2',42,1);
 INSERT INTO pins (target_c, target_id, pos, at) VALUES ('notes','n1',0,43);
 INSERT INTO item_props VALUES ('notes','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
 INSERT INTO sets (id, kind, title, created_by, at, v) VALUES ('set_1','own','Mine','matt',46,1);
@@ -94,9 +92,8 @@ test("export then restore into scratch: every table count and hash equal", async
   const x = await exportAll(sqliteD1(src), Date.UTC(2026, 10, 3));
   assert.deepEqual(await checkExport(x), []);
   assert.equal(x.kind, "ev5-export");
-  assert.equal(x.tables.docs!.count, 5); // every row, system documents included
   assert.equal(x.tables.system_docs!.count, 2);
-  assert.deepEqual(Object.keys(x.collections), ["exams", "notes", "system"]);
+  assert.equal(x.tables.docs, undefined); // the generic docs table is not exported
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);
   assert.equal(x.tables.own_attempts!.count, 2);
   assert.equal(x.tables.set_items!.count, 2);
@@ -124,7 +121,7 @@ test("export then restore into scratch: every table count and hash equal", async
 
 test("a table whose migration has not landed exports as empty; restoring into a scratch without them works", async () => {
   const src = migrated(false);
-  src.exec("INSERT INTO docs VALUES ('notes','n1','{}',1,1)");
+  src.exec("INSERT INTO system_docs VALUES ('one','{}',1)");
   const x = await exportAll(sqliteD1(src));
   assert.equal(x.tables.collections!.count, 0);
   const report = await restoreInto(sqliteD1(migrated(false)), x);
@@ -171,13 +168,13 @@ test("a tampered export is refused before anything is written", async () => {
   const src = migrated(true);
   src.exec(SEED);
   const x = await exportAll(sqliteD1(src));
-  x.rows.docs![0]!.data = '{"changed":true}';
+  x.rows.system_docs![0]!.data = '{"changed":true}';
   const scratch = migrated(true);
   const report = await restoreInto(sqliteD1(scratch), x);
   assert.equal(report.ok, false);
   assert.ok(report.diffs.length > 0);
   assert.equal(
-    (scratch.prepare("SELECT count(*) AS n FROM docs").get() as { n: number })
+    (scratch.prepare("SELECT count(*) AS n FROM system_docs").get() as { n: number })
       .n,
     0,
   );
@@ -196,7 +193,7 @@ test("a restore refuses a file of any other kind, an ev4 backup included, and wr
     assert.equal(report.ok, false, kind);
     assert.match(report.diffs[0] ?? "", /only v5's own export is restored/);
     assert.equal(
-      (scratch.prepare("SELECT count(*) AS n FROM docs").get() as { n: number })
+      (scratch.prepare("SELECT count(*) AS n FROM system_docs").get() as { n: number })
         .n,
       0,
     );
@@ -217,7 +214,8 @@ test("the export covers every non-virtual table the migrations create, and lists
     .all() as { name: string; sql: string }[];
   const real = rows
     .filter((r) => !/^\s*CREATE\s+VIRTUAL\s+TABLE/i.test(r.sql))
-    .map((r) => r.name);
+    .map((r) => r.name)
+    .filter((n) => n !== "docs"); // the generic table: no longer exported, dropped with the migration squash
   assert.ok(real.includes("job_plans"));
   const covered = new Set(ALL_TABLES.map((t) => t.name));
   assert.deepEqual(

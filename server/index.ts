@@ -33,13 +33,9 @@ export interface Env extends AuthEnv {
 const app = new Hono<{ Bindings: Env; Variables: AuthVars }>();
 
 app.get("/api/health", async (c) => {
-  let docs: number | null = null;
   let db = "ok";
   try {
-    const row = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM docs").first<{
-      n: number;
-    }>();
-    docs = row?.n ?? 0;
+    await c.env.DB.prepare("SELECT 1 AS ok").first();
   } catch {
     db = "error";
   }
@@ -50,7 +46,6 @@ app.get("/api/health", async (c) => {
       env: c.env.ENV_NAME ?? "unknown",
       commit: c.env.COMMIT ?? "unknown",
       db,
-      docs,
     },
     db === "ok" ? 200 : 503,
   );
