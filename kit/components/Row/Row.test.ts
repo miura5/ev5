@@ -39,11 +39,11 @@ test("a folding row exposes aria-expanded and folds with the arrow keys", () => 
   const onToggle = vi.fn();
   const { rerender } = render(
     createElement(Row, {
-      title: "Cell biology",
+      title: "Chapter notes",
       fold: { open: false, onToggle },
     }),
   );
-  const row = screen.getByRole("button", { name: "Cell biology" });
+  const row = screen.getByRole("button", { name: "Chapter notes" });
   expect(row.getAttribute("aria-expanded")).toBe("false");
   fireEvent.keyDown(row, { key: "ArrowLeft" });
   expect(onToggle).not.toHaveBeenCalled();
@@ -51,11 +51,11 @@ test("a folding row exposes aria-expanded and folds with the arrow keys", () => 
   expect(onToggle).toHaveBeenCalledTimes(1);
   rerender(
     createElement(Row, {
-      title: "Cell biology",
+      title: "Chapter notes",
       fold: { open: true, onToggle },
     }),
   );
-  const open = screen.getByRole("button", { name: "Cell biology" });
+  const open = screen.getByRole("button", { name: "Chapter notes" });
   expect(open.getAttribute("aria-expanded")).toBe("true");
   fireEvent.keyDown(open, { key: "ArrowRight" });
   expect(onToggle).toHaveBeenCalledTimes(1);

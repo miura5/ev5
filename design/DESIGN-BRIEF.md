@@ -33,7 +33,7 @@ The coach rules from `PLAN.md` §1 still hold:
 1. The six skeleton sections, a sidebar, one centred column, and a Detail panel that opens on demand. No new top-level sections.
 2. The sidebar holds the six sections plus Matt's **pins**. A pin can be anything he chooses: a note, a set, a collection, a saved view.
    - There are no built-in domain sections.
-   - A collection in the sidebar is one the user made and pinned: "Biology" next to "Spanish", "Interview prep" or "Running". No course code is needed.
+   - A collection in the sidebar is one the user made and pinned: "Biology" next to "Spanish", "Interview prep" or "Running". No course code is needed. Sample content (here and in the kit) is any subject, never one in particular (§what.framing).
 
 **Customization comes from a few general primitives, not from settings:**
 - **Collections:** one way to group anything. They nest at most one level.
