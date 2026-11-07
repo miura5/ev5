@@ -1,17 +1,11 @@
 import { useCallback } from "react";
 import { call, readToken } from "../../commands/client.ts";
-import { buildAnswer } from "./answer.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface LibraryServices {
   /** The saved copy of reads (shell/readCopy.ts): Library shows it when there is no connection. */
   readCopy?: { read<T>(key: string, fetcher: () => Promise<T>): Promise<T> };
   outbox: {
-    queueAnswer?(
-      c: string,
-      id: string,
-      doc: Record<string, unknown>,
-    ): Promise<unknown>;
     queueCommand?(
       name: string,
       id: string,
@@ -28,35 +22,25 @@ export interface LibraryServices {
 const attemptId = () =>
   `att_${Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, "0")).join("")}`;
 
-const rand = () => Math.random().toString(36).slice(2, 6).padEnd(4, "0");
-
-/** Rating handler for a study run: the answer is queued first (so it survives no connection), then replayed. */
+/** Rating handler for a study run: queued as study.attempt (so it survives no connection), then replayed. */
 function useWriter(setId: string, services?: LibraryServices) {
   return useCallback(
-    (itemId: string, rating: "again" | "good" | "told", attempt: string) => {
-      const q = services?.outbox.queueAnswer;
-      if (!services || !q) return Promise.resolve(false);
-      const cmd = services.outbox.queueCommand;
+    (itemId: string, rating: "again" | "good", attempt: string) => {
+      const cmd = services?.outbox.queueCommand;
+      if (!services || !cmd) return Promise.resolve(false);
       // A rating posts as study.attempt under a client att_ id (a replay after a lost reply is a 409, never a second row).
-      if (cmd && rating !== "told") {
-        const att = attemptId();
-        return cmd
-          .call(services.outbox, "study.attempt", att, {
-            id: `${setId}/${itemId}`,
-            answer: attempt,
-            rating,
-            attempt: att,
-          })
-          .then(
-            () => (void services.outbox.replay(), true),
-            () => false,
-          );
-      }
-      const a = buildAnswer(setId, itemId, rating, attempt, new Date(), rand());
-      return q.call(services.outbox, "answers", a.id, a.doc).then(
-        () => (void services.outbox.replay(), true),
-        () => false,
-      );
+      const att = attemptId();
+      return cmd
+        .call(services.outbox, "study.attempt", att, {
+          id: `${setId}/${itemId}`,
+          answer: attempt,
+          rating,
+          attempt: att,
+        })
+        .then(
+          () => (void services.outbox.replay(), true),
+          () => false,
+        );
     },
     [setId, services],
   );
@@ -71,15 +55,14 @@ export function useStudy(setId: string, services?: LibraryServices) {
   );
 }
 
-/** "Just tell me": queued as its own append-only answer (outcome "told"); resolves true once it is on the outbox. */
+/** "Just tell me": queued as study.just_tell_me; resolves true once it is on the outbox. */
 export function useTellMe(setId: string, services?: LibraryServices) {
-  const write = useWriter(setId, services);
   return useCallback(
     (itemId: string) => {
       const q = services?.outbox.queueCommand;
       // The command writes the attempt for both kinds of set (the server routes by the set's kind); the att_ id is made
-      // here so a replay after a lost reply is a 409, never a second row. No command path: the old answers document.
-      if (!services || !q) return write(itemId, "told", "");
+      // here so a replay after a lost reply is a 409, never a second row.
+      if (!services || !q) return Promise.resolve(false);
       const att = attemptId();
       return q
         .call(services.outbox, "study.just_tell_me", att, {
@@ -91,7 +74,7 @@ export function useTellMe(setId: string, services?: LibraryServices) {
           () => false,
         );
     },
-    [setId, services, write],
+    [setId, services],
   );
 }
 
