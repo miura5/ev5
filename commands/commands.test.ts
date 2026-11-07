@@ -54,3 +54,15 @@ test('palette entries and schedule cadences come from the registry', () => {
   expect(commands.filter(c => c.callers.schedule).map(c => c.name)).toEqual(['morning', 'evening', 'weekly_review', 'export', 'restore_drill', 'push_summary', 'job_sweep']);
   expect(commands.filter(c => c.callers.schedule).every(c => c.every)).toBe(true);
 });
+
+test('E.V.\'s tools are exactly this list; a new E.V.-callable command fails here until the list changes on purpose', () => {
+  const ev = commands.filter(c => c.callers.ev).map(c => `${c.name}:${c.callers.ev}`).sort();
+  expect(ev).toEqual(['date.create:propose', 'date.update:propose', 'job_status:direct', 'plan.create:propose',
+    'plan.move_tomorrow:propose', 'plan.update:propose']);
+});
+
+test('defineCommand refuses E.V. on names the pattern once missed', () => {
+  const base = { title: 't', input: none, effect: 'instant' } as const;
+  for (const name of ['weakspot.confirm', 'weakspot.dismiss', 'weakspot.mark_learned', 'proposal.accept', 'set.keep'])
+    expect(() => defineCommand({ ...base, name, callers: { ev: 'direct' } }), name).toThrow(/never call/);
+});
