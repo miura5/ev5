@@ -37,6 +37,22 @@ test("a WriteRefused from the data layer answers 422 with the reason", async () 
   });
 });
 
-test("any other failure is still a 500", async () => {
-  assert.equal((await call(new Error("boom"))).status, 500);
+test("any other failure is a 500 that gives a request id and logs it, without the message", async () => {
+  const lines: string[] = [];
+  const orig = console.error;
+  console.error = (m: unknown) => void lines.push(String(m));
+  let r: Response;
+  try {
+    r = await call(new Error("row text: Matt secret-value"));
+  } finally {
+    console.error = orig;
+  }
+  assert.equal(r.status, 500);
+  const body = (await r.json()) as { error: string; requestId: string };
+  assert.equal(body.error, "internal");
+  assert.equal(lines.length, 1);
+  const logged = JSON.parse(lines[0]!) as { requestId: string; name: string };
+  assert.equal(logged.requestId, body.requestId);
+  assert.equal(logged.name, "Error");
+  assert.ok(!lines[0]!.includes("secret-value"));
 });

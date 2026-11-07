@@ -59,13 +59,9 @@ describe('noteDoc', () => {
     schema: 1,
     writer: 'page',
     at: '2026-10-20T10:00:00Z',
-    source: 'E.V. Home',
     createdAt: '2026-10-20T10:00:00Z',
     title: 'Old',
-    course: 'Economics 101',
-    label: 'Lecture 3',
     blocks: [],
-    archivedAt: null,
     earlierOf: 'n-20261019-100000-abcdefghijkl',
   };
   const blocks = [
@@ -77,20 +73,12 @@ describe('noteDoc', () => {
     const doc = noteDoc(prev, { blocks, at: '2026-10-26T10:00:00Z' });
     expect(doc).toMatchObject({
       createdAt: prev.createdAt,
-      course: 'Economics 101',
-      label: 'Lecture 3',
       earlierOf: prev.earlierOf,
-      archivedAt: null,
       title: 'Renal system (earlier)',
       editedAt: '2026-10-26T10:00:00Z',
     });
     expect(noteDoc({ ...prev, earlierOf: undefined }, { blocks: doc.blocks, at: doc.at }).title).toBe('Renal system');
     expect(parseNote(doc)).toEqual(doc);
-  });
-
-  test('a course of null clears it; undefined keeps it', () => {
-    expect(noteDoc(prev, { blocks, at: AT, course: null }).course).toBeNull();
-    expect(noteDoc(null, { blocks, at: AT }).course).toBeNull();
   });
 
   test('earlierTitle: Untitled, never twice, always within 300', () => {
@@ -127,8 +115,9 @@ describe('parseNote and writeProblem', () => {
     expect(() => parseNote(null)).toThrow();
   });
 
-  test('accepts null course, archivedAt and discardedAt marks', () => {
-    expect(() => parseNote({ ...good(), course: null, archivedAt: null, discardedAt: AT })).not.toThrow();
+  test('refuses the old ev4 document fields', () => {
+    for (const k of ['source', 'course', 'label', 'archivedAt', 'discardedAt'])
+      expect(() => parseNote({ ...good(), [k]: null })).toThrow();
   });
 
   test('writeProblem: shape, size cap, createdAt and earlierOf written once', () => {
@@ -193,14 +182,12 @@ describe('stale save', () => {
       { type: 'p', runs: [r('my new words')] },
     ],
     at: '2026-10-26T14:30:00.000Z',
-    label: 'Lecture 9',
   });
-  const marked: Note = { ...his, archivedAt: AT, discardedAt: AT };
 
   test('both are kept: the older as an (earlier) copy, the current untouched', () => {
     const res = resolveStale({
       id: ID,
-      his: marked,
+      his,
       current,
       at: AT,
       random: 'ABCDEFGHIJKLMNOP',
@@ -214,11 +201,9 @@ describe('stale save', () => {
       earlierOf: ID,
       createdAt: AT,
       at: AT,
-      label: 'Lecture 9',
     });
     expect(res.earlier.blocks).toEqual(his.blocks);
     expect(res.earlier.editedAt).toBe(his.editedAt);
-    expect('archivedAt' in res.earlier || 'discardedAt' in res.earlier).toBe(false);
     expect(parseNote(res.earlier)).toEqual(res.earlier);
     expect(writeProblem(res.earlier, null)).toBeNull();
   });
@@ -233,7 +218,6 @@ describe('stale save', () => {
         random: 'ABCDEFGHIJKLMNOP',
       })
     ).toEqual({ kind: 'same' });
-    expect(sameWords(his, { ...his, label: undefined })).toBe(false);
-    expect(sameWords({ ...his, course: undefined }, { ...his, course: null })).toBe(true);
+    expect(sameWords(his, { ...his, blocks: current.blocks })).toBe(false);
   });
 });

@@ -32,10 +32,8 @@ const note = (title: string) => ({
   schema: 1,
   writer: "page",
   at: "2026-10-26T15:00:00.000Z",
-  source: "E.V. Home",
   createdAt: "2026-10-26T15:00:00.000Z",
   title,
-  course: "Biology 101",
   blocks: [
     { type: "h1", runs: [{ text: title }] },
     { type: "p", runs: [{ text: "Sodium range" }] },

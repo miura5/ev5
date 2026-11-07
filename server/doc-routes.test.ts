@@ -145,7 +145,6 @@ test("a note is checked like ev4's Worker: bad shape is 400 on put and batch, cr
     schema: 1,
     writer: "page",
     at: "2026-11-02T15:00:00Z",
-    source: "v5/test",
     createdAt: "2026-11-02T15:00:00Z",
     title: "T",
     blocks: [],

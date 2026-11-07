@@ -6,7 +6,6 @@ const note = (title: string, text: string): Note => ({
   schema: 1,
   writer: 'page',
   at: '2026-11-03T15:00:00.000Z',
-  source: 'app',
   createdAt: '2026-11-03T15:00:00.000Z',
   title,
   blocks: [{ type: 'p', runs: [{ text }] }],

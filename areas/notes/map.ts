@@ -32,7 +32,7 @@ export function toPage(
   return {
     id,
     title: n.title || "Untitled",
-    collectionName: n.course ?? null,
+    collectionName: null,
     edited: day(n.editedAt ?? n.at, today),
     saveState,
     body: n.blocks,

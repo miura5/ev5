@@ -21,10 +21,8 @@ const note = {
   schema: 1,
   writer: "page",
   at: "2026-10-26T15:00:00.000Z",
-  source: "E.V. Home",
   createdAt: "2026-10-26T15:00:00.000Z",
   title: "Fluids",
-  course: "Biology 101",
   blocks: [{ type: "h1", runs: [{ text: "Fluids" }] }],
 };
 const services: NotesServices = {

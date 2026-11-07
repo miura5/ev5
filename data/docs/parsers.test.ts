@@ -11,10 +11,8 @@ const FIXTURES: Record<string, unknown> = {
     schema: 1,
     writer: "page",
     at: AT,
-    source: "v5/notes",
     createdAt: AT,
     title: "Preload",
-    course: null,
     blocks: [
       {
         type: "p",

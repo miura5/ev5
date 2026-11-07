@@ -29,7 +29,7 @@ const upd = (doc_id: string, data: unknown, if_version?: number | null) => ({ ..
 
 /** A note the gate accepts (synthetic). */
 export const goodNote = (title = 'Cardiac output') => ({
-  schema: 1, writer: 'page', at: '2026-11-02T15:00:00Z', source: 'v5/test', createdAt: '2026-11-02T15:00:00Z',
+  schema: 1, writer: 'page', at: '2026-11-02T15:00:00Z', createdAt: '2026-11-02T15:00:00Z',
   title, blocks: [{ type: 'p', runs: [{ text: 'Stroke volume times heart rate.' }] }],
 });
 
