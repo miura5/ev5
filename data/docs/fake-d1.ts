@@ -18,7 +18,7 @@ export interface FakeD1 extends D1Like {
 
 export function fakeD1(): FakeD1 {
   const state = { changes: 0 };
-  const key = (c: Val, id: Val) => `${c}\n${id}`;
+  const key = (c: Val | undefined, id: Val | undefined) => `${c}\n${id}`;
   const db: FakeD1 = {
     docs: new Map(),
     deletions: new Map(),

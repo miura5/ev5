@@ -13,6 +13,6 @@
     "allowImportingTsExtensions": true,
     "types": ["vite/client"]
   },
-  "include": ["e2e", "areas", "shell", "kit", "domain", "commands", "server", "vite.config.ts"],
-  "exclude": ["e2e/playwright.visual.config.ts", "server/**/*.test.ts", "kit/tokens/tokens.test.ts", "areas/notes/notePictureFrame.test.ts"]
+  "include": ["e2e", "areas", "shell", "kit", "domain", "commands", "server", "data", "jobs", "vite.config.ts"],
+  "exclude": ["e2e/playwright.visual.config.ts", "server/**/*.test.ts", "data/**/*.test.ts", "jobs/**/*.test.ts", "data/protocol/protocol-suite.ts", "data/export/sqlite-d1.testkit.ts", "jobs/runtime/sqlite-d1.testkit.ts", "kit/tokens/tokens.test.ts", "areas/notes/notePictureFrame.test.ts"]
 }
