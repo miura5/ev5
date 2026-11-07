@@ -23,6 +23,7 @@ const ans = (
   how,
   answer: null,
   score: how === "told" || how === "skipped" ? null : correct ? 1 : 0,
+  was_due: null,
   answered_at: at,
   at,
   v: 1,

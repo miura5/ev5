@@ -76,6 +76,7 @@ const att = {
   answer: [1],
   score: 1,
   answered_at: 5,
+  was_due: null,
   ...S,
 };
 test("attempts: append-only, told and skipped are ungraded", () => {

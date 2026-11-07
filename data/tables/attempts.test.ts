@@ -54,6 +54,7 @@ const att = {
   answer: { chosen: [0] },
   score: 1,
   answered_at: 5,
+  was_due: null,
 } as const;
 
 test("record files the answer against the item's current version", async () => {

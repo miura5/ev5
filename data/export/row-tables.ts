@@ -167,6 +167,7 @@ export const ROW_TABLES = [
       "answer",
       "score",
       "answered_at",
+      "was_due",
       "at",
       "v",
     ],

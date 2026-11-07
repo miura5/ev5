@@ -94,7 +94,7 @@ const tables: Entry[] = [
   {
     table: 'attempts',
     parse: parseAttemptRow,
-    sample: { id: 'att_1', item_id: 'item_1', item_v: 1, set_id: 'set_1', session_id: null, source: 'run', how: 'chose', answer: null, score: null, answered_at: 1, ...S },
+    sample: { id: 'att_1', item_id: 'item_1', item_v: 1, set_id: 'set_1', session_id: null, source: 'run', how: 'chose', answer: null, score: null, answered_at: 1, was_due: null, ...S },
   },
   {
     table: 'sessions',

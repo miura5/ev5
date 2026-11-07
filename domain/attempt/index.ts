@@ -25,6 +25,8 @@ export const attemptRowSchema = z.strictObject({
   answer: json.nullable(),
   /** 0 to 1, or null when ungraded (told, skipped, self, an open answer not yet read). Only a score counts toward accuracy. */
   score: z.number().min(0).max(1).nullable(),
+  /** 1 when the item was due for review as it was answered, 0 when it was not, null when not known. */
+  was_due: z.number().int().min(0).max(1).nullable(),
   /** The device clock, for ordering offline answers; `at` stays the Worker's. */
   answered_at: ms,
   ...stamp,
