@@ -3909,8 +3909,8 @@
   "notes": "Run 2026-11-07 1537Z: settings reader already on main (#846, data/tables/jobs.ts settings.readNumbers); L5 done (#850): item.move, item.rename, note.move, set.update, set.item_update, date.update take an optional if_version and 409 only when stale. Left: callers in areas/ (Notes.screen, Collection.screen, useLibrary, useToday) must pass v: add v to those read models, then make if_version required (expand, migrate, contract). Also left: left_out callers in server/jobs, jobStores row reads bypass onBad, export WriteRefused via data/index.ts, merge the two gates; attempts part is on B-1022.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1537Z",
-  "claimedAt": "2026-11-07T15:41:33.373Z"
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:31:40.247Z"
  },
  {
   "id": "B-956",
@@ -4496,7 +4496,9 @@
   ],
   "notes": "Run 2026-11-07 1537Z: (c) done (#849). Pure deletes (#855): domain/claude, system-doc, row.ts doc shapes for note, objective, session; Detail prop and legacy path in shell; itemProps, pinRows; empty ALLOWED sets in ops/checks chartev4 and sourceids. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Pure deletes still open: server/goal-wire.ts and weak-wire.ts (several callers), domain/doc-row (goal/set cases) , data/tables/own.ts (domain/own-set parsers used by row-shapes.test.ts), jobs/runtime/ceilings-memory.ts is a test helper (move to a test file or keep), ops/checks/migrationnames.ts one entry, POST /jobs/:id/dismiss and /jobs/:slug. docs/proposals/table-design.md line 129 names removed files.",
   "commit": "61f4efd",
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:31:39.981Z"
  },
  {
   "id": "B-999",
@@ -4545,8 +4547,8 @@
   "notes": "Run 2026-11-07 1537Z (#854): L6 done for set.item_delete and check.answer (server/defer-writes.ts queues writes into one db.batch, stale version rolls back, 409 kept). Collection delete/restore is now one statement (#856). Left: docsRepo is gone; F23/B11/B13 raw SQL and bare-id lookups in server routes, paged list reads, drafts restore by kind and id; reuse defer-writes where a command still writes in several statements.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
-  "claimedBy": "run-20261107T1537Z",
-  "claimedAt": "2026-11-07T16:01:11.460Z"
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:31:40.540Z"
  },
  {
   "id": "B-1002",
@@ -4836,7 +4838,9 @@
   ],
   "notes": "Run 2026-11-07 1537Z (#856): deleted_at is the one delete mechanism: GET /deletions reads rows with deleted_at, item.restore clears it, nothing writes deletions (table stays until the squash; drop the deletions line in data/migrations/row-shapes.test.ts then). domain/deletion removed. Also (#855) domain/claude, system-doc and objective/session/note row.ts gone. Left: F9 one note id form end to end (notes area, note.save, session.start, item.pin, pins, deletions, server/collection-routes.ts: one cross-folder change), old doc-row shapes (domain/doc-row, weak-spot/row.ts already gone), row routes for item versions and session events, KISS finding 10 (one table name in data/tables/kinds.ts beside tables.ts; raw notes.save and setItems.save that skip the size budget and item versions go), markOwnSetItem no-op stub in data/tables/drafts.ts and its call in server/handlers-sets.ts. e2e/collection.journey.spec.ts and e2e/helpers.ts comments still describe deletions rows.",
   "commit": null,
-  "source": "run 82 B-997 report"
+  "source": "run 82 B-997 report",
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:31:39.694Z"
  },
  {
   "id": "B-1023",
@@ -5019,7 +5023,9 @@
   ],
   "notes": "Run 2026-11-07 1537Z (#852): knip.production.json ignoreIssues 9 to 7 (domain/pin and domain/weak-spot cleared, dead pin rules and weak-spot isSolid/isDue/row parser deleted). Left in ignoreIssues, test-only exports: domain/session, note, collection (nesting check lives there per §data.membership: decide or amend CONTRACT first), own-set, ceiling (row-shapes tests use parseCeiling*), objective, jobs/** (unused types in jobs/runtime/index.ts, d1-stores.ts); 53 @public tags mostly still there. These are unwired domain logic: deleting is a decision on whether it is dead. Check 2 after the docs removal (docs is gone from routes now; table stays until the squash).",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:31:40.815Z"
  },
  {
   "id": "B-1037",
