@@ -22,7 +22,9 @@ export function openItemErrors(q: Item, o: OpenLimits = OPEN_LIMITS): string[] {
         errors.push(`key point ${i + 1} needs keyword groups`);
     });
   if (typeof q.modelAnswer !== 'string' || !q.modelAnswer.trim()) errors.push('an open item needs a model answer');
-  if (typeof q.sourceRef !== 'string' || !q.sourceRef.trim()) errors.push('an open item needs its sourceRef');
+  // One form for a source: the plain note id (`note_…`), as in a practice set's sourceRef (domain/set).
+  if (typeof q.sourceRef !== 'string' || !/^note_\S+$/.test(q.sourceRef))
+    errors.push('an open item needs its sourceRef, a note id (note_…)');
   const loose = q as Record<string, unknown>;
   if (q.options || q.correct || q.grid || loose.answer != null) errors.push('an open item has no options or answer');
   return errors;
