@@ -30,7 +30,7 @@ function setup(
   ).run();
   void putNoteRow(db, "n-1", NOTE.title, NOTE.blocks[0]!.runs[0]!.text);
   for (const [k, v] of Object.entries(settings))
-    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
+    db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
       .bind(k, v)
       .run();
   const calls: string[] = [];

@@ -47,7 +47,7 @@ export function sqliteD1(): D1Like {
     )![0],
   );
   sql.exec(
-    "CREATE TABLE claude_settings (key TEXT PRIMARY KEY, value INTEGER NOT NULL, at INTEGER NOT NULL)",
+    "CREATE TABLE settings (key TEXT PRIMARY KEY, value INTEGER NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL DEFAULT 1)",
   );
   type Args = (string | number | null)[];
   const run = (text: string, args: Args) => {
