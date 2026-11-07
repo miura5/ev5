@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Finding } from './lib.ts';
 
-const hasFiles = (dir: string): boolean => fs.existsSync(dir) && fs.readdirSync(dir, { recursive: true, withFileTypes: true }).some(e => e.isFile());
+const hasFiles = (p: string): boolean => fs.existsSync(p) && (fs.statSync(p).isFile() || fs.readdirSync(p, { recursive: true, withFileTypes: true }).some(e => e.isFile()));
 
 export function checkUnusedExports(root: string): Finding[] {
   const knip = path.join(root, 'node_modules/.bin/knip');
