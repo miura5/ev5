@@ -3901,14 +3901,16 @@
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997",
    "B-998"
   ],
   "notes": "FIX NEXT, Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). H3 (settings part): server/job-run.ts loadCeilingConfig reads settings by raw SQL outside data/, and parseSettingRow throws on one bad row, so every job fails; move the read into data/tables as a settings reader that reports and leaves out a bad row (§data.gate). The attempts part is on B-1022. F16: #734 (no task named) is this task's work: list reads report left_out under the request id (server/read-report.ts) for /docs and the row routes; it also grew server/doc-routes.ts, which goes at B-998 part 2. Run 2026-11-07 04:4x (#723): insert catches treat only unique/PK violations as conflicts (core.ts insertConflict); onBad gets {table,id,reason}, logs by default; readRows and kinds list return Listed<T> with a non-enumerable left_out count. Left: server/jobs callers read left_out and tell the client; data/docs untouched; jobStores row reads bypass onBad; B-1002; export WriteRefused via data/index.ts; merge the two gates. Claim freed. Data-loss audit (D-526), before cutover, L5: six commands write without if_version (item.move, item.rename, note.move, set.update, set.item_update, date.update); each takes and checks it (§data.protocol).",
   "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
+  "claimedBy": "run-20261107T1537Z",
+  "claimedAt": "2026-11-07T15:41:33.373Z"
  },
  {
   "id": "B-956",
