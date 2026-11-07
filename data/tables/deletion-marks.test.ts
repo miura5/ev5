@@ -74,16 +74,8 @@ test("a set and a goal are soft-deleted by a row mark and come back on restore",
   assert.equal(await repo.deletions.markGoal("goal_missing"), false);
   assert.notEqual(mark("sets", "set_a").deleted_at, null);
   assert.notEqual(mark("goals", "goal_a").deleted_at, null);
-  assert.deepEqual(
-    db
-      .prepare("SELECT c, id FROM deletions ORDER BY c")
-      .all()
-      .map((r) => ({ ...r })),
-    [
-      { c: "goals", id: "goal_a" },
-      { c: "sets", id: "set_a" },
-    ],
-  );
+  // deleted_at is the one delete mechanism: nothing is written to the deletions table.
+  assert.equal(db.prepare("SELECT * FROM deletions").all().length, 0);
   assert.equal(await repo.deletions.restore("sets", "set_a"), 1);
   assert.equal(await repo.deletions.restore("goals", "goal_a"), 1);
   assert.equal(mark("sets", "set_a").deleted_at, null);
@@ -109,7 +101,7 @@ test("a session is soft-deleted by a row mark, hidden from reads and found again
   assert.equal((await repo.sessionBook.get("ses_a"))?.row.v, 3);
 });
 
-test("a delete and a restore are each one batch: a failing second statement leaves nothing half applied", async () => {
+test("a delete and a restore are each one statement: a failing write leaves the row as it was", async () => {
   const { db, repo, failing } = make();
   db.exec(
     "INSERT INTO sets (id, kind, created_by, at) VALUES ('set_f', 'practice', 'matt', 1)",
@@ -120,21 +112,19 @@ test("a delete and a restore are each one batch: a failing second statement leav
         deleted_at: number | null;
       }
     ).deleted_at;
-  const listed = () => db.prepare("SELECT * FROM deletions").all().length;
 
-  failing.sql = "INSERT INTO deletions";
+  failing.sql = "UPDATE sets";
   await assert.rejects(repo.deletions.markSet("set_f"));
   assert.equal(deleted(), null);
   failing.sql = null;
   assert.equal(await repo.deletions.markSet("set_f"), true);
-  assert.equal(listed(), 1);
+  assert.notEqual(deleted(), null);
 
   failing.sql = "UPDATE sets";
   await assert.rejects(repo.deletions.restore("sets", "set_f"));
-  assert.equal(listed(), 1);
   assert.notEqual(deleted(), null);
   failing.sql = null;
   assert.equal(await repo.deletions.restore("sets", "set_f"), 1);
-  assert.equal(listed(), 0);
   assert.equal(deleted(), null);
+  assert.equal(db.prepare("SELECT * FROM deletions").all().length, 0);
 });

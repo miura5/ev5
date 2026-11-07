@@ -130,15 +130,15 @@ export const commandHandlers: Record<string, CommandHandler> = {
     if (!r.ok) throw new CommandError(409, "that item changed; try again");
     return { membership: r.row };
   },
-  // A collection lives in its own table: deleting it writes one deletions row for it and no row for its items, which
-  // show ungrouped until it is restored (§delete.collection).
+  // A collection lives in its own table: deleting it sets its `deleted_at` (one statement) and touches no row of its
+  // items, which show ungrouped until it is restored (§delete.collection).
   "item.delete": async (i: Ref, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
     if (i.id.startsWith("col_")) {
       const coll = await t.collectionRows.get(i.id);
       if (coll) {
-        await t.deletions.markCollection(i.id);
-        await t.collectionRows.remove(i.id, coll.v);
+        const r = await t.collectionRows.remove(i.id, coll.v);
+        if (!r.ok) throw new CommandError(409, "that item changed; try again");
         return { deleted: true, collection: i.id };
       }
     }
@@ -151,35 +151,32 @@ export const commandHandlers: Record<string, CommandHandler> = {
     // A session is a row too: hidden there and listed in Recently deleted (§delete.soft).
     return { deleted: await t.deletions.markSession(i.id) };
   },
-  // A restore only clears the deletions row: the document was never removed (§delete.soft).
+  // A restore clears `deleted_at`: the row was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
     // A set item is a row of set_items, listed by its item id (or by an older `<set>/<item>` key).
     const itemId = itemKey(i.id.slice(i.id.indexOf("/") + 1));
     const item = await t.setBook.getItem(itemId, { deleted: true });
     if (item) {
-      if (item.deleted_at != null) {
-        const r = await t.setBook.restoreItem(item.id, item.v);
-        if (!r.ok) throw new CommandError(409, "that item changed; try again");
-      }
-      if (
-        !(await t.deletions.restoreSetItem(item.id)) &&
-        item.deleted_at == null
-      )
+      if (item.deleted_at == null)
         throw new CommandError(404, `${i.id} is not in Recently deleted`);
+      const r = await t.setBook.restoreItem(item.id, item.v);
+      if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { restored: 1 };
     }
     // A collection lives in its own table; any other item is named by the collection its document is in.
     const coll = await t.collectionRows.get(i.id, { deleted: true });
-    const c = coll
-      ? "collections"
-      : await collectionOf(t, i.id, { deleted: true });
-    let restored = await t.deletions.restore(c, i.id);
-    if (coll?.deleted_at != null) {
-      await t.collectionRows.restore(i.id, coll.v);
-      restored ||= 1;
+    if (coll) {
+      if (coll.deleted_at == null)
+        throw new CommandError(404, `${i.id} is not in Recently deleted`);
+      const r = await t.collectionRows.restore(i.id, coll.v);
+      if (!r.ok) throw new CommandError(409, "that item changed; try again");
+      return { restored: 1 };
     }
-    // A row that came back counts even when its Recently deleted entry was already gone (a retry after a partial restore).
+    const restored = await t.deletions.restore(
+      await collectionOf(t, i.id, { deleted: true }),
+      i.id,
+    );
     if (!restored)
       throw new CommandError(404, `${i.id} is not in Recently deleted`);
     return { restored };
@@ -211,14 +208,20 @@ export const commandHandlers: Record<string, CommandHandler> = {
     const setRow = c === "sets" ? await t.sets.get(i.id) : null;
     if (setRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
-      const r = await t.sets.save({ ...f, title: i.title }, i.if_version ?? setRow.v);
+      const r = await t.sets.save(
+        { ...f, title: i.title },
+        i.if_version ?? setRow.v,
+      );
       if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { version: r.row.v };
     }
     const goalRow = c === "goals" ? await t.goals.get(i.id) : null;
     if (goalRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = goalRow;
-      const r = await t.goals.save({ ...f, title: i.title }, i.if_version ?? goalRow.v);
+      const r = await t.goals.save(
+        { ...f, title: i.title },
+        i.if_version ?? goalRow.v,
+      );
       if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { version: r.row.v };
     }
@@ -228,7 +231,10 @@ export const commandHandlers: Record<string, CommandHandler> = {
         if (!i.title.trim() || i.title.length > NOTE_MAX.title)
           throw new CommandError(400, "a note title is 1 to 300 characters");
         const { at: _a, v: _v, deleted_at: _d, ...f } = note;
-        const r = await t.noteBook.change({ ...f, title: i.title }, i.if_version ?? note.v);
+        const r = await t.noteBook.change(
+          { ...f, title: i.title },
+          i.if_version ?? note.v,
+        );
         if (!r.ok) throw new CommandError(409, "that item changed; try again");
         return { version: r.row.v };
       }

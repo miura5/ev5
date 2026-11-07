@@ -1,12 +1,6 @@
-// Repositories for E.V.'s set-item drafts and the soft-delete list (CONTRACT data.drafts, delete.soft). Every write takes
+// Repositories for E.V.'s set-item drafts and soft delete (CONTRACT data.drafts, delete.soft): `deleted_at` is the one delete mechanism. Every write takes
 // its `at` from the Worker clock and a draft change is pinned to the version read, so a stale write changes nothing.
-import {
-  draftKey,
-  itemKey,
-  parseDeletion,
-  parseDraftTableRow,
-  setKey,
-} from "../../domain/index.ts";
+import { draftKey, parseDraftTableRow, setKey } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
@@ -14,8 +8,6 @@ import { gateRow } from "./gate.ts";
 export type PendingDraft = { id: string; targetId: string; v: number };
 
 export function draftsRepo(db: D1Like, opts: TablesOptions) {
-  const del = (c: string, id: string) =>
-    gateRow("deletions", () => parseDeletion({ c, id, at: opts.clock() }));
   const pending = async (
     where: string,
     arg: string,
@@ -29,38 +21,19 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         .bind(arg, kind)
         .all<{ id: string; target_id: string; v: number }>()
     ).results.map((r) => ({ id: r.id, targetId: r.target_id, v: r.v }));
-  /**
-   * Hides row `rowId` of `table` and lists it in Recently deleted in ONE batch (§data.protocol, §delete.soft): the list
-   * row is written only when the hide applied, and if either statement fails neither applies.
-   */
+  /** Sets `deleted_at` on a live row of `table` in ONE statement (§delete.soft); false when it is missing or already deleted. */
   const softDelete = async (
     table: "sets" | "goals" | "sessions" | "notes",
-    c: string,
-    listId: string,
-    at: number,
     rowId: string,
   ): Promise<boolean> => {
-    const res = (await db.batch([
-      db
-        .prepare(
-          `UPDATE ${table} SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL`,
-        )
-        .bind(at, at, rowId),
-      db
-        .prepare(
-          `INSERT INTO deletions (c, id, at) SELECT ?, ?, ? WHERE EXISTS (SELECT 1 FROM ${table} WHERE id = ? AND deleted_at = ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at`,
-        )
-        .bind(c, listId, at, rowId, at),
-    ])) as { meta: { changes: number } }[];
-    return (res[0]?.meta.changes ?? 0) > 0;
-  };
-  const markRow = async (
-    table: "sets" | "goals" | "sessions",
-    c: string,
-    id: string,
-  ): Promise<boolean> => {
-    const row = del(c, id);
-    return softDelete(table, c, row.id, row.at, id);
+    const at = opts.clock();
+    const r = await db
+      .prepare(
+        `UPDATE ${table} SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL`,
+      )
+      .bind(at, at, rowId)
+      .run();
+    return r.meta.changes > 0;
   };
   return {
     drafts: {
@@ -183,85 +156,34 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
     },
     deletions: {
-      /** Soft delete of a set item, listed as `set_items` by its item id (`setId` is kept for callers); the latest delete time wins and no row is removed. */
-      markOwnSetItem: async (_setId: string, itemId: string): Promise<void> => {
-        const row = del("set_items", itemKey(itemId));
-        await db
-          .prepare(
-            "INSERT INTO deletions (c, id, at) VALUES ('set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-          )
-          .bind(row.id, row.at)
-          .run();
-      },
-      /** Soft delete of a collection; its items are not touched and show ungrouped until it is restored. */
-      markCollection: async (id: string): Promise<void> => {
-        const row = del("collections", id);
-        await db
-          .prepare(
-            "INSERT INTO deletions (c, id, at) VALUES ('collections', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
-          )
-          .bind(row.id, row.at)
-          .run();
-      },
-      /** Soft delete of a note by its document id: a deletions row, and the row's `deleted_at` (reads hide it, §delete.soft). */
-      markNote: async (docId: string): Promise<boolean> => {
-        const row = del("notes", docId);
-        return softDelete("notes", "notes", row.id, row.at, `note_${docId}`);
-      },
-      /** Soft delete of a set by its id (`set_…`): a deletions row under `sets`, and the row's `deleted_at`. False when it is missing or already deleted. */
-      markSet: (id: string): Promise<boolean> => markRow("sets", "sets", id),
-      /** Soft delete of a goal by its id (`goal_…`): a deletions row under `goals`, and the row's `deleted_at`. */
-      markGoal: (id: string): Promise<boolean> => markRow("goals", "goals", id),
-      /** Soft delete of a session by its id (`ses_…`): a deletions row under `sessions`, and the row's `deleted_at`. */
-      markSession: (id: string): Promise<boolean> =>
-        markRow("sessions", "sessions", id),
-      /** Clears every Recently deleted row of a set item: its item-id row and the older `<set>/<item>` rows. */
-      restoreSetItem: async (itemId: string): Promise<number> => {
-        const key = itemKey(itemId);
-        const bare = key.slice("item_".length);
+      /** Kept for handlers-sets.ts until the set handlers stop calling it: `removeItem` already sets the item's `deleted_at`, so this writes nothing. */
+      markOwnSetItem: async (
+        _setId: string,
+        _itemId: string,
+      ): Promise<void> => {},
+      /** Soft delete of a note by its document id (`deleted_at` on its row, reads hide it, §delete.soft). */
+      markNote: (docId: string): Promise<boolean> =>
+        softDelete("notes", `note_${docId}`),
+      /** Soft delete of a set by its id (`set_…`). False when it is missing or already deleted. */
+      markSet: (id: string): Promise<boolean> => softDelete("sets", id),
+      /** Soft delete of a goal by its id (`goal_…`). */
+      markGoal: (id: string): Promise<boolean> => softDelete("goals", id),
+      /** Soft delete of a session by its id (`ses_…`). */
+      markSession: (id: string): Promise<boolean> => softDelete("sessions", id),
+      /** Clears `deleted_at` on a deleted note, set, goal or session of collection `c`; the number of rows restored. */
+      restore: async (c: string, id: string): Promise<number> => {
+        const table =
+          c === "notes" || c === "sets" || c === "goals" || c === "sessions"
+            ? c
+            : null;
+        if (!table) return 0;
         const r = await db
           .prepare(
-            "DELETE FROM deletions WHERE (c = 'set_items' AND id IN (?, ?)) OR (c = 'own_set_items' AND (id LIKE ? OR id LIKE ?))",
+            `UPDATE ${table} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
           )
-          .bind(key, bare, `%/${key}`, `%/${bare}`)
+          .bind(opts.clock(), c === "notes" ? `note_${id}` : id)
           .run();
         return r.meta.changes;
-      },
-      /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
-      restore: async (c: string, id: string): Promise<number> => {
-        // The list row and the row's `deleted_at` change in ONE batch (§delete.soft). A set item's deletion is also its
-        // row's `deleted_at`; `set_items` is keyed by the item id, `own_set_items` is the older `<set>/<item>` key.
-        const at = opts.clock();
-        const target: [string, string] | null =
-          c === "set_items" || c === "own_set_items"
-            ? ["set_items", itemKey(id.slice(id.indexOf("/") + 1))]
-            : c === "notes"
-              ? ["notes", `note_${id}`]
-              : c === "sets"
-                ? ["sets", id]
-                : c === "goals"
-                  ? ["goals", id]
-                  : c === "sessions"
-                    ? ["sessions", id]
-                    : null;
-        const res = (await db.batch([
-          db
-            .prepare("DELETE FROM deletions WHERE c = ? AND id = ?")
-            .bind(c, id),
-          ...(target
-            ? [
-                db
-                  .prepare(
-                    `UPDATE ${target[0]} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
-                  )
-                  .bind(at, target[1]),
-              ]
-            : []),
-        ])) as { meta: { changes: number } }[];
-        // Restored when the list row went or the hidden row came back, so a retry after a half-finished restore succeeds.
-        return res.reduce((n, r) => n + r.meta.changes, 0) > 0
-          ? Math.max(res[0]?.meta.changes ?? 0, 1)
-          : 0;
       },
     },
   };
