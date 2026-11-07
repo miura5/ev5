@@ -1,17 +1,31 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import type { AttemptRow } from "../../domain/index.ts";
 import { ProgressScreen } from "./Progress.screen.tsx";
 import { mapProgress } from "./useProgress.ts";
 import { trendText } from "./text.ts";
 import { weeklyAccuracy } from "./series.ts";
+import { answersOf } from "./attempts.ts";
 
 const NOW = Date.UTC(2026, 10, 5, 12);
-const ans = (id: string, at: number, correct: boolean) => ({
-  id,
-  data: {
-    setId: "s1",
-    answers: { [id]: { k: { at: new Date(at).toISOString(), correct } } },
-  },
+const ans = (
+  id: string,
+  at: number,
+  correct: boolean,
+  how: AttemptRow["how"] = "chose",
+): AttemptRow => ({
+  id: `att_${id}`,
+  item_id: id,
+  item_v: 1,
+  set_id: "s1",
+  session_id: null,
+  source: "run",
+  how,
+  answer: null,
+  score: how === "told" || how === "skipped" ? null : correct ? 1 : 0,
+  answered_at: at,
+  at,
+  v: 1,
 });
 
 test("mapProgress with no answers reads as empty", () => {
@@ -33,8 +47,8 @@ function stub(answers: unknown[]) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (u: string) => {
-      const docs = String(u).includes("collection=answers") ? answers : [];
-      return new Response(JSON.stringify({ docs }), { status: 200 });
+      const rows = String(u).endsWith("/attempts") ? answers : [];
+      return new Response(JSON.stringify({ rows }), { status: 200 });
     }),
   );
 }
@@ -64,11 +78,11 @@ test("no answers keeps the empty sentence", async () => {
 test("weekly accuracy buckets first tries into 8 weeks, newest last", () => {
   const DAY = 86_400_000;
   const pts = weeklyAccuracy(
-    [
+    answersOf([
       ans("i1", NOW - DAY, true),
       ans("i2", NOW - 2 * DAY, false),
       ans("i3", NOW - 9 * DAY, true),
-    ],
+    ]),
     NOW,
   );
   expect(pts).toHaveLength(8);
@@ -106,4 +120,18 @@ test("while the first read is in flight it says Loading, never the empty line", 
   const { container } = render(<ProgressScreen />);
   expect(container.textContent).toContain("Loading…");
   expect(container.textContent).not.toContain("accuracy over time");
+});
+
+test("a told answer is no verdict, and only an item's first try counts", () => {
+  const DAY = 86_400_000;
+  const pts = weeklyAccuracy(
+    answersOf([
+      { ...ans("i1", NOW - 2 * DAY, false), id: "att_a" },
+      { ...ans("i1", NOW - DAY, true), id: "att_b" },
+      ans("i2", NOW - DAY, true, "told"),
+    ]),
+    NOW,
+  );
+  expect(pts[7]?.value).toBe(0);
+  expect(pts[7]?.title).toBe("Week of Nov 1 · 0%");
 });

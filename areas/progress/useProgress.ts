@@ -1,6 +1,7 @@
-import type { WireDoc } from "../../domain/index.ts";
+import type { AttemptRow } from "../../domain/index.ts";
 import { useEffect, useRef, useState } from "react";
 import { accuracyLine } from "../../domain/index.ts";
+import { answersOf } from "./attempts.ts";
 import { weeklyAccuracy, type Point } from "./series.ts";
 import {
   failureKind,
@@ -21,9 +22,10 @@ export interface ProgressData {
 }
 
 export function mapProgress(
-  answers: readonly WireDoc[],
+  attempts: readonly AttemptRow[],
   now: number,
 ): ProgressData {
+  const answers = answersOf(attempts);
   return {
     accuracy: accuracyLine(answers, now)?.text ?? null,
     hasAnswers: answers.length > 0,
@@ -38,7 +40,7 @@ export interface ProgressState {
   error?: string;
 }
 
-/** Reads answers with the app token the user keeps in this browser (the shell holds none). */
+/** Reads the attempts rows with the app token the user keeps in this browser (the shell holds none). */
 export function useProgress(copy?: ReadCopyLike): ProgressState {
   const [token] = useState(readToken);
   const [data, setData] = useState<ProgressData>();
@@ -48,15 +50,14 @@ export function useProgress(copy?: ReadCopyLike): ProgressState {
   useEffect(() => {
     if (!token) return;
     let live = true;
-    const docs = (collection: string, c: ReadCopyLike | undefined) =>
-      readJson<WireDoc[]>(
-        `docs?collection=${collection}`,
+    const load = (c: ReadCopyLike | undefined) =>
+      readJson<AttemptRow[]>(
+        "attempts",
         token,
-        `progress:${collection}`,
+        "progress:attempts",
         c,
-        (b) => (b as { docs: WireDoc[] }).docs,
+        (b) => (b as { rows: AttemptRow[] }).rows,
       );
-    const load = (c: ReadCopyLike | undefined) => docs("answers", c);
     const first = warm.current;
     warm.current = false;
     // The screen opens on the last answer kept, then the server's (§ui.instant).
