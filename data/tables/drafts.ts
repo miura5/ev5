@@ -29,6 +29,27 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         .bind(arg, kind)
         .all<{ id: string; target_id: string; v: number }>()
     ).results.map((r) => ({ id: r.id, targetId: r.target_id, v: r.v }));
+  const markRow = async (
+    table: "sets" | "goals",
+    c: string,
+    id: string,
+  ): Promise<boolean> => {
+    const row = del(c, id);
+    const r = await db
+      .prepare(
+        `UPDATE ${table} SET deleted_at = ?, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NULL`,
+      )
+      .bind(row.at, row.at, id)
+      .run();
+    if (r.meta.changes === 0) return false;
+    await db
+      .prepare(
+        "INSERT INTO deletions (c, id, at) VALUES (?, ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+      )
+      .bind(row.c, row.id, row.at)
+      .run();
+    return true;
+  };
   return {
     drafts: {
       pendingById: (id: string, kind: string) =>
@@ -188,6 +209,10 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .run();
         return true;
       },
+      /** Soft delete of a set by its id (`set_…`): a deletions row under `sets`, and the row's `deleted_at`. False when it is missing or already deleted. */
+      markSet: (id: string): Promise<boolean> => markRow("sets", "sets", id),
+      /** Soft delete of a goal by its id (`goal_…`): a deletions row under `exams` (the name GET /docs gives goals), and the row's `deleted_at`. */
+      markGoal: (id: string): Promise<boolean> => markRow("goals", "exams", id),
       /** Clears every Recently deleted row of a set item: its item-id row and the older `<set>/<item>` rows. */
       restoreSetItem: async (itemId: string): Promise<number> => {
         const key = itemKey(itemId);
@@ -224,6 +249,17 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
             )
             .bind(opts.clock(), `note_${id}`)
             .run();
+        for (const [cc, table] of [
+          ["sets", "sets"],
+          ["exams", "goals"],
+        ] as const)
+          if (c === cc)
+            await db
+              .prepare(
+                `UPDATE ${table} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
+              )
+              .bind(opts.clock(), id)
+              .run();
         return n;
       },
     },
