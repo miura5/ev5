@@ -4544,7 +4544,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Run 2026-11-07 1537Z (#854): L6 done for set.item_delete and check.answer (server/defer-writes.ts queues writes into one db.batch, stale version rolls back, 409 kept). Collection delete/restore is now one statement (#856). Left: docsRepo is gone; F23/B11/B13 raw SQL and bare-id lookups in server routes, paged list reads, drafts restore by kind and id; reuse defer-writes where a command still writes in several statements.",
+  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4838,7 +4838,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1537Z (#856): deleted_at is the one delete mechanism: GET /deletions reads rows with deleted_at, item.restore clears it, nothing writes deletions (table stays until the squash; drop the deletions line in data/migrations/row-shapes.test.ts then). domain/deletion removed. Also (#855) domain/claude, system-doc and objective/session/note row.ts gone. Left: F9 one note id form end to end (notes area, note.save, session.start, item.pin, pins, deletions, server/collection-routes.ts: one cross-folder change), old doc-row shapes (domain/doc-row, weak-spot/row.ts already gone), row routes for item versions and session events, KISS finding 10 (one table name in data/tables/kinds.ts beside tables.ts; raw notes.save and setItems.save that skip the size budget and item versions go), markOwnSetItem no-op stub in data/tables/drafts.ts and its call in server/handlers-sets.ts. e2e/collection.journey.spec.ts and e2e/helpers.ts comments still describe deletions rows.",
+  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>, noteRowId/noteDocId gone); KISS 10 partly (#866): public tables repo exposes notes and setItems read-only, writes go via noteBook/setBook; pins match one id form. Left: two table-name lists (ALL_TABLES in data/export vs kind(\"notes\",…) strings in kinds.ts); practice-set sourceRef 'note/<id>' gives note/note_… and needs a domain/set change (regex /^note\\//) plus job test; old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule).",
   "commit": null,
   "source": "run 82 B-997 report",
   "claimedBy": "run-20261107T1631Z",
@@ -5023,7 +5023,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1537Z (#852): knip.production.json ignoreIssues 9 to 7 (domain/pin and domain/weak-spot cleared, dead pin rules and weak-spot isSolid/isDue/row parser deleted). Left in ignoreIssues, test-only exports: domain/session, note, collection (nesting check lives there per §data.membership: decide or amend CONTRACT first), own-set, ceiling (row-shapes tests use parseCeiling*), objective, jobs/** (unused types in jobs/runtime/index.ts, d1-stores.ts); 53 @public tags mostly still there. These are unwired domain logic: deleting is a decision on whether it is dead. Check 2 after the docs removal (docs is gone from routes now; table stays until the squash).",
+  "notes": "Run 1631Z: #861 jobs barrel trimmed, maxCost deleted, knip jobs/** replaced by 5 single-file entries (ignoreIssues now 9 entries but no folder wildcard); unusedexports accepts file keys. #870 tests with red fixtures for checks 5 (sourceids) and 9 (chartev4); check 6 (ev4word) existed. Left in knip ignore: domain/session (S-76 feature), own-set (editing feature not wired), collection nesting (§data.membership: decide or amend CONTRACT), note test-only exports, ceiling parse fns (check 3), executors.reportJob (Mac, Matt's call), models.modelsStaleWarning (wire or delete). Checks 1, 2, 3, 4 left: check 1 needs sata→multi_select, matrix→grid rename first; check 2 after docs table goes. 'Red fixture PR recorded' not done.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1631Z",
