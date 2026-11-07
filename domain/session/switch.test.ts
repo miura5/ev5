@@ -15,7 +15,7 @@ import { apply, base, plus, session, sk, T0 } from './fixtures.ts';
 // Ported from ev4 test/sessions.test.mjs: switching sessions, Undo through marks, the filing mark.
 
 test('a second session ends and logs the running one; Undo restores it whole through marks', () => {
-  const w0 = startSession({ id: 'ss-new', at: T0, key: sk(T0), topic: 'New note', noteId: 'n-1', fresh: true, comments: 'more', view: 'v1' });
+  const w0 = startSession({ id: 'ss-new', at: T0, key: sk(T0), topic: 'New note', noteId: 'note_1', fresh: true, comments: 'more', view: 'v1' });
   expect(w0.data.comments).toBe('more');
   expect(w0.data.driver).toEqual({ view: 'v1', at: T0 });
   let a = session(

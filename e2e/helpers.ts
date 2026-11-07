@@ -38,7 +38,7 @@ export async function tolerate(step: () => Promise<unknown>): Promise<void> {
 }
 
 /**
- * Soft-deletes a document through the app's own delete path (writes a `deletions` row, removes nothing, §delete.soft).
+ * Soft-deletes a document through the app's own delete path (sets `deleted_at` on the row, removes nothing, §delete.soft).
  * Documents and collections; sets have no delete command (§delete.who), so journeys reuse or restore those.
  */
 export async function softDelete(api: Api, id: string): Promise<void> {

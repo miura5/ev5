@@ -72,7 +72,7 @@ test("New > Note sends collection.new_here and opens the new note", async () => 
         Promise.resolve(new Response(JSON.stringify(b), { status: 200 }));
       if (init?.method === "POST") {
         sent.push(`${url} ${String(init.body)}`);
-        return ok({ mode: "direct", result: { id: "n-new" } });
+        return ok({ mode: "direct", result: { id: "note_new" } });
       }
       return ok(
         url.includes("collections")
@@ -98,7 +98,7 @@ test("New > Note sends collection.new_here and opens the new note", async () => 
     fireEvent.click(screen.getByRole("menuitem", { name: "Note" }));
   });
   await waitFor(() =>
-    expect(onNavigate).toHaveBeenCalledWith("/notes?open=n-new"),
+    expect(onNavigate).toHaveBeenCalledWith("/notes?open=note_new"),
   );
   expect(sent[0]).toContain("commands/collection.new_here");
   expect(sent[0]).toContain('"kind":"note"');

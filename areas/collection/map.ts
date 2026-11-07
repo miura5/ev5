@@ -1,4 +1,4 @@
-import { noteRowId, shortDay } from "../../domain/index.ts";
+import { shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
 /** The read routes' rows (server/collection-routes.ts), restated: areas never import the server. */
@@ -48,15 +48,13 @@ export interface CollectionData {
   all: { id: string; title: string }[];
 }
 
-/** The row a member or pin names. A note's row id is `note_<id>` (GET /notes) while memberships and pins name it by the bare id, so both forms match. */
+/** The row a member or pin names: one id form (§data.tables). */
 const rowOf = (
   docs: DocsByCollection,
   collection: string,
   id: string,
 ): NamedRow | undefined =>
-  docs[collection]?.find(
-    (d) => d.id === id || (collection === "notes" && d.id === noteRowId(id)),
-  );
+  docs[collection]?.find((d) => d.id === id);
 
 /** The pinned items (GET /pins, already by pos then newest first), named from their docs. */
 export function mapPins(

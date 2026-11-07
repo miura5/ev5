@@ -67,7 +67,7 @@ function fakeServer() {
     return Response.json({
       rows: [
         {
-          id: "note_n-1",
+          id: "note_1",
           collection_id: null,
           title: d.title,
           body: { blocks: d.blocks, createdAt: d.createdAt },
@@ -112,7 +112,7 @@ test("notes load from the docs routes and a title edit saves, pinned to the vers
   const { s, services } = fakeServer();
   await openAndRename(services, "Fluids and electrolytes");
   await waitFor(() => expect(s.v).toBe(2));
-  expect(s.puts).toEqual([{ id: "n-1", if_version: 1 }]);
+  expect(s.puts).toEqual([{ id: "note_1", if_version: 1 }]);
   expect((s.data as { title: string }).title).toBe("Fluids and electrolytes");
   await waitFor(() => expect(screen.getByText("saved")).toBeTruthy());
   expect(screen.getAllByDisplayValue("Fluids and electrolytes")).toHaveLength(
@@ -174,6 +174,6 @@ test("a block edit saves through the outbox, and New note queues a create", asyn
   fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
   fireEvent.click(screen.getByRole("button", { name: /New note/ }));
   await waitFor(() => expect(s.puts.length).toBe(2));
-  expect(s.puts[1]!.id).toMatch(/^n-\d{8}-\d{6}-[A-Za-z0-9]+$/);
+  expect(s.puts[1]!.id).toMatch(/^note_\d{8}-\d{6}-[A-Za-z0-9]+$/);
   expect(s.puts[1]!.if_version).toBe(0);
 });

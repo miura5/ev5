@@ -98,12 +98,12 @@ test('a writing session counts only the time he writes; a pause holds the clock 
 });
 
 test('the start write: a note session writing has no planned end; a task keeps its minutes; documents parse', () => {
-  const a = startSession({ id: 'ss-x', at: T0, key: sk(T0), topic: 'New note', noteId: 'n-1', fresh: true, clock: 'writing' });
+  const a = startSession({ id: 'ss-x', at: T0, key: sk(T0), topic: 'New note', noteId: 'note_1', fresh: true, clock: 'writing' });
   expect(a.data.clock).toBe('writing');
   expect(a.data.planned).toBeUndefined();
-  expect(a.data.note).toBe('notes/n-1');
+  expect(a.data.note).toBe('notes/note_1');
   expect(a.data.date).toBe('2026-10-18');
-  expect(Object.values(a.data.events as object)[0]).toEqual({ type: 'start', noteId: 'n-1', ...noteMark('') });
+  expect(Object.values(a.data.events as object)[0]).toEqual({ type: 'start', noteId: 'note_1', ...noteMark('') });
   parseSession(a.data);
   const b = startSession({ id: 'ss-y', at: T0, key: sk(T0), topic: 'Read Ch 40', planned: 30, clock: 'writing' });
   expect([b.data.planned, b.data.clock, b.data.note, b.data.comments]).toEqual([30, undefined, undefined, 'some']);

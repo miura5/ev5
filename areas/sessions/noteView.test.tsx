@@ -19,7 +19,7 @@ const session = {
     source: "E.V. Home",
     date: "2026-11-04",
     topic: "Session",
-    noteId: "n1",
+    noteId: "note_n1",
     status: "active",
     startedAt: new Date(Date.now() - 60_000).toISOString(),
   },
@@ -56,7 +56,7 @@ function stub(first?: { type: string; runs: { text: string }[] }) {
         return { ok: true, status: 200, blob: async () => new Blob(["x"]) };
       const json = url.includes("/notes/")
         ? noteRowBody(
-            "n1",
+            "note_n1",
             first
               ? {
                   ...note,

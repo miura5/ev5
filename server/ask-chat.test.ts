@@ -22,7 +22,7 @@ function setup(
   settings: Record<string, number> = {},
 ) {
   const db = sqliteD1();
-  void putNoteRow(db, "n-1", NOTE.title, NOTE.blocks[0]!.runs[0]!.text);
+  void putNoteRow(db, "note_1", NOTE.title, NOTE.blocks[0]!.runs[0]!.text);
   for (const [k, v] of Object.entries(settings))
     db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
       .bind(k, v)
@@ -61,7 +61,7 @@ function setup(
 }
 
 test("a reply that cites a note it was given shows that note as its source", async () => {
-  const { ask } = setup({ text: "Under 60.", cited: ["n-1"], asksTry: false });
+  const { ask } = setup({ text: "Under 60.", cited: ["note_1"], asksTry: false });
   const body = (await (await ask("what is bradycardia?")).json()) as any;
   assert.equal(body.reply.unverified, false);
   assert.equal(body.reply.source, "Heart rate");
@@ -76,7 +76,7 @@ test("a reply with no sources is unverified", async () => {
 test("a cited id that was not given gets one repair ask, then shows unverified", async () => {
   const { ask, calls } = setup({
     text: "Made up.",
-    cited: ["n-zzz"],
+    cited: ["note_zzz"],
     asksTry: false,
   });
   const body = (await (await ask("what is bradycardia?")).json()) as any;
@@ -133,7 +133,7 @@ test("only the app token may ask, and empty text is refused", async () => {
 test("each turn is saved as talk rows, and the saved chat is sent with the next question", async () => {
   const { ask, calls, db } = setup({
     text: "Under 60.",
-    cited: ["n-1"],
+    cited: ["note_1"],
     asksTry: false,
   });
   const first = (await (await ask("what is bradycardia?")).json()) as any;
@@ -151,7 +151,7 @@ test("each turn is saved as talk rows, and the saved chat is sent with the next 
     rows.map((r) => r.role),
     ["user", "ev", "user", "ev"],
   );
-  assert.deepEqual(rows[1]!.cites, ["n-1"]);
+  assert.deepEqual(rows[1]!.cites, ["note_1"]);
 });
 
 test("a refused question is not saved, and the history is capped by count and size", async () => {

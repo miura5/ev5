@@ -187,7 +187,7 @@ test("typing part of a title in ⌘K lists the matching record above Ask E.V.; E
   const onNavigate = vi.fn();
   const rows = {
     exams: [{ id: "x1", v: 1, at: 1, data: { title: "Synthetic unit exam" } }],
-    notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
+    notes: [{ id: "note_1", v: 1, at: 1, data: { title: "Heart failure" } }],
     sets: [],
     weakspots: [{ id: "w1", v: 1, at: 1, data: { topic: "Synthroid dosing" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
@@ -243,7 +243,7 @@ function typeKeys(input: HTMLInputElement, text: string) {
 
 test("keys typed into ⌘K one at a time stay in the box and list a note by its title", async () => {
   const rows = {
-    notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
+    notes: [{ id: "note_1", v: 1, at: 1, data: { title: "Heart failure" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
   const services = {
     rows: { list: async (c: string) => rows[c] ?? [] },

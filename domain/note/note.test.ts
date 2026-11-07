@@ -24,7 +24,7 @@ import {
 // Ported from ev4 test/notes-editor.test.mjs and test/notes.test.mjs (the model parts); all text is made up.
 const r = (text: string, m: Record<string, unknown> = {}) => ({ text, ...m });
 const AT = '2026-10-26T15:00:00.000Z';
-const ID = 'n-20261026-150000-abcdefghijkl';
+const ID = 'note_20261026-150000-abcdefghijkl';
 
 const SAMPLE: Block[] = [
   { type: 'h1', runs: [r('Fluids and electrolytes')] },
@@ -45,10 +45,10 @@ const SAMPLE: Block[] = [
 describe('ids', () => {
   test('a new id fits the key and the schema earlierOf pattern', () => {
     const id = newNoteId('2026-10-26T15:04:05.123Z', 'ABCDEFGHIJKLMNOP');
-    expect(id).toBe('n-20261026-150405-ABCDEFGHIJKLMNOP');
+    expect(id).toBe('note_20261026-150405-ABCDEFGHIJKLMNOP');
     expect(noteIdOk(id)).toBe(true);
-    expect(id).toMatch(/^n-[A-Za-z0-9-]{1,120}$/);
-    expect(noteIdOk('n-1')).toBe(false);
+    expect(id).toMatch(/^note_[A-Za-z0-9-]{1,120}$/);
+    expect(noteIdOk('note_1')).toBe(false);
     expect(() => newNoteId(AT, 'short')).toThrow();
     expect(() => newNoteId('nope', 'ABCDEFGHIJKLMNOP')).toThrow();
   });
@@ -62,7 +62,7 @@ describe('noteDoc', () => {
     createdAt: '2026-10-20T10:00:00Z',
     title: 'Old',
     blocks: [],
-    earlierOf: 'n-20261019-100000-abcdefghijkl',
+    earlierOf: 'note_20261019-100000-abcdefghijkl',
   };
   const blocks = [
     { type: 'p', runs: [r('x')] },

@@ -5,8 +5,6 @@ import {
   buildIndex,
   chunkMaterials,
   likePatterns,
-  noteDocId,
-  noteRowId,
   search,
 } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
@@ -39,7 +37,7 @@ export async function findPassages(
     ? (
         await tablesRepo(db, { clock: () => Date.now() }).noteBook.search(pats)
       ).map((n) => ({
-        id: noteDocId(n.id),
+        id: n.id,
         title: n.title,
         kind: "note",
         text: n.text,
@@ -74,12 +72,12 @@ async function sourceNotes(db: D1Like, source: ExcerptSource) {
   const t = tablesRepo(db, { clock: () => Date.now() });
   const rows =
     source.kind === "note"
-      ? [await t.noteBook.get(noteRowId(source.id))].flatMap((n) =>
+      ? [await t.noteBook.get(source.id)].flatMap((n) =>
           n ? [n] : [],
         )
       : await t.notes.list({ where: { collection_id: source.id } });
   return rows.map((n) => ({
-    id: noteDocId(n.id),
+    id: n.id,
     title: n.title,
     kind: "note",
     collection_id: n.collection_id,

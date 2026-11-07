@@ -90,11 +90,10 @@ collectionRoutes.get("/memberships", async (c) => {
     [],
   );
   const own = new Set(sets.map((r) => r.item_id));
-  // A note keeps its collection on its own row too (`notes.collection_id`, the id minus its `note_` prefix is the
-  // document id the screens use), so a `notes` membership row is read only for a note that has no row yet.
+  // A note keeps its collection on its own row too (`notes.collection_id`), so a `notes` membership row is read only for a note that has no row yet.
   const noteRows = await rows<MembershipRow & { deleted_at: number | null }>(
     c.env.DB,
-    `SELECT 'notes' AS item_c, substr(id, 6) AS item_id, collection_id, at, v, deleted_at FROM notes LIMIT ${LIMIT}`,
+    `SELECT 'notes' AS item_c, id AS item_id, collection_id, at, v, deleted_at FROM notes LIMIT ${LIMIT}`,
     [],
   );
   const noted = new Set(noteRows.map((r) => r.item_id));
@@ -169,7 +168,7 @@ collectionRoutes.get("/pins", async (c) => {
 
 collectionRoutes.get("/deletions", async (c) => {
   const coll = c.req.query("collection");
-  // Recently deleted is every row whose `deleted_at` is set (§delete.soft); a note is listed by its id minus `note_`.
+  // Recently deleted is every row whose `deleted_at` is set (§delete.soft).
   const kinds: [string, string, string][] = [
     ["collections", "collections", "title"],
     ["notes", "notes", "title"],
@@ -181,11 +180,10 @@ collectionRoutes.get("/deletions", async (c) => {
   const out: { c: string; id: string; at: number; t: string | null }[] = [];
   for (const [name, table, title] of kinds) {
     if (coll !== undefined && coll !== name) continue;
-    const id = name === "notes" ? "substr(id, 6)" : "id";
     out.push(
       ...(await rows<{ c: string; id: string; at: number; t: string | null }>(
         c.env.DB,
-        `SELECT '${name}' AS c, ${id} AS id, deleted_at AS at, ${title} AS t FROM ${table} WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC LIMIT ${LIMIT}`,
+        `SELECT '${name}' AS c, id, deleted_at AS at, ${title} AS t FROM ${table} WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC LIMIT ${LIMIT}`,
         [],
       )),
     );
