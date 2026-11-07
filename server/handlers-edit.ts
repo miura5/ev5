@@ -1,4 +1,4 @@
-// What the Matt-command handler files share: event keys in ev4's form, and the appends of an attempt and a talk row. Nothing here removes
+// What the Matt-command handler files share: event keys in the stored form, and the appends of an attempt and a talk row. Nothing here removes
 // anything (§delete.soft).
 import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
@@ -9,7 +9,7 @@ export const iso = (ms: number) => new Date(ms).toISOString();
 const pad = (n: number) => String(n).padStart(2, "0");
 const letters = (r: string, keep: RegExp) => r.toLowerCase().replace(keep, "");
 
-/** `<prefix>-YYYYMMDD-HHMMSS-<rand>`, the key form ev4's events maps require. */
+/** `<prefix>-YYYYMMDD-HHMMSS-<rand>`, the key form the events maps require. */
 export function eventKey(ms: number, rand: string, prefix = "page"): string {
   const d = new Date(ms);
   const stamp = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}-${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`;

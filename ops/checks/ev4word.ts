@@ -21,8 +21,6 @@ const TO_REWORD = new Set<string>([
   'data/migrations/0003_collections_pins_own.sql',
   'data/migrations/0005_pointer_indexes.sql',
   'ops/checks/migrationnames.ts',
-  'server/handlers-edit.ts',
-  'server/handlers-sets.ts',
   'server/index.ts',
   'vite.config.ts',
 ]);
