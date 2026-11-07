@@ -4482,7 +4482,7 @@
   "title": "Migrations baseline for v5's own tables, held to the row shapes",
   "dod": "The migration chain builds every table from an empty database with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Part 2 removes the /docs routes and data/docs only after every docs reader and writer has moved and a check finds none left. Then, before CUTOVER step 7, the chain is squashed once (D-514, amends D-506): data/migrations 0000 to 0016 and their backfill files and tests become one baseline that builds the final per-kind tables from empty, with no docs table and no backfill; staging is rebuilt from it (staging workflow, rebuild=true) and the restore drill reruns. Slice write: data/migrations",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997",
    "B-1022",
@@ -4490,7 +4490,9 @@
   ],
   "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed.",
   "commit": "61f4efd",
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "cse_01JjJLDVnhSX8bcjni6wQ7Qg",
+  "claimedAt": "2026-11-07T09:56:48.519Z"
  },
  {
   "id": "B-999",
@@ -5246,11 +5248,13 @@
   "title": "Neutral sample content in the mock-up and kit stories",
   "dod": "design/mockup.html, every kit story and test named in scope audit A10 (Suggestion, EvLine, Row, Tile, Source, MovePicker, NavItem, Page, PracticeCard, Doc, Detail; Row, Page, MovePicker, Palette and PracticeCard tests), test fixtures in areas/, domain/, data/ and server/, and prompts/START-MOCKUP.md use sample content from no single subject; the /kit baselines are retaken in the same change; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories and tests, test fixtures, prompts/START-MOCKUP.md",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Run 2026-11-07 0900Z (#779): fixtures in areas/domain/data/server neutral; canonical.samples.json done. Left: /kit baselines retake (Docker); check design/mockup.html and DESIGN-BRIEF.md; stray biology strings (col_biology in prep-plan-names.test.ts, krebs-cycle in domain/search fixtures). Claim freed.",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDVnhSX8bcjni6wQ7Qg",
+  "claimedAt": "2026-11-07T09:56:48.360Z"
  },
  {
   "id": "B-1061",
