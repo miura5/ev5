@@ -5,7 +5,7 @@ test("Study session: run one", async ({ api }) => {
   const id = (await cmd(api, "session.start", {}))["id"] as string;
   expect(id).toMatch(/^ss-/);
   const doc = async () =>
-    (await api("GET", `/api/v1/sessions/${id}`)).body as { status: string };
+    (await api("GET", `/api/v1/sessions/ses_${id}`)).body as { status: string };
   expect((await doc()).status).toBe("active");
 
   expect((await cmd(api, "session.pause", { id }))["paused"]).toBe(true);
