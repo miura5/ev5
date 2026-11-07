@@ -4482,7 +4482,7 @@
   "title": "Migrations baseline for v5's own tables, held to the row shapes",
   "dod": "The migration chain builds every table from an empty database with kind-prefixed ids and indexed pointers; a test compares PRAGMA table_info with each domain row shape; ADD COLUMN is allowed and the ALTER ban leaves migrations.test.ts (§data.migrations, §data.tables, §data.additive). Part 2 removes the /docs routes and data/docs only after every docs reader and writer has moved and a check finds none left. Then, before CUTOVER step 7, the chain is squashed once (D-514, amends D-506): data/migrations 0000 to 0016 and their backfill files and tests become one baseline that builds the final per-kind tables from empty, with no docs table and no backfill; staging is rebuilt from it (staging workflow, rebuild=true) and the restore drill reruns. Slice write: data/migrations",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997",
    "B-1022",
@@ -4490,7 +4490,9 @@
   ],
   "notes": "SQUASH (D-514, Matt 2026-11-06): the contract migration with the next free number is replaced by one squash, after part 2 (no docs reader or writer left, the F2 precondition below) and before CUTOVER step 7; never mid-move while server files still read docs. Since D-514 (review 2026-11-07): 0017_own_set_kind_backfill.sql (a backfill, added after D-506 said no more backfills; harmless, staging only) and 0018_files.sql (expand) landed, so the squash replaces the whole chain 0000 to 0018; the old own_set_items deletions rows (B-1040) are rewritten in the squash baseline, not by a new migration. No new migration lands before the squash unless a staging fix needs it. Where the notes below say contract migration, read the squash baseline (F25's dropped columns simply leave it). One-way-door audit (D-515), the squash baseline also: (a) gives spend ceilings a v5 home, a settings table with a row shape and the gate, in place of claude_settings (0000_baseline.sql, written by data/tables/jobs.ts, read by server/job-run.ts), and job-run reads it; no live data, so nothing moves; (b) builds pins, objectives and drafts in their final shape, with no separate rebuild migrations before it; (c) stores only final kind names (B-1036's kind-name note). Run 94: part 1 is not data-only (builder stopped, no code). Needs: (a) server: col_/pin_ id makers, collection callers to snake_case rows (command-handlers, collection-routes, handlers-notes/sets/plan, plan-home, plan-options, nightly-export), replace memberships.save with the item's own collection_id, item_props become plan_items columns (D-498 drops both tables, so do not move them onto the gate); (b) data: migration backfilling col_ ids and rewriting references, pins gets id, v, deleted_at, target_kind; collections and pins in kindsRepo (one-level parent check, plan.ts style); update tables.test and row-shapes.test. Do (b) before or with (a); then part 2. Earlier state: migrations 0006 to 0008 on main, plan repo and gate in data/tables. Scope audit 2026-11-06: C7: docs/proposals/table-design.md is edited in place to D-498 (B-1030 slice). B8: objectives.collection_id is nullable in the new empty-database baseline, so an objective can hang off a goal by link only. B12: the baseline has only D-498 tables; ev4 tables leave the export list. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): D-506 replaces the baseline: the chain 0000 to 0016 stays and the contract step is one new migration with the next free number (not 0007). F15: the col_ backfill and the server step are done (#593, #595). F2, PART 2 PRECONDITION (restored; it sat on declined B-1064): the /docs routes and data/docs go only after every reader and writer below has moved and a check (B-1036 check 2) finds no docs read or write outside data/docs: the offline outbox's note saves (PUT /docs, shell/outbox/http.ts; owner B-1037); the sessions screen's whole-document PUTs (areas/sessions/useSessions.ts); the palette's reads (shell/findings.ts; B-1039); plans, planedits and dayedits (server/plan-home.ts, server/handlers-dates.ts; B-1033, B-1034); answers documents and own_attempts (B-1037); the e2e-practice-set sets document (B-1040); talk (B-1043); item_props (here). F17: nothing writes goals.collection_id, so a pinned collection has no linked date to show (B-942 needs it). F25: weak_spots.pre_read (NOT NULL) and reading_due came back from ev4 with no writer (0006); drop them in the contract migration (with B-1039). F27: pins have two writers (unversioned pins.set and pins.remove, which hard-deletes, and the versioned pinRows used only by tests) and id makers in four places; keep one. Rules-to-guards audit 2026-11-06 (D-517): the migration freeze guard (B-1036's note) lands in the squash PR and freezes from the new baseline on. Four-app research 2026-11-06 (D-521): the squashed baseline also carries attempts.was_due (or due_at), nullable, written at answer time (B-1044's note), and drops 0013_notes_backfill.sql's second copy of the notes.text rule (B-1008's note).",
   "commit": "61f4efd",
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-0746",
+  "claimedAt": "2026-11-07T07:46:41.003Z"
  },
  {
   "id": "B-999",
@@ -4703,15 +4705,15 @@
   "title": "Back and Forward move between screens, through wouter in the shell",
   "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-969"
   ],
   "notes": "Run 2026-11-06 (#637): wouter 3.13.0 pinned, Switch/Route in shell/App.tsx, / -> /today replace, /kit outside shell, dependency-cruiser rule wouter-only-in-shell, routing test. LEFT (belongs with B-1013, needs areas/): pass path/params/search/navigate as props to areas (Library, Notes, Collection, Ask still read window.location; Ask uses location.assign(/activity) which reloads); e2e Library-open-set-Back-Forward; seen on staging. CONTRACT has no routing §id yet. Claim freed. 2026-11-06 run (#645): Library derives its open set from ?open= and moves with onNavigate; e2e journey library-back added (needs its first staging run: seen on staging). Left: Notes, Collection address writes; Esc on Detail leaves ?open= in the address. Claim freed. 2026-11-06 run (#650): Notes follow ?open= and open/delete via onNavigate; Esc on Detail clears ?open=; Collection and Ask already used props. Left: e2e library-back first staging run, seen on staging.",
   "commit": null,
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
-  "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
-  "claimedAt": "2026-11-06T14:29:47.768Z"
+  "claimedBy": "run-0746",
+  "claimedAt": "2026-11-07T07:46:38.518Z"
  },
  {
   "id": "B-1013",
@@ -5244,11 +5246,13 @@
   "title": "Neutral sample content in the mock-up and kit stories",
   "dod": "design/mockup.html, every kit story and test named in scope audit A10 (Suggestion, EvLine, Row, Tile, Source, MovePicker, NavItem, Page, PracticeCard, Doc, Detail; Row, Page, MovePicker, Palette and PracticeCard tests), test fixtures in areas/, domain/, data/ and server/, and prompts/START-MOCKUP.md use sample content from no single subject; the /kit baselines are retaken in the same change; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories and tests, test fixtures, prompts/START-MOCKUP.md",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Group 4 (D-489 order as amended by D-495). Low priority: take it with the next design-agent edit of the mock-up (B-942). Spillover audit T26. Also 2026-11-06: test fixtures with nursing examples (Dosage, NUR 112) get general examples too. Scope audit 2026-11-06: A10, C17, A8: Matt chose 'Rate it honestly' (2026-11-06). Decision: D-503. Scope sweep #618: mock-up and DESIGN-BRIEF neutral (mixed learners, prep plan, full practice run, Rate it honestly, date Kind, pinned next date). #619 Tabs and Page stories say Dates. Left: the other A10 kit stories, tests and fixtures. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F14 and D-510 (Matt): the mock-up gets the Library tabs with Dates and the date Kind picker, and the date Detail drops Time, Repeat and Linked; built in this run (see the run record). Fix sweep 2026-11-06 (#626, D-510): mock-up Library has Practice, Weak spots, Dates, Sets tabs; a date Detail has Title, Date, Kind, Collection, its weak spots, and the prep plan only for an exam; DESIGN-BRIEF names the tabs. Left: design/mockup-audit.md (round-7 evidence) still maps the date Detail with Time, Repeat and Linked and the Library without tabs. Merged in #657 (2026-11-06). Still left after it: design/mockup-audit.md as above, data/protocol/canonical.samples.json (left alone: byte-exact protocol sample), and the /kit visual baselines for the changed stories, not retaken.",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
+  "claimedBy": "run-0746",
+  "claimedAt": "2026-11-07T07:46:38.652Z"
  },
  {
   "id": "B-1061",
