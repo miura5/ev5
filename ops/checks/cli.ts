@@ -7,6 +7,7 @@ import { checkChartEv4 } from './chartev4.ts';
 import { checkCompatImport } from './compatimport.ts';
 import { checkDocsWrite } from './docswrite.ts';
 import { checkEv4Word } from './ev4word.ts';
+import { checkOldShapes } from './oldshapes.ts';
 import { checkRestoreKind } from './restorekind.ts';
 import { checkSubjectWords } from './subjectwords.ts';
 import { checkIds } from './ids.ts';
@@ -43,6 +44,7 @@ const findings = [
   ...checkCompatImport(root, files),
   ...checkDocsWrite(root, files),
   ...checkEv4Word(root, files),
+  ...checkOldShapes(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
   ...checkMigrationNames(files),
