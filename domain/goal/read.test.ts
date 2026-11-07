@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { parseGoal, goalDaysLeft } from './read.ts';
 
-const base = { schema: 2, writer: 'page', at: '2026-11-03T00:00:00Z', source: 't', kind: 'unit' } as const;
+const base = { at: '2026-11-03T00:00:00Z', kind: 'unit' } as const;
 
 test('parses a valid exam and rejects score fields', () => {
   expect(parseGoal({ ...base, title: 'A', date: '2026-11-10' }).title).toBe('A');
