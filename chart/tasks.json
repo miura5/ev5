@@ -5009,7 +5009,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0900Z: checks 1, 6, 8, 9 on main (#776). Left: 2 (after docs removal), 3, 4, 5, 7.",
+  "notes": "Run 2026-11-07 0900Z: checks 1, 6, 8, 9 (#776), 7 (#780) on main; 3, 4, 5 first parts already on main. Left: 2 (after docs removal); 3 columns-equal-row-shape and deleted_at for deletable tables; 4 short allow-list of test-only exports.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -5248,7 +5248,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 0746Z (#767): kit stories/tests neutral. Left: /kit baselines retake (Docker); fixtures in areas/domain/data/server; prompts/START-MOCKUP.md; mockup-audit.md; canonical.samples.json. Claim freed.",
+  "notes": "Run 2026-11-07 0900Z (#779): fixtures in areas/domain/data/server neutral; canonical.samples.json done. Left: /kit baselines retake (Docker); check design/mockup.html and DESIGN-BRIEF.md; stray biology strings (col_biology in prep-plan-names.test.ts, krebs-cycle in domain/search fixtures). Claim freed.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
