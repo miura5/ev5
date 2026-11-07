@@ -39,36 +39,36 @@ test("passages come from the user's notes that match the objectives, never from 
   const { db, put, note } = seeded();
   await note(
     "n1",
-    "Cells",
-    "Glycolysis splits glucose into pyruvate in the cytoplasm.",
+    "Accounts",
+    "Posting splits ledger entries into invoice lines in the journal.",
   );
   await note("n2", "Verbs", "Ser and ir share the same preterite forms.");
-  await put("sets", "s1", JSON.stringify({ title: "Glucose set", items: [] }));
-  // only a note's text column is searched: glucose in a title or body alone is not a match
-  await note("n3", "Glucose", "Verbs again.");
-  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
+  await put("sets", "s1", JSON.stringify({ title: "Ledger set", items: [] }));
+  // only a note's text column is searched: ledger in a title or body alone is not a match
+  await note("n3", "Ledger", "Verbs again.");
+  const got = await gatherExcerpts(db, ["Ledger breakdown"]);
   assert.deepEqual(
     got.map((e) => e.id),
     ["n1"],
   );
-  assert.match(got[0]!.text, /pyruvate/);
+  assert.match(got[0]!.text, /invoice/);
 });
 
 test("no objectives, or no match, gathers nothing", async () => {
   const { db, note } = seeded();
-  await note("n1", "Cells", "Glucose is split.");
+  await note("n1", "Accounts", "Ledger is split.");
   assert.deepEqual(await gatherExcerpts(db, []), []);
   assert.deepEqual(await gatherExcerpts(db, ["zebra"]), []);
 });
 
 test("a note in Recently deleted is never an excerpt", async () => {
   const { db, note } = seeded();
-  await note("n1", "Cells", "Glucose is split in the cytoplasm.");
-  await note("n2", "Old", "Glucose glucose glucose glucose breakdown.");
+  await note("n1", "Accounts", "Ledger is split in the journal.");
+  await note("n2", "Old", "Ledger ledger ledger ledger breakdown.");
   await db
     .prepare("UPDATE notes SET deleted_at = 1 WHERE id = 'note_n2'")
     .run();
-  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
+  const got = await gatherExcerpts(db, ["Ledger breakdown"]);
   assert.deepEqual(
     got.map((e) => e.id),
     ["n1"],
@@ -81,14 +81,14 @@ test("the best match survives more than 60 matches", async () => {
     await note(
       `a${String(i).padStart(2, "0")}`,
       "Misc",
-      `Glucose is mentioned in passing ${i}.`,
+      `Ledger is mentioned in passing ${i}.`,
     );
   await note(
     "zbest",
-    "Glucose breakdown",
-    "Glucose breakdown: glycolysis splits glucose into pyruvate.",
+    "Ledger breakdown",
+    "Ledger breakdown: posting splits ledger entries into invoice lines.",
   );
-  const got = await gatherExcerpts(db, ["Glucose breakdown"]);
+  const got = await gatherExcerpts(db, ["Ledger breakdown"]);
   assert.equal(got[0]!.id, "zbest");
 });
 
@@ -96,11 +96,11 @@ test("a set scoped to a collection draws only that collection's notes, with or w
   const { db, note } = seeded();
   await note("es1", "Preterite", "The preterite tells a finished action.");
   await note("es2", "Ser and ir", "Ser and ir share the same preterite forms.");
-  await note("bio", "Cells", "The preterite of glucose is not a thing.");
+  await note("alt", "Accounts", "The preterite of ledger is not a thing.");
   await note("gone", "Old verbs", "Preterite preterite preterite.");
   for (const id of ["es1", "es2", "gone"])
     await inCollection(db, id, "col_spanish");
-  await inCollection(db, "bio", "col_biology");
+  await inCollection(db, "alt", "col_alpha");
   await db
     .prepare("UPDATE notes SET deleted_at = 1 WHERE id = 'note_gone'")
     .run();
@@ -156,14 +156,14 @@ test("set passages are the stems of live set items on the tables, and a deleted 
       )
       .bind(id, setId, pos, JSON.stringify({ stem }), deleted)
       .run();
-  await set("set_a", "Glucose set", null);
-  await item("item_a1", "set_a", 1, "Which organ makes insulin?");
-  await item("item_a2", "set_a", 2, "Glycolysis splits glucose into what?");
-  await item("item_a3", "set_a", 3, "Glucose removed question zebra.", 5);
+  await set("set_a", "Ledger set", null);
+  await item("item_a1", "set_a", 1, "Which account holds the deposit?");
+  await item("item_a2", "set_a", 2, "Posting splits ledger into what?");
+  await item("item_a3", "set_a", 3, "Ledger removed question zebra.", 5);
   await set("set_b", "Old set", 9);
-  await item("item_b1", "set_b", 1, "Glycolysis of glucose in a deleted set.");
-  const got = await findPassages(db, "glucose glycolysis", ["sets"], 10);
+  await item("item_b1", "set_b", 1, "Posting of ledger in a deleted set.");
+  const got = await findPassages(db, "ledger posting", ["sets"], 10);
   assert.deepEqual([...new Set(got.map((h) => h.id))], ["set_a"]);
   assert.ok(got.every((h) => !/zebra|deleted set/.test(h.text)));
-  assert.deepEqual(await findPassages(db, "glucose", ["notes"], 10), []);
+  assert.deepEqual(await findPassages(db, "ledger", ["notes"], 10), []);
 });

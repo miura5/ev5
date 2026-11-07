@@ -4,10 +4,10 @@ import { buildIndex, chunkMaterials, likePatterns, search, type Material } from 
 // The retrieval test set: a small synthetic corpus (made up) from mixed learners, with the passage each query must put first.
 const corpus: Material[] = [
   {
-    id: 'bio-ch7',
-    title: 'Ch 7 - Cell Respiration.pdf',
-    collection_id: 'col_biology',
-    text: '[p1] Cell respiration overview. Where cells get their energy.\n[p2] Glycolysis splits glucose into two pyruvate molecules in the cytoplasm.\n[p3] The Krebs cycle runs in the mitochondrial matrix.',
+    id: 'acct-ch7',
+    title: 'Ch 7 - Ledger Entries.pdf',
+    collection_id: 'col_alpha',
+    text: '[p1] Ledger overview. Where accounts record their balances.\n[p2] Posting splits each payment into two invoice entries in the journal.\n[p3] The reconciliation cycle runs in the closing ledger.',
   },
   {
     id: 'interview-guide',
@@ -34,8 +34,8 @@ const idx = buildIndex(chunks);
 const top = (q: string) => search(idx, q)[0];
 
 const EXPECTED: [string, string, number][] = [
-  ['glucose split into pyruvate', 'bio-ch7', 2],
-  ['krebs cycle matrix', 'bio-ch7', 3],
+  ['payment split into invoice entries', 'acct-ch7', 2],
+  ['reconciliation cycle closing ledger', 'acct-ch7', 3],
   ['STAR method for behavioral answers', 'interview-guide', 2],
   ['which questions to ask the interviewer', 'interview-guide', 3],
   ['irregular verbs ser ir', 'spanish-u3', 2],
@@ -48,9 +48,9 @@ test.each(EXPECTED)('retrieval: "%s" ranks %s page %i first', (q, id, page) => {
 });
 
 test('chunks keep their page, unit and collection; ', () => {
-  expect(chunks.find((c) => /Krebs/.test(c.text))?.page).toBe(3);
+  expect(chunks.find((c) => /reconciliation/.test(c.text))?.page).toBe(3);
   expect(top('STAR method for behavioral answers')?.kind).toBe('guide');
-  expect(top('krebs cycle matrix')?.collection_id).toBe('col_biology');
+  expect(top('reconciliation cycle closing ledger')?.collection_id).toBe('col_alpha');
   expect(top('long run pace')).toMatchObject({ kind: 'note', collection_id: null });
 });
 
@@ -62,23 +62,23 @@ test('a long page splits into passages that keep the page', () => {
 });
 
 test('filters: collection, kind, id', () => {
-  expect(search(idx, 'irregular verbs', { collections: new Set(['col_biology']) })).toEqual([]);
+  expect(search(idx, 'irregular verbs', { collections: new Set(['col_alpha']) })).toEqual([]);
   expect(search(idx, 'irregular verbs', { collections: new Set(['col_spanish']) })[0]?.page).toBe(2);
   expect(search(idx, 'questions', { kind: 'guide' }).every((h) => h.kind === 'guide')).toBe(true);
-  expect(search(idx, 'glucose', { id: 'spanish-u3' })).toEqual([]);
+  expect(search(idx, 'payment', { id: 'spanish-u3' })).toEqual([]);
 });
 
 test('stop-word and empty queries find nothing; at most two passages per file and k results', () => {
   expect(search(idx, 'the of and')).toEqual([]);
-  expect(search(buildIndex([]), 'glucose')).toEqual([]);
+  expect(search(buildIndex([]), 'ledger')).toEqual([]);
   const many = chunkMaterials([
     {
       id: 'm',
-      text: '[p1] glucose one.\n[p2] glucose two.\n[p3] glucose three.',
+      text: '[p1] ledger one.\n[p2] ledger two.\n[p3] ledger three.',
     },
   ]);
-  expect(search(buildIndex(many), 'glucose').length).toBe(2);
-  expect(search(idx, 'glucose questions verbs', { k: 1 }).length).toBe(1);
+  expect(search(buildIndex(many), 'ledger').length).toBe(2);
+  expect(search(idx, 'ledger questions verbs', { k: 1 }).length).toBe(1);
 });
 
 test('similar words do not collide (conjunction vs conjugation)', () => {
@@ -87,6 +87,6 @@ test('similar words do not collide (conjunction vs conjugation)', () => {
 });
 
 test('LIKE patterns are safe, deduplicated and match like the SQL does', () => {
-  expect(likePatterns('the 50% Glucose glucose')).toEqual(['%50%', '%glucose%']);
+  expect(likePatterns('the 50% Ledger ledger')).toEqual(['%50%', '%ledger%']);
   expect(likePatterns("x'; DROP_%")).toEqual(['%drop%']);
 });
