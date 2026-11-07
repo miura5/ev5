@@ -24,7 +24,7 @@ test("Notes opens; a note saves, updates, refuses a stale save and reads back", 
       input: { id, body: "stale", if_version: one["version"] },
     });
     expect(stale.status).toBe(409);
-    const read = await api("GET", `/api/v1/notes/${id}`);
+    const read = await api("GET", `/api/v1/notes/note_${id}`);
     expect(read.status).toBe(200);
     expect(read.body["text"]).toContain("e2e two");
   } finally {
