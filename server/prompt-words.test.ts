@@ -4,7 +4,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ASK_SYSTEM } from "./ask-chat.ts";
-import { GRADE_SYSTEM, gradePrompt, practiceSetHandlers } from "../jobs/index.ts";
+import {
+  GRADE_SYSTEM,
+  gradePrompt,
+  practiceSetHandlers,
+} from "../jobs/index.ts";
 import type { ModelCall } from "../jobs/index.ts";
 import { tools } from "../commands/index.ts";
 
@@ -15,7 +19,11 @@ async function practiceMessage(variant: string): Promise<string> {
   const sent: string[] = [];
   const call: ModelCall = async (req) => {
     sent.push(req.messages.map((m) => m.content).join("\n"));
-    return { stopReason: "end_turn", text: "{}", usage: { inputTokens: 1, outputTokens: 1 } };
+    return {
+      stopReason: "end_turn",
+      text: "{}",
+      usage: { inputTokens: 1, outputTokens: 1 },
+    };
   };
   const store = {
     put: async () => "",
@@ -24,11 +32,30 @@ async function practiceMessage(variant: string): Promise<string> {
     },
     save: async () => {},
   };
-  const input = { variant, targetId: "set-1", count: 3, objectives: ["Name the parts"], excerpts: [{ id: "x1", text: "A part." }] };
+  const input = {
+    variant,
+    targetId: "set-1",
+    count: 3,
+    objectives: ["Name the parts"],
+    excerpts: [{ id: "x1", text: "A part." }],
+  };
   const step = practiceSetHandlers({ store, call, system: "" }).call!;
-  const ctx = { jobId: "j", instanceId: "j", step: "call", attempt: 1, input, prior: {}, reserve: async () => {}, spend: async () => {} };
+  const ctx = {
+    jobId: "j",
+    instanceId: "j",
+    step: "call",
+    attempt: 1,
+    input,
+    prior: {},
+    reserve: async () => {},
+    spend: async () => {},
+  };
   await step(ctx).catch(() => undefined);
-  assert.match(sent[0] ?? "", /^Write /, `the ${variant} call step sent no request to write`);
+  assert.match(
+    sent[0] ?? "",
+    /^Write /,
+    `the ${variant} call step sent no request to write`,
+  );
   return sent[0]!;
 }
 
@@ -36,11 +63,21 @@ async function prompts(): Promise<Record<string, string>> {
   const out: Record<string, string> = {
     "jobs/practice-set/prompt.md": read("../jobs/practice-set/prompt.md"),
     "jobs/prep-plan/prompt.md": read("../jobs/prep-plan/prompt.md"),
-    "jobs/prep-plan/changes-prompt.md": read("../jobs/prep-plan/changes-prompt.md"),
+    "jobs/prep-plan/changes-prompt.md": read(
+      "../jobs/prep-plan/changes-prompt.md",
+    ),
     "server/ask-chat.ts ASK_SYSTEM": ASK_SYSTEM,
     "jobs/grade GRADE_SYSTEM": GRADE_SYSTEM,
-    "jobs/grade gradePrompt": gradePrompt({ question: "Q", reference: "R", answer: "A" }),
-    "jobs/grade gradePrompt, no reference": gradePrompt({ question: "Q", reference: "", answer: "A" }),
+    "jobs/grade gradePrompt": gradePrompt({
+      question: "Q",
+      reference: "R",
+      answer: "A",
+    }),
+    "jobs/grade gradePrompt, no reference": gradePrompt({
+      question: "Q",
+      reference: "",
+      answer: "A",
+    }),
     "practice set message, practice": await practiceMessage("practice"),
     "practice set message, full_run": await practiceMessage("full_run"),
   };
@@ -51,7 +88,10 @@ async function prompts(): Promise<Record<string, string>> {
 }
 
 const REFUSED: [string, RegExp][] = [
-  ["a subject's framing or a person's name", /nursing|nclex|clinical|patient|dosage|\bmatt\b/i],
+  [
+    "a subject's framing or a person's name",
+    /nursing|nclex|clinical|patient|dosage|\bmatt\b/i,
+  ],
   ["the student", /\bstudents?\b/i],
   ["mock exam", /mock exam/i],
   ["exam-style", /exam-style/i],
@@ -71,5 +111,6 @@ test("no prompt or tool description carries a subject's framing, a name or a sch
 });
 
 test("no prompt keeps a placeholder for code to fill", async () => {
-  for (const [name, text] of Object.entries(await prompts())) assert.doesNotMatch(text, /\{\{[^}]*\}\}/, name);
+  for (const [name, text] of Object.entries(await prompts()))
+    assert.doesNotMatch(text, /\{\{[^}]*\}\}/, name);
 });

@@ -64,8 +64,6 @@ test("a list read says how many stored rows it left out, and logs each under the
 test("a list with nothing left out has no left_out field", async () => {
   const DB = await migrated();
   await put(DB, "goal_ok", "open");
-  const body = (await (
-    await get(DB, "/api/v1/goals")
-  ).json()) as object;
+  const body = (await (await get(DB, "/api/v1/goals")).json()) as object;
   assert.ok(!("left_out" in body));
 });

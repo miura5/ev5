@@ -84,7 +84,11 @@ test("the best match survives more than 60 matches", async () => {
 test("a set scoped to a collection draws only that collection's notes, with or without objectives", async () => {
   const { db, note } = seeded();
   await note("note_es1", "Preterite", "The preterite tells a finished action.");
-  await note("note_es2", "Ser and ir", "Ser and ir share the same preterite forms.");
+  await note(
+    "note_es2",
+    "Ser and ir",
+    "Ser and ir share the same preterite forms.",
+  );
   await note("note_alt", "Accounts", "The preterite of ledger is not a thing.");
   await note("note_gone", "Old verbs", "Preterite preterite preterite.");
   for (const id of ["note_es1", "note_es2", "note_gone"])

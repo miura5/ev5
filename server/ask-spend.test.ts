@@ -113,10 +113,19 @@ test("ask.send holds the 1 to 2000 character limit in its input schema", async (
     post("/api/v1/commands/ask.send", { input: { text: "a".repeat(n) } });
   const zero = await send(0);
   assert.equal(zero.status, 400);
-  assert.match(((await zero.json()) as { error: string }).error, /1 to 2000 characters/);
+  assert.match(
+    ((await zero.json()) as { error: string }).error,
+    /1 to 2000 characters/,
+  );
   assert.equal((await send(2000)).status, 200);
   const over = await send(2001);
   assert.equal(over.status, 400);
-  assert.match(((await over.json()) as { error: string }).error, /1 to 2000 characters/);
-  assert.equal((await post("/api/v1/ask", { text: "a".repeat(2001) })).status, 400);
+  assert.match(
+    ((await over.json()) as { error: string }).error,
+    /1 to 2000 characters/,
+  );
+  assert.equal(
+    (await post("/api/v1/ask", { text: "a".repeat(2001) })).status,
+    400,
+  );
 });
