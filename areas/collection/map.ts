@@ -1,6 +1,3 @@
-import type { WireDoc } from "../../domain/index.ts";
-
-export type { WireDoc };
 import { shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
@@ -25,8 +22,16 @@ export interface WirePin {
   at: number;
 }
 
-/** Docs by collection name, as read for the members' collections. */
-export type DocsByCollection = Record<string, readonly WireDoc[]>;
+/** What a title line needs from a row (read through the row routes): its name, its kind when it has one, its time. */
+export interface NamedRow {
+  id: string;
+  title?: string;
+  kind?: string;
+  at?: number;
+}
+
+/** Rows by collection name, as read for the members' collections. */
+export type DocsByCollection = Record<string, readonly NamedRow[]>;
 
 export interface CollectionData {
   id: string;
@@ -83,12 +88,10 @@ const KINDS: Record<string, string> = {
 };
 
 /** What kind of item it is: every date reads "Date", with its own kind (exam, other) after it when it has one. */
-function kindLine(collection: string, doc: WireDoc | undefined): string {
+function kindLine(collection: string, doc: NamedRow | undefined): string {
   const label = KINDS[collection] ?? collection;
   const kind =
-    collection === "exams" || collection === "goals"
-      ? field(doc?.data, "kind")
-      : undefined;
+    collection === "exams" || collection === "goals" ? doc?.kind : undefined;
   return kind ? `${label} · ${kind}` : label;
 }
 
@@ -102,18 +105,9 @@ export function openPath(kind: string, id: string): string | undefined {
   return undefined;
 }
 
-const field = (d: unknown, k: string): string | undefined => {
-  const v =
-    d && typeof d === "object" ? (d as Record<string, unknown>)[k] : undefined;
-  return typeof v === "string" && v.trim() ? v.trim() : undefined;
-};
-
-/** The item's own name: title, else name, else text; "Untitled" when it has none (never its id). */
-export const docTitle = (d: WireDoc | undefined): string =>
-  field(d?.data, "title") ??
-  field(d?.data, "name") ??
-  field(d?.data, "text") ??
-  "Untitled";
+/** The item's own name; "Untitled" when it has none (never its id). */
+export const docTitle = (d: NamedRow | undefined): string =>
+  d?.title?.trim() || "Untitled";
 
 /** "Nov 3", Central time (§time), from epoch ms. */
 export const shortDate = (ms: number): string => shortDay(ms);
