@@ -43,9 +43,7 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
               },
             ],
           })
-        : url.includes("dayedits")
-          ? json({}, 404)
-          : rowsAnswer(url, { goals: [exam] }),
+        : rowsAnswer(url, { goals: [exam] }),
     ),
   );
   const onNavigate = vi.fn();
@@ -74,9 +72,7 @@ const feed = (jobs: unknown[], extra: Record<string, unknown[]> = {}) =>
   vi.fn(async (url: string) =>
     url.includes("jobs")
       ? json({ jobs })
-      : url.includes("dayedits")
-        ? json({}, 404)
-        : rowsAnswer(url, { goals: two, ...extra }),
+      : rowsAnswer(url, { goals: two, ...extra }),
   );
 
 test("a waiting plan shows only on the exam its job names", async () => {

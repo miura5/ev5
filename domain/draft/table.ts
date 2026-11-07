@@ -7,7 +7,7 @@ export const draftTableSchema = z.strictObject({
   id: prefixed('draft_'),
   job_id: text,
   kind: z.enum(DRAFT_KINDS),
-  /** The kind of row the draft is aimed at (was `target_c`): own_sets, dayedits or sets until those kinds move. */
+  /** The kind of row the draft is aimed at (was `target_c`): own_sets or sets until those kinds move. */
   target_kind: text,
   target_id: text,
   body: z.record(z.string(), z.unknown()),
