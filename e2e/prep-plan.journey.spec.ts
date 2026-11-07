@@ -1,5 +1,5 @@
 import { expect, test } from "./gate5.ts";
-import { cmd } from "./helpers.ts";
+import { cmd, rows } from "./helpers.ts";
 
 // Prep plan: in Library > Dates, plan a date with E.V., ask for one change, approve, and read the plan back after a reload.
 // This is the one journey that runs the model for real (a draft step and one change round, both Sonnet): it needs the
@@ -8,49 +8,26 @@ import { cmd } from "./helpers.ts";
 // plan approved for a real date is the date's plan afterwards. Leftovers: dates, plans and jobs are never deleted
 // (§delete.who), so the e2e date is made once and reused; each run adds one job and one approved `plans` document (its
 // days are real dates before the date, so Today on staging's synthetic record shows them).
-const OLD_EXAM = "e2e-plan-exam"; // the `exams` document this journey used before dates were goals
 const TITLE = "e2e plan exam";
 const WAIT_MS = 4 * 60_000;
 const DAY_MS = 86_400_000;
 const day = (ahead: number) =>
   new Date(Date.now() + ahead * DAY_MS).toISOString().slice(0, 10);
 
-type Api = (
-  method: string,
-  path: string,
-  body?: unknown,
-) => Promise<{ status: number; body: Record<string, unknown> }>;
-
-/** The older e2e `exams` document, if staging still has it, is marked done so Library lists one date by this title. */
-async function retireOldExam(api: Api): Promise<void> {
-  const at = `/api/v1/docs?collection=exams&id=${OLD_EXAM}`;
-  const have = await api("GET", at);
-  if (have.status === 404) return;
-  expect(have.status).toBe(200);
-  const data = have.body["data"] as Record<string, unknown>;
-  if (data["status"] === "done") return;
-  const put = await api("PUT", `${at}&if_version=${String(have.body["v"])}`, {
-    ...data,
-    at: new Date().toISOString(),
-    status: "done",
-  });
-  expect(put.status, JSON.stringify(put.body)).toBe(200);
-}
+type Api = Parameters<typeof cmd>[0];
 
 /** The e2e date as a goal, at least 3 days out so the plan has days to fill, of a kind that offers the prep plan: made
  * with date.create when missing, put right with date.update when too near or of another kind. Returns its id. */
 async function ensureExam(api: Api): Promise<string> {
-  await retireOldExam(api);
-  const list = await api("GET", "/api/v1/docs?collection=exams");
-  expect(list.status, JSON.stringify(list.body)).toBe(200);
   const have = (
-    list.body["docs"] as { id: string; data: Record<string, unknown> }[]
-  ).find(
-    (d) =>
-      d.id.startsWith("goal_") &&
-      d.data["title"] === TITLE &&
-      (d.data["status"] ?? "upcoming") === "upcoming",
-  );
+    await rows<{
+      id: string;
+      title: string;
+      kind: string;
+      date: string | null;
+      status: string;
+    }>(api, "goals")
+  ).find((g) => g.title === TITLE && g.status === "open");
   if (!have) {
     const made = await cmd(api, "date.create", {
       title: TITLE,
@@ -59,9 +36,8 @@ async function ensureExam(api: Api): Promise<string> {
     });
     return made["id"] as string;
   }
-  const date = have.data["date"];
-  const dated = typeof date === "string" && date >= day(3);
-  if (!dated || have.data["kind"] !== "exam")
+  const dated = typeof have.date === "string" && have.date >= day(3);
+  if (!dated || have.kind !== "exam")
     await cmd(api, "date.update", {
       id: have.id,
       kind: "exam",
@@ -175,10 +151,14 @@ test("Prep plan: plan with E.V., ask for a change, approve, it stays after a rel
   // After a reload the exam reads the plan as in force, and its documents are all there.
   await openExam();
   await expect(page.getByText("in force")).toBeVisible();
-  const date = await api("GET", `/api/v1/docs?collection=exams&id=${exam}`);
+  const date = await api("GET", `/api/v1/goals/${exam}`);
   expect(date.status, JSON.stringify(date.body)).toBe(200);
-  const plan = await api("GET", `/api/v1/docs?collection=plans&id=plan-${id}`);
-  expect(plan.status).toBe(200);
-  const days = (plan.body["data"] as { days?: unknown[] }).days ?? [];
+  const plan = (
+    await rows<{ id: string; goal_id: string; state: string }>(api, "plans")
+  ).find((p) => p.goal_id === exam && p.state === "in_force");
+  expect(plan, "the approved plan, in force for the date").toBeTruthy();
+  const days = (
+    await rows<{ plan_id: string | null }>(api, "plan-items")
+  ).filter((i) => i.plan_id === plan?.id);
   expect(days.length).toBeGreaterThan(0);
 });

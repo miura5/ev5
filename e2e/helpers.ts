@@ -18,6 +18,16 @@ export async function cmd(
   return r.body["result"] as Record<string, unknown>;
 }
 
+/** Reads a row list the way the screens do (GET /api/v1/<kind>, e.g. "goals" or "plan-items"): `{ rows }`, or the journey fails. */
+export async function rows<T = Record<string, unknown>>(
+  api: Api,
+  kind: string,
+): Promise<T[]> {
+  const r = await api("GET", `/api/v1/${kind}`);
+  expect(r.status, `${kind}: ${JSON.stringify(r.body)}`).toBe(200);
+  return r.body["rows"] as T[];
+}
+
 /** Best-effort cleanup that never fails or hides the journey's own result: call it from a `finally`. */
 export async function tolerate(step: () => Promise<unknown>): Promise<void> {
   try {
