@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { uploadPicture, NO_STORAGE, UPLOAD_FAILED } from "./notePictures.ts";
+import {
+  uploadPicture,
+  shrinkPicture,
+  MAX_EDGE,
+  NO_STORAGE,
+  UPLOAD_FAILED,
+} from "./notePictures.ts";
 import { api } from "../../../commands/client.ts";
 import { IMG_KEY } from "../../../domain/index.ts";
 
@@ -77,4 +83,45 @@ test("uploadPicture treats 409 (already stored) as success", async () => {
   const r = await uploadPicture(png());
   expect(r.ok).toBe(true);
   if (r.ok) expect(r.key).toMatch(IMG_KEY);
+});
+
+const big = () =>
+  new File([new Uint8Array(6_000_000)], "photo.jpg", { type: "image/jpeg" });
+
+test("a large picture is scaled down and sent as a jpeg", async () => {
+  const calls = stub(200);
+  const seen: number[] = [];
+  const r = await uploadPicture(big(), async (_f, edge) => {
+    seen.push(edge);
+    return new Blob([new Uint8Array(300_000)], { type: "image/jpeg" });
+  });
+  expect(seen).toEqual([MAX_EDGE]);
+  expect(r.ok && r.key).toMatch(/\.jpg$/);
+  expect((calls[0]!.init.body as Blob).size).toBe(300_000);
+});
+
+test("a small picture is sent as it is", async () => {
+  const f = png();
+  expect(await shrinkPicture(f, async () => null)).toBe(f);
+  const calls = stub(200);
+  await uploadPicture(f, async () => null);
+  expect(calls[0]!.init.body).toBe(f);
+});
+
+test("a gif is never scaled, and a failed scale falls back to the original", async () => {
+  const g = new File([new Uint8Array(10)], "a.gif", { type: "image/gif" });
+  let called = false;
+  expect(
+    await shrinkPicture(g, async () => {
+      called = true;
+      return new Blob(["x"]);
+    }),
+  ).toBe(g);
+  expect(called).toBe(false);
+  const b = big();
+  expect(
+    await shrinkPicture(b, async () => {
+      throw new Error("decode");
+    }),
+  ).toBe(b);
 });

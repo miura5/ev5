@@ -20,6 +20,11 @@ export default defineConfig({
         icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
       },
       workbox: {
+        // A new worker takes over at once. The plugin sets these only when it injects its own register script, and
+        // the shell registers the worker itself (injectRegister: false), so without them a new build waits behind the
+        // open tab and a reload keeps the old one.
+        skipWaiting: true,
+        clientsClaim: true,
         importScripts: ["retire-ev4.js"],
         globPatterns: ["**/*.{js,css,html,svg}"],
         navigateFallback: "index.html",

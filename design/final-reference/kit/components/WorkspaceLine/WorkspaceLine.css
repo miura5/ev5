@@ -1,0 +1,12 @@
+.kit-workspace {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--sp-8);
+  margin-bottom: var(--sp-2);
+  padding: 0 var(--sp-2);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-title);
+  color: var(--text);
+}

@@ -4,6 +4,17 @@
 // the table and col = the column (from pragma_table_info). Prints what is missing.
 import { readdirSync, readFileSync } from "node:fs";
 
+// A quoted SQL name ("by", `by`, [by]) as pragma_table_info reports it: without the quotes.
+const unquote = (w) => w.replace(/^(["`[])(.*)[\]"`]$/, "$2");
+
+// The rows in `wrangler d1 execute --json` output. On a failed query wrangler prints an error object, not an array:
+// throw with its message, so the step says why it failed.
+export function rowsFrom(json) {
+  const out = JSON.parse(json);
+  if (!Array.isArray(out)) throw new Error("wrangler d1 execute failed: " + JSON.stringify(out.error ?? out));
+  return out.flatMap((r) => r.results);
+}
+
 // Column names a migration SQL text gives each table.
 export function wantedColumns(sql) {
   const cols = new Map();
@@ -22,13 +33,13 @@ export function wantedColumns(sql) {
     }
     parts.push(cur);
     for (const p of parts) {
-      const w = p.trim().split(/\s+/)[0];
+      const w = unquote(p.trim().split(/\s+/)[0]);
       if (w && !/^(PRIMARY|UNIQUE|CHECK|FOREIGN|CONSTRAINT)$/i.test(w)) names.push(w);
     }
     cols.set(m[1], names);
   }
-  for (const m of sql.matchAll(/ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+(\w+)/gi)) {
-    cols.set(m[1], [...(cols.get(m[1]) ?? []), m[2]]);
+  for (const m of sql.matchAll(/ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+("\w+"|`\w+`|\[\w+\]|\w+)/gi)) {
+    cols.set(m[1], [...(cols.get(m[1]) ?? []), unquote(m[2])]);
   }
   return cols;
 }
@@ -57,7 +68,7 @@ if (process.argv[1] === new URL(import.meta.url).pathname) {
     .join("\n");
   let input = "";
   for await (const c of process.stdin) input += c;
-  const rows = JSON.parse(input).flatMap((r) => r.results);
+  const rows = rowsFrom(input);
   const { want, missing, missingCols } = missingFromStaging(sql, rows);
   console.log(
     `${want.length} migration objects expected, ${missing.length} missing; ${missingCols.length} columns missing`,

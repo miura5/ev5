@@ -32,6 +32,7 @@ test('output is deterministic and carries the interface', () => {
   assert.match(first.get('commands/client.ts')!, /"x"/);
   assert.match(first.get('areas/README.md')!, /Interface: area a\n<!-- generated:end -->/);
   assert.doesNotMatch(first.get('areas/README.md')!, /Imports:/);
+  assert.doesNotMatch(first.get('areas/README.md')!, /Must not/);
   assert.match(first.get('commands/README.md')!, /Interface: x\.command\.ts/);
 });
 
@@ -46,4 +47,11 @@ test('check fails on a stale file and passes when fresh', () => {
   assert.equal(check(root).status, 1);
   execFileSync(process.execPath, ['--experimental-strip-types', '--no-warnings', CLI, '--root', root]);
   assert.equal(check(root).status, 0);
+});
+
+test('the must-not line comes from the dependency-cruiser rules', () => {
+  const root = repo();
+  write(root, new Map([['.dependency-cruiser.cjs', 'const FOLDERS = "areas|kit|commands|domain";\nmodule.exports = [\n    only("areas", ["^kit/", "^commands/client\\\\.ts$"]),\n    only("domain", []),\n    externals("domain", ["zod", "ts-fsrs"]),\n];\n']]));
+  const out = generate(root);
+  assert.match(out.get('areas/README.md')!, /\nMust not import \(§drift\.imports\): commands except commands\/client\.ts, domain\n<!-- generated:end -->/);
 });
