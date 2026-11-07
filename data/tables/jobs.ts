@@ -6,6 +6,7 @@ import {
   parseStoredPlanBody,
 } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
+import { reportBad } from "./core.ts";
 import type { TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
 
@@ -39,6 +40,22 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
       },
     },
     settings: {
+      /** Every stored setting as key to number; a row that does not parse is reported through `onBad` and left out. */
+      readNumbers: async (): Promise<Map<string, number>> => {
+        const { results } = await db
+          .prepare("SELECT key, value, at, v FROM settings")
+          .all<Record<string, unknown>>();
+        const out = new Map<string, number>();
+        for (const r of results) {
+          try {
+            const s = parseSettingRow(r);
+            out.set(s.key, s.value);
+          } catch (e) {
+            reportBad(opts, "settings", String(r.key ?? "?"), e);
+          }
+        }
+        return out;
+      },
       /** Saves each named number, replacing earlier ones. */
       putNumbers: async (values: Record<string, number>): Promise<void> => {
         const at = opts.clock();
