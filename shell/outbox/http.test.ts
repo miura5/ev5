@@ -98,17 +98,6 @@ test("list reads dates, sets and weak spots from their row routes", async () => 
   await expect(no.list("exams")).rejects.toMatchObject({ status: 401 });
 });
 
-test("list keeps /docs for a collection with no row route", async () => {
-  const ok = docsHttp(
-    () => "t",
-    async (url) => (
-      expect(url).toBe("/api/v1/docs?collection=other"),
-      reply(200, { docs: [{ id: "a", v: 1 }] })
-    ),
-  );
-  expect(await ok.list("other")).toEqual([{ id: "a", v: 1 }]);
-});
-
 test("a note command answers with the version it wrote", async () => {
   const seen: string[] = [];
   vi.stubGlobal("fetch", async (url: string) => (

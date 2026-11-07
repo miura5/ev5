@@ -21,7 +21,6 @@ export function storedToken(): string {
   return readToken(); // falls back to this visit's token when storage is blocked
 }
 
-const q = (o: Record<string, string>) => new URLSearchParams(o).toString();
 const json = async (r: Response): Promise<Record<string, unknown>> => {
   try {
     return (await r.json()) as Record<string, unknown>;
@@ -41,15 +40,6 @@ export function docsHttp(
   token: () => string = storedToken,
   doFetch: Fetch = (u, i) => fetch(u, i),
 ) {
-  const call = (path: string, init: RequestInit = {}) =>
-    doFetch(`/api/v1/docs${path}`, {
-      ...init,
-      headers: {
-        ...(init.body ? { "content-type": "application/json" } : {}),
-        authorization: `Bearer ${token()}`,
-      },
-    });
-
   const transport: Transport = {
     async command(name, input): Promise<PutAnswer> {
       const r = await runCommand(name as CommandName, input, token());
@@ -67,13 +57,6 @@ export function docsHttp(
       return { status: 200, version: row.v, data: noteDocOf(row) };
     },
   };
-
-  /** The older /docs read; the one collection left on it is any this page has no row route for. */
-  async function listCollection(c: string): Promise<DocRow[]> {
-    const r = await call(`?${q({ collection: c })}`);
-    if (!r.ok) throw new ApiError(r.status);
-    return ((await json(r)).docs ?? []) as DocRow[];
-  }
 
   /** Dates, sets and weak spots from their row routes; the palette needs a title (a weak spot's topic) and the id. */
   async function listRows(path: string): Promise<DocRow[]> {
@@ -106,13 +89,13 @@ export function docsHttp(
     });
   }
 
-  /** Every document of a collection: from its row route, else /docs. */
+  /** Every document of a collection, from its row route; a collection with none has no rows. */
   const list = (c: string): Promise<DocRow[]> =>
     c === "notes"
       ? listNotes()
       : ROW_ROUTES[c]
         ? listRows(ROW_ROUTES[c])
-        : listCollection(c);
+        : Promise.resolve([]);
 
   return { transport, list };
 }
