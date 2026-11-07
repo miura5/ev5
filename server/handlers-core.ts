@@ -21,7 +21,7 @@ export interface HandlerCtx {
   /** Asks E.V. one question on the same path as POST /ask; the route supplies it from the Worker's bindings. */
   /** The Workflows binding, for commands that start a job. */
   jobs?: { create(o: { id: string; params: unknown }): Promise<unknown> };
-  ask?: (text: string) => Promise<unknown>;
+  ask?: (text: string, chatId?: string) => Promise<unknown>;
   /** Grades a typed open answer (reserves the ceilings, then asks the model); the route supplies it. */
   grade?: (i: {
     question: string;
