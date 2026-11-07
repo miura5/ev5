@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc, WireJob } from "./map.ts";
 import type {
+  AttemptRow,
   GoalRow,
   LinkRow,
+  SetItemRow,
   WeakSpotEventRow,
   WeakSpotTableRow,
 } from "../../domain/index.ts";
@@ -113,6 +115,9 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
           (): WeakSpotEventRow[] => [],
         ),
         rows<LinkRow>("links", token, c).catch((): LinkRow[] => []),
+        // Answers and the items they were aimed at give a spot its misses and streak; unreadable, a spot reads as unanswered.
+        rows<AttemptRow>("attempts", token, c).catch((): AttemptRow[] => []),
+        rows<SetItemRow>("items", token, c).catch((): SetItemRow[] => []),
         list("sets", token, c),
         list("answers", token, c),
         // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
@@ -136,6 +141,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
           weakspots,
           weakSpotEvents,
           links,
+          attempts,
+          items,
           sets,
           answers,
           plans,
@@ -149,6 +156,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
               weakspots,
               weakSpotEvents,
               links,
+              attempts,
+              items,
               sets,
               answers,
               plans,

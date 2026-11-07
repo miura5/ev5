@@ -92,7 +92,9 @@ test("a good read refreshes the copy", async () => {
   expect(Object.keys(copy.kept).sort()).toEqual([
     "jobs",
     "library:answers",
+    "library:attempts",
     "library:goals",
+    "library:items",
     "library:links",
     "library:plan_items",
     "library:plans",
