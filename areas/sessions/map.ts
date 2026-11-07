@@ -1,12 +1,12 @@
-import type { WireDoc } from "../../domain/index.ts";
-
-export type { WireDoc };
 import {
   centralDate,
   parseSession,
   plainDay,
+  sessionDoc,
+  sessionDocId,
   sessionState,
 } from "../../domain/index.ts";
+import type { SessionEventRow, SessionTableRow } from "../../domain/index.ts";
 
 type SessionDoc = ReturnType<typeof parseSession> & { id: string };
 
@@ -14,8 +14,6 @@ type SessionDoc = ReturnType<typeof parseSession> & { id: string };
 export interface SessionData {
   id: string;
   v?: number;
-  /** The document as stored, so a write sends back every field it was read with. */
-  raw: Record<string, unknown>;
   /** The note it reads along with, when it names one. */
   noteId?: string;
   title: string;
@@ -27,20 +25,23 @@ export interface SessionData {
   ended: boolean;
 }
 
-type Parsed = SessionDoc & { v?: number; raw: Record<string, unknown> };
+type Parsed = SessionDoc & { v?: number };
 
-function tryParse(d: WireDoc): Parsed[] {
+/** One `sessions` row with its `session_events` rows, read as the session shape the clock uses. */
+function tryParse(
+  row: SessionTableRow,
+  events: readonly SessionEventRow[],
+): Parsed[] {
   try {
     return [
       {
-        ...parseSession(d.data),
-        id: d.id,
-        v: d.v,
-        raw: d.data as Record<string, unknown>,
+        ...parseSession(sessionDoc(row, [...events])),
+        id: sessionDocId(row.id),
+        v: row.v,
       },
     ];
   } catch {
-    return []; // a document outside the schema is left out, never an error
+    return []; // a row outside the schema is left out, never an error
   }
 }
 
@@ -59,10 +60,16 @@ const startMs = (s: Parsed): number => Date.parse(startOf(s) ?? "") || 0;
 
 /** Picks the latest running session by start and maps it; none running (only ended ones, or none) gives undefined (the empty state). */
 export function mapSessions(
-  docs: readonly WireDoc[],
+  rows: readonly SessionTableRow[],
+  events: readonly SessionEventRow[],
   now: number,
 ): SessionData | undefined {
-  const all = docs.flatMap(tryParse);
+  const all = rows.flatMap((row) =>
+    tryParse(
+      row,
+      events.filter((e) => e.session_id === row.id),
+    ),
+  );
   // Only a running session is shown: an ended one would draw a stopped clock under live Pause and End controls.
   const pool = all.filter((s) => (s.status ?? "active") === "active");
   const pick = pool.sort(
@@ -76,7 +83,6 @@ export function mapSessions(
   return {
     id: pick.id,
     v: pick.v,
-    raw: pick.raw,
     noteId: pick.noteId || undefined,
     title: pick.topic ?? "Session",
     meta: pick.date ? plainDay(pick.date, centralDate(now)) : "",

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { sessionRowsBody } from "./sessionRows.testkit.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { SessionsScreen } from "./Sessions.screen.tsx";
 
@@ -60,7 +61,7 @@ function stub(first?: { type: string; runs: { text: string }[] }) {
               data: { ...note.data, blocks: [first, ...note.data.blocks] },
             }
           : note
-        : { docs: [session] };
+        : sessionRowsBody(url, [session]);
       return { ok: true, status: 200, json: async () => json };
     }),
   );

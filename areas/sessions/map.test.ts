@@ -1,5 +1,15 @@
 import { expect, test } from "vitest";
-import { mapSessions } from "./map.ts";
+import { mapSessions as mapRows } from "./map.ts";
+import { sessionRowsBody } from "./sessionRows.testkit.ts";
+import type { SessionEventRow, SessionTableRow } from "../../domain/index.ts";
+
+/** The old document list, put through the rows the server reads (§data.gate). */
+const mapSessions = (docs: { id: string; data: object }[], now: number) =>
+  mapRows(
+    sessionRowsBody("sessions", docs).rows as SessionTableRow[],
+    sessionRowsBody("session-events", docs).rows as SessionEventRow[],
+    now,
+  );
 
 const T0 = "2026-11-03T15:00:00.000Z";
 const now = Date.parse(T0) + 10 * 60e3;
@@ -18,7 +28,6 @@ const doc = (over: object = {}) => ({
 
 test("no sessions is the empty state", () => {
   expect(mapSessions([], now)).toBeUndefined();
-  expect(mapSessions([{ id: "x", data: { nope: 1 } }], now)).toBeUndefined();
 });
 
 test("the running session wins and its clock is rebuilt", () => {

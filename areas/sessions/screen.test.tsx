@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { sessionRowsBody } from "./sessionRows.testkit.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { SessionsScreen } from "./Sessions.screen.tsx";
 
@@ -69,7 +70,9 @@ function stub() {
       puts.push(c);
       return ok({ mode: "direct", result: {} });
     }
-    const json = url.includes("collection=notes") ? note : { docs: [session] };
+    const json = url.includes("collection=notes")
+      ? note
+      : sessionRowsBody(url, [session]);
     return { ok: true, status: 200, json: async () => json };
   });
   vi.stubGlobal("fetch", fetchMock);
@@ -111,7 +114,7 @@ test("the timer counts up each second while running and holds while paused", asy
       }
       const json = url.includes("collection=notes")
         ? note
-        : { docs: [{ ...session, data: stored }] };
+        : sessionRowsBody(url, [{ ...session, data: stored }]);
       return { ok: true, status: 200, json: async () => json };
     }),
   );
@@ -183,7 +186,7 @@ function stateful(startedAt: string) {
       }
       const json = url.includes("collection=notes")
         ? note
-        : { docs: [{ ...session, v, data: stored }] };
+        : sessionRowsBody(url, [{ ...session, v, data: stored }]);
       return ok(json);
     }),
   );
@@ -218,7 +221,7 @@ test("with no active session there is no session bar, Pause or End", async () =>
     vi.fn(async () => ({
       ok: true,
       status: 200,
-      json: async () => ({ docs: [] }),
+      json: async () => ({ rows: [] }),
     })),
   );
   render(<SessionsScreen />);
