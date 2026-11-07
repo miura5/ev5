@@ -109,7 +109,7 @@ const open = (o: object = {}) =>
       },
     ],
     modelAnswer: 'Excess volume raises capillary hydrostatic pressure, so fluid moves into the alveoli.',
-    sourceRef: 'note/n1#FVE: extra volume pushes fluid into the lungs',
+    sourceRef: 'note_n1',
     objective: 'E4-3',
     topic: 'Crackles in fluid volume excess',
     ...o,
@@ -128,6 +128,7 @@ test('the open check function: a valid item passes; each break is refused; a roo
     'no keyword groups': { keyPoints: [{ text: 'Pressure rises', keywords: [] }, open().keyPoints?.[1]] },
     'no model answer': { modelAnswer: '' },
     'no sourceRef': { sourceRef: '' },
+    'the old note/n1# form': { sourceRef: 'note/n1#FVE: extra volume' },
     options: { options: ['a', 'b'], correct: [0] },
   };
   for (const [why, o] of Object.entries(bad)) expect(validateItem(open(o)).ok, why).toBe(false);
