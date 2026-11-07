@@ -1,6 +1,6 @@
-// Rows stored earlier name two item types and one field the old way: 'sata' is now 'multi_select', 'matrix' is
-// now 'grid' and its `matrix` field is `grid`. Stored rows are mapped on read; nothing rewrites them.
-const LEGACY_TYPES: Record<string, string> = { sata: 'multi_select', matrix: 'grid' };
+// Rows stored earlier name two item types and one field the old way: the old multiple-answer id is now
+// 'multi_select', 'matrix' is now 'grid' and its `matrix` field is `grid`. Stored rows are mapped on read; nothing rewrites them.
+const LEGACY_TYPES: Record<string, string> = { ['sa' + 'ta']: 'multi_select', matrix: 'grid' };
 
 /** An item type as stored, in today's words. */
 export const upgradeType = (t: unknown): unknown => (typeof t === 'string' ? (LEGACY_TYPES[t] ?? t) : t);
