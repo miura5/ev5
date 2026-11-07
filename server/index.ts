@@ -56,11 +56,24 @@ app.get("/api/health", async (c) => {
 });
 
 // A write the data gate refused (§data.gate) is the caller's mistake, never a crash: 422 with the plain reason.
-app.onError((e, c) =>
-  e instanceof WriteRefused
-    ? c.json({ error: "refused", message: e.message }, 422)
-    : c.text("Internal Server Error", 500),
-);
+// Anything else is a crash: log it under a request id and give the caller the same id so the log line can be found.
+// The line carries the error's name and where it was thrown, never its message (a message can hold row text or a secret).
+function errorLine(e: unknown, requestId: string, path: string) {
+  const err = e instanceof Error ? e : new Error("non-error thrown");
+  const frames = (err.stack ?? "")
+    .split("\n")
+    .filter((l) => /^\s+at /.test(l))
+    .slice(0, 5)
+    .map((l) => l.trim());
+  return { event: "server_error", requestId, path, name: err.name, frames };
+}
+app.onError((e, c) => {
+  if (e instanceof WriteRefused)
+    return c.json({ error: "refused", message: e.message }, 422);
+  const requestId = crypto.randomUUID();
+  console.error(JSON.stringify(errorLine(e, requestId, c.req.path)));
+  return c.json({ error: "internal", requestId }, 500);
+});
 
 // v5 routes live under /api/v1 behind a scoped bearer token; commands plug in here as handlers.
 app.use("/api/v1/*", bearerAuth());

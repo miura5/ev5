@@ -90,6 +90,7 @@ docRoutes.get("/docs", async (c) => {
           .filter(
             (d) =>
               d.c !== NOTES &&
+              d.c !== SESSIONS &&
               d.c !== WEAK_SPOTS &&
               d.c !== "plans" &&
               d.c !== PLAN_ITEMS,
