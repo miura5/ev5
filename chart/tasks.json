@@ -4255,7 +4255,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: NonRetryableError from cloudflare:workflows (jobs/runtime/non-retryable.ts) in both jobs; getFailure/putFailure gone from the plan store (#829). Left: PracticeStore still declares putFailure/getFailure, and server/job-run.ts d1PracticeStore and server/prompt-words.test.ts must drop them; one staging run of a failing job.",
+  "notes": "Run 2026-11-07 1505Z: putFailure/getFailure gone from PracticeStore, d1PracticeStore and fakes (#831). Left: one staging run of a job that fails this way.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4338,7 +4338,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write shell/, vite.config.ts; read none. Two earlier fixes for the stale build were never seen working by eye; ev4 had the same class of bug. Four-app research 2026-11-06 (D-521): shell/pwa.ts reloads on worker takeover, which can reset a study run. Hold the reload until no attempt is open; added to the done bar.",
+  "notes": "Run 2026-11-07 1505Z (#840): shell/pwa.ts uses registerSW with focus check and a reload hold (createReloadHold). Left: nothing calls hold() yet, so wire it via shell/services.ts and the Study view while a run is open (areas/library); and the staging check by eye (index-*.js matches / with no hard reload).",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4360,10 +4360,10 @@
   "title": "Ask E.V. checks its message length in one place",
   "dod": "ask.send's Zod input holds the 1 to 2000 character limit, and the hand-written check in server/ask-chat.ts is deleted; a test sends 0, 2000 and 2001 characters",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write commands/, server/; read none. Interface: commands.",
-  "commit": null,
+  "notes": "Done 2026-11-07 1505Z (#839): length rule lives in ask.send's Zod input; ask-chat check deleted; test at 0, 2000, 2001.",
+  "commit": "5cd12ff",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4372,10 +4372,10 @@
   "title": "Four custom checks become ESLint rules",
   "dod": "controls, server-writes, registry and radix are no-restricted-syntax rules in eslint.config.js, each scoped by files; their ops/checks files and unit tests are deleted; the registry check's cron pattern, which can never match wrangler.jsonc, is dropped; each guard fixture in ops/guards still goes red; precheck green",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write eslint.config.js, ops/checks/, ops/guards/; read none. ESLint reads the syntax tree, so strings and comments can't fool it.",
-  "commit": null,
+  "notes": "Done 2026-11-07 1505Z (#842): controls, serverwrites, registry, radix are ESLint rules with guard fixtures.",
+  "commit": "a09d26c",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4490,7 +4490,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1358Z: server tests off /docs (#823, #824, #825); doc-routes.test.ts deleted-or-left check next. Left of (a): the doc and put helpers and the docs table in server/matt-handlers-setup.test.ts (grep for users first), doc-routes.test.ts. Then (b) to (d) as listed.",
+  "notes": "Run 2026-11-07 1505Z: (a) done (#833); (b) done (#841): docswrites/docskinds checks, /api/health docs count, export docs dump gone, gate4-e2e uses /goals. Left: (c) delete server/doc-routes.ts (still mounted in server/index.ts, still says exams) and data/docs; (d) squash incl. was_due, staging rebuild, rerun drill. Until (c), /docs PUTs are not in the nightly export.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4828,7 +4828,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "FIX NEXT, Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). H1: data/tables/drafts.ts markRow (sets, goals, sessions, #809 to #811) and markNote soft-delete with two writes (UPDATE deleted_at, then INSERT deletions), and restore clears the deletions row first and the row after: if the second write fails, the item is hidden with no Recently deleted entry and a retry finds nothing to change. Put both statements of each in one db.batch, as settle in the same file does (§data.protocol, §delete.soft). F13 (same code): item.restore restores the row and still answers 404 when the deletions row is missing (server/command-handlers.ts). H2: collection pages show every note member and pinned note as Untitled: GET /notes gives note_ row ids, but server/collection-routes.ts sends note memberships as bare ids (substr(id, 6)), so the lookup in areas/collection/useCollection.ts and map.ts (mapCollection, mapPins) never matches; the tests mock /notes with bare ids, so they pass. Match on the row id and make the mock return row ids. H3 (attempts part): server/plan-home.ts attemptsBySpot is raw SQL (attempts JOIN set_items) outside data/ (§data.gate); read through tablesRepo().attempts. The settings part is on B-955. Same drift, fix here: F5 old kind names stored as keys in new writes (markGoal under exams in drafts.ts, collectionOf in server/command-handlers.ts, ROW_ROUTES in shell/outbox/http.ts, GOAL_KINDS in shell/usePins.ts, ROUTES in areas/collection/useCollection.ts): key goals as goals everywhere before live data exists (D-499, D-515 one source of kind names). F12: areas/deleted/map.ts TYPES and KINDS have no sessions or sets entry and key dates as goals while deletions say exams, so these show as Item or with the note icon; add a test. F9: notes are read two ways with two id forms (shell/outbox/http.ts builds bare-id documents, areas/sessions uses row ids): use the note_ row id end to end; this also ends H2. F8: three row-read helpers (rows() in areas/library/useLibrary.ts, rowsOf() in areas/today/useToday.ts, listRows() in shell/outbox/http.ts with a raw fetch that skips the 401 sign-out of api()) and three cache keys for the same routes: use readJson from commands/client.ts. F6: the weak-spot rule (correct at score >= 0.5) still has two copies after #813 moved Today onto domain/answers gradedBySpot: areas/library/weakSpots.ts and the plan-home SQL; both use gradedBySpot (§cmd.code-first), shared with B-1044. (F7, two copies of the answers adapter, is fixed by #813.) Run 2026-11-07 1030Z: Gate 5 journeys follow rows and commands (#791, #792); gate5-e2e green on staging. Claim freed. Run 2026-11-07 1217Z: shared attempts adapter answersOf/gradedBySpot in domain/answers; the three areas' attempts.ts are gone (#813). Claim freed.",
+  "notes": "Run 2026-11-07 1505Z done: H1 and F13 (#834), H2 titles via rowOf and F5 client goals key and F8 shell/outbox readJson (#835), H3 plan-home attempts via tablesRepo and F6 weak-spot rule via gradedBySpot (#836), F12 deleted kinds and F8 library/today readJson (#837), F5 server goals key (#838). Left: F9, one note id form end to end (notes area, note.save, session.start, item.pin, pins, deletions and server/collection-routes.ts all key notes by bare id today; do as one cross-folder change), then the old doc-row shapes, row routes for item versions and session events.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
@@ -5011,7 +5011,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). F14: docs/guards.md has no rows for the checks added in #740, #750, #776, #780 and #784 (account, compatimport, docswrites, ev4word, handover, lib, migrationnames, migrationshape, planjob, restorekind, serverwrites, subjectwords, unusedexports), still shows the old chart-ev4 output and the old knip folder count (#743): bring it up to date. F17: TO_REWORD in ops/checks/ev4word.ts is a second allow list beside check 6's cutover list. Reword each file it names and delete its line; only the file-name lines (server/index.ts, vite.config.ts, migrationnames.ts, run 1150Z) stay until cutover, then the list goes. Run 2026-11-07 0900Z: checks 1, 6, 8, 9 (#776), 7 (#780) on main; 3, 4, 5 first parts already on main. Left: 2 (after docs removal); 3 columns-equal-row-shape and deleted_at for deletable tables; 4 short allow-list of test-only exports. Run 2026-11-07 0930Z: check 3 deleted_at for deletable tables and check 4 stale allow-list entry (#784). Left: check 2 after the docs removal. Claim freed.",
+  "notes": "Run 2026-11-07 1505Z (#832): F14 guards.md rows and F17 TO_REWORD done (only server/index.ts, vite.config.ts, migrationnames.ts lines remain until cutover). Left: check 2 after the docs removal. Claim freed.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
