@@ -24,6 +24,8 @@ export interface SessionsState {
   toggleTodo: (index: number) => Promise<void>;
   /** Runs one session command on the session shown (the server appends the event), then reads again. False if it failed. */
   send: (name: SessionAct) => Promise<boolean>;
+  /** Sends the typed answer to the open check (check.answer) under a fresh client-made att_ id; a refusal is told in `error`. */
+  answer: (text: string) => Promise<boolean>;
 }
 
 /** The commands the screen sends for the session it shows. */
@@ -107,17 +109,19 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
   // Commands go one at a time, so a quick Pause then End lands in order.
   const queue = useRef<Promise<unknown>>(Promise.resolve());
   const act = useCallback(
-    (name: SessionAct): Promise<boolean> => {
+    (name: SessionAct | "check.answer", extra?: object): Promise<boolean> => {
       const run = async (): Promise<boolean> => {
         if (!data) return false;
-        const r = await call(name, { id: data.id }, token);
+        const r = await call(name, { id: data.id, ...extra }, token);
         if (!r.ok || r.mode !== "direct") {
           setRefused(r.ok ? false : r.status === 401);
           setError(
             r.ok
               ? "That could not be saved."
               : r.status === 409
-                ? "The session changed elsewhere; reloaded."
+                ? name === "check.answer"
+                  ? "That answer was already sent."
+                  : "The session changed elsewhere; reloaded."
                 : r.reason,
           );
           setTick((n) => n + 1);
@@ -131,6 +135,14 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
       return next;
     },
     [data, token],
+  );
+  const answer = useCallback(
+    (text: string) =>
+      act("check.answer", {
+        answer: text,
+        attempt: `att_${crypto.randomUUID().replace(/-/g, "")}`,
+      }),
+    [act],
   );
   const toggleTodo = useCallback(
     async (index: number) => {
@@ -174,5 +186,5 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     },
     [noteRaw, noteId, token],
   );
-  return { data, token, refused, error, note, toggleTodo, send: act };
+  return { data, token, refused, error, note, toggleTodo, send: act, answer };
 }
