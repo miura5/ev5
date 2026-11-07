@@ -185,3 +185,10 @@ export const jobApi = {
     readJson<unknown>(`jobs/${encodeURIComponent(id)}`, token, `job:${id}`, copy),
   answer: (id: string, answer: unknown, token: string) => api(`jobs/${encodeURIComponent(id)}/continue`, token, { body: { answer } }),
 };
+
+/** Note pictures (CONTRACT §data.note-images): raw bytes cannot ride a JSON command, so the one write is this door. */
+export const pictureApi = {
+  /** Store one picture under its note-images/ key; the Worker writes the bytes and their files row, never overwriting. */
+  put: (key: string, file: Blob, token: string) =>
+    api(key, token, { method: "PUT", raw: { data: file, contentType: file.type } }),
+};

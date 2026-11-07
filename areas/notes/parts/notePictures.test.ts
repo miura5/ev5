@@ -41,7 +41,7 @@ test("api still sends JSON for body and GET for neither", async () => {
   expect(calls[1]!.init.body).toBe(undefined);
 });
 
-test("uploadPicture puts the file through api() under a key domain accepts", async () => {
+test("uploadPicture puts the file through pictureApi under a key domain accepts", async () => {
   const calls = stub(200);
   const r = await uploadPicture(png());
   expect(r.ok).toBe(true);
