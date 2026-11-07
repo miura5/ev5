@@ -4604,13 +4604,15 @@
   "title": "Model output uses the SDK's Zod helper",
   "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/runtime",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997"
   ],
   "notes": "Run 2026-11-07 1358Z: practice-set call and prep-plan draft skip the model when the result is already kept (#822); d1PracticeStore.find in server/job-run.ts (#825). zodOutputFormat already in use, no strip(). Gap: a throw from the first store put that never lands still pays for the model again; needs a runtime decision.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-20261107T1631Z",
+  "claimedAt": "2026-11-07T16:48:08.593Z"
  },
  {
   "id": "B-1006",
