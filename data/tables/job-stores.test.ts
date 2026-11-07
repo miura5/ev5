@@ -109,7 +109,7 @@ test("settings: putNumbers saves each name, replaces earlier values, refuses a b
   await repo.settings.putNumbers({ hourly: 5, daily: 9 });
   await repo.settings.putNumbers({ hourly: 7 });
   const rows = sql
-    .prepare("SELECT key, value FROM claude_settings ORDER BY key")
+    .prepare("SELECT key, value FROM settings ORDER BY key")
     .all();
   assert.deepEqual(
     rows.map((r) => [r.key, r.value]),

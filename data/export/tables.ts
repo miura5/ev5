@@ -25,6 +25,7 @@ export const BASE_TABLES: TableSpec[] = [
 
 /** The tables PLAN §5.10 adds. */
 export const NEW_TABLES: TableSpec[] = [
+  t("settings", ["key", "value", "at", "v"], ["key"]),
   t(
     "collections",
     ["id", "title", "parent_id", "pos", "at", "v", "deleted_at"],

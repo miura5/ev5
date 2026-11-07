@@ -19,7 +19,7 @@ function setup(monthly: number) {
     ceiling_monthly: monthly,
     ceiling_per_job: 5e9,
   }))
-    db.prepare("INSERT INTO claude_settings (key, value, at) VALUES (?, ?, 0)")
+    db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
       .bind(k, v)
       .run();
   const held: number[] = [];
