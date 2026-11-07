@@ -69,8 +69,8 @@ commandRoutes.post("/commands/:name", async (c) => {
     clock: () => Date.now(),
     newId: () => crypto.randomUUID(),
     jobs: c.env.JOBS,
-    ask: async (text: string) => {
-      const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text);
+    ask: async (text: string, chatId?: string) => {
+      const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text, chatId);
       if (!r.ok) throw new CommandError(r.status, r.reason);
       return { reply: r.reply, costCents: r.costCents };
     },

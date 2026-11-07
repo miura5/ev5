@@ -102,3 +102,13 @@ test("ask.send answers 429 when a ceiling is hit, like /api/v1/ask", async () =>
     429,
   );
 });
+
+test("ask.send passes chat_id to the ask path", async () => {
+  const { post } = setup(1_000_000_000);
+  const res = await post("/api/v1/commands/ask.send", {
+    input: { text: "what is bradycardia?", chat_id: "chat_abc" },
+  });
+  assert.equal(res.status, 200);
+  const body = (await res.json()) as { result: { reply: { chatId?: string } } };
+  assert.equal(body.result.reply.chatId, "chat_abc");
+});
