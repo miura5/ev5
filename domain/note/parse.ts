@@ -1,7 +1,7 @@
 import { docBytes } from './size.ts';
 import { MAX, noteSchema, type Note } from './types.ts';
 
-/** Validates a note document against the frozen ev4 schema 1; throws otherwise. */
+/** Validates a note document against the frozen legacy schema 1; throws otherwise. */
 export function parseNote(raw: unknown): Note {
   return noteSchema.parse(raw);
 }

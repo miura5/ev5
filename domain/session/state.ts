@@ -237,7 +237,7 @@ function initial(s: SessionDoc | null, t0: number, step: number): { st: SessionS
 }
 
 /**
- * Rebuilds a session's clock and counts from its events (ev4's sessionState). A check is a quiz (counted), a comment or
+ * Rebuilds a session's clock and counts from its events (the legacy sessionState). A check is a quiz (counted), a comment or
  * a quiet checkpoint; all three move the note's mark. A timed session runs `planned` minutes and +5 adds to it. A
  * session with clock 'writing' counts only the time he spends writing: a pause event stops the clock and holds the
  * check clock as a break does, a write event starts both again, and it wraps only after writingWrapMinutes paused.

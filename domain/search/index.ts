@@ -3,7 +3,7 @@ import { tokenize } from './tokens.ts';
 export { chunkMaterials, type Material, type Passage } from './chunk.ts';
 export { likePatterns } from './tokens.ts';
 
-// Passage scoring, ported from ev4 core/library.mjs (libraryIndex, searchLibrary): BM25, a small title bonus, a
+// Passage scoring, ported from the legacy library code (libraryIndex, searchLibrary): BM25, a small title bonus, a
 // bonus for adjacent query words, a reward for covering more of the query, at most two passages per file.
 // §data.search: no FTS5; a SQL `LIKE` (likePatterns) narrows the candidates and this ranks them. Pure, no IO.
 type Doc = {

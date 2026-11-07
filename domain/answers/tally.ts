@@ -1,4 +1,4 @@
-// domain/answers: what Matt's recorded answers (ev4 schema 2) say: due counts and the first-try accuracy line.
+// domain/answers: what Matt's recorded answers (legacy schema 2) say: due counts and the first-try accuracy line.
 /** One stored document, as the wire carries it (restated: domain imports nothing outside its folder). */
 interface AnswerDoc {
   id: string;
@@ -21,7 +21,7 @@ interface Try {
   rating?: "again" | "good";
 }
 
-/** Every attempt in the `answers` documents (ev4 schema 2), by set then item; anything malformed is skipped. */
+/** Every attempt in the `answers` documents (legacy schema 2), by set then item; anything malformed is skipped. */
 function attemptsByItem(
   docs: readonly AnswerDoc[],
 ): Map<string, Map<string, Try[]>> {

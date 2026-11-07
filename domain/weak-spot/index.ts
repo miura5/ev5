@@ -119,7 +119,7 @@ const wrong = (date: string) => ({
   lastResult: 'wrong',
 });
 
-/** Rebuilds a weak spot's state from its facts, events and answers (ev4's spaced-review rules, including the pre-read rule). */
+/** Rebuilds a weak spot's state from its facts, events and answers (the legacy spaced-review rules, including the pre-read rule). */
 export function deriveWeakSpot(f: WeakSpot, attempts: Attempt[], opts: DeriveOpts = {}): Derived {
   const R = opts.rules ?? REVIEW_RULES;
   const st: Derived = {

@@ -8,13 +8,13 @@ const version = z.number().int().min(1);
 // and append-only own_attempts(set_id, item_id, key, at, body JSON). Only question sets now; cards and steps come later.
 export const OWN_SET_TYPES = ['question'] as const;
 
-/** A copy names its ev4 source (both fields) and a hand-typed set names neither. */
+/** A copy names its legacy source (both fields) and a hand-typed set names neither. */
 export const ownSetSchema = z
   .strictObject({
     id: text,
     title: text,
     type: z.enum(OWN_SET_TYPES),
-    /** The ev4 collection and id this set was copied from on first edit, or null when typed by hand. */
+    /** The legacy collection and id this set was copied from on first edit, or null when typed by hand. */
     sourceC: text.nullable(),
     sourceId: text.nullable(),
     at: text,
@@ -23,7 +23,7 @@ export const ownSetSchema = z
   .refine((o) => (o.sourceC === null) === (o.sourceId === null), 'sourceC and sourceId go together');
 export type OwnSet = z.infer<typeof ownSetSchema>;
 
-/** One item in an own set; the body is an ev4 set item (sets schema 3), so scoring and checks are shared. */
+/** One item in an own set; the body is a legacy set item (sets schema 3), so scoring and checks are shared. */
 export const ownSetItemSchema = z.strictObject({
   setId: text,
   itemId: text,
@@ -56,5 +56,5 @@ export const ownAttemptSchema = z.strictObject({
 });
 export type OwnAttempt = z.infer<typeof ownAttemptSchema>;
 
-/** The ev4 set left untouched and hidden once its copy exists. */
+/** The legacy set left untouched and hidden once its copy exists. */
 export type HiddenOriginal = { c: 'sets'; id: string };
