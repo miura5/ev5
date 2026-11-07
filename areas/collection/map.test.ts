@@ -43,7 +43,7 @@ test("an id opens that collection, with its parent id for Back", () => {
 test("members show the item's title and date, falling back to Untitled", () => {
   const nov3 = Date.UTC(2026, 10, 3, 18);
   const d = mapCollection(cs, ms, "a", {
-    notes: [{ id: "note_n1", at: nov3, title: "  Heart sounds " }],
+    notes: [{ id: "n1", at: nov3, title: "  Heart sounds " }],
   })!;
   const byId = Object.fromEntries(d.items.map((e) => [e.id, e]));
   expect(byId.n1).toMatchObject({
@@ -62,7 +62,7 @@ test("pins keep the server order and are named from docs, else Untitled", () => 
       { collection: "notes", id: "n1", pos: 0, at: 2 },
       { collection: "cards", id: "k1", pos: 1, at: 1 },
     ],
-    { notes: [{ id: "note_n1", title: "Heart" }] },
+    { notes: [{ id: "n1", title: "Heart" }] },
   );
   expect(e.map((x) => [x.title, x.type])).toEqual([
     ["Heart", "note"],

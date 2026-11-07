@@ -26,7 +26,7 @@ const session = {
     source: "E.V. Home",
     date: "2026-11-04",
     topic: "Energy budget",
-    noteId: "n1",
+    noteId: "note_n1",
     status: "active",
     startedAt: new Date(Date.now() - 60_000).toISOString(),
   },
@@ -71,7 +71,7 @@ function stub() {
       return ok({ mode: "direct", result: {} });
     }
     const json = url.includes("/notes/")
-      ? noteRowBody("n1", note)
+      ? noteRowBody("note_n1", note)
       : sessionRowsBody(url, [session]);
     return { ok: true, status: 200, json: async () => json };
   });
@@ -113,7 +113,7 @@ test("the timer counts up each second while running and holds while paused", asy
         return ok({ mode: "direct", result: {} });
       }
       const json = url.includes("/notes/")
-        ? noteRowBody("n1", note)
+        ? noteRowBody("note_n1", note)
         : sessionRowsBody(url, [{ ...session, data: stored }]);
       return { ok: true, status: 200, json: async () => json };
     }),
@@ -185,7 +185,7 @@ function stateful(startedAt: string) {
         return ok({ mode: "direct", result: {} });
       }
       const json = url.includes("/notes/")
-        ? noteRowBody("n1", note)
+        ? noteRowBody("note_n1", note)
         : sessionRowsBody(url, [{ ...session, v, data: stored }]);
       return ok(json);
     }),

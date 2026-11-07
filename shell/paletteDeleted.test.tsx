@@ -10,7 +10,7 @@ const areas = [
 
 test("a note in Recently deleted is not offered by ⌘K, and is again once restored", async () => {
   localStorage.setItem("ev5.token", "t");
-  let deletions: unknown[] = [{ collection: "notes", id: "n-1", at: 3 }];
+  let deletions: unknown[] = [{ collection: "notes", id: "note_1", at: 3 }];
   vi.stubGlobal(
     "fetch",
     vi.fn(
@@ -18,7 +18,7 @@ test("a note in Recently deleted is not offered by ⌘K, and is again once resto
     ),
   );
   const rows = {
-    notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
+    notes: [{ id: "note_1", v: 1, at: 1, data: { title: "Heart failure" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
   const services = {
     rows: { list: async (c: string) => rows[c] ?? [] },

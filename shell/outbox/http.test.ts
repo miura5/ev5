@@ -5,7 +5,7 @@ import { docsHttp } from "./http.ts";
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status });
 
-test("get reads the note row by its row id and returns the version and the note, or only the status", async () => {
+test("get reads the note row by its id and returns the version and the note, or only the status", async () => {
   const seen: { url: string; init?: RequestInit }[] = [];
   const row = {
     id: "note_n",
@@ -22,7 +22,7 @@ test("get reads the note row by its row id and returns the version and the note,
     () => "t",
     async (url, init) => (seen.push({ url, init }), reply(200, row)),
   );
-  const got = await ok.transport.get("n");
+  const got = await ok.transport.get("note_n");
   expect(seen[0]?.url).toBe("/api/v1/notes/note_n");
   expect((seen[0]?.init?.headers as Record<string, string>).authorization).toBe("Bearer t");
   expect(got.status).toBe(200);
@@ -32,14 +32,14 @@ test("get reads the note row by its row id and returns the version and the note,
     () => "t",
     async () => reply(404, { error: "not found" }),
   );
-  expect(await gone.transport.get("n")).toEqual({ status: 404 });
+  expect(await gone.transport.get("note_n")).toEqual({ status: 404 });
   const off = docsHttp(
     () => "t",
     async () => {
       throw new TypeError("offline");
     },
   );
-  await expect(off.transport.get("n")).rejects.toThrow();
+  await expect(off.transport.get("note_n")).rejects.toThrow();
 });
 
 const stubFetch = (f: (url: string) => Response) =>
@@ -61,7 +61,7 @@ test("list(notes) reads the note rows as documents, leaves out a bad row; 401 an
   stubFetch((url) => (expect(url).toBe("/api/v1/notes"), reply(200, { rows: [row, { id: "bad" }] })));
   const got = await list("notes");
   expect(got).toHaveLength(1);
-  expect(got[0]).toMatchObject({ id: "n", v: 7, at: 1762182000000 });
+  expect(got[0]).toMatchObject({ id: "note_n", v: 7, at: 1762182000000 });
   expect(got[0]?.data).toMatchObject({ title: "Fluids" });
   stubFetch(() => reply(401, {}));
   await expect(list("notes")).rejects.toMatchObject({ status: 401 });
@@ -96,10 +96,10 @@ test("a note command answers with the version it wrote", async () => {
   const seen: string[] = [];
   vi.stubGlobal("fetch", async (url: string) => (
     seen.push(url),
-    reply(200, { mode: "direct", result: { id: "n-1", version: 5 } })
+    reply(200, { mode: "direct", result: { id: "note_1", version: 5 } })
   ));
   const { transport } = docsHttp(() => "tok");
-  expect(await transport.command("note.save", { id: "n-1" })).toEqual({
+  expect(await transport.command("note.save", { id: "note_1" })).toEqual({
     status: 200,
     version: 5,
   });

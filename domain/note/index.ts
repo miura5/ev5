@@ -19,17 +19,17 @@ export { noteRuns, noteBlocks, splitWide, noteTitleOf, noteBlank } from './block
 export { docBytes, fits, tooBig, editAllowed } from './size.ts';
 export { parseNote, writeProblem } from './parse.ts';
 
-const ID = /^n-\d{8}-\d{6}-[A-Za-z0-9]{8,40}$/;
+const ID = /^note_\d{8}-\d{6}-[A-Za-z0-9]{8,40}$/;
 const EARLIER = ' (earlier)';
 
-/** A new note's id, n-<YYYYMMDD-HHMMSS in UTC>-<random>; the caller supplies at least 12 letters or digits of randomness. */
+/** A new note's id, note_<YYYYMMDD-HHMMSS in UTC>-<random>; the caller supplies at least 12 letters or digits of randomness. */
 export function newNoteId(at: string, random: string): string {
   const t = new Date(at);
   if (Number.isNaN(t.getTime())) throw new Error('newNoteId: no time');
   const tail = random.replace(/[^A-Za-z0-9]/g, '');
   if (tail.length < 12) throw new Error('newNoteId: the random part needs 12 or more letters and digits');
   const iso = t.toISOString();
-  return `n-${iso.slice(0, 10).replace(/-/g, '')}-${iso.slice(11, 19).replace(/:/g, '')}-${tail.slice(0, 40)}`;
+  return `note_${iso.slice(0, 10).replace(/-/g, '')}-${iso.slice(11, 19).replace(/:/g, '')}-${tail.slice(0, 40)}`;
 }
 
 export const noteIdOk = (id: unknown): boolean => ID.test(String(id ?? ''));

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   noteDocOf,
-  noteRowId,
   parseNote,
   parseNoteTableRow,
   type Note,
@@ -103,7 +102,7 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
         // Offline the saved note answers; a 401 or 5xx throws and leaves the page empty (§data.offline).
         // The note row (§data.tables): its document is built from the columns, its `v` pins the save.
         const d = await readJson<unknown>(
-          `notes/${encodeURIComponent(noteRowId(noteId))}`,
+          `notes/${encodeURIComponent(noteId)}`,
           token,
           `sessions:note:${noteId}`,
           copy,

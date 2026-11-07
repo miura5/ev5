@@ -107,7 +107,7 @@ test("a good read refreshes the copy", async () => {
   ]);
 });
 
-const withNote = { ...doc, data: { ...doc.data, noteId: "n1" } };
+const withNote = { ...doc, data: { ...doc.data, noteId: "note_n1" } };
 const noteDoc = {
   v: 2,
   data: {
@@ -119,7 +119,7 @@ const noteDoc = {
     blocks: [],
   },
 };
-const note = noteRowBody("n1", noteDoc);
+const note = noteRowBody("note_n1", noteDoc);
 
 test("offline, the note read-along comes from the saved copy", async () => {
   use();
@@ -127,7 +127,7 @@ test("offline, the note read-along comes from the saved copy", async () => {
   const copy = fakeCopy({
     "sessions:rows": sessionRowsBody("sessions", [withNote]).rows,
     "sessions:events": [],
-    "sessions:note:n1": note,
+    "sessions:note:note_n1": note,
   });
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() => expect(result.current.note).toBeDefined());
@@ -145,10 +145,10 @@ test("a 5xx on the note never overwrites its saved copy", async () => {
           }),
     ),
   );
-  const copy = fakeCopy({ "sessions:note:n1": note });
+  const copy = fakeCopy({ "sessions:note:note_n1": note });
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() => expect(result.current.data).toBeDefined());
   await new Promise((r) => setTimeout(r, 20));
   expect(result.current.note).toBeUndefined();
-  expect(copy.kept["sessions:note:n1"]).toEqual(note);
+  expect(copy.kept["sessions:note:note_n1"]).toEqual(note);
 });

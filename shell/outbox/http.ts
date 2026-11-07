@@ -2,7 +2,7 @@
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
 import { call as runCommand, readJson, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
-import { noteDocId, noteDocOf, noteRowId, parseNoteTableRow, type NoteTableRow } from "../../domain/index.ts";
+import { noteDocOf, parseNoteTableRow, type NoteTableRow } from "../../domain/index.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -49,7 +49,7 @@ export function docsHttp(
       return { status: 200, ...(typeof v === 'number' ? { version: v } : {}) };
     },
     async get(id): Promise<GetAnswer> {
-      const r = await doFetch(`/api/v1/notes/${encodeURIComponent(noteRowId(id))}`, {
+      const r = await doFetch(`/api/v1/notes/${encodeURIComponent(id)}`, {
         headers: { authorization: `Bearer ${token()}` },
       });
       if (!r.ok) return { status: r.status };
@@ -86,7 +86,7 @@ export function docsHttp(
     return rows.flatMap((raw) => {
       try {
         const row = parseNoteTableRow(raw);
-        return [{ id: noteDocId(row.id), v: row.v, at: row.at, data: noteDocOf(row) }];
+        return [{ id: row.id, v: row.v, at: row.at, data: noteDocOf(row) }];
       } catch {
         return [];
       }

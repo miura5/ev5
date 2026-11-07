@@ -72,7 +72,7 @@ test("empty home says so", () => {
 });
 
 const page: NotePageData = {
-  id: "n-co",
+  id: "note_co",
   title: "Energy budget",
   collectionName: "Economics 101",
   edited: "now",

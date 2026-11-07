@@ -156,9 +156,9 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
     },
     deletions: {
-      /** Soft delete of a note by its document id (`deleted_at` on its row, reads hide it, §delete.soft). */
+      /** Soft delete of a note by its id (`deleted_at` on its row, reads hide it, §delete.soft). */
       markNote: (docId: string): Promise<boolean> =>
-        softDelete("notes", `note_${docId}`),
+        softDelete("notes", docId),
       /** Soft delete of a set by its id (`set_…`). False when it is missing or already deleted. */
       markSet: (id: string): Promise<boolean> => softDelete("sets", id),
       /** Soft delete of a goal by its id (`goal_…`). */
@@ -176,7 +176,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .prepare(
             `UPDATE ${table} SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL`,
           )
-          .bind(opts.clock(), c === "notes" ? `note_${id}` : id)
+          .bind(opts.clock(), id)
           .run();
         return r.meta.changes;
       },

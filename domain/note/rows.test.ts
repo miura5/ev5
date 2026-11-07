@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { parseNote } from "./parse.ts";
-import { newNoteRow, noteDocOf, noteRowId, noteText } from "./rows.ts";
+import { newNoteRow, noteDocOf, noteText } from "./rows.ts";
 import { parseNoteTableRow } from "./table.ts";
 
 const T0 = "2026-10-18T15:00:00.000Z";
@@ -11,7 +11,7 @@ const doc = parseNote({
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
   editedAt: T0,
-  earlierOf: "n-20261017-090000-abcdefgh",
+  earlierOf: "note_20261017-090000-abcdefgh",
   blocks: [
     { type: "h1", runs: [{ text: "Fluids" }] },
     {
@@ -30,12 +30,12 @@ const doc = parseNote({
 });
 
 test("a note becomes a row whose text is the words, and reads back as the same document", () => {
-  const row = newNoteRow("n-1", doc, "col_a");
-  expect(row.id).toBe("note_n-1");
+  const row = newNoteRow("note_1", doc, "col_a");
+  expect(row.id).toBe("note_1");
   expect(row.collection_id).toBe("col_a");
   expect(row.title).toBe("Fluids");
   expect(row.text).toBe("Fluids\nSodium is 135-145\n\n");
-  expect(row.earlier_of).toBe("note_n-20261017-090000-abcdefgh");
+  expect(row.earlier_of).toBe("note_20261017-090000-abcdefgh");
   const stored = parseNoteTableRow({
     ...row,
     at: Date.parse("2026-10-20T00:00:00.000Z"),
@@ -61,10 +61,9 @@ test("a note past the 256 KB budget has no row", () => {
       runs: [{ text: "x".repeat(10000) }],
     })),
   };
-  expect(() => newNoteRow("n-2", big, null)).toThrow(/at most/);
+  expect(() => newNoteRow("note_2", big, null)).toThrow(/at most/);
 });
 
 test("ids and text helpers", () => {
-  expect(noteRowId("n-3")).toBe("note_n-3");
   expect(noteText([])).toBe("");
 });

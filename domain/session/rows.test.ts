@@ -15,7 +15,7 @@ const doc = parseSession({
   kind: "note",
   startedAt: T0,
   planned: 25,
-  noteId: "n-1",
+  noteId: "note_1",
   events: {
     "page-20261018-150000-aaa": { type: "start", at: T0 },
     "page-20261018-150700-bbb": {

@@ -13,7 +13,7 @@ test("item.move puts a note in a collection on its own row, with no memberships 
   assert.equal(
     (
       await DB.prepare("SELECT collection_id FROM notes WHERE id = ?")
-        .bind(`note_${id}`)
+        .bind(id)
         .first<{ collection_id: string }>()
     )?.collection_id,
     cid,

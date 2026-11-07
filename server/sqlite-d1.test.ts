@@ -101,7 +101,7 @@ export const putNoteRow = (
       "INSERT INTO notes (id, title, body, text, at, v) VALUES (?, ?, ?, ?, 0, 1)",
     )
     .bind(
-      `note_${docId}`,
+      docId,
       title,
       JSON.stringify({
         createdAt: "2026-11-01T10:00:00.000Z",
