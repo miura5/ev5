@@ -44,7 +44,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
         return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [exam()] }));
-      return new Response(JSON.stringify({ docs: [] }));
+      return new Response(JSON.stringify({ docs: [], rows: [] }));
     }),
   );
   render(<LibraryScreen search={SEARCH} />);

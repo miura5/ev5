@@ -6,6 +6,7 @@ import type {
   GoalRow,
   LinkRow,
   SetItemRow,
+  SetTableRow,
   WeakSpotEventRow,
   WeakSpotTableRow,
 } from "../../domain/index.ts";
@@ -118,8 +119,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
         // Answers and the items they were aimed at give a spot its misses and streak; unreadable, a spot reads as unanswered.
         rows<AttemptRow>("attempts", token, c).catch((): AttemptRow[] => []),
         rows<SetItemRow>("items", token, c).catch((): SetItemRow[] => []),
-        list("sets", token, c),
-        list("answers", token, c),
+        rows<SetTableRow>("sets", token, c),
         // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
         list("plans", token, c).catch((): WireDoc[] => []),
         // A plan's sessions are its plan_items rows; unreadable, the Detail just lists none.
@@ -144,7 +144,6 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
           attempts,
           items,
           sets,
-          answers,
           plans,
           planItems,
           jobs,
@@ -159,7 +158,6 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
               attempts,
               items,
               sets,
-              answers,
               plans,
               planItems,
               jobs: jobs as WireJob[],

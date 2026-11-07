@@ -49,7 +49,7 @@ function boot(examDoc: GoalRow, plans: unknown[] = [], status = 200) {
         return new Response(JSON.stringify({ rows: [examDoc] }));
       const c = /collection=(\w+)/.exec(url)?.[1] ?? "";
       const list: Record<string, unknown[]> = { plans };
-      return new Response(JSON.stringify({ docs: list[c] ?? [] }), {
+      return new Response(JSON.stringify({ docs: list[c] ?? [], rows: [] }), {
         status: 200,
       });
     }),

@@ -29,7 +29,6 @@ const saved = {
   "library:goals": [],
   "library:weak-spots": [],
   "library:sets": [],
-  "library:answers": [],
 };
 
 test("offline, the saved lists show and no error is raised", async () => {
@@ -91,7 +90,6 @@ test("a good read refreshes the copy", async () => {
   await waitFor(() => expect(result.current.data).toBeDefined());
   expect(Object.keys(copy.kept).sort()).toEqual([
     "jobs",
-    "library:answers",
     "library:attempts",
     "library:goals",
     "library:items",

@@ -1,38 +1,22 @@
 import { expect, test } from "vitest";
 import { mapLibrary } from "./map.ts";
+import { attemptRow, itemRow, setRow } from "./testHost.tsx";
 
 const now = Date.parse("2026-11-04T18:00:00Z");
-const ans = (setId: string, item: string, at: string, c?: boolean) => ({
-  id: `${setId}-${item}-${at}`,
-  data: {
-    schema: 2,
-    setId,
-    answers: {
-      [item]: {
-        k: { at, ...(c === undefined ? { outcome: "told" } : { correct: c }) },
-      },
-    },
-  },
-});
-
 test("mapLibrary carries the accuracy line and a set's due count", () => {
-  const set = {
-    schema: 3,
-    writer: "page",
-    at: "2026-10-01T15:00:00Z",
-    source: "test",
-    kind: "drill",
-    title: "Doses",
-    items: [
-      { id: "q1", stem: "How many mL?", options: ["5 mL"], correct: [0] },
-    ],
-  };
   const d = mapLibrary(
     {
       goals: [],
       weakspots: [],
-      sets: [{ id: "s1", data: set }],
-      answers: [ans("s1", "q1", "2026-11-03T10:00:00Z", false)],
+      sets: [setRow({ id: "s1" })],
+      items: [
+        itemRow("item_q1", "s1", {
+          stem: "How many mL?",
+          options: ["5 mL"],
+          correct: [0],
+        }),
+      ],
+      attempts: [attemptRow("s1", "item_q1", "2026-11-03T10:00:00Z", 0)],
     },
     now,
   );

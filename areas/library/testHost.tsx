@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { Detail, type DetailProps } from "../../kit/index.ts";
 import { LibraryScreen as RawLibraryScreen } from "./Library.screen.tsx";
 import type {
+  AttemptRow,
   GoalRow,
+  SetItemRow,
+  SetTableRow,
   LinkRow,
   WeakSpotEventRow,
   WeakSpotTableRow,
@@ -87,6 +90,66 @@ export const linkRow = (
   at: 1,
   v: 1,
   deleted_at: null,
+});
+
+/** A set row as GET /sets returns it. */
+export const setRow = (over: Partial<SetTableRow> = {}): SetTableRow => ({
+  id: "set_1",
+  collection_id: null,
+  kind: "drill",
+  title: "Doses",
+  source_kind: null,
+  source_id: null,
+  created_by: "user",
+  job_id: null,
+  focus: null,
+  asked: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
+  ...over,
+});
+
+/** A single-choice item row as GET /items returns it (the body is the item without its id). */
+export const itemRow = (
+  id: string,
+  set_id: string,
+  body: SetItemRow["body"],
+  over: Partial<SetItemRow> = {},
+): SetItemRow => ({
+  id,
+  set_id,
+  pos: 1,
+  type: "single",
+  body,
+  objective_id: null,
+  weak_spot_id: null,
+  source_ref: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
+  ...over,
+});
+
+/** An attempts row as GET /attempts returns it; a score of null is an unchecked answer. */
+export const attemptRow = (
+  set_id: string,
+  item_id: string,
+  at: string,
+  score: number | null,
+): AttemptRow => ({
+  id: `att_${set_id}_${item_id}_${at}`,
+  item_id,
+  item_v: 1,
+  set_id,
+  session_id: null,
+  source: "run",
+  how: score === null ? "told" : "chose",
+  answer: null,
+  score,
+  answered_at: Date.parse(at),
+  at: Date.parse(at),
+  v: 1,
 });
 
 /** Stands in for the shell in tests: holds the Detail the screen opens, closes it on Esc like the shell's host. */
