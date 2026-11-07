@@ -1,6 +1,9 @@
-import { deriveWeakSpot, weakSpotFromRows } from "../../domain/index.ts";
+import {
+  deriveWeakSpot,
+  gradedBySpot,
+  weakSpotFromRows,
+} from "../../domain/index.ts";
 import type {
-  Attempt,
   AttemptRow,
   GoalRow,
   LinkRow,
@@ -20,24 +23,6 @@ export interface SpotRows {
   items?: SetItemRow[];
 }
 
-/** Graded answers (a score) as the scheduler's attempts, by weak spot; told, skipped and self-rated ones carry no score and are left out. */
-export function attemptsBySpot(
-  attempts: AttemptRow[] = [],
-  items: SetItemRow[] = [],
-): Map<string, Attempt[]> {
-  const spotOf = new Map(items.map((i) => [i.id, i.weak_spot_id]));
-  const out = new Map<string, Attempt[]>();
-  for (const a of attempts) {
-    const spot = spotOf.get(a.item_id);
-    if (!spot || a.score === null) continue;
-    out.set(spot, [
-      ...(out.get(spot) ?? []),
-      { at: new Date(a.answered_at).toISOString(), correct: a.score >= 0.5 },
-    ]);
-  }
-  return out;
-}
-
 /** Each live weak spot as the scheduler's model plus its derived state; its date is the model's `exam`. */
 export function spotsOf(docs: SpotRows) {
   const linked = new Map<string, string[]>();
@@ -54,7 +39,7 @@ export function spotsOf(docs: SpotRows) {
     );
     return openGoals.find((g) => ends.includes(g.id))?.id;
   };
-  const answered = attemptsBySpot(docs.attempts, docs.items);
+  const answered = gradedBySpot(docs.attempts, docs.items);
   const spots = docs.weakspots
     .filter((r) => r.duplicate_of === null)
     .map((r) => {
