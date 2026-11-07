@@ -72,7 +72,7 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
 });
 
 test("studying: the attempt comes first, reveal waits for it, just tell me is logged", async () => {
-  const { call, doc, put, DB } = await setup();
+  const { call, DB } = await setup();
   const set = (await call("set.create", { title: "Fluids" })).body.result.set
     .id as string;
   const q = "Which is normal sodium?\n- 100\n* 140\n- 180";

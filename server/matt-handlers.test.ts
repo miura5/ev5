@@ -24,7 +24,7 @@ test("a note is made, saved and moved", async () => {
     collection: col2.body.result.collection.id,
   });
   assert.equal(moved.status, 200);
-  // the row holds the words in its search column and the collection it moved to; nothing went to docs
+  // the row holds the words in its search column and the collection it moved to
   const row = await DB.prepare(
     "SELECT text, collection_id, v FROM notes WHERE id = ?",
   )
@@ -32,11 +32,6 @@ test("a note is made, saved and moved", async () => {
     .first<{ text: string; collection_id: string; v: number }>();
   assert.equal(row?.text, "Fluids\nSodium is 135-145");
   assert.equal(row?.collection_id, col2.body.result.collection.id);
-  assert.equal(
-    (await DB.prepare("SELECT 1 FROM docs WHERE c = 'notes'").all()).results
-      .length,
-    0,
-  );
   assert.equal(
     (await call("note.save", { id: "n-nope", body: "x" })).status,
     404,
@@ -124,16 +119,6 @@ test("a session starts, pauses, answers a check, and ends", async () => {
     "answer",
     "answer",
   ]);
-  assert.equal(
-    (
-      await DB.prepare(
-        "SELECT count(*) AS n FROM docs WHERE c = 'sessions'",
-      ).first<{
-        n: number;
-      }>()
-    )?.n,
-    0,
-  );
   // a second session ends the first
   const b = (await call("session.start", {})).body.result.id as string;
   assert.equal((await row(a))?.status, "ended");
@@ -141,9 +126,6 @@ test("a session starts, pauses, answers a check, and ends", async () => {
   assert.equal((await call("session.end", { id: b })).status, 200);
   assert.equal((await call("session.end", { id: b })).status, 409);
   assert.equal((await call("session.pause", { id: "nope" })).status, 404);
-  const talk = await DB.prepare("SELECT id FROM docs WHERE c = 'talk'").first<{
-    id: string;
-  }>();
 });
 
 test("a weak spot is confirmed, declined, learned; a spot that is not proposed cannot be confirmed", async () => {
@@ -207,11 +189,6 @@ test("ask just tell me is logged as an appended talk row in the chat", async () 
       ["user", "Just tell me", "ask"],
       ["user", "Just tell me", "ask"],
     ],
-  );
-  assert.equal(
-    (await DB.prepare("SELECT 1 FROM docs WHERE c = 'talk'").all()).results
-      .length,
-    0,
   );
 });
 
