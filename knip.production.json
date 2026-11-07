@@ -14,28 +14,16 @@
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreIssues": {
-    "domain/attempt/**": [
-      "exports"
-    ],
     "domain/ceiling/**": [
       "exports"
     ],
     "domain/collection/**": [
       "exports"
     ],
-    "domain/draft/**": [
-      "exports"
-    ],
-    "domain/file/**": [
-      "exports"
-    ],
     "domain/goal/**": [
       "exports"
     ],
     "domain/item-props/**": [
-      "exports"
-    ],
-    "domain/link/**": [
       "exports"
     ],
     "domain/note/**": [
@@ -65,9 +53,6 @@
     "domain/settings/**": [
       "exports"
     ],
-    "domain/talk/**": [
-      "exports"
-    ],
     "domain/time/**": [
       "exports"
     ],
@@ -78,9 +63,6 @@
       "exports"
     ],
     "jobs/runtime/**": [
-      "exports"
-    ],
-    "kit/**": [
       "exports"
     ],
     "shell/**": [
