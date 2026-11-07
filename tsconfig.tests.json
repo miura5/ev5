@@ -5,10 +5,5 @@
   "exclude": [
     // TEMPORARY, part for lane A: test files with type errors in lane A folders. Lane A fixes each one and
     // deletes its line; the list must end empty.
-    "data/migrations/migrations.test.ts",
-    "data/tables/attempts.test.ts",
-    "data/tables/kinds.test.ts",
-    "data/tables/sets.test.ts",
-    "data/tables/tables.test.ts"
   ]
 }

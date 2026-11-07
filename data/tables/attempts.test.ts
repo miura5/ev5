@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { migratedDb, sqliteD1 } from "../export/sqlite-d1.testkit.ts";
 import { tablesRepo } from "./tables.ts";
+import type { AttemptInput } from "./attempts.ts";
 import { WriteRefused } from "./gate.ts";
 
 async function make() {
@@ -44,7 +45,7 @@ async function make() {
   assert.ok((await repo.setBook.addItem(item)).ok);
   return { repo, item };
 }
-const att = {
+const att: AttemptInput = {
   id: "att_1",
   item_id: "item_1",
   set_id: "set_1",
@@ -55,7 +56,7 @@ const att = {
   score: 1,
   answered_at: 5,
   was_due: null,
-} as const;
+};
 
 test("record files the answer against the item's current version", async () => {
   const { repo, item } = await make();
