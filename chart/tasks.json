@@ -5009,7 +5009,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: item-type rename (sata->multi_select, matrix->grid) is already on main with a read-path mapper in domain/item/upgrade.ts. Left: (1) subject words check, (2) second half after docs removal; (a) action pins and (e) size check blocked by sandbox network.",
+  "notes": "Run 2026-11-07 0900Z: checks 1, 6, 8, 9 on main (#776). Left: 2 (after docs removal), 3, 4, 5, 7.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
