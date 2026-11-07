@@ -9,7 +9,7 @@ import type { Finding } from './lib.ts';
 
 export const BASELINE = 'data/migrations/0000_baseline.sql';
 export const PIN = 'fc783761866eb82585ab54ad763e052e173f360536b1be8443e83844b4d687c9';
-const PIN_REASON = 'The squash (#877) plus the follow-ups #880 (attempts.was_due) and B-1038 B8 (objectives.collection_id nullable, so an objective can hang off a goal by link only); nothing live applied any of them.';
+const PIN_REASON = 'The squash (#877) plus the follow-ups #880 (attempts.was_due) and a later one (objectives.collection_id nullable, so an objective can hang off a goal by link only); nothing live applied any of them.';
 
 export const hashBaseline = (text: string): string => crypto.createHash('sha256').update(text.replace(/\r\n/g, '\n')).digest('hex');
 
