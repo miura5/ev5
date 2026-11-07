@@ -4253,11 +4253,13 @@
   "title": "Repeat job failures end the job at once instead of being retried",
   "dod": "A failure that will repeat (a refusal, max_tokens, output that fails Zod or the semantic checks after the repair ask) throws Workflows' NonRetryableError from cloudflare:workflows, so the step is not retried; putFailure and getFailure and their store methods are deleted; the test fake treats NonRetryableError as final; a test shows one attempt only for each failure kind; one real end-to-end run on staging of a job that fails this way",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Slice: write jobs/; read none. Today the failure is saved to D1 and thrown as a plain Error, and each retry reads it back and throws again (jobs/study-plan/job.ts, jobs/practice-set/handlers.ts). Read current Cloudflare Workflows docs for NonRetryableError, never from memory.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:31:00.317Z"
  },
  {
   "id": "B-981",
@@ -4322,11 +4324,13 @@
   "title": "Menus and the ⌘K palette follow the theme Matt picked",
   "dod": "data-theme is set on the page root (document.documentElement), not on the .shell div, so Radix and cmdk portals inherit it; a test opens a Menu and the palette with a theme that differs from the system's; seen on staging in both themes",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Slice: write shell/; read kit/. Radix portals render into body, outside .shell (shell/Shell.tsx). Read from the code, not yet seen on screen.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:30:59.944Z"
  },
  {
   "id": "B-986",
@@ -4382,11 +4386,13 @@
   "title": "The Interface trailer is asked for only when a folder's interface listing changes",
   "dod": "ops/checks/trailer.ts asks for an Interface: <folder> trailer only when the generated Interface: line of that folder's README changes, as the contract's interface rule says, not on every edit of index.ts or a schema file; the READMEs' Imports: line, which copies .dependency-cruiser.cjs, is no longer generated; tests cover both cases",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Slice: write ops/checks/, ops/generate/, every folder README.md; read none. The handover lists a stale generated file or a missing trailer as the usual CI reds. Review 2026-11-07: status was in progress with no claim and ops/checks/trailer.ts is unchanged; reset to open, not built.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:31:00.202Z"
  },
  {
   "id": "B-991",
@@ -4408,11 +4414,13 @@
   "title": "Queued note saves and answers are sent as soon as the app is back online",
   "dod": "the outbox replays on the window online event and when the tab becomes visible, as well as on a save; a test queues an answer offline and sees it sent on online with no other save",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Slice: write shell/outbox/; read none. Today a queued practice answer waits until the next save or a Notes mount.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:31:00.074Z"
  },
  {
   "id": "B-993",
@@ -4594,13 +4602,15 @@
   "title": "Model output uses the SDK's Zod helper",
   "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/runtime",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997"
   ],
   "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F34: the slice named jobs/model, which does not exist; the model calls live in jobs/runtime (model-call.ts, output.ts). Rules-to-guards audit 2026-11-06 (D-517): in jobs/practice-set and jobs/study-plan the model call and the D1 write share one step, so a retry pays for the model again. The model call is its own step whose output is kept, and the write is a later step; a test retries the write step and checks the model is called once. Slice for this item: jobs/practice-set, jobs/study-plan. Run 2026-11-07 1217Z: D-517 part already on main: practice-set (plan, call, save) and prep-plan (gather, draft, save) split the model call from the write, each with a retry test (job is jobs/prep-plan, not study-plan). Gap: the store.put/putDraft after the call is in the model step; a throw there pays again; the runtime keeps ids only, so a fix needs a runtime or contract call (jobs/runtime). Claim freed.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:16:49.901Z"
  },
  {
   "id": "B-1006",
@@ -5232,13 +5242,15 @@
   "title": "The e2e journeys create their data through commands, not hand-written ev4 documents",
   "dod": "e2e/practice-set, e2e/study-plan and e2e/notes journeys (and the rest) set up their data through the app's commands, never by PUT /docs of hand-written documents with ev4 fields (writer, course codes, an ideas kind); they read through the same paths the screens use, not /docs?collection=; the Gate 5 journeys pass on the re-seeded staging (§deliver.no-hand-docs). Slice: write e2e/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-1009"
   ],
   "notes": "Group 4 (D-489 order as amended by D-495). Spillover audit T19. After B-1009 re-seeds staging and each kind has its command. Scope audit 2026-11-06: B18: specs still write ev4 documents (16 /api/v1/docs sites in 9 specs). The 'Exams' tab locators were fixed in the scope sweep.",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
+  "claimedBy": "run-1308",
+  "claimedAt": "2026-11-07T13:16:49.639Z"
  },
  {
   "id": "B-1060",
