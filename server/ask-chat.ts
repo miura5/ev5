@@ -22,6 +22,7 @@ import type { D1Like, ModelCall } from "../jobs/index.ts";
 import { byName } from "../commands/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { findPassages } from "./excerpts.ts";
+import { readReport, requestIdOf } from "./read-report.ts";
 import { DEFS } from "./job-routes.ts";
 import { loadCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
@@ -66,6 +67,7 @@ export interface AskDeps {
   call: ModelCall;
   now?: () => Date;
   newId?: () => string;
+  onBad?: (b: { table: string; id: string; reason: string }) => void;
 }
 
 export type AskResult =
@@ -96,7 +98,7 @@ export async function ask(
 ): Promise<AskResult> {
   const now = d.now ?? (() => new Date());
   const newId = d.newId ?? (() => crypto.randomUUID());
-  const jobStore = d1JobStore(d.db, () => now().getTime());
+  const jobStore = d1JobStore(d.db, () => now().getTime(), d.onBad);
   const talk = tablesRepo(d.db, { clock: () => now().getTime() }).talkBook;
   const chatId = chat ?? (await talk.latestAskChat()) ?? `chat_${newId()}`;
   const saved = historyLines(await talk.chat(chatId));
@@ -210,6 +212,7 @@ export async function askFromEnv(
   env: AskEnv,
   raw: unknown,
   chat?: unknown,
+  onBad?: AskDeps["onBad"],
 ): Promise<AskResult | { ok: false; status: 400 | 503; reason: string }> {
   // The one length rule lives in ask.send's input schema (§cmd.registry); POST /ask reads it from there.
   const parsed = byName("ask.send")?.input.safeParse({ text: raw });
@@ -235,7 +238,7 @@ export async function askFromEnv(
     typeof chat === "string" && /^chat_[\w-]{1,80}$/.test(chat)
       ? chat
       : undefined;
-  return ask({ db: env.DB, call }, text, chatId);
+  return ask({ db: env.DB, call, onBad }, text, chatId);
 }
 
 askRoutes.post("/ask", async (c) => {
@@ -244,7 +247,12 @@ askRoutes.post("/ask", async (c) => {
     text?: unknown;
     chat_id?: unknown;
   };
-  const r = await askFromEnv(c.env, b.text, b.chat_id);
+  const r = await askFromEnv(
+    c.env,
+    b.text,
+    b.chat_id,
+    readReport(requestIdOf(c)).onBad,
+  );
   return r.ok
     ? c.json({ reply: r.reply, costCents: r.costCents })
     : c.json({ error: r.reason }, r.status);

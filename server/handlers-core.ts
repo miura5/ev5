@@ -18,6 +18,8 @@ export interface HandlerCtx {
   db: DocsD1;
   clock: () => number;
   newId: () => string;
+  /** Where a table read reports a row it left out (§data.gate); the route supplies the request's report. */
+  onBad?: (b: { table: string; id: string; reason: string }) => void;
   /** Asks E.V. one question on the same path as POST /ask; the route supplies it from the Worker's bindings. */
   /** The Workflows binding, for commands that start a job. */
   jobs?: { create(o: { id: string; params: unknown }): Promise<unknown> };

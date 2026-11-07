@@ -5,6 +5,7 @@ import { d1JobStore, newJob } from "../jobs/index.ts";
 import { commands } from "../commands/index.ts";
 import { exportAll } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
+import { readReport } from "./read-report.ts";
 import { commandHandlers } from "./command-handlers.ts";
 import {
   exportExists,
@@ -64,7 +65,8 @@ export async function runScheduled(
   now: number,
 ): Promise<string[]> {
   const ran: string[] = [];
-  const store = d1JobStore(env.DB as never, () => now);
+  const reads = readReport(`scheduled-${now}`);
+  const store = d1JobStore(env.DB as never, () => now, reads.onBad);
   let records: Awaited<ReturnType<typeof store.list>> | undefined;
   for (const c of commands) {
     if (c.name === "export" && c.callers.schedule) {
@@ -131,6 +133,7 @@ export async function runScheduled(
         db: env.DB,
         clock: () => now,
         newId: () => crypto.randomUUID(),
+        onBad: reads.onBad,
       });
       ran.push(c.name);
     } catch (e) {

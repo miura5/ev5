@@ -19,7 +19,7 @@ import { saveScope, startEnv, withGathered } from "./job-routes.ts";
 
 type Ref = { id: string };
 
-const storeOf = (x: HandlerCtx) => d1JobStore(x.db as never, x.clock);
+const storeOf = (x: HandlerCtx) => d1JobStore(x.db as never, x.clock, x.onBad);
 const iso = (x: HandlerCtx) => new Date(x.clock()).toISOString();
 
 async function need(x: HandlerCtx, id: string) {

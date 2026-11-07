@@ -14,6 +14,7 @@ import type { AuthVars } from "./auth.ts";
 import { CommandError, commandHandlers } from "./command-handlers.ts";
 import { saveSuggestion } from "./handlers-proposal.ts";
 import type { DocsD1 } from "../data/index.ts";
+import { readReport, requestIdOf } from "./read-report.ts";
 import { askFromEnv } from "./ask-chat.ts";
 import type { HandlerCtx } from "./handlers-core.ts";
 import type { AskEnv } from "./ask-chat.ts";
@@ -64,13 +65,15 @@ commandRoutes.post("/commands/:name", async (c) => {
       { error: call.reason },
       call.reason.endsWith(`may not call ${cmd.name}`) ? 403 : 400,
     );
+  const reads = readReport(requestIdOf(c));
   const ctx = {
     db: c.env.DB,
+    onBad: reads.onBad,
     clock: () => Date.now(),
     newId: () => crypto.randomUUID(),
     jobs: c.env.JOBS,
     ask: async (text: string, chatId?: string) => {
-      const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text, chatId);
+      const r = await askFromEnv({ ...c.env, DB: c.env.DB as never }, text, chatId, reads.onBad);
       if (!r.ok) throw new CommandError(r.status, r.reason);
       return { reply: r.reply, costCents: r.costCents };
     },
