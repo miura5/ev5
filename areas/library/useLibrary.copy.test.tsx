@@ -26,9 +26,9 @@ afterEach(() => {
 });
 
 const saved = {
-  "library:goals": [],
-  "library:weak-spots": [],
-  "library:sets": [],
+  "rows:goals": [],
+  "rows:weak-spots": [],
+  "rows:sets": [],
 };
 
 test("offline, the saved lists show and no error is raised", async () => {
@@ -56,7 +56,7 @@ test("a server error shows the error and keeps the saved copy", async () => {
     expect(result.current.error).toBe(failureSentence("server")),
   );
   expect(result.current.data).toBeUndefined();
-  expect(copy.kept["library:sets"]).toBe(saved["library:sets"]);
+  expect(copy.kept["rows:sets"]).toBe(saved["rows:sets"]);
 });
 
 test("a 401 is not answered from the copy", async () => {
@@ -90,14 +90,14 @@ test("a good read refreshes the copy", async () => {
   await waitFor(() => expect(result.current.data).toBeDefined());
   expect(Object.keys(copy.kept).sort()).toEqual([
     "jobs",
-    "library:attempts",
-    "library:goals",
-    "library:items",
-    "library:links",
-    "library:plan-items",
-    "library:plans",
-    "library:sets",
-    "library:weak-spot-events",
-    "library:weak-spots",
+    "rows:attempts",
+    "rows:goals",
+    "rows:items",
+    "rows:links",
+    "rows:plan-items",
+    "rows:plans",
+    "rows:sets",
+    "rows:weak-spot-events",
+    "rows:weak-spots",
   ]);
 });
