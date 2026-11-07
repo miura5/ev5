@@ -3920,7 +3920,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 lane B: PR #879 (testruns check, tsconfig.tests.json, typecheck-tests.sh). Part for lane A: 10 lane A test files with type errors sit in a TEMPORARY exclude list in tsconfig.tests.json; fix each and delete its line (list in #879 body).",
+  "notes": "Run 1753Z: lane A test files fixed (#885, #886); tsconfig.tests.json exclude list is empty.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -5019,11 +5019,11 @@
   "title": "Checks so ev4 traces cannot come back",
   "dod": "ops/checks, ESLint, dependency-cruiser or ops/record lint refuse, each with a red fixture PR recorded (§drift.checks): (1) subject words as whole words in any case (nursing, NCLEX, SATA, clinical, dosage, cjStep, patient, course codes like NUR 112, ATI) in non-test source, prompts and seeds, no allow list; (2) a kind written to the generic docs table that is not on a shrinking list of kinds still moving, and once docs is gone, SQL naming docs, the ev4 collection names (dayedits, planedits, dateedits, examedits, answers) or the ev4 envelope (writer, a source starting v5, schema numbers), and any import of data/compat; (3) a table without a kind-prefixed id, at, v and, where deletable, deleted_at, or out of step with its domain row shape, in place of the ev4-equality migration test; (4) an export used only by its tests (knip --production with tests excluded, short allow list); (5) a §id in source that is ended or not in CONTRACT; (6) the word ev4 in non-test source outside the cutover allow list (server/ev4-routes.ts, server/worker.ts, public/retire-ev4.js, ops/checks/planjob.ts, ops/checks/account.ts, ops/record/); (7) a restore of an ev4 export kind; (8) e2e, seeds or staging scripts that write by PUT /docs instead of commands; (9) an open Chart task whose done bar names an ev4 path (tools/, core/, pwa/, page/, spec.). Before check (1) lands, the item type ids are plain words: 'sata' becomes 'multi_select' and 'matrix' becomes 'grid' (with its matrix field) in domain/item, server/handlers-sets.ts and every caller and test, stored staging rows are reseeded or mapped on read, and jobs/practice-set/job.ts builds its type enum from domain/item's ITEM_TYPES instead of its own copy. Slice: write ops/checks, ops/guards, eslint.config.js, the dependency-cruiser config, knip.json, ops/record/lint.ts; for the rename also domain/item, domain/set, domain/own-set, server/, jobs/practice-set, data/tables.",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 1631Z: #861 jobs barrel trimmed, maxCost deleted, knip jobs/** replaced by 5 single-file entries (ignoreIssues now 9 entries but no folder wildcard); unusedexports accepts file keys. #870 tests with red fixtures for checks 5 (sourceids) and 9 (chartev4); check 6 (ev4word) existed. Left in knip ignore: domain/session (S-76 feature), own-set (editing feature not wired), collection nesting (§data.membership: decide or amend CONTRACT), note test-only exports, ceiling parse fns (check 3), executors.reportJob (Mac, Matt's call), models.modelsStaleWarning (wire or delete). Checks 1, 2, 3, 4 left: check 1 needs sata→multi_select, matrix→grid rename first; check 2 after docs table goes. 'Red fixture PR recorded' not done.",
+  "notes": "Run 1753Z: checks (2) #883 and (3) red fixture #884 done; checks (5) to (9) already exist with fixtures. Left: (1) subject words (needs rewording of existing source), (4) knip production; domain/goal/read.ts still writes the old envelope (writer, source v5/goals; on TO_REWORD in ops/checks/ev4word.ts or oldshapes.ts): reword. 'sata'/'matrix' remain only in domain/item/upgrade.ts as a deliberate legacy-read mapping. The red fixture PR record is not done.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1753Z",
