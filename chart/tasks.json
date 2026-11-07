@@ -3909,8 +3909,8 @@
   "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022. Run 1718Z: #875 every job-store list in server/ passes onBad (get/put-only callers still none). Left: merge the two gates.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.247Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:50.983Z"
  },
  {
   "id": "B-956",
@@ -4841,8 +4841,8 @@
   "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form. Run 1718Z: #876 item sourceRef is note_ form. weakSpots.ts already uses the domain rule. Left: row routes for item versions and session events; plan-home raw SQL in server/.",
   "commit": null,
   "source": "run 82 B-997 report",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:39.694Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:50.736Z"
  },
  {
   "id": "B-1023",
@@ -5026,8 +5026,8 @@
   "notes": "Run 1631Z: #861 jobs barrel trimmed, maxCost deleted, knip jobs/** replaced by 5 single-file entries (ignoreIssues now 9 entries but no folder wildcard); unusedexports accepts file keys. #870 tests with red fixtures for checks 5 (sourceids) and 9 (chartev4); check 6 (ev4word) existed. Left in knip ignore: domain/session (S-76 feature), own-set (editing feature not wired), collection nesting (§data.membership: decide or amend CONTRACT), note test-only exports, ceiling parse fns (check 3), executors.reportJob (Mac, Matt's call), models.modelsStaleWarning (wire or delete). Checks 1, 2, 3, 4 left: check 1 needs sata→multi_select, matrix→grid rename first; check 2 after docs table goes. 'Red fixture PR recorded' not done.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.815Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:51.224Z"
  },
  {
   "id": "B-1037",
