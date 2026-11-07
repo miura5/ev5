@@ -44,6 +44,15 @@ const areaSyntax = [
   },
 ];
 
+// The shell's host is the one way to show a Detail (§ui.kit-leads): a screen's own code never imports kit Detail as a value.
+// Type imports stay (DetailProps), and tests and test hosts (testHost.tsx) mount a Detail to try a screen.
+const detailSyntax = [
+  {
+    selector: "ImportDeclaration[source.value=/kit/][importKind!='type'] > ImportSpecifier[importKind!='type'][imported.name='Detail']",
+    message: "A screen does not import kit Detail: the shell's host shows it, so export a detail renderer instead (§ui.kit-leads).",
+  },
+];
+
 const exportAll = {
   selector: "ExportAllDeclaration",
   message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
@@ -169,12 +178,17 @@ export default [
   {
     // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
     files: ["areas/**/*.{ts,tsx}"],
-    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, pictureDoorSyntax, controlsSyntax) },
+    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, pictureDoorSyntax, controlsSyntax, detailSyntax) },
   },
   {
     // The one caller of the picture door.
     files: ["areas/notes/parts/notePictures.ts"],
-    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, controlsSyntax) },
+    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, controlsSyntax, detailSyntax) },
+  },
+  {
+    // Test hosts mount a Detail to try a screen, so they may import it.
+    files: ["areas/**/testHost.tsx"],
+    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, pictureDoorSyntax, controlsSyntax) },
   },
   {
     // Tests and stories set up what they test: no SQL, registry, controls or radix rules.
@@ -188,6 +202,6 @@ export default [
   },
   {
     files: ["areas/**/*.story.tsx"],
-    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax, areaWriteSyntax, pictureDoorSyntax) },
+    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax, areaWriteSyntax, pictureDoorSyntax, detailSyntax) },
   },
 ];

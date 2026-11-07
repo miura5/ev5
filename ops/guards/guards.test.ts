@@ -91,7 +91,33 @@ const GUARDS: Guard[] = [
   { name: 'a deletable table without deleted_at (ops/checks migration-shape)', command: checks, files: { 'data/migrations/0099_x.sql': "CREATE TABLE IF NOT EXISTS widgets (\n  id TEXT PRIMARY KEY CHECK (substr(id, 1, 4) = 'wid_'),\n  at INTEGER NOT NULL,\n  v INTEGER NOT NULL\n);\n" }, expect: /table widgets: missing column deleted_at/ },
   { name: 'an allow-list entry nothing needs (ops/checks unused-exports)', command: checks, files: { 'knip.production.json': JSON.stringify({ entry: ['server/index.ts!'], project: ['{domain,server}/**/*.ts!'], ignoreIssues: { 'domain/**': ['exports'] } }), 'domain/index.ts': "export { ok } from './ok.ts';\n", 'server/index.ts': "import { ok } from '../domain/index.ts';\nexport const s = ok;\n" }, expect: /unused-exports: knip\.production\.json: ignoreIssues entry domain\/\*\* has no test-only export left/ },
   { name: 'a table missing from the row-shapes test (ops/checks migration-shape)', command: checks, files: { 'data/migrations/row-shapes.test.ts': "// table: 'other'\n", 'data/migrations/0099_x.sql': "CREATE TABLE IF NOT EXISTS widgets (\n  id TEXT PRIMARY KEY CHECK (substr(id, 1, 4) = 'wid_'),\n  at INTEGER NOT NULL,\n  v INTEGER NOT NULL\n);\n" }, expect: /table widgets: not in data\/migrations\/row-shapes\.test\.ts/ },
+  { name: 'a rule on a .kit- class in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x > .kit-row { flex: 1; }\n' }, expect: /sets no rule on a \.kit- class/ },
+  { name: 'a row selector in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x-row { display: flex; }\n' }, expect: /draws no row, page head, section, empty state or panel/ },
+  { name: 'a page head selector in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x-head { display: flex; }\n' }, expect: /draws no row, page head/ },
+  { name: 'a section selector in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x-section { display: flex; }\n' }, expect: /draws no row, page head/ },
+  { name: 'an empty state selector in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x-empty { display: flex; }\n' }, expect: /draws no row, page head/ },
+  { name: 'a panel selector in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x-panel { display: flex; }\n' }, expect: /draws no row, page head/ },
+  { name: 'a row-height token in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x { min-height: var(--row); }\n' }, expect: /Row heights belong to the kit/ },
+  { name: 'the second row-height token in an area (stylelint)', command: stylelint, files: { 'areas/x/x.css': '.ev-x { height: var(--row2); }\n' }, expect: /Row heights belong to the kit/ },
+  { name: 'kit Detail imported by an area (eslint no-restricted-syntax)', command: eslint, files: { 'kit/index.ts': 'export const Detail = 1;\n', 'areas/x/D.tsx': "import { Detail } from '../../kit/index.ts';\nexport const D = Detail;\n" }, expect: /A screen does not import kit Detail/ },
+  { name: 'kit Detail imported under another name by an area (eslint no-restricted-syntax)', command: eslint, files: { 'kit/index.ts': 'export const Detail = 1;\n', 'areas/x/D.tsx': "import { Detail as Pane } from '../../kit/index.ts';\nexport const D = Pane;\n" }, expect: /A screen does not import kit Detail/ },
 ];
+
+test('green: what the area guards allow (the editor placeholder, kit rules in kit/, Detail types, tests and test hosts)', () => {
+  const root = sandbox({
+    'areas/x/x.css': '.ev-notes-edit .ev-notes-empty::before { color: var(--faint); }\n.ev-x { color: var(--ink); }\n',
+    'kit/row.css': '.kit-row { min-height: var(--row); }\n',
+    'kit/index.ts': 'export const Detail = 1;\nexport type DetailProps = { a: 1 };\n',
+    'areas/x/T.ts': "import type { DetailProps } from '../../kit/index.ts';\nexport const t = (p: DetailProps): number => p.a;\n",
+    'areas/x/T2.ts': "import { type DetailProps } from '../../kit/index.ts';\nexport const t2 = (p: DetailProps): number => p.a;\n",
+    'areas/x/x.test.ts': "import { Detail } from '../../kit/index.ts';\nexport const d = Detail;\n",
+    'areas/x/testHost.tsx': "import { Detail } from '../../kit/index.ts';\nexport const h = Detail;\n",
+  });
+  for (const c of [stylelint(), eslint()]) {
+    const r = run(root, ...c);
+    assert.equal(r.code, 0, r.out);
+  }
+});
 
 for (const g of GUARDS) {
   test(`red: ${g.name}`, () => {
