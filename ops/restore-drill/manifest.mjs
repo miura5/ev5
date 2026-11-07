@@ -3,8 +3,7 @@
 // Run by time-travel.sh in the staging workflow.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
-import { exportAll } from "../../data/index.ts";
-import { checkPictures } from "../../data/export/index.ts";
+import { exportAll, checkPictures } from "../../data/index.ts";
 import { r2Bucket } from "./r2-bucket.mjs";
 
 const [db, out] = process.argv.slice(2);
