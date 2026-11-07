@@ -2,6 +2,7 @@
 // document the page still sends and reads. A document id `n-…` is the row id `note_n-…`. A save is pinned to the version read
 // (a stale one is a 409 and the screen keeps both, never a merge). Nothing is written to `docs`.
 import { tablesRepo } from "../data/index.ts";
+import type { Reads } from "./read-report.ts";
 import type { DocsD1 } from "../data/index.ts";
 import {
   newNoteRow,
@@ -26,8 +27,13 @@ const ID = /^n-[A-Za-z0-9-]{1,120}$/;
 export async function noteDocs(
   db: DocsD1,
   clock: () => number,
+  reads?: Reads,
 ): Promise<WireNote[]> {
-  const rows = await tablesRepo(db, { clock }).noteBook.list();
+  const rows = await tablesRepo(db, {
+    clock,
+    onBad: reads?.onBad,
+  }).noteBook.list();
+  reads?.counted("notes", rows);
   return rows.flatMap((row) => {
     try {
       return [
