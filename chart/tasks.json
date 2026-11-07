@@ -4255,7 +4255,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write jobs/; read none. Today the failure is saved to D1 and thrown as a plain Error, and each retry reads it back and throws again (jobs/study-plan/job.ts, jobs/practice-set/handlers.ts). Read current Cloudflare Workflows docs for NonRetryableError, never from memory.",
+  "notes": "Run 2026-11-07 1358Z: NonRetryableError from cloudflare:workflows (jobs/runtime/non-retryable.ts) in both jobs; getFailure/putFailure gone from the plan store (#829). Left: PracticeStore still declares putFailure/getFailure, and server/job-run.ts d1PracticeStore and server/prompt-words.test.ts must drop them; one staging run of a failing job.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4326,7 +4326,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write shell/; read kit/. Radix portals render into body, outside .shell (shell/Shell.tsx). Read from the code, not yet seen on screen.",
+  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4384,10 +4384,10 @@
   "title": "The Interface trailer is asked for only when a folder's interface listing changes",
   "dod": "ops/checks/trailer.ts asks for an Interface: <folder> trailer only when the generated Interface: line of that folder's README changes, as the contract's interface rule says, not on every edit of index.ts or a schema file; the READMEs' Imports: line, which copies .dependency-cruiser.cjs, is no longer generated; tests cover both cases",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write ops/checks/, ops/generate/, every folder README.md; read none. The handover lists a stale generated file or a missing trailer as the usual CI reds. Review 2026-11-07: status was in progress with no claim and ops/checks/trailer.ts is unchanged; reset to open, not built.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1358Z: trailer asked only when a folder's generated Interface line changes; Imports line no longer generated (#826).",
+  "commit": "c5587d5",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4410,10 +4410,10 @@
   "title": "Queued note saves and answers are sent as soon as the app is back online",
   "dod": "the outbox replays on the window online event and when the tab becomes visible, as well as on a save; a test queues an answer offline and sees it sent on online with no other save",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Slice: write shell/outbox/; read none. Today a queued practice answer waits until the next save or a Notes mount.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1358Z: outbox replays on online and visible (#828).",
+  "commit": "f679dff",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4490,7 +4490,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). F11: #768 (server/plan-options.ts, handlers-plan.ts, plan-days.ts, areas/today, e2e), #764, #783, #789 and #814 wrote outside this slice (data/migrations) with no widening recorded; recorded here after the fact. More work outside data/migrations goes under B-1022. F18: #814 copies the docs gate's write rules into data/protocol/gate-problem.ts for the protocol suite; delete that copy with data/docs at part 2. F4: 0019_settings.sql (#735) adds the settings table and a backfill outside the squash; open question for the build manager in D-524. Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed. Run 2026-11-07 1000Z (#786): table and export tests no longer name dayedits. Still naming it: ops/checks/docskinds.ts (check). Claim freed. Run 2026-11-07 1217Z: D1Like, sizeRefusal, gateProblem moved out of data/docs (#814). /docs removal blocked by: server/index.ts mounts docRoutes and /api/health counts docs; data/export still dumps docs; data/docs/repo.ts + doc-routes only; tests via /api/v1/docs (doc-routes, collection-sets, goal-wire, handlers-dates, handlers-plan-state, left-out, note-routes PUT, plan-wire, refused, session-routes PUT, since-sessions, weak-since) or CREATE TABLE docs (excerpts, collection-routes, matt-handlers-setup, job-routes-setup, plan-home); .github/workflows/gate4-e2e.yml:37 curls /docs (use /goals); ops/checks docswrites.ts, docskinds.ts and tests (checks.test, guards.test); package.json test:node lists data/docs; manifest.mjs comment. Order: migrate server tests to row routes (server/), then one change dropping checks, the workflow curl and the health docs count, then delete doc-routes and data/docs, then squash. Claim freed.",
+  "notes": "Run 2026-11-07 1358Z: server tests off /docs (#823, #824, #825); doc-routes.test.ts deleted-or-left check next. Left of (a): the doc and put helpers and the docs table in server/matt-handlers-setup.test.ts (grep for users first), doc-routes.test.ts. Then (b) to (d) as listed.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4600,7 +4600,7 @@
   "depends": [
    "B-997"
   ],
-  "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F34: the slice named jobs/model, which does not exist; the model calls live in jobs/runtime (model-call.ts, output.ts). Rules-to-guards audit 2026-11-06 (D-517): in jobs/practice-set and jobs/study-plan the model call and the D1 write share one step, so a retry pays for the model again. The model call is its own step whose output is kept, and the write is a later step; a test retries the write step and checks the model is called once. Slice for this item: jobs/practice-set, jobs/study-plan. Run 2026-11-07 1217Z: D-517 part already on main: practice-set (plan, call, save) and prep-plan (gather, draft, save) split the model call from the write, each with a retry test (job is jobs/prep-plan, not study-plan). Gap: the store.put/putDraft after the call is in the model step; a throw there pays again; the runtime keeps ids only, so a fix needs a runtime or contract call (jobs/runtime). Claim freed.",
+  "notes": "Run 2026-11-07 1358Z: practice-set call and prep-plan draft skip the model when the result is already kept (#822); d1PracticeStore.find in server/job-run.ts (#825). zodOutputFormat already in use, no strip(). Gap: a throw from the first store put that never lands still pays for the model again; needs a runtime decision.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5234,12 +5234,12 @@
   "title": "The e2e journeys create their data through commands, not hand-written ev4 documents",
   "dod": "e2e/practice-set, e2e/study-plan and e2e/notes journeys (and the rest) set up their data through the app's commands, never by PUT /docs of hand-written documents with ev4 fields (writer, course codes, an ideas kind); they read through the same paths the screens use, not /docs?collection=; the Gate 5 journeys pass on the re-seeded staging (§deliver.no-hand-docs). Slice: write e2e/.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-1009"
   ],
-  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). F15: the work merged in #765 and no e2e file names /docs on main; ops/checks/docswrites.ts ALLOWED still lists e2e/notes, practice-set and prep-plan journey specs. Drop those three entries, then this task can close. Group 4 (D-489 order as amended by D-495). Spillover audit T19. After B-1009 re-seeds staging and each kind has its command. Scope audit 2026-11-06: B18: specs still write ev4 documents (16 /api/v1/docs sites in 9 specs). The 'Exams' tab locators were fixed in the scope sweep.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1358Z: specs already used commands; docswrites allow-list emptied (#819).",
+  "commit": "9891a08",
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
  {
@@ -5250,7 +5250,7 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 0900Z (#779): fixtures in areas/domain/data/server neutral; canonical.samples.json done. Left: /kit baselines retake (Docker); check design/mockup.html and DESIGN-BRIEF.md; stray biology strings (col_biology in prep-plan-names.test.ts, krebs-cycle in domain/search fixtures). Claim freed. Run 2026-11-07 1000Z (#787): search and excerpts tests neutral. Left: /kit baselines (Docker); check design/mockup.html, DESIGN-BRIEF.md. Claim freed.",
+  "notes": "Run 2026-11-07 1358Z: kit stories and tests neutral (#820), baselines retaken by the visual-baselines workflow. design/mockup.html keeps its Biology collection beside other subjects on purpose; a full rewrite is a design-agent task.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
