@@ -35,6 +35,9 @@ Run: `node --test ops/guards/guards.test.ts` (Node 26, from `.nvmrc`). Add `GUAR
 | `docs/handover.md` over 4,096 bytes, or a line over 600 characters (`handover.ts`) | `node ops/checks/cli.ts --root <repo>` | `handover: docs/handover.md: 4200 bytes, over 4096: keep current state only, the run diary goes in the PR description` |
 | A tool (`input_schema`) or command (`defineCommand`, `registerCommand`, ...) defined outside `commands/` | `eslint . --max-warnings 0` | `error  A tool or command is defined in commands/ only; the registry generates the rest.  no-restricted-syntax` |
 | A `jobs/runtime/models.ts` checked more than its age limit ago (a warning, exit 0) | `node ops/checks/cli.ts --root <repo>` | `warning: models: jobs/runtime/models.ts: model ids and prices were last checked on 2020-01-01, ... days ago (limit 90). Check them against the Anthropic docs.` |
+| In `areas/*.css`: a selector on a `.kit-` class, or a class for a row, head, header, section, empty state or panel (the one exception, `.ev-notes-empty`, is the editor's placeholder line, not a screen empty state) | `stylelint "**/*.css" --allow-empty-input` | `A screen draws no row, page head, section, empty state or panel, and sets no rule on a .kit- class: add it to kit/ first (§ui.kit-leads)  selector-disallowed-list` |
+| In `areas/*.css`: `var(--row)` or `var(--row2)` | `stylelint "**/*.css" --allow-empty-input` | `Row heights belong to the kit's Row (§ui.kit-leads)  declaration-property-value-disallowed-list` |
+| An import of kit `Detail` as a value from `areas/` (type imports, tests and `testHost.tsx` stay allowed) | `eslint . --max-warnings 0` | `error  A screen does not import kit Detail: the shell's host shows it, so export a detail renderer instead (§ui.kit-leads)  no-restricted-syntax` |
 
 ## Notes
 

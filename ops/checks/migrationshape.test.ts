@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { checkMigrationShape } from './migrationshape.ts';
 
 const table = (name: string, cols: string[]): string => `CREATE TABLE IF NOT EXISTS ${name} (\n${cols.join(',\n')}\n);\n`;

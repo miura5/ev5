@@ -4,8 +4,7 @@
 // rows of their own (PLAN §5.10); a collection is a membership row for a live `col_` id, and "none" takes the item out.
 import { addDays, centralDate } from "../domain/index.ts";
 import { batchWrites } from "../data/index.ts";
-import { flushWrites } from "./handlers-core.ts";
-import type { CommandHandler } from "./handlers-core.ts";
+import { CommandError, flushWrites, type CommandHandler } from "./handlers-core.ts";
 import {
   checkDate,
   fieldsOf,
@@ -90,9 +89,19 @@ export const planHandlers: Record<string, CommandHandler> = {
     );
   },
 
-  "plan.toggle_done": async (i: { id: string }, _c, x) => {
+  // `done` sets the tick (idempotent) and `if_version` makes a stale screen a 409; both are optional while old callers
+  // (flip with no version) remain (PLAN §11 expand).
+  "plan.toggle_done": async (
+    i: { id: string; done?: boolean; if_version?: number },
+    _c,
+    x,
+  ) => {
     const cur = await findItem(x, i.id);
-    const done = cur.done_at === null;
+    if (i.if_version !== undefined && i.if_version !== cur.v)
+      throw new CommandError(409, "that item changed; try again");
+    const done = i.done ?? cur.done_at === null;
+    if (i.done !== undefined && done === (cur.done_at !== null))
+      return { id: i.id, done };
     await saveItem(
       x,
       { ...fieldsOf(cur), done_at: done ? x.clock() : null },

@@ -29,7 +29,7 @@
   gap: var(--sp-2);
 }
 
-.ev-today-add .kit-field {
+.ev-today-add > input {
   flex: 1;
   min-width: 0;
 }

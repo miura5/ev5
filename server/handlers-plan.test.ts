@@ -286,3 +286,15 @@ test("a Suggestion whose command fails goes back to pending with a new version a
   assert.equal(after.v, before.v + 2); // claimed, then handed back
   assert.ok(after.at);
 });
+
+test("plan.toggle_done with done and if_version is idempotent and refuses a stale copy", async () => {
+  const { call, item } = await setup();
+  const { id } = (await call("plan.create", { title: "Tick" })).body.result;
+  const v = ((await item(id))?.v ?? 0) as number;
+  const set = (done: boolean, if_version?: number) => call("plan.toggle_done", { id, done, if_version });
+  await set(true, v);
+  await set(true, v + 1);
+  assert.equal((await item(id))?.v, v + 1);
+  assert.equal((await set(false, v)).status, 409);
+  assert.equal((await set(false)).body.result.done, false); // no version: old behaviour
+});
