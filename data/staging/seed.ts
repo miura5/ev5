@@ -97,7 +97,9 @@ export async function seed(s: Seeder): Promise<boolean> {
   return true;
 }
 
-if (process.argv[1] === import.meta.filename) {
+// The project types no Node globals, so the entry check reads argv and the file name through narrow local types.
+const argv1 = (globalThis as unknown as { process?: { argv?: string[] } }).process?.argv?.[1];
+if (argv1 === (import.meta as { filename?: string }).filename) {
   const url = process.env["SEED_URL"];
   const token = process.env["SEED_TOKEN"];
   if (!url || !token) throw new Error("SEED_URL and SEED_TOKEN are required");
