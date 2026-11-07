@@ -9,7 +9,7 @@ import { draftHandlers } from "./handlers-drafts.ts";
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
-/** "Question\n- wrong\n* right" as an ev4 set item; a body that cannot be a question is a 400 saying what is missing. */
+/** "Question\n- wrong\n* right" as a set item; a body that cannot be a question is a 400 saying what is missing. */
 function itemBody(id: string, text: string) {
   const lines = text
     .split(/\r?\n/)
