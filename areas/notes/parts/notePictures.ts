@@ -1,4 +1,4 @@
-import { api, readToken } from "../../../commands/client.ts";
+import { api, pictureApi, readToken } from "../../../commands/client.ts";
 import { IMG_KEY } from "../../../domain/index.ts";
 
 // Note pictures (CONTRACT §data.note-images): the Worker keeps them in R2 under note-images/ for the owner only. The
@@ -37,10 +37,7 @@ export async function uploadPicture(file: File): Promise<Upload> {
     };
   const key = newKey(file.type);
   try {
-    const r = await api(key, readToken(), {
-      method: "PUT",
-      raw: { data: file, contentType: file.type },
-    });
+    const r = await pictureApi.put(key, file, readToken());
     // 409: the Worker refuses to overwrite (§data.note-images), so the key is already stored; a retry succeeded earlier.
     if (r.ok || r.status === 409) return { ok: true, key };
     return {

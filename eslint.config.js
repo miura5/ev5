@@ -99,13 +99,8 @@ export default [
     },
   },
   {
-    // These screens still write through api() because no registry command carries the write yet. A file leaves this list
-    // when its write moves to call() from commands/client.ts; new files are not exempt.
-    //   notePictures.ts: a raw picture upload.
-    files: [
-      "areas/**/*.test.{ts,tsx}",
-      "areas/notes/parts/notePictures.ts",
-    ],
+    // Tests may call api() directly. Screens write through call() or a door in commands/client.ts (pictureApi).
+    files: ["areas/**/*.test.{ts,tsx}"],
     rules: { "no-restricted-syntax": ["error", ...areaSyntax] },
   },
 ];
