@@ -46,7 +46,8 @@ const reply = (p: unknown): ModelReply => ({
   usage: { inputTokens: 1000, outputTokens: 500 },
 });
 
-function memStore(over: { exam?: typeof exam | undefined } = {}) {
+function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: boolean } = {}) {
+  let approveTries = 0;
   const rows = new Map<string, unknown>();
   const log: string[] = [];
   const store: PlanStore = {
@@ -60,7 +61,11 @@ function memStore(over: { exam?: typeof exam | undefined } = {}) {
     getDraft: async (j) => rows.get(`d${j}`) as Plan,
     putFailure: async (j, r) => void rows.set(`f${j}`, r),
     getFailure: async (j) => rows.get(`f${j}`) as string | undefined,
-    approve: async (j, p) => (log.push(`approve ${p.tasks.length}`), `plan-${j}`),
+    approve: async (j, p) => {
+      if (over.failApproveOnce && approveTries++ === 0) throw new Error('D1 write failed');
+      log.push(`approve ${p.tasks.length}`);
+      return `plan-${j}`;
+    },
     putAway: async (j) => (log.push('put away'), `away-${j}`),
   };
   return { store, log, rows };
@@ -128,6 +133,18 @@ test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   assert.equal(done.state, 'done');
   assert.deepEqual(log, ['approve 2']);
   assert.equal(reqs.length, 1);
+});
+
+test('a save step that fails once is retried and the model is called once', async () => {
+  let calls = 0;
+  const { env, jobs, wf, log } = setup(async () => (calls++, reply(good)), { failApproveOnce: true });
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
+  await wf.idle();
+  await continueJob(env, prepPlanJob, job.id, { decision: 'approve' });
+  await wf.idle();
+  assert.equal((await jobs.get(job.id))!.state, 'done');
+  assert.deepEqual(log, ['approve 2']);
+  assert.equal(calls, 1);
 });
 
 test('a change request on the draft calls Haiku, stores the patched draft, then approve saves it', async () => {
