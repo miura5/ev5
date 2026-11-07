@@ -139,7 +139,10 @@ export const commandHandlers: Record<string, CommandHandler> = {
     const c = await collectionOf(t, i.id);
     // A note is a row: it is hidden there and listed in Recently deleted (§delete.soft).
     if (c === "notes") return { deleted: await t.deletions.markNote(i.id) };
-    // A set, a goal or a session has no deletions mark yet (data/tables): nothing is hidden, so nothing is claimed.
+    // A set or a goal is a row too: hidden there and listed in Recently deleted (§delete.soft).
+    if (c === "sets") return { deleted: await t.deletions.markSet(i.id) };
+    if (c === "exams") return { deleted: await t.deletions.markGoal(i.id) };
+    // A session has no deletions mark yet (data/tables): nothing is hidden, so nothing is claimed.
     return { deleted: false };
   },
   // A restore only clears the deletions row: the document was never removed (§delete.soft).

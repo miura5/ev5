@@ -84,11 +84,18 @@ test("pin, unpin and rename work on a set row; delete and restore read rows, not
     (await call("item.rename", { id: "set_s1", title: "New" })).status,
     200,
   );
-  // A set has no deletions mark yet, so a delete hides nothing and a restore finds nothing to bring back.
   const del = (await (await call("item.delete", { id: "set_s1" })).json()) as {
     result: { deleted: boolean };
   };
-  assert.equal(del.result.deleted, false);
+  assert.equal(del.result.deleted, true);
+  const listed = (await (await call.get("/deletions")).json()) as {
+    deletions: { collection: string; id: string; title: string | null }[];
+  };
+  assert.deepEqual(
+    listed.deletions.map((d) => [d.collection, d.id, d.title]),
+    [["sets", "set_s1", "New"]],
+  );
+  assert.equal((await call("item.restore", { id: "set_s1" })).status, 200);
   assert.equal((await call("item.restore", { id: "set_s1" })).status, 404);
   assert.equal((await call("item.delete", { id: "nope" })).status, 404);
 });
@@ -217,4 +224,26 @@ test("item.restore brings a removed set item back, by its id or an old <set>/<it
   assert.equal((await call("item.restore", { id: "set_1/b" })).status, 200);
   const left = await call.db.prepare("SELECT id FROM deletions").all();
   assert.equal(left.results.length, 0);
+});
+
+test("a goal is deleted, listed with its title in Recently deleted, and restored", async () => {
+  const call = await setup();
+  await call.db
+    .prepare(
+      "INSERT INTO goals (id, title, kind, status, created_by, at, v) VALUES ('goal_g1', 'Exam 1', 'exam', 'open', 'user', 1, 1)",
+    )
+    .run();
+  const del = (await (await call("item.delete", { id: "goal_g1" })).json()) as {
+    result: { deleted: boolean };
+  };
+  assert.equal(del.result.deleted, true);
+  const listed = (await (await call.get("/deletions")).json()) as {
+    deletions: { collection: string; id: string; title: string | null }[];
+  };
+  assert.deepEqual(
+    listed.deletions.map((d) => [d.collection, d.id, d.title]),
+    [["exams", "goal_g1", "Exam 1"]],
+  );
+  assert.equal((await call("item.restore", { id: "goal_g1" })).status, 200);
+  assert.equal((await call("item.restore", { id: "goal_g1" })).status, 404);
 });
