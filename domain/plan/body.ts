@@ -31,3 +31,6 @@ export const planBodySchema = z.object(
   },
   { error: "plan: not an object" },
 );
+
+export type PlanBody = z.infer<typeof planBodySchema>;
+export type PlanTask = z.infer<typeof planTaskSchema>;
