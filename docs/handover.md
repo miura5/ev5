@@ -1,5 +1,6 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
 ## Running    nothing. (Node 22 sandbox: `node --test <dir>` fails there; CI is the proof.)
+NOTE run 2026-11-07 04Z: B-1022 plan row shape already on main; claude_settings -> settings(key,value,at,v) goes in the squash with server/job-run.ts, data/export/tables.ts, ops/checks/migrationshape.ts. B-1036 (a) action pins and (e) size check blocked: sandbox cannot reach other repos' tags or developers.cloudflare.com (give the three v4 SHAs or allow the hosts).
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). Keep groups and order; drop done tasks. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
 (3) Kit drift: B-1012 left: its e2e journey's first staging run, seen on staging. B-942 left: light theme/PNG check on staging. B-979 waits on B-974, B-975 and two kit-class overrides in areas/ (notes); not built.
