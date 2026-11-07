@@ -1,9 +1,11 @@
 // the model call is its own step and its output is kept, so retrying the save step does not pay for the model.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { startJob, runJob, workflowExecutor } from "../runtime/index.ts";
-import type { Ceilings, Env, JobRecord, JobStore } from "../runtime/index.ts";
-import type { ModelCall } from "../runtime/index.ts";
+import { startJob, workflowExecutor } from "../runtime/index.ts";
+import { runJob } from "../runtime/workflow.ts";
+import type { Ceilings } from "../runtime/workflow.ts";
+import type { Env, ModelCall } from "../runtime/index.ts";
+import type { JobRecord, JobStore } from "../runtime/record.ts";
 import { fakeWorkflows } from "../runtime/workflow.fake.ts";
 import { practiceSetHandlers } from "./handlers.ts";
 import type { PracticeStore } from "./handlers.ts";
