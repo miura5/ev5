@@ -27,7 +27,7 @@ function setup(restoreStatus: number) {
       if (String(url).includes("commands/item.restore"))
         return new Response(JSON.stringify({ mode: "direct", result: {} }), { status: restoreStatus });
       return new Response(
-        JSON.stringify({ deletions: [{ collection: "notes", id: "n1", at: Date.now(), title: "Cardiac drugs" }] }),
+        JSON.stringify({ deletions: [{ collection: "notes", id: "n1", at: Date.now(), title: "Key terms" }] }),
         { status: 200 },
       );
     }),
@@ -38,7 +38,7 @@ function setup(restoreStatus: number) {
 test("Restore calls item.restore and the item leaves the list", async () => {
   const calls = setup(200);
   render(<DeletedScreen />);
-  fireEvent.click(await screen.findByLabelText("Restore Cardiac drugs"));
+  fireEvent.click(await screen.findByLabelText("Restore Key terms"));
   await waitFor(() => expect(screen.getByText("Nothing here.")).toBeTruthy());
   expect(calls.some((c) => c.includes("commands/item.restore") && c.includes('"id":"n1"'))).toBe(true);
 });
@@ -46,7 +46,7 @@ test("Restore calls item.restore and the item leaves the list", async () => {
 test("a failed restore keeps the item", async () => {
   setup(500);
   render(<DeletedScreen />);
-  fireEvent.click(await screen.findByLabelText("Restore Cardiac drugs"));
+  fireEvent.click(await screen.findByLabelText("Restore Key terms"));
   await waitFor(() => expect(screen.getByRole("status") ?? screen.getByText(/./)).toBeTruthy());
-  expect(screen.getByLabelText("Restore Cardiac drugs")).toBeTruthy();
+  expect(screen.getByLabelText("Restore Key terms")).toBeTruthy();
 });

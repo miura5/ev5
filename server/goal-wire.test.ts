@@ -10,7 +10,7 @@ test("a date made with date.create shows as an exam document with no planId", as
   const { DB, call } = await setup();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const made = await call("date.create", {
-    title: "Pharm final",
+    title: "Final exam",
     date: "2999-12-01",
     kind: "exam",
   });
@@ -24,6 +24,6 @@ test("a date made with date.create shows as an exam document with no planId", as
     docs: { collection: string; id: string; data: Record<string, unknown> }[];
   };
   const doc = body.docs.find((d) => d.id === id && d.collection === "exams");
-  assert.equal(doc?.data["title"], "Pharm final");
+  assert.equal(doc?.data["title"], "Final exam");
   assert.equal("planId" in (doc?.data ?? {}), false);
 });

@@ -181,7 +181,7 @@ test("item.rename renames a collection in its own table", async () => {
     200,
   );
   assert.equal(
-    (await call("item.rename", { id, title: "BIO 202" })).status,
+    (await call("item.rename", { id, title: "Course B" })).status,
     200,
   );
 });

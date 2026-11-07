@@ -28,7 +28,7 @@ const set = (doc_id: string, data: unknown, if_version?: number | null, collecti
 const upd = (doc_id: string, data: unknown, if_version?: number | null) => ({ ...set(doc_id, data, if_version), op: 'update' });
 
 /** A note the gate accepts (synthetic). */
-export const goodNote = (title = 'Cardiac output') => ({
+export const goodNote = (title = 'Energy budget') => ({
   schema: 1, writer: 'page', at: '2026-11-02T15:00:00Z', createdAt: '2026-11-02T15:00:00Z',
   title, blocks: [{ type: 'p', runs: [{ text: 'Stroke volume times heart rate.' }] }],
 });

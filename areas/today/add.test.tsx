@@ -77,7 +77,7 @@ test("Add date on Upcoming needs a title and a date, then calls onAddDate", asyn
   fireEvent.click(screen.getByRole("button", { name: "Add date" }));
   const form = screen.getByRole("form", { name: "Add a date" });
   fireEvent.change(within(form).getByLabelText("Title"), {
-    target: { value: "Pharm quiz" },
+    target: { value: "Unit quiz" },
   });
   const add = within(form).getByRole("button", {
     name: "Add",
@@ -88,7 +88,7 @@ test("Add date on Upcoming needs a title and a date, then calls onAddDate", asyn
   });
   fireEvent.click(add);
   await waitFor(() =>
-    expect(p.onAddDate).toHaveBeenCalledWith("Pharm quiz", "2026-11-12"),
+    expect(p.onAddDate).toHaveBeenCalledWith("Unit quiz", "2026-11-12"),
   );
 });
 

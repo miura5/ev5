@@ -193,7 +193,7 @@ test("a waiting prep plan in the job list carries its draft sessions", async () 
         tasks: [
           {
             date: "2026-11-09",
-            title: "Cardiac review",
+            title: "Unit review",
             minutes: 45,
             weakSpotId: "w1",
           },
@@ -207,7 +207,7 @@ test("a waiting prep plan in the job list carries its draft sessions", async () 
     jobs: { id: string; tasks?: unknown }[];
   };
   assert.deepEqual(jobs.find((j) => j.id === "sp3")?.tasks, [
-    { date: "2026-11-09", title: "Cardiac review", minutes: 45 },
+    { date: "2026-11-09", title: "Unit review", minutes: 45 },
   ]);
 });
 

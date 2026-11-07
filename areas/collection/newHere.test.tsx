@@ -39,9 +39,9 @@ const openMenu = async (name: string) => {
 const note: CollectionEntry = {
   id: "n1",
   type: "note",
-  title: "Cardiac drugs",
+  title: "Key terms",
 };
-const base = { title: "Biology 101", dates: [], nested: [], items: [note] };
+const base = { title: "Course A", dates: [], nested: [], items: [note] };
 
 test("New offers a note, a set, a date and a collection here, and reports the pick", async () => {
   const onNewHere = vi.fn();
@@ -56,7 +56,7 @@ test("New offers a note, a set, a date and a collection here, and reports the pi
 });
 
 test("inside a nested collection New does not offer another collection", async () => {
-  render(<CollectionView {...base} parent="Biology 101" onNewHere={vi.fn()} />);
+  render(<CollectionView {...base} parent="Course A" onNewHere={vi.fn()} />);
   await openMenu("New in this collection");
   expect(
     screen.queryByRole("menuitem", { name: "Collection inside" }),
@@ -78,7 +78,7 @@ test("New > Note sends collection.new_here and opens the new note", async () => 
         url.includes("collections")
           ? {
               collections: [
-                { id: "a", title: "Biology 101", parentId: null, pos: 0 },
+                { id: "a", title: "Course A", parentId: null, pos: 0 },
               ],
             }
           : url.includes("pins")
@@ -92,7 +92,7 @@ test("New > Note sends collection.new_here and opens the new note", async () => 
   const { CollectionScreen } = await import("./Collection.screen.tsx");
   const onNavigate = vi.fn();
   render(<CollectionScreen path="/collection/a" onNavigate={onNavigate} />);
-  await screen.findByDisplayValue("Biology 101");
+  await screen.findByDisplayValue("Course A");
   await openMenu("New in this collection");
   await act(async () => {
     fireEvent.click(screen.getByRole("menuitem", { name: "Note" }));

@@ -60,7 +60,7 @@ test("a date is a goals row, linked to objectives, changed in place and read as 
       )
     ).json() as Promise<Record<string, any>>;
   await DB.prepare(
-    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('col_1', 'NUR', NULL, 0, 1, 1)",
+    "INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('col_1', 'Course', NULL, 0, 1, 1)",
   ).run();
   await DB.prepare(
     "INSERT INTO objectives (id, collection_id, num, text, chapters, source_ref, created_by, at, v) VALUES ('obj_1', 'col_1', 1, 'x', '[]', NULL, 'user', 1, 1)",

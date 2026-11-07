@@ -18,7 +18,7 @@ async function setup(withTables: boolean) {
     "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
   ).run();
   await DB.prepare(
-    `INSERT INTO docs VALUES ('notes','a','{"title":"Cardiac drugs"}',1,1)`,
+    `INSERT INTO docs VALUES ('notes','a','{"title":"Key terms"}',1,1)`,
   ).run();
   await DB.prepare(
     `INSERT INTO set_items (id, set_id, pos, type, body, at) VALUES ('item_1','set_1',1,'single','{"stem":"Which lab is highest priority?"}',1)`,
@@ -31,7 +31,7 @@ async function setup(withTables: boolean) {
       "CREATE TABLE memberships (item_c TEXT NOT NULL, item_id TEXT NOT NULL, collection_id TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (item_c, item_id))",
     ).run();
     await DB.prepare(
-      "INSERT INTO collections VALUES ('col_c2','Spanish',NULL,2,5,1,NULL),('col_c1','Biology 101',NULL,1,5,1,NULL),('col_c3','Unit 1','col_c1',1,6,1,NULL)",
+      "INSERT INTO collections VALUES ('col_c2','Spanish',NULL,2,5,1,NULL),('col_c1','Course A',NULL,1,5,1,NULL),('col_c3','Unit 1','col_c1',1,6,1,NULL)",
     ).run();
     await DB.prepare(
       "CREATE TABLE pins (target_c TEXT NOT NULL, target_id TEXT NOT NULL, pos INTEGER NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (target_c, target_id))",
@@ -147,7 +147,7 @@ test("deletions carry the kept item's title, for a note and for a set item", asy
   const t = Object.fromEntries(
     all.deletions.map((d) => [d.collection, d.title]),
   );
-  assert.equal(t.notes, "Cardiac drugs");
+  assert.equal(t.notes, "Key terms");
   assert.equal(t.set_items, "Which lab is highest priority?");
   assert.equal(t.sets, null);
 });

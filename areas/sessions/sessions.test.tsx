@@ -10,7 +10,7 @@ import {
 afterEach(cleanup);
 
 const base = (over: Partial<SessionViewProps> = {}): SessionViewProps => ({
-  title: "Cardiac output",
+  title: "Energy budget",
   meta: "Economics 101",
   seconds: 1100,
   paused: false,

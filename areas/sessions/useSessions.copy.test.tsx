@@ -41,7 +41,7 @@ const doc = {
     at: "2026-11-04T15:00:00.000Z",
     source: "E.V. Home",
     date: "2026-11-04",
-    topic: "Cardiac output",
+    topic: "Energy budget",
     status: "active",
     startedAt: "2026-11-04T15:00:00.000Z",
   },

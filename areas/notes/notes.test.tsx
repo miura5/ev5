@@ -12,8 +12,8 @@ import type { NotePageData } from "./types.ts";
 afterEach(cleanup);
 
 const collections: NoteCollection[] = [
-  { id: "nur112", title: "Biology 101", parentId: null },
-  { id: "lecture", title: "Lecture notes", parentId: "nur112" },
+  { id: "course-a", title: "Course A", parentId: null },
+  { id: "lecture", title: "Lecture notes", parentId: "course-a" },
 ];
 const n = (
   id: string,
@@ -27,7 +27,7 @@ const n = (
   collectionId,
 });
 const notes = [
-  n("a", "Med math", "nur112"),
+  n("a", "Unit maths", "course-a"),
   n("c", "Loose idea", null),
   n("e", "Third", null),
   n("b", "Fluid balance", "lecture"),
@@ -45,7 +45,7 @@ test("home lists the 3 most recent and folds collections open to their notes", (
   );
   expect(screen.queryByText("Fourth")).toBeNull();
   expect(screen.queryByText("Fluid balance")).toBeNull();
-  const top = screen.getByRole("button", { name: /^Biology 101/ });
+  const top = screen.getByRole("button", { name: /^Course A/ });
   expect(top.getAttribute("aria-expanded")).toBe("false");
   fireEvent.click(top);
   fireEvent.click(screen.getByRole("button", { name: /^Lecture notes/ }));
@@ -58,8 +58,8 @@ test("new note carries the collection; the loose group has no New note", () => {
   render(
     <NotesView notes={notes} collections={collections} onNewNote={onNewNote} />,
   );
-  fireEvent.click(screen.getByRole("button", { name: "New note in Biology 101" }));
-  expect(onNewNote).toHaveBeenCalledWith("nur112");
+  fireEvent.click(screen.getByRole("button", { name: "New note in Course A" }));
+  expect(onNewNote).toHaveBeenCalledWith("course-a");
   expect(
     screen.queryByRole("button", { name: "New note in No collection" }),
   ).toBeNull();
@@ -73,7 +73,7 @@ test("empty home says so", () => {
 
 const page: NotePageData = {
   id: "n-co",
-  title: "Cardiac output",
+  title: "Energy budget",
   collectionName: "Economics 101",
   edited: "now",
   saveState: "saved",
@@ -92,7 +92,7 @@ test("note page shows meta and blocks, session bar only in a session", () => {
   const { rerender } = render(
     <NotePageView note={page} onBack={onBack} onStartSession={onStart} />,
   );
-  expect(screen.getByRole("heading", { name: "Cardiac output" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Energy budget" })).toBeTruthy();
   expect(screen.getByText("CO = HR × SV").tagName).toBe("B");
   expect(screen.getByText("Image · curve")).toBeTruthy();
   expect(screen.queryByText(/Session/)).toBeNull();
@@ -117,10 +117,10 @@ test("note page shows meta and blocks, session bar only in a session", () => {
 test("a titled note shows its title once; an untitled one shows Untitled once", () => {
   const titled: NotePageData = {
     ...page,
-    body: [{ type: "h1", runs: [{ text: "Cardiac output" }] }, ...page.body],
+    body: [{ type: "h1", runs: [{ text: "Energy budget" }] }, ...page.body],
   };
   const { rerender } = render(<NotePageView note={titled} />);
-  expect(screen.getAllByText("Cardiac output")).toHaveLength(1);
+  expect(screen.getAllByText("Energy budget")).toHaveLength(1);
   rerender(<NotePageView note={{ ...page, title: "Untitled" }} />);
   expect(screen.getAllByText("Untitled")).toHaveLength(1);
 });

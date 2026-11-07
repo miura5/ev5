@@ -14,7 +14,7 @@ async function make() {
       id: "set_1",
       collection_id: null,
       kind: "drill",
-      title: "Cardiac",
+      title: "Cycles",
       source_kind: null,
       source_id: null,
       created_by: "user",

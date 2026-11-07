@@ -24,14 +24,14 @@ afterEach(() => {
 });
 
 const keptCols = {
-  "notes:collections": { collections: [{ id: "c1", title: "Biology 101" }] },
+  "notes:collections": { collections: [{ id: "c1", title: "Course A" }] },
   "notes:memberships": { memberships: [{ collection: "notes", id: "n1", collectionId: "c1" }] },
 };
 
 test("offline, the saved collections and filing show", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
   const r = await readCollections(fakeCopy({ ...keptCols }));
-  expect(r.collections.map((c) => c.title)).toEqual(["Biology 101"]);
+  expect(r.collections.map((c) => c.title)).toEqual(["Course A"]);
   expect(r.members.get("n1")).toBe("c1");
 });
 
