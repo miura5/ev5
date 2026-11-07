@@ -74,3 +74,21 @@ test("a set and a goal are soft-deleted by a row mark and come back on restore",
   assert.equal(mark("goals", "goal_a").deleted_at, null);
   assert.equal(mark("sets", "set_a").v, 3);
 });
+
+test("a session is soft-deleted by a row mark, hidden from reads and found again for restore", async () => {
+  const { db, repo } = make();
+  db.exec(
+    "INSERT INTO sessions (id, kind, day, status, topic, at) VALUES ('ses_a', 'note', '2026-11-07', 'ended', 'Cardiac', 1)",
+  );
+  assert.equal(await repo.deletions.markSession("ses_a"), true);
+  assert.equal(await repo.deletions.markSession("ses_a"), false);
+  assert.equal(await repo.deletions.markSession("ses_missing"), false);
+  assert.equal(await repo.sessionBook.get("ses_a"), null);
+  assert.deepEqual(await repo.sessionBook.list(), []);
+  assert.equal(
+    (await repo.sessionBook.get("ses_a", { deleted: true }))?.row.id,
+    "ses_a",
+  );
+  assert.equal(await repo.deletions.restore("sessions", "ses_a"), 1);
+  assert.equal((await repo.sessionBook.get("ses_a"))?.row.v, 3);
+});
