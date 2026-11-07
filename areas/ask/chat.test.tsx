@@ -49,13 +49,16 @@ test("a reload brings the saved chat back, a send names its chat, and Just tell 
             ]
           : lines,
       });
-    if (url === "/api/v1/ask" && (sentOne = true))
+    if (url === "/api/v1/commands/ask.send" && (sentOne = true))
       return ok({
-        reply: {
-          text: "Try it first.",
-          unverified: false,
-          asksTry: true,
-          chatId: "chat_a",
+        mode: "direct",
+        result: {
+          reply: {
+            text: "Try it first.",
+            unverified: false,
+            asksTry: true,
+            chatId: "chat_a",
+          },
         },
       });
     if (url.startsWith("/api/v1/commands/"))
@@ -69,10 +72,11 @@ test("a reload brings the saved chat back, a send names its chat, and Just tell 
   fireEvent.change(box, { target: { value: "next" } });
   fireEvent.keyDown(box, { key: "Enter" });
   await waitFor(() => expect(screen.getByText("Try it first.")).toBeTruthy());
-  const send = f.mock.calls.find(([u]) => u === "/api/v1/ask");
+  const send = f.mock.calls.find(
+    ([u]) => u === "/api/v1/commands/ask.send",
+  );
   expect(JSON.parse((send?.[1] as { body: string }).body)).toEqual({
-    text: "next",
-    chat_id: "chat_a",
+    input: { text: "next", chat_id: "chat_a" },
   });
   fireEvent.click(screen.getByText("Just tell me"));
   await waitFor(() =>

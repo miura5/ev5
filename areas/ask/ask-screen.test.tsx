@@ -40,13 +40,15 @@ test("with a token, open jobs show and a sent question gets the server's cited r
   const fetchMock = vi.fn(async (url: string) => ({
     ok: true,
     json: async () =>
-      url.endsWith("/ask")
+      url.endsWith("/ask.send")
         ? {
-            reply: {
-              text: "Under 60.",
-              source: "Heart rate",
-              unverified: false,
-              asksTry: false,
+            result: {
+              reply: {
+                text: "Under 60.",
+                source: "Heart rate",
+                unverified: false,
+                asksTry: false,
+              },
             },
           }
         : {
@@ -68,7 +70,7 @@ test("with a token, open jobs show and a sent question gets the server's cited r
   fireEvent.keyDown(box, { key: "Enter" });
   expect(screen.getByText("hi")).toBeTruthy();
   await waitFor(() => expect(screen.getByText("Under 60.")).toBeTruthy());
-  expect(fetchMock.mock.calls.some(([u]) => u === "/api/v1/ask")).toBe(true);
+  expect(fetchMock.mock.calls.some(([u]) => u === "/api/v1/commands/ask.send")).toBe(true);
 });
 
 test("an unverified reply says so, and a refused one reads as a plain sentence", async () => {
@@ -77,7 +79,9 @@ test("an unverified reply says so, and a refused one reads as a plain sentence",
     vi.fn(async () => ({
       ok: true,
       json: async () => ({
-        reply: { text: "Maybe.", unverified: true, asksTry: false },
+        result: {
+          reply: { text: "Maybe.", unverified: true, asksTry: false },
+        },
       }),
     })),
   );
@@ -96,7 +100,7 @@ async function sendWith(res: unknown) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (u: string) =>
-      u.endsWith("/ask") ? res : { ok: true, json: async () => ({ jobs: [] }) },
+      u.endsWith("/ask.send") ? res : { ok: true, json: async () => ({ jobs: [] }) },
     ),
   );
   render(<AskScreen />);
@@ -145,7 +149,7 @@ test("?text= prefills the input and sends nothing", () => {
   render(<AskScreen search="text=what%20is%20a%20ratio" />);
   const box = screen.getByLabelText("Message to E.V.") as HTMLTextAreaElement;
   expect(box.value).toBe("what is a ratio");
-  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/ask"))).toBe(
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/ask.send"))).toBe(
     false,
   );
 });
