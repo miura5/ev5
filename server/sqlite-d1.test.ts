@@ -72,9 +72,13 @@ export function sqliteD1(): D1Like {
     async batch(statements) {
       sql.exec("BEGIN");
       try {
-        const out = statements.map((s) =>
-          (s as unknown as { exec: () => unknown }).exec(),
-        );
+        // Like D1, each result carries `meta.changes`.
+        const out = statements.map((s) => {
+          const r = (
+            s as unknown as { exec: () => { changes: number } }
+          ).exec();
+          return { ...r, meta: { changes: r.changes } };
+        });
         sql.exec("COMMIT");
         return out;
       } catch (e) {
