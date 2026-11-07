@@ -26,16 +26,6 @@ function fakeServer() {
     status: 0, // forces this answer to the next put when set
     docs,
     transport: {
-      async put(c, id, body, ifVersion) {
-        if (c === 'notes') throw new Error('a note is saved by note.save, not PUT /docs');
-        if (!s.online) throw new Error('offline');
-        if (s.status) return { status: s.status, text: 'no' };
-        const cur = docs.get(`${c}/${id}`);
-        if ((cur?.v ?? null) !== ifVersion) return { status: 409 };
-        const v = (cur?.v ?? 0) + 1;
-        docs.set(`${c}/${id}`, { v, data: JSON.parse(body) });
-        return { status: 200, version: v };
-      },
       async command(name, input) {
         if (!s.online) throw new Error('offline');
         if (name === 'note.save') {
@@ -56,9 +46,9 @@ function fakeServer() {
         docs.set(`${name}/${id}`, { v: 1, data: input });
         return { status: 200 };
       },
-      async get(c, id) {
+      async get(id) {
         if (!s.online) throw new Error('offline');
-        const cur = docs.get(`${c}/${id}`);
+        const cur = docs.get(`notes/${id}`);
         return cur ? { status: 200, version: cur.v, data: cur.data } : { status: 404 };
       },
     },
@@ -209,6 +199,18 @@ describe('what stays and what is refused', () => {
     });
     expect([...server.docs.keys()].some((k) => k.startsWith('answers/'))).toBe(false);
     expect(await box.waiting()).toEqual([]);
+  });
+
+  test('an old answer entry with no item to post to is refused and shown, never sent', async () => {
+    const { server, store, box } = make();
+    const shown: string[] = [];
+    box.onRefused((r) => shown.push(...r.map((x) => x.id)));
+    await legacy(store, 'odd', { setId: 5 }, 1);
+    const r = await box.replay();
+    expect(r.refused).toHaveLength(1);
+    expect(shown).toEqual(['odd']);
+    expect(server.docs.size).toBe(0);
+    expect(await box.count()).toBe(0);
   });
 
   test('an answer already recorded (409) drops out; a replay after a lost reply posts the same att_ id', async () => {

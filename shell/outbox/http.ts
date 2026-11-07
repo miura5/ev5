@@ -1,7 +1,8 @@
-// The outbox's transport and the page's reads over /api/v1/docs (server/doc-routes.ts). The app token is read at each
+// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads over /api/v1/docs (server/doc-routes.ts). The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
 import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
+import { noteDocOf, noteRowId, type NoteTableRow } from "../../domain/index.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -43,20 +44,6 @@ export function docsHttp(
     });
 
   const transport: Transport = {
-    async put(c, id, body, ifVersion): Promise<PutAnswer> {
-      const params = {
-        collection: c,
-        id,
-        ...(ifVersion === null ? {} : { if_version: String(ifVersion) }),
-      };
-      const r = await call(`?${q(params)}`, { method: "PUT", body });
-      const b = await json(r);
-      return {
-        status: r.status,
-        version: typeof b.version === "number" ? b.version : undefined,
-        text: JSON.stringify(b),
-      };
-    },
     async command(name, input): Promise<PutAnswer> {
       const r = await runCommand(name as CommandName, input, token());
       if (!r.ok && r.status === 0) throw new TypeError("offline"); // no connection: the outbox waits
@@ -64,11 +51,13 @@ export function docsHttp(
       const v = (r.result as { version?: unknown } | null | undefined)?.version;
       return { status: 200, ...(typeof v === 'number' ? { version: v } : {}) };
     },
-    async get(c, id): Promise<GetAnswer> {
-      const r = await call(`?${q({ collection: c, id })}`);
+    async get(id): Promise<GetAnswer> {
+      const r = await doFetch(`/api/v1/notes/${encodeURIComponent(noteRowId(id))}`, {
+        headers: { authorization: `Bearer ${token()}` },
+      });
       if (!r.ok) return { status: r.status };
-      const b = await json(r);
-      return { status: 200, version: b.v as number, data: b.data };
+      const row = (await json(r)) as unknown as NoteTableRow;
+      return { status: 200, version: row.v, data: noteDocOf(row) };
     },
   };
 
