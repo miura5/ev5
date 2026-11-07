@@ -4494,7 +4494,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1537Z: (c) done (#849): server/doc-routes.ts, data/docs, docsRepo, session-/plan-/note-wire, data/protocol docs harness gone. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion go with it). Pure deletes still open: server/goal-wire.ts and weak-wire.ts (plan-home, handlers-prepplan, jobs-done use them), domain/doc-row and */row.ts doc shapes, jobs/runtime/ceilings-memory.ts, domain/claude and domain/system-doc parsers, empty ops/checks allow-lists, Detail prop in shell/Shell.tsx and DetailSlot.tsx, POST /jobs/:id/dismiss and /jobs/:slug, unused repo methods in data/tables. docs/proposals/table-design.md line 129 names removed files. No deletions table in the squash.",
+  "notes": "Run 2026-11-07 1537Z: (c) done (#849). Pure deletes (#855): domain/claude, system-doc, row.ts doc shapes for note, objective, session; Detail prop and legacy path in shell; itemProps, pinRows; empty ALLOWED sets in ops/checks chartev4 and sourceids. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Pure deletes still open: server/goal-wire.ts and weak-wire.ts (several callers), domain/doc-row (goal/set cases) , data/tables/own.ts (domain/own-set parsers used by row-shapes.test.ts), jobs/runtime/ceilings-memory.ts is a test helper (move to a test file or keep), ops/checks/migrationnames.ts one entry, POST /jobs/:id/dismiss and /jobs/:slug. docs/proposals/table-design.md line 129 names removed files.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4542,7 +4542,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Run 2026-11-07 04:4x (#724): onError logs one JSON line with request id (no message), returns it in the 500; F24 done (GET /docs?since no longer sends old sessions twice). Left: docsRepo in ~10 files and raw SQL over docs (B11, B13); moves write created_by/by only. Claim freed. Data-loss audit (D-526), before cutover, L6: multi-statement writes that are not one batch: set.item_delete (server/handlers-sets.ts), collection delete and restore (server/command-handlers.ts), check.answer (server/handlers-session.ts); each becomes one db.batch.",
+  "notes": "Run 2026-11-07 1537Z (#854): L6 done for set.item_delete and check.answer (server/defer-writes.ts queues writes into one db.batch, stale version rolls back, 409 kept). Collection delete/restore is now one statement (#856). Left: docsRepo is gone; F23/B11/B13 raw SQL and bare-id lookups in server routes, paged list reads, drafts restore by kind and id; reuse defer-writes where a command still writes in several statements.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1537Z",
@@ -4834,7 +4834,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1505Z done: H1 and F13 (#834), H2 titles via rowOf and F5 client goals key and F8 shell/outbox readJson (#835), H3 plan-home attempts via tablesRepo and F6 weak-spot rule via gradedBySpot (#836), F12 deleted kinds and F8 library/today readJson (#837), F5 server goals key (#838). Left: F9, one note id form end to end (notes area, note.save, session.start, item.pin, pins, deletions and server/collection-routes.ts all key notes by bare id today; do as one cross-folder change), then the old doc-row shapes, row routes for item versions and session events. CUTOVER-BLOCKING, KISS audit (D-526): the two-statement delete is fixed (#834, one batch), but main still writes the deletions table. Make deleted_at the one delete mechanism: Recently deleted reads rows where deleted_at is set, item.restore clears deleted_at, nothing writes deletions (data/tables/drafts.ts softDelete, the deletions repo, server/collection-routes.ts GET /deletions, server/command-handlers.ts). No backfill. Also before cutover, KISS finding 10: one name per table (data/tables/kinds.ts beside tables.ts); the raw notes.save and setItems.save that skip the size budget and item versions go.",
+  "notes": "Run 2026-11-07 1537Z (#856): deleted_at is the one delete mechanism: GET /deletions reads rows with deleted_at, item.restore clears it, nothing writes deletions (table stays until the squash; drop the deletions line in data/migrations/row-shapes.test.ts then). domain/deletion removed. Also (#855) domain/claude, system-doc and objective/session/note row.ts gone. Left: F9 one note id form end to end (notes area, note.save, session.start, item.pin, pins, deletions, server/collection-routes.ts: one cross-folder change), old doc-row shapes (domain/doc-row, weak-spot/row.ts already gone), row routes for item versions and session events, KISS finding 10 (one table name in data/tables/kinds.ts beside tables.ts; raw notes.save and setItems.save that skip the size budget and item versions go), markOwnSetItem no-op stub in data/tables/drafts.ts and its call in server/handlers-sets.ts. e2e/collection.journey.spec.ts and e2e/helpers.ts comments still describe deletions rows.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
