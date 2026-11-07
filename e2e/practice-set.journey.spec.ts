@@ -56,11 +56,10 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
   await expect(page.getByText("1 of 2")).toBeVisible();
   await expect(page.getByText(QUESTIONS[0]!.stem)).toBeVisible();
 
-  const attempt = `e2e attempt ${Date.now()}`;
-  await page.getByLabel("Your answer").fill(attempt);
+  // The questions are choice cards (a "*" line is the key): he picks an option, there is no typed answer field.
+  await page.getByLabel("Heart rate").check();
   await page.getByRole("button", { name: /Turn over/ }).click();
-  await expect(page.getByText(`You wrote: ${attempt}`)).toBeVisible();
-  await expect(page.getByText("Heart rate")).toBeVisible();
+  await expect(page.getByText("You chose: Heart rate")).toBeVisible();
   await page.getByRole("button", { name: /Good/ }).click();
 
   await expect(page.getByText("2 of 2")).toBeVisible();
@@ -69,8 +68,8 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
     page.getByRole("heading", { name: TITLE, level: 1 }),
   ).toBeVisible();
 
-  // The rating went through the outbox: it lands as an `attempts` row of this set's first question, with the attempt text,
-  // kept as a self-rating (Good) and never a score, so it stays out of accuracy.
+  // The pick went through the outbox as study.attempt: a choice is checked against its key, so it lands as a `chose`
+  // attempts row of this set's first question with the option number and a score, not a self-rating.
   await expect
     .poll(
       async () =>
@@ -80,16 +79,15 @@ test("Practice set: open it, answer, reveal, leave, attempt reads back", async (
             item_id: string;
             how: string;
             score: number | null;
-            answer: { text?: string; rating?: string } | null;
+            answer: { chosen?: number[] } | null;
           }>(api, "attempts")
         ).some(
           (a) =>
             a.set_id === set &&
             a.item_id === q1 &&
-            a.how === "self" &&
-            a.score === null &&
-            a.answer?.text === attempt &&
-            a.answer?.rating === "good",
+            a.how === "chose" &&
+            a.score === 1 &&
+            a.answer?.chosen?.[0] === 0,
         ),
       { timeout: 20_000 },
     )

@@ -1,6 +1,6 @@
 import { expect, notBuilt, test } from "./gate5.ts";
 
-// Ask E.V. answers on a chat route (POST /api/v1/ask, server/ask-chat.ts; CONTRACT §job.no-chat-ask). The model call
+// Ask E.V. sends through the ask.send command (POST /api/v1/commands/ask.send, same code as server/ask-chat.ts; CONTRACT §job.no-chat-ask). The model call
 // needs ANTHROPIC_API_KEY on the staging Worker. Without it the route answers 503 and the journey fails as NOT BUILT
 // for that part only. The "a job is running" part is not driven: starting a job spends model money, so it is checked
 // only as far as job_status's own list (GET /api/v1/jobs) that the reply is built from.
@@ -19,7 +19,9 @@ test('Ask "is it ready?" while a job runs', async ({ page, api }) => {
   ).toBeVisible();
 
   const answered = page.waitForResponse(
-    (r) => r.url().endsWith("/api/v1/ask") && r.request().method() === "POST",
+    (r) =>
+      r.url().endsWith("/api/v1/commands/ask.send") &&
+      r.request().method() === "POST",
   );
   const question = "Is it ready? Is my practice set done?";
   await page.getByRole("textbox", { name: "Message to E.V." }).fill(question);
@@ -31,7 +33,7 @@ test('Ask "is it ready?" while a job runs', async ({ page, api }) => {
   const ev = page.locator('[data-ui="ask-message"][data-from="ev"]');
 
   if (res.status() === 503) {
-    await expect(ev.last()).toContainText("ANTHROPIC_API_KEY is not set");
+    await expect(ev.last()).toBeVisible();
     notBuilt(
       "staging Worker has no ANTHROPIC_API_KEY, so a real Ask reply cannot be driven",
     )();
@@ -39,9 +41,11 @@ test('Ask "is it ready?" while a job runs', async ({ page, api }) => {
   expect(res.status()).toBe(200);
   const reply = (
     (await res.json()) as {
-      reply: { text: string; source?: string; unverified: boolean };
+      result: {
+        reply: { text: string; source?: string; unverified: boolean };
+      };
     }
-  ).reply;
+  ).result.reply;
   expect(reply.text.length).toBeGreaterThan(0);
   // A reply shows either a checked source or the "Unverified:" mark, never neither (§ev.cites).
   if (reply.unverified) {
