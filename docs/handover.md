@@ -3,6 +3,7 @@
 NOTE B-1036 (a) action pins, (e) size check blocked: sandbox cannot reach other repos or Cloudflare docs.
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, D-495). Keep groups and order. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
+First (supervisor 2026-11-07, audit 1803Z; details in each task's notes): B-998 baseline freeze guard (pinned hash of 0000_baseline.sql in ops/checks) and a column-level staging schema check; staging already rebuilt on #880. Then B-1005 (reopened: Claude call and D1 write in separate steps, delete putKept), then B-1001 H3 (plan.update with a repeat and session.end as one batch each).
 (3) Kit drift: lane B (docs/handover-b.md, D-530).
 (4) Data layer, built to D-498 (wins over docs/proposals/table-design.md). No contract migration: after B-998 part 2 one squash baseline replaces the chain (D-514).
 Order: B-998 left: rerun the restore drill (no workflow for it, needs Cloudflare). B-955 and B-1022 done (found already on main, run 1753Z); B-1001 has nothing known left,
