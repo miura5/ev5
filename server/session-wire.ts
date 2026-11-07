@@ -4,6 +4,7 @@
 // already stored may not be removed or changed. Nothing is written to `docs`.
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
+import type { Reads } from "./read-report.ts";
 import {
   newSessionEventRow,
   newSessionRow,
@@ -25,8 +26,13 @@ export interface WireSession {
 export async function sessionDocs(
   db: DocsD1,
   clock: () => number,
+  reads?: Reads,
 ): Promise<WireSession[]> {
-  const all = await tablesRepo(db, { clock }).sessionBook.list();
+  // The book's list carries no count; a session or event left out reaches `reads` through onBad.
+  const all = await tablesRepo(db, {
+    clock,
+    onBad: reads?.onBad,
+  }).sessionBook.list();
   return all.map(({ row, events }) => ({
     id: sessionDocId(row.id),
     v: row.v,
