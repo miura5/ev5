@@ -30,11 +30,11 @@ export { practiceSetHandlers } from "./practice-set/handlers.ts";
 export type { PracticeStore } from "./practice-set/handlers.ts";
 export {
   noPlanReason,
-  studyPlanJob,
-  studyPlanHandlers,
-} from "./study-plan/job.ts";
-export { askChanges } from "./study-plan/changes.ts";
-export type { PlanStore, Plan } from "./study-plan/job.ts";
+  prepPlanJob,
+  prepPlanHandlers,
+} from "./prep-plan/job.ts";
+export { askChanges } from "./prep-plan/changes.ts";
+export type { PlanStore, Plan } from "./prep-plan/job.ts";
 export {
   startJob,
   newJob,

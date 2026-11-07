@@ -133,7 +133,7 @@ export const REVISE_STEPS = Array.from({ length: MAX_CHANGE_ROUNDS }, (_, i) =>
   i === 0 ? 'revise' : `revise_${i + 1}`,
 );
 
-export const studyPlanJob = defineJob({
+export const prepPlanJob = defineJob({
   kind: 'prep_plan',
   title: 'Prep plan',
   input: InputSchema,
@@ -167,7 +167,7 @@ export type Deps = {
   ) => Promise<{ ok: true; plan: Plan; costCents: number } | { ok: false; reason: string; costCents: number }>;
 };
 
-export function studyPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
+export function prepPlanHandlers({ store, call, system, changesSystem, askChanges }: Deps): StepHandlers {
   const revise: StepHandlers[string] = async (c) => {
     const a = parseAnswer(c.input);
     if (a.decision !== 'change') return { ids: [] };
@@ -216,7 +216,7 @@ export function studyPlanHandlers({ store, call, system, changesSystem, askChang
           prompt: JSON.stringify(ctx),
           maxTokens: MAX_TOKENS,
           schema: outputSchema(PlanSchema),
-          parse: studyPlanJob.output,
+          parse: prepPlanJob.output,
           check: (p) => checkPlan(p, ctx),
         }),
       );
