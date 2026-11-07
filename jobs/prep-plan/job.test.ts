@@ -40,14 +40,14 @@ const good: Plan = {
     { date: '2026-11-07', title: 'Light review', minutes: 20 },
   ],
 };
-const reply = (p: unknown): ModelReply => ({
-  stopReason: 'end_turn',
-  text: JSON.stringify(p),
-  usage: { inputTokens: 1000, outputTokens: 500 },
-});
+const usage = { inputTokens: 1000, outputTokens: 500 };
+const reply = (p: unknown): ModelReply => ({ stopReason: 'end_turn', text: JSON.stringify(p), usage });
 
-function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: boolean } = {}) {
+const lostReply = (): never => { throw new Error('D1 reply lost'); }; // the write landed, its reply did not
+
+function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: boolean; failPutOnce?: boolean } = {}) {
   let approveTries = 0;
+  let putTries = 0;
   const rows = new Map<string, unknown>();
   const log: string[] = [];
   const store: PlanStore = {
@@ -57,8 +57,9 @@ function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: bool
         : { exam, spots, today: '2026-11-03' },
     putContext: async (j, c) => (rows.set(`c${j}`, c), `ctx-${j}`),
     getContext: async (j) => rows.get(`c${j}`) as PlanContext,
-    putDraft: async (j, p) => (rows.set(`d${j}`, p), `draft-${j}`),
+    putDraft: async (j, p) => (rows.set(`d${j}`, p), over.failPutOnce && putTries++ === 0 ? lostReply() : `draft-${j}`),
     getDraft: async (j) => rows.get(`d${j}`) as Plan,
+    findDraft: async (j) => rows.get(`d${j}`) as Plan | undefined,
     putFailure: async (j, r) => void rows.set(`f${j}`, r),
     getFailure: async (j) => rows.get(`f${j}`) as string | undefined,
     approve: async (j, p) => {
@@ -84,17 +85,8 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     },
   };
   const spent: number[] = [];
-  const ceilings: Ceilings = {
-    reserve: async () => {},
-    record: async (_k, _j, c) => void spent.push(c),
-  };
-  const handlers = prepPlanHandlers({
-    store,
-    call,
-    system: 'sys',
-    changesSystem: 'chg',
-    askChanges,
-  });
+  const ceilings: Ceilings = { reserve: async () => {}, record: async (_k, _j, c) => void spent.push(c) };
+  const handlers = prepPlanHandlers({ store, call, system: 'sys', changesSystem: 'chg', askChanges });
   const wf = fakeWorkflows((step, p) =>
     runJob({ store: jobs, ceilings, now: () => T }, step, prepPlanJob, handlers, p),
   );
@@ -135,9 +127,9 @@ test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   assert.equal(reqs.length, 1);
 });
 
-test('a save step that fails once is retried and the model is called once', async () => {
+test('a draft write and a save step that fail once are retried and the model is called once', async () => {
   let calls = 0;
-  const { env, jobs, wf, log } = setup(async () => (calls++, reply(good)), { failApproveOnce: true });
+  const { env, jobs, wf, log } = setup(async () => (calls++, reply(good)), { failApproveOnce: true, failPutOnce: true });
   const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   await continueJob(env, prepPlanJob, job.id, { decision: 'approve' });

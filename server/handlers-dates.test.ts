@@ -37,19 +37,9 @@ async function setup() {
     );
     return { status: r.status, body: (await r.json()) as Record<string, any> };
   };
-  const doc = async (c: string, id: string) => {
-    const r = await DB.prepare("SELECT data FROM docs WHERE c = ? AND id = ?")
-      .bind(c, id)
-      .first<{ data: string }>();
-    return r ? (JSON.parse(r.data) as Record<string, any>) : null;
-  };
-  const put = (c: string, id: string, data: object) =>
-    DB.prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 1, 1)")
-      .bind(c, id, JSON.stringify(data))
-      .run();
-  return { DB, call, doc, put };
+  return { DB, call };
 }
-test("a date is a goals row, linked to objectives, changed in place and read as an exam", async () => {
+test("a date is a goals row, linked to objectives, changed in place and read from the goals route", async () => {
   const { DB, call } = await setup();
   const get = async (path: string, token = "app-t") =>
     (
@@ -96,14 +86,11 @@ test("a date is a goals row, linked to objectives, changed in place and read as 
     ).status,
     200,
   );
-  const listed = await get("/api/v1/docs?collection=exams");
-  const shown = listed.docs.find((d: Record<string, any>) => d.id === id);
-  assert.equal(shown.data.title, "Skills validation");
-  assert.equal(shown.data.date, "2026-11-21");
-  assert.equal(
-    (await get(`/api/v1/docs?collection=exams&id=${id}`)).data.title,
-    "Skills validation",
-  );
+  const listed = await get("/api/v1/goals");
+  const shown = listed.rows.find((d: Record<string, any>) => d.id === id);
+  assert.equal(shown.title, "Skills validation");
+  assert.equal(shown.date, "2026-11-21");
+  assert.equal((await get(`/api/v1/goals/${id}`)).title, "Skills validation");
   assert.equal(
     (await call("date.update", { id: "none", title: "x" })).status,
     404,
@@ -186,14 +173,13 @@ test("a date's kind comes from the registry: other by default, set on create or 
 });
 
 test("a draft is kept into its set exactly once, or dropped; the whole set at once", async () => {
-  const { DB, call, put } = await setup();
+  const { DB, call } = await setup();
   const draft = (id: string, set: string, kind = "set-item") =>
     DB.prepare(
       "INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v) VALUES (?, 'j', ?, 'own_sets', ?, ?, 'pending', 1, 1)",
     )
       .bind(`draft_${id}`, kind, set, JSON.stringify({ q: id }))
       .run();
-  await put("sets", "s1", { title: "S" });
   for (const id of ["d1", "d2", "d3", "d4"]) await draft(id, "s1");
   await draft("sg", "s1", "suggestion");
   const state = async (id: string) =>

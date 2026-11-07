@@ -119,7 +119,7 @@ test("as a picker (ask off): no Ask row, no Tab, nested rows and the current one
         {
           name: "Move to",
           items: [
-            { key: "p", label: "Biology 101", current: true },
+            { key: "p", label: "Course 101", current: true },
             { key: "c", label: "Cells", indent: 1 },
           ],
         },
