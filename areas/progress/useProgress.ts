@@ -1,3 +1,4 @@
+import type { WireDoc } from "../../domain/index.ts";
 import { useEffect, useRef, useState } from "react";
 import { accuracyLine } from "../../domain/index.ts";
 import { weeklyAccuracy, type Point } from "./series.ts";
@@ -9,11 +10,6 @@ import {
   savedFirst,
   type ReadCopyLike,
 } from "../../commands/client.ts";
-
-interface WireDoc {
-  id: string;
-  data: unknown;
-}
 
 export interface ProgressData {
   /** First-try accuracy over the last 14 days; null when there are no answers in the window. */

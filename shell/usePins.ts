@@ -1,3 +1,4 @@
+import type { WireDoc } from "../domain/index.ts";
 import { useEffect, useState } from "react";
 import {
   centralDate,
@@ -19,10 +20,6 @@ export interface SidebarPin {
   to?: string;
 }
 
-interface WireDoc {
-  id: string;
-  data: unknown;
-}
 export interface PinWire {
   pins: { collection: string; id: string }[];
   collections: { id: string; title: string; parentId: string | null }[];

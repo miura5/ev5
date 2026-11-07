@@ -1,3 +1,4 @@
+import type { WireDoc } from "../../domain/index.ts";
 /** How a topic or exam splits: shares of recent answers that were right, shaky and wrong (each 0..1). */
 export interface Mastery {
   right: number;
@@ -131,7 +132,7 @@ export interface StudyItem {
 }
 
 /** An exam as a date with its plan: properties plus E.V.s dashed session proposals. */
-export interface ExamPlanData {
+export interface DatePlanData {
   id: string;
   title: string;
   /** Date and time, e.g. "Thursday, Nov 5 · 9:00 am". */
@@ -148,8 +149,3 @@ export interface ExamPlanData {
   sessions?: readonly PlanSession[];
 }
 
-/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
-export interface WireDoc {
-  id: string;
-  data: unknown;
-}

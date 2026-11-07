@@ -15,11 +15,11 @@ import {
   TextArea,
   type DetailProps,
 } from "../../kit/index.ts";
-import type { ExamPlanData } from "./types.ts";
+import type { DatePlanData } from "./types.ts";
 import "./library.css";
 
 export interface ExamPlanDetailProps {
-  exam: ExamPlanData;
+  exam: DatePlanData;
   onReviewPlan?: () => void;
   onAccept?: (proposalId: string) => void;
   onEdit?: (proposalId: string) => void;
@@ -61,7 +61,7 @@ export function datePlanDetail(p: ExamPlanDetailProps): DetailProps {
 }
 
 /** A date shows the prep plan where its kind offers one, or where a plan was already made for it. */
-function plans(exam: ExamPlanData): boolean {
+function plans(exam: DatePlanData): boolean {
   return (
     kindOffers(exam.kind, "prep-plan") ||
     (exam.planState !== undefined && exam.planState !== "none")

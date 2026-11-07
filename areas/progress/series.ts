@@ -1,9 +1,5 @@
+import type { WireDoc } from "../../domain/index.ts";
 import { addDays, centralDate, weekday } from "../../domain/index.ts";
-
-interface WireDoc {
-  id: string;
-  data: unknown;
-}
 
 export interface Point {
   label: string;

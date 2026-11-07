@@ -13,7 +13,8 @@ Done 2026-11-06 22:20 to 22:50 (#681 to #686): files table 0018, magic-number ch
 Today/Library read plans and plan_items rows, planedits gone from /docs (B-1004);
 plan.approve race test (#685); export checks pictures by hash and reports orphans (#686, B-1045; nothing calls it live yet).
 Earlier 21:40 (#671-#679): plan commands, outbox answers and notes as commands, study reads set tables only. Left per task is in the Chart notes.
-Next builders: B-1004 rename (one change; check areas/ imports first) and handlers-dates.ts check, B-1045 drill call with a bucket + outbox 409,
+Done 2026-11-07 00:10 (#688, #689): outbox treats 409 on note-images as stored, restoreInto bucket test; one WireDoc type in domain/doc-row. B-1045 left: drill checkPictures call needs R2/S3 credentials (a Matt question when reached).
+Next builders: handlers-dates.ts check (B-1004),
 B-1037 check.answer UI (needs a mock-up/kit piece first, so it may wait), B-1040 own_* retire list, B-1044, B-1038 B8. Then the squash.
 Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; slice jobs/runtime). B-1006 to B-1008 wait for group 3. Follow-up: pass onBad to the table repos.
 Small ev4-trace cleanups: B-1059 (after B-1009); B-1060 left: mockup-audit.md, canonical.samples.json, kit baselines (notes).
