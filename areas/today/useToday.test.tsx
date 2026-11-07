@@ -12,57 +12,63 @@ afterEach(() => {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status });
 
-test("a tick reads the day, writes it whole pinned to its version, and retries once on a 409", async () => {
+const dayDoc = {
+  id: "d",
+  v: 3,
+  data: { added: { a: { text: "Review", kind: "todo" } }, checks: {} },
+};
+
+function tickWorld(answer: Response | (() => Response)) {
   localStorage.setItem("ev5.token", "t");
-  const puts: string[] = [];
-  let gets = 0;
-  const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-    if (init?.method === "PUT") {
-      puts.push(`${url} ${init.body}`);
-      return json({ version: 4 }, puts.length === 1 ? 409 : 200);
-    }
-    if (url.includes("collection=dayedits")) {
-      gets++;
-      return json({ id: "d", v: 2 + gets, data: { checks: {} } });
-    }
-    if (url.includes("jobs")) return json({ jobs: [] });
-    return json({ docs: [] });
-  });
-  vi.stubGlobal("fetch", fetchMock);
+  const posts: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (
+        init?.method === "POST" &&
+        url.includes("commands/plan.toggle_done")
+      ) {
+        posts.push(String(init.body));
+        return typeof answer === "function" ? answer() : answer;
+      }
+      if (url.includes("collection=dayedits")) return json(dayDoc);
+      if (url.includes("jobs")) return json({ jobs: [] });
+      return json({ docs: [] });
+    }),
+  );
+  return posts;
+}
+
+test("a tick goes through plan.toggle_done, only when the item's state differs", async () => {
+  const posts = tickWorld(
+    json({ mode: "direct", result: { id: "a", done: true } }),
+  );
   const { result } = renderHook(() => useToday());
-  await waitFor(() => expect(result.current.data).toBeTruthy());
+  await waitFor(() => expect(result.current.data?.plan).toHaveLength(1));
   let ok = false;
   await act(async () => {
     ok = await result.current.tick("a", true);
   });
   expect(ok).toBe(true);
-  expect(puts).toHaveLength(2);
-  expect(puts[0]).toContain("if_version=4");
-  expect(puts[1]).toContain("if_version=5");
-  expect(puts[1]).toContain('"checks":{"a":');
+  expect(posts).toEqual([JSON.stringify({ input: { id: "a" } })]);
+  expect(result.current.data?.plan[0]?.done).toBe(true);
+  await act(async () => {
+    ok = await result.current.tick("a", true);
+  });
+  expect(ok).toBe(true);
+  expect(posts).toHaveLength(1);
 });
 
-test("a refused write is reported as not saved", async () => {
-  localStorage.setItem("ev5.token", "t");
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (url: string, init?: RequestInit) =>
-      init?.method === "PUT"
-        ? json({ error: "no" }, 422)
-        : url.includes("jobs")
-          ? json({ jobs: [] })
-          : url.includes("dayedits")
-            ? json({}, 404)
-            : json({ docs: [] }),
-    ),
-  );
+test("a refused tick is reported as not saved", async () => {
+  tickWorld(json({ error: "no" }, 422));
   const { result } = renderHook(() => useToday());
-  await waitFor(() => expect(result.current.data).toBeTruthy());
+  await waitFor(() => expect(result.current.data?.plan).toHaveLength(1));
   let ok = true;
   await act(async () => {
     ok = await result.current.tick("a", true);
   });
   expect(ok).toBe(false);
+  expect(result.current.data?.plan[0]?.done).toBe(false);
 });
 
 /** Stands in for the shell's ReadCopy (areas never import the shell): a good read is kept; a rejected fetch gets it back. */

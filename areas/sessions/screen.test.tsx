@@ -46,12 +46,29 @@ const note = {
   },
 };
 
+const ok = (b: unknown = {}) => ({
+  ok: true,
+  status: 200,
+  json: async () => b,
+});
+/** A command post: the command's name and its input, else undefined. */
+const posted = (url: string, init?: RequestInit) =>
+  init?.method === "POST" && url.includes("commands/")
+    ? {
+        name: url.slice(url.indexOf("commands/") + 9),
+        input: (
+          JSON.parse(String(init.body)) as { input: Record<string, unknown> }
+        ).input,
+      }
+    : undefined;
+
 function stub() {
-  const puts: { url: string; body: unknown }[] = [];
+  const puts: { name: string; input: Record<string, unknown> }[] = [];
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-    if (init?.method === "PUT") {
-      puts.push({ url, body: JSON.parse(String(init.body)) });
-      return { ok: true, status: 200, json: async () => ({}) };
+    const c = posted(url, init);
+    if (c) {
+      puts.push(c);
+      return ok({ mode: "direct", result: {} });
     }
     const json = url.includes("collection=notes") ? note : { docs: [session] };
     return { ok: true, status: 200, json: async () => json };
@@ -67,10 +84,7 @@ test("Space pauses and resumes, but not while typing; Esc leaves a field", async
   await waitFor(() => expect(screen.getByText("Heart")).toBeTruthy());
   fireEvent.keyDown(document.body, { key: " " });
   await waitFor(() => expect(puts).toHaveLength(1));
-  const ev = Object.values(
-    (puts[0]?.body as { events: Record<string, { type: string }> }).events,
-  );
-  expect(ev.map((e) => e.type)).toEqual(["break"]);
+  expect(puts[0]).toEqual({ name: "session.pause", input: { id: "s1" } });
   const field = document.createElement("textarea");
   document.body.append(field);
   field.focus();
@@ -89,9 +103,12 @@ test("the timer counts up each second while running and holds while paused", asy
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
-      if (init?.method === "PUT") {
-        stored = JSON.parse(String(init.body)) as Record<string, unknown>;
-        return { ok: true, status: 200, json: async () => ({}) };
+      if (posted(url, init)) {
+        stored = {
+          ...stored,
+          events: { "page-1": { type: "break", at: new Date().toISOString() } },
+        };
+        return ok({ mode: "direct", result: {} });
       }
       const json = url.includes("collection=notes")
         ? note
@@ -127,9 +144,11 @@ test("a todo block in the note is a real check that saves the note", async () =>
   const box = await screen.findByLabelText("Draw the curve");
   fireEvent.click(box);
   await waitFor(() => expect(puts).toHaveLength(1));
-  expect(puts[0]?.url).toContain("collection=notes");
-  expect(puts[0]?.url).toContain("if_version=5");
-  const blocks = (puts[0]?.body as { blocks: { checked?: boolean }[] }).blocks;
+  expect(puts[0]?.name).toBe("note.save");
+  expect(puts[0]?.input.if_version).toBe(5);
+  const blocks = JSON.parse(String(puts[0]?.input.body)) as {
+    checked?: boolean;
+  }[];
   expect(blocks[1]?.checked).toBe(true);
   await waitFor(() =>
     expect(
@@ -141,20 +160,32 @@ test("a todo block in the note is a real check that saves the note", async () =>
 function stateful(startedAt: string) {
   let stored: Record<string, unknown> = { ...session.data, startedAt };
   let v = 3;
-  const puts: Record<string, unknown>[] = [];
+  const puts: string[] = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
-      if (init?.method === "PUT") {
-        stored = JSON.parse(String(init.body)) as Record<string, unknown>;
-        puts.push(stored);
+      const c = posted(url, init);
+      if (c) {
+        puts.push(c.name);
         v += 1;
-        return { ok: true, status: 200, json: async () => ({}) };
+        const at = new Date().toISOString();
+        if (c.name === "session.pause")
+          stored = {
+            ...stored,
+            events: {
+              ...(stored.events as object),
+              [`page-${at.slice(0, 19).replace(/[-:T]/g, (c) => (c === "T" ? "-" : ""))}-x${v}`]:
+                { type: "break", at },
+            },
+          };
+        if (c.name === "session.end")
+          stored = { ...stored, status: "ended", endedAt: at, minutes: 10 };
+        return ok({ mode: "direct", result: {} });
       }
       const json = url.includes("collection=notes")
         ? note
         : { docs: [{ ...session, v, data: stored }] };
-      return { ok: true, status: 200, json: async () => json };
+      return ok(json);
     }),
   );
   localStorage.setItem("ev5.token", "t");
@@ -177,11 +208,7 @@ test("End on a paused session ends it, and the pause survives a reload", async (
     held,
   );
   fireEvent.click(screen.getByText("End"));
-  await waitFor(() => expect(puts).toHaveLength(2));
-  const last = puts[1] as { status: string; endedAt: string; minutes: number };
-  expect(last.status).toBe("ended");
-  expect(typeof last.endedAt).toBe("string");
-  expect(last.minutes).toBeGreaterThanOrEqual(0);
+  await waitFor(() => expect(puts).toEqual(["session.pause", "session.end"]));
   await screen.findByText("Saved to Progress.");
 });
 
@@ -208,15 +235,5 @@ test("End pressed right after Pause (before the re-read) still ends the session"
   await screen.findByText("Heart");
   fireEvent.keyDown(document.body, { key: " " });
   fireEvent.click(screen.getByText("End"));
-  await waitFor(() => expect(puts.length).toBeGreaterThanOrEqual(2));
-  const last = puts[puts.length - 1] as {
-    status: string;
-    events: Record<string, { type: string }>;
-  };
-  expect(last.status).toBe("ended");
-  expect(
-    Object.values(last.events)
-      .map((e) => e.type)
-      .sort(),
-  ).toEqual(["break", "end"]);
+  await waitFor(() => expect(puts).toEqual(["session.pause", "session.end"]));
 });
