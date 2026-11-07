@@ -28,9 +28,7 @@ function boot(jobs: unknown[], calls: string[] = []) {
       if (init?.method === "POST") calls.push(`${url} ${String(init.body)}`);
       return url.includes("jobs")
         ? json({ jobs })
-        : url.includes("dayedits")
-          ? json({}, 404)
-          : rowsAnswer(url, { goals: [exam] });
+        : rowsAnswer(url, { goals: [exam] });
     }),
   );
   render(<TodayHosted />);

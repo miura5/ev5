@@ -168,9 +168,7 @@ test("Today follows a plan job that changes while it is open", async () => {
     vi.fn(async (url: string) =>
       url.includes("jobs")
         ? json({ jobs })
-        : url.includes("dayedits")
-          ? json({}, 404)
-          : rowsAnswer(url),
+        : rowsAnswer(url),
     ),
   );
   const { result } = renderHook(() => useToday());
@@ -219,9 +217,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
   const answer = (url: string) =>
     url.includes("jobs")
       ? json({ jobs: [] })
-      : url.includes("dayedits")
-        ? json({}, 404)
-        : rowsAnswer(url);
+      : rowsAnswer(url);
   // The server holds every answer until all nine reads have gone out.
   vi.stubGlobal(
     "fetch",

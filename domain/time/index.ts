@@ -70,7 +70,7 @@ export function occurrences(rule: Repeat, from: string, to: string): string[] {
   return out;
 }
 
-/** The idempotent key a repeat's occurrence is stored under in dayedits.added. */
+/** The idempotent key a repeat's occurrence is stored under as a plan item. */
 export const repeatKey = (id: string, date: string): string => `rep-${id}-${date}`;
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
