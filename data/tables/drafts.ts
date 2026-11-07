@@ -188,6 +188,18 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
           .run();
         return true;
       },
+      /** Clears every Recently deleted row of a set item: its item-id row and the older `<set>/<item>` rows. */
+      restoreSetItem: async (itemId: string): Promise<number> => {
+        const key = itemKey(itemId);
+        const bare = key.slice("item_".length);
+        const r = await db
+          .prepare(
+            "DELETE FROM deletions WHERE (c = 'set_items' AND id IN (?, ?)) OR (c = 'own_set_items' AND (id LIKE ? OR id LIKE ?))",
+          )
+          .bind(key, bare, `%/${key}`, `%/${bare}`)
+          .run();
+        return r.meta.changes;
+      },
       /** Takes one item (collection `c`, id `id`) back out of Recently deleted; the number of rows cleared. */
       restore: async (c: string, id: string): Promise<number> => {
         const n = (

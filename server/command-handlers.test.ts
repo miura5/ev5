@@ -25,7 +25,7 @@ async function setup() {
       if (stmt.trim()) await DB.prepare(stmt.trim()).run();
   }
   await DB.prepare(
-    "INSERT INTO docs (c, id, data, at, v) VALUES ('sets', 's1', '{\"schema\":3,\"writer\":\"page\",\"at\":\"2026-11-03T00:00:00Z\",\"source\":\"t\",\"kind\":\"review\",\"items\":[{\"id\":\"i1\",\"stem\":\"q\"}],\"title\":\"Old\"}', 1, 1)",
+    'INSERT INTO docs (c, id, data, at, v) VALUES (\'sets\', \'s1\', \'{"schema":3,"writer":"page","at":"2026-11-03T00:00:00Z","source":"t","kind":"review","items":[{"id":"i1","stem":"q"}],"title":"Old"}\', 1, 1)',
   ).run();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const call = (name: string, input: unknown) =>
@@ -184,4 +184,28 @@ test("item.rename renames a collection in its own table", async () => {
     (await call("item.rename", { id, title: "BIO 202" })).status,
     200,
   );
+});
+
+test("item.restore brings a removed set item back, by its id or an old <set>/<item> key", async () => {
+  const call = await setup();
+  await call.db
+    .prepare(
+      "INSERT INTO set_items (id, set_id, pos, type, body, at, v, deleted_at) VALUES ('item_a','set_1',1,'single','{\"stem\":\"q\"}',1,2,5),('item_b','set_1',2,'single','{\"stem\":\"r\"}',1,2,5)",
+    )
+    .run();
+  await call.db
+    .prepare(
+      "INSERT INTO deletions VALUES ('set_items','item_a',5),('own_set_items','set_1/b',5),('own_set_items','set_1/item_b',5)",
+    )
+    .run();
+  assert.equal((await call("item.restore", { id: "item_a" })).status, 200);
+  const a = await call.db
+    .prepare("SELECT deleted_at, v FROM set_items WHERE id = 'item_a'")
+    .all<{ deleted_at: number | null; v: number }>();
+  assert.equal(a.results[0]?.deleted_at, null);
+  assert.equal(a.results[0]?.v, 3);
+  assert.equal((await call("item.restore", { id: "item_a" })).status, 404);
+  assert.equal((await call("item.restore", { id: "set_1/b" })).status, 200);
+  const left = await call.db.prepare("SELECT id FROM deletions").all();
+  assert.equal(left.results.length, 0);
 });

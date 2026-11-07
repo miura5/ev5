@@ -2,7 +2,7 @@
 // Table-backed commands use the repositories; commands a screen carries out itself (open, theme, navigation) are
 // acknowledged here so the route never answers 501 for them. Nothing here removes a document (§delete.who).
 import { docsRepo, tablesRepo } from "../data/index.ts";
-import { NOTE_MAX, noteRowId } from "../domain/index.ts";
+import { NOTE_MAX, itemKey, noteRowId } from "../domain/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
@@ -158,6 +158,21 @@ export const commandHandlers: Record<string, CommandHandler> = {
   // A restore only clears the deletions row: the document was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
+    // A set item is a row of set_items, listed by its item id (or by an older `<set>/<item>` key).
+    const itemId = itemKey(i.id.slice(i.id.indexOf("/") + 1));
+    const item = await t.setBook.getItem(itemId, { deleted: true });
+    if (item) {
+      if (item.deleted_at != null) {
+        const r = await t.setBook.restoreItem(item.id, item.v);
+        if (!r.ok) throw new CommandError(409, "that item changed; try again");
+      }
+      if (
+        !(await t.deletions.restoreSetItem(item.id)) &&
+        item.deleted_at == null
+      )
+        throw new CommandError(404, `${i.id} is not in Recently deleted`);
+      return { restored: 1 };
+    }
     // A collection lives in its own table; any other item is named by the collection its document is in.
     const coll = await t.collectionRows.get(i.id, { deleted: true });
     const c = coll ? "collections" : await collectionOf(x.db, i.id);

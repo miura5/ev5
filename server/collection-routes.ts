@@ -7,6 +7,7 @@
 // `collections` and `memberships` arrive with the cutover migration (C13); until a database has them they read as empty.
 import { Hono } from "hono";
 import type { DocsD1 } from "../data/index.ts";
+import { itemKey } from "../domain/index.ts";
 import type { AuthVars } from "./auth.ts";
 
 export interface CollectionRoutesEnv {
@@ -170,15 +171,29 @@ collectionRoutes.get("/deletions", async (c) => {
   for (const r of raw) {
     const row =
       r.c === "own_set_items"
-        ? { ...r, c: SET_ITEMS, id: r.id.slice(r.id.indexOf("/") + 1) }
+        ? {
+            ...r,
+            c: SET_ITEMS,
+            id: itemKey(r.id.slice(r.id.indexOf("/") + 1)),
+          }
         : r;
     const key = `${row.c}/${row.id}`;
     if (!seen.has(key) || (seen.get(key) as DeletionRow).at < row.at)
       seen.set(key, row);
   }
-  const out = [...seen.values()].sort(
-    (a, b) => b.at - a.at || a.c.localeCompare(b.c) || a.id.localeCompare(b.id),
+  // A set-item row with no set_items row to bring back (an old key whose item is gone) is hidden: it would list
+  // untitled and could not be restored.
+  const itemIds = new Set(
+    (await rows<{ id: string }>(c.env.DB, "SELECT id FROM set_items", [])).map(
+      (r) => r.id,
+    ),
   );
+  const out = [...seen.values()]
+    .filter((r) => r.c !== SET_ITEMS || itemIds.has(r.id))
+    .sort(
+      (a, b) =>
+        b.at - a.at || a.c.localeCompare(b.c) || a.id.localeCompare(b.id),
+    );
   // Titles come from the kept document (the delete is soft, §delete.soft); each lookup is its own read so a database
   // without that table still lists its deletions.
   const titles = new Map<string, string>();
