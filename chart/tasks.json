@@ -3901,14 +3901,16 @@
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-997",
    "B-998"
   ],
   "notes": "FIX NEXT, Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). H3 (settings part): server/job-run.ts loadCeilingConfig reads settings by raw SQL outside data/, and parseSettingRow throws on one bad row, so every job fails; move the read into data/tables as a settings reader that reports and leaves out a bad row (§data.gate). The attempts part is on B-1022. F16: #734 (no task named) is this task's work: list reads report left_out under the request id (server/read-report.ts) for /docs and the row routes; it also grew server/doc-routes.ts, which goes at B-998 part 2. Run 2026-11-07 04:4x (#723): insert catches treat only unique/PK violations as conflicts (core.ts insertConflict); onBad gets {table,id,reason}, logs by default; readRows and kinds list return Listed<T> with a non-enumerable left_out count. Left: server/jobs callers read left_out and tell the client; data/docs untouched; jobStores row reads bypass onBad; B-1002; export WriteRefused via data/index.ts; merge the two gates. Claim freed. Data-loss audit (D-526), before cutover, L5: six commands write without if_version (item.move, item.rename, note.move, set.update, set.item_update, date.update); each takes and checks it (§data.protocol).",
   "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
+  "claimedBy": "run-1520Z",
+  "claimedAt": "2026-11-07T15:21:28.553Z"
  },
  {
   "id": "B-956",
@@ -4336,11 +4338,13 @@
   "title": "A new build reaches the open app through the PWA plugin's own update code",
   "dod": "shell/pwa.ts and its test are replaced by registerSW from virtual:pwa-register (vite-plugin-pwa, already a dependency) with an immediate takeover and a check on focus; after a staging deploy the open app runs the new build without a hard reload, checked by comparing the loaded index-*.js with what / serves; the reload waits while a study attempt is open, so a takeover never resets a study run",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Run 2026-11-07 1505Z (#840): shell/pwa.ts uses registerSW with focus check and a reload hold (createReloadHold). Left: nothing calls hold() yet, so wire it via shell/services.ts and the Study view while a run is open (areas/library); and the staging check by eye (index-*.js matches / with no hard reload).",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-1520Z",
+  "claimedAt": "2026-11-07T15:21:28.780Z"
  },
  {
   "id": "B-987",
@@ -4534,13 +4538,15 @@
   "title": "Server routes and commands read and write through the gate",
   "dod": "No LIKE over JSON, no bare-id lookup without its kind, list reads are paged; drafts restore by kind and id; every route and command writes through data/ (§data.gate, §data.tables). Slice write: server/",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-955"
   ],
   "notes": "Run 2026-11-07 04:4x (#724): onError logs one JSON line with request id (no message), returns it in the 500; F24 done (GET /docs?since no longer sends old sessions twice). Left: docsRepo in ~10 files and raw SQL over docs (B11, B13); moves write created_by/by only. Claim freed. Data-loss audit (D-526), before cutover, L6: multi-statement writes that are not one batch: set.item_delete (server/handlers-sets.ts), collection delete and restore (server/command-handlers.ts), check.answer (server/handlers-session.ts); each becomes one db.batch.",
   "commit": null,
-  "source": "D-483/D-484 (data-layer study 2026-11-05)"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)",
+  "claimedBy": "run-1520Z",
+  "claimedAt": "2026-11-07T15:21:28.659Z"
  },
  {
   "id": "B-1002",
