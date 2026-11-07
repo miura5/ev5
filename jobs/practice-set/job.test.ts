@@ -188,23 +188,23 @@ test("citations are checked against the gathered excerpts, not anything the call
   assert.match(reqs[1]!.messages.at(-1)!.content, /"e1"/);
 });
 
-test("stored items are domain set items: an id, and a sourceRef starting note/ or materials/", async () => {
+test("stored items are domain set items: an id, and a sourceRef starting note/", async () => {
   const r = await writePracticeSet(
     "job-7",
     input({
       excerpts: [
         { id: "e1", text: "x" },
-        { id: "materials/m2", text: "y" },
+        { id: "note/n2", text: "y" },
       ],
     }),
-    { ...script(reply([q("e1"), q("materials/m2")])), system },
+    { ...script(reply([q("e1"), q("note/n2")])), system },
   );
   assert.ok(r.ok);
   assert.deepEqual(
     r.items.map((i) => [i.id, i.sourceRef]),
     [
       ["job-7:i0", "note/e1"],
-      ["job-7:i1", "materials/m2"],
+      ["job-7:i1", "note/n2"],
     ],
   );
   const set = parseSet({
