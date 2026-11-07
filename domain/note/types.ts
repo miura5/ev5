@@ -6,7 +6,7 @@ export const BLOCK_TYPES = ['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'todo'] as const;
 export const LIST_TYPES = ['ul', 'ol', 'todo'] as const;
 export const MARKS = ['b', 'i', 'u', 's'] as const;
 
-// The schema's limits, plus the 256 KB document cap (spec.capacity.documentBytes in ev4).
+// The schema's limits, plus the 256 KB document cap (spec.capacity.documentBytes in the legacy spec).
 export const MAX = {
   blocks: 4000,
   runs: 400,

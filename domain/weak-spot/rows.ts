@@ -41,7 +41,7 @@ export function weakSpotFromRows(
   };
 }
 
-/** An event row's key in the document shape: its type, its instant and its id's own letters, as ev4's event keys read. */
+/** An event row's key in the document shape: its type, its instant and its id's own letters, as the legacy event keys read. */
 const wireKey = (e: WeakSpotEventRow) =>
   `${e.type}-${iso(e.at)
     .replace(/[-:]/g, "")

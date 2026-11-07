@@ -1,4 +1,4 @@
-// ev4's clipboard tokenizer (core/notes.mjs noteParseHtml): HTML as an inert tree, never the browser's parser and never
+// The clipboard tokenizer (core/notes.mjs noteParseHtml): HTML as an inert tree, never the browser's parser and never
 // the page's DOM, so nothing in it can run or load. Script, style and the like keep no content; comments and
 // declarations go; entities are decoded into text.
 export interface HNode {

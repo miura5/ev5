@@ -1,4 +1,4 @@
-// Query and passage tokens, ported from ev4 core/library.mjs (libStem, libTokens) and core/evcore.mjs (norm, STOP).
+// Query and passage tokens, ported from the legacy library code (libStem, libTokens) and its core (norm, STOP).
 const STOP = new Set(
   'a an and are as at be by for from how in is it of on or the to what when which why with vs versus can t not its their this that'.split(
     ' ',

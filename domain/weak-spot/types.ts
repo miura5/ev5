@@ -1,5 +1,5 @@
-// Weak spot document (schemas 1 and 2) and ev4's
-// fixed-interval scheduler, ported unchanged from ev4 core/evcore.mjs (deriveWeakspot, applyEvent, isActive, isSolid,
+// Weak spot document (schemas 1 and 2) and the legacy
+// fixed-interval scheduler, ported unchanged from the legacy core (deriveWeakspot, applyEvent, isActive, isSolid,
 // isDue, reviewNeed). Nothing derived is ever stored: state is rebuilt from the facts, the events and the answers.
 import { z } from 'zod';
 
@@ -111,7 +111,7 @@ export type Derived = {
   duplicateOf?: string;
 };
 
-/** ev4's review constants (spec.constants.review defaults). */
+/** The legacy review constants (spec.constants.review defaults). */
 export type ReviewRules = {
   solidAfterRightDays: number;
   intervalDays: number;

@@ -16,6 +16,7 @@ import type {
   TodayProps,
   UpcomingDate,
 } from "./types.ts";
+import { attemptsBySpot } from "./attempts.ts";
 import { examSessions, planOf, planSessions } from "./plans.ts";
 import type { Session } from "./plans.ts";
 import type { TodayDocs, WireDoc, WireJobLine } from "./plans.ts";
@@ -128,9 +129,10 @@ export function mapToday(docs: TodayDocs, now: Date | number): TodayData {
     .sort(
       (a, b) => a.left - b.left || a.exam.title.localeCompare(b.exam.title),
     );
+  const answered = attemptsBySpot(docs.attempts, docs.items);
   const derived = docs.weakspots
     .flatMap((d) => tryParse(parseWeakSpot, d))
-    .map((s) => ({ ...s, d: deriveWeakSpot(s.v, [], { id: s.id }) }));
+    .map((s) => ({ ...s, d: deriveWeakSpot(s.v, answered.get(s.id) ?? [], { id: s.id }) }));
   const open = derived.filter((s) => s.d.status === "open");
   const upcoming: UpcomingDate[] = exams.map(({ id, exam, left }) => {
     const mine = derived.filter(
