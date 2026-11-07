@@ -9,6 +9,7 @@ import { checkDocsWrites } from './docswrites.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
+import { checkMigrationNames } from './migrationnames.ts';
 import { checkMigrationShape } from './migrationshape.ts';
 import { checkModelsAge } from './models.ts';
 import { checkPlanJob } from './planjob.ts';
@@ -39,6 +40,7 @@ const findings = [
   ...checkDocsWrites(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
+  ...checkMigrationNames(files),
   ...checkMigrationShape(root, files),
   ...checkPlanJob(root, files),
   ...checkPresence(root, files),
