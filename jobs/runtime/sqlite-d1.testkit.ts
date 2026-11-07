@@ -7,19 +7,12 @@ type D1Statement = ReturnType<D1Like["prepare"]>;
 // A real SQLite behind D1's interface (fake-d1 only knows the docs statements): batch is one transaction.
 export function sqliteD1(): D1Like {
   const sql = new DatabaseSync(":memory:");
-  for (const f of [
-    "0002_jobs_ceilings.sql",
-    "0003_collections_pins_own.sql",
-    "0004_ceiling_usage.sql",
-    "0006_tables.sql",
-    "0007_plans_drafts.sql",
-  ])
-    sql.exec(
-      readFileSync(
-        new URL(`../../data/migrations/${f}`, import.meta.url),
-        "utf8",
-      ),
-    );
+  sql.exec(
+    readFileSync(
+      new URL("../../data/migrations/0000_baseline.sql", import.meta.url),
+      "utf8",
+    ),
+  );
   const run = (text: string, args: (string | number | null)[]) => {
     const st = sql.prepare(text);
     return /^\s*(select|with)/i.test(text)

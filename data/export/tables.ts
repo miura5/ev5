@@ -12,16 +12,6 @@ const t = (name: string, columns: string[], orderBy: string[]): TableSpec => ({
   orderBy,
 });
 
-/** The baseline's tables (data/migrations/0000_baseline.sql) and the deletions table. */
-export const BASE_TABLES: TableSpec[] = [
-  t("deletions", ["c", "id", "at"], ["c", "id"]),
-  t("claude_usage", ["hour", "day", "tokens", "calls"], ["hour"]),
-  t("claude_reads", ["note", "h", "at"], ["note"]),
-  t("claude_settings", ["key", "value", "at"], ["key"]),
-  t("claude_plan_asks", ["job", "n", "at"], ["job"]),
-  t("system_docs", ["name", "data", "at"], ["name"]),
-];
-
 /** The tables PLAN §5.10 adds. */
 export const NEW_TABLES: TableSpec[] = [
   t("settings", ["key", "value", "at", "v"], ["key"]),
@@ -75,11 +65,6 @@ export const NEW_TABLES: TableSpec[] = [
     ["set_id", "item_id"],
   ),
   t(
-    "own_attempts",
-    ["set_id", "item_id", "key", "at", "body"],
-    ["set_id", "item_id", "key", "at"],
-  ),
-  t(
     "drafts",
     [
       "id",
@@ -109,7 +94,6 @@ export const JOB_TABLES: TableSpec[] = [
 import { ROW_TABLES } from "./row-tables.ts";
 
 export const ALL_TABLES: TableSpec[] = [
-  ...BASE_TABLES,
   ...NEW_TABLES,
   ...JOB_TABLES,
   ...ROW_TABLES,

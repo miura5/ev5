@@ -6,12 +6,7 @@ import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 test("a weak spot with no objective gets its goal from a direct weak spot -> goal link", async () => {
   const DB = sqliteD1();
-  for (const f of [
-    "0000_baseline",
-    "0001_deletions",
-    "0003_collections_pins_own",
-    "0006_tables",
-  ])
+  for (const f of ["0000_baseline"])
     for (const stmt of readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
       "utf8",

@@ -12,7 +12,7 @@ function repo() {
   sql.exec(
     /CREATE TABLE IF NOT EXISTS talk \([\s\S]*?\n\);/.exec(
       readFileSync(
-        new URL("../migrations/0006_tables.sql", import.meta.url),
+        new URL("../migrations/0000_baseline.sql", import.meta.url),
         "utf8",
       ),
     )![0],

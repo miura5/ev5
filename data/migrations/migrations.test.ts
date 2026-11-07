@@ -20,7 +20,9 @@ test('the migrations apply cleanly, in order, to an empty database', () => {
   const db = new DatabaseSync(':memory:');
   for (const m of migrations) assert.doesNotThrow(() => db.exec(read(m)), m);
   const tables = (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((t) => t.name);
-  for (const t of ['docs', 'deletions', 'job_records', 'collections']) assert.ok(tables.includes(t), t);
+  for (const t of ['job_records', 'collections', 'attempts', 'settings']) assert.ok(tables.includes(t), t);
+  // The squash left no legacy table behind: nothing reads a docs table, a deletions table or an own-attempts table.
+  for (const t of ['docs', 'deletions', 'own_attempts', 'system_docs']) assert.ok(!tables.includes(t), t);
 });
 
 test('every migration is idempotent and only adds', () => {
@@ -69,15 +71,6 @@ test('every LIKE or GLOB pattern fits D1 (50 bytes at most)', () => {
       assert.ok(Buffer.byteLength(p.replace(/''/g, "'")) <= 50, `${f}: pattern of ${Buffer.byteLength(p)} bytes: ${p}`);
     }
   }
-});
-
-test('deletions soft-deletes: a row is added, no document is removed', () => {
-  const db = new DatabaseSync(':memory:');
-  for (const m of migrations) db.exec(read(m));
-  db.exec("INSERT INTO docs (c, id, data, at, v) VALUES ('notes', 'n1', '{}', 1, 1)");
-  db.exec("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n1', 2)");
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM docs').get()?.n, 1);
-  assert.throws(() => db.exec("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n1', 3)"));
 });
 
 test('every backfill migration is applied by a test of its own', () => {

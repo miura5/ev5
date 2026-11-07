@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       rebuild:
-        description: "Delete the ev5-staging D1 first: the migration chain then applies to an empty database and the seed refills it"
+        description: "Delete the ev5-staging D1 first: the baseline then applies to an empty database and the seed refills it (needed once after the squash: D1 skips a 0000_baseline.sql it already applied)"
         type: boolean
         default: false
 

@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { migratedDb, sqliteD1 } from "../export/sqlite-d1.testkit.ts";
@@ -91,33 +90,4 @@ test("a removed item leaves the set and keeps its versions", async () => {
   assert.ok((await repo.setBook.removeItem("item_1", 2)).ok);
   assert.equal((await repo.setBook.read("set_1"))?.items.length, 0);
   assert.equal((await repo.setItemVersions.list()).length, 1);
-});
-
-test("migration 0008 copies own sets under prefixed ids, once, and a deleted item stays deleted", async () => {
-  const db = migratedDb();
-  db.exec(
-    `INSERT INTO own_sets VALUES ('abc','Cycles','question',NULL,NULL,5,2);
-     INSERT INTO own_set_items VALUES ('abc','x1',1,'{"id":"x1","stem":"Q","type":"multi_select"}',6,3);
-     INSERT INTO own_set_items VALUES ('abc','x2',2,'{"id":"x2","stem":"R"}',7,1);
-     INSERT INTO deletions VALUES ('own_set_items','abc/x2',9);
-     INSERT INTO own_attempts VALUES ('abc','x1','a1',8,'{}');`,
-  );
-  const sql = readFileSync(
-    new URL("../migrations/0008_own_sets_backfill.sql", import.meta.url),
-    "utf8",
-  );
-  db.exec(sql);
-  db.exec(sql); // a second run adds nothing
-  const repo = tablesRepo(sqliteD1(db), { clock: () => 1 });
-  const r = await repo.setBook.read("set_abc");
-  assert.equal(r?.set.title, "Cycles");
-  assert.deepEqual(
-    r?.items.map((i) => [i.id, i.type, i.v, i.body]),
-    [["item_x1", "multi_select", 3, { stem: "Q", type: "multi_select" }]],
-  );
-  const n = (t: string) =>
-    (db.prepare(`SELECT count(*) AS n FROM ${t}`).get() as { n: number }).n;
-  assert.equal(n("set_items"), 2);
-  assert.equal(n("own_attempts"), 2);
-  assert.equal(n("deletions"), 2);
 });
