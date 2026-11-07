@@ -5,6 +5,7 @@ import {
   centralDate,
   newNoteId,
   newNoteRow,
+  noteIdOk,
   noteBlocks,
   noteDoc,
   noteDocOf,
@@ -17,9 +18,6 @@ import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
-
-/** A note document id, as the note commands accept it. */
-const NOTE_ID = /^note_[A-Za-z0-9-]{1,120}$/;
 
 interface NoteSaveInput {
   id: string;
@@ -95,7 +93,7 @@ export const noteHandlers: Record<string, CommandHandler> = {
       } catch {
         throw new CommandError(409, `${i.id} is not a note this app can edit`);
       }
-    } else if (!NOTE_ID.test(i.id))
+    } else if (!noteIdOk(i.id))
       throw new CommandError(400, `${i.id} is not a note id`);
     let row;
     try {

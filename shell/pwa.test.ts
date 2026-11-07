@@ -1,15 +1,19 @@
 import { expect, test, vi } from "vitest";
-import { createReloadHold, startPwa, type RegisterSW } from "./pwa.ts";
+import { createReloadHold, startPwa, UPDATE_CHECK_MS, type RegisterSW } from "./pwa.ts";
 
 function setup() {
   let opts: Parameters<RegisterSW>[0];
   const register: RegisterSW = (o) => void (opts = o);
   const listeners: Record<string, () => void> = {};
-  const win = { addEventListener: (n: string, f: () => void) => void (listeners[n] = f) };
+  const timers: [() => void, number][] = [];
+  const win = {
+    addEventListener: (n: string, f: () => void) => void (listeners[n] = f),
+    setInterval: (f: () => void, ms: number) => (timers.push([f, ms]), 1),
+  };
   const reload = vi.fn();
   const gate = createReloadHold(reload);
   startPwa(register, win as never, gate);
-  return { opts: () => opts!, listeners, reload, gate };
+  return { opts: () => opts!, listeners, timers, reload, gate };
 }
 
 test("registers at once and reloads when a new worker takes over", () => {
@@ -44,6 +48,16 @@ test("checks for a new build when the window regains focus", () => {
   s.listeners.focus!();
   s.opts().onRegisteredSW!("/sw.js", { update } as never);
   s.listeners.focus!();
+  expect(update).toHaveBeenCalledTimes(1);
+});
+
+test("checks for a new build on a timer, so a background tab also updates", () => {
+  const s = setup();
+  const update = vi.fn().mockResolvedValue(undefined);
+  s.opts().onRegisteredSW!("/sw.js", { update } as never);
+  expect(s.timers.length).toBe(1);
+  expect(s.timers[0]![1]).toBe(UPDATE_CHECK_MS);
+  s.timers[0]![0]();
   expect(update).toHaveBeenCalledTimes(1);
 });
 

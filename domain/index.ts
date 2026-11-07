@@ -29,6 +29,7 @@ export {
   writeProblem as noteWriteProblem,
   resolveStale,
   newNoteId,
+  noteIdOk,
   noteDoc,
   noteBlocks,
   fits,

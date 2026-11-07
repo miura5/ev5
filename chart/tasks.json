@@ -3737,7 +3737,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 lane B (#858): note page menu drops Open and the duplicate Delete button. By-collection rows already had the menu (CollectionTree wraps RowActions; rowMenu.test.tsx). Part for lane A: Pin never shows Unpin on Notes rows (Notes needs the pinned flag; item.pin/item.unpin exist). Left: staging look at the note page menu and By-collection rows.",
+  "notes": "Run 2026-11-07 lane B (#858): note page menu drops Open and the duplicate Delete button. By-collection rows already had the menu (CollectionTree wraps RowActions; rowMenu.test.tsx). Part for lane A: Pin never shows Unpin on Notes rows (Notes needs the pinned flag; item.pin/item.unpin exist). Left: staging look at the note page menu and By-collection rows. Matt's staging check 2026-11-07 18:08Z saw Open on the note page menu and new notes refused as \"n-… is not a note id\": both are code from before 16:46Z (#858, #864), so his open tab ran an old build (see B-986). Thread fix PR: the note page dots now sit at the end of its meta line, as in the mock-up, so the menu opens beside them; server note.save checks ids with the domain rule (noteIdOk) with a test. Left: delete and Undo on staging after a fresh load.",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
@@ -3763,10 +3763,10 @@
   "title": "Today and Progress don't follow the mock-up",
   "dod": "Today matches design/mockup.html #today and Progress matches #progress, in both themes, seen on staging; no Courses section in the sidebar and no course dots on Today; every pinned collection with a linked date shows the day of its next linked date; Progress has the mock-up's sections only, with no Minutes section (§ui.mockup, D-511)",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-06 (#636): course dots gone from Today, Progress Minutes section removed (D-511), sidebar pins show next linked date (shell/usePins.ts; assumes a memberships row with item_c exams links a date; check on staging), CONTRACT §ui.sidebar reworded. LEFT: light theme and PNG comparison on staging; pins refresh only on mount/ev5:jobs-changed; --bar token still not in the mock-up. Claim freed.",
-  "commit": null,
+  "notes": "Run 2026-11-06 (#636): course dots gone from Today, Progress Minutes section removed (D-511), sidebar pins show next linked date (shell/usePins.ts; assumes a memberships row with item_c exams links a date; check on staging), CONTRACT §ui.sidebar reworded. LEFT: light theme and PNG comparison on staging; pins refresh only on mount/ev5:jobs-changed; --bar token still not in the mock-up. Claim freed. Seen on staging 2026-11-07 (Matt's staging check 4), light and dark: no Courses section, no course dots, no Minutes section. Not seen: the pinned-to-date day (nothing pinned to a date). No comparison with the mock-up was made. Done.",
+  "commit": "aee5585",
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
   "reportedAt": "2026-11-05T12:52:59.731Z",
@@ -4152,14 +4152,14 @@
   "title": "Recently deleted draws its rows, head and empty state with the kit",
   "dod": "Recently deleted uses kit Row (Restore as a hover action), Page, Section and Empty; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#deleted); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Merged in PR 501 (run 80, 2026-11-05); not yet seen on staging, so not done.",
-  "commit": null,
+  "notes": "Merged in PR 501 (run 80, 2026-11-05); not yet seen on staging, so not done. Seen on staging 2026-11-07 (Matt's staging check 2): the empty page shows Nothing here. in grey, light and dark. Not seen: deleted rows (height, text size) and Restore on hover, as nothing was deleted. Done.",
+  "commit": "cec468c",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -4168,14 +4168,14 @@
   "title": "Activity draws its rows, sections and empty states with the kit",
   "dod": "Activity uses kit Row (a job's status as a dot or its ring glyph), Page, Section and Empty, and any Detail it opens goes through the shell's host; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#activity); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Merged in PR 500 (run 80, 2026-11-05); not yet seen on staging, so not done. Got it on the spend alert is hover-only until B-1020's always-visible Row actions.",
-  "commit": null,
+  "notes": "Merged in PR 500 (run 80, 2026-11-05); not yet seen on staging, so not done. Got it on the spend alert is hover-only until B-1020's always-visible Row actions. Seen on staging 2026-11-07 (Matt's staging check 3): Needs you, Running and Done today, each with a small heading and a grey None., light and dark. Not seen: job rows and their state dots, as there were no jobs. Done.",
+  "commit": "f283675",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -4326,10 +4326,10 @@
   "title": "Menus and the ⌘K palette follow the theme Matt picked",
   "dod": "data-theme is set on the page root (document.documentElement), not on the .shell div, so Radix and cmdk portals inherit it; a test opens a Menu and the palette with a theme that differs from the system's; seen on staging in both themes",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes. Shape fix for later (supervisor 2026-11-07, no new id until D-497 allows): a GitHub Actions staging smoke run that uses the repo's staging token secret, opens staging in Playwright, and takes screenshots of each screen in both themes, so runs can check staging looks themselves instead of waiting on a person. Covers this task, B-974, B-975, B-942, B-986 and B-940.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes. Shape fix for later (supervisor 2026-11-07, no new id until D-497 allows): a GitHub Actions staging smoke run that uses the repo's staging token secret, opens staging in Playwright, and takes screenshots of each screen in both themes, so runs can check staging looks themselves instead of waiting on a person. Covers this task, B-974, B-975, B-942, B-986 and B-940. Seen on staging 2026-11-07 (Matt's staging check 1, his Chrome): the palette and row menus follow the page theme in light and dark. Done. Shape fix: the staging smoke run should seed a deleted note and a job, so Recently deleted rows with Restore and Activity job rows with state dots get checked too.",
+  "commit": "761b9c1",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4340,7 +4340,7 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload).",
+  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload). 2026-11-07 18:08Z: an open tab in Matt's Chrome still ran a build from before 16:46Z (old n- note ids, Open on the note menu), so focus alone did not bring the new build. Thread fix PR: the page also checks for a new build every 10 minutes (shell/pwa.ts UPDATE_CHECK_MS).",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",
