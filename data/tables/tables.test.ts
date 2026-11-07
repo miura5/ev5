@@ -163,8 +163,6 @@ test("drafts: a change is pinned to the version read; plans and settings replace
   assert.equal(await t.drafts.claim("draft_d1", 2, "kept", '{"a":1}'), true);
   assert.equal(await t.drafts.reopen("draft_d1", 2), false);
   assert.equal(await t.drafts.reopen("draft_d1", 3), true);
-  await t.deletions.markCollection("c1");
-  assert.equal(await t.deletions.restore("collections", "c1"), 1);
   await t.jobPlans.put("j", "scope", { a: 1 });
   await t.jobPlans.put("j", "scope", { a: 2 });
   await t.settings.putNumbers({ k: 1 });
@@ -243,22 +241,6 @@ test("an insert that fails for another reason is not reported as a conflict", as
   assert.throws(() =>
     insertConflict("t", new Error("NOT NULL constraint failed: t.id")),
   );
-});
-
-test("restore clears only the named collection's row", async () => {
-  const r = setup();
-  await r.deletions.markCollection("x");
-  await r.deletions.markOwnSetItem("s", "x");
-  assert.equal(await r.deletions.restore("collections", "x"), 1);
-  assert.equal(await r.deletions.restore("collections", "x"), 0);
-  assert.equal(await r.deletions.restore("set_items", "item_x"), 1);
-});
-
-test("an older own_set_items deletion row still restores", async () => {
-  const r = setup();
-  await r.deletions.markOwnSetItem("s", "x");
-  assert.equal(await r.deletions.restore("own_set_items", "s/x"), 0);
-  assert.equal(await r.deletions.restore("set_items", "item_x"), 1);
 });
 
 const good = (id: string) => ({

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
+import { z } from 'zod';
 import {
   parseCollectionRow,
   parseGoalRow,
@@ -27,7 +28,6 @@ import {
   parseOwnSet,
   parseOwnSetItem,
   parseOwnAttempt,
-  parseDeletion,
   parseDraftTableRow,
   parseJobPlanRow,
   parseJobRecord,
@@ -144,7 +144,8 @@ const tables: Entry[] = [
     extra: ['target_c'],
   },
   { table: 'settings', parse: parseSettingRow, sample: { key: 'ceiling_daily', value: 1, ...S } },
-  { table: 'deletions', parse: parseDeletion, sample: { c: 'notes', id: 'n1', at: 1 } },
+  // Nothing writes `deletions` any more (deleted_at is the one delete mechanism); the squash drops the table and this line.
+  { table: 'deletions', parse: (r: unknown) => z.strictObject({ c: z.string(), id: z.string(), at: z.number() }).parse(r), sample: { c: 'notes', id: 'n1', at: 1 } },
   { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: 1 } },
   { table: 'ceiling_use', parse: parseCeilingUse, sample: { w: 'day', k: 'k', used: 0 } },
   { table: 'ceiling_holds', parse: parseCeilingHold, sample: { id: 'h', amount: 0, limits: [], open: true } },

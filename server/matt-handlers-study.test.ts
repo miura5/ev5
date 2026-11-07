@@ -42,9 +42,13 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
     c: string;
     id: string;
   }>();
+  assert.deepEqual(del.results, []);
+  const gone = await DB.prepare(
+    "SELECT id FROM set_items WHERE deleted_at IS NOT NULL",
+  ).all<{ id: string }>();
   assert.deepEqual(
-    del.results.map((r) => ({ ...r })),
-    [{ c: "set_items", id: item }],
+    gone.results.map((r) => r.id),
+    [item],
   );
   // an unverified item is a pending draft
   await DB.prepare(
