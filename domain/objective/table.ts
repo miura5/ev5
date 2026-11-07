@@ -11,7 +11,7 @@ import {
 /** The `objectives` row (table design 2.3): no goal id, since a link row says which goal it is on. */
 export const objectiveTableSchema = z.strictObject({
   id: prefixed("obj_"),
-  collection_id: text,
+  collection_id: text.nullable(),
   num: z.number().int().min(0).nullable(),
   text,
   chapters: json.nullable(),
