@@ -5,7 +5,7 @@ import { read } from './lib.ts';
 
 const ID = /(?<![\w-])[DB]-\d{1,4}\b/;
 const EXEMPT =
-  /^(?:chart|docs\/record|docs\/history|docs\/contract|ops\/record)\/|^(?:CONTRACT|PLAN|AGENTS|CLAUDE|BACKLOG|DECISIONS|CHANGELOG)\.md$|^docs\/handover\.md$|(?:^|\/)package-lock\.json$|\.(?:png|jpe?g|gif|webp|ico|woff2?|pdf|zip)$/;
+  /^(?:chart|docs\/record|docs\/history|docs\/contract|ops\/record)\/|^(?:CONTRACT|PLAN|AGENTS|CLAUDE|BACKLOG|DECISIONS|CHANGELOG)\.md$|^docs\/handover(?:-b)?\.md$|(?:^|\/)package-lock\.json$|\.(?:png|jpe?g|gif|webp|ico|woff2?|pdf|zip)$/;
 
 export function checkIds(root: string, files: string[]): Finding[] {
   const out: Finding[] = [];

@@ -1,4 +1,5 @@
-// Handover (AGENTS.md §7): docs/handover.md holds only the current state, so it stays under 4 KB with no line over 600 characters.
+// Handover (AGENTS.md §7): each lane's handover (docs/handover.md for lane A, docs/handover-b.md for lane B) holds only the
+// current state, so it stays under 4 KB with no line over 600 characters.
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Finding } from './lib.ts';
@@ -6,9 +7,13 @@ import type { Finding } from './lib.ts';
 export const HANDOVER_MAX_BYTES = 4096;
 export const HANDOVER_MAX_LINE = 600;
 
+const HANDOVER_FILES = ['docs/handover.md', 'docs/handover-b.md'];
+
 export function checkHandover(root: string, files: string[]): Finding[] {
-  const file = 'docs/handover.md';
-  if (!files.includes(file)) return [];
+  return HANDOVER_FILES.filter(f => files.includes(f)).flatMap(f => checkOne(root, f));
+}
+
+function checkOne(root: string, file: string): Finding[] {
   const text = fs.readFileSync(path.join(root, file), 'utf8');
   const out: Finding[] = [];
   const bytes = Buffer.byteLength(text);

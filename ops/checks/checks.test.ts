@@ -157,6 +157,9 @@ test('handover: over 4 KB or a line over 600 characters fails', () => {
   assert.equal(checkHandover(dir, [f]).length, 1);
   fs.writeFileSync(path.join(dir, f), 'short line\n'.repeat(400));
   assert.equal(checkHandover(dir, [f]).length, 1);
+  const b = 'docs/handover-b.md';
+  fs.writeFileSync(path.join(dir, b), 'x'.repeat(601));
+  assert.equal(checkHandover(dir, [b]).length, 1);
 });
 
 test('compat-import: an import of a compat module or a data/compat path is refused', () => {

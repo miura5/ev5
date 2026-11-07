@@ -145,7 +145,7 @@ test("a screen-side command is acknowledged and the registry lists are served", 
   );
 });
 
-test("deleting a collection writes one row for it; its items show ungrouped until it is restored", async () => {
+test("deleting a collection sets its deleted_at and writes no deletions row; its items show ungrouped until it is restored", async () => {
   const call = await setup();
   const made = (await (
     await call("collection.create", { title: "BIO" })
@@ -161,10 +161,12 @@ test("deleting a collection writes one row for it; its items show ungrouped unti
   const rows = await call.db
     .prepare("SELECT c, id FROM deletions")
     .all<{ c: string; id: string }>();
-  assert.deepEqual(
-    rows.results.map((r) => ({ c: r.c, id: r.id })),
-    [{ c: "collections", id: cid }],
-  );
+  assert.deepEqual(rows.results, []);
+  const mark = await call.db
+    .prepare("SELECT deleted_at FROM collections WHERE id = ?")
+    .bind(cid)
+    .first<{ deleted_at: number | null }>();
+  assert.notEqual(mark?.deleted_at, null);
   assert.deepEqual(await ids("/collections", "collections"), []);
   assert.deepEqual(
     await ids(`/memberships?collection_id=${cid}`, "memberships"),
@@ -207,11 +209,6 @@ test("item.restore brings a removed set item back, by its id or an old <set>/<it
   await call.db
     .prepare(
       "INSERT INTO set_items (id, set_id, pos, type, body, at, v, deleted_at) VALUES ('item_a','set_1',1,'single','{\"stem\":\"q\"}',1,2,5),('item_b','set_1',2,'single','{\"stem\":\"r\"}',1,2,5)",
-    )
-    .run();
-  await call.db
-    .prepare(
-      "INSERT INTO deletions VALUES ('set_items','item_a',5),('own_set_items','set_1/b',5),('own_set_items','set_1/item_b',5)",
     )
     .run();
   assert.equal((await call("item.restore", { id: "item_a" })).status, 200);
@@ -270,17 +267,23 @@ test("a session is deleted, listed with its topic in Recently deleted, and resto
   assert.equal((await call("item.restore", { id: "ses_s1" })).status, 404);
 });
 
-test("item.restore succeeds when the row is hidden but its Recently deleted entry is already gone", async () => {
+test("delete lists the row in Recently deleted, restore clears it, and the export keeps the deleted row", async () => {
   const call = await setup();
-  await call.db
-    .prepare(
-      "INSERT INTO goals (id, title, kind, status, created_by, at, v, deleted_at) VALUES ('goal_h', 'Exam', 'exam', 'open', 'user', 1, 2, 5)",
-    )
-    .run();
-  assert.equal((await call("item.restore", { id: "goal_h" })).status, 200);
-  const g = await call.db
-    .prepare("SELECT deleted_at FROM goals WHERE id = 'goal_h'")
-    .all<{ deleted_at: number | null }>();
-  assert.equal(g.results[0]?.deleted_at, null);
-  assert.equal((await call("item.restore", { id: "goal_h" })).status, 404);
+  const listed = async () =>
+    (
+      (await (await call.get("/deletions")).json()) as {
+        deletions: { collection: string; id: string }[];
+      }
+    ).deletions.map((d) => [d.collection, d.id]);
+  assert.equal((await call("item.delete", { id: "set_s1" })).status, 200);
+  assert.deepEqual(await listed(), [["sets", "set_s1"]]);
+  // The export reads every row, deleted or not, so Recently deleted survives a restore from it.
+  const { exportAll } = await import("../data/index.ts");
+  const x = await exportAll(call.db);
+  assert.equal(x.tables.sets!.count, 1);
+  const marks = await call.db.prepare("SELECT * FROM deletions").all();
+  assert.equal(marks.results.length, 0);
+  assert.equal((await call("item.restore", { id: "set_s1" })).status, 200);
+  assert.deepEqual(await listed(), []);
+  assert.equal((await call("item.restore", { id: "set_s1" })).status, 404);
 });

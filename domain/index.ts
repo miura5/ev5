@@ -84,7 +84,6 @@ export {
   likePatterns,
 } from "./search/index.ts";
 /** @public Row shapes for the side tables; the data gate and the job runtime import them (wired by follow-up tasks). */
-export { parseDeletion } from "./deletion/index.ts";
 /** @public */
 export {
   parseJobPlanRow,

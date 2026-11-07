@@ -12,6 +12,7 @@ import os
 import re
 import subprocess
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -83,14 +84,23 @@ def main():
     tasks = json.loads(get(f"{RAW}/chart/tasks.json", raw=True))
     title_of = {t["id"]: t["title"] for t in tasks}
 
-    # 1. Run lock
-    lc = get(f"{API}/commits/claude/build-lock")
-    msg = lc["commit"]["message"].splitlines()[0]
-    at = ts(lc["commit"]["committer"]["date"])
-    held = msg.startswith("held by")
-    lock = {"held": held, "since": iso(at), "ageMin": mins(at)}
-    if held and mins(at) > 75:
-        alerts.append({"level": "bad", "text": f"The run lock is held for {mins(at)} min with no renew. The run may be stuck."})
+    # 1. Run locks, one per lane (AGENTS.md §3): lane A is claude/build-lock, lane B claude/build-lock-b
+    def read_lock(branch, name):
+        try:
+            lc = get(f"{API}/commits/{branch}")
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 422):  # the lane's lock was never taken
+                return {"held": False, "since": None, "ageMin": None}
+            raise
+        msg = lc["commit"]["message"].splitlines()[0]
+        at = ts(lc["commit"]["committer"]["date"])
+        held = msg.startswith("held by")
+        if held and mins(at) > 75:
+            alerts.append({"level": "bad", "text": f"{name} is held for {mins(at)} min with no renew. The run may be stuck."})
+        return {"held": held, "since": iso(at), "ageMin": mins(at)}
+
+    lock = read_lock("claude/build-lock", "The run lock")
+    lock_b = read_lock("claude/build-lock-b", "Lane B's run lock")
 
     # 2. Pull requests and CI runs
     open_prs = get(f"{API}/pulls?state=open&per_page=50")
@@ -213,6 +223,7 @@ def main():
     print(json.dumps({
         "asOf": iso(NOW),
         "lock": lock,
+        "lockB": lock_b,
         "builders": builders,
         "merges": merges,
         "lastMerge": iso(last_merge),
