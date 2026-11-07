@@ -30,7 +30,7 @@ export const USAGE = `node ops/record/cli.ts <command>
 
 const BOOLEAN = new Set(['--check']);
 export function parseArgs(argv: string[]): Opts {
-  const o: Opts = { _: [] };
+  const o: Opts = Object.assign({ _: [] as string[] }, {} as Record<string, string | boolean | undefined>);
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i] as string;
     if (BOOLEAN.has(a)) o[a.slice(2)] = true;

@@ -26,7 +26,7 @@ The table names each main part, its packages and why we use it. A check compares
 | Routing | `wouter` | Back, Forward and reload keep the screen and its open item. |
 | Notes editor | `prosemirror-*` | Rich notes that save as plain blocks. |
 | Build | `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` | Fast builds, and the app works offline as an installed app. |
-| Language | `typescript` | Types across server, jobs and screens. |
+| Language | `typescript`, `@types/node` | Types across server, jobs, screens and the ops scripts. |
 | Tests | `vitest`, `jsdom`, `@testing-library/react`, `@playwright/test` | Unit and screen tests, and browser journeys on staging. Some ops, data and server tests use Node's own test runner. |
 | Guards | `eslint`, `dependency-cruiser`, `stylelint`, `knip` | File size, import direction, colours from tokens, and no unused code. |
 <!-- stack:end -->
