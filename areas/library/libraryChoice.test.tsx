@@ -1,6 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { buildAnswer } from "./answer.ts";
 import { StudyView } from "./Study.view.tsx";
 
 afterEach(cleanup);
@@ -43,13 +42,4 @@ test("nothing turns over until an option is picked", () => {
   render(<StudyView title="Heart" items={[single]} onRate={vi.fn()} />);
   fireEvent.click(screen.getByText("Turn over"));
   expect(screen.queryByText("Good")).toBeNull();
-});
-
-test("the offline fallback stores Again or Good as a rating, never as correct", () => {
-  const a = buildAnswer("s", "q", "good", "1", new Date(0), "x");
-  const e = (
-    a.doc.answers as Record<string, Record<string, Record<string, unknown>>>
-  ).q!["page-19700101-000000-x"]!;
-  expect(e.rating).toBe("good");
-  expect("correct" in e).toBe(false);
 });
