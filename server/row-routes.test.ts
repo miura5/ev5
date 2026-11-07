@@ -125,3 +125,31 @@ test("attempts are read as rows, oldest first", async () => {
   assert.equal((await get(DB, "/attempts/att_1")).body["score"], 1);
   assert.equal((await get(DB, "/attempts/att_zz")).status, 404);
 });
+
+test("plans and plan items are read as rows; a bad row is counted and left out", async () => {
+  const { DB } = await setup();
+  const run = (sql: string) => DB.prepare(sql).run();
+  await run(
+    "INSERT INTO plans (id, goal_id, job_id, state, title, from_day, to_day, summary, at, v) VALUES ('plan_a', 'goal_a', NULL, 'in_force', 'Exam', '2026-11-08', '2026-11-20', NULL, 1, 1), ('plan_bad', 'goal_a', NULL, 'nope', 'Bad', '2026-11-08', '2026-11-20', NULL, 1, 1)",
+  );
+  await run(
+    "INSERT INTO plan_items (id, plan_id, day, pos, title, minutes, time, origin, linked_kind, linked_id, repeat_id, done_at, at, v) VALUES ('pli_2', 'plan_a', '2026-11-09', 0, 'Two', 30, NULL, 'plan', NULL, NULL, NULL, NULL, 1, 1), ('pli_1', 'plan_a', '2026-11-08', 0, 'One', NULL, '09:00', 'plan', NULL, NULL, NULL, NULL, 1, 1), ('pli_bad', NULL, '2026-11-08', 1, 'Bad', NULL, NULL, 'plan', NULL, NULL, NULL, NULL, 1, 1)",
+  );
+  const plans = await get(DB, "/plans");
+  assert.equal(plans.status, 200);
+  assert.deepEqual(
+    plans.body["rows"].map((r: { id: string }) => r.id),
+    ["plan_a"],
+  );
+  assert.equal(plans.body["left_out"], 1);
+  assert.equal((await get(DB, "/plans/plan_a")).body["state"], "in_force");
+  assert.equal((await get(DB, "/plans/plan_bad")).status, 404);
+  const items = await get(DB, "/plan-items");
+  assert.deepEqual(
+    items.body["rows"].map((r: { id: string }) => r.id),
+    ["pli_1", "pli_2"],
+  );
+  assert.equal(items.body["left_out"], 1);
+  assert.equal((await get(DB, "/plan-items/pli_2")).body["minutes"], 30);
+  assert.equal((await get(DB, "/plan-items/pli_zz")).status, 404);
+});
