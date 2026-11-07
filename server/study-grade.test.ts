@@ -14,7 +14,7 @@ const open = {
     { text: "capillaries leak", keywords: [["leak"]] },
     { text: "fluid enters tissue", keywords: [["tissue"]] },
   ],
-  sourceRef: "note/n1",
+  sourceRef: "note_n1",
 };
 
 type Attempt = { score: number | null; answer: string };

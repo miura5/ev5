@@ -18,7 +18,7 @@ const item = {
   options: ["a", "b", "c", "d"],
   correct: [1],
   rationales: ["w", "r", "w", "w"],
-  sourceRef: "e1",
+  sourceRef: "note_e1",
 };
 
 test("a save step that fails once is retried and the model is called once", async () => {
@@ -72,7 +72,7 @@ test("a save step that fails once is retried and the model is called once", asyn
       targetId: "set-1",
       count: 2,
       objectives: [],
-      excerpts: [{ id: "e1", text: "Mitochondria make ATP." }],
+      excerpts: [{ id: "note_e1", text: "Mitochondria make ATP." }],
     },
     "matt",
   );
@@ -135,7 +135,7 @@ test("a result write that fails after it landed is retried and the model is call
       targetId: "set-1",
       count: 2,
       objectives: [],
-      excerpts: [{ id: "e1", text: "Mitochondria make ATP." }],
+      excerpts: [{ id: "note_e1", text: "Mitochondria make ATP." }],
     },
     "matt",
   );
@@ -190,7 +190,7 @@ for (const [kind, stopReason, text] of [
         targetId: "set-1",
         count: 2,
         objectives: [],
-        excerpts: [{ id: "e1", text: "Mitochondria make ATP." }],
+        excerpts: [{ id: "note_e1", text: "Mitochondria make ATP." }],
       },
       "matt",
     );
@@ -229,7 +229,7 @@ test("a result write that never landed is retried in the step and the model is c
       targetId: "set-1",
       count: 2,
       objectives: [],
-      excerpts: [{ id: "e1", text: "Mitochondria make ATP." }],
+      excerpts: [{ id: "note_e1", text: "Mitochondria make ATP." }],
     },
     reserve: async () => {},
     spend: async () => {},
