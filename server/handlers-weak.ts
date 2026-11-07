@@ -2,13 +2,12 @@
 // to it is one appended `weak_spot_events` row (accept, decline, solid), so two quick taps are two inserts and never a 409;
 // "mark as learned" is a status, never a delete. A spot E.V. proposed counts nowhere until Matt confirms it. "Just tell me"
 // in Ask is logged as the user's line, one talk row.
-import { tablesRepo } from "../data/index.ts";
+import { batchWrites, tablesRepo } from "../data/index.ts";
 import { kindOffers } from "../domain/index.ts";
 import type { WeakSpotEventRow } from "../domain/index.ts";
 import { linkKey } from "./ids.ts";
-import { CommandError } from "./handlers-core.ts";
+import { CommandError, flushWrites } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { deferWrites } from "./defer-writes.ts";
 import { logAttempt, talkLine } from "./handlers-edit.ts";
 
 const tables = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
@@ -101,17 +100,17 @@ export const weakHandlers: Record<string, CommandHandler> = {
   "weakspot.unlink": async (i: { id: string; goal: string }, _c, x) => {
     await need(x, i.id);
     // Every link row removed is ONE batch: all go or none does (§data.gate).
-    const w = deferWrites(x.db);
+    const w = batchWrites(x.db);
     const t = tablesRepo(w.db, { clock: x.clock });
     for (const l of await spotLinks(x, i.id, i.goal))
       await t.links.remove(l.id, l.v);
-    await w.flush();
+    await flushWrites(w);
     return { id: i.id, goal: i.goal };
   },
   // The reply Matt asked to be told is logged; the answer itself is on the Ask screen.
   "ask.just_tell_me": async (i: { id: string; attempt?: string }, _c, x) => {
     // The talk line and the attempts row are ONE batch: both land or neither does (§data.gate).
-    const w = deferWrites(x.db);
+    const w = batchWrites(x.db);
     const d = { ...x, db: w.db };
     const line = await talkLine(d, { text: "Just tell me", replyTo: i.id });
     // One log-only attempts row: an ask turn is not a set item, so the turn asked about stands in for it.
@@ -124,7 +123,7 @@ export const weakHandlers: Record<string, CommandHandler> = {
       how: "told",
       answer: { line },
     });
-    await w.flush("that changed or was already recorded; try again");
+    await flushWrites(w, "that changed or was already recorded; try again");
     return { id: i.id, told: true, attempt };
   },
 };
