@@ -1,15 +1,15 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
-## Running    nothing (run 1631Z: #859, #863, #864, #865, #866, #867, #861, #862, #869, #870, #871, #872 merged).
+## Running    nothing (run 1718Z: #875, #876, #877, #878, #880 merged; staging rebuilt from empty 17:50Z on the new baseline).
 NOTE B-1036 (a) action pins, (e) size check blocked: sandbox cannot reach other repos or Cloudflare docs.
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, D-495). Keep groups and order. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
 (3) Kit drift: lane B (docs/handover-b.md, D-530).
 (4) Data layer, built to D-498 (wins over docs/proposals/table-design.md). No contract migration: after B-998 part 2 one squash baseline replaces the chain (D-514).
-Order: B-1022 remainder (old doc-row shapes; row routes for item versions and session events; attempts part: plan-home raw SQL, areas/library/weakSpots.ts own rule copy; domain/item sourceRef note/n1#; F9, KISS 10, sourceRef done),
-B-998 remainder ((c) and pure deletes done. Left: (d) squash incl. was_due and the deletions line in row-shapes.test.ts, staging rebuild, rerun drill),
-B-955 left: other store.list callers pass no onBad (sweep, status, handlers-prepplan, scheduled); merge the two gates after the docs table goes. B-1001 left: date.create writes in several statements (needs a create-goal-with-links in data/),
-B-1036 left: checks 1 (needs sata→multi_select, matrix→grid rename first), 2 (after docs goes), 3, 4; knip ignore: domain/session, own-set, collection nesting (§data.membership: decide), note, ceiling, reportJob (Mac), modelsStaleWarning (wire or delete). B-1005 done (#865).
-Blocked: B-1044 and B-1038 B8 need B-1037 attempts reader and was_due in the squash baseline.
+Order: B-1022 remainder (row routes for item versions and session events; plan-home raw SQL in server/; F9, KISS 10, sourceRef, attempts rule done),
+B-998 remainder ((d) squash and was_due done #877 #880. Left: rerun the restore drill, no workflow for it, needs Cloudflare),
+B-955 left: merge the two gates (docs gate vs data/tables/gate.ts; docs table is gone now, so do it). B-1001 left: raw SQL and bare ids in routes (date.create done #878),
+B-1036 left: checks 1 (needs sata→multi_select, matrix→grid rename first), 2 (docs table gone: do it now), 3, 4; knip ignore: domain/session, own-set, collection nesting (§data.membership: decide), note, ceiling, reportJob (Mac), modelsStaleWarning (wire or delete). B-1005 done (#865).
+B-1044 and B-1038 B8: was_due is in the baseline (#880); they need B-1037's attempts reader.
 B-980 left: one staging run of a failing job. B-1045: R2 keys (Matt) left.
 Ask Matt later: should a self-rated 'again' count as a miss (now no). Then the squash. Builders: one git worktree each, npm ci first; Interface trailer on the commit touching an interface.
 Then rest of B-955, B-1001, B-1005. B-1006 to B-1008 moved to lane B (after B-1001).

@@ -3906,7 +3906,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022.",
+  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022. Run 1718Z: #875 every job-store list in server/ passes onBad (get/put-only callers still none). Left: merge the two gates.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1631Z",
@@ -4494,7 +4494,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it).",
+  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Run 1718Z: (d) done: #877 one baseline 0000 (docs, deletions, own_attempts, system_docs, claude_* tables gone), #880 attempts.was_due. Staging rebuilt from empty 17:50Z (staging run 42398210091 green). Left: rerun the restore drill (no workflow; needs Cloudflare).",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4544,7 +4544,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept.",
+  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept. Run 1718Z: #878 date.create is one batch (createGoalWithLinks). Left: nothing known; check raw SQL and bare ids in routes once more.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4838,7 +4838,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form.",
+  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form. Run 1718Z: #876 item sourceRef is note_ form. weakSpots.ts already uses the domain rule. Left: row routes for item versions and session events; plan-home raw SQL in server/.",
   "commit": null,
   "source": "run 82 B-997 report",
   "claimedBy": "run-20261107T1631Z",
