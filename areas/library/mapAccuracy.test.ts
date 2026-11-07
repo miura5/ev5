@@ -29,7 +29,7 @@ test("mapLibrary carries the accuracy line and a set's due count", () => {
   };
   const d = mapLibrary(
     {
-      exams: [],
+      goals: [],
       weakspots: [],
       sets: [{ id: "s1", data: set }],
       answers: [ans("s1", "q1", "2026-11-03T10:00:00Z", false)],
@@ -39,6 +39,6 @@ test("mapLibrary carries the accuracy line and a set's due count", () => {
   expect(d.accuracy).toEqual({ text: "0%" });
   expect(d.sets[0]?.due).toBe("1 due");
   expect(
-    mapLibrary({ exams: [], weakspots: [], sets: [] }, now).accuracy,
+    mapLibrary({ goals: [], weakspots: [], sets: [] }, now).accuracy,
   ).toBeNull();
 });

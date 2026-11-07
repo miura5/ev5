@@ -6,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { LibraryHosted as LibraryScreen, goalRow } from "./testHost.tsx";
 import { LibraryScreen as RawScreen } from "./Library.screen.tsx";
 
 afterEach(() => {
@@ -21,18 +21,6 @@ const base = {
   source: "test",
 };
 const docs: Record<string, unknown[]> = {
-  exams: [
-    {
-      id: "x1",
-      data: {
-        ...base,
-        title: "Exam Three",
-        kind: "exam",
-        date: "2099-01-05",
-        course: "Biology 101",
-      },
-    },
-  ],
   weakspots: [
     {
       id: "w1",
@@ -73,6 +61,8 @@ function stub() {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (u: string) => {
+      if (/\/goals$/.test(String(u)))
+        return new Response(JSON.stringify({ rows: [goalRow()] }));
       const c = /collection=(\w+)/.exec(String(u))?.[1] ?? "";
       return new Response(JSON.stringify({ docs: docs[c] ?? [] }), {
         status: 200,

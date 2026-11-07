@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { mapLibrary } from "./map.ts";
+import { goalRow } from "./testHost.tsx";
 
 const now = Date.parse("2026-11-03T18:00:00Z");
 const base = {
@@ -7,13 +8,6 @@ const base = {
   writer: "page",
   at: "2026-10-01T15:00:00Z",
   source: "test",
-};
-const exam = {
-  ...base,
-  title: "Exam 4",
-  kind: "unit",
-  date: "2026-11-05",
-  course: "Biology 101",
 };
 const spot = (topic: string) => ({
   ...base,
@@ -35,7 +29,7 @@ const set = {
 };
 
 test("no data gives empty lists", () => {
-  expect(mapLibrary({ exams: [], weakspots: [], sets: [] }, now)).toEqual({
+  expect(mapLibrary({ goals: [], weakspots: [], sets: [] }, now)).toEqual({
     weakSpots: [],
     exams: [],
     sets: [],
@@ -44,12 +38,17 @@ test("no data gives empty lists", () => {
   });
 });
 
-test("exams, weak spots and sets map to the views' props; invalid docs are skipped", () => {
+test("exams, weak spots and sets map to the views' props; finished dates and invalid docs are skipped", () => {
   const d = mapLibrary(
     {
-      exams: [
-        { id: "e4", data: exam },
-        { id: "bad", data: { nope: 1 } },
+      goals: [
+        goalRow({
+          id: "e4",
+          title: "Exam 4",
+          kind: "unit",
+          date: "2026-11-05",
+        }),
+        goalRow({ id: "done", status: "done", score: 0.9 }),
       ],
       weakspots: [{ id: "w1", data: spot("Oral liquid doses") }],
       sets: [

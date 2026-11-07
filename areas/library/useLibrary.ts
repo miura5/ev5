@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc, WireJob } from "./map.ts";
+import type { GoalRow } from "../../domain/index.ts";
 import {
   ApiError,
   api,
@@ -73,6 +74,20 @@ function list(
   return copy ? copy.read(`library:${collection}`, fetcher) : fetcher();
 }
 
+/** The rows of one kind from GET /<path> (the domain row shape, §data.gate); same offline and error rules as `list`. */
+function rows<T>(
+  path: string,
+  token: string,
+  copy?: ReadCopyLike,
+): Promise<T[]> {
+  const fetcher = async (): Promise<T[]> => {
+    const r = await api(path, token);
+    if (!r.ok) throw new ApiError(r.status);
+    return ((await r.json()) as { rows: T[] }).rows;
+  };
+  return copy ? copy.read(`library:${path}`, fetcher) : fetcher();
+}
+
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */
 export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const [again, setAgain] = useState(0);
@@ -86,7 +101,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     let live = true;
     const load = (c: ReadCopyLike | undefined) =>
       Promise.all([
-        list("exams", token, c),
+        rows<GoalRow>("goals", token, c),
         list("weakspots", token, c),
         list("sets", token, c),
         list("answers", token, c),
@@ -106,11 +121,11 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       load,
       (r) => {
         if (!live) return;
-        const [exams, weakspots, sets, answers, plans, planItems, jobs] = r;
+        const [goals, weakspots, sets, answers, plans, planItems, jobs] = r;
         setData(
           mapLibrary(
             {
-              exams,
+              goals,
               weakspots,
               sets,
               answers,

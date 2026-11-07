@@ -6,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { LibraryHosted as LibraryScreen, goalRow } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 
 /** The address query the shell hands the screen. */
@@ -18,19 +18,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const exam = {
-  id: "x1",
-  data: {
-    schema: 2,
-    writer: "page",
-    at: "2026-10-01T15:00:00Z",
-    source: "test",
-    title: "Exam Three",
-    kind: "exam",
-    date: "2099-01-05",
-    course: "Biology 101",
-  },
-};
+const exam = goalRow();
 const waitingJob = {
   id: "j1",
   kind: "prep_plan",
@@ -55,11 +43,9 @@ function boot(jobs: unknown[] = [waitingJob]) {
       }
       if (/\/jobs$/.test(url))
         return new Response(JSON.stringify({ jobs }), { status: 200 });
-      const c = /collection=(\w+)/.exec(url)?.[1] ?? "";
-      return new Response(
-        JSON.stringify({ docs: c === "exams" ? [exam] : [] }),
-        { status: 200 },
-      );
+      if (/\/goals$/.test(url))
+        return new Response(JSON.stringify({ rows: [exam] }), { status: 200 });
+      return new Response(JSON.stringify({ docs: [] }), { status: 200 });
     }),
   );
   render(<LibraryScreen search={SEARCH} />);
@@ -68,7 +54,7 @@ function boot(jobs: unknown[] = [waitingJob]) {
 
 test("a waiting plan job maps to a draft carrying the job id", () => {
   const e = mapLibrary(
-    { exams: [exam] as never, weakspots: [], sets: [], jobs: [waitingJob] },
+    { goals: [exam], weakspots: [], sets: [], jobs: [waitingJob] },
     Date.parse("2026-11-04T12:00:00Z"),
   ).exams[0];
   expect(e?.planState).toBe("draft");
@@ -79,7 +65,7 @@ test("a waiting plan job maps to a draft carrying the job id", () => {
 test("jobs that are not this exam's waiting plan change nothing", () => {
   const state = (jobs: unknown[]) =>
     mapLibrary(
-      { exams: [exam] as never, weakspots: [], sets: [], jobs: jobs as never },
+      { goals: [exam], weakspots: [], sets: [], jobs: jobs as never },
       Date.parse("2026-11-04T12:00:00Z"),
     ).exams[0]?.planState;
   expect(state([{ ...waitingJob, goalId: "other" }])).toBe("none");

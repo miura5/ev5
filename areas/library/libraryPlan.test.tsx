@@ -6,9 +6,10 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { LibraryHosted as LibraryScreen, goalRow } from "./testHost.tsx";
 import { ExamPlanDetail } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
+import type { GoalRow } from "../../domain/index.ts";
 
 /** The address query the shell hands the screen. */
 const SEARCH = "open=x1";
@@ -19,29 +20,13 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const base = {
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
-};
-const exam = (extra: Record<string, unknown>) => ({
-  id: "x1",
-  data: {
-    ...base,
-    title: "Exam Three",
-    kind: "exam",
-    date: "2099-01-05",
-    course: "Biology 101",
-    ...extra,
-  },
-});
+const exam = goalRow;
 
 /** A draft plan row for the exam. */
 const draft = { id: "plan-j1", data: { goal_id: "x1", state: "draft" } };
 
 /** Boots the screen on the exam; commands answer with `status`; returns the command calls made. */
-function boot(examDoc: unknown, plans: unknown[] = [], status = 200) {
+function boot(examDoc: GoalRow, plans: unknown[] = [], status = 200) {
   localStorage.setItem("ev5.token", "t");
   const sent: { name: string; input: unknown }[] = [];
   vi.stubGlobal(
@@ -58,11 +43,10 @@ function boot(examDoc: unknown, plans: unknown[] = [], status = 200) {
           status,
         });
       }
+      if (/\/goals$/.test(url))
+        return new Response(JSON.stringify({ rows: [examDoc] }));
       const c = /collection=(\w+)/.exec(url)?.[1] ?? "";
-      const list: Record<string, unknown[]> = {
-        exams: [examDoc],
-        plans,
-      };
+      const list: Record<string, unknown[]> = { plans };
       return new Response(JSON.stringify({ docs: list[c] ?? [] }), {
         status: 200,
       });
@@ -171,7 +155,7 @@ test("plan state maps: none, draft, approved, away", () => {
   const state = (plans: unknown[], extra: Record<string, unknown>) =>
     mapLibrary(
       {
-        exams: [exam(extra)] as never,
+        goals: [exam(extra)],
         weakspots: [],
         sets: [],
         plans: plans as never,

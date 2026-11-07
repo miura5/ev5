@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LibraryHosted as LibraryScreen } from "./testHost.tsx";
+import { LibraryHosted as LibraryScreen, goalRow } from "./testHost.tsx";
 import { mapLibrary } from "./map.ts";
 import { PLAN_POLL_MS } from "./useLibrary.ts";
 
@@ -14,23 +14,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const base = {
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "t",
-};
-const exam = (extra: Record<string, unknown> = {}) => ({
-  id: "x1",
-  data: {
-    ...base,
-    title: "Exam Three",
-    kind: "exam",
-    date: "2099-01-05",
-    course: "Biology 101",
-    ...extra,
-  },
-});
+const exam = goalRow;
 const tasks = [
   { date: "2099-01-02", title: "Review heart sounds", minutes: 30 },
   { date: "2099-01-03", title: "Practice set", minutes: 20 },
@@ -56,10 +40,9 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
     vi.fn(async (u: string) => {
       const url = String(u);
       if (url.includes("/jobs")) return new Response(JSON.stringify({ jobs }));
-      const c = /collection=(\w+)/.exec(url)?.[1] ?? "";
-      return new Response(
-        JSON.stringify({ docs: c === "exams" ? [exam()] : [] }),
-      );
+      if (/\/goals$/.test(url))
+        return new Response(JSON.stringify({ rows: [exam()] }));
+      return new Response(JSON.stringify({ docs: [] }));
     }),
   );
   render(<LibraryScreen search={SEARCH} />);
@@ -79,7 +62,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
 test("an approved plan keeps its sessions listed with the approved line", () => {
   const data = mapLibrary(
     {
-      exams: [exam({})],
+      goals: [exam({})],
       weakspots: [],
       sets: [],
       plans: [{ id: "plan-j1", data: { goal_id: "x1", state: "in_force" } }],
