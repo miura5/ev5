@@ -13,6 +13,7 @@ import { checkSubjectWords } from './subjectwords.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
+import { checkMigrationFreeze } from './migrationfreeze.ts';
 import { checkMigrationNames } from './migrationnames.ts';
 import { checkMigrationShape } from './migrationshape.ts';
 import { checkModelsAge } from './models.ts';
@@ -47,6 +48,7 @@ const findings = [
   ...checkOldShapes(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
+  ...checkMigrationFreeze(root, files),
   ...checkMigrationNames(files),
   ...checkMigrationShape(root, files),
   ...checkPlanJob(root, files),
