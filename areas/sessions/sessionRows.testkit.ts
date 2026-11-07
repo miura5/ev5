@@ -1,6 +1,8 @@
 import {
   newSessionEventRow,
+  newNoteRow,
   newSessionRow,
+  parseNote,
   parseSession,
 } from "../../domain/index.ts";
 
@@ -34,5 +36,19 @@ export function sessionRowsBody(
         v: 1,
       }));
     }),
+  };
+}
+
+/** What GET /notes/:id answers for a note written as a document with its version (§data.gate). */
+export function noteRowBody(
+  id: string,
+  n: { v?: number; data: object },
+): object {
+  const doc = parseNote(n.data);
+  return {
+    ...newNoteRow(id, doc, null),
+    at: Date.parse(doc.at),
+    v: n.v ?? 1,
+    deleted_at: null,
   };
 }

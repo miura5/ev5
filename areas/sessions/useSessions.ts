@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  noteDocOf,
+  noteRowId,
   parseNote,
+  parseNoteTableRow,
   type Note,
   type SessionEventRow,
   type SessionTableRow,
@@ -98,15 +101,21 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     void (async () => {
       try {
         // Offline the saved note answers; a 401 or 5xx throws and leaves the page empty (§data.offline).
-        const d = await readJson<{ data: unknown; v?: number }>(
-          `docs?collection=notes&id=${encodeURIComponent(noteId)}`,
+        // The note row (§data.tables): its document is built from the columns, its `v` pins the save.
+        const d = await readJson<unknown>(
+          `notes/${encodeURIComponent(noteRowId(noteId))}`,
           token,
           `sessions:note:${noteId}`,
           copy,
         );
+        const row = parseNoteTableRow(d);
+        const doc = noteDocOf(row);
         if (live) {
-          setNote(parseNote(d.data));
-          setNoteRaw({ raw: d.data as Record<string, unknown>, v: d.v });
+          setNote(doc);
+          setNoteRaw({
+            raw: doc as unknown as Record<string, unknown>,
+            v: row.v,
+          });
         }
       } catch (e) {
         // an unreadable note leaves the page empty; a refused token is told like any other

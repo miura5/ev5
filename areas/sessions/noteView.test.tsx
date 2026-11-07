@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { sessionRowsBody } from "./sessionRows.testkit.ts";
+import { noteRowBody, sessionRowsBody } from "./sessionRows.testkit.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { SessionsScreen } from "./Sessions.screen.tsx";
 
@@ -54,13 +54,16 @@ function stub(first?: { type: string; runs: { text: string }[] }) {
       }
       if (url.includes("note-images"))
         return { ok: true, status: 200, blob: async () => new Blob(["x"]) };
-      const json = url.includes("collection=notes")
-        ? first
-          ? {
-              ...note,
-              data: { ...note.data, blocks: [first, ...note.data.blocks] },
-            }
-          : note
+      const json = url.includes("/notes/")
+        ? noteRowBody(
+            "n1",
+            first
+              ? {
+                  ...note,
+                  data: { ...note.data, blocks: [first, ...note.data.blocks] },
+                }
+              : note,
+          )
         : sessionRowsBody(url, [session]);
       return { ok: true, status: 200, json: async () => json };
     }),
