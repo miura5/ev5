@@ -12,14 +12,8 @@ const SKIPPED = /(?:^|\/)(?:node_modules|dist|chart|docs|fixtures-[\w-]+|guards|
 const CUTOVER = ['ops/checks/ev4word.ts', 'server/ev4-routes.ts', 'server/worker.ts', 'public/retire-ev4.js', 'ops/checks/planjob.ts', 'ops/checks/account.ts'];
 const CUTOVER_FOLDERS = ['ops/record/'];
 
-// Files outside this check's slice that still carry the word, found when the check landed. SHRINKS: reword the hit in
-// the file's own task and delete its line here. Never add one.
+// Files that still name an old-app file (a file name cannot be reworded). They go at the cutover with the cutover files. Never add one.
 const TO_REWORD = new Set<string>([
-  'data/migrations/0000_baseline.sql',
-  'data/migrations/0001_deletions.sql',
-  'data/migrations/0002_jobs_ceilings.sql',
-  'data/migrations/0003_collections_pins_own.sql',
-  'data/migrations/0005_pointer_indexes.sql',
   'ops/checks/migrationnames.ts',
   'server/index.ts',
   'vite.config.ts',
