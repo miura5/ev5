@@ -1,7 +1,6 @@
 import type { AttemptRow } from "../../domain/index.ts";
 import { useEffect, useRef, useState } from "react";
-import { accuracyLine } from "../../domain/index.ts";
-import { answersOf } from "./attempts.ts";
+import { accuracyLine, answersOf } from "../../domain/index.ts";
 import { weeklyAccuracy, type Point } from "./series.ts";
 import {
   failureKind,

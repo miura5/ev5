@@ -1,5 +1,9 @@
-import type { AnswerLike } from "./attempts.ts";
-import { addDays, centralDate, weekday } from "../../domain/index.ts";
+import {
+  addDays,
+  centralDate,
+  weekday,
+  type AnswerLike,
+} from "../../domain/index.ts";
 
 export interface Point {
   label: string;
