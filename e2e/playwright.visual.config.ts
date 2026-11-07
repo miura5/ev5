@@ -10,20 +10,10 @@ export default defineConfig({
   snapshotPathTemplate: "{testDir}/baselines/{arg}{ext}",
   forbidOnly: !!process.env["CI"],
   reporter: [["list"]],
-  use: {
-    baseURL,
-    viewport: { width: 1280, height: 800 },
-    reducedMotion: "reduce",
-  },
-  expect: {
-    toHaveScreenshot: { animations: "disabled", maxDiffPixelRatio: 0.001 },
-  },
+  use: { baseURL, viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" },
+  expect: { toHaveScreenshot: { animations: "disabled", maxDiffPixelRatio: 0.001 } },
   projects: [{ name: "desktop-1280", use: { browserName: "chromium" } }],
   webServer: process.env["PW_BASE_URL"]
     ? undefined
-    : {
-        command: "npx vite build && npx vite preview --port 4173 --strictPort",
-        url: baseURL,
-        timeout: 120_000,
-      },
+    : { command: "npx vite build && npx vite preview --port 4173 --strictPort", url: baseURL, timeout: 120_000 },
 });
