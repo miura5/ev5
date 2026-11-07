@@ -29,6 +29,9 @@ function sandbox(files: Files): string {
   for (const c of CONFIGS) fs.copyFileSync(path.join(REAL, c), path.join(root, c));
   // The temp repo has none of the app, so its package.json declares no dependencies (knip would flag them all unused).
   fs.writeFileSync(path.join(root, 'package.json'), '{"name":"guards","private":true,"type":"module"}\n');
+  // Nor does it have the app's test-only exports, so the real allow-list would read as stale.
+  const kp = JSON.parse(fs.readFileSync(path.join(root, 'knip.production.json'), 'utf8')) as object;
+  fs.writeFileSync(path.join(root, 'knip.production.json'), JSON.stringify({ ...kp, ignoreIssues: undefined }));
   fs.symlinkSync(path.join(REAL, 'node_modules'), path.join(root, 'node_modules'));
   for (const d of DIRS) fs.mkdirSync(path.join(root, d), { recursive: true });
   for (const [f, text] of Object.entries({ ...CLEAN, ...files })) {
@@ -81,6 +84,8 @@ const GUARDS: Guard[] = [
   { name: 'a subject word in source (ops/checks subject-word)', command: checks, files: { 'domain/subject.ts': `// ${['nurs', 'ing'].join('')} notes\nexport const s = 1;\n` }, expect: /subject-word: domain\/subject\.ts: 1 line\(s\), first 1/ },
   { name: 'a restore that reads another export kind (ops/checks restore-kind)', command: checks, files: { 'data/export/export.ts': 'export const ok = (x: { kind: string }): boolean => x.kind === "backup-file";\n' }, expect: /restore-kind: data\/export\/export\.ts: line 1 writes an export kind as a string/ },
   { name: 'a table without kind id, at and v (ops/checks migration-shape)', command: checks, files: { 'data/migrations/0099_x.sql': 'CREATE TABLE IF NOT EXISTS widgets (\n  id TEXT PRIMARY KEY,\n  name TEXT\n);\n' }, expect: /migration-shape: data\/migrations\/0099_x\.sql: table widgets: id must be TEXT PRIMARY KEY CHECK/ },
+  { name: 'a deletable table without deleted_at (ops/checks migration-shape)', command: checks, files: { 'data/migrations/0099_x.sql': "CREATE TABLE IF NOT EXISTS widgets (\n  id TEXT PRIMARY KEY CHECK (substr(id, 1, 4) = 'wid_'),\n  at INTEGER NOT NULL,\n  v INTEGER NOT NULL\n);\n" }, expect: /table widgets: missing column deleted_at/ },
+  { name: 'an allow-list entry nothing needs (ops/checks unused-exports)', command: checks, files: { 'knip.production.json': JSON.stringify({ entry: ['server/index.ts!'], project: ['{domain,server}/**/*.ts!'], ignoreIssues: { 'domain/**': ['exports'] } }), 'domain/index.ts': "export { ok } from './ok.ts';\n", 'server/index.ts': "import { ok } from '../domain/index.ts';\nexport const s = ok;\n" }, expect: /unused-exports: knip\.production\.json: ignoreIssues entry domain\/\*\* has no test-only export left/ },
   { name: 'a table missing from the row-shapes test (ops/checks migration-shape)', command: checks, files: { 'data/migrations/row-shapes.test.ts': "// table: 'other'\n", 'data/migrations/0099_x.sql': "CREATE TABLE IF NOT EXISTS widgets (\n  id TEXT PRIMARY KEY CHECK (substr(id, 1, 4) = 'wid_'),\n  at INTEGER NOT NULL,\n  v INTEGER NOT NULL\n);\n" }, expect: /table widgets: not in data\/migrations\/row-shapes\.test\.ts/ },
   { name: 'an e2e journey that writes by PUT /docs (ops/checks docs-writes)', command: checks, files: { 'e2e/seed.journey.spec.ts': 'await api("PUT", "/api/v1/docs?collection=exams&id=x", {});\n' }, expect: /docs-writes: e2e\/seed\.journey\.spec\.ts: line 1 writes by PUT \/docs/ },
   { name: 'a tool defined outside the registry (ops/checks registry)', command: checks, files: { 'server/tool.ts': "export const t = { name: 'x', input_schema: {} };\n" }, expect: /registry: server\/tool\.ts: a Claude tool definition outside commands\// },

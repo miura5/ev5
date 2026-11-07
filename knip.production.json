@@ -40,9 +40,6 @@
     ],
     "jobs/**": [
       "exports"
-    ],
-    "jobs/runtime/**": [
-      "exports"
     ]
   }
 }
