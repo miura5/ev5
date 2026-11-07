@@ -1,5 +1,4 @@
-// node ops/restore-drill/manifest.mjs ev5-staging <out.json>: the export manifest (counts and SHA-256 per table and
-// per `docs` collection, no content) of the remote staging D1, read through wrangler with data's own exportAll.
+// node ops/restore-drill/manifest.mjs ev5-staging <out.json>: the export manifest (counts and SHA-256 per table, no content) of the remote staging D1, read through wrangler with data's own exportAll.
 // Run by time-travel.sh in the staging workflow.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
@@ -29,7 +28,7 @@ const d1 = {
 const x = await exportAll(d1, 0);
 writeFileSync(
   out,
-  JSON.stringify({ collections: x.collections, tables: x.tables }, null, 1),
+  JSON.stringify({ tables: x.tables }, null, 1),
 );
 
 // Note pictures (§data.note-images): read each back from the staging bucket against its files row. Skipped, with a

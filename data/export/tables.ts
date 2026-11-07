@@ -12,9 +12,8 @@ const t = (name: string, columns: string[], orderBy: string[]): TableSpec => ({
   orderBy,
 });
 
-/** The baseline's tables (data/migrations/0000_baseline.sql) and the deletions table. `docs` is also grouped per kind. */
+/** The baseline's tables (data/migrations/0000_baseline.sql) and the deletions table. */
 export const BASE_TABLES: TableSpec[] = [
-  t("docs", ["c", "id", "data", "at", "v"], ["c", "id"]),
   t("deletions", ["c", "id", "at"], ["c", "id"]),
   t("claude_usage", ["hour", "day", "tokens", "calls"], ["hour"]),
   t("claude_reads", ["note", "h", "at"], ["note"]),

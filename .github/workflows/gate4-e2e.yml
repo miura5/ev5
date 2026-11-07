@@ -34,7 +34,7 @@ jobs:
           P=$(start practice-set '{"input":{"variant":"practice","targetId":"e2e-set","count":3,"objectives":["Explain the Frank-Starling law"],"drafts":false,"excerpts":[{"id":"e1","text":"The Frank-Starling law states that the more the ventricle fills with blood during diastole, the more forcefully it contracts during systole."}]}}')
           echo "$P"; PID=$(echo "$P" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$PID"
           # The prep plan is for staging's seeded exam (data/staging/seed.ts), found by its title.
-          G=$(curl -fsS -H "Authorization: Bearer $T" "$U/api/v1/docs?collection=exams" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).docs.find(d=>d.data.title==='Synthetic exam').id")
+          G=$(curl -fsS -H "Authorization: Bearer $T" "$U/api/v1/goals" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).rows.find(g=>g.title==='Synthetic exam').id")
           S=$(start prep-plan "{\"input\":{\"goalId\":\"$G\"}}"); echo "$S"
           SID=$(echo "$S" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).job.id"); poll "$SID"
       - name: Saved set items landed in D1
