@@ -41,15 +41,29 @@ test("get reads the note row by its row id and returns the version and the note,
   await expect(off.transport.get("n")).rejects.toThrow();
 });
 
-test("list returns the documents; 401 says the token was refused", async () => {
+test("list(notes) reads the note rows as documents, leaves out a bad row; 401 and 503 are refusals", async () => {
+  const row = {
+    id: "note_n",
+    collection_id: null,
+    title: "Fluids",
+    body: { blocks: [{ type: "p", runs: [{ text: "x" }] }], createdAt: "2026-11-03T15:00:00.000Z" },
+    text: "x",
+    earlier_of: null,
+    at: 1762182000000,
+    v: 7,
+    deleted_at: null,
+  };
   const ok = docsHttp(
     () => "t",
     async (url) => (
-      expect(url).toBe("/api/v1/docs?collection=notes"),
-      reply(200, { docs: [{ id: "a", v: 1 }] })
+      expect(url).toBe("/api/v1/notes"),
+      reply(200, { rows: [row, { id: "bad" }] })
     ),
   );
-  expect(await ok.list("notes")).toEqual([{ id: "a", v: 1 }]);
+  const got = await ok.list("notes");
+  expect(got).toHaveLength(1);
+  expect(got[0]).toMatchObject({ id: "n", v: 7, at: 1762182000000 });
+  expect(got[0]?.data).toMatchObject({ title: "Fluids" });
   const no = docsHttp(
     () => "",
     async () => reply(401, {}),
@@ -60,6 +74,22 @@ test("list returns the documents; 401 says the token was refused", async () => {
     async () => reply(503, {}),
   );
   await expect(bad.list("notes")).rejects.toMatchObject({ status: 503 });
+});
+
+test("list returns the documents of another collection; 401 says the token was refused", async () => {
+  const ok = docsHttp(
+    () => "t",
+    async (url) => (
+      expect(url).toBe("/api/v1/docs?collection=exams"),
+      reply(200, { docs: [{ id: "a", v: 1 }] })
+    ),
+  );
+  expect(await ok.list("exams")).toEqual([{ id: "a", v: 1 }]);
+  const no = docsHttp(
+    () => "",
+    async () => reply(401, {}),
+  );
+  await expect(no.list("exams")).rejects.toMatchObject({ status: 401 });
 });
 
 test("a note command answers with the version it wrote", async () => {

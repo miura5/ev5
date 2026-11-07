@@ -63,8 +63,21 @@ function fakeServer() {
         result: { id: i.id, version: ++s.v },
       });
     }
+    const d = s.data as { title: string; blocks: unknown; createdAt: string };
     return Response.json({
-      docs: [{ id: "n-1", v: s.v, at: 1, data: s.data }],
+      rows: [
+        {
+          id: "note_n-1",
+          collection_id: null,
+          title: d.title,
+          body: { blocks: d.blocks, createdAt: d.createdAt },
+          text: "",
+          earlier_of: null,
+          at: 1,
+          v: s.v,
+          deleted_at: null,
+        },
+      ],
     });
   };
   vi.stubGlobal("fetch", fetch);
