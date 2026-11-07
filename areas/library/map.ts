@@ -2,13 +2,14 @@ import {
   accuracyLine,
   centralDate,
   dueCounts,
-  itemType,
   inDays,
   daysBetween,
-  parseSet,
   plainDay,
   planEnded,
 } from "../../domain/index.ts";
+import type { SetTableRow } from "../../domain/index.ts";
+import { tallyDocs } from "./attempts.ts";
+import { questionOf } from "./questions.ts";
 import { spotsOf, type SpotRows } from "./weakSpots.ts";
 import type {
   Accuracy,
@@ -26,9 +27,8 @@ import type { WireDoc } from "../../domain/index.ts";
 
 /** The rows as the GET routes return them (§data.gate): goals, weak spots, their events and links come from SpotRows. */
 export interface LibraryDocs extends SpotRows {
-  sets: WireDoc[];
-  /** Practice answers; absent reads as none. */
-  answers?: WireDoc[];
+  /** GET /sets; a set's questions are the GET /items rows (SpotRows.items) with its id. */
+  sets: SetTableRow[];
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: WireJob[];
   /** The plans rows (goal, state: in force, put away or a draft); absent reads as none. */
@@ -147,17 +147,6 @@ export interface LibraryData {
   pages: Record<string, SetPageData>;
 }
 
-function tryParse<T>(
-  parse: (raw: unknown) => T,
-  d: WireDoc,
-): { id: string; v: T }[] {
-  try {
-    return [{ id: d.id, v: parse(d.data) }];
-  } catch {
-    return []; // a document outside the schema is left out, never an error on Library
-  }
-}
-
 const share = (n: number, of: number) => (of > 0 ? n / of : 0);
 
 /** Maps the three collections Library reads to the views' props; no data gives empty lists. */
@@ -250,12 +239,18 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         ...(sessions.length ? { sessions } : {}),
       };
     });
-  const dues = dueCounts(docs.answers ?? []);
+  const answered = tallyDocs(docs.attempts ?? []);
+  const dues = dueCounts(answered);
   const sets: LibrarySet[] = [];
   const pages: Record<string, SetPageData> = {};
-  for (const { id, v } of docs.sets.flatMap((d) => tryParse(parseSet, d))) {
-    const title = v.title ?? `${v.kind} set`;
-    const n = v.items.length;
+  for (const set of docs.sets) {
+    const id = set.id;
+    const title = set.title ?? `${set.kind} set`;
+    const questions = (docs.items ?? [])
+      .filter((i) => i.set_id === id)
+      .sort((x, y) => x.pos - y.pos)
+      .flatMap(questionOf);
+    const n = questions.length;
     const meta = `${n} ${n === 1 ? "question" : "questions"}`;
     const nDue = dues.get(id) ?? 0;
     sets.push({
@@ -270,17 +265,17 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       title,
       kind: "questions",
       meta,
-      items: v.items.map((q) => ({
+      items: questions.map((q) => ({
         id: q.id,
         front: q.stem,
         back:
-          (q.correct ?? [])
-            .map((i) => q.options?.[i])
+          q.correct
+            .map((i) => q.options[i])
             .filter(Boolean)
             .join("; ") || undefined,
-        ...(itemType(q) === "open" ? { open: true } : {}),
-        ...(q.options?.length && !["open", "numeric"].includes(itemType(q))
-          ? { options: q.options, multi: itemType(q) === "multi_select" }
+        ...(q.type === "open" ? { open: true } : {}),
+        ...(q.options.length && !["open", "numeric"].includes(q.type)
+          ? { options: q.options, multi: q.type === "multi_select" }
           : {}),
       })),
     };
@@ -289,7 +284,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
     weakSpots,
     exams,
     sets,
-    accuracy: accuracyLine(docs.answers ?? [], Number(now)),
+    accuracy: accuracyLine(answered, Number(now)),
     pages,
   };
 }

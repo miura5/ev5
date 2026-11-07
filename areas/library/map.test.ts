@@ -1,23 +1,24 @@
 import { expect, test } from "vitest";
 import { mapLibrary } from "./map.ts";
-import { goalRow, linkRow, eventRow, spotRow } from "./testHost.tsx";
+import {
+  goalRow,
+  itemRow,
+  linkRow,
+  eventRow,
+  setRow,
+  spotRow,
+} from "./testHost.tsx";
 
 const now = Date.parse("2026-11-03T18:00:00Z");
-const base = {
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
-};
-const set = {
-  ...base,
-  schema: 3,
-  kind: "drill",
-  title: "Doses",
-  items: [
-    { id: "q1", stem: "How many mL?", options: ["2 mL", "5 mL"], correct: [1] },
-  ],
-};
+const items = [
+  itemRow("item_q1", "set_s1", {
+    stem: "How many mL?",
+    options: ["2 mL", "5 mL"],
+    correct: [1],
+  }),
+  // a body with no stem is left out, never an error on Library
+  itemRow("item_bad", "set_s1", { nope: 1 }, { pos: 2 }),
+];
 
 test("no data gives empty lists", () => {
   expect(mapLibrary({ goals: [], weakspots: [], sets: [] }, now)).toEqual({
@@ -29,7 +30,7 @@ test("no data gives empty lists", () => {
   });
 });
 
-test("exams, weak spots and sets map to the views' props; finished dates and invalid docs are skipped", () => {
+test("exams, weak spots and sets map to the views' props; finished dates and bodiless items are skipped", () => {
   const d = mapLibrary(
     {
       goals: [
@@ -44,10 +45,8 @@ test("exams, weak spots and sets map to the views' props; finished dates and inv
       weakspots: [spotRow({ id: "w1", topic: "Oral liquid doses" })],
       weakSpotEvents: [eventRow("w1", 1)],
       links: [linkRow("weak_spot", "w1", "e4")],
-      sets: [
-        { id: "s1", data: set },
-        { id: "s2", data: { nope: 1 } },
-      ],
+      sets: [setRow({ id: "set_s1" })],
+      items,
     },
     now,
   );
@@ -65,11 +64,11 @@ test("exams, weak spots and sets map to the views' props; finished dates and inv
     ["e4", "Nov 5 · in 2 days", 1],
   ]);
   expect(d.sets).toEqual([
-    { id: "s1", title: "Doses", kind: "questions", meta: "1 question" },
+    { id: "set_s1", title: "Doses", kind: "questions", meta: "1 question" },
   ]);
-  expect(d.pages.s1!.items).toEqual([
+  expect(d.pages.set_s1!.items).toEqual([
     {
-      id: "q1",
+      id: "item_q1",
       front: "How many mL?",
       back: "5 mL",
       options: ["2 mL", "5 mL"],

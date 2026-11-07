@@ -9,6 +9,8 @@ import { afterEach, expect, test, vi } from "vitest";
 import {
   LibraryHosted as LibraryScreen,
   goalRow,
+  itemRow,
+  setRow,
   spotRow,
 } from "./testHost.tsx";
 import { LibraryScreen as RawScreen } from "./Library.screen.tsx";
@@ -18,34 +20,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const base = {
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
-};
-const docs: Record<string, unknown[]> = {
-  sets: [
-    {
-      id: "s1",
-      data: {
-        ...base,
-        schema: 3,
-        kind: "drill",
-        title: "Doses",
-        items: [
-          {
-            id: "q1",
-            stem: "How many mL?",
-            options: ["2 mL", "5 mL"],
-            correct: [1],
-          },
-        ],
-      },
-    },
-  ],
-};
-
+const q = { stem: "How many mL?", options: ["2 mL", "5 mL"], correct: [1] };
 function stub() {
   localStorage.setItem("ev5.token", "t");
   vi.stubGlobal(
@@ -61,8 +36,13 @@ function stub() {
         return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(String(u)))
         return new Response(JSON.stringify({ rows: [goalRow()] }));
-      const c = /collection=(\w+)/.exec(String(u))?.[1] ?? "";
-      return new Response(JSON.stringify({ docs: docs[c] ?? [] }), {
+      if (/\/sets$/.test(String(u)))
+        return new Response(JSON.stringify({ rows: [setRow({ id: "s1" })] }));
+      if (/\/items$/.test(String(u)))
+        return new Response(
+          JSON.stringify({ rows: [itemRow("item_q1", "s1", q)] }),
+        );
+      return new Response(JSON.stringify({ docs: [], rows: [] }), {
         status: 200,
       });
     }),

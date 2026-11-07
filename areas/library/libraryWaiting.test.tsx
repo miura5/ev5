@@ -47,7 +47,9 @@ function boot(jobs: unknown[] = [waitingJob]) {
         return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [exam] }), { status: 200 });
-      return new Response(JSON.stringify({ docs: [] }), { status: 200 });
+      return new Response(JSON.stringify({ docs: [], rows: [] }), {
+        status: 200,
+      });
     }),
   );
   render(<LibraryScreen search={SEARCH} />);
