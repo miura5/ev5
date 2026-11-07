@@ -1,0 +1,15 @@
+{
+ "session": "cse_01JjJLDWD9MN9vCjHSGgn2Tu",
+ "entries": [
+  {
+   "id": "P-1",
+   "type": "decision",
+   "flags": {
+    "title": "Every build run uses the full hour: no run rations usage on its own",
+    "why": "Matt, 2026-11-07, in the ev-build channel: \"use the full hour\". Runs had stopped after one or two small tasks to save usage against a daily cap nobody had confirmed. AGENTS.md §9 now says a run ends early only when the platform stops it or nothing is left that doesn't wait on Matt.",
+    "status": "accepted",
+    "source": "Matt in the ev-build channel, 2026-11-07"
+   }
+  }
+ ]
+}

@@ -211,8 +211,9 @@ With each card, update `README.md` when the release changes the stack, the folde
 
 ## 9. Cadence and usage
 
-- The build task runs on a schedule chosen to fit the daily cap left after ev4's own scheduled runs (PLAN §15 C11) **[verify the plan's current cap]**. Matt can also trigger "Run now".
-- Each run is bounded: it ends after its handover. When usage runs out mid-run, the run stops at a safe point. The next run resumes from the handover.
+- The build task runs on its schedule, and Matt can also trigger "Run now". Matt decided on 2026-11-07 that every run uses the full hour: no run rations usage on its own.
+- Each run works its full ~50 minutes with 4 to 6 builders busy (§3 step 5). It ends early only when the platform actually stops it (usage really runs out) or when no task is left that doesn't wait on Matt (§3 step 10). "Saving usage" is not a reason to stop, to start fewer builders or to pick smaller tasks.
+- Each run is bounded: it ends after its handover. When usage runs out mid-run, the run stops at a safe point (§3, "Stop early when"). The next run resumes from the handover.
 - ev4 keeps running live throughout. ev4 bug fixes stay in ev4's own process; this loop never touches ev4's repo except S-09 (§hard.ev4-own-process).
 
 ## 10. Off limits
