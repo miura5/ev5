@@ -76,20 +76,37 @@ test("list(notes) reads the note rows as documents, leaves out a bad row; 401 an
   await expect(bad.list("notes")).rejects.toMatchObject({ status: 503 });
 });
 
-test("list returns the documents of another collection; 401 says the token was refused", async () => {
+test("list reads dates, sets and weak spots from their row routes", async () => {
+  const urls: string[] = [];
   const ok = docsHttp(
     () => "t",
     async (url) => (
-      expect(url).toBe("/api/v1/docs?collection=exams"),
-      reply(200, { docs: [{ id: "a", v: 1 }] })
+      urls.push(url),
+      reply(200, { rows: [{ id: "set_a", v: 2, at: 5, title: "Fluids" }, { v: 1 }] })
     ),
   );
-  expect(await ok.list("exams")).toEqual([{ id: "a", v: 1 }]);
+  expect(await ok.list("sets")).toEqual([
+    { id: "set_a", v: 2, at: 5, data: { id: "set_a", v: 2, at: 5, title: "Fluids" } },
+  ]);
+  await ok.list("exams");
+  await ok.list("weakspots");
+  expect(urls).toEqual(["/api/v1/sets", "/api/v1/goals", "/api/v1/weak-spots"]);
   const no = docsHttp(
     () => "",
     async () => reply(401, {}),
   );
   await expect(no.list("exams")).rejects.toMatchObject({ status: 401 });
+});
+
+test("list keeps /docs for a collection with no row route", async () => {
+  const ok = docsHttp(
+    () => "t",
+    async (url) => (
+      expect(url).toBe("/api/v1/docs?collection=other"),
+      reply(200, { docs: [{ id: "a", v: 1 }] })
+    ),
+  );
+  expect(await ok.list("other")).toEqual([{ id: "a", v: 1 }]);
 });
 
 test("a note command answers with the version it wrote", async () => {
