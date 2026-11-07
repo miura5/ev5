@@ -10,18 +10,18 @@ test("Question set by hand, then keep and drop E.V.'s drafts", async ({
       "set"
     ] as { id: string }
   ).id;
-  const item = (
-    (
-      await cmd(api, "set.item_add", {
-        set,
-        text: "Which is a vital sign?\n- Hair colour\n* Pulse\n- Shoe size",
-      })
-    )["item"] as { itemId: string }
-  ).itemId;
+  const added = (
+    await cmd(api, "set.item_add", {
+      set,
+      text: "Which is a vital sign?\n- Hair colour\n* Pulse\n- Shoe size",
+    })
+  )["item"] as { itemId: string; v: number };
+  const item = added.itemId;
   await cmd(api, "set.item_update", {
     set,
     item,
     text: "Which is a vital sign?\n- Hair colour\n* Pulse\n* Temperature",
+    if_version: added.v,
   });
   const bad = await api("POST", "/api/v1/commands/set.item_add", {
     input: { set, text: "No options at all" },
