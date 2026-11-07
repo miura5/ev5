@@ -26,6 +26,7 @@ async function ensureExam(api: Api): Promise<string> {
       kind: string;
       date: string | null;
       status: string;
+      v: number;
     }>(api, "goals")
   ).find((g) => g.title === TITLE && g.status === "open");
   if (!have) {
@@ -40,6 +41,7 @@ async function ensureExam(api: Api): Promise<string> {
   if (!dated || have.kind !== "exam")
     await cmd(api, "date.update", {
       id: have.id,
+      if_version: have.v,
       kind: "exam",
       ...(dated ? {} : { date: day(7) }),
     });

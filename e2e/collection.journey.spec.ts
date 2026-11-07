@@ -16,7 +16,13 @@ test("Collection: make, move a note in, pin, delete, restore", async ({
     "id"
   ] as string;
   try {
-    await cmd(api, "item.move", { id: note, collection: b.id });
+    const read = await api("GET", `/api/v1/notes/${note}`);
+    expect(read.status).toBe(200);
+    await cmd(api, "item.move", {
+      id: note,
+      collection: b.id,
+      if_version: read.body["v"] as number,
+    });
     const mem = await api("GET", `/api/v1/memberships?collection_id=${b.id}`);
     expect(JSON.stringify(mem.body)).toContain(note);
 
