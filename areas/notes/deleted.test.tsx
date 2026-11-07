@@ -16,7 +16,7 @@ const note = (title: string) =>
   });
 
 const services = (): NotesServices => ({
-  docs: {
+  rows: {
     list: async () => [
       { id: "n1", v: 1, at: 1, data: note("Kept") },
       { id: "n2", v: 1, at: 2, data: note("Gone") },

@@ -86,7 +86,7 @@ function fakeServer() {
     store: memoryStore(),
     transport: http.transport,
   });
-  const services: Services = { docs: http, outbox };
+  const services: Services = { rows: http, outbox };
   return { s, services };
 }
 
@@ -149,7 +149,7 @@ test("a refused token shows a plain sentence and no notes", async () => {
     store: memoryStore(),
     transport: http.transport,
   });
-  render(<NotesInShell services={{ docs: http, outbox }} />);
+  render(<NotesInShell services={{ rows: http, outbox }} />);
   expect(
     await screen.findByText(/E\.V\. did not accept this token/),
   ).toBeTruthy();

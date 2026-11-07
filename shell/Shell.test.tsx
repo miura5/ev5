@@ -195,7 +195,7 @@ test("typing part of a title in ⌘K lists the matching record above Ask E.V.; E
     weakspots: [{ id: "w1", v: 1, at: 1, data: { topic: "Synthroid dosing" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
   const services = {
-    docs: { list: async (c: string) => rows[c] ?? [] },
+    rows: { list: async (c: string) => rows[c] ?? [] },
     outbox: {},
   } as unknown as NonNullable<Parameters<typeof Shell>[0]["services"]>;
   render(
@@ -249,7 +249,7 @@ test("keys typed into ⌘K one at a time stay in the box and list a note by its 
     notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
   const services = {
-    docs: { list: async (c: string) => rows[c] ?? [] },
+    rows: { list: async (c: string) => rows[c] ?? [] },
     outbox: {},
   } as unknown as NonNullable<Parameters<typeof Shell>[0]["services"]>;
   render(

@@ -1,4 +1,4 @@
-// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes, dates, sets and weak spots over their /api/v1 row routes, any other collection over /api/v1/docs (server/doc-routes.ts). The app token is read at each
+// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes, dates, sets and weak spots over their /api/v1 row routes; a collection with no row route has no rows. The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
 import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
@@ -7,7 +7,7 @@ import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
-/** One document as the page reads it (GET /docs, or a notes row turned into one). */
+/** One document as the page reads it (a row from its row route). */
 export interface DocRow {
   id: string;
   v: number;

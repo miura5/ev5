@@ -9,7 +9,7 @@ const NotesScreen = withToasts(RawNotesScreen);
 afterEach(cleanup);
 
 const services = (list: () => Promise<never>): NotesServices => ({
-  docs: { list },
+  rows: { list },
   outbox: {
     queueNote: vi.fn(),
     replay: vi.fn(async () => ({ refused: [] })),
