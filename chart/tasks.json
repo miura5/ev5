@@ -3906,7 +3906,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "FIX NEXT, Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). H3 (settings part): server/job-run.ts loadCeilingConfig reads settings by raw SQL outside data/, and parseSettingRow throws on one bad row, so every job fails; move the read into data/tables as a settings reader that reports and leaves out a bad row (§data.gate). The attempts part is on B-1022. F16: #734 (no task named) is this task's work: list reads report left_out under the request id (server/read-report.ts) for /docs and the row routes; it also grew server/doc-routes.ts, which goes at B-998 part 2. Run 2026-11-07 04:4x (#723): insert catches treat only unique/PK violations as conflicts (core.ts insertConflict); onBad gets {table,id,reason}, logs by default; readRows and kinds list return Listed<T> with a non-enumerable left_out count. Left: server/jobs callers read left_out and tell the client; data/docs untouched; jobStores row reads bypass onBad; B-1002; export WriteRefused via data/index.ts; merge the two gates. Claim freed. Data-loss audit (D-526), before cutover, L5: six commands write without if_version (item.move, item.rename, note.move, set.update, set.item_update, date.update); each takes and checks it (§data.protocol).",
+  "notes": "Run 2026-11-07 1537Z: settings reader already on main (#846, data/tables/jobs.ts settings.readNumbers); L5 done (#850): item.move, item.rename, note.move, set.update, set.item_update, date.update take an optional if_version and 409 only when stale. Left: callers in areas/ (Notes.screen, Collection.screen, useLibrary, useToday) must pass v: add v to those read models, then make if_version required (expand, migrate, contract). Also left: left_out callers in server/jobs, jobStores row reads bypass onBad, export WriteRefused via data/index.ts, merge the two gates; attempts part is on B-1022.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",
@@ -4340,7 +4340,7 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 1505Z (#840): shell/pwa.ts uses registerSW with focus check and a reload hold (createReloadHold). Left: nothing calls hold() yet, so wire it via shell/services.ts and the Study view while a run is open (areas/library); and the staging check by eye (index-*.js matches / with no hard reload).",
+  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload).",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",
@@ -4494,7 +4494,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1505Z: (a) done (#833); (b) done (#841): docswrites/docskinds checks, /api/health docs count, export docs dump gone, gate4-e2e uses /goals. Left: (c) delete server/doc-routes.ts (still mounted in server/index.ts, still says exams) and data/docs; (d) squash incl. was_due, staging rebuild, rerun drill. Until (c), /docs PUTs are not in the nightly export. KISS audit (D-526), pure deletes in part 2 (the /docs removal): server/doc-routes.ts and server/note-, session-, plan-, goal- and weak-wire.ts; repo methods with no production caller (data/tables/own.ts, tables.ts collections and itemProps, kinds.ts pinRows); domain/doc-row and the */row.ts doc shapes; jobs/runtime/ceilings-memory.ts; the bookkeeping parsers in domain/claude and domain/system-doc; empty allow-lists in ops/checks (chartev4, docswrites, serverwrites, sourceids, migrationnames); the Detail prop App never passes (shell/Shell.tsx, DetailSlot.tsx); POST /jobs/:id/dismiss and POST /jobs/:slug once gate4 no longer calls it. gate4-e2e.yml moves to /api/v1/goals first. No deletions table in the squash. Data-loss audit L11: the docs table is still writable through /api/v1/docs but is not in the export; part 2 removes both the route and the table.",
+  "notes": "Run 2026-11-07 1537Z: (c) done (#849): server/doc-routes.ts, data/docs, docsRepo, session-/plan-/note-wire, data/protocol docs harness gone. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion go with it). Pure deletes still open: server/goal-wire.ts and weak-wire.ts (plan-home, handlers-prepplan, jobs-done use them), domain/doc-row and */row.ts doc shapes, jobs/runtime/ceilings-memory.ts, domain/claude and domain/system-doc parsers, empty ops/checks allow-lists, Detail prop in shell/Shell.tsx and DetailSlot.tsx, POST /jobs/:id/dismiss and /jobs/:slug, unused repo methods in data/tables. docs/proposals/table-design.md line 129 names removed files. No deletions table in the squash.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -5015,7 +5015,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1505Z (#832): F14 guards.md rows and F17 TO_REWORD done (only server/index.ts, vite.config.ts, migrationnames.ts lines remain until cutover). Left: check 2 after the docs removal. Claim freed. KISS audit (D-526), before cutover, as part of check 4: shrink knip.production.json ignoreIssues (8 domain folders and jobs/**) and the 53 @public tags in domain, jobs and commands, one folder at a time, each export used or deleted.",
+  "notes": "Run 2026-11-07 1537Z (#852): knip.production.json ignoreIssues 9 to 7 (domain/pin and domain/weak-spot cleared, dead pin rules and weak-spot isSolid/isDue/row parser deleted). Left in ignoreIssues, test-only exports: domain/session, note, collection (nesting check lives there per §data.membership: decide or amend CONTRACT first), own-set, ceiling (row-shapes tests use parseCeiling*), objective, jobs/** (unused types in jobs/runtime/index.ts, d1-stores.ts); 53 @public tags mostly still there. These are unwired domain logic: deleting is a decision on whether it is dead. Check 2 after the docs removal (docs is gone from routes now; table stays until the squash).",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
@@ -5152,7 +5152,7 @@
   "depends": [
    "B-998"
   ],
-  "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). F10: pictureApi.put in commands/client.ts takes any path, so any area can PUT to any route through it, and the ESLint write rule no longer sees it (#746); no exception is in the decision record (§cmd.registry, D-517). Limit the helper to note-images/ keys and record the exception as a decision, or add a files command. Group 4. Done (#679 to #692): PUT /note-images refuses overwrite (409; the outbox treats 409 as stored), 415 on a magic-number mismatch, GET serves CSP default-src none; files table (0018_files.sql) and a files row on upload; the export lists files rows with size and SHA-256 (no byte copy); data/export/pictures.ts checkPictures compares the bytes with the rows and reports orphans; ops/restore-drill/manifest.mjs calls it against staging R2 when R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and CLOUDFLARE_ACCOUNT_ID are set, else skips. Left: R2 keys as staging secrets in the drill workflow (Matt, §6; in the next batched question); owner_kind stays unclaimed until a note claims a picture (needs a claim command or an owner hint); a failed files row after the R2 put leaves a retry 409 with no row (the orphan report shows it).",
+  "notes": "Run 2026-11-07 1537Z (#851): F10 done, pictureApi.put throws unless the key is note-images/<name>.<png|jpg|webp|gif> (generated from ops/generate/client-body.ts); lint allows pictureApi only in areas/notes/parts/notePictures.ts. Left: R2 keys as staging secrets in the drill workflow (Matt, §6, next batched question); owner_kind unclaimed until a note claims a picture; failed files row after the R2 put leaves a retry 409 with no row.",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",

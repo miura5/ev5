@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-529",
+  "date": "Nov 7",
+  "title": "D-517 exception: pictureApi.put is the one raw-bytes write door outside the command registry (§cmd.registry). It accepts only note-images/ keys (throws otherwise) and lint allows it only in areas/notes/parts/notePictures.ts.",
+  "why": "Pictures are bytes, not rows; B-1045 F10",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "run-20261107T1537Z"
+ },
+ {
   "id": "D-528",
   "date": "Nov 7",
   "title": "Build run timing follows the run's own clock: hand over and free the lock about 50 minutes after taking it; side sessions use :57 to :05; a wait branch only when Next has no task free to start",
