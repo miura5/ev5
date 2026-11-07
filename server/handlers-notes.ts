@@ -19,7 +19,7 @@ import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
 
-/** A note document id, as server/note-wire.ts accepts it. */
+/** A note document id, as the note commands accept it. */
 const NOTE_ID = /^n-[A-Za-z0-9-]{1,120}$/;
 
 interface NoteSaveInput {

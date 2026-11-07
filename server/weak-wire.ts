@@ -77,35 +77,3 @@ export async function weakSpotDocs(
       };
     });
 }
-
-export type Created =
-  | { ok: true; at: number; version: number }
-  | { ok: false; status: 400 | 409; error: string };
-
-/**
- * Creates a weak spot in its table (§data.tables, §data.gate), from the document the page or a run sends. The id is the row's
- * `ws_` id. It is a create only: a repeat id, or a named version, is a 409. A new spot carries no events and no starting counts;
- * it carries no course: its goal comes from a link row (§data.links). Nothing is written to `docs`.
- */
-export async function createWeakSpot(
-  db: DocsD1,
-  clock: () => number,
-  id: string,
-  body: string,
-  ifVersion: number | null,
-): Promise<Created> {
-  if (!id.startsWith("ws_"))
-    return { ok: false, status: 400, error: "a weak spot id starts with ws_" };
-  if (ifVersion !== null)
-    return { ok: false, status: 409, error: "a weak spot is created once" };
-  const t = tablesRepo(db, { clock });
-  try {
-    const doc = parseWeakSpot(JSON.parse(body));
-    const saved = await t.weakSpots.save(newWeakSpotRow(id, doc, null), null);
-    return saved.ok
-      ? { ok: true, at: saved.row.at, version: saved.row.v }
-      : { ok: false, status: 409, error: "that changed; try again" };
-  } catch (e) {
-    return { ok: false, status: 400, error: (e as Error).message };
-  }
-}
