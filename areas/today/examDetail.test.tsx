@@ -119,7 +119,7 @@ test("an exam whose plan is in force reads approved", async () => {
   vi.stubGlobal(
     "fetch",
     feed([], {
-      exams: [{ id: "e3", data: { ...exam, planId: "p1" } }, two[1]],
+      exams: [{ id: "e3", data: exam }, two[1]],
       plans: [{ id: "p1", data: { goal_id: "e3", state: "in_force" } }],
     }),
   );
@@ -171,7 +171,7 @@ test("an approved plan's session dated today lists on Today's Plan, and Start ne
         : url.includes("dayedits")
           ? json({}, 404)
           : url.includes("collection=exams")
-            ? json({ docs: [{ id: "e3", data: { ...exam, planId: "p1" } }] })
+            ? json({ docs: [{ id: "e3", data: exam }] })
             : url.includes("collection=plan_items")
               ? json({ docs: items })
               : url.includes("collection=plans")

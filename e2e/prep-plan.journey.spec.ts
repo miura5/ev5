@@ -177,7 +177,6 @@ test("Prep plan: plan with E.V., ask for a change, approve, it stays after a rel
   await expect(page.getByText("in force")).toBeVisible();
   const date = await api("GET", `/api/v1/docs?collection=exams&id=${exam}`);
   expect(date.status, JSON.stringify(date.body)).toBe(200);
-  expect((date.body["data"] as { planId?: string }).planId).toBe(`plan-${id}`);
   const plan = await api("GET", `/api/v1/docs?collection=plans&id=plan-${id}`);
   expect(plan.status).toBe(200);
   const days = (plan.body["data"] as { days?: unknown[] }).days ?? [];
