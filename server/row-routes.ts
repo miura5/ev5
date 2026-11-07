@@ -27,8 +27,7 @@ type Ctx = { Bindings: { DB: DocsD1 }; Variables: AuthVars };
 export const rowRoutes = new Hono<Ctx>();
 type Rows = {
   list(o?: {
-    limit: number;
-    offset: number;
+    page: { limit: number; offset: number };
   }): Promise<readonly unknown[] & { left_out?: number }>;
   get(id: string): Promise<unknown>;
 };
