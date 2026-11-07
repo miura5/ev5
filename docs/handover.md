@@ -12,7 +12,7 @@ B-1036 (left: check 2 after the docs removal; checks 3 and 4 done #784).
 Blocked: B-1044 and B-1038 B8 need B-1037 attempts reader and a was_due column in the squash baseline. B-1060 left: kit baselines (Docker); check design/mockup.html, DESIGN-BRIEF.md; check design/mockup.html and DESIGN-BRIEF.md (stray biology strings now gone, #787).
 Run 1100Z: palette dates/sets/weak spots read row routes (docsHttp /docs fallback and listCollection dropped, #806); collectionOf/placeOf/item.rename read rows; seed isEmpty reads rows. B-1036 checks 1, 6, 9 were already on main. Item-type rename already done.
 Run 1150Z (#804): handlers-edit/sets reworded; server/index.ts, vite.config.ts, migrationnames.ts keep TO_REWORD lines until cutover (file names).
-Left: item.delete/restore of set_/goal_/session rows is a no-op (needs markSet/markGoal deletions marks in data/tables, then a command-handlers change); shell/services.ts:34 caches docs.list; server/doc-routes.ts retires once nothing calls /docs. TO_REWORD in ops/checks/ev4word.ts: reword each file, delete its line.
+Run 1157Z: shell services read rows (#808); item.delete/restore of sets, goals, sessions mark rows deleted and Recently deleted lists their titles (#809, #810, #811). Left: server/doc-routes.ts retires once nothing calls /docs. TO_REWORD in ops/checks/ev4word.ts: reword each file, delete its line.
 WireDoc, queueAnswer and the dayedits check entries are already gone. B-1037 check.answer UI (needs kit piece).
 Ask Matt later: should a self-rated 'again' count as a miss (now no). Then the squash. Builders: one git worktree each, npm ci first; Interface trailer on the commit touching an interface.
 Then rest of B-955, B-1001, B-1005. B-1006 to B-1008 wait for group 3.
