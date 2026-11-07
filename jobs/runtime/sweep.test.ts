@@ -1,4 +1,4 @@
-import test from "node:test";
+import { describe, test } from "vitest";
 import assert from "node:assert/strict";
 import { z } from "zod";
 import { defineJob, newJob } from "./index.ts";
@@ -32,18 +32,23 @@ const seed = async (
 ) => {
   let r = newJob({ id, kind, title: id, at: T0 });
   await m.store.put(r);
-  if (to !== 'queued') {
-    r = transition(r, { to: 'running', at: T0 });
+  if (to !== "queued") {
+    r = transition(r, { to: "running", at: T0 });
     await m.store.put(r);
   }
-  if (to === 'needs-you') {
-    r = transition(r, { to: 'needs-you', at: T0, reason: 'Pick one.', step: 'ask' });
+  if (to === "needs-you") {
+    r = transition(r, {
+      to: "needs-you",
+      at: T0,
+      reason: "Pick one.",
+      step: "ask",
+    });
     await m.store.put(r);
   }
   return r;
 };
 
-test("sweep", async (t) => {
+describe("sweep", () => {
   forgetKinds();
   const u = z.unknown();
   defineJob({
@@ -61,40 +66,34 @@ test("sweep", async (t) => {
     wording: { running: "r", needsYou: "n", done: "d", failed: "f" },
   });
 
-  await t.test(
-    "fails queued and running jobs past their deadline, keeping cost",
-    async () => {
-      const m = memory();
-      await seed(m, "q", "queued");
-      const r = await seed(m, "r", "running");
-      await m.store.put(addCost(r, 7, T0));
-    m.rows.get('r')!.updatedAt = T0;
-      assert.deepEqual((await sweepStale(m.store, at(21))).sort(), ["q", "r"]);
-      assert.equal(m.rows.get("q")!.state, "failed");
-      assert.match(m.rows.get("r")!.reason!, /runner was lost/);
-      assert.equal(m.rows.get("r")!.costCents, 7);
-    },
-  );
+  test("fails queued and running jobs past their deadline, keeping cost", async () => {
+    const m = memory();
+    await seed(m, "q", "queued");
+    const r = await seed(m, "r", "running");
+    await m.store.put(addCost(r, 7, T0));
+    m.rows.get("r")!.updatedAt = T0;
+    assert.deepEqual((await sweepStale(m.store, at(21))).sort(), ["q", "r"]);
+    assert.equal(m.rows.get("q")!.state, "failed");
+    assert.match(m.rows.get("r")!.reason!, /runner was lost/);
+    assert.equal(m.rows.get("r")!.costCents, 7);
+  });
 
-  await t.test(
-    "uses each kind deadline and leaves fresh jobs alone",
-    async () => {
-      const m = memory();
-      await seed(m, "q", "queued");
-      await seed(m, "r", "running");
-      assert.deepEqual(await sweepStale(m.store, at(15)), ["q"]);
-      assert.equal(m.rows.get("r")!.state, "running");
-    },
-  );
+  test("uses each kind deadline and leaves fresh jobs alone", async () => {
+    const m = memory();
+    await seed(m, "q", "queued");
+    await seed(m, "r", "running");
+    assert.deepEqual(await sweepStale(m.store, at(15)), ["q"]);
+    assert.equal(m.rows.get("r")!.state, "running");
+  });
 
-  await t.test("never touches needs-you", async () => {
+  test("never touches needs-you", async () => {
     const m = memory();
     await seed(m, "n", "needs-you");
     assert.deepEqual(await sweepStale(m.store, at(100000)), []);
     assert.equal(m.rows.get("n")!.state, "needs-you");
   });
 
-  await t.test("a job that finishes during the sweep wins", async () => {
+  test("a job that finishes during the sweep wins", async () => {
     const m = memory();
     const r = await seed(m, "r", "running");
     const racing: JobStore = {
@@ -116,7 +115,7 @@ test("sweep", async (t) => {
     assert.deepEqual(m.rows.get("r")!.output, { home: "library", id: "x" });
   });
 
-  await t.test("a second sweep changes nothing", async () => {
+  test("a second sweep changes nothing", async () => {
     const m = memory();
     await seed(m, "q", "queued");
     await sweepStale(m.store, at(30));
@@ -125,7 +124,7 @@ test("sweep", async (t) => {
     assert.equal(JSON.stringify([...m.rows.values()]), before);
   });
 
-  await t.test("a kind without its own deadline gets the default", async () => {
+  test("a kind without its own deadline gets the default", async () => {
     const m = memory();
     await seed(m, "x", "running", "other_kind");
     assert.deepEqual(await sweepStale(m.store, at(30)), []);

@@ -1,11 +1,11 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
 import { byName } from "../commands/index.ts";
 import { commandHandlers } from "./command-handlers.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 async function setup() {
   const DB = sqliteD1();

@@ -1,9 +1,9 @@
 // Matt's call A (2026-11-06): Again or Good on an open card is a self-rating, kept as one and never counted toward
 // accuracy; a choice item is checked against its key whatever rating is sent, unless it was answered in words.
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 const openBody = {
   stem: "Why does fluid shift out of vessels in sepsis?",

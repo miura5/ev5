@@ -1,8 +1,8 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
 import { d1JobStore } from "../jobs/index.ts";
-import { setup } from "./job-routes-setup.test.ts";
+import { setup } from "./job-routes-setup.testkit.ts";
 
 const rec = (
   id: string,

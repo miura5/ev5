@@ -1,4 +1,4 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import type { ModelCall, ModelReply, ModelRequest } from "../runtime/output.ts";
 import { applyPatch, askChanges, parsePatch } from "./changes.ts";

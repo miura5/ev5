@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { checkPictures, type PictureBucket } from "./pictures.ts";
 import type { Row } from "./index.ts";

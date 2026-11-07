@@ -1,6 +1,6 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 // §data.protocol: a command that names the version the client last saw is refused with 409 when it is stale,
 // and runs when it is current. Each test bumps the row to v2 first, so v1 is stale.

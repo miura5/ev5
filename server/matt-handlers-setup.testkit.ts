@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 export async function setup() {
   const DB = sqliteD1();

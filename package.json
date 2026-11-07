@@ -7,8 +7,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "test": "npm run test:node && npm run test:unit",
-    "test:node": "node --test data/tables/*.test.ts data/staging/*.test.ts data/migrations/ data/export/ server/*.test.ts jobs/*/*.test.ts",
+    "test": "npm run test:unit",
     "test:unit": "vitest run",
     "precheck": "sh ops/setup-node.sh && npm test && npm run static",
     "static": "tsc -p . && sh ops/checks/typecheck-tests.sh && vite build && npm run lint && npm run deps && npm run stylelint && knip && node ops/record/cli.ts lint && node ops/record/cli.ts render --check && node ops/checks/cli.ts && node ops/generate/cli.ts --check",

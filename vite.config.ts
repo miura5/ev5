@@ -17,7 +17,14 @@ export default defineConfig({
         display: "standalone",
         background_color: "#1f2937",
         theme_color: "#1f2937",
-        icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+        icons: [
+          {
+            src: "icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+        ],
       },
       workbox: {
         // A new worker takes over at once. The plugin sets these only when it injects its own register script, and
@@ -53,9 +60,19 @@ export default defineConfig({
         test: {
           name: "node",
           environment: "node",
-          // data, jobs and server join when lane A converts their node:test files.
-          include: ["domain/**/*.test.ts", "commands/**/*.test.ts", "ops/**/*.test.{ts,mjs}"],
-          exclude: ["ops/guards/**", "commands/client.*.test.ts", "**/node_modules/**"],
+          include: [
+            "domain/**/*.test.ts",
+            "commands/**/*.test.ts",
+            "data/**/*.test.ts",
+            "jobs/**/*.test.ts",
+            "server/**/*.test.ts",
+            "ops/**/*.test.{ts,mjs}",
+          ],
+          exclude: [
+            "ops/guards/**",
+            "commands/client.*.test.ts",
+            "**/node_modules/**",
+          ],
         },
       },
       {

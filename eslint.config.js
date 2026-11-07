@@ -192,7 +192,7 @@ export default [
   },
   {
     // Tests and stories set up what they test: no SQL, registry, controls or radix rules.
-    files: ["**/*.test.{ts,tsx}", "**/*.story.tsx", "**/*.generated.*"],
+    files: ["**/*.test.{ts,tsx}", "**/*.testkit.ts", "**/*.story.tsx", "**/*.generated.*"],
     rules: { "no-restricted-syntax": rs(exportAll) },
   },
   {

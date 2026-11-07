@@ -1,4 +1,4 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 import {

@@ -1,9 +1,9 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
 import { d1JobStore } from "../jobs/index.ts";
-import { input, setup, T } from "./job-routes-setup.test.ts";
-import { putNoteRow } from "./sqlite-d1.test.ts";
+import { input, setup, T } from "./job-routes-setup.testkit.ts";
+import { putNoteRow } from "./sqlite-d1.testkit.ts";
 
 test("GET /jobs fails a prep plan past its deadline and lists only live jobs", async () => {
   const { req, db } = setup();

@@ -1,6 +1,6 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 test("editing an item keeps its rationale, objective, source and table", async () => {
   const { call, DB } = await setup();
