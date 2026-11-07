@@ -38,7 +38,7 @@ const start = (blocks: readonly Block[]) =>
   });
 
 /**
- * The note editor: ProseMirror on the flat schema. Blocks go in through ev4's normaliser and come
+ * The note editor: ProseMirror on the flat schema. Blocks go in through the old normaliser and come
  * out through it, so a note that is opened and not changed saves byte-identical. Edits are sent after a short pause,
  * and at once when the editor loses focus or goes away.
  */

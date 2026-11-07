@@ -16,14 +16,6 @@ const CUTOVER_FOLDERS = ['ops/record/'];
 // the file's own task and delete its line here. Never add one.
 const TO_REWORD = new Set<string>([
   '.github/workflows/live.yml',
-  'areas/notes/parts/NoteEditor.tsx',
-  'areas/notes/parts/editorDoc.ts',
-  'areas/notes/parts/editorHtml.ts',
-  'areas/notes/parts/editorKeys.ts',
-  'areas/notes/parts/editorLimits.ts',
-  'areas/notes/parts/editorPaste.ts',
-  'areas/notes/parts/editorSchema.ts',
-  'data/export/export.ts',
   'data/migrations/0000_baseline.sql',
   'data/migrations/0001_deletions.sql',
   'data/migrations/0002_jobs_ceilings.sql',
@@ -45,12 +37,10 @@ const TO_REWORD = new Set<string>([
   'domain/weak-spot/parse.ts',
   'domain/weak-spot/rows.ts',
   'domain/weak-spot/types.ts',
-  'kit/tokens/tokens.css',
   'ops/checks/migrationnames.ts',
   'server/handlers-edit.ts',
   'server/handlers-sets.ts',
   'server/index.ts',
-  'shell/outbox/stores.ts',
   'vite.config.ts',
   'wrangler.jsonc',
 ]);

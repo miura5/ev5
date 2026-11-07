@@ -25,7 +25,7 @@ export const limitPlugin = (onRefuse?: (why: string) => void) =>
     },
   });
 
-/** ev4's rule: a row with a column left empty goes full width, the other column's lines kept (S-08 cause 5). */
+/** The rule: a row with a column left empty goes full width, the other column's lines kept (S-08 cause 5). */
 export const unwrapPlugin = () =>
   new Plugin({
     appendTransaction(trs, _old, state) {

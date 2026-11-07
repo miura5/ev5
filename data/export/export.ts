@@ -1,6 +1,6 @@
 // The export of every table (§data.export): `tables` is { count, sha256 } over each table's canonical rows,
 // `collections` the same per kind over `docs`, and `rows` every row as written. The kind names v5's own file, so a
-// restore refuses any other export (an ev4 backup included). Read-only: it only SELECTs.
+// restore refuses any other export (an old-app backup included). Read-only: it only SELECTs.
 import type { D1Like } from "../docs/d1.ts";
 import { ALL_TABLES, type TableSpec } from "./tables.ts";
 

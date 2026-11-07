@@ -1,8 +1,8 @@
 /* E.V. v5 tokens: the only place colour, type, space, radius, duration and easing are defined (CONTRACT
-   §ui.kit-leads). Values follow design/mockup.html (round 7), which wins on looks; names carry over from ev4's
+   §ui.kit-leads). Values follow design/mockup.html (round 7), which wins on looks; names carry over from the old app's
    page/ds/tokens.css where the mock-up has the same role. Dark is the default; light follows the system unless
    data-theme says otherwise, and data-theme works on any element (the app root or a gallery frame).
-   Type has three sizes only: meta 12, body 14, title 20. ev4's 13, 13.5 and 11 px fold into them (13 and 13.5
+   Type has three sizes only: meta 12, body 14, title 20. the old 13, 13.5 and 11 px fold into them (13 and 13.5
    to body, 11 to meta); --fs-face is the one mock-up exception (the large face glyph), not a text size. */
 :root,
 [data-theme="dark"] {

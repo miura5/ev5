@@ -68,7 +68,7 @@ const shift =
     return true;
   };
 
-/** Plain text only: ev4's sanitiser is the only way HTML becomes blocks, and the clipboard's markup is not used. */
+/** Plain text only: the sanitiser is the only way HTML becomes blocks, and the clipboard's markup is not used. */
 export const pastePlain =
   (text: string): Command =>
   (state, dispatch) => {
