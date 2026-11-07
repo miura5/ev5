@@ -20,7 +20,8 @@ import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
 import { checkServerWrites } from './serverwrites.ts';
 import { checkStack } from './stack.ts';
-import { checkTrailers } from './trailer.ts';
+import { execFileSync } from 'node:child_process';
+import { branchCommits, checkTrailers } from './trailer.ts';
 
 // A temp repo from {path: text}; the returned root holds the files and listFiles walks it.
 function repo(files: Record<string, string>): { root: string; files: string[] } {
@@ -95,12 +96,27 @@ test('secrets: key shapes, private keys and .dev.vars fail; plain prose passes',
   assert.deepEqual(checkSecrets(r.root, r.files).map(f => f.file).sort(), ['.dev.vars', 'a.ts', 'b.md', 'c.ts']);
 });
 
-test('trailer: an interface change needs an Interface trailer naming its folder', () => {
-  const c = (message: string, files: string[]) => ({ sha: 'abcdef012345', message, files });
-  assert.equal(checkTrailers([c('x', ['domain/index.ts'])]).length, 1);
-  assert.equal(checkTrailers([c('x\n\nInterface: domain', ['domain/index.ts', 'domain/note.schema.ts'])]).length, 0);
-  assert.match(details(checkTrailers([c('x\n\nInterface: kit', ['domain/index.ts'])])), /Interface: domain/);
-  assert.equal(checkTrailers([c('x', ['domain/impl.ts', 'README.md'])]).length, 0);
+test('trailer: a changed interface listing needs an Interface trailer naming its folder', () => {
+  const c = (message: string, interfaces: string[]) => ({ sha: 'abcdef012345', message, interfaces });
+  assert.equal(checkTrailers([c('x', ['domain'])]).length, 1);
+  assert.equal(checkTrailers([c('x\n\nInterface: domain', ['domain', 'domain/note'])]).length, 0);
+  assert.match(details(checkTrailers([c('x\n\nInterface: kit', ['domain'])])), /Interface: domain/);
+  // editing index.ts or a schema file without a listing change reports no folder
+  assert.equal(checkTrailers([c('x', [])]).length, 0);
+});
+
+test('trailer: branchCommits sees only a changed Interface line, not an index.ts edit', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'trailer-'));
+  const git = (...a: string[]) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { encoding: 'utf8' });
+  const put = (f: string, t: string) => { fs.mkdirSync(path.dirname(path.join(dir, f)), { recursive: true }); fs.writeFileSync(path.join(dir, f), t); };
+  const readme = (l: string) => `# d\n\n<!-- generated:start -->\nInterface: ${l}\n<!-- generated:end -->\n`;
+  git('init', '-q'); put('d/index.ts', 'export const a = 1;\n'); put('d/README.md', readme('a')); git('add', '.'); git('commit', '-qm', 'base');
+  const base = git('rev-parse', 'HEAD').trim();
+  put('d/index.ts', 'export const a = 2;\n'); git('commit', '-qam', 'edit body');
+  put('d/README.md', readme('a, b')); put('d/index.ts', 'export const a = 2;\nexport const b = 1;\n'); git('commit', '-qam', 'add b');
+  const got = branchCommits(dir, base).reverse();
+  assert.deepEqual(got.map(x => x.interfaces), [[], ['d']]);
+  assert.equal(checkTrailers(got).length, 1);
 });
 
 test('account: a non-live config or workflow naming ev-live fails; the live workflow and prose pass', () => {

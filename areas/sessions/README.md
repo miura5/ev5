@@ -4,5 +4,4 @@ Sessions and read-along: a note page with a session bar, a check in your own wor
 
 <!-- generated:start -->
 Interface: sessionsArea
-Imports: kit, domain, commands/client (§drift.imports)
 <!-- generated:end -->

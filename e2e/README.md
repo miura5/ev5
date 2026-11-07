@@ -5,5 +5,4 @@ A journey not built yet is a failing test, never a skip (§drift.checks). `/kit`
 
 <!-- generated:start -->
 Interface: (none yet)
-Imports: other folders through their index.ts (§drift.imports)
 <!-- generated:end -->
