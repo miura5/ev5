@@ -54,6 +54,35 @@ export function setsRepo(db: D1Like, opts: TablesOptions) {
       itemVersion: async (id: string, v: number) =>
         (await k.setItemVersions.get(`${id}@${v}`)) ??
         ((await k.setItems.get(id))?.v === v ? await k.setItems.get(id) : null),
+      /**
+       * The live sets with a live item whose stem matches any of the `LIKE` patterns (domain/search `likePatterns`), each
+       * with the stems of all its live items in order (§data.search).
+       */
+      search: async (
+        patterns: readonly string[],
+      ): Promise<{ id: string; title: string | null; stems: string[] }[]> => {
+        if (!patterns.length) return [];
+        const stem = "json_extract(body, '$.stem')";
+        const where = patterns.map(() => `${stem} LIKE ?`).join(" OR ");
+        const { results } = await db
+          .prepare(
+            `SELECT s.id AS id, s.title AS title, json_extract(i.body, '$.stem') AS stem FROM sets s JOIN set_items i ON i.set_id = s.id ` +
+              `WHERE s.deleted_at IS NULL AND i.deleted_at IS NULL AND s.id IN ` +
+              `(SELECT set_id FROM set_items WHERE deleted_at IS NULL AND (${where})) ORDER BY s.id, i.pos, i.id`,
+          )
+          .bind(...patterns)
+          .all<{ id: string; title: string | null; stem: string | null }>();
+        const by = new Map<
+          string,
+          { id: string; title: string | null; stems: string[] }
+        >();
+        for (const r of results) {
+          const s = by.get(r.id) ?? { id: r.id, title: r.title, stems: [] };
+          if (r.stem) s.stems.push(r.stem);
+          by.set(r.id, s);
+        }
+        return [...by.values()];
+      },
       /** A set with its live items in order, or null when the set is missing or deleted. */
       read: async (id: string) => {
         const set = await k.sets.get(id);

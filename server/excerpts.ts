@@ -7,7 +7,6 @@ import {
   likePatterns,
   noteDocId,
   noteRowId,
-  parseSet,
   search,
 } from "../domain/index.ts";
 import { tablesRepo } from "../data/index.ts";
@@ -18,13 +17,12 @@ const PASSAGES = 12;
 // A passage's text is cut as search cuts a hit, so a source's passages read the same as ranked ones.
 const HIT_CHARS = 700;
 
-type Row = { id: string; c: string; data: string };
 export type Excerpt = { id: string; text: string };
 /** What a practice set may be pointed at: one collection's notes, or one note (by its note id). */
 export type ExcerptSource = { kind: "collection" | "note"; id: string };
 
 /**
- * The one gatherer of the user's documents (§cmd.code-first): a SQL `LIKE` over the notes table's text column (and the sets documents), parsed to
+ * The one gatherer of the user's documents (§cmd.code-first): a SQL `LIKE` over the notes table's text column (and the stems of the sets' items), parsed to
  * searchable text and ranked by domain/search. A document in Recently deleted (a deletions row) is never a passage (§delete.soft), and every match
  * is ranked before the top k are kept, so the best match survives however many there are. Notes always; sets only when asked for. Unparsable documents are skipped.
  */
@@ -48,7 +46,7 @@ export async function findPassages(
         collection_id: n.collection_id,
       }))
     : [];
-  // Sets are still documents until their words move.
+  // Sets are rows (§data.tables): the stems of their live items.
   const setMaterials = collections.includes("sets")
     ? await setPassages(db, pats)
     : [];
@@ -60,22 +58,15 @@ export async function findPassages(
 }
 
 async function setPassages(db: D1Like, pats: string[]) {
-  const where = pats.map(() => "data LIKE ?").join(" OR ");
-  const { results } = await db
-    .prepare(
-      `SELECT id, c, data FROM docs WHERE c = 'sets' AND (${where}) AND NOT EXISTS (SELECT 1 FROM deletions d WHERE d.c = docs.c AND d.id = docs.id)`,
-    )
-    .bind(...pats)
-    .all<Row>();
-  return results.flatMap((r) => {
-    try {
-      const s = parseSet(JSON.parse(r.data));
-      const text = s.items.map((i) => i.stem).join(" ");
-      return [{ id: r.id, title: s.title ?? r.id, kind: "set", text }];
-    } catch {
-      return []; // a document that does not parse is skipped, never fixed here
-    }
-  });
+  const found = await tablesRepo(db, {
+    clock: () => Date.now(),
+  }).setBook.search(pats);
+  return found.map((s) => ({
+    id: s.id,
+    title: s.title || s.id,
+    kind: "set",
+    text: s.stems.join(" "),
+  }));
 }
 
 /** The live notes a source names: the one note, or every note whose row sits in the collection (§data.tables). */
