@@ -1942,7 +1942,7 @@
    "B-802",
    "B-799"
   ],
-  "notes": "Merged #248 (chat route) and #249 (Ask screen). Open: one staging check that a question gets a cited or unverified reply and 'is it ready?' uses job_status; Ask screen should read ?text= from the palette Tab; gate5 ask-ready journey still NOT BUILT. Lane move 2026-11-07 (supervisor, D-530): lane B takes the code parts (Ask reads ?text= from the palette Tab; the Gate 5 ask-ready journey in e2e/). The staging check still waits on ANTHROPIC_API_KEY.",
+  "notes": "Merged #248, #249. Code parts done on main (checked 2026-11-07 lane B): Ask reads ?text= (shell/Shell.tsx, areas/ask/Ask.screen.tsx, tests) and e2e/ask-ready.journey.spec.ts exists (skips on 503 without ANTHROPIC_API_KEY). Left: one staging check that waits on ANTHROPIC_API_KEY.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -3920,7 +3920,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Audit finding 6: those two files match neither package.json test:node nor vite.config.ts include; tsconfig.json leaves out data, jobs and ops and excludes server tests (about 90 files never type-checked).",
+  "notes": "Run 2026-11-07 lane B: PR #879 (testruns check, tsconfig.tests.json, typecheck-tests.sh). Part for lane A: 10 lane A test files with type errors sit in a TEMPORARY exclude list in tsconfig.tests.json; fix each and delete its line (list in #879 body).",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
