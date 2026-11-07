@@ -15,21 +15,15 @@ async function setup(withTables: boolean) {
   await DB.prepare(
     `INSERT INTO set_items (id, set_id, pos, type, body, at, deleted_at) VALUES ('item_1','set_1',1,'single','{"stem":"Which lab is highest priority?"}',1,20)`,
   ).run();
-  if (withTables) {
-    await DB.prepare(
-      "CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT NOT NULL, parent_id TEXT, pos INTEGER NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, deleted_at INTEGER)",
-    ).run();
-    await DB.prepare(
-      "CREATE TABLE memberships (item_c TEXT NOT NULL, item_id TEXT NOT NULL, collection_id TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (item_c, item_id))",
-    ).run();
+  if (!withTables) {
+    for (const t of ["collections", "memberships", "pins"])
+      await DB.prepare(`DROP TABLE ${t}`).run();
+  } else {
     await DB.prepare(
       "INSERT INTO collections VALUES ('col_c2','Spanish',NULL,2,5,1,NULL),('col_c1','Course A',NULL,1,5,1,NULL),('col_c3','Unit 1','col_c1',1,6,1,NULL)",
     ).run();
     await DB.prepare(
-      "CREATE TABLE pins (target_c TEXT NOT NULL, target_id TEXT NOT NULL, pos INTEGER NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (target_c, target_id))",
-    ).run();
-    await DB.prepare(
-      "INSERT INTO pins VALUES ('sets','s1',1,5),('notes','note_n1',0,9),('notes','note_n2',1,8)",
+      "INSERT INTO pins (target_c, target_id, pos, at) VALUES ('sets','s1',1,5),('notes','note_n1',0,9),('notes','note_n2',1,8)",
     ).run();
     await DB.prepare(
       "INSERT INTO memberships VALUES ('notes','note_n1','col_c1',7,1),('sets','s1','col_c2',9,1)",

@@ -10,14 +10,7 @@ import { sqliteD1 } from "./sqlite-d1.test.ts";
 async function setup() {
   const DB = sqliteD1();
   const dir = new URL("../data/migrations/", import.meta.url);
-  for (const f of [
-    "0000_baseline",
-    "0001_deletions",
-    "0003_collections_pins_own",
-    "0004_ceiling_usage",
-    "0006_tables",
-    "0009_collections_pins_expand",
-  ]) {
+  for (const f of ["0000_baseline"]) {
     const text = readFileSync(new URL(`${f}.sql`, dir), "utf8");
     for (const stmt of text.replace(/--.*$/gm, "").split(";"))
       if (stmt.trim()) await DB.prepare(stmt.trim()).run();

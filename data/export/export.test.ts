@@ -38,44 +38,22 @@ function sqliteD1(db: DatabaseSync): D1Like {
 
 const sql = (f: string) =>
   readFileSync(new URL(`../migrations/${f}`, import.meta.url), "utf8");
-// Test-only DDL for the §5.10 tables, whose migrations are not on main yet.
-const NEW_DDL = `
-CREATE TABLE collections (id TEXT PRIMARY KEY, title TEXT, parent_id TEXT, pos INTEGER, at INTEGER, v INTEGER);
-CREATE TABLE memberships (item_c TEXT, item_id TEXT, collection_id TEXT, at INTEGER, v INTEGER, PRIMARY KEY (item_c, item_id));
-CREATE TABLE pins (target_c TEXT, target_id TEXT, pos INTEGER, at INTEGER, PRIMARY KEY (target_c, target_id));
-CREATE TABLE item_props (c TEXT, id TEXT, time TEXT, repeat TEXT, linked_c TEXT, linked_id TEXT, overrides TEXT, at INTEGER, v INTEGER, PRIMARY KEY (c, id));
-CREATE TABLE own_sets (id TEXT PRIMARY KEY, title TEXT, type TEXT, source_c TEXT, source_id TEXT, at INTEGER, v INTEGER);
-CREATE TABLE own_attempts (set_id TEXT, item_id TEXT, key TEXT, at INTEGER, body TEXT, PRIMARY KEY (set_id, item_id, key, at));`;
-
 function migrated(withNew: boolean): DatabaseSync {
   const db = new DatabaseSync(":memory:");
   db.exec(sql("0000_baseline.sql"));
-  db.exec(sql("0001_deletions.sql"));
-  db.exec(sql("0002_jobs_ceilings.sql")); // job tables, drafts and own_set_items
-  db.exec(sql("0004_ceiling_usage.sql"));
-  if (withNew) db.exec(NEW_DDL);
-  if (withNew) db.exec(sql("0006_tables.sql")); // the per-kind tables, and collections.deleted_at
-  if (withNew) db.exec(sql("0009_collections_pins_expand.sql")); // the pins columns the exporter selects
-  if (withNew) db.exec(sql("0018_files.sql")); // the files table
-  db.exec(sql("0007_plans_drafts.sql")); // drafts.target_kind (the exporter selects it), plans, plan_items, repeats and drafts.target_kind
-  if (withNew) db.exec(sql("0019_settings.sql")); // settings, seeded from claude_settings
+  // Without the newer tables: a table that is not there exports as empty and restores as nothing.
+  if (!withNew) db.exec("DROP TABLE collections; DROP TABLE files; DROP TABLE memberships");
   return db;
 }
 
 const SEED = `
-INSERT INTO deletions VALUES ('notes','gone',20);
-INSERT INTO claude_usage VALUES (100,'2026-11-03',50,2);
-INSERT INTO claude_reads VALUES ('n1','h1',30);
-INSERT INTO claude_settings VALUES ('claude.hourTokens',1000,31);
-INSERT INTO claude_plan_asks VALUES ('job1',2,32);
-INSERT INTO system_docs VALUES ('one','{}',33),('two','{}',34);
+INSERT INTO settings (key, value, at, v) VALUES ('ceiling_daily',1000,31,1);
 INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('k1','Unit',NULL,0,40,1),('k2','Sub','k1',1,41,1);
 INSERT INTO memberships VALUES ('sets','set_1','k2',42,1);
 INSERT INTO pins (target_c, target_id, pos, at) VALUES ('notes','n1',0,43);
 INSERT INTO item_props VALUES ('notes','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
 INSERT INTO sets (id, kind, title, created_by, at, v) VALUES ('set_1','own','Mine','matt',46,1);
 INSERT INTO set_items (id, set_id, pos, type, body, at, v) VALUES ('item_1','set_1',0,'question','{"q":"?"}',47,1),('item_2','set_1',1,'question','{"q":"!"}',47,1);
-INSERT INTO own_attempts VALUES ('set_1','item_1','a',48,'{"ok":true}'),('set_1','item_1','a',49,'{"ok":false}');
 INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v, target_kind) VALUES ('dr1','j1','plan','sets','d2','{}','pending',50,1,'sets');
 INSERT INTO plans (id, goal_id, state, from_day, to_day, at) VALUES ('plan_1','goal_1','in_force','2026-11-05','2026-11-12',51);
 INSERT INTO repeats (id, title, rule, from_day, at) VALUES ('rep_1','Flashcards','{"every":"day"}','2026-11-05',52);
@@ -92,10 +70,8 @@ test("export then restore into scratch: every table count and hash equal", async
   const x = await exportAll(sqliteD1(src), Date.UTC(2026, 10, 3));
   assert.deepEqual(await checkExport(x), []);
   assert.equal(x.kind, "ev5-export");
-  assert.equal(x.tables.system_docs!.count, 2);
-  assert.equal(x.tables.docs, undefined); // the generic docs table is not exported
+  assert.equal(x.tables.docs, undefined); // there is no generic docs table
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);
-  assert.equal(x.tables.own_attempts!.count, 2);
   assert.equal(x.tables.set_items!.count, 2);
   for (const n of ["job_records", "ceiling_holds", "job_plans"])
     assert.equal(x.tables[n]!.count, 1, n);
@@ -121,24 +97,21 @@ test("export then restore into scratch: every table count and hash equal", async
 
 test("a table whose migration has not landed exports as empty; restoring into a scratch without them works", async () => {
   const src = migrated(false);
-  src.exec("INSERT INTO system_docs VALUES ('one','{}',1)");
   const x = await exportAll(sqliteD1(src));
   assert.equal(x.tables.collections!.count, 0);
   const report = await restoreInto(sqliteD1(migrated(false)), x);
   assert.equal(report.ok, true);
 });
 
-test("a set item or attempt whose set is missing from the sets table is an orphan", async () => {
+test("a set item whose set is missing from the sets table is an orphan", async () => {
   const src = migrated(true);
-  src.exec(`INSERT INTO set_items (id, set_id, pos, type, body, at, v) VALUES ('item_9','set_gone',0,'question','{}',1,1);
-    INSERT INTO own_attempts VALUES ('set_gone','item_9','a',2,'{}');`);
+  src.exec(`INSERT INTO set_items (id, set_id, pos, type, body, at, v) VALUES ('item_9','set_gone',0,'question','{}',1,1);`);
   const report = await restoreInto(
     sqliteD1(migrated(true)),
     await exportAll(sqliteD1(src)),
   );
   assert.deepEqual(report.orphans, [
     "set_item set_gone/item_9: set missing",
-    "own_attempt set_gone/item_9: set missing",
   ]);
 });
 
@@ -168,13 +141,13 @@ test("a tampered export is refused before anything is written", async () => {
   const src = migrated(true);
   src.exec(SEED);
   const x = await exportAll(sqliteD1(src));
-  x.rows.system_docs![0]!.data = '{"changed":true}';
+  x.rows.job_plans![0]!.body = '{"changed":true}';
   const scratch = migrated(true);
   const report = await restoreInto(sqliteD1(scratch), x);
   assert.equal(report.ok, false);
   assert.ok(report.diffs.length > 0);
   assert.equal(
-    (scratch.prepare("SELECT count(*) AS n FROM system_docs").get() as { n: number })
+    (scratch.prepare("SELECT count(*) AS n FROM job_plans").get() as { n: number })
       .n,
     0,
   );
@@ -193,7 +166,7 @@ test("a restore refuses a file of any other kind, an ev4 backup included, and wr
     assert.equal(report.ok, false, kind);
     assert.match(report.diffs[0] ?? "", /only v5's own export is restored/);
     assert.equal(
-      (scratch.prepare("SELECT count(*) AS n FROM system_docs").get() as { n: number })
+      (scratch.prepare("SELECT count(*) AS n FROM job_plans").get() as { n: number })
         .n,
       0,
     );
@@ -205,7 +178,7 @@ test("the export covers every non-virtual table the migrations create, and lists
   const files = readdirSync(new URL("../migrations/", import.meta.url))
     .filter((f) => /^\d+_.*\.sql$/.test(f))
     .sort();
-  assert.ok(files.length >= 3);
+  assert.ok(files.length >= 1);
   for (const f of files) db.exec(sql(f));
   const rows = db
     .prepare(
@@ -214,8 +187,7 @@ test("the export covers every non-virtual table the migrations create, and lists
     .all() as { name: string; sql: string }[];
   const real = rows
     .filter((r) => !/^\s*CREATE\s+VIRTUAL\s+TABLE/i.test(r.sql))
-    .map((r) => r.name)
-    .filter((n) => n !== "docs"); // the generic table: no longer exported, dropped with the migration squash
+    .map((r) => r.name);
   assert.ok(real.includes("job_plans"));
   const covered = new Set(ALL_TABLES.map((t) => t.name));
   assert.deepEqual(

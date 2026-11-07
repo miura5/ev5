@@ -40,11 +40,6 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
   );
   assert.equal((await call("set.done", { id: set })).body.result.client, true);
   assert.equal((await call("set.item_delete", { set, item })).status, 200);
-  const del = await DB.prepare("SELECT c, id FROM deletions").all<{
-    c: string;
-    id: string;
-  }>();
-  assert.deepEqual(del.results, []);
   const gone = await DB.prepare(
     "SELECT id FROM set_items WHERE deleted_at IS NOT NULL",
   ).all<{ id: string }>();
@@ -111,14 +106,6 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
   );
   assert.deepEqual(JSON.parse(String(a1?.answer)), { chosen: [0] });
   assert.deepEqual([a2?.how, a2?.answer, a2?.score], ["told", null, null]);
-  assert.equal(
-    (
-      await DB.prepare("SELECT COUNT(*) AS n FROM own_attempts").first<{
-        n: number;
-      }>()
-    )?.n,
-    0,
-  );
   // a retry that names the same attempt id is refused, never doubled
   const again = { id: item, answer: "1", attempt: "att_retry1" };
   assert.equal((await call("study.attempt", again)).status, 200);

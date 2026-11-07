@@ -7,9 +7,7 @@ import { read } from './lib.ts';
 
 // Tables made before the kind-table design, with ids that carry no kind prefix (or no row shape of their own).
 // Dated 2026-11-06; remove a name when its table moves or goes, never add one.
-const LEGACY = new Set(['docs', 'claude_usage', 'claude_reads', 'claude_settings', 'claude_plan_asks', 'system_docs', 'deletions', 'job_records', 'ceiling_use', 'ceiling_holds', 'job_plans', 'drafts', 'own_set_items', 'collections', 'memberships', 'pins', 'item_props', 'own_sets', 'own_attempts', 'ceiling_usage']);
-// Tables with no row-shape entry: the old baseline's own tables.
-const NO_SHAPE = new Set(['docs', 'claude_usage', 'claude_reads', 'claude_settings', 'claude_plan_asks', 'system_docs']);
+const LEGACY = new Set(['job_records', 'ceiling_use', 'ceiling_holds', 'job_plans', 'drafts', 'own_set_items', 'collections', 'memberships', 'pins', 'item_props', 'own_sets', 'ceiling_usage']);
 // Keyed by name, not by a kind-prefixed id (table design 2.14): the id rule does not apply, `at` and `v` still do.
 const KEYED = new Set(['settings']);
 // Append-only tables, which the user never deletes (§delete.soft): no `deleted_at`. Every other new table has one.
@@ -31,7 +29,7 @@ export function checkMigrationShape(root: string, files: string[]): Finding[] {
         if (APPEND_ONLY.has(name) && cols.has('deleted_at')) say('is append-only, so it has no deleted_at (§delete.soft)');
         for (const c of ['at', 'v']) if (!cols.has(c)) say(`missing column ${c} (§data.protocol)`);
       }
-      if (shapes !== null && !NO_SHAPE.has(name) && !new RegExp(`table: '${name}'`).test(shapes)) say('not in data/migrations/row-shapes.test.ts; add its domain row parser and a sample there');
+      if (shapes !== null && !new RegExp(`table: '${name}'`).test(shapes)) say('not in data/migrations/row-shapes.test.ts; add its domain row parser and a sample there');
     }
   }
   return out;

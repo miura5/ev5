@@ -2,7 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { z } from 'zod';
 import {
   parseCollectionRow,
   parseGoalRow,
@@ -27,7 +26,6 @@ import {
   parseItemProps,
   parseOwnSet,
   parseOwnSetItem,
-  parseOwnAttempt,
   parseDraftTableRow,
   parseJobPlanRow,
   parseJobRecord,
@@ -58,7 +56,6 @@ const item = { id: 'q1', stem: 'Which finding needs action first?', options: ['a
 // a strict object), and a key is required when the parser refuses it as null. `expand` splits a key into several
 // columns; `stored` keys live inside a JSON column, so that row has `data` instead.
 // `extra` names columns the table has beyond the parser's keys (drafts keeps `target_c` beside the new `target_kind`).
-// The old docs-backed tables stay until the contract migration.
 type Entry = {
   table: string;
   parse: (r: unknown) => object;
@@ -136,7 +133,6 @@ const tables: Entry[] = [
     sample: { id: 's1', title: 't', type: 'question', sourceC: null, sourceId: null, at: T, v: 1 },
   },
   { table: 'own_set_items', parse: parseOwnSetItem, sample: { setId: 's1', itemId: 'q1', pos: 0, body: item, at: T, v: 1 } },
-  { table: 'own_attempts', parse: parseOwnAttempt, sample: { setId: 's1', itemId: 'q1', key: 'k', at: T, body: { chosen: [0] } } },
   {
     table: 'drafts',
     parse: parseDraftTableRow,
@@ -144,8 +140,6 @@ const tables: Entry[] = [
     extra: ['target_c'],
   },
   { table: 'settings', parse: parseSettingRow, sample: { key: 'ceiling_daily', value: 1, ...S } },
-  // Nothing writes `deletions` any more (deleted_at is the one delete mechanism); the squash drops the table and this line.
-  { table: 'deletions', parse: (r: unknown) => z.strictObject({ c: z.string(), id: z.string(), at: z.number() }).parse(r), sample: { c: 'notes', id: 'n1', at: 1 } },
   { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: 1 } },
   { table: 'ceiling_use', parse: parseCeilingUse, sample: { w: 'day', k: 'k', used: 0 } },
   { table: 'ceiling_holds', parse: parseCeilingHold, sample: { id: 'h', amount: 0, limits: [], open: true } },
@@ -214,7 +208,6 @@ test('every pointer column is indexed (§data.tables)', () => {
     plan_items: ['day', 'plan_id', 'linked_kind,linked_id'],
     repeats: ['linked_kind,linked_id'],
     own_set_items: ['set_id,item_id'],
-    own_attempts: ['set_id,item_id,key,at'],
     job_plans: ['job_id,kind'],
     ceiling_usage: ['hold_id'],
   };

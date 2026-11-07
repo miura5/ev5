@@ -10,7 +10,7 @@ test("pin, rename, delete and restore work on a note, read through the row route
   // pins gain their row columns in 0009 (the shared setup stops at 0006)
   for (const stmt of readFileSync(
     new URL(
-      "../data/migrations/0009_collections_pins_expand.sql",
+      "../data/migrations/0000_baseline.sql",
       import.meta.url,
     ),
     "utf8",
@@ -46,12 +46,4 @@ test("pin, rename, delete and restore work on a note, read through the row route
   );
   assert.equal((await call("item.restore", { id })).status, 200);
   assert.equal((await get(`/notes/${id}`)).status, 200);
-  assert.equal(
-    (
-      await DB.prepare("SELECT count(*) AS n FROM deletions").first<{
-        n: number;
-      }>()
-    )?.n,
-    0,
-  );
 });

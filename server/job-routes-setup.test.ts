@@ -28,7 +28,7 @@ export const input = {
 export function setup() {
   const db = sqliteD1();
   // The goals and links tables a date made by date.create lives in (§data.tables).
-  for (const f of ["0003_collections_pins_own", "0006_tables"])
+  for (const f of ["0000_baseline"])
     for (const stmt of readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
       "utf8",

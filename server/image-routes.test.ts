@@ -194,7 +194,7 @@ test("a picture upload writes one files row with its size and SHA-256", async ()
   const sql = new DatabaseSync(":memory:");
   sql.exec(
     readFileSync(
-      new URL("../data/migrations/0018_files.sql", import.meta.url),
+      new URL("../data/migrations/0000_baseline.sql", import.meta.url),
       "utf8",
     ),
   );

@@ -9,14 +9,7 @@ import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 async function setup() {
   const DB = sqliteD1();
-  for (const f of [
-    "0000_baseline",
-    "0001_deletions",
-    "0003_collections_pins_own",
-    "0004_ceiling_usage",
-    "0006_tables",
-    "0009_collections_pins_expand", // the old pins repository fills the new columns
-  ]) {
+  for (const f of ["0000_baseline"]) {
     const text = readFileSync(
       new URL(`../data/migrations/${f}.sql`, import.meta.url),
       "utf8",
@@ -153,7 +146,7 @@ test("a screen-side command is acknowledged and the registry lists are served", 
   );
 });
 
-test("deleting a collection sets its deleted_at and writes no deletions row; its items show ungrouped until it is restored", async () => {
+test("deleting a collection sets its deleted_at; its items show ungrouped until it is restored", async () => {
   const call = await setup();
   const made = (await (
     await call("collection.create", { title: "BIO" })
@@ -166,10 +159,6 @@ test("deleting a collection sets its deleted_at and writes no deletions row; its
     ]!.map((r) => r.id);
 
   assert.equal((await call("item.delete", { id: cid })).status, 200);
-  const rows = await call.db
-    .prepare("SELECT c, id FROM deletions")
-    .all<{ c: string; id: string }>();
-  assert.deepEqual(rows.results, []);
   const mark = await call.db
     .prepare("SELECT deleted_at FROM collections WHERE id = ?")
     .bind(cid)
@@ -229,8 +218,6 @@ test("item.restore brings a removed set item back, by its id or an old <set>/<it
   assert.equal(a.results[0]?.v, 3);
   assert.equal((await call("item.restore", { id: "item_a" })).status, 404);
   assert.equal((await call("item.restore", { id: "set_1/b" })).status, 200);
-  const left = await call.db.prepare("SELECT id FROM deletions").all();
-  assert.equal(left.results.length, 0);
 });
 
 test("a goal is deleted, listed with its title in Recently deleted, and restored", async () => {
@@ -291,8 +278,6 @@ test("delete lists the row in Recently deleted, restore clears it, and the expor
   const { exportAll } = await import("../data/index.ts");
   const x = await exportAll(call.db);
   assert.equal(x.tables.sets!.count, 1);
-  const marks = await call.db.prepare("SELECT * FROM deletions").all();
-  assert.equal(marks.results.length, 0);
   assert.equal((await call("item.restore", { id: "set_s1" })).status, 200);
   assert.deepEqual(await listed(), []);
   assert.equal((await call("item.restore", { id: "set_s1" })).status, 404);

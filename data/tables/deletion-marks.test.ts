@@ -74,8 +74,6 @@ test("a set and a goal are soft-deleted by a row mark and come back on restore",
   assert.equal(await repo.deletions.markGoal("goal_missing"), false);
   assert.notEqual(mark("sets", "set_a").deleted_at, null);
   assert.notEqual(mark("goals", "goal_a").deleted_at, null);
-  // deleted_at is the one delete mechanism: nothing is written to the deletions table.
-  assert.equal(db.prepare("SELECT * FROM deletions").all().length, 0);
   assert.equal(await repo.deletions.restore("sets", "set_a"), 1);
   assert.equal(await repo.deletions.restore("goals", "goal_a"), 1);
   assert.equal(mark("sets", "set_a").deleted_at, null);
@@ -126,5 +124,4 @@ test("a delete and a restore are each one statement: a failing write leaves the 
   failing.sql = null;
   assert.equal(await repo.deletions.restore("sets", "set_f"), 1);
   assert.equal(deleted(), null);
-  assert.equal(db.prepare("SELECT * FROM deletions").all().length, 0);
 });

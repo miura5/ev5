@@ -73,9 +73,6 @@ export function checkRows(
   for (const i of rows.set_items ?? [])
     if (!sets.has(i.set_id as string))
       orphans.push(`set_item ${i.set_id}/${i.id}: set missing`);
-  for (const a of rows.own_attempts ?? [])
-    if (!sets.has(a.set_id as string))
-      orphans.push(`own_attempt ${a.set_id}/${a.item_id}: set missing`);
   return { orphans, problems };
 }
 
