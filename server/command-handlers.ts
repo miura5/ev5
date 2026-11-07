@@ -1,9 +1,8 @@
 // The instant commands' handlers (CONTRACT §cmd.registry): each runs for a caller the route already checked.
 // Table-backed commands use the repositories; commands a screen carries out itself (open, theme, navigation) are
 // acknowledged here so the route never answers 501 for them. Nothing here removes a document (§delete.who).
-import { docsRepo, tablesRepo } from "../data/index.ts";
+import { tablesRepo } from "../data/index.ts";
 import { NOTE_MAX, itemKey, noteRowId } from "../domain/index.ts";
-import type { DocsD1 } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -24,33 +23,25 @@ export type { CommandHandler } from "./handlers-core.ts";
 
 type Ref = { id: string };
 
-/** The collection a document id lives in; an id used in two collections must be named by the caller. */
-async function collectionOf(db: DocsD1, id: string): Promise<string> {
-  const { results } = await db
-    .prepare("SELECT DISTINCT c FROM docs WHERE id = ? LIMIT 2")
-    .bind(id)
-    .all<{ c: string }>();
-  if (!results.length) {
-    // A note made since the notes moved to their table has no document (§data.tables).
-    const note = await db
-      .prepare("SELECT 1 AS n FROM notes WHERE id = ?")
-      .bind(noteRowId(id))
-      .all<{ n: number }>();
-    if (note.results.length) return "notes";
-    throw new CommandError(404, `no item ${id}`);
-  }
-  if (results.length > 1)
-    throw new CommandError(409, `${id} is in two collections`);
-  return (results[0] as { c: string }).c;
+type Tables = ReturnType<typeof tablesRepo>;
+
+/** The collection name an item is pinned, moved, renamed and deleted under, read from its row (§data.tables). A set or
+ * a goal is named by its id prefix: `set_` is "sets" and `goal_` is "exams" (the goal as GET /docs names it). A note is
+ * found by its row id and a session by its own. No document is read. */
+async function collectionOf(
+  t: Tables,
+  id: string,
+  o: { deleted?: boolean } = {},
+): Promise<string> {
+  if (id.startsWith("set_") && (await t.sets.get(id, o))) return "sets";
+  if (id.startsWith("goal_") && (await t.goals.get(id, o))) return "exams";
+  if (await t.noteBook.get(noteRowId(id), o)) return "notes";
+  if (await t.sessionBook.get(id)) return "sessions";
+  throw new CommandError(404, `no item ${id}`);
 }
 
-/** The collection name an item is pinned, moved and renamed under. A set or a goal is a row, not a document, so its
- * id names its table: `set_` is "sets" and `goal_` is "exams" (the goal as its exam document, as GET /docs reads it). */
 async function placeOf(x: HandlerCtx, id: string): Promise<string> {
-  const t = tablesRepo(x.db, { clock: x.clock });
-  if (id.startsWith("set_") && (await t.sets.get(id))) return "sets";
-  if (id.startsWith("goal_") && (await t.goals.get(id))) return "exams";
-  return collectionOf(x.db, id);
+  return collectionOf(tablesRepo(x.db, { clock: x.clock }), id);
 }
 
 const ack = async () => ({ client: true });
@@ -136,10 +127,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
   // A collection lives in its own table: deleting it writes one deletions row for it and no row for its items, which
   // show ungrouped until it is restored (§delete.collection).
   "item.delete": async (i: Ref, _c, x) => {
-    const repo = docsRepo(x.db, { clock: x.clock });
-    // A `col_` id is a collection row, found without a read of docs.
+    const t = tablesRepo(x.db, { clock: x.clock });
     if (i.id.startsWith("col_")) {
-      const t = tablesRepo(x.db, { clock: x.clock });
       const coll = await t.collectionRows.get(i.id);
       if (coll) {
         await t.deletions.markCollection(i.id);
@@ -147,15 +136,11 @@ export const commandHandlers: Record<string, CommandHandler> = {
         return { deleted: true, collection: i.id };
       }
     }
-    const c = await collectionOf(x.db, i.id);
+    const c = await collectionOf(t, i.id);
     // A note is a row: it is hidden there and listed in Recently deleted (§delete.soft).
-    if (c === "notes") {
-      const gone = await tablesRepo(x.db, {
-        clock: x.clock,
-      }).deletions.markNote(i.id);
-      if (gone) return { deleted: true };
-    }
-    return { deleted: await repo.markDeleted(c, i.id) };
+    if (c === "notes") return { deleted: await t.deletions.markNote(i.id) };
+    // A set, a goal or a session has no deletions mark yet (data/tables): nothing is hidden, so nothing is claimed.
+    return { deleted: false };
   },
   // A restore only clears the deletions row: the document was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {
@@ -177,7 +162,9 @@ export const commandHandlers: Record<string, CommandHandler> = {
     }
     // A collection lives in its own table; any other item is named by the collection its document is in.
     const coll = await t.collectionRows.get(i.id, { deleted: true });
-    const c = coll ? "collections" : await collectionOf(x.db, i.id);
+    const c = coll
+      ? "collections"
+      : await collectionOf(t, i.id, { deleted: true });
     const restored = await t.deletions.restore(c, i.id);
     if (coll?.deleted_at != null) await t.collectionRows.restore(i.id, coll.v);
     if (!restored)
@@ -202,9 +189,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
         throw new CommandError(409, "that collection changed; try again");
       return { version: r.row.v };
     }
-    const repo = docsRepo(x.db, { clock: x.clock });
-    const c = await placeOf(x, i.id);
-    // A set or a date on its table is renamed there; E.V.'s sets that are still documents go on to the document below.
+    const c = await collectionOf(t, i.id);
+    // A set or a goal is renamed on its own row.
     const setRow = c === "sets" ? await t.sets.get(i.id) : null;
     if (setRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
@@ -230,14 +216,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
         return { version: r.row.v };
       }
     }
-    const doc = await repo.get(c, i.id);
-    if (!doc) throw new CommandError(404, `no item ${i.id}`);
-    const r = await repo.rename(c, i.id, i.title, doc.v);
-    if (!r.ok)
-      throw r.status === 409
-        ? new CommandError(409, "that item changed; try again")
-        : new CommandError(400, r.error);
-    return { version: r.version };
+    throw new CommandError(404, `no item ${i.id} to rename`);
   },
   "collection.create": async (i: { title: string }, _c, x) => {
     const t = tablesRepo(x.db, { clock: x.clock });
