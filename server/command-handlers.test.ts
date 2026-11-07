@@ -242,7 +242,7 @@ test("a goal is deleted, listed with its title in Recently deleted, and restored
   };
   assert.deepEqual(
     listed.deletions.map((d) => [d.collection, d.id, d.title]),
-    [["exams", "goal_g1", "Exam 1"]],
+    [["goals", "goal_g1", "Exam 1"]],
   );
   assert.equal((await call("item.restore", { id: "goal_g1" })).status, 200);
   assert.equal((await call("item.restore", { id: "goal_g1" })).status, 404);
