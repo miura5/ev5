@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { mapLibrary } from "./map.ts";
+import { goalRow } from "./testHost.tsx";
 
 const base = {
   schema: 2,
@@ -7,21 +8,12 @@ const base = {
   at: "2026-10-01T15:00:00Z",
   source: "t",
 };
-const examDoc = () => ({
-  id: "x1",
-  data: {
-    ...base,
-    title: "Exam Three",
-    kind: "unit",
-    date: "2099-01-05",
-  },
-});
 const item = (plan: string, title: string, day = "2099-01-02") => ({
   id: `pli_${plan}_${title}`,
   data: { plan_id: plan, day, title, minutes: 30 },
 });
 const docs = (planId: string, jobs: object[] = []) => ({
-  exams: [examDoc()],
+  goals: [goalRow({ kind: "unit" })],
   weakspots: [],
   sets: [],
   plans: ["plan-old", "plan-new"].map((id) => ({

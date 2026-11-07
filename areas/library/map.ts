@@ -5,13 +5,13 @@ import {
   itemType,
   inDays,
   deriveWeakSpot,
-  goalDaysLeft,
-  parseGoal,
+  daysBetween,
   parseSet,
   parseWeakSpot,
   plainDay,
   planEnded,
 } from "../../domain/index.ts";
+import type { GoalRow } from "../../domain/index.ts";
 import type {
   Accuracy,
   LibraryExam,
@@ -27,7 +27,7 @@ export type { WireDoc } from "../../domain/index.ts";
 import type { WireDoc } from "../../domain/index.ts";
 
 export interface LibraryDocs {
-  exams: WireDoc[];
+  goals: GoalRow[]; // as GET /goals returns them (§data.gate)
   weakspots: WireDoc[];
   sets: WireDoc[];
   /** Practice answers; absent reads as none. */
@@ -201,15 +201,15 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         | { state?: unknown }
         | undefined
     )?.state;
-  const exams: LibraryExam[] = docs.exams
-    .flatMap((d) => tryParse(parseGoal, d))
-    .filter((e) => (e.v.status ?? "upcoming") === "upcoming")
+  const exams: LibraryExam[] = docs.goals
+    .filter((g) => g.status === "open")
     .sort(
       (a, b) =>
-        (a.v.date ?? "9999").localeCompare(b.v.date ?? "9999") ||
-        a.v.title.localeCompare(b.v.title),
+        (a.date ?? "9999").localeCompare(b.date ?? "9999") ||
+        a.title.localeCompare(b.title),
     )
-    .map(({ id, v }) => {
+    .map((v) => {
+      const id = v.id;
       const job = waitingPlan(docs.jobs, id);
       const waiting = job?.id;
       const planId = waiting ?? planIdOf(docs.plans, id);
@@ -226,7 +226,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       const shaky = mine.filter(
         (s) => s.d.status === "open" && s.d.streak > 0,
       ).length;
-      const left = goalDaysLeft(v, today);
+      const left = v.date ? daysBetween(today, v.date) : null;
       const when = v.date
         ? `${plainDay(v.date, today)}${left !== null && left >= 0 ? ` · ${inDays(left)}` : ""}`
         : "no date";

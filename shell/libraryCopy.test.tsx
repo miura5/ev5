@@ -33,7 +33,7 @@ const set = {
   ],
 };
 const body = (docs: unknown[]) =>
-  new Response(JSON.stringify({ docs }), { status: 200 });
+  new Response(JSON.stringify({ docs, rows: [] }), { status: 200 });
 const showSets = async () => {
   // Sets sit on their own tab; wait until the lists have loaded (the tab is there from the first paint).
   await new Promise((r) => setTimeout(r, 50));

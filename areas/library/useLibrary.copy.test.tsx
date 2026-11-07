@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 const saved = {
-  "library:exams": [],
+  "library:goals": [],
   "library:weakspots": [],
   "library:sets": [],
   "library:answers": [],
@@ -82,7 +82,8 @@ test("a good read refreshes the copy", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(
-      async () => new Response(JSON.stringify({ docs: [] }), { status: 200 }),
+      async () =>
+        new Response(JSON.stringify({ docs: [], rows: [] }), { status: 200 }),
     ),
   );
   const copy = fakeCopy();
@@ -91,7 +92,7 @@ test("a good read refreshes the copy", async () => {
   expect(Object.keys(copy.kept).sort()).toEqual([
     "jobs",
     "library:answers",
-    "library:exams",
+    "library:goals",
     "library:plan_items",
     "library:plans",
     "library:sets",
