@@ -1,4 +1,4 @@
-// domain/claude: the rows of E.V.'s own bookkeeping tables carried from ev4: `claude_usage`, `claude_reads`
+// domain/claude: the rows of E.V.'s own bookkeeping tables carried from the legacy app: `claude_usage`, `claude_reads`
 // and `claude_plan_asks` (§data.tables). Times are epoch milliseconds from the Worker clock.
 import { z } from 'zod';
 

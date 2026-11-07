@@ -1,6 +1,6 @@
 import type { SessionDoc, SessionEvent, SessionWrite } from './index.ts';
 
-// Made-up session fixtures shared by the session tests (ported from ev4 test/sessions.test.mjs).
+// Made-up session fixtures shared by the session tests (ported from the legacy sessions tests).
 export const T0 = '2026-10-18T15:00:00.000Z';
 export const plus = (min: number, sec = 0) => new Date(Date.parse(T0) + min * 60e3 + sec * 1e3).toISOString();
 export const sk = (iso: string) => `page-${iso.replace(/[-:]/g, '').replace('T', '-').replace(/\.(\d+)Z$/, '$1')}`;

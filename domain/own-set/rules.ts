@@ -6,7 +6,7 @@ import type { AttemptBody, HiddenOriginal, OwnAttempt, OwnSet, OwnSetItem } from
 type OwnSetCopy = { set: OwnSet; items: OwnSetItem[]; hide: HiddenOriginal };
 
 /**
- * Copy-on-first-edit (ev4-era; replaced by §data.item-versions): an ev4 set becomes an own set with the same item ids and order. The original
+ * Copy-on-first-edit (legacy-era; replaced by §data.item-versions): a legacy set becomes an own set with the same item ids and order. The original
  * and its answers are untouched; the caller writes the copy, hides the original and starts fresh own attempts.
  */
 export function copyOnFirstEdit(original: StudySet, sourceId: string, newId: string, now: string): OwnSetCopy {
