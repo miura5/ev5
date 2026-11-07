@@ -7,14 +7,13 @@ const base = {
   at: "2026-10-01T15:00:00Z",
   source: "t",
 };
-const examDoc = (planId: string) => ({
+const examDoc = () => ({
   id: "x1",
   data: {
     ...base,
     title: "Exam Three",
     kind: "unit",
     date: "2099-01-05",
-    planId,
   },
 });
 const item = (plan: string, title: string, day = "2099-01-02") => ({
@@ -22,7 +21,7 @@ const item = (plan: string, title: string, day = "2099-01-02") => ({
   data: { plan_id: plan, day, title, minutes: 30 },
 });
 const docs = (planId: string, jobs: object[] = []) => ({
-  exams: [examDoc(planId)],
+  exams: [examDoc()],
   weakspots: [],
   sets: [],
   plans: ["plan-old", "plan-new"].map((id) => ({

@@ -14,7 +14,6 @@ export const goalReadSchema = z.strictObject({
   course: z.string().optional(),
   date: z.string().nullable().optional(),
   status: z.enum(['upcoming', 'done']).optional(),
-  planId: z.string().nullable().optional(),
 });
 export type Goal = z.infer<typeof goalReadSchema>;
 
