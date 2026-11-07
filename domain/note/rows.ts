@@ -45,7 +45,7 @@ export function newNoteRow(
   };
 }
 
-/** The document the editor reads (`GET /docs?collection=notes`), built from the row. */
+/** The document the editor reads (a note's row route, `GET /notes/:id`), built from the row. */
 export function noteDocOf(row: NoteTableRow): Note {
   const { blocks, createdAt, editedAt } = row.body as Pick<
     Note,

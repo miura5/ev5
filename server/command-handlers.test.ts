@@ -25,7 +25,7 @@ async function setup() {
       if (stmt.trim()) await DB.prepare(stmt.trim()).run();
   }
   await DB.prepare(
-    'INSERT INTO docs (c, id, data, at, v) VALUES (\'sets\', \'s1\', \'{"schema":3,"writer":"page","at":"2026-11-03T00:00:00Z","source":"t","kind":"review","items":[{"id":"i1","stem":"q"}],"title":"Old"}\', 1, 1)',
+    "INSERT INTO sets (id, kind, title, created_by, at, v) VALUES ('set_s1', 'own', 'Old', 'user', 1, 1)",
   ).run();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
   const call = (name: string, input: unknown) =>
@@ -72,21 +72,25 @@ test("every handler belongs to a registry command Matt calls directly", () => {
   }
 });
 
-test("pin, unpin, rename, delete and restore work on a document", async () => {
+test("pin, unpin and rename work on a set row; delete and restore read rows, not docs", async () => {
   const call = await setup();
-  assert.equal((await call("item.pin", { id: "s1" })).status, 200);
+  assert.equal((await call("item.pin", { id: "set_s1" })).status, 200);
   assert.equal((await call("item.pin", { id: "nope" })).status, 404);
-  const un = (await (await call("item.unpin", { id: "s1" })).json()) as {
+  const un = (await (await call("item.unpin", { id: "set_s1" })).json()) as {
     result: { removed: boolean };
   };
   assert.equal(un.result.removed, true);
   assert.equal(
-    (await call("item.rename", { id: "s1", title: "New" })).status,
+    (await call("item.rename", { id: "set_s1", title: "New" })).status,
     200,
   );
-  assert.equal((await call("item.delete", { id: "s1" })).status, 200);
-  assert.equal((await call("item.restore", { id: "s1" })).status, 200);
-  assert.equal((await call("item.restore", { id: "s1" })).status, 404);
+  // A set has no deletions mark yet, so a delete hides nothing and a restore finds nothing to bring back.
+  const del = (await (await call("item.delete", { id: "set_s1" })).json()) as {
+    result: { deleted: boolean };
+  };
+  assert.equal(del.result.deleted, false);
+  assert.equal((await call("item.restore", { id: "set_s1" })).status, 404);
+  assert.equal((await call("item.delete", { id: "nope" })).status, 404);
 });
 
 test("deleting an unknown collection id is a 404", async () => {
@@ -102,14 +106,14 @@ test("a collection is created and an item moves into it", async () => {
   assert.equal(
     (
       await call("item.move", {
-        id: "s1",
+        id: "set_s1",
         collection: made.result.collection.id,
       })
     ).status,
     200,
   );
   assert.equal(
-    (await call("item.move", { id: "s1", collection: "missing" })).status,
+    (await call("item.move", { id: "set_s1", collection: "missing" })).status,
     404,
   );
 });
@@ -140,7 +144,7 @@ test("deleting a collection writes one row for it; its items show ungrouped unti
     await call("collection.create", { title: "BIO" })
   ).json()) as { result: { collection: { id: string } } };
   const cid = made.result.collection.id;
-  await call("item.move", { id: "s1", collection: cid });
+  await call("item.move", { id: "set_s1", collection: cid });
   const ids = async (path: string, key: string) =>
     ((await (await call.get(path)).json()) as Record<string, { id: string }[]>)[
       key
@@ -171,7 +175,7 @@ test("deleting a collection writes one row for it; its items show ungrouped unti
   assert.deepEqual(await ids("/collections", "collections"), [cid]);
   assert.deepEqual(
     await ids(`/memberships?collection_id=${cid}`, "memberships"),
-    ["s1"],
+    ["set_s1"],
   );
 });
 
