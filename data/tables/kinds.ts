@@ -10,7 +10,6 @@ import {
   parseLinkRow,
   parseNoteTableRow,
   parseObjectiveTableRow,
-  parsePinTableRow,
   parsePlanItemTableRow,
   parsePlanTableRow,
   parseRepeatRow,
@@ -239,13 +238,8 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
   const a = <R extends Stamped>(k: Kind<R>) =>
     table(db, opts, k) as Extract<Repo<R>, { add: unknown }>;
   return {
-    // Named apart from the older `collections` and `pins` repositories until the server step.
+    // Named apart from the older `collections` repository until the server step.
     collectionRows: t(kind("collections", parseCollectionRow)),
-    pinRows: t(
-      kind("pins", parsePinTableRow, [], "pos, id", false, {
-        target_c: "target_kind",
-      }),
-    ),
     goals: t(kind("goals", parseGoalRow)),
     objectives: t(
       kind(
@@ -267,11 +261,23 @@ export function kindsRepo(db: D1Like, opts: TablesOptions) {
       ),
     ),
     setItemVersions: a(
-      kind("set_item_versions", parseSetItemVersionRow, ["body"], "item_id, item_v", true),
+      kind(
+        "set_item_versions",
+        parseSetItemVersionRow,
+        ["body"],
+        "item_id, item_v",
+        true,
+      ),
     ),
     weakSpots: t(kind("weak_spots", parseWeakSpotTableRow)),
     weakSpotEvents: a(
-      kind("weak_spot_events", parseWeakSpotEventRow, [], "weak_spot_id, at, id", true),
+      kind(
+        "weak_spot_events",
+        parseWeakSpotEventRow,
+        [],
+        "weak_spot_id, at, id",
+        true,
+      ),
     ),
     attempts: a(kind("attempts", parseAttemptRow, ["answer"], "at, id", true)),
     sessions: t(kind("sessions", parseSessionTableRow, ["driver"])),

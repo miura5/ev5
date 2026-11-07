@@ -12,5 +12,6 @@ export const pinTableSchema = z.strictObject({
 });
 export type PinTableRow = z.infer<typeof pinTableSchema>;
 
+/** @public Held to the pins table by the row-shape tests. */
 export const parsePinTableRow = (raw: unknown): PinTableRow =>
   pinTableSchema.parse(raw);

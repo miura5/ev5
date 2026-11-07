@@ -106,15 +106,6 @@ export {
 /** @public */
 export { parseDraftTableRow, draftKey } from "./draft/index.ts";
 /** @public */
-export {
-  parseClaudeUsage,
-  parseClaudeRead,
-  parseClaudePlanAsk,
-} from "./claude/index.ts";
-/** @public */
-export { parseSystemDoc } from "./system-doc/index.ts";
-/** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
-export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";
 /** @public Weak spot rows as the scheduler's model; the weak spot reads (plan home, Today, Library) import it when they move to the tables. */
 export {
   eventFromRow,
@@ -123,10 +114,6 @@ export {
   weakSpotDoc,
   weakSpotFromRows,
 } from "./weak-spot/rows.ts";
-/** @public */
-export { parseSessionRow, type SessionRow } from "./session/row.ts";
-/** @public */
-export { parseNoteRow, type NoteRow } from "./note/row.ts";
 /** @public The plan date rules: the last day, when a plan has ended, and what Matt is told. */
 export { lastDay, planEnded, endedReason } from "./plan/index.ts";
 /** @public Row shapes for the new per-kind tables; the tables gate and the migration import them. */
