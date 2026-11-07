@@ -144,7 +144,8 @@ test("the schema sent to the model comes from the output schema and carries no r
   const s = JSON.stringify(outputSchema(practiceSet.outputSchema));
   assert.match(s, /"additionalProperties":false/);
   assert.match(s, /"sourceRef":\{"type":\["string","null"\]/);
-  assert.doesNotMatch(s, /minimum|maximum|pattern|minLength|minItems/);
+  // The SDK helper moves rules it cannot enforce into a description; none stays as a keyword.
+  assert.doesNotMatch(s, /"(minimum|maximum|pattern|minLength|minItems)":/);
 });
 
 test("the public input names a scope only: a sent excerpts field is dropped, and bad scopes still fail", () => {

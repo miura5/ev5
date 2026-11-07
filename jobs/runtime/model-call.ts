@@ -1,7 +1,8 @@
 // The Anthropic SDK behind ModelCall (CONTRACT §model.output). Retries are off: runStructured owns the one repair ask.
 // Model ids come only from models.ts. Prompts are loaded by callers as wrangler Text modules (import of prompt.md).
 import Anthropic from "@anthropic-ai/sdk";
-import { z } from "zod";
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import type { z } from "zod";
 import { modelInfo } from "./models.ts";
 import type { Message, ModelCall } from "./output.ts";
 
@@ -12,28 +13,12 @@ type ModelCallOptions = {
 };
 
 /**
- * The JSON Schema for output_config.format, derived from a Zod schema (no $schema key). Zod's `.int()` adds the safe
- * integer bounds, which structured output does not take, so those two keywords are dropped; every other range or
- * format rule belongs in a refinement, which JSON Schema leaves out.
+ * The JSON Schema for output_config.format, made by the Anthropic SDK's own Zod helper (CONTRACT §model.output), which
+ * rewrites a Zod schema into the subset structured output accepts. Range and format rules the subset leaves out stay
+ * in the parser, which still runs on every reply.
  */
 export function outputSchema(schema: z.ZodType): object {
-  const strip = (v: unknown): unknown => {
-    if (Array.isArray(v)) return v.map(strip);
-    if (typeof v !== "object" || v === null) return v;
-    return Object.fromEntries(
-      Object.entries(v as Record<string, unknown>)
-        .filter(
-          ([k, x]) =>
-            k !== "$schema" &&
-            !(
-              (k === "minimum" || k === "maximum") &&
-              Math.abs(x as number) === Number.MAX_SAFE_INTEGER
-            ),
-        )
-        .map(([k, x]) => [k, strip(x)]),
-    );
-  };
-  return strip(z.toJSONSchema(schema)) as object;
+  return zodOutputFormat(schema).schema;
 }
 
 /**
