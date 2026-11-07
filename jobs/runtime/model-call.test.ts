@@ -129,3 +129,13 @@ test("marks the system prompt and the first user message with cache_control; the
   assert.equal(b.messages[1].content, "a");
   assert.equal(b.messages[2].content, "fix");
 });
+
+test("outputSchema comes from the SDK helper: no $schema key, integers kept, objects closed", () => {
+  const s = outputSchema(
+    z.object({ n: z.number().int(), xs: z.array(z.object({ t: z.string() })) }),
+  ) as Record<string, any>;
+  assert.equal(s.$schema, undefined);
+  assert.equal(s.additionalProperties, false);
+  assert.equal(s.properties.n.type, "integer");
+  assert.equal(s.properties.xs.items.additionalProperties, false);
+});
