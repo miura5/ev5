@@ -137,11 +137,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
   // show ungrouped until it is restored (§delete.collection).
   "item.delete": async (i: Ref, _c, x) => {
     const repo = docsRepo(x.db, { clock: x.clock });
-    const inDocs = await x.db
-      .prepare("SELECT 1 AS n FROM docs WHERE id = ? LIMIT 1")
-      .bind(i.id)
-      .all<{ n: number }>();
-    if (!inDocs.results.length) {
+    // A `col_` id is a collection row, found without a read of docs.
+    if (i.id.startsWith("col_")) {
       const t = tablesRepo(x.db, { clock: x.clock });
       const coll = await t.collectionRows.get(i.id);
       if (coll) {
