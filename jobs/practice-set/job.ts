@@ -108,7 +108,7 @@ export const OutputSchema = z.object(
 export type PracticeInput = z.infer<typeof InputSchema>;
 export type PracticeItem = z.infer<typeof ItemSchema>;
 export type PracticeOutput = z.infer<typeof OutputSchema>;
-/** An item as it is stored: the domain set-item shape (an id, and a sourceRef starting materials/ or note/). */
+/** An item as it is stored: the domain set-item shape (an id, and a sourceRef starting note/). */
 export type StoredItem = PracticeItem & { id: string };
 export type DraftRow = {
   job_id: string;
@@ -128,7 +128,7 @@ export type PracticeResult =
     }
   | { ok: false; reason: string; costCents: number };
 
-const STORED_REF = /^(materials|note)\//;
+const STORED_REF = /^note\//;
 /** The stored sourceRef for an id the model cited: the server's excerpts are notes, so a bare id is `note/<id>`. */
 export const storedRef = (cited: string | null): string | null =>
   cited === null || STORED_REF.test(cited) ? cited : `note/${cited}`;

@@ -47,7 +47,7 @@ const setItemSchema = z.strictObject({
   verify: z.boolean().optional(),
   sourceRef: z
     .string()
-    .regex(/^(materials|note)\//)
+    .regex(/^note\//)
     .nullish(),
   chapters: chapters.optional(),
   keyPoints: z.array(keyPointSchema).min(2).max(3).optional(),
