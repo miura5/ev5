@@ -4838,7 +4838,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>, noteRowId/noteDocId gone); KISS 10 partly (#866): public tables repo exposes notes and setItems read-only, writes go via noteBook/setBook; pins match one id form. Left: two table-name lists (ALL_TABLES in data/export vs kind(\"notes\",…) strings in kinds.ts); practice-set sourceRef 'note/<id>' gives note/note_… and needs a domain/set change (regex /^note\\//) plus job test; old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule).",
+  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form.",
   "commit": null,
   "source": "run 82 B-997 report",
   "claimedBy": "run-20261107T1631Z",
