@@ -26,9 +26,15 @@ import { leftOutField, readReport, requestIdOf } from "./read-report.ts";
 type Ctx = { Bindings: { DB: DocsD1 }; Variables: AuthVars };
 export const rowRoutes = new Hono<Ctx>();
 type Rows = {
-  list(): Promise<readonly unknown[] & { left_out?: number }>;
+  list(o?: {
+    limit: number;
+    offset: number;
+  }): Promise<readonly unknown[] & { left_out?: number }>;
   get(id: string): Promise<unknown>;
 };
+
+/** The most rows one list read returns; `next` is the offset of the following page. */
+const PAGE = 1000;
 
 // path, repository key, table (the name `onBad` reports, so a bad row is counted once)
 const KINDS = [
@@ -60,8 +66,25 @@ for (const [path, key, table] of KINDS) {
   };
   rowRoutes.get(`/${path}`, async (c) => {
     const { reads, rows } = open(c);
-    const list = reads.counted(table, await rows.list());
-    return c.json({ rows: [...list], ...leftOutField(reads) });
+    const limit = Math.min(
+      Math.max(Math.trunc(Number(c.req.query("limit"))) || PAGE, 1),
+      PAGE,
+    );
+    const offset = Math.max(Math.trunc(Number(c.req.query("offset"))) || 0, 0);
+    // One row more than the page says whether another page follows.
+    const got = await rows.list({ page: { limit: limit + 1, offset } });
+    const more = got.length > limit;
+    const list = reads.counted(
+      table,
+      more
+        ? Object.assign(got.slice(0, limit), { left_out: got.left_out })
+        : got,
+    );
+    return c.json({
+      rows: [...list],
+      ...(more ? { next: offset + limit } : {}),
+      ...leftOutField(reads),
+    });
   });
   rowRoutes.get(`/${path}/:id`, async (c) => {
     const row = await open(c).rows.get(c.req.param("id"));

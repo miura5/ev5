@@ -41,6 +41,22 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         pending("id = ?", draftKey(id), kind),
       pendingForSet: (setId: string, kind: string) =>
         pending("target_id = ?", setId, kind),
+      /** The pending draft of `kind` with `id` (body and version), or null; never a draft of another kind. */
+      pendingRow: async (
+        id: string,
+        kind: string,
+      ): Promise<{
+        id: string;
+        target_id: string;
+        body: string;
+        v: number;
+      } | null> =>
+        await db
+          .prepare(
+            "SELECT id, target_id, body, v FROM drafts WHERE id = ? AND kind = ? AND state = 'pending'",
+          )
+          .bind(draftKey(id), kind)
+          .first<{ id: string; target_id: string; body: string; v: number }>(),
       /** Pending draft `id` in set `setId`, or null. */
       pendingIn: async (id: string, setId: string, kind: string) =>
         (

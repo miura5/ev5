@@ -1,7 +1,6 @@
-// The tables gate for the per-kind tables of migration 0006 (§data.gate, §data.tables): one generic reader and writer, and
-// one entry per table naming its domain row shape. Every row read is parsed (a bad one is reported and left out), a deleted
-// row is left out unless asked (§delete.soft), every write is parsed and size-checked by gateRow before SQL, and only a
-// stale version answers 409 (§data.protocol). Append-only tables have `add` and no change or delete (§data.append-only).
+// The tables gate for the per-kind tables (§data.gate, §data.tables): one generic reader and writer, one entry per table naming its
+// domain row shape. A row read is parsed (a bad one is reported and left out); a deleted row is left out unless asked (§delete.soft);
+// a write is parsed and size-checked by gateRow before SQL; only a stale version answers 409 (§data.protocol); append-only tables only `add`.
 import {
   parseAttemptRow,
   parseCollectionRow,
@@ -132,14 +131,16 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
       o: {
         deleted?: boolean;
         where?: Partial<Record<string, string | number>>;
+        page?: { limit: number; offset: number };
       } = {},
     ): Promise<Listed<R>> => {
       const w = Object.entries(o.where ?? {});
       for (const [c] of w)
         if (!cols.includes(c)) throw new Error(`${k.table} has no column ${c}`);
       const rows = await all(
-        `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}`,
+        `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}${o.page ? " LIMIT ? OFFSET ?" : ""}`,
         ...w.map(([, x]) => x as string | number),
+        ...(o.page ? [o.page.limit, o.page.offset] : []),
       );
       const out = rows.flatMap((r) => parseOne(r) ?? []);
       return listed(out, rows.length - out.length);
