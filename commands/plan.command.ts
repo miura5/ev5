@@ -1,23 +1,14 @@
 import { z } from 'zod';
 import { defineCommand, ref } from './define.ts';
-import { DATE_KINDS } from '../domain/index.ts';
+import { DATE_KINDS, planItemInputSchema, planItemPatchSchema } from '../domain/index.ts';
 
 const M = { matt: 'direct' } as const;
 const MP = { matt: 'direct', ev: 'propose' } as const;
 const id = z.string().min(1);
 /** A date's kind is one of the registry's kinds (domain/goal); a new date without one is "other". */
 const kind = z.enum(Object.keys(DATE_KINDS) as [string, ...string[]]).optional();
-const fields = {
-  title: z.string().min(1),
-  date: z.string().optional(),
-  time: z.string().optional(),
-  estimateMinutes: z.number().int().positive().optional(),
-  repeat: z.string().optional(),
-  linked: z.string().optional(),
-  collection: z.string().optional(),
-};
-const planItem = z.object(fields);
-const planPatch = z.object({ id, ...Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v.optional()])) });
+const planItem = planItemInputSchema;
+const planPatch = planItemPatchSchema;
 
 // Plan items, proposals and drafts, dates and the prep plan (PLAN §6.1). E.V. proposes; Matt accepts.
 export const planCommands = [
