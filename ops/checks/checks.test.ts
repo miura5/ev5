@@ -14,6 +14,7 @@ import { checkPresence } from './presence.ts';
 import { checkControls } from './controls.ts';
 import { checkRadix } from './radix.ts';
 import { checkRegistry } from './registry.ts';
+import { checkRestoreKind } from './restorekind.ts';
 import { checkRules } from './rules.ts';
 import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
@@ -206,4 +207,18 @@ test('migration names: only numbered .sql files may sit in data/migrations, bar 
   assert.deepEqual(checkMigrationNames(ok), []);
   const bad = checkMigrationNames(['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql', 'data/migrations/0020_ok.sql']);
   assert.deepEqual(bad.map(f => f.file), ['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql']);
+});
+
+test('restore-kind: an export kind written as a string fails in export and restore code; EXPORT_KIND, tests and other folders pass', () => {
+  const r = repo({
+    'data/export/export.ts': 'if (x.kind !== "other-export") throw 1;\n',
+    'ops/restore-drill/b.mjs': 'const f = { kind: "backup" };\n',
+    'data/export/restore.ts': 'if (x.kind !== EXPORT_KIND) return;\n',
+    'data/export/ok.ts': 'export const k = { kind: EXPORT_KIND };\n',
+    'data/export/a.test.ts': 'const k = { kind: "other" };\n',
+    'domain/c.ts': 'const k = { kind: "x" };\n',
+  });
+  assert.deepEqual(checkRestoreKind(r.root, r.files).map(f => f.file).sort(), ['data/export/export.ts', 'ops/restore-drill/b.mjs']);
+  const bare = repo({ 'data/export/restore.ts': 'return;\n' });
+  assert.equal(checkRestoreKind(bare.root, bare.files).length, 1);
 });

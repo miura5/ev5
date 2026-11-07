@@ -7,6 +7,7 @@ import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkDocsWrites } from './docswrites.ts';
 import { checkEv4Word } from './ev4word.ts';
+import { checkRestoreKind } from './restorekind.ts';
 import { checkSubjectWords } from './subjectwords.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
@@ -49,6 +50,7 @@ const findings = [
   ...checkPresence(root, files),
   ...checkRadix(root, files),
   ...checkRegistry(root, files),
+  ...checkRestoreKind(root, files),
   ...checkRules(root, files),
   ...checkSecrets(root, files),
   ...checkServerWrites(root, files),
