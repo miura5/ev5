@@ -17,3 +17,4 @@ Findings from runs, reviews and audits (bugs, fixes and cleanups) that fit no op
 - One picture loader: `areas/sessions/Picture.tsx` fetches on every mount and never revokes its blob URL; use the cached loader in `notePictures.ts`. For the note pictures task.
 - Toast pause: the kit Toast hides after 4 s even under the pointer; pause on hover and focus, keep 4 s, no new dependency. For the screens-draw-no-rows check task (kit drift).
 - Note links in the read view open in the same tab: add `target=_blank` and `rel=noopener noreferrer` on the link in `kit/components/NoteBlocks/NoteBlocks.tsx`. No security issue, since note links already allow only http(s). Polish, after cutover.
+- A "?" key sheet that lists only the keys that work on the current screen. It needs a mock-up part first. After cutover.
