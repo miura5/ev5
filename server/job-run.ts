@@ -122,8 +122,6 @@ export function d1PracticeStore(
       return r;
     },
     find: (j) => get<Parameters<PracticeStore["put"]>[1]>(j, "result"),
-    putFailure: async (j, reason) => void (await put(j, "failure", reason)),
-    getFailure: (j) => get<string>(j, "failure"),
     save: async (jobId, targetId, r) =>
       void (await saveOutput(db, clock, {
         jobId,

@@ -22,8 +22,6 @@ async function practiceMessage(variant: string): Promise<string> {
     get: async () => {
       throw new Error("unused");
     },
-    putFailure: async () => {},
-    getFailure: async () => undefined,
     save: async () => {},
   };
   const input = { variant, targetId: "set-1", count: 3, objectives: ["Name the parts"], excerpts: [{ id: "x1", text: "A part." }] };
