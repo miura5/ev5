@@ -4310,11 +4310,13 @@
   "title": "A builder can run the full precheck in its own sandbox, and CI runs the same script",
   "dod": "npm run precheck passes on the Node version the builder sandboxes run (today 22), or package.json engines and a .nvmrc name a version both CI and builders use; ci.yml calls the npm scripts instead of keeping its own copy of the step list; docs/guards.md's stale bullet and ci.yml's Phase 0 comment are fixed",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Slice: write package.json, .github/workflows/ci.yml, docs/guards.md and files a Node 22 failure points at; read none. Today 8 node-test suites fail locally on Node 22, so size and lint failures first show up on PRs.",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDWD9MN9vCjHSGgn2Tu",
+  "claimedAt": "2026-11-07T12:58:06.398Z"
  },
  {
   "id": "B-985",

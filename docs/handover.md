@@ -3,7 +3,6 @@
 NOTE B-1036 (a) action pins, (e) size check blocked: sandbox cannot reach other repos or Cloudflare docs.
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, D-495). Keep groups and order. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
-NOTE Sandbox has Node 22 (wants >=26): builders cannot run precheck; CI checks.
 (3) Kit drift: B-1012 done (gate5-e2e green on staging 2026-11-07). B-942 left: light theme/PNG check on staging. B-979 waits on B-974, B-975 and two kit-class overrides in areas/ (notes); not built.
 (4) Data layer, built to D-498 (wins over docs/proposals/table-design.md; replaces D-496). No contract migration: after B-998 part 2 one squash baseline replaces the chain 0000 to 0018 (D-514).
 Order: B-1022 remainder (old doc-row shapes after B-1037 to B-1043; row routes for item versions, session events; one shared attempts adapter in domain/answers for library, progress, today),
