@@ -36,7 +36,6 @@ const note = {
     schema: 1,
     writer: "page",
     at: "2026-11-04T15:00:00.000Z",
-    source: "E.V. Home",
     createdAt: "2026-11-04T15:00:00.000Z",
     title: "Heart",
     blocks: [

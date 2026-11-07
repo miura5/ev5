@@ -28,7 +28,6 @@ const note = {
   data: {
     ...base,
     schema: 1,
-    source: "E.V. Home",
     createdAt: "2026-11-04T15:00:00.000Z",
     title: "Heart",
     blocks: [

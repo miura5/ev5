@@ -8,14 +8,10 @@ const doc = parseNote({
   schema: 1,
   writer: "page",
   at: T0,
-  source: "E.V. Home",
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
-  course: "Biology 101",
-  label: "week 4",
   editedAt: T0,
   earlierOf: "n-20261017-090000-abcdefgh",
-  archivedAt: "2026-10-19T00:00:00.000Z",
   blocks: [
     { type: "h1", runs: [{ text: "Fluids" }] },
     {
@@ -47,14 +43,13 @@ test("a note becomes a row whose text is the words, and reads back as the same d
     deleted_at: null,
   });
   const back = noteDocOf(stored);
-  // the blocks and every mark survive; the body keeps the block format only, so the old document fields are gone
+  // the blocks and every mark survive; the body keeps the block format only, 
   expect(row.body).toEqual({
     blocks: doc.blocks,
     createdAt: doc.createdAt,
     editedAt: T0,
   });
-  const { course: _c, label: _l, archivedAt: _a, ...kept } = doc;
-  expect({ ...back, at: T0 }).toEqual(kept);
+  expect({ ...back, at: T0 }).toEqual(doc);
   expect(back.at).toBe("2026-10-20T00:00:00.000Z");
 });
 

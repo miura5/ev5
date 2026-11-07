@@ -42,15 +42,11 @@ export function earlierTitle(title: string): string {
 
 type Save = {
   blocks: unknown;
-  course?: string | null;
-  label?: string;
   at: string;
-  source?: string;
 };
 
 /**
- * The note as a save writes it: the earlier document's identity and marks kept (createdAt, earlierOf, archivedAt,
- * discardedAt), blocks and title from the editor, the envelope stamped now. A second note's title keeps "(earlier)".
+ * The note as a save writes it: the earlier document's identity kept (createdAt, earlierOf), blocks and title from the editor, the envelope stamped now. A second note's title keeps "(earlier)".
  */
 export function noteDoc(prev: Note | null, save: Save): Note {
   const blocks = noteBlocks(save.blocks);
@@ -59,39 +55,30 @@ export function noteDoc(prev: Note | null, save: Save): Note {
     schema: 1,
     writer: 'page',
     at: save.at,
-    source: save.source || 'E.V. Home',
     createdAt: prev?.createdAt ?? save.at,
     title: prev?.earlierOf ? earlierTitle(title) : title,
-    course: save.course === undefined ? (prev?.course ?? null) : save.course,
     blocks,
     editedAt: save.at,
   };
-  const label = save.label !== undefined ? save.label : prev?.label;
-  if (label) doc.label = label.slice(0, MAX.label);
-  for (const k of ['earlierOf', 'archivedAt', 'discardedAt'] as const)
-    if (prev && prev[k] !== undefined) Object.assign(doc, { [k]: prev[k] });
+  if (prev?.earlierOf !== undefined) doc.earlierOf = prev.earlierOf;
   return doc;
 }
 
-/** The same words: blocks, course and label, which is all a note's text is (the stamps aside). */
-export const sameWords = (a: Note, b: Note): boolean =>
-  JSON.stringify(a.blocks) === JSON.stringify(b.blocks) &&
-  (a.course ?? null) === (b.course ?? null) &&
-  (a.label ?? '') === (b.label ?? '');
+/** The same words: the blocks, which is all a note's text is (the stamps aside). */
+export const sameWords = (a: Note, b: Note): boolean => JSON.stringify(a.blocks) === JSON.stringify(b.blocks);
 
 export type StaleSave = { kind: 'same' } | { kind: 'both'; earlierId: string; earlier: Note };
 
 /**
  * A save that found the record changed elsewhere (stale): never merged and never written over. The version in the
  * record stays the note; his version becomes a second note, a new note made now, earlierOf the original, titled
- * "<title> (earlier)" and not archived or discarded. When the record already holds his words, there is nothing to keep.
+ * "<title> (earlier)" When the record already holds his words, there is nothing to keep.
  */
 export function resolveStale(args: { id: string; his: Note; current: Note; at: string; random: string }): StaleSave {
   const { id, his, current, at, random } = args;
   if (sameWords(current, his)) return { kind: 'same' };
-  const { archivedAt: _a, discardedAt: _d, ...rest } = his;
   const earlier: Note = {
-    ...rest,
+    ...his,
     at,
     createdAt: at,
     title: earlierTitle(his.title),

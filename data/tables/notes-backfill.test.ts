@@ -10,6 +10,7 @@ const sql = readFileSync(
   "utf8",
 );
 
+// An old stored document, as ev4 wrote it: the old fields are in the record and leave with the migration.
 const note = (extra: object = {}) => ({
   schema: 1,
   writer: "page",
@@ -26,6 +27,11 @@ const note = (extra: object = {}) => ({
   ],
   ...extra,
 });
+
+const plain = () => {
+  const { course: _c, source: _s, ...rest } = note();
+  return rest;
+};
 
 test("migration 0013 copies note documents into rows with their words, collection and deletion, and runs once", async () => {
   const db = migratedDb();
@@ -53,10 +59,9 @@ test("migration 0013 copies note documents into rows with their words, collectio
   assert.equal(a.collection_id, "col_x");
   assert.equal(a.text, "Fluids\nSodium is 135\n");
   // the document reads back with its blocks and marks; the old fields (course, label, archivedAt) are not read (§data.notes)
-  const { course: _c, ...plain } = note();
   assert.deepEqual(
     { ...noteDocOf(a), at: "x" },
-    { ...parseNote(plain), at: "x" },
+    { ...parseNote(plain()), at: "x" },
   );
   assert.equal((await t.noteBook.get("note_n-b"))?.earlier_of, "note_n-a");
   assert.equal(await t.noteBook.get("note_n-gone"), null); // deleted stays deleted
@@ -75,7 +80,7 @@ test("migration 0013 copies note documents into rows with their words, collectio
 test("the gate refuses a note that is too big or not a note, and a stale change is a conflict", async () => {
   const db = migratedDb();
   const t = tablesRepo(sqliteD1(db), { clock: () => 5 });
-  const row = newNoteRow("n-z", parseNote(note()), null);
+  const row = newNoteRow("n-z", parseNote(plain()), null);
   const made = await t.noteBook.create(row);
   assert.ok(made.ok);
   assert.equal((await t.noteBook.create(row)).ok, false); // a repeated id

@@ -52,10 +52,8 @@ const note = (extra: object = {}) => ({
   schema: 1,
   writer: "page",
   at: T0,
-  source: "E.V. Home",
   createdAt: "2026-10-17T09:00:00.000Z",
   title: "Fluids",
-  course: "Biology 101",
   blocks: [{ type: "p", runs: [{ text: "Sodium is 135 to 145." }] }],
   ...extra,
 });

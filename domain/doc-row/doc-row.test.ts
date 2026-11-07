@@ -33,7 +33,7 @@ const set = {
   items: [{ id: 'q1', stem: 'Which finding needs action first?', options: ['a', 'b', 'c'], correct: [1] }],
 };
 const session = { schema: 2, writer: 'page', at: T, source: 'E.V. Home', date: '2026-11-03' };
-const note = { schema: 1, writer: 'page', at: T, source: 't', createdAt: T, title: 'Fluids', blocks: [] };
+const note = { schema: 1, writer: 'page', at: T, createdAt: T, title: 'Fluids', blocks: [] };
 
 const kinds = [
   { c: 'exams', parse: (r: unknown) => docRowSchema('exams', goalReadSchema).parse(r), data: exam, bad: { ...exam, kind: '' } },

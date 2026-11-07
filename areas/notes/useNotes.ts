@@ -61,9 +61,6 @@ export interface NotesState {
   reload: () => Promise<void>;
 }
 
-/** Who a note save names in `source`: starts with "v5" (the stored envelope; the table design drops it). */
-export const NOTE_SOURCE = "v5/notes";
-
 /** A note with its title set: the first h1 gets the new words (one is added if none), everything else is kept. */
 export function withTitle(prev: Note, title: string, at: string): Note {
   const words = title.replace(/\s+/g, " ").trim();
@@ -73,7 +70,7 @@ export function withTitle(prev: Note, title: string, at: string): Note {
     i < 0
       ? [head, ...prev.blocks]
       : prev.blocks.map((b, k) => (k === i ? { ...b, runs: head.runs } : b));
-  return { ...prev, title: words, blocks, at, source: NOTE_SOURCE, editedAt: at };
+  return { ...prev, title: words, blocks, at, editedAt: at };
 }
 
 /** Reads the notes collection, replays anything waiting first, and saves titles through the outbox. */
@@ -166,7 +163,7 @@ export function useNotes(services?: NotesServices): NotesState {
       const cur = notes.find((n) => n.id === id);
       if (!cur) return;
       const at = new Date().toISOString();
-      const doc = noteDoc(cur.note, { blocks, at, source: NOTE_SOURCE });
+      const doc = noteDoc(cur.note, { blocks, at });
       await persist(id, doc, cur.v || null);
     },
     [notes, persist],
@@ -195,7 +192,6 @@ export function useNotes(services?: NotesServices): NotesState {
         { type: "p", runs: [] },
       ],
       at,
-      source: NOTE_SOURCE,
     });
     await persist(id, doc, null);
     return id;

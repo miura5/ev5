@@ -29,7 +29,6 @@ const services: NotesServices = {
         data: noteDoc(null, {
           blocks: [{ type: "h1", runs: [{ text: "Kept" }] }],
           at: "2026-11-01T10:00:00.000Z",
-          source: "v5/notes",
         }),
       },
     ],
