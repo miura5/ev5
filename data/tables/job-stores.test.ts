@@ -39,6 +39,27 @@ test("job records: create at v1, update pinned to v-1, stale refused", async () 
   );
 });
 
+test("job records: a bad row is reported and left out of get and list", async () => {
+  const sql = migratedDb();
+  const bad: string[] = [];
+  const repo = tablesRepo(sqliteD1(sql), {
+    clock: () => 5,
+    onBad: (b) => bad.push(`${b.table}/${b.id}`),
+  });
+  await repo.jobRecords.put(rec(1));
+  sql
+    .prepare("INSERT INTO job_records (id, data, at, v) VALUES (?, ?, ?, 1)")
+    .run("j2", '{"nope":1}', 9);
+  const list = await repo.jobRecords.list();
+  assert.deepEqual(
+    list.map((r) => r.id),
+    ["j1"],
+  );
+  assert.equal(list.left_out, 1);
+  assert.equal(await repo.jobRecords.get("j2"), undefined);
+  assert.deepEqual(bad, ["job_records/j2", "job_records/j2"]);
+});
+
 const limits = [
   { window: "hour" as const, key: "h", limit: 100 },
   { window: "day" as const, key: "d", limit: 150 },

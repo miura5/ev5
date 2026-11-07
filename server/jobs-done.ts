@@ -96,11 +96,14 @@ export async function finishedJobsToday(
 export async function endedSessionsToday(
   db: D1Like,
   now: number,
+  onBad?: Parameters<typeof tablesRepo>[1]["onBad"],
 ): Promise<DoneEntry[]> {
   const today = centralDate(now);
-  const ended = await tablesRepo(db, { clock: () => now }).sessions.list({
-    where: { status: "ended" },
-  });
+  const ended = await tablesRepo(db, { clock: () => now, onBad }).sessions.list(
+    {
+      where: { status: "ended" },
+    },
+  );
   const out: DoneEntry[] = [];
   for (const row of ended) {
     if (row.ended_at === null || centralDate(row.ended_at) !== today) continue;
