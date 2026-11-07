@@ -70,15 +70,12 @@ for (const [path, key, table] of KINDS) {
       PAGE,
     );
     const offset = Math.max(Math.trunc(Number(c.req.query("offset"))) || 0, 0);
-    // One row more than the page says whether another page follows.
-    const got = await rows.list({ page: { limit: limit + 1, offset } });
-    const more = got.length > limit;
-    const list = reads.counted(
-      table,
-      more
-        ? Object.assign(got.slice(0, limit), { left_out: got.left_out })
-        : got,
-    );
+    // A page that comes back full, rows left out included, may be followed by another: a row left out still takes
+    // its place in the page, so `next` must not depend on the parsed rows alone. The last page may be exactly full,
+    // and then the next read is empty and carries no `next`.
+    const got = await rows.list({ page: { limit, offset } });
+    const more = got.length + (got.left_out ?? 0) >= limit;
+    const list = reads.counted(table, got);
     return c.json({
       rows: [...list],
       ...(more ? { next: offset + limit } : {}),

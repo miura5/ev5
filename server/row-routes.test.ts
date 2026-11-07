@@ -181,3 +181,23 @@ test("item versions and session events are read as rows; a bad row is counted an
   assert.equal((await get(DB, "/session-events/sese_1")).body["type"], "start");
   assert.equal((await get(DB, "/session-events/sese_zz")).status, 404);
 });
+
+test("a full page with a bad row in it still says another page follows", async () => {
+  const { DB } = await setup();
+  await DB.prepare(
+    "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_a', NULL, 'A', 'exam', '2026-12-01', 'open', NULL, 'user', 1, 1), ('goal_bad', NULL, 'Bad', 'exam', '0', 'open', NULL, 'user', 1, 1), ('goal_c', NULL, 'C', 'exam', '2026-12-02', 'open', NULL, 'user', 1, 1)",
+  ).run();
+  const first = await get(DB, "/goals?limit=2");
+  assert.deepEqual(
+    first.body["rows"].map((g: { id: string }) => g.id),
+    ["goal_a"],
+  );
+  assert.equal(first.body["left_out"], 1);
+  assert.equal(first.body["next"], 2);
+  const second = await get(DB, "/goals?limit=2&offset=2");
+  assert.deepEqual(
+    second.body["rows"].map((g: { id: string }) => g.id),
+    ["goal_c"],
+  );
+  assert.equal("next" in second.body, false);
+});
