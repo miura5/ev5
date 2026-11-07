@@ -16,7 +16,7 @@ export function Story() {
         value="3 due"
         onOpen={() => undefined}
       />
-      <Tile title="Fluid balance" meta="8 questions" />
+      <Tile title="Market structure" meta="8 questions" />
     </div>
   );
 }
