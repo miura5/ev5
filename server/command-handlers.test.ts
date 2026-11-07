@@ -89,6 +89,11 @@ test("pin, unpin, rename, delete and restore work on a document", async () => {
   assert.equal((await call("item.restore", { id: "s1" })).status, 404);
 });
 
+test("deleting an unknown collection id is a 404", async () => {
+  const call = await setup();
+  assert.equal((await call("item.delete", { id: "col_nope" })).status, 404);
+});
+
 test("a collection is created and an item moves into it", async () => {
   const call = await setup();
   const made = (await (
