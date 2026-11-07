@@ -2,6 +2,7 @@
 // TypeScript 7 ships no JS compiler API, so typescript-eslint cannot load. Babel parses the
 // TypeScript instead, and `no-warning-comments` bans the `@ts-` comments `ban-ts-comment` would.
 import babelParser from "@babel/eslint-parser";
+import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
   { ignores: ["dist/", "node_modules/", "fixtures/", "docs/", ".claude/"] },
@@ -17,7 +18,10 @@ export default [
     },
     // Inline `eslint-disable` and friends are ignored and reported (run with --max-warnings 0).
     linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: "error" },
+    plugins: { "react-hooks": reactHooks },
     rules: {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
       "no-restricted-syntax": [
         "error",
         {
@@ -31,6 +35,25 @@ export default [
         { terms: ["@ts-ignore", "@ts-expect-error", "@ts-nocheck", "@ts-check"], location: "anywhere" },
       ],
     },
+  },
+  {
+    // Playwright fixtures call `use(...)`, which is not a React hook.
+    files: ["e2e/**/*.ts"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
+  },
+  {
+    // Seven effects read state on purpose (mount-once or re-read on a token/id change); each needs a design look, not a
+    // mechanical dependency add. Remove a file from this list when its effect is fixed. New files are not exempt.
+    files: [
+      "areas/activity/useJobs.ts",
+      "areas/collection/useCollection.ts",
+      "areas/library/Library.screen.tsx",
+      "areas/notes/Notes.screen.tsx",
+      "areas/notes/parts/NoteEditor.tsx",
+      "areas/sessions/useSessions.ts",
+      "areas/today/useToday.ts",
+    ],
+    rules: { "react-hooks/exhaustive-deps": "off" },
   },
   {
     // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
