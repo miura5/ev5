@@ -13,6 +13,8 @@
 //   GET /attempts           every answer, oldest first         GET /attempts/:id
 //   GET /plans              every live plan, by first day      GET /plans/:id
 //   GET /plan-items         every live plan item, by day, pos  GET /plan-items/:id
+//   GET /item-versions      every filed item version, by item  GET /item-versions/:id
+//   GET /session-events     every session event, by session    GET /session-events/:id
 // Collections keep their own route (collection-routes.ts), so they are not repeated here.
 // The older /docs?collection=… reads stay until the areas have moved.
 import { Hono } from "hono";
@@ -43,6 +45,8 @@ const KINDS = [
   ["attempts", "attempts", "attempts"],
   ["plans", "plans", "plans"],
   ["plan-items", "planItems", "plan_items"],
+  ["item-versions", "setItemVersions", "set_item_versions"],
+  ["session-events", "sessionEvents", "session_events"],
 ] as const;
 
 for (const [path, key, table] of KINDS) {
