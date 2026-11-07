@@ -23,7 +23,7 @@ afterEach(() => {
 const exam = goalRow;
 
 /** A draft plan row for the exam. */
-const draft = { id: "plan-j1", data: { goal_id: "x1", state: "draft" } };
+const draft = { id: "plan-j1", goal_id: "x1", state: "draft", at: 1 };
 
 /** Boots the screen on the exam; commands answer with `status`; returns the command calls made. */
 function boot(examDoc: GoalRow, plans: unknown[] = [], status = 200) {
@@ -47,11 +47,9 @@ function boot(examDoc: GoalRow, plans: unknown[] = [], status = 200) {
         return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [examDoc] }));
-      const c = /collection=(\w+)/.exec(url)?.[1] ?? "";
-      const list: Record<string, unknown[]> = { plans };
-      return new Response(JSON.stringify({ docs: list[c] ?? [], rows: [] }), {
-        status: 200,
-      });
+      if (/\/plans$/.test(url))
+        return new Response(JSON.stringify({ rows: plans }));
+      return new Response(JSON.stringify({ rows: [] }), { status: 200 });
     }),
   );
   render(<LibraryScreen search={SEARCH} />);
@@ -107,9 +105,7 @@ test("changes go with his note, and need one", async () => {
 });
 
 test("a plan already in force shows no approve controls", async () => {
-  boot(exam({}), [
-    { id: "plan-j1", data: { goal_id: "x1", state: "in_force" } },
-  ]);
+  boot(exam({}), [{ id: "plan-j1", goal_id: "x1", state: "in_force", at: 1 }]);
   await screen.findByText("Review the prep plan");
   expect(screen.getByText("in force")).toBeTruthy();
   expect(screen.queryByText("Approve")).toBeNull();
@@ -165,13 +161,13 @@ test("plan state maps: none, draft, approved, away", () => {
       Date.parse("2026-11-04T12:00:00Z"),
     ).exams[0]?.planState;
   expect(state([], {})).toBe("none");
+  expect(state([{ id: "p", goal_id: "x1", state: "draft", at: 1 }], {})).toBe(
+    "draft",
+  );
   expect(
-    state([{ id: "p", data: { goal_id: "x1", state: "draft" } }], {}),
-  ).toBe("draft");
-  expect(
-    state([{ id: "p", data: { goal_id: "x1", state: "in_force" } }], {}),
+    state([{ id: "p", goal_id: "x1", state: "in_force", at: 1 }], {}),
   ).toBe("approved");
   expect(
-    state([{ id: "p", data: { goal_id: "x1", state: "put_away" } }], {}),
+    state([{ id: "p", goal_id: "x1", state: "put_away", at: 1 }], {}),
   ).toBe("away");
 });

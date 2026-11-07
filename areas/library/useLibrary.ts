@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapLibrary } from "./map.ts";
-import type { LibraryData, WireDoc, WireJob } from "./map.ts";
+import type { LibraryData, PlanItemRow, PlanRow, WireJob } from "./map.ts";
 import type {
   AttemptRow,
   GoalRow,
@@ -68,21 +68,7 @@ export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
 
-/** Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept as the copy (§data.offline). */
-function list(
-  collection: string,
-  token: string,
-  copy?: ReadCopyLike,
-): Promise<WireDoc[]> {
-  const fetcher = async (): Promise<WireDoc[]> => {
-    const r = await api(`docs?collection=${collection}`, token);
-    if (!r.ok) throw new ApiError(r.status);
-    return ((await r.json()) as { docs: WireDoc[] }).docs;
-  };
-  return copy ? copy.read(`library:${collection}`, fetcher) : fetcher();
-}
-
-/** The rows of one kind from GET /<path> (the domain row shape, §data.gate); same offline and error rules as `list`. */
+/** The rows of one kind from GET /<path> (the domain row shape, §data.gate). Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept as the copy (§data.offline). */
 function rows<T>(
   path: string,
   token: string,
@@ -121,9 +107,11 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
         rows<SetItemRow>("items", token, c).catch((): SetItemRow[] => []),
         rows<SetTableRow>("sets", token, c),
         // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
-        list("plans", token, c).catch((): WireDoc[] => []),
+        rows<PlanRow>("plans", token, c).catch((): PlanRow[] => []),
         // A plan's sessions are its plan_items rows; unreadable, the Detail just lists none.
-        list("plan_items", token, c).catch((): WireDoc[] => []),
+        rows<PlanItemRow>("plan-items", token, c).catch(
+          (): PlanItemRow[] => [],
+        ),
         // A plan waiting for his answer is a job, not yet a document; when jobs cannot be read, none is waiting.
         jobApi.list(token, c).catch((): unknown[] => []),
       ]);

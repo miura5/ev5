@@ -22,8 +22,15 @@ import type {
   WeakSpot,
 } from "./types.ts";
 
-export type { WireDoc } from "../../domain/index.ts";
-import type { WireDoc } from "../../domain/index.ts";
+import type {
+  parsePlanItemTableRow,
+  parsePlanTableRow,
+} from "../../domain/index.ts";
+
+/** A plans row as GET /plans returns it (§data.gate). */
+export type PlanRow = ReturnType<typeof parsePlanTableRow>;
+/** A plan_items row as GET /plan-items returns it. */
+export type PlanItemRow = ReturnType<typeof parsePlanItemTableRow>;
 
 /** The rows as the GET routes return them (§data.gate): goals, weak spots, their events and links come from SpotRows. */
 export interface LibraryDocs extends SpotRows {
@@ -31,10 +38,10 @@ export interface LibraryDocs extends SpotRows {
   sets: SetTableRow[];
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: WireJob[];
-  /** The plans rows (goal, state: in force, put away or a draft); absent reads as none. */
-  plans?: WireDoc[];
-  /** The plan_items rows (plan, day, title, minutes): a plan's sessions. */
-  planItems?: WireDoc[];
+  /** GET /plans (goal, state: in force, put away or a draft); absent reads as none. */
+  plans?: PlanRow[];
+  /** GET /plan-items (plan, day, title, minutes): a plan's sessions. */
+  planItems?: PlanItemRow[];
 }
 
 /** One entry of GET /api/v1/jobs as Library reads it, restated: areas never import the server. */
@@ -74,36 +81,25 @@ function sessionsOf(tasks: unknown): PlanSession[] {
 
 /** The sessions of a plan: its plan_items rows (the day is the item's day). */
 function sessionsOfPlan(
-  items: WireDoc[] | undefined,
+  items: PlanItemRow[] | undefined,
   planId?: string,
 ): PlanSession[] {
   if (!planId) return [];
   return sessionsOf(
-    (items ?? []).flatMap((i) => {
-      const d = i.data as
-        | {
-            plan_id?: unknown;
-            day?: unknown;
-            title?: unknown;
-            minutes?: unknown;
-          }
-        | undefined;
-      return d?.plan_id === planId
-        ? [{ date: d.day, title: d.title, minutes: d.minutes }]
-        : [];
-    }),
+    (items ?? [])
+      .filter((i) => i.plan_id === planId)
+      .map((i) => ({ date: i.day, title: i.title, minutes: i.minutes })),
   );
 }
 
 /** The plan a date points at, from its plans rows: the one in force, else a draft, else the one put away last. */
-function planIdOf(plans: WireDoc[] | undefined, goal: string) {
+function planIdOf(plans: PlanRow[] | undefined, goal: string) {
   const rank: Record<string, number> = { in_force: 3, draft: 2, put_away: 1 };
   let best: { id: string; r: number; at: number } | undefined;
   for (const p of plans ?? []) {
-    const d = p.data as { goal_id?: unknown; state?: unknown } | undefined;
-    const r = d?.goal_id === goal ? (rank[String(d.state)] ?? 0) : 0;
-    if (r && (!best || r > best.r || (r === best.r && (p.at ?? 0) >= best.at)))
-      best = { id: p.id, r, at: p.at ?? 0 };
+    const r = p.goal_id === goal ? (rank[p.state] ?? 0) : 0;
+    if (r && (!best || r > best.r || (r === best.r && p.at >= best.at)))
+      best = { id: p.id, r, at: p.at };
   }
   return best?.id;
 }
@@ -180,11 +176,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
       };
     });
   const stateOfPlan = (id: string | undefined): unknown =>
-    (
-      docs.plans?.find((p) => p.id === id)?.data as
-        | { state?: unknown }
-        | undefined
-    )?.state;
+    docs.plans?.find((p) => p.id === id)?.state;
   const exams: LibraryExam[] = docs.goals
     .filter((g) => g.status === "open")
     .sort(
