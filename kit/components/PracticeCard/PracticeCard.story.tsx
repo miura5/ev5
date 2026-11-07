@@ -4,13 +4,13 @@ export function Story() {
   return (
     <div data-ui="story-practice-card">
       <PracticeCard
-        title="Fluid balance"
-        question="Which sign most suggests fluid volume deficit?"
+        title="Market structure"
+        question="Which change most often raises the price of a good?"
         position={2}
         total={8}
-        options={["Bounding pulse", "Flat neck veins", "Crackles", "Edema"]}
-        source="Note · Fluid balance"
-        hint="Think about what low volume does to the veins."
+        options={["Rising demand", "Falling demand", "A new substitute", "Lower income"]}
+        source="Note · Market structure"
+        hint="Think about what buyers do when they want more."
         onCommit={() => undefined}
         onEnd={() => undefined}
       />

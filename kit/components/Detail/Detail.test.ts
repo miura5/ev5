@@ -20,15 +20,15 @@ test("a property edits in place, a plain one does not", () => {
     createElement(Detail, {
       title: "Set",
       properties: [
-        { label: "Collection", value: "BIO", onChange },
+        { label: "Collection", value: "History", onChange },
         { label: "Cards", value: "8" },
       ],
     }),
   );
   fireEvent.change(screen.getByLabelText("Collection"), {
-    target: { value: "NUR" },
+    target: { value: "Languages" },
   });
-  expect(onChange).toHaveBeenCalledWith("NUR");
+  expect(onChange).toHaveBeenCalledWith("Languages");
   expect(screen.queryByLabelText("Cards")).toBeNull();
   expect(screen.getByText("8")).toBeTruthy();
 });
