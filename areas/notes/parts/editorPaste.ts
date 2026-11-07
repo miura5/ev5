@@ -5,7 +5,7 @@ import { blocksToDoc } from './editorDoc.ts';
 import { splitWide } from '../../../domain/index.ts';
 import { BLOCK, HTML_MAX, parseHtml, type HNode } from './editorHtml.ts';
 
-// ev4's paste sanitiser (core/notes.mjs noteFromTree with paste: true, notePaste): clipboard HTML is read for text, block
+// The paste sanitiser (core/notes.mjs noteFromTree with paste: true, notePaste): clipboard HTML is read for text, block
 // breaks, lists and four marks, and nothing else. No HTML ever reaches the editor; ProseMirror's own parser is not used.
 const SKIP = new Set(
   'script style template noscript iframe frame frameset object embed applet svg math canvas video audio img picture source track map area head title meta link base input select option optgroup textarea button dialog form noembed noframes xmp plaintext'.split(

@@ -1,4 +1,4 @@
-// OutboxStore over IndexedDB (name ev5-app, never ev4's ev-app: CONTRACT §data.offline) and over a map for tests.
+// OutboxStore over IndexedDB (name ev5-app, never the old app's ev-app: CONTRACT §data.offline) and over a map for tests.
 import type { OutboxEntry, OutboxStore } from "./types.ts";
 
 export const IDB_NAME = "ev5-app";

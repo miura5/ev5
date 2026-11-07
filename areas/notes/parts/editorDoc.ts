@@ -39,7 +39,7 @@ function node(b: Block): PMNode {
   }
 }
 
-/** Stored blocks into a doc. Stored notes are already in ev4's normal form; a row short of a column is laid flat. */
+/** Stored blocks into a doc. Stored notes are already in the normal form; a row short of a column is laid flat. */
 export function blocksToDoc(blocks: readonly Block[]): PMNode {
   const list = blocks;
   const top: PMNode[] = [];
@@ -107,7 +107,7 @@ function blockOf(n: PMNode, place: Pick<Block, 'row' | 'col'>): Block {
   return Object.assign(b, place);
 }
 
-/** A doc back into blocks in ev4's stored shape. */
+/** A doc back into blocks in the stored shape. */
 export function docToBlocks(doc: PMNode): Block[] {
   const out: Block[] = [];
   doc.forEach((top) => {
@@ -115,6 +115,6 @@ export function docToBlocks(doc: PMNode): Block[] {
       top.forEach((col, _o, ci) => col.forEach((b) => out.push(blockOf(b, { row: top.attrs.id, col: ci as 0 | 1 }))));
     } else out.push(blockOf(top, {}));
   });
-  // ev4's key order and 20,000-character run cap come from the domain (S-08 causes 1, 2: ProseMirror joins runs).
+  // the key order and 20,000-character run cap come from the domain (S-08 causes 1, 2: ProseMirror joins runs).
   return noteBlocks(out);
 }

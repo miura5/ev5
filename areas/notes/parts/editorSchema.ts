@@ -7,7 +7,7 @@ import {
   type NodeType,
 } from 'prosemirror-model';
 
-/** Spike S-08's flat schema: one node per ev4 block type, list items flat with an indent, a row as two columns. */
+/** Spike S-08's flat schema: one node per block type, list items flat with an indent, a row as two columns. */
 const line = (name: string): NodeSpec => ({
   group: 'block',
   content: 'text*',
