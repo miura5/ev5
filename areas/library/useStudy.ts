@@ -1,10 +1,12 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { call, readToken } from "../../commands/client.ts";
 
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface LibraryServices {
   /** The saved copy of reads (shell/readCopy.ts): Library shows it when there is no connection. */
   readCopy?: { read<T>(key: string, fetcher: () => Promise<T>): Promise<T> };
+  /** Holds a new build's reload while a study run is open; returns the release. */
+  holdReload?: () => () => void;
   outbox: {
     queueCommand?(
       name: string,
@@ -17,6 +19,15 @@ export interface LibraryServices {
       ReadonlyArray<{ key: string; id: string; refused?: string }>
     >;
   };
+}
+
+/** A new build never reloads the page while a study run is open: held on open, released on finish or leave. */
+export function useReloadHold(active: boolean, services?: LibraryServices) {
+  const hold = services?.holdReload;
+  useEffect(() => {
+    if (!active || !hold) return;
+    return hold();
+  }, [active, hold]);
 }
 
 const attemptId = () =>

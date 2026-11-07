@@ -5,7 +5,12 @@ import {
   type DocRow,
   type Outbox,
 } from "./outbox/index.ts";
-import { createReadCopy, indexedDbCopyStore, type ReadCopy } from "./readCopy.ts";
+import { reloadHold } from "./pwa.ts";
+import {
+  createReadCopy,
+  indexedDbCopyStore,
+  type ReadCopy,
+} from "./readCopy.ts";
 
 /** What the shell hands every area view: reads over the row routes and the offline outbox. */
 export interface Services {
@@ -18,7 +23,12 @@ export interface Services {
   };
   /** The saved copy of reads: lets the shell say when the screen shows it. */
   readCopy?: ReadCopy;
-  outbox: Pick<Outbox, "queueNote" | "queueCommand" | "onRefused" | "replay" | "count" | "waiting">;
+  /** Holds a new build's reload while a study run is open; call the returned function when it ends. */
+  holdReload?: () => () => void;
+  outbox: Pick<
+    Outbox,
+    "queueNote" | "queueCommand" | "onRefused" | "replay" | "count" | "waiting"
+  >;
 }
 
 export function createServices(): Services {
@@ -32,5 +42,10 @@ export function createServices(): Services {
     c: string,
     copy: { read<T>(k: string, f: () => Promise<T>): Promise<T> } = readCopy,
   ) => copy.read(`rows:${c}`, () => http.list(c));
-  return { rows: { list }, readCopy, outbox };
+  return {
+    rows: { list },
+    readCopy,
+    outbox,
+    holdReload: () => reloadHold.hold(),
+  };
 }
