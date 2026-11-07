@@ -230,7 +230,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
       : url.includes("dayedits")
         ? json({}, 404)
         : json({ docs: [] });
-  // The server holds every answer until all six reads have gone out.
+  // The server holds every answer until all eight reads have gone out.
   vi.stubGlobal(
     "fetch",
     vi.fn(
@@ -239,7 +239,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
     ),
   );
   const first = renderHook(() => useToday(copy));
-  await waitFor(() => expect(pending).toHaveLength(6));
+  await waitFor(() => expect(pending).toHaveLength(8));
   pending.forEach((go) => go(new Response()));
   await waitFor(() => expect(first.result.current.data).toBeTruthy());
   const seen = first.result.current.data;
