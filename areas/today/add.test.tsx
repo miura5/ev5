@@ -108,7 +108,7 @@ test("addPlan and addDate call plan.create and date.create, then Today reads its
       }
       if (url.includes("/goals")) reads++;
       if (url.includes("jobs")) return json({ jobs: [] });
-      return url.includes("dayedits") ? json({}, 404) : rowsAnswer(url);
+      return rowsAnswer(url);
     }),
   );
   const { result } = renderHook(() => useToday());
@@ -136,9 +136,7 @@ test("an add the server refuses resolves false", async () => {
         ? json({ error: "no" }, 400)
         : url.includes("jobs")
           ? json({ jobs: [] })
-          : url.includes("dayedits")
-            ? json({}, 404)
-            : rowsAnswer(url),
+          : rowsAnswer(url),
     ),
   );
   const { result } = renderHook(() => useToday());
