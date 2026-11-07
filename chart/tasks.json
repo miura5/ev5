@@ -5019,13 +5019,15 @@
   "title": "Every practice answer lands as one attempts row through one command",
   "dod": "The Library study run, the study.attempt command (own sets and E.V.'s sets), check-ins in a note session and Ask E.V.'s 'just tell me' each write one attempts row through the gate by one command; the outbox's answer kind posts to that command, not PUT /docs; own_attempts rows and answers documents are no longer written; a refused answer in the outbox is shown, not kept silently; tests pin each writer (§data.append-only, §data.gate, §data.item-versions). Slice: write data/, server/, commands/, shell/outbox (split along the layers if over 400 lines).",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Group 4. Done: data/tables/attempts.ts record(); study.attempt and study.just_tell_me write one attempts row (client att_ id, rating again or good, 409 on repeat); self-ratings stay out of accuracy and a choice item is checked by its key (D-508, #628); the Library study card shows a choice item's options (#648); check.answer and ask.just_tell_me write log-only attempts rows with no set item (#672); outbox answers post as commands and refused entries toast (#674); study reads set tables only (#677); notes save through note.save and the outbox no longer uses PUT /docs for notes (#678); an offline note edit across a reload is checked fine by a test (D-516, #664). Left: no UI caller of check.answer or ask.just_tell_me yet (areas/notes, areas/ask); remove the queueAnswer/buildAnswer fallback in areas/library; one attempts reader for Progress, the Library accuracy line and plan-home attemptsBySpot (F7, D-508); check.just_tell_me writes no attempts row (decide); the PUT /docs note branch and saveNote go at B-998 part 2; own_attempts leaves in the squash baseline (D-514), not a migration.",
   "commit": null,
-  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)"
+  "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
+  "claimedBy": "cse_01JjJLDZ3Jbndbs55vFDTHpg",
+  "claimedAt": "2026-11-07T06:08:05.686Z"
  },
  {
   "id": "B-1038",
