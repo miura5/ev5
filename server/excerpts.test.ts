@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { gatherExcerpts } from "./excerpts.ts";
+import { findPassages, gatherExcerpts } from "./excerpts.ts";
 import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
 
 function seeded() {
@@ -132,4 +132,38 @@ test("a set scoped to a note draws only that note", async () => {
     await gatherExcerpts(db, [], { kind: "note", id: "missing" }),
     [],
   );
+});
+
+test("set passages are the stems of live set items on the tables, and a deleted set or item is not one", async () => {
+  const { db } = seeded();
+  const set = (id: string, title: string, deleted: number | null) =>
+    db
+      .prepare(
+        "INSERT INTO sets (id, kind, title, created_by, at, deleted_at) VALUES (?, 'job', ?, 'worker', 1, ?)",
+      )
+      .bind(id, title, deleted)
+      .run();
+  const item = (
+    id: string,
+    setId: string,
+    pos: number,
+    stem: string,
+    deleted: number | null = null,
+  ) =>
+    db
+      .prepare(
+        "INSERT INTO set_items (id, set_id, pos, type, body, at, deleted_at) VALUES (?, ?, ?, 'single', ?, 1, ?)",
+      )
+      .bind(id, setId, pos, JSON.stringify({ stem }), deleted)
+      .run();
+  await set("set_a", "Glucose set", null);
+  await item("item_a1", "set_a", 1, "Which organ makes insulin?");
+  await item("item_a2", "set_a", 2, "Glycolysis splits glucose into what?");
+  await item("item_a3", "set_a", 3, "Glucose removed question zebra.", 5);
+  await set("set_b", "Old set", 9);
+  await item("item_b1", "set_b", 1, "Glycolysis of glucose in a deleted set.");
+  const got = await findPassages(db, "glucose glycolysis", ["sets"], 10);
+  assert.deepEqual([...new Set(got.map((h) => h.id))], ["set_a"]);
+  assert.ok(got.every((h) => !/zebra|deleted set/.test(h.text)));
+  assert.deepEqual(await findPassages(db, "glucose", ["notes"], 10), []);
 });
