@@ -16,7 +16,7 @@
 //   GET /item-versions      every filed item version, by item  GET /item-versions/:id
 //   GET /session-events     every session event, by session    GET /session-events/:id
 // Collections keep their own route (collection-routes.ts), so they are not repeated here.
-// /docs stays only for the collections the areas still read through it (B-998 part 2 removes it); commands read rows.
+// /docs stays only for the collections the areas still read through it (it goes once none are left); commands read rows.
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { tablesRepo } from "../data/index.ts";
