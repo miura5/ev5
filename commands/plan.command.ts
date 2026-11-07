@@ -14,7 +14,7 @@ const planPatch = planItemPatchSchema;
 export const planCommands = [
   defineCommand({ name: 'plan.create', title: 'Add a plan item', input: planItem, callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
   defineCommand({ name: 'plan.update', title: 'Change a plan item', input: planPatch, callers: MP, effect: 'instant', changesPlan: true }),
-  defineCommand({ name: 'plan.toggle_done', title: 'Mark a plan item done or not', input: ref, callers: M, effect: 'instant', undo: 'plan.toggle_done' }),
+  defineCommand({ name: 'plan.toggle_done', title: 'Mark a plan item done or not', input: z.object({ id, done: z.boolean().optional(), if_version: z.number().int().min(1).optional() }), callers: M, effect: 'instant', undo: 'plan.toggle_done' }),
   defineCommand({ name: 'plan.move_tomorrow', title: 'Move to tomorrow', input: ref, callers: MP, effect: 'instant', changesPlan: true }),
   defineCommand({ name: 'plan.start', title: 'Start a plan item', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'plan.start_next', title: 'Start the next plan item', input: z.object({}), callers: M, effect: 'instant' }),
