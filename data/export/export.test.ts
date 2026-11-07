@@ -74,9 +74,9 @@ INSERT INTO collections (id, title, parent_id, pos, at, v) VALUES ('k1','Unit',N
 INSERT INTO memberships VALUES ('notes','n1','k2',42,1);
 INSERT INTO pins (target_c, target_id, pos, at) VALUES ('notes','n1',0,43);
 INSERT INTO item_props VALUES ('dayedits','d1','09:00','{"every":"day"}','notes','n1','{}',45,1);
-INSERT INTO own_sets VALUES ('s1','Mine','question',NULL,NULL,46,1);
-INSERT INTO own_set_items VALUES ('s1','i1',0,'{"q":"?"}',47,1),('s1','i2',1,'{"q":"!"}',47,1);
-INSERT INTO own_attempts VALUES ('s1','i1','a',48,'{"ok":true}'),('s1','i1','a',49,'{"ok":false}');
+INSERT INTO sets (id, kind, title, created_by, at, v) VALUES ('set_1','own','Mine','matt',46,1);
+INSERT INTO set_items (id, set_id, pos, type, body, at, v) VALUES ('item_1','set_1',0,'question','{"q":"?"}',47,1),('item_2','set_1',1,'question','{"q":"!"}',47,1);
+INSERT INTO own_attempts VALUES ('set_1','item_1','a',48,'{"ok":true}'),('set_1','item_1','a',49,'{"ok":false}');
 INSERT INTO drafts (id, job_id, kind, target_c, target_id, body, state, at, v, target_kind) VALUES ('dr1','j1','plan','dayedits','d2','{}','pending',50,1,'dayedits');
 INSERT INTO plans (id, goal_id, state, from_day, to_day, at) VALUES ('plan_1','goal_1','in_force','2026-11-05','2026-11-12',51);
 INSERT INTO repeats (id, title, rule, from_day, at) VALUES ('rep_1','Flashcards','{"every":"day"}','2026-11-05',52);
@@ -98,6 +98,7 @@ test("export then restore into scratch: every table count and hash equal", async
   assert.deepEqual(Object.keys(x.collections), ["exams", "notes", "system"]);
   for (const t of ALL_TABLES) assert.ok(x.tables[t.name], t.name);
   assert.equal(x.tables.own_attempts!.count, 2);
+  assert.equal(x.tables.set_items!.count, 2);
   for (const n of ["job_records", "ceiling_holds", "job_plans"])
     assert.equal(x.tables[n]!.count, 1, n);
   assert.equal(x.tables.ceiling_use!.count, 2);
@@ -127,6 +128,20 @@ test("a table whose migration has not landed exports as empty; restoring into a 
   assert.equal(x.tables.collections!.count, 0);
   const report = await restoreInto(sqliteD1(migrated(false)), x);
   assert.equal(report.ok, true);
+});
+
+test("a set item or attempt whose set is missing from the sets table is an orphan", async () => {
+  const src = migrated(true);
+  src.exec(`INSERT INTO set_items (id, set_id, pos, type, body, at, v) VALUES ('item_9','set_gone',0,'question','{}',1,1);
+    INSERT INTO own_attempts VALUES ('set_gone','item_9','a',2,'{}');`);
+  const report = await restoreInto(
+    sqliteD1(migrated(true)),
+    await exportAll(sqliteD1(src)),
+  );
+  assert.deepEqual(report.orphans, [
+    "set_item set_gone/item_9: set missing",
+    "own_attempt set_gone/item_9: set missing",
+  ]);
 });
 
 test("orphans are reported and kept; a grandparent collection fails the restore", async () => {
