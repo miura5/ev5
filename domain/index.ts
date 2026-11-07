@@ -116,8 +116,6 @@ export {
 export { parseSystemDoc } from "./system-doc/index.ts";
 /** @public Docs-row shapes (`docs(c, id, data, at, v)`) for the kinds without a table of their own; the data gate imports them (not wired yet). */
 export { parseObjectiveRow, type ObjectiveRow } from "./objective/row.ts";
-/** @public */
-export { parseWeakSpotRow, type WeakSpotRow } from "./weak-spot/row.ts";
 /** @public Weak spot rows as the scheduler's model; the weak spot reads (plan home, Today, Library) import it when they move to the tables. */
 export {
   eventFromRow,

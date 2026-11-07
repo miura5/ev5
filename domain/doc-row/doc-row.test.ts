@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { goalReadSchema } from '../goal/read.ts';
 import { docRowSchema } from './index.ts';
 import { parseObjectiveRow } from '../objective/row.ts';
-import { parseWeakSpotRow } from '../weak-spot/row.ts';
+import { weakSpotSchema } from '../weak-spot/types.ts';
 import { studySetSchema } from '../set/types.ts';
 import { parseSessionRow } from '../session/row.ts';
 import { parseNoteRow } from '../note/row.ts';
@@ -38,7 +38,7 @@ const note = { schema: 1, writer: 'page', at: T, createdAt: T, title: 'Fluids', 
 const kinds = [
   { c: 'exams', parse: (r: unknown) => docRowSchema('exams', goalReadSchema).parse(r), data: exam, bad: { ...exam, kind: '' } },
   { c: 'objectives', parse: parseObjectiveRow, data: objective, bad: { ...objective, text: '' } },
-  { c: 'weakspots', parse: parseWeakSpotRow, data: weakSpot, bad: { ...weakSpot, kind: 'other' } },
+  { c: 'weakspots', parse: (r: unknown) => docRowSchema('weakspots', weakSpotSchema).parse(r), data: weakSpot, bad: { ...weakSpot, kind: 'other' } },
   { c: 'sets', parse: (r: unknown) => docRowSchema('sets', studySetSchema).parse(r), data: set, bad: { ...set, items: [] } },
   { c: 'sessions', parse: parseSessionRow, data: session, bad: { ...session, date: 'today' } },
   { c: 'notes', parse: parseNoteRow, data: note, bad: { ...note, schema: 2 } },
