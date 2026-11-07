@@ -1,15 +1,12 @@
-// Repositories for collections, memberships, pins and item properties (PLAN section 5.10). Rows carry `at` (ms in D1,
+// Repositories for collections, memberships and pins (PLAN section 5.10). Rows carry `at` (ms in D1,
 // an ISO string in the domain) and `v` with the docs protocol: a new row needs ifVersion null, a change needs the version
 // last read, and a stale write is refused, never merged. Every row read is parsed by its domain rule.
 import { parseCollection, parseMembership } from "../../domain/index.ts";
-import { parseItemProps } from "../../domain/index.ts";
 import { parsePin } from "../../domain/index.ts";
 import {
   core,
   iso,
-  json,
   readRows,
-  text,
   type Input,
   type Raw,
   type TablesOptions,
@@ -32,7 +29,6 @@ import { notesRepo } from "./notes.ts";
 
 type Collection = ReturnType<typeof parseCollection>;
 type Membership = ReturnType<typeof parseMembership>;
-type ItemProps = ReturnType<typeof parseItemProps>;
 type Pin = ReturnType<typeof parsePin>;
 
 export function tablesRepo(db: D1Like, opts: TablesOptions) {
@@ -51,17 +47,6 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
       itemC: r.item_c,
       itemId: r.item_id,
       collectionId: r.collection_id,
-      at: iso(r.at as number),
-      v: r.v,
-    });
-  const toProps = (r: Raw): ItemProps =>
-    parseItemProps({
-      c: r.c,
-      id: r.id,
-      time: r.time,
-      repeat: json(r.repeat),
-      linked: r.linked_c === null ? null : { c: r.linked_c, id: r.linked_id },
-      overrides: json(r.overrides),
       at: iso(r.at as number),
       v: r.v,
     });
@@ -196,50 +181,6 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
             .bind(targetC, targetId)
             .run()
         ).meta.changes > 0,
-    },
-    itemProps: {
-      get: async (c: string, id: string): Promise<ItemProps | null> => {
-        const r = await first(
-          "SELECT * FROM item_props WHERE c = ? AND id = ?",
-          c,
-          id,
-        );
-        return r ? toProps(r) : null;
-      },
-      list: async (): Promise<ItemProps[]> =>
-        readRows(
-          "item_props",
-          await all("SELECT * FROM item_props ORDER BY c, id"),
-          toProps,
-          opts,
-        ),
-      save: (p: Input<ItemProps>, ifVersion: number | null) =>
-        putVersioned(
-          "item_props",
-          ["c", "id"],
-          [p.c, p.id],
-          ["time", "repeat", "linked_c", "linked_id", "overrides"],
-          [
-            p.time,
-            text(p.repeat),
-            p.linked?.c ?? null,
-            p.linked?.id ?? null,
-            text(p.overrides),
-          ],
-          ifVersion,
-          (v, at) =>
-            toProps({
-              c: p.c,
-              id: p.id,
-              time: p.time,
-              repeat: text(p.repeat),
-              linked_c: p.linked?.c ?? null,
-              linked_id: p.linked?.id ?? null,
-              overrides: text(p.overrides),
-              at,
-              v,
-            }),
-        ),
     },
     ...ownRepo(db, opts),
     ...draftsRepo(db, opts),

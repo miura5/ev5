@@ -33,13 +33,11 @@ test("pins, the deleted count and the Detail panel show only when there is somet
       pins={[{ id: "n1", title: "Heart notes", type: "note" }]}
       onOpenPin={onOpenPin}
       deletedCount={2}
-      detail={{ title: "Heart notes", properties: [] }}
     />,
   );
   fireEvent.click(screen.getByRole("button", { name: /Heart notes/ }));
   expect(onOpenPin).toHaveBeenCalledWith("n1");
   expect(screen.getByText("2")).toBeTruthy();
-  expect(document.querySelector("[data-ui='detail']")).toBeTruthy();
 });
 
 test("⌘K opens the palette, runs a place and Esc closes it", () => {

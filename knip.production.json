@@ -23,9 +23,6 @@
     "domain/note/**": [
       "exports"
     ],
-    "domain/objective/**": [
-      "exports"
-    ],
     "domain/own-set/**": [
       "exports"
     ],

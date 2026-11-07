@@ -8,9 +8,6 @@ const ID = /§[a-z][a-z0-9-]*\.[a-z0-9][a-z0-9.-]*[a-z0-9]/g;
 const SCANNED = /\.(?:tsx?|css|[cm]?js|sh|jsonc?|ya?ml|html)$/;
 const SKIPPED = /(?:^|\/)(?:node_modules|dist|chart)\/|\.test\.tsx?$|^package-lock\.json$/;
 
-// Citations found wrong in files outside this check's slice, as `file rule-without-the-section-sign`. Never add one.
-const ALLOWED = new Set<string>([]);
-
 export function checkSourceIds(root: string, files: string[]): Finding[] {
   if (!files.includes('CONTRACT.md')) return [];
   const rules = contractRules(read(root, 'CONTRACT.md'));
@@ -22,7 +19,7 @@ export function checkSourceIds(root: string, files: string[]): Finding[] {
     const seen = new Set<string>();
     read(root, f).split('\n').forEach((text, i) => {
       for (const id of text.match(ID) ?? []) {
-        if (seen.has(id) || ALLOWED.has(`${f} ${id.slice(1)}`) || (rules.has(id) && !ended.has(id))) continue;
+        if (seen.has(id) || (rules.has(id) && !ended.has(id))) continue;
         seen.add(id);
         const why = ended.has(id) ? 'ended' : 'not defined in CONTRACT.md';
         out.push({ check: 'source-ids', file: f, detail: `line ${i + 1} cites ${id}, which is ${why}; cite a live rule or drop the citation (§drift.checks)` });
