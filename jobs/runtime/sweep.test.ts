@@ -32,12 +32,17 @@ const seed = async (
 ) => {
   let r = newJob({ id, kind, title: id, at: T0 });
   await m.store.put(r);
-  if (to !== 'queued') {
-    r = transition(r, { to: 'running', at: T0 });
+  if (to !== "queued") {
+    r = transition(r, { to: "running", at: T0 });
     await m.store.put(r);
   }
-  if (to === 'needs-you') {
-    r = transition(r, { to: 'needs-you', at: T0, reason: 'Pick one.', step: 'ask' });
+  if (to === "needs-you") {
+    r = transition(r, {
+      to: "needs-you",
+      at: T0,
+      reason: "Pick one.",
+      step: "ask",
+    });
     await m.store.put(r);
   }
   return r;
@@ -61,31 +66,25 @@ describe("sweep", () => {
     wording: { running: "r", needsYou: "n", done: "d", failed: "f" },
   });
 
-  test(
-    "fails queued and running jobs past their deadline, keeping cost",
-    async () => {
-      const m = memory();
-      await seed(m, "q", "queued");
-      const r = await seed(m, "r", "running");
-      await m.store.put(addCost(r, 7, T0));
-    m.rows.get('r')!.updatedAt = T0;
-      assert.deepEqual((await sweepStale(m.store, at(21))).sort(), ["q", "r"]);
-      assert.equal(m.rows.get("q")!.state, "failed");
-      assert.match(m.rows.get("r")!.reason!, /runner was lost/);
-      assert.equal(m.rows.get("r")!.costCents, 7);
-    },
-  );
+  test("fails queued and running jobs past their deadline, keeping cost", async () => {
+    const m = memory();
+    await seed(m, "q", "queued");
+    const r = await seed(m, "r", "running");
+    await m.store.put(addCost(r, 7, T0));
+    m.rows.get("r")!.updatedAt = T0;
+    assert.deepEqual((await sweepStale(m.store, at(21))).sort(), ["q", "r"]);
+    assert.equal(m.rows.get("q")!.state, "failed");
+    assert.match(m.rows.get("r")!.reason!, /runner was lost/);
+    assert.equal(m.rows.get("r")!.costCents, 7);
+  });
 
-  test(
-    "uses each kind deadline and leaves fresh jobs alone",
-    async () => {
-      const m = memory();
-      await seed(m, "q", "queued");
-      await seed(m, "r", "running");
-      assert.deepEqual(await sweepStale(m.store, at(15)), ["q"]);
-      assert.equal(m.rows.get("r")!.state, "running");
-    },
-  );
+  test("uses each kind deadline and leaves fresh jobs alone", async () => {
+    const m = memory();
+    await seed(m, "q", "queued");
+    await seed(m, "r", "running");
+    assert.deepEqual(await sweepStale(m.store, at(15)), ["q"]);
+    assert.equal(m.rows.get("r")!.state, "running");
+  });
 
   test("never touches needs-you", async () => {
     const m = memory();
