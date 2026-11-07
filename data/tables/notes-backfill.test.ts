@@ -52,15 +52,11 @@ test("migration 0013 copies note documents into rows with their words, collectio
   assert.equal(a.v, 3);
   assert.equal(a.collection_id, "col_x");
   assert.equal(a.text, "Fluids\nSodium is 135\n");
-  // the document reads back whole: blocks, marks, course, label, archivedAt
+  // the document reads back with its blocks and marks; the old fields (course, label, archivedAt) are not read (§data.notes)
+  const { course: _c, ...plain } = note();
   assert.deepEqual(
     { ...noteDocOf(a), at: "x" },
-    {
-      ...parseNote(
-        note({ label: "week 4", archivedAt: "2026-10-19T00:00:00.000Z" }),
-      ),
-      at: "x",
-    },
+    { ...parseNote(plain), at: "x" },
   );
   assert.equal((await t.noteBook.get("note_n-b"))?.earlier_of, "note_n-a");
   assert.equal(await t.noteBook.get("note_n-gone"), null); // deleted stays deleted

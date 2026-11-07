@@ -92,11 +92,11 @@ test("PUT /docs?collection=notes writes a row; GET shows the same document; a st
   );
   const got = (await (await call("GET", q)).json()) as {
     v: number;
-    data: { title: string; course: string; blocks: unknown[] };
+    data: { title: string; course?: string; blocks: unknown[] };
   };
   assert.equal(got.v, 2);
   assert.equal(got.data.title, "Fluids 2");
-  assert.equal(got.data.course, "Biology 101");
+  assert.equal(got.data.course, undefined); // the row keeps the block format only (§data.notes)
   assert.equal(
     (
       (await (await call("GET", "?collection=notes")).json()) as {
