@@ -1,5 +1,5 @@
 // Where the prep plan reads its date and weak spots.
-// load: the date (its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `answers` as of Central today, with
+// load: the date (its goal row) plus the weak spots (rows, §data.tables) linked to that goal, derived with their `attempts` rows as of Central today, with
 // the active ones worst first (the order is code, CONTRACT §cmd.code-first). An approved plan lands as `plans` and `plan_items`
 // rows through d1PlanStore (jobs/runtime), not here.
 import {
@@ -18,37 +18,25 @@ import type { Attempt } from "../domain/index.ts";
 import type { D1Like } from "../jobs/index.ts";
 import type { JobRunEnv } from "./job-run.ts";
 
-type Row = { id: string; data: string; v: number };
-type Answers = Record<string, Record<string, Record<string, unknown>>>;
-
-const SPOT_FIELD = "weakspotId";
-
-/** Every answer aimed at a weak spot, from the page's append-only `answers` documents. */
+/**
+ * Every graded answer aimed at a weak spot, from `attempts` rows (§data.append-only): the attempt's item names the spot.
+ * The Library's rule: correct at score >= 0.5; told, skipped and self-rated rows (null score) are left out.
+ */
 async function attemptsBySpot(db: D1Like): Promise<Map<string, Attempt[]>> {
   const { results } = await db
-    .prepare("SELECT data FROM docs WHERE c = 'answers' AND data LIKE ?")
-    .bind(`%"${SPOT_FIELD}"%`)
-    .all<{ data: string }>();
+    .prepare(
+      `SELECT i.weak_spot_id AS spot, a.score AS score, a.answered_at AS at
+       FROM attempts a JOIN set_items i ON i.id = a.item_id
+       WHERE i.weak_spot_id IS NOT NULL AND i.deleted_at IS NULL AND a.score IS NOT NULL
+       ORDER BY a.answered_at, a.id`,
+    )
+    .all<{ spot: string; score: number; at: number }>();
   const out = new Map<string, Attempt[]>();
-  for (const r of results) {
-    const answers = (JSON.parse(r.data) as { answers?: Answers }).answers ?? {};
-    for (const byKey of Object.values(answers))
-      for (const a of Object.values(byKey)) {
-        const id = a[SPOT_FIELD];
-        if (
-          typeof id !== "string" ||
-          typeof a.correct !== "boolean" ||
-          typeof a.at !== "string"
-        )
-          continue;
-        const at: Attempt = {
-          at: a.at,
-          correct: a.correct,
-          ...(a.matched ? { matched: true } : {}),
-        };
-        out.set(id, [...(out.get(id) ?? []), at]);
-      }
-  }
+  for (const r of results)
+    out.set(r.spot, [
+      ...(out.get(r.spot) ?? []),
+      { at: new Date(r.at).toISOString(), correct: r.score >= 0.5 },
+    ]);
   return out;
 }
 

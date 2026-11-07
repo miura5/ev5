@@ -51,15 +51,6 @@ function sqliteD1(): D1Like & { sql: DatabaseSync } {
 }
 
 const T = Date.parse("2026-11-03T12:00:00Z");
-const put = (
-  db: ReturnType<typeof sqliteD1>,
-  c: string,
-  id: string,
-  data: unknown,
-) =>
-  db.sql
-    .prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 0, 1)")
-    .run(c, id, JSON.stringify(data));
 const meta = { writer: "page", at: "2026-11-01T00:00:00Z", source: "t" };
 // A weak spot is a row pointing at an objective; the objective is linked to its goal (§data.tables, §data.links).
 const row = (
@@ -109,24 +100,31 @@ test("load returns the exam, Central today and only this exam's active weak spot
   assert.equal(await home.load("nope"), undefined);
 });
 
-test("answers on a weak spot count toward its need", async () => {
+test("graded attempts on a weak spot's items count toward its need; null scores are left out", async () => {
   const db = seeded();
-  put(db, "answers", "a1", {
-    schema: 2,
-    ...meta,
-    setId: "s",
-    answers: {
-      q1: {
-        "page-20261102-090000": {
-          correct: true,
-          at: "2026-11-02T09:00:00Z",
-          weakspotId: "ws_w1",
-        },
-      },
-    },
-  });
+  db.sql.exec(
+    "INSERT INTO sets (id, collection_id, kind, title, created_by, at) VALUES ('set_1', 'col_c1', 'practice', 's', 'user', 0)",
+  );
+  const item = (id: string, spot: string) =>
+    `INSERT INTO set_items (id, set_id, pos, type, body, weak_spot_id, at, v) VALUES ('${id}', 'set_1', 1, 'q', '{}', '${spot}', 0, 1)`;
+  const att = (id: string, itemId: string, score: string, ms: number) =>
+    `INSERT INTO attempts (id, item_id, item_v, set_id, source, how, answer, score, answered_at, at, v) VALUES ('${id}', '${itemId}', 1, 'set_1', 'practice', 'chose', NULL, ${score}, ${ms}, ${ms}, 1)`;
+  const t = (d: string) => Date.parse(d);
+  db.sql.exec(item("item_1", "ws_w1"));
+  db.sql.exec(item("item_2", "ws_w2"));
+  const base = (await planHome(db, () => T).load("goal_e1"))!;
+  const need = (g: typeof base, id: string) =>
+    g.spots.find((s) => s.id === id)?.need;
+  db.sql.exec(att("att_1", "item_1", "1", t("2026-11-02T09:00:00Z")));
+  db.sql.exec(att("att_2", "item_2", "NULL", t("2026-11-02T09:00:00Z")));
+  db.sql.exec(att("att_3", "item_2", "0.4", t("2026-11-02T09:05:00Z")));
   const got = (await planHome(db, () => T).load("goal_e1"))!;
-  assert.ok(got.spots.find((s) => s.id === "ws_w1"));
+  assert.notEqual(
+    need(got, "ws_w1"),
+    need(base, "ws_w1"),
+    "a correct answer moves the need",
+  );
+  assert.notEqual(need(got, "ws_w2"), undefined);
 });
 
 test("ceilings use the documented defaults when unset and a stored value wins", async () => {
@@ -158,7 +156,7 @@ test("weak spots read as documents the screens parse: goal from the objective's 
     ["ws_w5", null],
   ]);
   const w1 = docs.find((d) => d.id === "ws_w1")!;
-  assert.equal('course' in w1.data, false);
+  assert.equal("course" in w1.data, false);
   assert.equal(
     deriveWeakSpot(parseWeakSpot(w1.data), []).status,
     "reviewed",
@@ -192,7 +190,7 @@ test("a weak spot is created in its table, once, with no events and no docs row"
   assert.equal(made.ok, true);
   const spots = await weakSpotDocs(db as never, () => T);
   assert.equal(spots.length, 1);
-  assert.equal('course' in (spots[0]?.data ?? {}), false);
+  assert.equal("course" in (spots[0]?.data ?? {}), false);
   assert.equal(spots[0]?.data.exam, null);
   assert.equal(spots[0]?.data.proposed, true);
   assert.equal(db.sql.prepare("SELECT COUNT(*) n FROM docs").get()?.n, 0);
