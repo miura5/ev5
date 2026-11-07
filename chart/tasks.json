@@ -4336,11 +4336,13 @@
   "title": "A new build reaches the open app through the PWA plugin's own update code",
   "dod": "shell/pwa.ts and its test are replaced by registerSW from virtual:pwa-register (vite-plugin-pwa, already a dependency) with an immediate takeover and a check on focus; after a staging deploy the open app runs the new build without a hard reload, checked by comparing the loaded index-*.js with what / serves; the reload waits while a study attempt is open, so a takeover never resets a study run",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Run 2026-11-07 1505Z (#840): shell/pwa.ts uses registerSW with focus check and a reload hold (createReloadHold). Left: nothing calls hold() yet, so wire it via shell/services.ts and the Study view while a run is open (areas/library); and the staging check by eye (index-*.js matches / with no hard reload).",
   "commit": null,
-  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
+  "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
+  "claimedBy": "run-20261107T1537Z",
+  "claimedAt": "2026-11-07T15:39:59.792Z"
  },
  {
   "id": "B-987",
@@ -5144,15 +5146,15 @@
   "title": "Note pictures get a files row and are in the export and the restore drill",
   "dod": "Each stored note picture has a files row (id, type, size, SHA-256, owner pointer, at, v); the export copies the bytes or lists them with their hashes, and the restore drill checks them; an orphan picture is reported (§data.links, §data.export, §data.note-images, §hard.data-never-lost). Nothing is built for PDFs, slides or pages yet. Slice: write data/, server/image-routes.ts, data/export.",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [
    "B-998"
   ],
   "notes": "Audit 2026-11-07 1250Z (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder; checked on main aa74ef0). F10: pictureApi.put in commands/client.ts takes any path, so any area can PUT to any route through it, and the ESLint write rule no longer sees it (#746); no exception is in the decision record (§cmd.registry, D-517). Limit the helper to note-images/ keys and record the exception as a decision, or add a files command. Group 4. Done (#679 to #692): PUT /note-images refuses overwrite (409; the outbox treats 409 as stored), 415 on a magic-number mismatch, GET serves CSP default-src none; files table (0018_files.sql) and a files row on upload; the export lists files rows with size and SHA-256 (no byte copy); data/export/pictures.ts checkPictures compares the bytes with the rows and reports orphans; ops/restore-drill/manifest.mjs calls it against staging R2 when R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and CLOUDFLARE_ACCOUNT_ID are set, else skips. Left: R2 keys as staging secrets in the drill workflow (Matt, §6; in the next batched question); owner_kind stays unclaimed until a note claims a picture (needs a claim command or an owner hint); a failed files row after the R2 put leaves a retry 409 with no row (the orphan report shows it).",
   "commit": null,
   "source": "Shape-fixes review 2026-11-05 (audits/2026-11-05-shape-fixes/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261106T2300Z",
-  "claimedAt": "2026-11-07T00:11:08.524Z"
+  "claimedBy": "run-20261107T1537Z",
+  "claimedAt": "2026-11-07T15:40:00.016Z"
  },
  {
   "id": "B-1046",
