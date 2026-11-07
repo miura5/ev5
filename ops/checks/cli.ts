@@ -1,5 +1,7 @@
 // node ops/checks/cli.ts [--root <repo>] [--base <git ref>]: runs every custom check, prints findings, exits 1 on any.
-// The trailer check needs a base (defaults to origin/$GITHUB_BASE_REF in a pull request, otherwise it is skipped).
+// The trailer check needs a base: origin/$GITHUB_BASE_REF in a pull request, else origin/main when that ref exists
+// (a builder's precheck), else it is skipped.
+import { spawnSync } from 'node:child_process';
 import { checkAccount } from './account.ts';
 import { checkChartEv4 } from './chartev4.ts';
 import { checkControls } from './controls.ts';
@@ -32,7 +34,11 @@ const arg = (name: string): string | undefined => {
   return i > 0 ? process.argv[i + 1] : undefined;
 };
 const root = arg('root') ?? new URL('../..', import.meta.url).pathname;
-const base = arg('base') ?? (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : undefined);
+const hasRef = (ref: string): boolean =>
+  spawnSync('git', ['-C', root, 'rev-parse', '--verify', '-q', ref], { stdio: 'ignore' }).status === 0;
+const base =
+  arg('base') ??
+  (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : hasRef('origin/main') ? 'origin/main' : undefined);
 const files = listFiles(root);
 const findings = [
   ...checkAccount(root, files),
