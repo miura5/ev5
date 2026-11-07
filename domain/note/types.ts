@@ -23,7 +23,7 @@ export const MAX = {
 export const IMG_KEY = /^note-images\/[A-Za-z0-9]{16,64}\.(png|jpg|webp|gif)$/;
 export const HREF = /^https?:\/\/[^\s<>"]+$/;
 export const ROW = /^[A-Za-z0-9]{1,16}$/;
-const EARLIER_OF = /^n-[A-Za-z0-9-]{1,120}$/;
+const EARLIER_OF = /^note_[A-Za-z0-9-]{1,120}$/;
 const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
 const time = z.string().refine((v) => TIME.test(v) && !Number.isNaN(Date.parse(v)), 'not a time');

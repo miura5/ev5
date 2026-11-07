@@ -2,13 +2,10 @@ import { writeProblem } from "./parse.ts";
 import type { NoteTableRow } from "./table.ts";
 import { noteSchema, type Note } from "./types.ts";
 
-// A note as a row (§data.tables, §data.notes). The row's id is the document id with `note_` in front. The title, the earlier
+// A note as a row (§data.tables, §data.notes). The row's id is the note's one id (`note_…`), the same on every screen, command and route. The title, the earlier
 // link and the plain text are columns; `body` is the block format only (§data.notes): the blocks and the two stamps
 // createdAt and editedAt. `at` is the row's own stamp.
 const iso = (ms: number) => new Date(ms).toISOString();
-
-export const noteRowId = (docId: string) => `note_${docId}`;
-export const noteDocId = (rowId: string) => rowId.slice(5);
 
 /** The `notes` columns a caller supplies; the gate sets `at`, `v` and `deleted_at`. */
 export type NewNoteRow = Omit<NoteTableRow, "at" | "v" | "deleted_at">;
@@ -36,12 +33,12 @@ export function newNoteRow(
     ...(editedAt === undefined ? {} : { editedAt }),
   };
   return {
-    id: noteRowId(docId),
+    id: docId,
     collection_id: collectionId,
     title,
     body,
     text: noteText(doc.blocks),
-    earlier_of: earlierOf === undefined ? null : noteRowId(earlierOf),
+    earlier_of: earlierOf === undefined ? null : earlierOf,
   };
 }
 
@@ -61,6 +58,6 @@ export function noteDocOf(row: NoteTableRow): Note {
     title: row.title,
     ...(row.earlier_of === null
       ? {}
-      : { earlierOf: noteDocId(row.earlier_of) }),
+      : { earlierOf: row.earlier_of }),
   });
 }

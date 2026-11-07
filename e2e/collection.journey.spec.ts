@@ -30,7 +30,7 @@ test("Collection: make, move a note in, pin, delete, restore", async ({
     const back = await api("GET", "/api/v1/deletions?collection=notes");
     expect(JSON.stringify(back.body)).not.toContain(note);
 
-    // Deleting the collection writes one row for it; the note shows ungrouped, and Restore regroups it.
+    // Deleting the collection sets `deleted_at` on its row; the note shows ungrouped, and Restore regroups it.
     await cmd(api, "item.delete", { id: b.id });
     const del = await api("GET", "/api/v1/deletions");
     const rows = (del.body["deletions"] ?? []) as {

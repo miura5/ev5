@@ -29,10 +29,10 @@ async function setup(withTables: boolean) {
       "CREATE TABLE pins (target_c TEXT NOT NULL, target_id TEXT NOT NULL, pos INTEGER NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (target_c, target_id))",
     ).run();
     await DB.prepare(
-      "INSERT INTO pins VALUES ('sets','s1',1,5),('notes','n1',0,9),('notes','n2',1,8)",
+      "INSERT INTO pins VALUES ('sets','s1',1,5),('notes','note_n1',0,9),('notes','note_n2',1,8)",
     ).run();
     await DB.prepare(
-      "INSERT INTO memberships VALUES ('notes','n1','col_c1',7,1),('sets','s1','col_c2',9,1)",
+      "INSERT INTO memberships VALUES ('notes','note_n1','col_c1',7,1),('sets','s1','col_c2',9,1)",
     ).run();
   }
   const env = {
@@ -77,7 +77,7 @@ test("a note's collection is read from its own row, not from a stale membership"
   ).json()) as { memberships: { collection: string; id: string }[] };
   assert.deepEqual(
     one.memberships.map((m) => [m.collection, m.id]),
-    [["notes", "n3"]],
+    [["notes", "note_n3"]],
   );
   const to = (await (
     await call("GET", "/memberships?collection_id=col_c2")
@@ -85,7 +85,7 @@ test("a note's collection is read from its own row, not from a stale membership"
   assert.deepEqual(
     to.memberships.map((m) => [m.collection, m.id]),
     [
-      ["notes", "n1"],
+      ["notes", "note_n1"],
       ["sets", "s1"],
     ],
   );
@@ -98,7 +98,7 @@ test("memberships read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     all.memberships.map((m) => m.id),
-    ["s1", "n1"],
+    ["s1", "note_n1"],
   );
   const one = (await (
     await call("GET", "/memberships?collection_id=col_c1")
@@ -107,7 +107,7 @@ test("memberships read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     one.memberships.map((m) => [m.collection, m.id]),
-    [["notes", "n1"]],
+    [["notes", "note_n1"]],
   );
 });
 
@@ -118,7 +118,7 @@ test("deletions read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     all.deletions.map((d) => d.id),
-    ["set_b", "item_1", "a"],
+    ["set_b", "item_1", "note_a"],
   );
   const one = (await (
     await call("GET", "/deletions?collection=notes")
@@ -127,7 +127,7 @@ test("deletions read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     one.deletions.map((d) => d.id),
-    ["a"],
+    ["note_a"],
   );
 });
 
@@ -154,8 +154,8 @@ test("pins read by position, newest first within a position", async () => {
   assert.deepEqual(
     j.pins.map((p) => [p.collection, p.id, p.pos]),
     [
-      ["notes", "n1", 0],
-      ["notes", "n2", 1],
+      ["notes", "note_n1", 0],
+      ["notes", "note_n2", 1],
       ["sets", "s1", 1],
     ],
   );

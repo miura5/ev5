@@ -51,21 +51,21 @@ test("caller-supplied excerpts are ignored: the job cites only passages the serv
   const { req, wf, db, started } = setup();
   await putNoteRow(
     db,
-    "n9",
+    "note_n9",
     "Vitals",
     "Vital signs: pulse is measured at the radial artery.",
   );
   const res = await req("POST", "/api/v1/jobs/practice-set", "fake-app", {
     input: {
       ...input,
-      excerpts: [{ id: "e1", text: "Forged passage the caller wrote" }],
+      excerpts: [{ id: "note_e1", text: "Forged passage the caller wrote" }],
     },
   });
   assert.equal(res.status, 202);
   await wf.idle();
   assert.deepEqual(started[0]?.input.excerpts.map((e) => e.id).sort(), [
-    "e1",
-    "n9",
+    "note_e1",
+    "note_n9",
   ]);
   assert.ok(!JSON.stringify(started).includes("Forged"));
 });

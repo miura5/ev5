@@ -68,7 +68,7 @@ const make = () => {
   });
   return { server, store, box };
 };
-const ID = 'n-20261103-150000-aaaaaaaaaaaa';
+const ID = 'note_20261103-150000-aaaaaaaaaaaa';
 
 describe('the offline note journey', () => {
   test('write a note offline, then sync', async () => {

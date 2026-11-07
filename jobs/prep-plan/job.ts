@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { defineJob, parseWith } from '../runtime/define.ts';
 import { NonRetryableError } from '../runtime/non-retryable.ts';
 import { outputSchema } from '../runtime/model-call.ts';
-import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
+import { billedOnThrow, checkCitations, putKept, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
 import { addDays, goalDaysLeft, kindOffers, planBodySchema, type Goal, type PlanBody, type PlanTask } from '../../domain/index.ts';
 
@@ -217,7 +217,7 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
       );
       await c.spend(r.costCents);
       if (!r.ok) throw new NonRetryableError(r.reason);
-      return { ids: [await store.putDraft(c.jobId, r.value)] };
+      return { ids: [await putKept(() => store.putDraft(c.jobId, r.value))] };
     },
     approve: async (c) => {
       const ctx = await store.getContext(c.jobId);

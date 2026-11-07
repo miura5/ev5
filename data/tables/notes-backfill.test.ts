@@ -80,7 +80,7 @@ test("migration 0013 copies note documents into rows with their words, collectio
 test("the gate refuses a note that is too big or not a note, and a stale change is a conflict", async () => {
   const db = migratedDb();
   const t = tablesRepo(sqliteD1(db), { clock: () => 5 });
-  const row = newNoteRow("n-z", parseNote(plain()), null);
+  const row = newNoteRow("note_z", parseNote(plain()), null);
   const made = await t.noteBook.create(row);
   assert.ok(made.ok);
   assert.equal((await t.noteBook.create(row)).ok, false); // a repeated id

@@ -23,8 +23,8 @@ export const base: Partial<SessionDoc> = {
   kind: 'note',
   date: '2026-10-18',
   planned: 25,
-  noteId: 'n-20261018-150000-abcdefgh',
-  note: 'notes/n-20261018-150000-abcdefgh',
+  noteId: 'note_20261018-150000-abcdefgh',
+  note: 'notes/note_20261018-150000-abcdefgh',
 };
 
 function merge(a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {

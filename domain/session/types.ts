@@ -20,7 +20,7 @@ export const EVENT_TYPES = [
 export const STATUSES = ['active', 'ending', 'ended', 'discarded'] as const;
 
 const EVENT_KEY = /^[a-z][a-z-]*-\d{8}-\d{6}(\d{3})?(-[a-z0-9]+)?$/;
-const NOTE = /^notes\/n-[A-Za-z0-9-]{1,120}$/;
+const NOTE = /^notes\/note_[A-Za-z0-9-]{1,120}$/;
 
 const sessionEventSchema = z.looseObject({
   type: z.enum(EVENT_TYPES),

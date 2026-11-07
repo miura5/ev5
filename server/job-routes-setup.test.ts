@@ -14,14 +14,14 @@ const item = {
   options: ["a", "b", "c", "d"],
   correct: [1],
   rationales: ["w", "r", "w", "w"],
-  sourceRef: "e1",
+  sourceRef: "note_e1",
 };
 export const input = {
   variant: "practice",
   targetId: "set-1",
   count: 1,
   objectives: ["Vital signs"],
-  excerpts: [{ id: "e1", text: "Pulse is measured..." }],
+  excerpts: [{ id: "note_e1", text: "Pulse is measured..." }],
   drafts: false,
 };
 
@@ -43,7 +43,7 @@ export function setup() {
     .run();
   void putNoteRow(
     db,
-    "e1",
+    "note_e1",
     "Vital signs",
     "Vital signs: pulse is measured at the wrist.",
   );
