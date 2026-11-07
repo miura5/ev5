@@ -8,6 +8,7 @@ import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
+import { checkMigrationNames } from './migrationnames.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
 import { checkControls } from './controls.ts';
@@ -198,4 +199,11 @@ test('docs-kinds: a kind written to docs that is off the allow list fails; liste
 test('compat-import: an import of a compat module or a data/compat path is refused', () => {
   const r = repo({ 'a.ts': "import { x } from './data/compat/schemas.ts';\n", 'b.ts': "import { y } from './y.ts';\n", 'data/compat/z.ts': '' });
   assert.equal(checkCompatImport(r.root, r.files).length, 2);
+});
+
+test('migration names: only numbered .sql files may sit in data/migrations, bar the named fixture', () => {
+  const ok = ['data/migrations/0001_deletions.sql', 'data/migrations/ev4-schema.fixture.sql', 'data/migrations/x.test.ts', 'other/scratch.sql'];
+  assert.deepEqual(checkMigrationNames(ok), []);
+  const bad = checkMigrationNames(['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql', 'data/migrations/0020_ok.sql']);
+  assert.deepEqual(bad.map(f => f.file), ['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql']);
 });
