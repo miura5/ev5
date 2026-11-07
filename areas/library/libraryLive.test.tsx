@@ -79,7 +79,7 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
 test("an approved plan keeps its sessions listed with the approved line", () => {
   const data = mapLibrary(
     {
-      exams: [exam({ planId: "plan-j1" })],
+      exams: [exam({})],
       weakspots: [],
       sets: [],
       plans: [{ id: "plan-j1", data: { goal_id: "x1", state: "in_force" } }],

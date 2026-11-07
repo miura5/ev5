@@ -25,12 +25,10 @@ const docs = (planId: string, jobs: object[] = []) => ({
   exams: [examDoc(planId)],
   weakspots: [],
   sets: [],
-  plans: [
-    { id: "plan-old", data: { goal_id: "x1", state: "put_away" } },
-    { id: "plan-new", data: { goal_id: "x1", state: "in_force" } },
-  ].map((p) =>
-    p.id === planId ? { ...p, data: { ...p.data, state: "in_force" } } : p,
-  ),
+  plans: ["plan-old", "plan-new"].map((id) => ({
+    id,
+    data: { goal_id: "x1", state: id === planId ? "in_force" : "put_away" },
+  })),
   planItems: [item("plan-old", "Old plan"), item("plan-new", "New plan")],
   jobs: jobs as never,
 });

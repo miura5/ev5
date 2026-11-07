@@ -1,5 +1,7 @@
 import {
+  accuracyLine,
   centralDate,
+  dueCounts,
   itemType,
   inDays,
   deriveWeakSpot,
@@ -10,7 +12,6 @@ import {
   plainDay,
   planEnded,
 } from "../../domain/index.ts";
-import { accuracyLine, dueCounts } from "../../domain/index.ts";
 import type {
   Accuracy,
   LibraryExam,
@@ -97,11 +98,17 @@ function sessionsOfPlan(
   );
 }
 
-function planIdOf(exams: WireDoc[], id: string): string | undefined {
-  const d = exams.find((x) => x.id === id)?.data as
-    | { planId?: unknown }
-    | undefined;
-  return typeof d?.planId === "string" && d.planId ? d.planId : undefined;
+/** The plan a date points at, from its plans rows: the one in force, else a draft, else the one put away last. */
+function planIdOf(plans: WireDoc[] | undefined, goal: string) {
+  const rank: Record<string, number> = { in_force: 3, draft: 2, put_away: 1 };
+  let best: { id: string; r: number; at: number } | undefined;
+  for (const p of plans ?? []) {
+    const d = p.data as { goal_id?: unknown; state?: unknown } | undefined;
+    const r = d?.goal_id === goal ? (rank[String(d.state)] ?? 0) : 0;
+    if (r && (!best || r > best.r || (r === best.r && (p.at ?? 0) >= best.at)))
+      best = { id: p.id, r, at: p.at ?? 0 };
+  }
+  return best?.id;
 }
 
 /** A prep plan job E.V. is still running for this exam: after Matt's answer the plan is not in force yet. */
@@ -205,7 +212,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
     .map(({ id, v }) => {
       const job = waitingPlan(docs.jobs, id);
       const waiting = job?.id;
-      const planId = waiting ?? planIdOf(docs.exams, id);
+      const planId = waiting ?? planIdOf(docs.plans, id);
       const working = !waiting && workingPlan(docs.jobs, id);
       const sessions = waiting
         ? sessionsOf(job?.tasks)
