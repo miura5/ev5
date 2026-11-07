@@ -157,10 +157,26 @@ collectionRoutes.get("/pins", async (c) => {
 
 collectionRoutes.get("/deletions", async (c) => {
   const coll = c.req.query("collection");
-  const out = await rows<DeletionRow>(
+  // A set item is listed as `set_items` by its item id. Rows written before that (`own_set_items`, keyed
+  // `<set>/<item>`) are read as the same thing, the newest delete time winning, so the screen has one shape.
+  const legacy = coll === undefined || coll === "set_items";
+  const raw = await rows<DeletionRow>(
     c.env.DB,
-    `SELECT c, id, at FROM deletions${coll === undefined ? "" : " WHERE c = ?"} ORDER BY at DESC, c, id LIMIT ${LIMIT}`,
-    coll === undefined ? [] : [coll],
+    `SELECT c, id, at FROM deletions${coll === undefined ? "" : legacy ? " WHERE c IN ('set_items', 'own_set_items')" : " WHERE c = ?"} ORDER BY at DESC, c, id LIMIT ${LIMIT}`,
+    coll === undefined || legacy ? [] : [coll],
+  );
+  const seen = new Map<string, DeletionRow>();
+  for (const r of raw) {
+    const row =
+      r.c === "own_set_items"
+        ? { ...r, c: "set_items", id: r.id.slice(r.id.indexOf("/") + 1) }
+        : r;
+    const key = `${row.c}/${row.id}`;
+    if (!seen.has(key) || (seen.get(key) as DeletionRow).at < row.at)
+      seen.set(key, row);
+  }
+  const out = [...seen.values()].sort(
+    (a, b) => b.at - a.at || a.c.localeCompare(b.c) || a.id.localeCompare(b.id),
   );
   // Titles come from the kept document (the delete is soft, §delete.soft); each lookup is its own read so a database
   // without that table still lists its deletions.
@@ -172,7 +188,7 @@ collectionRoutes.get("/deletions", async (c) => {
   );
   const items = await rows<{ k: string; t: string | null }>(
     c.env.DB,
-    "SELECT d.c || '/' || d.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN set_items i ON d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.id",
+    "SELECT 'set_items/' || i.id AS k, json_extract(i.body, '$.stem') AS t FROM deletions d JOIN set_items i ON (d.c = 'set_items' AND d.id = i.id) OR (d.c = 'own_set_items' AND d.id = i.set_id || '/' || i.id)",
     [],
   );
   const colls = await rows<{ k: string; t: string | null }>(

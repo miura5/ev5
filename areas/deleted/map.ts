@@ -19,7 +19,6 @@ const TYPES: Record<string, DeletedItem["type"]> = {
   plans: "plan",
   jobs: "job",
   goals: "date",
-  own_set_items: "questions", // still what data/tables deletions.markOwnSetItem writes
   set_items: "questions",
   collections: "collection",
 };
@@ -32,7 +31,6 @@ const KINDS: Record<string, string> = {
   plans: "Prep plan",
   jobs: "Job",
   goals: "Date",
-  own_set_items: "Set question",
   set_items: "Set question",
   sets: "Set",
   collections: "Collection",

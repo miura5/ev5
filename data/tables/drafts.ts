@@ -150,12 +150,12 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
     },
     deletions: {
-      /** Soft delete of a set item by its `<set>/<item>` key; the latest delete time wins and no row is removed. */
-      markOwnSetItem: async (setId: string, itemId: string): Promise<void> => {
-        const row = del("own_set_items", `${setId}/${itemId}`);
+      /** Soft delete of a set item, listed as `set_items` by its item id (`setId` is kept for callers); the latest delete time wins and no row is removed. */
+      markOwnSetItem: async (_setId: string, itemId: string): Promise<void> => {
+        const row = del("set_items", itemKey(itemId));
         await db
           .prepare(
-            "INSERT INTO deletions (c, id, at) VALUES ('own_set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
+            "INSERT INTO deletions (c, id, at) VALUES ('set_items', ?, ?) ON CONFLICT (c, id) DO UPDATE SET at = excluded.at",
           )
           .bind(row.id, row.at)
           .run();
@@ -197,7 +197,8 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
             .run()
         ).meta.changes;
         // A set item's deletion is also its row's `deleted_at`: the item comes back with it.
-        if (c === "own_set_items")
+        // `set_items` is keyed by the item id; `own_set_items` is the older `<set>/<item>` key, still cleared the same way.
+        if (c === "set_items" || c === "own_set_items")
           await db
             .prepare(
               "UPDATE set_items SET deleted_at = NULL, v = v + 1, at = ? WHERE id = ? AND deleted_at IS NOT NULL",

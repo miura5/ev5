@@ -227,7 +227,14 @@ test("restore clears only the named collection's row", async () => {
   await r.deletions.markOwnSetItem("s", "x");
   assert.equal(await r.deletions.restore("collections", "x"), 1);
   assert.equal(await r.deletions.restore("collections", "x"), 0);
-  assert.equal(await r.deletions.restore("own_set_items", "s/x"), 1);
+  assert.equal(await r.deletions.restore("set_items", "item_x"), 1);
+});
+
+test("an older own_set_items deletion row still restores", async () => {
+  const r = setup();
+  await r.deletions.markOwnSetItem("s", "x");
+  assert.equal(await r.deletions.restore("own_set_items", "s/x"), 0);
+  assert.equal(await r.deletions.restore("set_items", "item_x"), 1);
 });
 
 const good = (id: string) => ({
