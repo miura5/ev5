@@ -107,9 +107,16 @@ function parseLinked(text: string): Linked | null {
 const HORIZON = 14;
 
 /** Writes the repeat's occurrences after the item's own day, skipping days that already hold one. */
-export async function materializeRepeat(x: HandlerCtx, item: PlanItemTableRow) {
+export async function materializeRepeat(
+  x: HandlerCtx,
+  item: PlanItemTableRow,
+  /** The rule just queued in the same batch (not yet readable); otherwise it is read from the repeats row. */
+  queued?: Rule,
+) {
   if (!item.repeat_id) return;
-  const rep = await planRepos(x).repeats.get(item.repeat_id);
+  const rep = queued
+    ? { id: item.repeat_id, rule: queued }
+    : await planRepos(x).repeats.get(item.repeat_id);
   if (!rep) return;
   const found = materialize(
     {
