@@ -1,5 +1,12 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test, vi } from "vitest";
-import { createReloadHold, startPwa, UPDATE_CHECK_MS, type RegisterSW } from "./pwa.ts";
+import {
+  createReloadHold,
+  startPwa,
+  UPDATE_CHECK_MS,
+  type RegisterSW,
+} from "./pwa.ts";
 
 function setup() {
   let opts: Parameters<RegisterSW>[0];
@@ -63,5 +70,18 @@ test("checks for a new build on a timer, so a background tab also updates", () =
 
 test("does nothing without a window", () => {
   const register = vi.fn();
-  expect(() => startPwa(register, undefined, { requestReload: vi.fn() })).not.toThrow();
+  expect(() =>
+    startPwa(register, undefined, { requestReload: vi.fn() }),
+  ).not.toThrow();
+});
+
+test("the generated worker takes over at once, so a reload runs the new build", () => {
+  // registerSW in autoUpdate mode sends no skip-waiting message: the worker itself must skip waiting and claim pages.
+  const config = readFileSync(
+    join(import.meta.dirname, "..", "vite.config.ts"),
+    "utf8",
+  );
+  expect(config).toMatch(/injectRegister:\s*false/);
+  expect(config).toMatch(/skipWaiting:\s*true/);
+  expect(config).toMatch(/clientsClaim:\s*true/);
 });
