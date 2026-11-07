@@ -101,15 +101,19 @@ export const sessionHandlers: Record<string, CommandHandler> = {
     return { id: i.id, paused: !paused };
   },
 
-  "session.end": async (i: { id: string }, _c, x) => {
-    const cur = await open(x, i.id);
-    const minutes = sessionState(view(cur), x.clock()).minutes;
+  "session.end": async (i: { id: string }, _c, ctx) => {
+    const cur = await open(ctx, i.id);
+    const minutes = sessionState(view(cur), ctx.clock()).minutes;
+    // The session row and its end event are ONE batch, so a session never ends with no end event (§data.gate).
+    const w = deferWrites(ctx.db);
+    const x = { ...ctx, db: w.db };
     await addEvent(
       x,
       cur,
       { type: "end", why: "ended" },
       { status: "ended", ended_at: x.clock(), minutes: Math.round(minutes) },
     );
+    await w.flush("that changed; try again");
     return { id: i.id, minutes };
   },
 
