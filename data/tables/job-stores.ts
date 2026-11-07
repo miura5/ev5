@@ -14,8 +14,8 @@ import type { D1Like, D1Statement } from "../d1.ts";
 import {
   insertConflict,
   readRows,
-  reportBad,
   type Listed,
+  type Raw,
   type TablesOptions,
 } from "./core.ts";
 import { gateRow } from "./gate.ts";
@@ -41,8 +41,8 @@ export type SaveDraft = {
 const STALE = "SELECT CASE WHEN changes() = 0 THEN json('refused') END";
 
 export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
-  const parseRec = (r: { data: string }): JobRecordRow =>
-    parseJobRecord(JSON.parse(r.data));
+  const parseRec = (r: Raw): JobRecordRow =>
+    parseJobRecord(JSON.parse(String(r.data)));
 
   const used = async (w: CeilingWindow, k: string): Promise<number> =>
     (
@@ -103,13 +103,7 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
           .bind(id)
           .first<{ data: string }>();
         if (!r) return undefined;
-        try {
-          return parseRec(r);
-        } catch (e) {
-          // A bad row is reported and left out, as a list leaves it out (§data.gate).
-          reportBad(opts, "job_records", id, e);
-          return undefined;
-        }
+        return readRows("job_records", [{ id, ...r }], parseRec, opts)[0];
       },
       list: async (): Promise<Listed<JobRecordRow>> =>
         readRows(
@@ -119,7 +113,7 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
               .prepare("SELECT id, data FROM job_records ORDER BY at, id")
               .all<{ id: string; data: string }>()
           ).results,
-          (r) => parseRec(r as { data: string }),
+          parseRec,
           opts,
         ),
       /** v 1 creates (false if the id exists); a later v updates only if the stored version is v - 1. */
