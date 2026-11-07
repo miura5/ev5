@@ -3,6 +3,7 @@
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { parseGoal } from "../domain/index.ts";
+import type { Reads } from "./read-report.ts";
 
 export interface WireGoal {
   id: string;
@@ -16,8 +17,13 @@ export interface WireGoal {
 export async function goalDocs(
   db: DocsD1,
   clock: () => number,
+  reads?: Reads,
 ): Promise<WireGoal[]> {
-  const rows = await tablesRepo(db, { clock }).goals.list();
+  const rows = await tablesRepo(db, {
+    clock,
+    onBad: reads?.onBad,
+  }).goals.list();
+  reads?.counted("goals", rows);
   return rows.flatMap((g) => {
     try {
       return [

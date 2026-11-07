@@ -67,10 +67,15 @@ function errorLine(e: unknown, requestId: string, path: string) {
     .map((l) => l.trim());
   return { event: "server_error", requestId, path, name: err.name, frames };
 }
+// Every request gets an id first, so a log line (a crash, a row left out) and the answer name the same one.
+app.use("*", async (c, next) => {
+  c.set("requestId", crypto.randomUUID());
+  await next();
+});
 app.onError((e, c) => {
   if (e instanceof WriteRefused)
     return c.json({ error: "refused", message: e.message }, 422);
-  const requestId = crypto.randomUUID();
+  const requestId = c.get("requestId") ?? crypto.randomUUID();
   console.error(JSON.stringify(errorLine(e, requestId, c.req.path)));
   return c.json({ error: "internal", requestId }, 500);
 });
