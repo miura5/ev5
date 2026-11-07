@@ -1,4 +1,4 @@
-import { shortDay } from "../../domain/index.ts";
+import { noteRowId, shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
 /** The read routes' rows (server/collection-routes.ts), restated: areas never import the server. */
@@ -44,6 +44,16 @@ export interface CollectionData {
   all: { id: string; title: string }[];
 }
 
+/** The row a member or pin names. A note's row id is `note_<id>` (GET /notes) while memberships and pins name it by the bare id, so both forms match. */
+const rowOf = (
+  docs: DocsByCollection,
+  collection: string,
+  id: string,
+): NamedRow | undefined =>
+  docs[collection]?.find(
+    (d) => d.id === id || (collection === "notes" && d.id === noteRowId(id)),
+  );
+
 /** The pinned items (GET /pins, already by pos then newest first), named from their docs. */
 export function mapPins(
   pins: readonly WirePin[],
@@ -52,11 +62,8 @@ export function mapPins(
   return pins.map((p) => ({
     id: p.id,
     type: TYPES[p.collection] ?? "note",
-    title: docTitle(docs[p.collection]?.find((d) => d.id === p.id)),
-    meta: kindLine(
-      p.collection,
-      docs[p.collection]?.find((d) => d.id === p.id),
-    ),
+    title: docTitle(rowOf(docs, p.collection, p.id)),
+    meta: kindLine(p.collection, rowOf(docs, p.collection, p.id)),
     to: openPath(p.collection, p.id),
   }));
 }
@@ -69,7 +76,6 @@ const TYPES: Record<string, CollectionEntry["type"]> = {
   plans: "plan",
   jobs: "job",
   goals: "date",
-  exams: "date",
   sets: "questions",
 };
 
@@ -82,7 +88,6 @@ const KINDS: Record<string, string> = {
   plans: "Plan",
   jobs: "Job",
   goals: "Date",
-  exams: "Date",
   sets: "Set",
   weakspots: "Weak spot",
 };
@@ -91,7 +96,7 @@ const KINDS: Record<string, string> = {
 function kindLine(collection: string, doc: NamedRow | undefined): string {
   const label = KINDS[collection] ?? collection;
   const kind =
-    collection === "exams" || collection === "goals" ? doc?.kind : undefined;
+    collection === "goals" ? doc?.kind : undefined;
   return kind ? `${label} · ${kind}` : label;
 }
 
@@ -99,7 +104,7 @@ function kindLine(collection: string, doc: NamedRow | undefined): string {
 export function openPath(kind: string, id: string): string | undefined {
   const q = encodeURIComponent(id);
   if (kind === "notes") return `/notes?open=${q}`;
-  if (kind === "sets" || kind === "exams" || kind === "weakspots")
+  if (kind === "sets" || kind === "weakspots")
     return `/library?open=${q}`;
   if (kind === "goals") return "/today";
   return undefined;
@@ -143,7 +148,7 @@ export function mapCollection(
       .filter((m) => m.collectionId === pick.id)
       .sort((a, b) => b.at - a.at)
       .map((m) => {
-        const doc = docs[m.collection]?.find((d) => d.id === m.id);
+        const doc = rowOf(docs, m.collection, m.id);
         return {
           id: m.id,
           type: TYPES[m.collection] ?? "note",

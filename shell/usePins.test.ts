@@ -21,7 +21,7 @@ const wire: PinWire = {
     { collection: "collections", id: "none" },
     { collection: "notes", id: "n1" },
     { collection: "sets", id: "set_s1" },
-    { collection: "exams", id: "goal_e1" },
+    { collection: "goals", id: "goal_e1" },
     { collection: "notes", id: "gone" },
   ],
   collections: [

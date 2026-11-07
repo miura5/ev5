@@ -1,6 +1,6 @@
 // The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes, dates, sets and weak spots over their /api/v1 row routes; a collection with no row route has no rows. The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
-import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
+import { call as runCommand, readJson, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
 import { noteDocId, noteDocOf, noteRowId, parseNoteTableRow, type NoteTableRow } from "../../domain/index.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
@@ -31,7 +31,7 @@ const json = async (r: Response): Promise<Record<string, unknown>> => {
 
 /** The row route behind each collection the page lists (server/row-routes.ts). */
 const ROW_ROUTES: Record<string, string> = {
-  exams: "goals",
+  goals: "goals",
   sets: "sets",
   weakspots: "weak-spots",
 };
@@ -60,11 +60,13 @@ export function docsHttp(
 
   /** Dates, sets and weak spots from their row routes; the palette needs a title (a weak spot's topic) and the id. */
   async function listRows(path: string): Promise<DocRow[]> {
-    const r = await doFetch(`/api/v1/${path}`, {
-      headers: { authorization: `Bearer ${token()}` },
-    });
-    if (!r.ok) throw new ApiError(r.status);
-    const rows = ((await json(r)).rows ?? []) as Record<string, unknown>[];
+    const rows = await readJson<Record<string, unknown>[]>(
+      path,
+      token(),
+      `outbox:/api/v1/${path}`,
+      undefined,
+      (b) => ((b as { rows?: unknown[] }).rows ?? []) as Record<string, unknown>[],
+    );
     return rows.flatMap((row) =>
       typeof row.id === "string"
         ? [{ id: row.id, v: Number(row.v) || 0, at: Number(row.at) || 0, data: row }]
@@ -74,11 +76,13 @@ export function docsHttp(
 
   /** Every live note from GET /api/v1/notes as documents; a row that does not parse stays out. */
   async function listNotes(): Promise<DocRow[]> {
-    const r = await doFetch("/api/v1/notes", {
-      headers: { authorization: `Bearer ${token()}` },
-    });
-    if (!r.ok) throw new ApiError(r.status);
-    const rows = ((await json(r)).rows ?? []) as unknown[];
+    const rows = await readJson<unknown[]>(
+      "notes",
+      token(),
+      "outbox:/api/v1/notes",
+      undefined,
+      (b) => (b as { rows?: unknown[] }).rows ?? [],
+    );
     return rows.flatMap((raw) => {
       try {
         const row = parseNoteTableRow(raw);
