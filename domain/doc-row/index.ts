@@ -12,3 +12,12 @@ export function docRowSchema<C extends string, D extends z.ZodType>(c: C, data: 
     v: z.number().int().min(1),
   });
 }
+
+/** One row as GET /api/v1/docs returns it, as the screens read it: `data` is parsed by the reader's own kind parser. */
+export interface WireDoc {
+  id: string;
+  /** The version it was read at; a write is pinned to it. */
+  v?: number;
+  at?: number;
+  data: unknown;
+}

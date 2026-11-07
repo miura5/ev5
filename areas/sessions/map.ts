@@ -1,3 +1,6 @@
+import type { WireDoc } from "../../domain/index.ts";
+
+export type { WireDoc };
 import {
   centralDate,
   parseSession,
@@ -6,14 +9,6 @@ import {
 } from "../../domain/index.ts";
 
 type SessionDoc = ReturnType<typeof parseSession> & { id: string };
-
-/** One document as GET /api/v1/docs returns it (server/doc-routes.ts), restated: areas never import the server. */
-export interface WireDoc {
-  id: string;
-  /** The version it was read at; a write is pinned to it. */
-  v?: number;
-  data: unknown;
-}
 
 /** What the session screen shows of the session it picked. */
 export interface SessionData {
