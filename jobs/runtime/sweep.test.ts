@@ -1,4 +1,4 @@
-import test from "node:test";
+import { describe, test } from "vitest";
 import assert from "node:assert/strict";
 import { z } from "zod";
 import { defineJob, newJob } from "./index.ts";
@@ -43,7 +43,7 @@ const seed = async (
   return r;
 };
 
-test("sweep", async (t) => {
+describe("sweep", () => {
   forgetKinds();
   const u = z.unknown();
   defineJob({
@@ -61,7 +61,7 @@ test("sweep", async (t) => {
     wording: { running: "r", needsYou: "n", done: "d", failed: "f" },
   });
 
-  await t.test(
+  test(
     "fails queued and running jobs past their deadline, keeping cost",
     async () => {
       const m = memory();
@@ -76,7 +76,7 @@ test("sweep", async (t) => {
     },
   );
 
-  await t.test(
+  test(
     "uses each kind deadline and leaves fresh jobs alone",
     async () => {
       const m = memory();
@@ -87,14 +87,14 @@ test("sweep", async (t) => {
     },
   );
 
-  await t.test("never touches needs-you", async () => {
+  test("never touches needs-you", async () => {
     const m = memory();
     await seed(m, "n", "needs-you");
     assert.deepEqual(await sweepStale(m.store, at(100000)), []);
     assert.equal(m.rows.get("n")!.state, "needs-you");
   });
 
-  await t.test("a job that finishes during the sweep wins", async () => {
+  test("a job that finishes during the sweep wins", async () => {
     const m = memory();
     const r = await seed(m, "r", "running");
     const racing: JobStore = {
@@ -116,7 +116,7 @@ test("sweep", async (t) => {
     assert.deepEqual(m.rows.get("r")!.output, { home: "library", id: "x" });
   });
 
-  await t.test("a second sweep changes nothing", async () => {
+  test("a second sweep changes nothing", async () => {
     const m = memory();
     await seed(m, "q", "queued");
     await sweepStale(m.store, at(30));
@@ -125,7 +125,7 @@ test("sweep", async (t) => {
     assert.equal(JSON.stringify([...m.rows.values()]), before);
   });
 
-  await t.test("a kind without its own deadline gets the default", async () => {
+  test("a kind without its own deadline gets the default", async () => {
     const m = memory();
     await seed(m, "x", "running", "other_kind");
     assert.deepEqual(await sweepStale(m.store, at(30)), []);

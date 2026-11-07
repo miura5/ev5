@@ -1,4 +1,4 @@
-import test from 'node:test';
+import { test } from "vitest";
 import { z } from 'zod';
 import assert from 'node:assert/strict';
 import { continueJob, defineJob, startJob } from './index.ts';

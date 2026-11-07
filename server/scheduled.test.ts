@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 import { cronFor, runScheduled } from "./scheduled.ts";
 
 const NOW = Date.parse("2026-11-04T12:00:00Z");

@@ -1,8 +1,8 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 async function get(DB: unknown, url: string) {
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;

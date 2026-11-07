@@ -1,8 +1,8 @@
 // One command, one batch (§data.gate): when the last statement of check.answer fails, the earlier ones
 // are not applied. A trigger makes the final insert abort, as a real failure midway would.
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 test("check.answer: a failing attempts write leaves no talk line, event or session change", async () => {
   const { call, DB } = await setup();

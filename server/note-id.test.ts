@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { newNoteId } from "../domain/index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 // One note id form end to end (§data.tables): the editor makes a new note's id with newNoteId and a random UUID
 // (areas/notes/useNotes.ts), and note.save checks it with the same domain rule, so the two cannot drift apart.

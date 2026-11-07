@@ -1,6 +1,6 @@
 // Every model prompt and every tool description E.V. reads is neutral text for any learner (§what.framing): no subject's
 // framing, no personal name, no "student", and no school-shaped names for E.V.'s jobs may come back into one.
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ASK_SYSTEM } from "./ask-chat.ts";

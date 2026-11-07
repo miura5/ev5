@@ -1,9 +1,9 @@
-import test from "node:test";
+import { test } from "vitest";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 async function migrated() {
   const DB = sqliteD1();

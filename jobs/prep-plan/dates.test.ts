@@ -1,4 +1,4 @@
-import test from 'node:test';
+import { test } from "vitest";
 import assert from 'node:assert/strict';
 import { buildContext, checkPlan } from './job.ts';
 import type { Plan } from './job.ts';

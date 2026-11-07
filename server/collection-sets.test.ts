@@ -1,11 +1,11 @@
 // Sets and dates are rows, so a collection page, a pin, a move and a rename must reach them through the gate
 // (§data.tables, §data.gate, §data.links).
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 async function setup() {
   const DB = sqliteD1();

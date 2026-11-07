@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { migratedDb, sqliteD1 } from "../export/sqlite-d1.testkit.ts";
 import { tablesRepo } from "./tables.ts";

@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 test("a weak spot is linked to a date with one link row, and unlinked again", async () => {
   const { call, DB } = await setup();

@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
-import { setup, T } from "./job-routes-setup.test.ts";
+import { setup, T } from "./job-routes-setup.testkit.ts";
 
 test("a bad answer is a 400 and the job stays waiting", async () => {
   const { req, db } = setup();

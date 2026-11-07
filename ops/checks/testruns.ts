@@ -1,4 +1,4 @@
-// Every test file runs in CI: a *.test.* file must be collected by `npm run test:node` or by the include lists of vitest's projects.
+// Every test file runs in CI: a *.test.* file must be collected by the include lists of vitest projects.
 import path from 'node:path';
 import type { Finding } from './lib.ts';
 import { read } from './lib.ts';

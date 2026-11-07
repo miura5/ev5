@@ -1,5 +1,5 @@
 // the model call is its own step and its output is kept, so retrying the save step does not pay for the model.
-import { test } from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { startJob, workflowExecutor } from "../runtime/index.ts";
 import { runJob } from "../runtime/workflow.ts";

@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { tablesRepo } from "../data/index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 test("a note is made, saved and moved", async () => {
   const { call, note, DB } = await setup();

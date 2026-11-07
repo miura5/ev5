@@ -1,4 +1,4 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { gradeAnswer, gradePrompt, GRADE_SYSTEM } from "./grade.ts";
 import type { ModelCall } from "../runtime/output.ts";

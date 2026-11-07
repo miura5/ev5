@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test } from "vitest";
 import assert from 'node:assert/strict';
 import { checkCitations, runStructured, type ModelCall, type ModelReply } from './output.ts';
 import { costCents, modelsStaleWarning, MODELS } from './models.ts';

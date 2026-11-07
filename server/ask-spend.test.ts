@@ -1,9 +1,9 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
 import type { ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
-import { sqliteD1 } from "./sqlite-d1.test.ts";
+import { sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 function setup(monthly: number) {
   const db = sqliteD1();

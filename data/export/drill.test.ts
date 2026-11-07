@@ -1,6 +1,6 @@
 // Restore drills (§data.export, §data.tables): for every table in the export manifest, export it, restore it
 // into a scratch D1 and prove the counts, hashes and canonical rows match. Local and synthetic only; no live data.
-import { test } from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import type { DatabaseSync } from "node:sqlite";
 import { exportAll, restoreInto, ALL_TABLES } from "./index.ts";

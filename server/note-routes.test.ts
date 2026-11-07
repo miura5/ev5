@@ -1,9 +1,9 @@
-import test from "node:test";
+import { test } from "vitest";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 test("pin, rename, delete and restore work on a note, read through the row routes", async () => {
   const { DB, call } = await setup();

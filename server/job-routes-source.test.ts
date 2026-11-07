@@ -1,7 +1,7 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
-import { input, setup } from "./job-routes-setup.test.ts";
-import { putNoteRow } from "./sqlite-d1.test.ts";
+import { input, setup } from "./job-routes-setup.testkit.ts";
+import { putNoteRow } from "./sqlite-d1.testkit.ts";
 
 test("a practice set asked from one note gathers only that note's passages", async () => {
   const { req, wf, db, started } = setup();

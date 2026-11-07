@@ -1,10 +1,10 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import type { ModelCall } from "../jobs/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import app from "./index.ts";
 import type { Env } from "./index.ts";
-import { setup } from "./matt-handlers-setup.test.ts";
+import { setup } from "./matt-handlers-setup.testkit.ts";
 
 const open = {
   stem: "Why does fluid shift out of vessels in sepsis?",

@@ -1,11 +1,11 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { d1JobStore } from "../jobs/index.ts";
 import type { ModelCall } from "../jobs/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import app from "./index.ts";
 import { HISTORY_TURNS, historyLines } from "./ask-chat.ts";
-import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
+import { putNoteRow, sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 const NOTE = {
   title: "Heart rate",

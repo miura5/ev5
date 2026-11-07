@@ -5,7 +5,7 @@ import type { D1Like, ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
 import { runWorkflow } from "./job-run.ts";
 import type { JobRunEnv } from "./job-run.ts";
-import { putNoteRow, sqliteD1 } from "./sqlite-d1.test.ts";
+import { putNoteRow, sqliteD1 } from "./sqlite-d1.testkit.ts";
 
 export const T = new Date("2026-11-03T12:00:00Z");
 const item = {
