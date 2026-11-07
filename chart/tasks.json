@@ -3906,7 +3906,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Part 1 #524; part 2 #533: tablesRepo writers behind data/tables/gate.ts (WriteRefused), deletions tolerance removed. Remains: B-1002 moves jobs/runtime/d1-stores.ts SQL into data/ and drops its serverwrites exemption; export WriteRefused through data/index.ts and map it to a plain 4xx in server/; docs and tables gates are two files. Studio audit 2026-11-06 (D-513): data/tables/core.ts putVersioned's INSERT catch returns a conflict for every error, so a constraint, schema or D1 failure shows 'that changed, try again'. Treat only a unique or primary-key violation as a conflict; any other error throws with its cause and is logged; add a test where a non-conflict insert error does not report a conflict. Do it before more tables copy the pattern. Four-app research 2026-11-06 (D-521): data/tables/core.ts onBad defaults to dropping a bad row silently. Every table repo gets an onBad that logs table, row id and reason (no row text), and a list read that left rows out says so to the caller (§data.gate, report and leave out). This is the handover's \"pass onBad to the table repos\" follow-up.",
+  "notes": "Run 2026-11-07 04:4x (#723): insert catches treat only unique/PK violations as conflicts (core.ts insertConflict); onBad gets {table,id,reason}, logs by default; readRows and kinds list return Listed<T> with a non-enumerable left_out count. Left: server/jobs callers read left_out and tell the client; data/docs untouched; jobStores row reads bypass onBad; B-1002; export WriteRefused via data/index.ts; merge the two gates. Claim freed.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -4536,7 +4536,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Scope audit 2026-11-06: B11, B13: docsRepo in 10 files and raw SQL over docs; each kind's move writes created_by or by only. Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F24: GET /docs?since sends old sessions twice under one id (server/doc-routes.ts:80-83); no screen uses it. Repo hygiene comparison 2026-11-06 (D-519): server/index.ts onError returns 500 with no log. Log the error with a request id and no row text (§hard rules).",
+  "notes": "Run 2026-11-07 04:4x (#724): onError logs one JSON line with request id (no message), returns it in the 500; F24 done (GET /docs?since no longer sends old sessions twice). Left: docsRepo in ~10 files and raw SQL over docs (B11, B13); moves write created_by/by only. Claim freed.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4826,7 +4826,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Group 4. Done: drafts; job_plans and claude_settings reads on domain parsers; the area WireDoc copies are one type in domain/doc-row (#689); jobs/prep-plan uses domain/plan planBodySchema, and commands/ has no plan body shape (#697). Left: areas move to per-kind rows when the docs readers move, then WireDoc goes; old doc-row shapes (after B-1037 to B-1043); data/docs gate onto parse*Row; plan row shape (jobs/ and commands/ drop PlanSchema); row-shapes.test gap; claude_settings becomes the settings row (D-515); the wire Note type in domain/note/types.ts still has source, course, label, archivedAt and discardedAt (areas/notes, noteDoc, sameWords). F18 done (#716): notes.body is {blocks, createdAt, editedAt?}; old body fields leave in the squash. target_c is not dropped by a migration: the squash baseline leaves it out (D-514). Audits: audits/2026-11-06-scope and 2026-11-06-post-sweep in the ev-build project folder. 2026-11-07 run: plan row shape and jobs/commands PlanSchema removal already done on main. claude_settings->settings(key,value,at,v) goes with the squash (data/tables/jobs.ts, server/job-run.ts, data/export/tables.ts, ops/checks/migrationshape.ts, domain/claude).",
+  "notes": "Run 2026-11-07 04:4x (#725): wire Note type lost source, course, label, archivedAt, discardedAt; server/handlers-notes.ts moved too (slice widened by the build manager). Left: areas per-kind rows, old doc-row shapes, row-shapes.test gap, claude_settings to settings row, data/docs gate onto parse*Row. Claim freed.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
