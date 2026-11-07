@@ -35,6 +35,8 @@ jobs:
       - name: Build the snapshot
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          QUESTIONS_ISSUE: ${{ vars.QUESTIONS_ISSUE || '1' }}
         run: |
           python3 -I ops/status/build_status.py > "$RUNNER_TEMP/status.json"
           python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "$RUNNER_TEMP/status.json"
