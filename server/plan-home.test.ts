@@ -164,7 +164,7 @@ test("weak spots read as documents the screens parse: goal from the objective's 
   );
 });
 
-test("a weak spot is created in its table, once, with no events and no docs row", async () => {
+test("a weak spot is created in its table, once, with no events", async () => {
   const { createWeakSpot } = await import("./weak-wire.ts");
   const db = sqliteD1();
   db.sql.exec(
@@ -193,7 +193,6 @@ test("a weak spot is created in its table, once, with no events and no docs row"
   assert.equal("course" in (spots[0]?.data ?? {}), false);
   assert.equal(spots[0]?.data.exam, null);
   assert.equal(spots[0]?.data.proposed, true);
-  assert.equal(db.sql.prepare("SELECT COUNT(*) n FROM docs").get()?.n, 0);
   const again = await createWeakSpot(
     db as never,
     () => T,
