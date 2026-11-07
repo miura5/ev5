@@ -191,10 +191,14 @@ describe('what stays and what is refused', () => {
     answers: { [item]: { k: { rating: 'good', at: 'x', text } } },
   });
 
-  test('an answer queued as an answers document posts as a command under an att_ id, never PUT /docs', async () => {
-    const { server, box } = make();
-    await box.queueAnswer('answers', 'set_1-page-1', rated('set_1', 'item_1', 'my try'));
-    await box.queueAnswer('answers', 'set_1-page-2', told('set_1', 'item_2'));
+  /** An entry a device queued before commands existed: only a store still holds one, nothing queues it any more. */
+  const legacy = (store: ReturnType<typeof memoryStore>, id: string, doc: Record<string, unknown>, at: number) =>
+    store.put({ key: `answers\n${id}`, kind: 'answer', c: 'answers', id, doc, base: null, tag: `t${at}`, at });
+
+  test('an answer left in the store as an answers document posts as a command under an att_ id, never PUT /docs', async () => {
+    const { server, store, box } = make();
+    await legacy(store, 'set_1-page-1', rated('set_1', 'item_1', 'my try'), 1);
+    await legacy(store, 'set_1-page-2', told('set_1', 'item_2'), 2);
     const r = await box.replay();
     expect(r.sent).toBe(2);
     const a = server.docs.get('study.attempt/att_set1page1')?.data;
@@ -208,9 +212,9 @@ describe('what stays and what is refused', () => {
   });
 
   test('an answer already recorded (409) drops out; a replay after a lost reply posts the same att_ id', async () => {
-    const { server, box } = make();
+    const { server, store, box } = make();
     server.docs.set('study.attempt/att_s1p', { v: 1, data: {} });
-    await box.queueAnswer('answers', 's-1-p', rated('s', '1', 'x'));
+    await legacy(store, 's-1-p', rated('s', '1', 'x'), 1);
     expect((await box.replay()).sent).toBe(1);
     expect(await box.count()).toBe(0);
   });
@@ -225,11 +229,11 @@ describe('what stays and what is refused', () => {
     expect(await box.waiting()).toEqual([]);
   });
 
-  test('a refused answer is kept, named to the listener with its reason, and not sent again', async () => {
+  test('a refused command answer is kept, named to the listener with its reason, and not sent again', async () => {
     const { server, box } = make();
     const seen: { key: string; id: string; reason: string }[][] = [];
     const stop = box.onRefused((r) => void seen.push(r));
-    await box.queueAnswer('answers', 'set_1-page-1', told('set_1', 'item_1'));
+    await box.queueCommand('study.attempt', 'att_r1', { id: 'set_1/item_1', attempt: 'att_r1' });
     server.status = 400;
     expect((await box.replay()).refused).toHaveLength(1);
     expect(seen).toHaveLength(1);

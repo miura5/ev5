@@ -73,10 +73,8 @@ export function createOutbox(opts: OutboxOptions) {
 
   /** A note saved with no connection (or while an earlier save of it waits). */
   const queueNote = (id: string, doc: Note, base: number | null) => enqueue('note', 'notes', id, doc, base);
-  /** A practice answer: append-only, so always a create. `c` is the collection the answer is written to. */
-  const queueAnswer = (c: string, id: string, doc: Record<string, unknown>) => enqueue('answer', c, id, doc, null);
 
-  /** A practice answer posted as a command (study.attempt, study.just_tell_me) under a client-made att_ id: a replay
+  /** A practice answer posted as a command (study.attempt, study.just_tell_me), the only way an answer queues now under a client-made att_ id: a replay
    * that names the same id is a 409, which means it is already recorded. */
   const queueCommand = (name: string, id: string, input: Record<string, unknown>) =>
     enqueue('command', name, id, input, null);
@@ -168,7 +166,7 @@ export function createOutbox(opts: OutboxOptions) {
   /** Calls `l` with the entries a replay found refused for good; returns the way to stop. */
   const onRefused = (l: RefusedListener) => (listeners.add(l), () => void listeners.delete(l));
 
-  return { queueNote, queueAnswer, queueCommand, onRefused, replay, waiting, count: async () => (await sendable()).length };
+  return { queueNote, queueCommand, onRefused, replay, waiting, count: async () => (await sendable()).length };
 }
 
 export type Outbox = ReturnType<typeof createOutbox>;
