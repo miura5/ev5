@@ -9,8 +9,6 @@ export type Saved<T> =
 export type Val = string | number | null;
 export type Raw = Record<string, Val>;
 
-export const json = (s: Val | undefined): unknown =>
-  s === null || s === undefined ? null : JSON.parse(String(s));
 export const iso = (ms: number): string => new Date(ms).toISOString();
 export const text = (v: unknown): Val =>
   v === null || v === undefined ? null : JSON.stringify(v);

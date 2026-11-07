@@ -74,7 +74,7 @@ test("a note page has Delete, which shows Undo", async () => {
     ),
   );
   render(<NotesScreen services={services} search="open=n1" />);
-  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+  await deleteFromMenu();
   expect(await screen.findByText("Note deleted")).toBeTruthy();
 });
 
@@ -96,6 +96,11 @@ test("deleting the open note moves the shell's address back to the list", async 
       onNavigate={onNavigate}
     />,
   );
-  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+  await deleteFromMenu();
   await waitFor(() => expect(onNavigate).toHaveBeenCalledWith("/notes"));
 });
+
+async function deleteFromMenu() {
+  fireEvent.contextMenu(await screen.findByText(/^edited /));
+  fireEvent.click(await screen.findByRole("menuitem", { name: /Delete/ }));
+}

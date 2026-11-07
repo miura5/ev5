@@ -8,7 +8,7 @@ import {
   saveOutput,
   setPlanState,
 } from "./d1-stores.ts";
-import { memoryStore } from "./ceilings-memory.ts";
+import { memoryStore } from "./ceilings-memory.testkit.ts";
 import { release, reserve, settle, type CeilingStore } from "./ceilings.ts";
 import { newJob, transition, type JobStore } from "./record.ts";
 

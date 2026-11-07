@@ -1,7 +1,7 @@
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
-import { weakSpotDocs } from "./weak-wire.ts";
+import { weakSpotsWithGoal } from "./plan-home.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 test("a weak spot with no objective gets its goal from a direct weak spot -> goal link", async () => {
@@ -25,7 +25,7 @@ test("a weak spot with no objective gets its goal from a direct weak spot -> goa
     "INSERT INTO links (id, from_kind, from_id, to_kind, to_id, \"by\", at, v) VALUES ('link_1', 'weak_spot', 'ws_a', 'goal', 'goal_b', 'user', 1, 1), ('link_2', 'weak_spot', 'ws_a', 'goal', 'goal_a', 'user', 1, 1)",
   ])
     await DB.prepare(sql).run();
-  const spots = await weakSpotDocs(DB as never, () => 1000);
+  const spots = await weakSpotsWithGoal(DB as never, () => 1000);
   const goalOf = (id: string) => spots.find((s) => s.id === id)?.goalDate;
   assert.equal(goalOf("ws_a"), "2026-12-01"); // the soonest linked goal
   assert.equal(goalOf("ws_b"), null);
