@@ -112,3 +112,26 @@ test("a link needs both ends to exist; objectives reach goals through link rows"
     ).ok,
   );
 });
+
+test("createGoalWithLinks writes the goal and its links together; a missing objective or a taken id leaves nothing", async () => {
+  const r = make();
+  await r.objectives.save(obj("obj_1", 1), null);
+  const made = await r.createGoalWithLinks({ id: "goal_9", ...goal }, [
+    link("link_1", "obj_1", "goal_9"),
+  ]);
+  assert.equal(made.ok, true);
+  assert.deepEqual(await r.objectiveIdsOfGoal("goal_9"), ["obj_1"]);
+  await assert.rejects(
+    r.createGoalWithLinks({ id: "goal_8", ...goal }, [
+      link("link_2", "obj_1", "goal_8"),
+      link("link_3", "obj_gone", "goal_8"),
+    ]),
+    WriteRefused,
+  );
+  assert.equal(await r.goals.get("goal_8", { deleted: true }), null);
+  const again = await r.createGoalWithLinks({ id: "goal_9", ...goal }, [
+    link("link_4", "obj_1", "goal_9"),
+  ]);
+  assert.equal(again.ok, false);
+  assert.equal((await r.links.list()).length, 1);
+});

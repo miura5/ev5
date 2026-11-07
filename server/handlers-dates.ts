@@ -53,40 +53,35 @@ export const dateHandlers: Record<string, CommandHandler> = {
     _c,
     x,
   ) => {
-    const t = tablesRepo(x.db, { clock: x.clock });
     const id = goalKey(x.newId());
-    const made = await t.goals.save(
-      {
-        id,
-        collection_id: null,
-        title: i.title,
-        kind: checkKind(i.kind),
-        date: checkDate(i.date),
-        status: "open",
-        score: null,
-        created_by: "user",
-      },
-      null,
-    );
-    if (!made.ok) throw new CommandError(409, "that changed; try again");
+    const goal = {
+      id,
+      collection_id: null,
+      title: i.title,
+      kind: checkKind(i.kind),
+      date: checkDate(i.date),
+      status: "open",
+      score: null,
+      created_by: "user",
+    } as const;
+    const links = [...new Set(i.objectives ?? [])].map((objective) => ({
+      id: linkKey(x.newId()),
+      from_kind: "objective",
+      from_id: objective,
+      to_kind: "goal" as const,
+      to_id: id,
+      by: "user" as const,
+      note: null,
+    }));
     try {
-      for (const objective of new Set(i.objectives ?? []))
-        await t.links.save(
-          {
-            id: linkKey(x.newId()),
-            from_kind: "objective",
-            from_id: objective,
-            to_kind: "goal",
-            to_id: id,
-            by: "user",
-            note: null,
-          },
-          null,
-        );
+      // One batch: the goal and its links are all there or none is (§data.gate).
+      const made = await tablesRepo(x.db, {
+        clock: x.clock,
+      }).createGoalWithLinks(goal, links);
+      if (!made.ok) throw new CommandError(409, "that changed; try again");
     } catch (e) {
-      if (!(e instanceof WriteRefused)) throw e;
-      await t.goals.remove(id, made.row.v); // no half-made date
-      throw new CommandError(404, e.message);
+      if (e instanceof WriteRefused) throw new CommandError(404, e.message);
+      throw e;
     }
     return { id, date: i.date };
   },
