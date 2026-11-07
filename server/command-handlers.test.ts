@@ -247,3 +247,25 @@ test("a goal is deleted, listed with its title in Recently deleted, and restored
   assert.equal((await call("item.restore", { id: "goal_g1" })).status, 200);
   assert.equal((await call("item.restore", { id: "goal_g1" })).status, 404);
 });
+
+test("a session is deleted, listed with its topic in Recently deleted, and restored", async () => {
+  const call = await setup();
+  await call.db
+    .prepare(
+      "INSERT INTO sessions (id, kind, day, status, topic, at, v) VALUES ('ses_s1', 'note', '2026-11-07', 'ended', 'Cardiac', 1, 1)",
+    )
+    .run();
+  const del = (await (await call("item.delete", { id: "ses_s1" })).json()) as {
+    result: { deleted: boolean };
+  };
+  assert.equal(del.result.deleted, true);
+  const listed = (await (await call.get("/deletions")).json()) as {
+    deletions: { collection: string; id: string; title: string | null }[];
+  };
+  assert.deepEqual(
+    listed.deletions.map((d) => [d.collection, d.id, d.title]),
+    [["sessions", "ses_s1", "Cardiac"]],
+  );
+  assert.equal((await call("item.restore", { id: "ses_s1" })).status, 200);
+  assert.equal((await call("item.restore", { id: "ses_s1" })).status, 404);
+});

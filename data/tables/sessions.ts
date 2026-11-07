@@ -24,9 +24,12 @@ export function sessionsRepo(db: D1Like, opts: TablesOptions) {
     );
   return {
     sessionBook: {
-      /** One live session with its events in time order, or null. */
-      get: async (id: string): Promise<StoredSession | null> => {
-        const row = await k.sessions.get(id);
+      /** One live session with its events in time order, or null; `deleted: true` also finds a deleted one (for restore). */
+      get: async (
+        id: string,
+        o: { deleted?: boolean } = {},
+      ): Promise<StoredSession | null> => {
+        const row = await k.sessions.get(id, o);
         return row ? { row, events: await events(id) } : null;
       },
       /** Every live session with its events, in id order. */

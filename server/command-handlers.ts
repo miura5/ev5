@@ -36,7 +36,7 @@ async function collectionOf(
   if (id.startsWith("set_") && (await t.sets.get(id, o))) return "sets";
   if (id.startsWith("goal_") && (await t.goals.get(id, o))) return "exams";
   if (await t.noteBook.get(noteRowId(id), o)) return "notes";
-  if (await t.sessionBook.get(id)) return "sessions";
+  if (await t.sessionBook.get(id, o)) return "sessions";
   throw new CommandError(404, `no item ${id}`);
 }
 
@@ -142,8 +142,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
     // A set or a goal is a row too: hidden there and listed in Recently deleted (§delete.soft).
     if (c === "sets") return { deleted: await t.deletions.markSet(i.id) };
     if (c === "exams") return { deleted: await t.deletions.markGoal(i.id) };
-    // A session has no deletions mark yet (data/tables): nothing is hidden, so nothing is claimed.
-    return { deleted: false };
+    // A session is a row too: hidden there and listed in Recently deleted (§delete.soft).
+    return { deleted: await t.deletions.markSession(i.id) };
   },
   // A restore only clears the deletions row: the document was never removed (§delete.soft).
   "item.restore": async (i: Ref, _c, x) => {

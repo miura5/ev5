@@ -30,7 +30,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         .all<{ id: string; target_id: string; v: number }>()
     ).results.map((r) => ({ id: r.id, targetId: r.target_id, v: r.v }));
   const markRow = async (
-    table: "sets" | "goals",
+    table: "sets" | "goals" | "sessions",
     c: string,
     id: string,
   ): Promise<boolean> => {
@@ -213,6 +213,9 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       markSet: (id: string): Promise<boolean> => markRow("sets", "sets", id),
       /** Soft delete of a goal by its id (`goal_…`): a deletions row under `exams` (the name GET /docs gives goals), and the row's `deleted_at`. */
       markGoal: (id: string): Promise<boolean> => markRow("goals", "exams", id),
+      /** Soft delete of a session by its id (`ses_…`): a deletions row under `sessions`, and the row's `deleted_at`. */
+      markSession: (id: string): Promise<boolean> =>
+        markRow("sessions", "sessions", id),
       /** Clears every Recently deleted row of a set item: its item-id row and the older `<set>/<item>` rows. */
       restoreSetItem: async (itemId: string): Promise<number> => {
         const key = itemKey(itemId);
@@ -252,6 +255,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
         for (const [cc, table] of [
           ["sets", "sets"],
           ["exams", "goals"],
+          ["sessions", "sessions"],
         ] as const)
           if (c === cc)
             await db
