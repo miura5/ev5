@@ -17,6 +17,14 @@ const areaWriteSyntax = [
   },
 ];
 
+// pictureApi.put takes any key at the type level, so only the notes picture part may call it (§cmd.registry); it also refuses other keys at run time.
+const pictureDoorSyntax = [
+  {
+    selector: "CallExpression[callee.object.name='pictureApi']",
+    message: "Only areas/notes/parts/notePictures.ts writes pictures, through pictureApi (note-images/ keys only). Others write through a registry command, call(name, input, token).",
+  },
+];
+
 const areaSyntax = [
   {
     selector: "MemberExpression[property.name=/^toLocale(Date|Time)String$/]",
@@ -161,6 +169,11 @@ export default [
   {
     // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
     files: ["areas/**/*.{ts,tsx}"],
+    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, pictureDoorSyntax, controlsSyntax) },
+  },
+  {
+    // The one caller of the picture door.
+    files: ["areas/notes/parts/notePictures.ts"],
     rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, controlsSyntax) },
   },
   {
@@ -175,6 +188,6 @@ export default [
   },
   {
     files: ["areas/**/*.story.tsx"],
-    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax, areaWriteSyntax) },
+    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax, areaWriteSyntax, pictureDoorSyntax) },
   },
 ];

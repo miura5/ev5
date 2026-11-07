@@ -188,7 +188,12 @@ export const jobApi = {
 
 /** Note pictures (CONTRACT §data.note-images): raw bytes cannot ride a JSON command, so the one write is this door. */
 export const pictureApi = {
-  /** Store one picture under its note-images/ key; the Worker writes the bytes and their files row, never overwriting. */
-  put: (key: string, file: Blob, token: string) =>
-    api(key, token, { method: "PUT", raw: { data: file, contentType: file.type } }),
+  /** Store one picture under its note-images/ key; the Worker writes the bytes and their files row, never overwriting.
+   *  Any other path is refused here, so this door cannot reach another route (§cmd.registry). */
+  put: (key: string, file: Blob, token: string) => {
+    if (!PICTURE_KEY.test(key)) throw new Error(`pictureApi.put only writes note-images/ keys, not "${key}"`);
+    return api(key, token, { method: "PUT", raw: { data: file, contentType: file.type } });
+  },
 };
+
+const PICTURE_KEY = /^note-images\/[A-Za-z0-9]{1,64}\.(png|jpg|webp|gif)$/;
