@@ -1,113 +1,53 @@
 import { expect, test, vi } from "vitest";
-import { registerPwa } from "./pwa.ts";
+import { createReloadHold, startPwa, type RegisterSW } from "./pwa.ts";
 
-function fakeSw(controller: unknown) {
+function setup() {
+  let opts: Parameters<RegisterSW>[0];
+  const register: RegisterSW = (o) => void (opts = o);
   const listeners: Record<string, () => void> = {};
+  const win = { addEventListener: (n: string, f: () => void) => void (listeners[n] = f) };
+  const reload = vi.fn();
+  const gate = createReloadHold(reload);
+  startPwa(register, win as never, gate);
+  return { opts: () => opts!, listeners, reload, gate };
+}
+
+test("registers at once and reloads when a new worker takes over", () => {
+  const s = setup();
+  expect(s.opts().immediate).toBe(true);
+  s.opts().onNeedReload!();
+  expect(s.reload).toHaveBeenCalledTimes(1);
+});
+
+test("holds the reload while an attempt is open, then reloads once when it closes", () => {
+  const s = setup();
+  const a = s.gate.hold();
+  const b = s.gate.hold();
+  s.opts().onNeedReload!();
+  expect(s.reload).not.toHaveBeenCalled();
+  a();
+  a();
+  expect(s.reload).not.toHaveBeenCalled();
+  b();
+  expect(s.reload).toHaveBeenCalledTimes(1);
+});
+
+test("a closed attempt with no new build reloads nothing", () => {
+  const s = setup();
+  s.gate.hold()();
+  expect(s.reload).not.toHaveBeenCalled();
+});
+
+test("checks for a new build when the window regains focus", () => {
+  const s = setup();
   const update = vi.fn().mockResolvedValue(undefined);
-  const register = vi.fn().mockResolvedValue({ update });
-  const serviceWorker = {
-    controller,
-    register,
-    addEventListener: (n: string, f: () => void) => (listeners[n] = f),
-  };
-  return { serviceWorker, register, listeners, update };
-}
-function fakeDoc() {
-  const listeners: Record<string, () => void> = {};
-  return {
-    visibilityState: "visible",
-    addEventListener: (n: string, f: () => void) => (listeners[n] = f),
-    listeners,
-  };
-}
-
-test("registers /sw.js when service workers exist", () => {
-  const { serviceWorker, register } = fakeSw(null);
-  expect(
-    registerPwa(
-      serviceWorker ? ({ serviceWorker } as never) : undefined,
-      undefined,
-      vi.fn(),
-    ),
-  ).toBe(true);
-  expect(register).toHaveBeenCalledWith("/sw.js", { scope: "/" });
-});
-
-test("does nothing without service worker support", () => {
-  expect(registerPwa({} as never)).toBe(false);
-});
-
-test("reloads once when a new worker takes over an open page", () => {
-  const { serviceWorker, listeners } = fakeSw({});
-  const reload = vi.fn();
-  registerPwa({ serviceWorker } as never, undefined, reload);
-  listeners.controllerchange!();
-  listeners.controllerchange!();
-  expect(reload).toHaveBeenCalledTimes(1);
-});
-
-test("does not reload on the very first install", () => {
-  const { serviceWorker, listeners } = fakeSw(null);
-  const reload = vi.fn();
-  registerPwa({ serviceWorker } as never, undefined, reload);
-  listeners.controllerchange!();
-  expect(reload).not.toHaveBeenCalled();
-});
-
-test("checks for a new build when the app regains focus", async () => {
-  const { serviceWorker, update } = fakeSw({});
-  const doc = fakeDoc();
-  registerPwa({ serviceWorker } as never, doc as never, vi.fn());
-  await Promise.resolve();
-  await Promise.resolve();
-  doc.listeners.visibilitychange!();
+  s.listeners.focus!();
+  s.opts().onRegisteredSW!("/sw.js", { update } as never);
+  s.listeners.focus!();
   expect(update).toHaveBeenCalledTimes(1);
 });
 
-test("tells a waiting worker to skip waiting so the page reloads into the new build", async () => {
-  const { serviceWorker, register } = fakeSw({});
-  const postMessage = vi.fn();
-  register.mockResolvedValue({ update: vi.fn(), waiting: { postMessage } });
-  registerPwa({ serviceWorker } as never, undefined, vi.fn());
-  await Promise.resolve();
-  await Promise.resolve();
-  expect(postMessage).toHaveBeenCalledWith({ type: "SKIP_WAITING" });
-});
-
-test("does not skip waiting on the first install", async () => {
-  const { serviceWorker, register } = fakeSw(null);
-  const postMessage = vi.fn();
-  register.mockResolvedValue({ waiting: { postMessage } });
-  registerPwa({ serviceWorker } as never, undefined, vi.fn());
-  await Promise.resolve();
-  await Promise.resolve();
-  expect(postMessage).not.toHaveBeenCalled();
-});
-
-test("skips waiting when a new worker finishes installing", async () => {
-  const { serviceWorker, register } = fakeSw({});
-  const postMessage = vi.fn();
-  const w: {
-    state: string;
-    postMessage: typeof postMessage;
-    fire?: () => void;
-    addEventListener: unknown;
-  } = {
-    state: "installing",
-    postMessage,
-    addEventListener: (_n: string, f: () => void) => (w.fire = f),
-  };
-  let found: () => void = () => undefined;
-  register.mockResolvedValue({
-    installing: w,
-    waiting: null,
-    addEventListener: (_n: string, f: () => void) => (found = f),
-  });
-  registerPwa({ serviceWorker } as never, undefined, vi.fn());
-  await Promise.resolve();
-  await Promise.resolve();
-  found();
-  w.state = "installed";
-  w.fire!();
-  expect(postMessage).toHaveBeenCalledWith({ type: "SKIP_WAITING" });
+test("does nothing without a window", () => {
+  const register = vi.fn();
+  expect(() => startPwa(register, undefined, { requestReload: vi.fn() })).not.toThrow();
 });
