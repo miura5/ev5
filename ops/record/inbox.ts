@@ -63,7 +63,7 @@ export function inboxFile(root: string, rec: Chart, now: string): Done {
     for (const e of f.entries) {
       const flags: Record<string, string> = { ...e.flags };
       for (const k of REF_FLAGS[e.type]) if (flags[k] != null) flags[k] = fix(flags[k]) as string;
-      const o: Opts = { _: ['', e.type], ...flags };
+      const o: Opts = Object.assign({ _: ['', e.type] }, flags);
       const done = (e.type === 'task' ? taskAdd : decisionAdd)(rec, o, now);
       real.set(e.id, done.id);
       made.push(`${f.session} ${e.id}=${done.id}`);
