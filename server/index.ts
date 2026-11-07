@@ -99,7 +99,7 @@ app.all("/api/*", (c) =>
     : c.json({ error: "not found" }, 404),
 );
 
-// ev4's page files: a browser still running ev4's page gets a plain answer instead of the v5 app's HTML.
+// The old app's page files: a browser still running the old page gets a plain answer instead of the v5 app's HTML.
 app.all("*", (c, next) =>
   isEv4PageFile(c.req.path)
     ? c.text(MOVED_TEXT, 410, { "Cache-Control": "no-store" })
