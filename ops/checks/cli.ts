@@ -38,7 +38,8 @@ const hasRef = (ref: string): boolean =>
 const base =
   arg('base') ??
   (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : hasRef('origin/main') ? 'origin/main' : undefined);
-const files = listFiles(root);
+// design/final-reference/ is ev-design's frozen copy, kept as reference for the studio UI port: data, not source.
+const files = listFiles(root).filter(f => !f.startsWith('design/final-reference/'));
 const findings = [
   ...checkAccount(root, files),
   ...checkChartEv4(root, files),

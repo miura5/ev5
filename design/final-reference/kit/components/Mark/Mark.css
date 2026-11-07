@@ -1,0 +1,26 @@
+/* E.V.'s mark (the Consolidate symbol, small-size cut): dots that firm up into a line, open at the top.
+   It is E.V.'s name, so it never shows loading. Running work and loading are the Dot with pulse. Geometry comes from the logo kit (geometry.json). */
+.kit-mark {
+  width: var(--icon);
+  height: var(--icon);
+  flex: none;
+  fill: none;
+  stroke: var(--her);
+  stroke-linecap: round;
+  overflow: visible;
+}
+
+.kit-mark-quiet {
+  stroke: var(--faint);
+}
+
+.kit-mark path {
+  stroke-width: var(--sw);
+}
+
+/* Logo: the sidebar's identity mark. */
+.kit-mark-logo {
+  width: calc(var(--icon) + var(--sp-1));
+  height: calc(var(--icon) + var(--sp-1));
+  stroke: var(--text);
+}
