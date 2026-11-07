@@ -28,7 +28,7 @@ test("migration 0014 copies weakspots documents into rows and events into append
     topic: "Fluids",
     objective: "o-1",
     kind: "concept",
-    course: "biology 101",
+    course: "course a",
     initial: { streak: 2 },
     preRead: true,
     events: {
