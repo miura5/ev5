@@ -7,7 +7,13 @@ import {
 } from "@testing-library/react";
 import { centralDate } from "../../domain/index.ts";
 import { afterEach, expect, test, vi } from "vitest";
-import { TodayHosted } from "./testHost.tsx";
+import {
+  goalRow,
+  itemRow,
+  planRow,
+  rowsAnswer,
+  TodayHosted,
+} from "./testHost.tsx";
 
 afterEach(() => {
   cleanup();
@@ -18,16 +24,7 @@ afterEach(() => {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status });
 const soon = centralDate(Date.now() + 3 * 86_400_000);
-const exam = {
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
-  title: "Exam 3",
-  kind: "exam",
-  course: "Biology 101",
-  date: soon,
-};
+const exam = goalRow({ date: soon });
 
 test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", async () => {
   localStorage.setItem("ev5.token", "t");
@@ -48,9 +45,7 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
           })
         : url.includes("dayedits")
           ? json({}, 404)
-          : url.includes("collection=exams")
-            ? json({ docs: [{ id: "e3", data: exam }] })
-            : json({ docs: [] }),
+          : rowsAnswer(url, { goals: [exam] }),
     ),
   );
   const onNavigate = vi.fn();
@@ -74,21 +69,14 @@ test("a Upcoming exam row opens its Detail with the plan line; Esc closes it", a
   expect(document.querySelector("[data-ui='detail']")).toBeNull();
 });
 
-const two = [
-  { id: "e3", data: exam },
-  { id: "e4", data: { ...exam, title: "Exam 4", date: soon } },
-];
+const two = [exam, goalRow({ id: "e4", title: "Exam 4", date: soon })];
 const feed = (jobs: unknown[], extra: Record<string, unknown[]> = {}) =>
   vi.fn(async (url: string) =>
     url.includes("jobs")
       ? json({ jobs })
       : url.includes("dayedits")
         ? json({}, 404)
-        : url.includes("collection=exams")
-          ? json({ docs: extra.exams ?? two })
-          : url.includes("collection=plans")
-            ? json({ docs: extra.plans ?? [] })
-            : json({ docs: [] }),
+        : rowsAnswer(url, { goals: two, ...extra }),
   );
 
 test("a waiting plan shows only on the exam its job names", async () => {
@@ -119,8 +107,7 @@ test("an exam whose plan is in force reads approved", async () => {
   vi.stubGlobal(
     "fetch",
     feed([], {
-      exams: [{ id: "e3", data: exam }, two[1]],
-      plans: [{ id: "p1", data: { goal_id: "e3", state: "in_force" } }],
+      plans: [planRow({ id: "plan_p1", goal_id: "e3" })],
     }),
   );
   render(<TodayHosted />);
@@ -149,38 +136,31 @@ test("an approved plan's session dated today lists on Today's Plan, and Start ne
   localStorage.setItem("ev5.token", "t");
   const today = centralDate(new Date());
   const items = [
-    {
+    itemRow({
       id: "pli_j-1",
-      data: {
-        plan_id: "p1",
-        day: today,
-        title: "Gather notes and make a review list",
-        minutes: 30,
-      },
-    },
-    {
+      plan_id: "plan_p1",
+      day: today,
+      title: "Gather notes and make a review list",
+      minutes: 30,
+    }),
+    itemRow({
       id: "pli_j-2",
-      data: { plan_id: "p1", day: "2099-01-01", title: "Later", minutes: 10 },
-    },
+      plan_id: "plan_p1",
+      day: "2099-01-01",
+      title: "Later",
+      minutes: 10,
+    }),
   ];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string) =>
       url.includes("jobs")
         ? json({ jobs: [] })
-        : url.includes("dayedits")
-          ? json({}, 404)
-          : url.includes("collection=exams")
-            ? json({ docs: [{ id: "e3", data: exam }] })
-            : url.includes("collection=plan_items")
-              ? json({ docs: items })
-              : url.includes("collection=plans")
-                ? json({
-                    docs: [
-                      { id: "p1", data: { goal_id: "e3", state: "in_force" } },
-                    ],
-                  })
-                : json({ docs: [] }),
+        : rowsAnswer(url, {
+            goals: [exam],
+            "plan-items": items,
+            plans: [planRow()],
+          }),
     ),
   );
   render(<TodayHosted />);

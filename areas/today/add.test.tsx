@@ -12,6 +12,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { TodayView } from "./Today.view.tsx";
 import type { TodayProps } from "./types.ts";
 import { useToday } from "./useToday.ts";
+import { rowsAnswer } from "./testHost.tsx";
 
 afterEach(() => {
   cleanup();
@@ -105,9 +106,9 @@ test("addPlan and addDate call plan.create and date.create, then Today reads its
         calls.push(`${url} ${init?.body}`);
         return json({ mode: "direct", result: {} });
       }
-      if (url.includes("collection=exams")) reads++;
+      if (url.includes("/goals")) reads++;
       if (url.includes("jobs")) return json({ jobs: [] });
-      return url.includes("dayedits") ? json({}, 404) : json({ docs: [] });
+      return url.includes("dayedits") ? json({}, 404) : rowsAnswer(url);
     }),
   );
   const { result } = renderHook(() => useToday());
@@ -137,7 +138,7 @@ test("an add the server refuses resolves false", async () => {
           ? json({ jobs: [] })
           : url.includes("dayedits")
             ? json({}, 404)
-            : json({ docs: [] }),
+            : rowsAnswer(url),
     ),
   );
   const { result } = renderHook(() => useToday());

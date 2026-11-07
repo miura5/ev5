@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
-import type { AttemptRow, SetItemRow } from "../../domain/index.ts";
+import type {
+  AttemptRow,
+  GoalRow,
+  LinkRow,
+  SetItemRow,
+  WeakSpotEventRow,
+  WeakSpotTableRow,
+} from "../../domain/index.ts";
 import { mapToday, spendAlertLine, prepPlanWaiting } from "./map.ts";
-import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
+import type { TodayData, WireJobLine } from "./map.ts";
+import type { PlanItemRow, PlanRow } from "./plans.ts";
 import {
   ApiError,
   api,
@@ -41,24 +49,12 @@ export interface TodayState {
   setKind: (id: string, kind: string) => Promise<boolean>;
 }
 
-async function get(path: string, token: string): Promise<Response> {
-  const r = await api(`docs?${path}`, token);
-  if (r.status === 401) throw new ApiError(401);
-  return r;
-}
-
-const list = async (collection: string, token: string): Promise<WireDoc[]> => {
-  const r = await get(`collection=${collection}`, token);
-  if (!r.ok) throw new ApiError(r.status);
-  return ((await r.json()) as { docs: WireDoc[] }).docs;
-};
-
 /** The rows of one kind from GET /<path> (the domain row shape, §data.gate). */
-const rowsOf = async <T,>(path: string, token: string): Promise<T[]> => {
+async function rowsOf<T>(path: string, token: string): Promise<T[]> {
   const r = await api(path, token);
   if (!r.ok) throw new ApiError(r.status);
   return ((await r.json()) as { rows: T[] }).rows;
-};
+}
 
 /** Reads exams, weak spots and today's plan items with the app token Matt keeps in this browser (the shell holds none). */
 export function useToday(copy?: ReadCopyLike): TodayState {
@@ -76,66 +72,100 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     const now = Date.now();
     // Every read goes out at once; offline, each gives back its saved copy (§data.offline) and the shell says so.
     const load = async (c: ReadCopyLike | undefined) => {
-      const saved = <T,>(key: string, get: () => Promise<T>) =>
-        c ? c.read(key, get) : get();
+      function saved<T>(key: string, get: () => Promise<T>): Promise<T> {
+        return c ? c.read(key, get) : get();
+      }
       const today = centralDate(now);
+      // Each kind is its own row read; offline it gives back its saved copy (§data.offline).
+      function rows<T>(path: string): Promise<T[]> {
+        return saved(`today:${path}`, () => rowsOf<T>(path, token));
+      }
       // Which plan is in force is a nicety: when it cannot be read, none is approved.
-      const planRead = saved("today:plans", () => list("plans", token)).catch(
-        (): WireDoc[] => [],
+      const plans = rows<PlanRow>("plans").catch((): PlanRow[] => []);
+      // The approved plan's sessions are its plan-items rows; unreadable, Today just lists none from it.
+      const planItems = rows<PlanItemRow>("plan-items").catch(
+        (): PlanItemRow[] => [],
       );
-      // The approved plan's sessions are its plan_items rows; unreadable, Today just lists none from it.
-      const items = saved("today:plan_items", () =>
-        list("plan_items", token),
-      ).catch((): WireDoc[] => []);
-      // Answers and the items they were aimed at give a spot its misses and streak; unreadable, a spot reads as unanswered.
-      const attempts = saved("today:attempts", () =>
-        rowsOf<AttemptRow>("attempts", token),
-      ).catch((): AttemptRow[] => []);
-      const setItems = saved("today:items", () =>
-        rowsOf<SetItemRow>("items", token),
-      ).catch((): SetItemRow[] => []);
+      // Events, links, answers and the items they were aimed at give a spot its misses, date and streak; unreadable, a spot reads as new and undated.
+      const events = rows<WeakSpotEventRow>("weak-spot-events").catch(
+        (): WeakSpotEventRow[] => [],
+      );
+      const links = rows<LinkRow>("links").catch((): LinkRow[] => []);
+      const attempts = rows<AttemptRow>("attempts").catch(
+        (): AttemptRow[] => [],
+      );
+      const setItems = rows<SetItemRow>("items").catch((): SetItemRow[] => []);
       // The jobs are extra: Today still loads without them.
       const jobRead = jobApi.list(token, c).then(
         (j) => j as WireJobLine[],
         () => undefined,
       );
-      const [exams, weakspots, plans, planItems, jobs, answers, setRows] = await Promise.all([
-        saved("today:exams", () => list("exams", token)),
-        saved("today:weakspots", () => list("weakspots", token)),
-        planRead,
-        items,
-        jobRead,
+      const [goals, weakspots, ...rest] = await Promise.all([
+        rows<GoalRow>("goals"),
+        rows<WeakSpotTableRow>("weak-spots"),
+        plans,
+        planItems,
+        events,
+        links,
         attempts,
         setItems,
+        jobRead,
       ]);
-      return { exams, weakspots, plans, planItems, jobs, answers, setRows };
+      const [p, pi, weakSpotEvents, l, answers, setRows, jobs] = rest as [
+        PlanRow[],
+        PlanItemRow[],
+        WeakSpotEventRow[],
+        LinkRow[],
+        AttemptRow[],
+        SetItemRow[],
+        WireJobLine[] | undefined,
+      ];
+      return {
+        goals,
+        weakspots,
+        plans: p,
+        planItems: pi,
+        weakSpotEvents,
+        links: l,
+        jobs,
+        answers,
+        setRows,
+      };
     };
     const first = warm.current;
     warm.current = false;
     // The screen opens on the last answer kept, then the server's (§ui.instant).
-    savedFirst(copy, first, load, (r) => {
-      if (!live) return;
-      if (r.jobs) {
-        setAlert(spendAlertLine(r.jobs));
-        setPlanWaiting(prepPlanWaiting(r.jobs));
-      }
-      const { exams, weakspots, plans, planItems, answers, setRows } = r;
-      setData(
-        mapToday(
-          {
-            exams,
-            weakspots,
-            jobs: r.jobs ?? [],
-            plans,
-            planItems,
-            attempts: answers,
-            items: setRows,
-          },
-          now,
-        ),
-      );
-      setError(undefined);
-    }, () => setData(undefined)).catch((e: unknown) => {
+    savedFirst(
+      copy,
+      first,
+      load,
+      (r) => {
+        if (!live) return;
+        if (r.jobs) {
+          setAlert(spendAlertLine(r.jobs));
+          setPlanWaiting(prepPlanWaiting(r.jobs));
+        }
+        const { goals, weakspots, plans, planItems, answers, setRows } = r;
+        setData(
+          mapToday(
+            {
+              goals,
+              weakspots,
+              weakSpotEvents: r.weakSpotEvents,
+              links: r.links,
+              jobs: r.jobs ?? [],
+              plans,
+              planItems,
+              attempts: answers,
+              items: setRows,
+            },
+            now,
+          ),
+        );
+        setError(undefined);
+      },
+      () => setData(undefined),
+    ).catch((e: unknown) => {
       // A refused token shows nothing here: the shell's token screen takes over.
       if (live && failureKind(e) === "refused") setRefused(true);
       if (live)
@@ -192,7 +222,12 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         if (!r.ok || r.mode !== "direct") return false;
       }
       setData((d) =>
-        d ? { ...d, plan: d.plan.map((p) => (p.id === id ? { ...p, done } : p)) } : d,
+        d
+          ? {
+              ...d,
+              plan: d.plan.map((p) => (p.id === id ? { ...p, done } : p)),
+            }
+          : d,
       );
       return true;
     },

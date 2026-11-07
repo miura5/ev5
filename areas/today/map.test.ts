@@ -1,47 +1,36 @@
 import { expect, test } from "vitest";
+import type { GoalRow, LinkRow, WeakSpotTableRow } from "../../domain/index.ts";
 import { mapToday, spendAlertLine } from "./map.ts";
+import type { PlanItemRow } from "./plans.ts";
+import { goalRow, itemRow, planRow, spotRow } from "./testHost.tsx";
 
 const now = Date.parse("2026-11-03T18:00:00Z"); // Tuesday 12:00 Central
-const exam = (date: string, extra: object = {}) => ({
-  schema: 2,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
-  title: "Exam 4",
-  kind: "unit",
-  date,
-  ...extra,
-});
-const spot = (topic: string, over: object = {}) => ({
-  schema: 2,
-  writer: "page",
-  at: "2026-10-15T15:00:00Z",
-  source: "test",
-  topic,
-  objective: "E4-3",
-  exam: "e4",
-  kind: "concept",
-  initial: { streak: 0, nextDue: "2026-11-04", recurrence: 1, misses: 2 },
-  events: {},
-  ...over,
+const exam = (id: string, date: string, over: Partial<GoalRow> = {}) =>
+  goalRow({ id, date, ...over });
+const spot = (
+  id: string,
+  topic: string,
+  over: Partial<WeakSpotTableRow> = {},
+) => spotRow({ id, topic, ...over });
+const link = (from_id: string, to_id: string): LinkRow => ({
+  id: `link_${from_id}`,
+  from_kind: "weak_spot",
+  from_id,
+  to_kind: "goal",
+  to_id,
+  by: "user",
+  note: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
 });
 
-/** A plan_items row Matt added, as the wire serves it (no plan, today unless `day` says otherwise). */
-const item = (id: string, title: string, over: object = {}) => ({
-  id,
-  data: {
-    plan_id: null,
-    day: "2026-11-03",
-    title,
-    minutes: null,
-    origin: "user",
-    done_at: null,
-    ...over,
-  },
-});
+/** A plan_items row Matt added (no plan, today unless `day` says otherwise). */
+const item = (id: string, title: string, over: Partial<PlanItemRow> = {}) =>
+  itemRow({ id, title, ...over });
 
 test("no data is the empty day, not an error", () => {
-  const d = mapToday({ exams: [], weakspots: [] }, now);
+  const d = mapToday({ goals: [], weakspots: [] }, now);
   expect(d.say.lead).toBe("Nothing planned yet.");
   expect([d.plan, d.upcoming, d.thisWeek]).toEqual([[], [], []]);
 });
@@ -49,13 +38,14 @@ test("no data is the empty day, not an error", () => {
 test("exams, weak spots and today's plan map to the view's props", () => {
   const d = mapToday(
     {
-      exams: [
-        { id: "e4", data: exam("2026-11-05") },
-        { id: "e5", data: exam("2026-11-20", { title: "Exam 5" }) },
-        { id: "old", data: exam("2026-10-01", { status: "done" }) },
-        { id: "bad", data: { nope: 1 } },
+      goals: [
+        exam("e4", "2026-11-05", { title: "Exam 4" }),
+        exam("e5", "2026-11-20", { title: "Exam 5" }),
+        exam("old", "2026-10-01", { status: "done" }),
+        exam("undated", "2026-11-09", { date: null }),
       ],
-      weakspots: [{ id: "w1", data: spot("Oral liquid doses") }],
+      weakspots: [spot("w1", "Oral liquid doses")],
+      links: [link("w1", "e4")],
       planItems: [
         item("a", "Review doses", { minutes: 10, done_at: 5 }),
         item("b", "Another day", { day: "2026-11-04" }),
@@ -110,7 +100,7 @@ test("a plan with items never says Nothing planned yet, and rows read as added b
     item("b", "Call clinic", { done_at: b }),
   ];
   const one = mapToday(
-    { exams: [], weakspots: [], planItems: items(5, null) },
+    { goals: [], weakspots: [], planItems: items(5, null) },
     now,
   );
   expect(one.say.lead).toBe("1 item is left on today's plan.");
@@ -119,7 +109,7 @@ test("a plan with items never says Nothing planned yet, and rows read as added b
     [false, "added by you"],
   ]);
   const all = mapToday(
-    { exams: [], weakspots: [], planItems: items(5, 6) },
+    { goals: [], weakspots: [], planItems: items(5, 6) },
     now,
   );
   expect(all.say.lead).toBe("Today's plan is done.");
@@ -128,9 +118,9 @@ test("a plan with items never says Nothing planned yet, and rows read as added b
 test("while the prep plan job still runs after Approve, the exam is not shown as approved", () => {
   const d = mapToday(
     {
-      exams: [{ id: "e4", data: exam("2026-11-20") }],
+      goals: [exam("e4", "2026-11-20")],
       weakspots: [],
-      plans: [{ id: "plan-old", data: { goal_id: "e4", state: "in_force" } }],
+      plans: [planRow({ id: "plan_old", goal_id: "e4" })],
       jobs: [
         { kind: "prep_plan", state: "running", summary: "", goalId: "e4" },
       ],
@@ -147,7 +137,7 @@ test("a weekly review waiting for Matt is a Weekly review row in This week", () 
     summary: "5h 10m studied · 2 weak spots to confirm",
   });
   const waiting = mapToday(
-    { exams: [], weakspots: [], jobs: [job("needs-you")] },
+    { goals: [], weakspots: [], jobs: [job("needs-you")] },
     now,
   );
   expect(waiting.thisWeek).toEqual([
@@ -159,6 +149,6 @@ test("a weekly review waiting for Matt is a Weekly review row in This week", () 
     },
   ]);
   expect(
-    mapToday({ exams: [], weakspots: [], jobs: [job("done")] }, now).thisWeek,
+    mapToday({ goals: [], weakspots: [], jobs: [job("done")] }, now).thisWeek,
   ).toEqual([]);
 });

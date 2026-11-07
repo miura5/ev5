@@ -1,18 +1,35 @@
-import type { AttemptRow, SetItemRow, WireDoc } from "../../domain/index.ts";
+import type {
+  AttemptRow,
+  GoalRow,
+  LinkRow,
+  SetItemRow,
+  WeakSpotEventRow,
+  WeakSpotTableRow,
+  parsePlanItemTableRow,
+  parsePlanTableRow,
+} from "../../domain/index.ts";
 
-export type { WireDoc };
+/** A plans row as GET /plans returns it (§data.gate). */
+export type PlanRow = ReturnType<typeof parsePlanTableRow>;
+/** A plan_items row as GET /plan-items returns it. */
+export type PlanItemRow = ReturnType<typeof parsePlanItemTableRow>;
+
+/** The rows Today reads, as the GET row routes return them (§data.gate). */
 export interface TodayDocs {
-  exams: WireDoc[];
-  weakspots: WireDoc[];
+  goals: GoalRow[];
+  weakspots: WeakSpotTableRow[];
+  /** GET /weak-spot-events and GET /links: they refine a spot (its misses, its date). Absent reads as none. */
+  weakSpotEvents?: WeakSpotEventRow[];
+  links?: LinkRow[];
   /** GET /attempts and GET /items: an answer counts for the weak spot its item is aimed at. Absent reads as none. */
   attempts?: AttemptRow[];
   items?: SetItemRow[];
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: readonly WireJobLine[];
   /** The plans rows (goal, state); a goal's plan in force is its approved plan. Absent reads as none. */
-  plans?: WireDoc[];
+  plans?: PlanRow[];
   /** The plan_items rows (plan, day, title, minutes, origin, tick): a plan's tasks and the items Matt added. */
-  planItems?: WireDoc[];
+  planItems?: PlanItemRow[];
 }
 
 /** One entry of GET /api/v1/jobs, restated: only what the spend alert line needs. */
@@ -80,39 +97,22 @@ type Item = {
 
 /** The plan in force for a goal: its plans row in state in_force. */
 function inForce(docs: TodayDocs, goalId: string): string | undefined {
-  return docs.plans?.find((p) => {
-    const d = p.data as { goal_id?: unknown; state?: unknown } | undefined;
-    return d?.goal_id === goalId && d.state === "in_force";
-  })?.id;
+  return docs.plans?.find((p) => p.goal_id === goalId && p.state === "in_force")
+    ?.id;
 }
 
 /** A plan's items, by day. The id is the row id: the key a tick is saved under. */
 function itemsOf(docs: TodayDocs, planId: string | undefined): Item[] {
   if (!planId) return [];
-  return (docs.planItems ?? []).flatMap((i) => {
-    const d = i.data as
-      | {
-          plan_id?: unknown;
-          day?: unknown;
-          title?: unknown;
-          minutes?: unknown;
-          done_at?: unknown;
-        }
-      | undefined;
-    return d?.plan_id === planId &&
-      typeof d.day === "string" &&
-      typeof d.title === "string"
-      ? [
-          {
-            id: i.id,
-            day: d.day,
-            title: d.title,
-            done: typeof d.done_at === "number",
-            ...(typeof d.minutes === "number" ? { minutes: d.minutes } : {}),
-          },
-        ]
-      : [];
-  });
+  return (docs.planItems ?? [])
+    .filter((i) => i.plan_id === planId)
+    .map((i) => ({
+      id: i.id,
+      day: i.day,
+      title: i.title,
+      done: i.done_at !== null,
+      ...(i.minutes !== null ? { minutes: i.minutes } : {}),
+    }));
 }
 
 /** The exam's plan line: waiting when a prep plan job names this exam, approved when its plan is in force. */
@@ -168,27 +168,13 @@ export function planSessions(
 
 /** The items Matt added for a day (origin user or the morning job's): rows without a plan. */
 export function addedSessions(docs: TodayDocs, today: string): Session[] {
-  return (docs.planItems ?? []).flatMap((i) => {
-    const d = i.data as
-      | {
-          plan_id?: unknown;
-          day?: unknown;
-          title?: unknown;
-          minutes?: unknown;
-          done_at?: unknown;
-          origin?: unknown;
-        }
-      | undefined;
-    return d?.plan_id == null && d?.day === today && typeof d.title === "string"
-      ? [
-          {
-            id: i.id,
-            text: d.title,
-            kind: "todo",
-            done: typeof d.done_at === "number",
-            ...(typeof d.minutes === "number" ? { minutes: d.minutes } : {}),
-          },
-        ]
-      : [];
-  });
+  return (docs.planItems ?? [])
+    .filter((i) => i.plan_id === null && i.day === today)
+    .map((i) => ({
+      id: i.id,
+      text: i.title,
+      kind: "todo",
+      done: i.done_at !== null,
+      ...(i.minutes !== null ? { minutes: i.minutes } : {}),
+    }));
 }
