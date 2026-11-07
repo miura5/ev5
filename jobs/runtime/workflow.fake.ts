@@ -1,4 +1,5 @@
 // In-memory Workflows for tests: instance ids are unique, steps are memoized per instance and retried by their policy.
+import { isNonRetryable } from './non-retryable.ts';
 import type { InstanceParams, StepConfig, StepRunner, WorkflowAdapter } from './workflow.ts';
 
 export function fakeWorkflows(entry: (step: StepRunner, p: InstanceParams) => Promise<void>) {
@@ -18,7 +19,7 @@ export function fakeWorkflows(entry: (step: StepRunner, p: InstanceParams) => Pr
               memo.set(name, v);
               return v;
             } catch (e) {
-              if (attempt > c.retries.limit) throw e;
+              if (isNonRetryable(e) || attempt > c.retries.limit) throw e;
             }
           }
         },

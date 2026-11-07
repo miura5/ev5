@@ -60,8 +60,6 @@ function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: bool
     putDraft: async (j, p) => (rows.set(`d${j}`, p), over.failPutOnce && putTries++ === 0 ? lostReply() : `draft-${j}`),
     getDraft: async (j) => rows.get(`d${j}`) as Plan,
     findDraft: async (j) => rows.get(`d${j}`) as Plan | undefined,
-    putFailure: async (j, r) => void rows.set(`f${j}`, r),
-    getFailure: async (j) => rows.get(`f${j}`) as string | undefined,
     approve: async (j, p) => {
       if (over.failApproveOnce && approveTries++ === 0) throw new Error('D1 write failed');
       log.push(`approve ${p.tasks.length}`);
@@ -233,21 +231,29 @@ test('an undated exam fails in plain words with no model call', async () => {
   assert.equal(calls, 0);
 });
 
-test('a plan citing an unknown weak spot gets one repair ask, then fails without paying for step retries', async () => {
-  let calls = 0;
-  const bad = {
-    ...good,
-    tasks: [{ date: '2026-11-03', title: 'x', minutes: 30, weakSpotId: 'nope' }],
-  };
-  const { env, jobs, wf, spent } = setup(async () => (calls++, reply(bad)));
-  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
-  await wf.idle();
-  const r = (await jobs.get(job.id))!;
-  assert.equal(r.state, 'failed');
-  assert.match(r.reason!, /nope/);
-  assert.equal(calls, 2);
-  assert.equal(spent.length, 1);
-});
+const repeatingFailures: [string, () => ModelReply, RegExp, number][] = [
+  ['a refusal', () => ({ stopReason: 'refusal', text: '', usage }), /declined/, 1],
+  ['max_tokens', () => ({ stopReason: 'max_tokens', text: '{', usage }), /ran out of room/, 1],
+  ['output that fails its schema', () => reply({ nothing: true }), /./, 2],
+  [
+    'output that fails the semantic checks',
+    () => reply({ ...good, tasks: [{ date: '2026-11-03', title: 'x', minutes: 30, weakSpotId: 'nope' }] }),
+    /nope/,
+    2,
+  ],
+];
+for (const [kind, answer, reason, asks] of repeatingFailures)
+  test(`${kind} ends the draft step after one attempt, with no step retry`, async () => {
+    let calls = 0;
+    const { env, jobs, wf, spent } = setup(async () => (calls++, answer()));
+    const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
+    await wf.idle();
+    const r = (await jobs.get(job.id))!;
+    assert.equal(r.state, 'failed');
+    assert.match(r.reason!, reason);
+    assert.equal(calls, asks);
+    assert.equal(spent.length, 1);
+  });
 
 test('buildContext: days stop the day before the exam, worst weak spot first', () => {
   const ctx = buildContext({ exam, spots, today: '2026-11-03' });

@@ -123,8 +123,6 @@ export function d1PlanStore(
     putDraft: (j, plan) => put(j, "draft", plan),
     getDraft: (j) => need<Plan>(j, "draft"),
     findDraft: (j) => get<Plan>(j, "draft"),
-    putFailure: async (j, reason) => void (await put(j, "failure", reason)),
-    getFailure: (j) => get<string>(j, "failure"),
     async approve(jobId, plan) {
       await writeTables(jobId, plan, "in_force");
       await put(jobId, "status", "approved");

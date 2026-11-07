@@ -225,9 +225,6 @@ test("d1 plan store keeps content by job id and marks the decision", async () =>
   assert.equal(await s.putDraft("j", plan), "j:draft");
   await s.putDraft("j", plan);
   assert.deepEqual(await s.getDraft("j"), plan);
-  assert.equal(await s.getFailure("j"), undefined);
-  await s.putFailure("j", "nope");
-  assert.equal(await s.getFailure("j"), "nope");
   await assert.rejects(s.getContext("j"), /no context/);
   await s.putContext("j", ctx("g1"));
   assert.equal(await s.approve("j", plan), "plan_j");

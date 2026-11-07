@@ -3,6 +3,7 @@ import { z } from 'zod';
 import assert from 'node:assert/strict';
 import { continuationId, continueJob, defineJob, startJob } from './index.ts';
 import type { Env, JobRecord, JobStore } from './index.ts';
+import { NonRetryableError } from './non-retryable.ts';
 import { forgetKinds } from './define.ts';
 import { fakeWorkflows } from './workflow.fake.ts';
 import { cloudflareAdapter, runJob, workflowExecutor } from './index.ts';
@@ -107,6 +108,25 @@ test('retry policy is the only retry: a flaky step retries with a new attempt; u
   await wf.idle();
   assert.equal(calls, 3);
   assert.deepEqual([...usage.keys()], ['job_j1:call:1', 'job_j1:call:2', 'job_j1:call:3']);
+});
+
+test('a NonRetryableError ends the step after one attempt and fails the job with its message', async () => {
+  let attempts = 0;
+  const { def, env, store, wf } = setup({
+    plan: async () => ({ ids: ['p'] }),
+    call: async () => {
+      attempts++;
+      throw new NonRetryableError('The model declined to answer this request.');
+    },
+    approve: async () => ({ needsYou: 'x' }),
+    save: async () => ({ ids: ['x'] }),
+  });
+  await startJob(env, def, {}, 'matt');
+  await wf.idle();
+  assert.equal(attempts, 1);
+  const r = (await store.get('job_j1'))!;
+  assert.equal(r.state, 'failed');
+  assert.match(r.reason!, /declined/);
 });
 
 test('a ceiling hit or exhausted retries fails the job cleanly; content in a step result is refused', async () => {
