@@ -1,4 +1,4 @@
-// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes over the row route /api/v1/notes, other collections over /api/v1/docs (server/doc-routes.ts). The app token is read at each
+// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes, dates, sets and weak spots over their /api/v1 row routes, any other collection over /api/v1/docs (server/doc-routes.ts). The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
 import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
@@ -28,6 +28,13 @@ const json = async (r: Response): Promise<Record<string, unknown>> => {
   } catch {
     return {};
   }
+};
+
+/** The row route behind each collection the page lists (server/row-routes.ts). */
+const ROW_ROUTES: Record<string, string> = {
+  exams: "goals",
+  sets: "sets",
+  weakspots: "weak-spots",
 };
 
 export function docsHttp(
@@ -61,11 +68,25 @@ export function docsHttp(
     },
   };
 
-  /** Every document of a collection (any but notes); throws on a refusal or no connection. */
+  /** The older /docs read; the one collection left on it is any this page has no row route for. */
   async function listCollection(c: string): Promise<DocRow[]> {
     const r = await call(`?${q({ collection: c })}`);
     if (!r.ok) throw new ApiError(r.status);
     return ((await json(r)).docs ?? []) as DocRow[];
+  }
+
+  /** Dates, sets and weak spots from their row routes; the palette needs a title (a weak spot's topic) and the id. */
+  async function listRows(path: string): Promise<DocRow[]> {
+    const r = await doFetch(`/api/v1/${path}`, {
+      headers: { authorization: `Bearer ${token()}` },
+    });
+    if (!r.ok) throw new ApiError(r.status);
+    const rows = ((await json(r)).rows ?? []) as Record<string, unknown>[];
+    return rows.flatMap((row) =>
+      typeof row.id === "string"
+        ? [{ id: row.id, v: Number(row.v) || 0, at: Number(row.at) || 0, data: row }]
+        : [],
+    );
   }
 
   /** Every live note from GET /api/v1/notes as documents; a row that does not parse stays out. */
@@ -85,9 +106,13 @@ export function docsHttp(
     });
   }
 
-  /** Every document of a collection: notes come from the row route, the rest from /docs. */
+  /** Every document of a collection: from its row route, else /docs. */
   const list = (c: string): Promise<DocRow[]> =>
-    c === "notes" ? listNotes() : listCollection(c);
+    c === "notes"
+      ? listNotes()
+      : ROW_ROUTES[c]
+        ? listRows(ROW_ROUTES[c])
+        : listCollection(c);
 
   return { transport, list };
 }
