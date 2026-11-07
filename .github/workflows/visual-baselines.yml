@@ -5,13 +5,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 jobs:
   baselines:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # The one job that writes: it pushes the baselines and starts CI by hand.
+    permissions:
+      contents: write
+      actions: write
     steps:
       - name: Refuse main
         if: github.ref == 'refs/heads/main'
