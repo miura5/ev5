@@ -4,4 +4,5 @@ One folder per sidebar item (today, ask, library, notes, progress, activity). Ea
 
 <!-- generated:start -->
 Interface: area activity, area ask, area collection, area deleted, area library, area notes, area progress, area sessions, area today
+Must not import (§drift.imports): shell, commands except commands/client.ts, jobs, data, server, ops
 <!-- generated:end -->

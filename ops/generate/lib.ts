@@ -104,8 +104,32 @@ function interfaceOf(root: string, dir: string): string {
   return items.length ? items.join(', ') : '(none yet)';
 }
 
+// The must-not line, from .dependency-cruiser.cjs (§drift.imports): the top folders `dir` may not import, and its
+// npm allow-list. Read from the `only(...)` and `externals(...)` rules; '' when the folder has none.
+function mustNotOf(root: string, dir: string): string {
+  if (!exists(root, '.dependency-cruiser.cjs')) return '';
+  const cfg = read(root, '.dependency-cruiser.cjs');
+  const folders = /const FOLDERS = "([^"]+)"/.exec(cfg)?.[1]?.split('|') ?? [];
+  const list = (call: string): string[] | undefined => {
+    const m = new RegExp(`^\\s*${call}\\("${dir}", \\[([^\\]]*)\\]\\)`, 'm').exec(cfg);
+    return m ? [...m[1]!.matchAll(/"([^"]+)"/g)].map(x => x[1]!) : undefined;
+  };
+  const allowed = list('only');
+  if (!allowed) return '';
+  const plain = (a: string): string => a.replace(/^\^|\$$/g, '').replace(/\\+\./g, '.');
+  const parts = folders.filter(f => f !== dir).flatMap(f => {
+    const own = allowed.filter(a => a.startsWith(`^${f}/`));
+    if (own.length === 0) return [f];
+    return own.includes(`^${f}/`) ? [] : [`${f} except ${own.map(plain).join(', ')}`];
+  });
+  const npm = list('externals');
+  const tail = npm ? `; npm packages other than ${npm.join(', ')}` : '';
+  return parts.length || tail ? `Must not import (§drift.imports): ${parts.join(', ') || '(no other folder)'}${tail}` : '';
+}
+
 function block(root: string, dir: string): string {
-  return [START, `Interface: ${interfaceOf(root, dir)}`, END].join('\n');
+  const mustNot = dir ? mustNotOf(root, dir) : '';
+  return [START, `Interface: ${interfaceOf(root, dir)}`, ...(mustNot ? [mustNot] : []), END].join('\n');
 }
 
 function readmes(root: string, d = ''): string[] {
