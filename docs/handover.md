@@ -1,6 +1,6 @@
 ## Phase      6 · Gates 0 to 5 done. Next is D-489's order as amended by D-495 (see Next).
 ## Running    nothing. (Node 22 sandbox: `node --test <dir>` fails there; CI is the proof.)
-NOTE run 2026-11-07 04Z: B-1022 plan row shape already on main; claude_settings -> settings(key,value,at,v) goes in the squash with server/job-run.ts, data/export/tables.ts, ops/checks/migrationshape.ts. B-1036 (a) action pins and (e) size check blocked: sandbox cannot reach other repos' tags or developers.cloudflare.com (give the three v4 SHAs or allow the hosts).
+NOTE run 2026-11-07 05Z: B-1036 (a) action pins and (e) size check blocked: sandbox cannot reach other repos' tags or developers.cloudflare.com (give the three v4 SHAs or allow the hosts).
 ## Waiting on Matt   nothing (to batch later: R2 key secrets for the drill's picture check, B-1045)
 ## Next       Order agreed with Matt 2026-11-05 (D-489, amended by D-495; do not drop it). Keep groups and order; drop done tasks. No new task ids until groups 3 to 6 are done (D-497): findings go in task notes or docs/parked.md.
 (3) Kit drift: B-1012 left: its e2e journey's first staging run, seen on staging. B-942 left: light theme/PNG check on staging. B-979 waits on B-974, B-975 and two kit-class overrides in areas/ (notes); not built.
@@ -8,9 +8,10 @@ NOTE run 2026-11-07 04Z: B-1022 plan row shape already on main; claude_settings 
 Order: B-1022 remainder (WireDoc in areas, old doc-row shapes after B-1037 to B-1043, plan row shape so jobs drop PlanSchema),
 B-998 remainder (notes and plan items on memberships.save need their tables; item_props to plan_items columns; item.move/pin on old repos; part 2 ONLY after every docs reader and writer has moved: remove /docs routes and data/docs, then the squash, staging rebuild, rerun drill),
 B-1036 (checks 1, 2 second half, 6, 7 wait for the docs removal).
-Done 2026-11-07 04:4x (#723, #724, #725): insert conflicts only on unique/PK errors and onBad logs (B-955); 500s log under a request id, /docs?since sessions once (B-1001); wire Note type without ev4 fields (B-1022). Left: servers/jobs read table repos' left_out count; B-1022 areas per-kind rows.
-Next builders: B-1036 (e) Worker size check and (a) action pins (need developers.cloudflare.com; skip if unreachable), plus notePictures api() upload (binary R2: needs a files command path or a recorded exception); B-1022 left: claude_settings row, per-kind rows in areas; B-1037 check.answer UI (needs a mock-up/kit piece first, may wait), B-1044, B-1038 B8. Then the squash. Builders: one git worktree each (a shared checkout mixed up commits in run-0236).
-Then the rest of B-955, B-1001, B-1005 (read current Anthropic docs first; slice jobs/runtime). B-1006 to B-1008 wait for group 3. Follow-up: pass onBad to the table repos.
+Done 2026-11-07 (#723 to #735): /docs reads report left_out under a request id (command handlers still console.warn: need a reads object on HandlerCtx), settings row (B-1022), retried-save test and SDK Zod helper (B-1005), mock-up audit text (B-1060).
+Blocked, found this run: B-1022 areas per-kind rows needs new GET row routes per kind in server/ + domain row types first (then one areas PR per area, then drop WireDoc with B-998 part 2). B-1044 and B-1038 B8 need B-1037 attempts reader and a was_due column in the squash baseline (split: column into the squash, B-1044 = server read + remove tally.ts). B-1060 left: kit baselines (Docker), canonical.samples.json decision.
+Next builders: B-1036 (e)/(a) if hosts reachable, notePictures api() upload (binary R2: files command path or a recorded exception); B-1022 server row routes; B-1037 check.answer UI (needs kit piece), B-1038 other parts. Then the squash. Builders: one git worktree each; the Interface trailer must be on the commit that touches an interface (a missing one cannot be fixed without force-push: re-squash to a new branch).
+Then the rest of B-955, B-1001, B-1005 (cost/live-docs check). B-1006 to B-1008 wait for group 3. Follow-up: pass onBad to the table repos.
 Small ev4-trace cleanups: B-1059 (after B-1009); B-1060 left: mockup-audit.md, canonical.samples.json, kit baselines (notes).
 (5) Cutover steps: B-822, B-754, B-757, B-756, B-759, B-823, B-1026, B-1027 (after B-1005), B-1028, B-1029.
 (6) Gate 6 B-760.
