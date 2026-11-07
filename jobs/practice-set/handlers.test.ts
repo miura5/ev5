@@ -35,8 +35,6 @@ test("a save step that fails once is retried and the model is called once", asyn
   const store: PracticeStore = {
     put: async (j, r) => (kept.set(j, r), `r-${j}`),
     get: async (j) => kept.get(j)!,
-    putFailure: async () => {},
-    getFailure: async () => undefined,
     save: async () => {
       if (++saveTries === 1) throw new Error("D1 write failed");
       saved++;
@@ -103,8 +101,6 @@ test("a result write that fails after it landed is retried and the model is call
     },
     get: async (j) => kept.get(j)!,
     find: async (j) => kept.get(j),
-    putFailure: async () => {},
-    getFailure: async () => undefined,
     save: async () => {},
   };
   const rows = new Map<string, JobRecord>();
@@ -160,8 +156,6 @@ for (const [kind, stopReason, text] of [
       get: async () => {
         throw new Error("unused");
       },
-      putFailure: async () => {},
-      getFailure: async () => undefined,
       save: async () => {},
     };
     const rows = new Map<string, JobRecord>();

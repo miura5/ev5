@@ -13,9 +13,6 @@ export interface PracticeStore {
   get(jobId: string): Promise<Written>;
   /** The kept result if the call step already stored it (its step result was lost), else undefined. */
   find?(jobId: string): Promise<Written | undefined>;
-  /** Unused by the handlers (a failure that repeats throws NonRetryableError); stays until server/job-run.ts drops its copy. */
-  putFailure(jobId: string, reason: string): Promise<void>;
-  getFailure(jobId: string): Promise<string | undefined>;
   /** One batch: set items and pending drafts land together or not at all. */
   save(jobId: string, targetId: string, r: Written): Promise<void>;
 }
