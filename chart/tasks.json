@@ -3901,16 +3901,14 @@
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-997",
    "B-998"
   ],
-  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022. Run 1718Z: #875 every job-store list in server/ passes onBad (get/put-only callers still none). Left: merge the two gates. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): M5: two ways to batch writes: server/defer-writes.ts (its own SQL guard in server/, fakes run() as changes 1; used by set.item_delete, check.answer, weakspot.unlink, ask.just_tell_me) and data/tables/links.ts createGoalWithLinks. Make one batch helper in data/tables, port both, delete server/defer-writes.ts. M7 (from #863): the Gate 5 journeys e2e/collection, e2e/question-set and e2e/prep-plan send no if_version on item.move, set.item_update and date.update, so they get 400; gate5-e2e runs only on dispatch. Pass each row's v, then run gate5-e2e once.",
-  "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.247Z"
+  "notes": "Run 1753Z: one gate already (data/tables/gate.ts); no docs-gate code left. Stale comments only (gate.ts l1, tables.ts l2, staging/seed.ts l48, seed.test.ts l64). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): M5: two ways to batch writes: server/defer-writes.ts (its own SQL guard in server/, fakes run() as changes 1; used by set.item_delete, check.answer, weakspot.unlink, ask.just_tell_me) and data/tables/links.ts createGoalWithLinks. Make one batch helper in data/tables, port both, delete server/defer-writes.ts. M7 (from #863): the Gate 5 journeys e2e/collection, e2e/question-set and e2e/prep-plan send no if_version on item.move, set.item_update and date.update, so they get 400; gate5-e2e runs only on dispatch. Pass each row's v, then run gate5-e2e once.",
+  "commit": "e42f5aa",
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
   "id": "B-956",
@@ -3920,7 +3918,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 lane B: PR #879 (testruns check, tsconfig.tests.json, typecheck-tests.sh). Part for lane A: 10 lane A test files with type errors sit in a TEMPORARY exclude list in tsconfig.tests.json; fix each and delete its line (list in #879 body).",
+  "notes": "Run 1753Z: lane A test files fixed (#885, #886); tsconfig.tests.json exclude list is empty.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -4833,16 +4831,16 @@
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
   "dod": "domain/ has row shapes for every table in docs/proposals/table-design.md as changed by D-498 (goal, objective, link, weak spot, set, item, session, note, collection, settings and the rest); no exam, course, claude_* or system_docs row shapes; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form. Run 1718Z: #876 item sourceRef is note_ form. weakSpots.ts already uses the domain rule. Left: row routes for item versions and session events; plan-home raw SQL in server/.",
-  "commit": null,
+  "notes": "Run 1753Z: all parts already on main; row routes (server/row-routes.ts), plan-home via tablesRepo, commands/jobs use domain plan shapes. LLM-output shapes in jobs/prep-plan/changes.ts stay local on purpose.",
+  "commit": "e42f5aa",
   "source": "run 82 B-997 report",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:39.694Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:50.736Z"
  },
  {
   "id": "B-1023",
@@ -5019,15 +5017,15 @@
   "title": "Checks so ev4 traces cannot come back",
   "dod": "ops/checks, ESLint, dependency-cruiser or ops/record lint refuse, each with a red fixture PR recorded (§drift.checks): (1) subject words as whole words in any case (nursing, NCLEX, SATA, clinical, dosage, cjStep, patient, course codes like NUR 112, ATI) in non-test source, prompts and seeds, no allow list; (2) a kind written to the generic docs table that is not on a shrinking list of kinds still moving, and once docs is gone, SQL naming docs, the ev4 collection names (dayedits, planedits, dateedits, examedits, answers) or the ev4 envelope (writer, a source starting v5, schema numbers), and any import of data/compat; (3) a table without a kind-prefixed id, at, v and, where deletable, deleted_at, or out of step with its domain row shape, in place of the ev4-equality migration test; (4) an export used only by its tests (knip --production with tests excluded, short allow list); (5) a §id in source that is ended or not in CONTRACT; (6) the word ev4 in non-test source outside the cutover allow list (server/ev4-routes.ts, server/worker.ts, public/retire-ev4.js, ops/checks/planjob.ts, ops/checks/account.ts, ops/record/); (7) a restore of an ev4 export kind; (8) e2e, seeds or staging scripts that write by PUT /docs instead of commands; (9) an open Chart task whose done bar names an ev4 path (tools/, core/, pwa/, page/, spec.). Before check (1) lands, the item type ids are plain words: 'sata' becomes 'multi_select' and 'matrix' becomes 'grid' (with its matrix field) in domain/item, server/handlers-sets.ts and every caller and test, stored staging rows are reseeded or mapped on read, and jobs/practice-set/job.ts builds its type enum from domain/item's ITEM_TYPES instead of its own copy. Slice: write ops/checks, ops/guards, eslint.config.js, the dependency-cruiser config, knip.json, ops/record/lint.ts; for the rename also domain/item, domain/set, domain/own-set, server/, jobs/practice-set, data/tables.",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "open",
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 1631Z: #861 jobs barrel trimmed, maxCost deleted, knip jobs/** replaced by 5 single-file entries (ignoreIssues now 9 entries but no folder wildcard); unusedexports accepts file keys. #870 tests with red fixtures for checks 5 (sourceids) and 9 (chartev4); check 6 (ev4word) existed. Left in knip ignore: domain/session (S-76 feature), own-set (editing feature not wired), collection nesting (§data.membership: decide or amend CONTRACT), note test-only exports, ceiling parse fns (check 3), executors.reportJob (Mac, Matt's call), models.modelsStaleWarning (wire or delete). Checks 1, 2, 3, 4 left: check 1 needs sata→multi_select, matrix→grid rename first; check 2 after docs table goes. 'Red fixture PR recorded' not done.",
+  "notes": "Run 1753Z: checks (2) #883 and (3) red fixture #884 done; checks (5) to (9) already exist with fixtures. Left: (1) subject words (needs rewording of existing source), (4) knip production; domain/goal/read.ts still writes the old envelope (writer, source v5/goals; on TO_REWORD in ops/checks/ev4word.ts or oldshapes.ts): reword. 'sata'/'matrix' remain only in domain/item/upgrade.ts as a deliberate legacy-read mapping. The red fixture PR record is not done.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
-  "claimedBy": "run-20261107T1631Z",
-  "claimedAt": "2026-11-07T16:31:40.815Z"
+  "claimedBy": "run-20261107T1753Z",
+  "claimedAt": "2026-11-07T17:53:51.224Z"
  },
  {
   "id": "B-1037",
