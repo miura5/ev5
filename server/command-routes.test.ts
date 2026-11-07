@@ -16,20 +16,33 @@ const post = (name: string, token: string, json: unknown) =>
     `/api/v1/commands/${name}`,
     {
       method: "POST",
-      headers: { "cf-connecting-ip": "9.9.9.9", authorization: `Bearer ${token}` },
+      headers: {
+        "cf-connecting-ip": "9.9.9.9",
+        authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(json),
     },
     env,
   );
 
 test("a caller the command does not list is refused", async () => {
-  assert.equal((await post("item.pin", "fake-schedule", { input: { id: "a" } })).status, 403);
+  assert.equal(
+    (await post("item.pin", "fake-schedule", { input: { id: "a" } })).status,
+    403,
+  );
   assert.equal((await post("morning", "fake-app", {})).status, 403);
-  assert.equal((await post("item.pin", "fake-executor", { input: { id: "a" } })).status, 403);
+  assert.equal(
+    (await post("item.pin", "fake-executor", { input: { id: "a" } })).status,
+    403,
+  );
 });
 
 test("E.V. cannot call what the registry never gives it", async () => {
-  assert.equal((await post("item.pin", "fake-app", { as: "ev", input: { id: "a" } })).status, 403);
+  assert.equal(
+    (await post("item.pin", "fake-app", { as: "ev", input: { id: "a" } }))
+      .status,
+    403,
+  );
 });
 
 test("an unknown command is 404 and a bad input is 400", async () => {
@@ -42,9 +55,15 @@ test("a scheduled command is reachable by the schedule token, and has no handler
 });
 
 test("an E.V. propose call makes a Suggestion", async () => {
-  const r = await post("plan.create", "fake-app", { as: "ev", input: { title: "Review ch 4" } });
+  const r = await post("plan.create", "fake-app", {
+    as: "ev",
+    input: { title: "Review ch 4" },
+  });
   assert.equal(r.status, 202);
-  const b = (await r.json()) as { mode: string; suggestion: { command: string; title: string } };
+  const b = (await r.json()) as {
+    mode: string;
+    suggestion: { command: string; title: string };
+  };
   assert.equal(b.mode, "propose");
   assert.equal(b.suggestion.command, "plan.create");
 });

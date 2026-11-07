@@ -31,7 +31,7 @@ export function sqliteD1(): D1Like {
   };
   return {
     prepare,
-    async batch(statements) {
+    async batch(statements: Parameters<D1Like["batch"]>[0]) {
       sql.exec("BEGIN");
       try {
         // Like D1, each result carries `meta.changes`.

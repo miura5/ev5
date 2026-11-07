@@ -29,7 +29,9 @@ async function rig(text: string) {
     ceiling_monthly: 5e9,
     ceiling_per_job: 5e9,
   }))
-    await s.DB.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)").bind(k, v).run();
+    await s.DB.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
+      .bind(k, v)
+      .run();
   const book = tablesRepo(s.DB, { clock: () => 1000 }).setBook;
   await book.create({
     id: "set_s1",
@@ -56,13 +58,21 @@ async function rig(text: string) {
   const seen: string[] = [];
   const ASK_CALL: ModelCall = async (req) => {
     seen.push(req.messages[0]?.content ?? "");
-    return { stopReason: "end_turn", text, usage: { inputTokens: 300, outputTokens: 40 } };
+    return {
+      stopReason: "end_turn",
+      text,
+      usage: { inputTokens: 300, outputTokens: 40 },
+    };
   };
   const env = { DB: s.DB, TOKEN_APP: "app-t", ASK_CALL } as unknown as Env;
   const attempt = async (answer: string) => {
     const r = await app.request(
       "/api/v1/commands/study.attempt",
-      { method: "POST", headers: { authorization: "Bearer app-t" }, body: JSON.stringify({ input: { id: "set_s1/item_o1", answer } }) },
+      {
+        method: "POST",
+        headers: { authorization: "Bearer app-t" },
+        body: JSON.stringify({ input: { id: "set_s1/item_o1", answer } }),
+      },
       env,
     );
     return { status: r.status, body: (await r.json()) as Record<string, any> };
@@ -71,7 +81,9 @@ async function rig(text: string) {
 }
 
 test("a typed open answer is graded by the model and the score is kept with the answer", async () => {
-  const { attempt, seen, DB } = await rig('{"score":0.85,"note":"Good; name the tissue."}');
+  const { attempt, seen, DB } = await rig(
+    '{"score":0.85,"note":"Good; name the tissue."}',
+  );
   const r = await attempt("The capillaries leak into the tissue.");
   assert.equal(r.status, 200);
   assert.equal(r.body.result.score, 0.85);
@@ -93,6 +105,8 @@ test("a long answer is kept as an attempt and is refused past the grading limit"
 test("a model reply that is not a grade fails the attempt and records nothing", async () => {
   const { attempt, DB } = await rig("not json");
   assert.equal((await attempt("An answer.")).status, 502);
-  const n = await DB.prepare("SELECT count(*) AS n FROM attempts").first<{ n: number }>();
+  const n = await DB.prepare("SELECT count(*) AS n FROM attempts").first<{
+    n: number;
+  }>();
   assert.equal(n?.n, 0);
 });

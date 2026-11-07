@@ -61,7 +61,11 @@ function setup(
 }
 
 test("a reply that cites a note it was given shows that note as its source", async () => {
-  const { ask } = setup({ text: "Under 60.", cited: ["note_1"], asksTry: false });
+  const { ask } = setup({
+    text: "Under 60.",
+    cited: ["note_1"],
+    asksTry: false,
+  });
   const body = (await (await ask("what is bradycardia?")).json()) as any;
   assert.equal(body.reply.unverified, false);
   assert.equal(body.reply.source, "Heart rate");

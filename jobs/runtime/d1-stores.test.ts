@@ -242,14 +242,14 @@ test("saveOutput lands items and drafts in one batch and is safe to retry", asyn
     options: ["a", "b"],
     correct: [0],
     rationales: ["x", "y"],
-    sourceRef: "e1",
+    sourceRef: "e1" as string | null,
   };
   const draft = {
     job_id: "j",
     kind: "set-item" as const,
     target_kind: "sets",
     target_id: "set1",
-    body: { ...item, sourceRef: null },
+    body: { ...item, id: "j:d0", sourceRef: null },
   };
   const a = { jobId: "j", targetId: "set1", items: [item], drafts: [draft] };
   assert.deepEqual(await saveOutput(db, () => 9, a), {

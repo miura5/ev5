@@ -9,10 +9,7 @@ test("pin, rename, delete and restore work on a note, read through the row route
   const { DB, call } = await setup();
   // pins gain their row columns in 0009 (the shared setup stops at 0006)
   for (const stmt of readFileSync(
-    new URL(
-      "../data/migrations/0000_baseline.sql",
-      import.meta.url,
-    ),
+    new URL("../data/migrations/0000_baseline.sql", import.meta.url),
     "utf8",
   )
     .replace(/--.*$/gm, "")
@@ -27,8 +24,7 @@ test("pin, rename, delete and restore work on a note, read through the row route
     );
   const id = (await call("note.create", {})).body.result.id as string;
   const title = async () =>
-    ((await (await get(`/notes/${id}`)).json()) as { title: string })
-      .title;
+    ((await (await get(`/notes/${id}`)).json()) as { title: string }).title;
   assert.equal((await call("item.pin", { id })).status, 200);
   assert.equal(
     (await call("item.rename", { id, title: "Renamed", if_version: 1 })).status,

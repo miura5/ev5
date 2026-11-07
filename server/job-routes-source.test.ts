@@ -5,7 +5,12 @@ import { putNoteRow } from "./sqlite-d1.test.ts";
 
 test("a practice set asked from one note gathers only that note's passages", async () => {
   const { req, wf, db, started } = setup();
-  await putNoteRow(db, "note_n9", "Verbs", "Spanish verbs: hablar means to speak.");
+  await putNoteRow(
+    db,
+    "note_n9",
+    "Verbs",
+    "Spanish verbs: hablar means to speak.",
+  );
   const res = await req("POST", "/api/v1/jobs/practice-set", "fake-app", {
     input: {
       ...input,
