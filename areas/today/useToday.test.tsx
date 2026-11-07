@@ -1,6 +1,7 @@
 import { failureSentence } from "../../commands/client.ts";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
+import { centralDate } from "../../domain/index.ts";
 import { useToday } from "./useToday.ts";
 
 afterEach(() => {
@@ -12,11 +13,23 @@ afterEach(() => {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status });
 
-const dayDoc = {
-  id: "d",
-  v: 3,
-  data: { added: { a: { text: "Review", kind: "todo" } }, checks: {} },
-};
+/** One item Matt added for today, as GET /docs?collection=plan_items serves it. */
+const itemRows = () => ({
+  docs: [
+    {
+      id: "pli_a",
+      v: 3,
+      data: {
+        plan_id: null,
+        day: centralDate(Date.now()),
+        title: "Review",
+        minutes: null,
+        origin: "user",
+        done_at: null,
+      },
+    },
+  ],
+});
 
 function tickWorld(answer: Response | (() => Response)) {
   localStorage.setItem("ev5.token", "t");
@@ -31,7 +44,7 @@ function tickWorld(answer: Response | (() => Response)) {
         posts.push(String(init.body));
         return typeof answer === "function" ? answer() : answer;
       }
-      if (url.includes("collection=dayedits")) return json(dayDoc);
+      if (url.includes("collection=plan_items")) return json(itemRows());
       if (url.includes("jobs")) return json({ jobs: [] });
       return json({ docs: [] });
     }),
@@ -41,19 +54,19 @@ function tickWorld(answer: Response | (() => Response)) {
 
 test("a tick goes through plan.toggle_done, only when the item's state differs", async () => {
   const posts = tickWorld(
-    json({ mode: "direct", result: { id: "a", done: true } }),
+    json({ mode: "direct", result: { id: "pli_a", done: true } }),
   );
   const { result } = renderHook(() => useToday());
   await waitFor(() => expect(result.current.data?.plan).toHaveLength(1));
   let ok = false;
   await act(async () => {
-    ok = await result.current.tick("a", true);
+    ok = await result.current.tick("pli_a", true);
   });
   expect(ok).toBe(true);
-  expect(posts).toEqual([JSON.stringify({ input: { id: "a" } })]);
+  expect(posts).toEqual([JSON.stringify({ input: { id: "pli_a" } })]);
   expect(result.current.data?.plan[0]?.done).toBe(true);
   await act(async () => {
-    ok = await result.current.tick("a", true);
+    ok = await result.current.tick("pli_a", true);
   });
   expect(ok).toBe(true);
   expect(posts).toHaveLength(1);
@@ -65,7 +78,7 @@ test("a refused tick is reported as not saved", async () => {
   await waitFor(() => expect(result.current.data?.plan).toHaveLength(1));
   let ok = true;
   await act(async () => {
-    ok = await result.current.tick("a", true);
+    ok = await result.current.tick("pli_a", true);
   });
   expect(ok).toBe(false);
   expect(result.current.data?.plan[0]?.done).toBe(false);
@@ -106,14 +119,7 @@ test("offline, Today shows the saved exams and weak spots", async () => {
   const copy = fakeCopy({
     "today:exams": [exam],
     "today:weakspots": [],
-    "today:dayedits:x": null,
   });
-  // the day key moves with the date, so seed whatever date the hook asks for
-  const read = copy.read;
-  copy.read = (async (key: string, f: () => Promise<unknown>) =>
-    key.startsWith("today:dayedits:")
-      ? null
-      : read(key, f)) as typeof copy.read;
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() => expect(result.current.data).toBeTruthy());
   expect(result.current.error).toBeUndefined();
@@ -239,7 +245,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
     ),
   );
   const first = renderHook(() => useToday(copy));
-  await waitFor(() => expect(pending).toHaveLength(8));
+  await waitFor(() => expect(pending).toHaveLength(7));
   pending.forEach((go) => go(new Response()));
   await waitFor(() => expect(first.result.current.data).toBeTruthy());
   const seen = first.result.current.data;

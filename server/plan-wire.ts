@@ -32,7 +32,7 @@ export async function planRowDocs(
     .sort((a, b) => a.id.localeCompare(b.id));
 }
 
-/** Every live plan item as its row (plan, day, title, minutes, linked weak spot), by day then position. */
+/** Every live plan item as its row (plan, day, title, minutes, origin, time, tick, linked weak spot), by day then position. */
 export async function planItemDocs(
   db: DocsD1,
   clock: () => number,
@@ -55,6 +55,9 @@ export async function planItemDocs(
         title: i.title,
         minutes: i.minutes,
         pos: i.pos,
+        origin: i.origin,
+        time: i.time,
+        done_at: i.done_at,
         ...(i.linked_kind === "weak_spot" && i.linked_id
           ? { weak_spot_id: i.linked_id }
           : {}),

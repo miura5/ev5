@@ -71,7 +71,6 @@ export {
 export {
   parseItemProps,
   materialize,
-  missingOccurrences,
 } from "./item-props/index.ts";
 export { parsePin } from "./pin/index.ts";
 export {

@@ -7,13 +7,12 @@ const DAY = "2031-03-14";
 test("Plan today: add, edit, delete and restore a plan item", async ({
   api,
 }) => {
-  const day = async (d: string) =>
-    (await api("GET", `/api/v1/docs?collection=dayedits&id=${d}`)).body[
-      "data"
-    ] as {
-      added?: Record<string, { text: string }>;
-      checks?: Record<string, unknown>;
-      skipped?: Record<string, unknown>;
+  // The item's row (GET /plan-items/:id): its day, title and tick are columns.
+  const row = async (id: string) =>
+    (await api("GET", `/api/v1/plan-items/${id}`)).body as {
+      day: string;
+      title: string;
+      done_at: number | null;
     };
 
   const made = await cmd(api, "plan.create", {
@@ -22,25 +21,24 @@ test("Plan today: add, edit, delete and restore a plan item", async ({
   });
   const id = made["id"] as string;
   try {
-    expect((await day(DAY)).added?.[id]?.text).toBe("e2e plan item");
+    expect((await row(id)).title).toBe("e2e plan item");
+    expect((await row(id)).day).toBe(DAY);
 
     await cmd(api, "plan.update", { id, title: "e2e plan item (edited)" });
-    expect((await day(DAY)).added?.[id]?.text).toBe("e2e plan item (edited)");
+    expect((await row(id)).title).toBe("e2e plan item (edited)");
 
     expect((await cmd(api, "plan.toggle_done", { id }))["done"]).toBe(true);
-    expect((await day(DAY)).checks).toHaveProperty(id);
+    expect((await row(id)).done_at).not.toBeNull();
     expect((await cmd(api, "plan.toggle_done", { id }))["done"]).toBe(false);
+    expect((await row(id)).done_at).toBeNull();
 
-    // "Delete" is a move: the old day marks it skipped, the next day holds it (nothing is removed).
+    // "Delete" is a move: the item goes to the next day (nothing is removed).
     const moved = await cmd(api, "plan.move_tomorrow", { id });
     expect(moved["date"]).toBe("2031-03-15");
-    expect(await day(DAY)).toHaveProperty("skipped");
-    expect((await day("2031-03-15")).added?.[id]?.text).toBe(
-      "e2e plan item (edited)",
-    );
+    expect((await row(id)).day).toBe("2031-03-15");
     // Restore: move it back to the first day.
     await cmd(api, "plan.update", { id, date: DAY });
-    expect((await day(DAY)).added?.[id]?.text).toBeTruthy();
+    expect((await row(id)).day).toBe(DAY);
   } finally {
     await parkPlanItem(api, id);
   }

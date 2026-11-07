@@ -7,13 +7,11 @@ export interface TodayDocs {
   /** GET /attempts and GET /items: an answer counts for the weak spot its item is aimed at. Absent reads as none. */
   attempts?: AttemptRow[];
   items?: SetItemRow[];
-  /** The dayedits document for today, when there is one. */
-  dayedit?: WireDoc;
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */
   jobs?: readonly WireJobLine[];
   /** The plans rows (goal, state); a goal's plan in force is its approved plan. Absent reads as none. */
   plans?: WireDoc[];
-  /** The plan_items rows (plan, day, title, minutes): the days of tasks of a plan. */
+  /** The plan_items rows (plan, day, title, minutes, origin, tick): a plan's tasks and the items Matt added. */
   planItems?: WireDoc[];
 }
 
@@ -72,7 +70,13 @@ export function examSessions(id: string, docs: TodayDocs): ExamSession[] {
   );
 }
 
-type Item = { id: string; day: string; title: string; minutes?: number };
+type Item = {
+  id: string;
+  day: string;
+  title: string;
+  minutes?: number;
+  done: boolean;
+};
 
 /** The plan in force for a goal: its plans row in state in_force. */
 function inForce(docs: TodayDocs, goalId: string): string | undefined {
@@ -82,21 +86,28 @@ function inForce(docs: TodayDocs, goalId: string): string | undefined {
   })?.id;
 }
 
-/** A plan's items, by day. The id is the row id without its `pli_` prefix: the key a tick sticks to. */
+/** A plan's items, by day. The id is the row id: the key a tick is saved under. */
 function itemsOf(docs: TodayDocs, planId: string | undefined): Item[] {
   if (!planId) return [];
   return (docs.planItems ?? []).flatMap((i) => {
     const d = i.data as
-      | { plan_id?: unknown; day?: unknown; title?: unknown; minutes?: unknown }
+      | {
+          plan_id?: unknown;
+          day?: unknown;
+          title?: unknown;
+          minutes?: unknown;
+          done_at?: unknown;
+        }
       | undefined;
     return d?.plan_id === planId &&
       typeof d.day === "string" &&
       typeof d.title === "string"
       ? [
           {
-            id: i.id.replace(/^pli_/, ""),
+            id: i.id,
             day: d.day,
             title: d.title,
+            done: typeof d.done_at === "number",
             ...(typeof d.minutes === "number" ? { minutes: d.minutes } : {}),
           },
         ]
@@ -132,6 +143,7 @@ export type Session = {
   text: string;
   minutes?: number;
   kind: string;
+  done: boolean;
 };
 
 /** Today's sessions from the plans in force: each task dated today (Central), keyed by its task id so a tick sticks. */
@@ -148,7 +160,35 @@ export function planSessions(
         id: i.id,
         text: i.title,
         kind: "plan",
+        done: i.done,
         ...(i.minutes !== undefined ? { minutes: i.minutes } : {}),
       }));
+  });
+}
+
+/** The items Matt added for a day (origin user or the morning job's): rows without a plan. */
+export function addedSessions(docs: TodayDocs, today: string): Session[] {
+  return (docs.planItems ?? []).flatMap((i) => {
+    const d = i.data as
+      | {
+          plan_id?: unknown;
+          day?: unknown;
+          title?: unknown;
+          minutes?: unknown;
+          done_at?: unknown;
+          origin?: unknown;
+        }
+      | undefined;
+    return d?.plan_id == null && d?.day === today && typeof d.title === "string"
+      ? [
+          {
+            id: i.id,
+            text: d.title,
+            kind: "todo",
+            done: typeof d.done_at === "number",
+            ...(typeof d.minutes === "number" ? { minutes: d.minutes } : {}),
+          },
+        ]
+      : [];
   });
 }

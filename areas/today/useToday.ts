@@ -60,13 +60,7 @@ const rowsOf = async <T,>(path: string, token: string): Promise<T[]> => {
   return ((await r.json()) as { rows: T[] }).rows;
 };
 
-/** The day's edit document, or null when there is none yet (a 404 or any non-ok answer). */
-const dayEdit = async (day: string, token: string): Promise<WireDoc | null> => {
-  const r = await get(`collection=dayedits&id=${day}`, token);
-  return r.ok ? ((await r.json()) as WireDoc) : null;
-};
-
-/** Reads exams, weak spots and today's plan edits with the app token Matt keeps in this browser (the shell holds none). */
+/** Reads exams, weak spots and today's plan items with the app token Matt keeps in this browser (the shell holds none). */
 export function useToday(copy?: ReadCopyLike): TodayState {
   const [token] = useState(readToken);
   const [data, setData] = useState<TodayData>();
@@ -105,8 +99,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         (j) => j as WireJobLine[],
         () => undefined,
       );
-      const [day, exams, weakspots, plans, planItems, jobs, answers, setRows] = await Promise.all([
-        saved(`today:dayedits:${today}`, () => dayEdit(today, token)),
+      const [exams, weakspots, plans, planItems, jobs, answers, setRows] = await Promise.all([
         saved("today:exams", () => list("exams", token)),
         saved("today:weakspots", () => list("weakspots", token)),
         planRead,
@@ -115,7 +108,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         attempts,
         setItems,
       ]);
-      return { day, exams, weakspots, plans, planItems, jobs, answers, setRows };
+      return { exams, weakspots, plans, planItems, jobs, answers, setRows };
     };
     const first = warm.current;
     warm.current = false;
@@ -127,13 +120,11 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         setPlanWaiting(prepPlanWaiting(r.jobs));
       }
       const { exams, weakspots, plans, planItems, answers, setRows } = r;
-      const dayedit = r.day ?? undefined;
       setData(
         mapToday(
           {
             exams,
             weakspots,
-            dayedit,
             jobs: r.jobs ?? [],
             plans,
             planItems,
