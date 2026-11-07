@@ -1942,7 +1942,7 @@
    "B-802",
    "B-799"
   ],
-  "notes": "Merged #248 (chat route) and #249 (Ask screen). Open: one staging check that a question gets a cited or unverified reply and 'is it ready?' uses job_status; Ask screen should read ?text= from the palette Tab; gate5 ask-ready journey still NOT BUILT.",
+  "notes": "Merged #248 (chat route) and #249 (Ask screen). Open: one staging check that a question gets a cited or unverified reply and 'is it ready?' uses job_status; Ask screen should read ?text= from the palette Tab; gate5 ask-ready journey still NOT BUILT. Lane move 2026-11-07 (supervisor, D-530): lane B takes the code parts (Ask reads ?text= from the palette Tab; the Gate 5 ask-ready journey in e2e/). The staging check still waits on ANTHROPIC_API_KEY.",
   "commit": null,
   "source": "plan audit (ev-build), 2026-11-04"
  },
@@ -4288,7 +4288,7 @@
   "depends": [
    "B-956"
   ],
-  "notes": "Slice: write vite.config.ts, package.json and *.test.ts files only; read none. Carries out the Phase 0 tools decision that said S-10 moves the tests to Vitest. Do after B-956, so its uncollected-test check is written once for one runner. Split by folder if the change passes about 400 lines.",
+  "notes": "Slice: write vite.config.ts, package.json and *.test.ts files only; read none. Carries out the Phase 0 tools decision that said S-10 moves the tests to Vitest. Do after B-956, so its uncollected-test check is written once for one runner. Split by folder if the change passes about 400 lines. Lane split 2026-11-07 (supervisor, D-530), for lane A to make: 21 node:test files remain (ops 12, jobs 5, data 3, server 1). Lane B part: vite.config.ts projects, package.json and the 12 ops/ test files. Lane A part: the 9 files in data/, jobs/ and server/. The test:node script goes when both parts land.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4328,7 +4328,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes.",
+  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes. Shape fix for later (supervisor 2026-11-07, no new id until D-497 allows): a GitHub Actions staging smoke run that uses the repo's staging token secret, opens staging in Playwright, and takes screenshots of each screen in both themes, so runs can check staging looks themselves instead of waiting on a person. Covers this task, B-974, B-975, B-942, B-986 and B-940.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4354,7 +4354,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write ops/generate/, commands/; read areas/ (callers keep compiling; removing their casts is a follow-up). Interface: commands. Handler typing on the server stays with the full audit's proposal B.",
+  "notes": "Slice: write ops/generate/, commands/; read areas/ (callers keep compiling; removing their casts is a follow-up). Interface: commands. Handler typing on the server stays with the full audit's proposal B. Lane split 2026-11-07 (supervisor, D-530), for lane A to make: part (a) ops/generate imports the registry instead of the regex, with no change to the generated commands/client.ts, fits lane B; part (b) the client module and typed call() write commands/ and stay with lane A.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
@@ -4652,7 +4652,7 @@
   "depends": [
    "B-1001"
   ],
-  "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F6: collection pages read set titles from GET /docs?collection=sets and miss new sets; read the tables. Four-app research 2026-11-06 (D-521): (a) notes.text gets a text_v marker, and a check (B-1036) holds text equal to noteText(body); the second copy of the rule in 0013_notes_backfill.sql goes with the squash (B-998). (b) domain/search/tokens.ts treats anything outside a-z and 0-9 as a break, so accented and non-Latin notes are never found. Normalize with Unicode letters and numbers (\\p{L}\\p{N}, NFKD for accents) and add retrieval test cases (accented, Cyrillic, CJK). Slice for (b): domain/search. KISS audit (D-526): Matt uses the collection page Pinned section, so it stays. design/mockup.html (Collection page, about lines 1530 to 1546) gains a Pinned section before Coming up, so the mock-up matches the app. Mock-up only; the app code stays.",
+  "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F6: collection pages read set titles from GET /docs?collection=sets and miss new sets; read the tables. Four-app research 2026-11-06 (D-521): (a) notes.text gets a text_v marker, and a check (B-1036) holds text equal to noteText(body); the second copy of the rule in 0013_notes_backfill.sql goes with the squash (B-998). (b) domain/search/tokens.ts treats anything outside a-z and 0-9 as a break, so accented and non-Latin notes are never found. Normalize with Unicode letters and numbers (\\p{L}\\p{N}, NFKD for accents) and add retrieval test cases (accented, Cyrillic, CJK). Slice for (b): domain/search. KISS audit (D-526): Matt uses the collection page Pinned section, so it stays. design/mockup.html (Collection page, about lines 1530 to 1546) gains a Pinned section before Coming up, so the mock-up matches the app. Mock-up only; the app code stays. Lane move 2026-11-07 (supervisor, D-530): the areas/notes and areas/collection part is lane B's, after B-1001. Part (b), domain/search normalization, is a part for lane A.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4761,7 +4761,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498). Scope sweep: comments and test titles say the user; the stored values matt (Caller, job by) and by Matt in dayedits (server/handlers-plan.ts, server/handlers-dates.ts) remain for this task and B9.",
+  "notes": "Slice: write commands/, server/, jobs/, areas/ (call sites), eslint.config.js, ops/guards/; read none. Interface: commands. Decision: D-486. About 70 files, mostly comments: split by folder if it passes about 400 changed lines. Do not change stored values: the data study owns those. Scope audit 2026-11-06 (audits/2026-11-06-scope/report.md in the ev-build project folder), C15: the allow lists for data/compat and ev4's stored 'by' value are gone (data/compat was removed; stored values become 'user' under D-498). Scope sweep: comments and test titles say the user; the stored values matt (Caller, job by) and by Matt in dayedits (server/handlers-plan.ts, server/handlers-dates.ts) remain for this task and B9. Lane split 2026-11-07 (supervisor, D-530), for lane A to make: the rename starts in commands/, jobs/ and server/ (lane A). After it lands, lane B can take the areas/ call sites, the ESLint rule in eslint.config.js and the red guard fixture in ops/guards/.",
   "commit": null,
   "source": "Matt in ev-build 2026-11-05 10:08 CT: no personal name hard-coded in the repo; a clone must set up on its own"
  },
