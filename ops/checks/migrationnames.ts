@@ -1,5 +1,5 @@
 // wrangler applies every `.sql` file in data/migrations, so only numbered `NNNN_name.sql` files may sit there (§data.migrations,
-// §drift.checks). A schema fixture or scratch script goes elsewhere. The one named exception is the ev4 schema fixture,
+// §drift.checks). A schema fixture or scratch script goes elsewhere. The one named exception is the old schema fixture,
 // which staging already recorded as applied; do not add to this list.
 import type { Finding } from './lib.ts';
 

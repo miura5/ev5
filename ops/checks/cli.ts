@@ -6,6 +6,7 @@ import { checkControls } from './controls.ts';
 import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkDocsWrites } from './docswrites.ts';
+import { checkEv4Word } from './ev4word.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
@@ -38,6 +39,7 @@ const findings = [
   ...checkControls(root, files),
   ...checkDocsKinds(root, files),
   ...checkDocsWrites(root, files),
+  ...checkEv4Word(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
   ...checkMigrationNames(files),
