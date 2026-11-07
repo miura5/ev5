@@ -100,7 +100,7 @@ test("deletions read newest first and filter by collection", async () => {
   };
   assert.deepEqual(
     all.deletions.map((d) => d.id),
-    ["b", "set_1/item_1", "a"],
+    ["b", "item_1", "a"],
   );
   const one = (await (
     await call("GET", "/deletions?collection=notes")
@@ -122,7 +122,7 @@ test("deletions carry the kept item's title, for a note and for a set item", asy
     all.deletions.map((d) => [d.collection, d.title]),
   );
   assert.equal(t.notes, "Cardiac drugs");
-  assert.equal(t.own_set_items, "Which lab is highest priority?");
+  assert.equal(t.set_items, "Which lab is highest priority?");
   assert.equal(t.sets, null);
 });
 
@@ -170,4 +170,17 @@ test("a token is required, and there is no write or delete", async () => {
     const r = await call(m, "/deletions");
     assert.ok(r.status === 404 || r.status === 405, `${m} -> ${r.status}`);
   }
+});
+
+test("a set item filter reads the older own_set_items row as set_items", async () => {
+  const call = await setup(true);
+  const j = (await (
+    await call("GET", "/deletions?collection=set_items")
+  ).json()) as {
+    deletions: { collection: string; id: string; title: string | null }[];
+  };
+  assert.deepEqual(
+    j.deletions.map((d) => [d.collection, d.id, d.title]),
+    [["set_items", "item_1", "Which lab is highest priority?"]],
+  );
 });

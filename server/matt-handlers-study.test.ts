@@ -44,7 +44,7 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
   }>();
   assert.deepEqual(
     del.results.map((r) => ({ ...r })),
-    [{ c: "own_set_items", id: `${set}/${item}` }],
+    [{ c: "set_items", id: item }],
   );
   // an unverified item is a pending draft
   await DB.prepare(

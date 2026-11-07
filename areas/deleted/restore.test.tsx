@@ -14,7 +14,7 @@ afterEach(() => {
 
 test("restoreId drops the collection and keeps a nested id whole", () => {
   expect(restoreId("notes/n1")).toBe("n1");
-  expect(restoreId("own_set_items/s1/i1")).toBe("s1/i1");
+  expect(restoreId("set_items/item_1")).toBe("item_1");
 });
 
 function setup(restoreStatus: number) {

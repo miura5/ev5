@@ -25,8 +25,8 @@ test("rows show the title and a plain kind, never an id or a table name", () => 
   const out = mapDeletions(
     [
       {
-        collection: "own_set_items",
-        id: "s1/i1",
+        collection: "set_items",
+        id: "i1",
         at,
         title: "Which lab is highest priority?",
       },
@@ -40,7 +40,7 @@ test("rows show the title and a plain kind, never an id or a table name", () => 
   });
   expect(out[1]).toMatchObject({ title: "Untitled", kind: "Note" });
   expect(JSON.stringify(out.map((i) => [i.title, i.kind]))).not.toMatch(
-    /own_set_items|n9|s1\/i1/,
+    /set_items|n9|i1/,
   );
 });
 
