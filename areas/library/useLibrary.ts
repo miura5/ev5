@@ -11,8 +11,7 @@ import type {
   WeakSpotTableRow,
 } from "../../domain/index.ts";
 import {
-  ApiError,
-  api,
+  readJson,
   call,
   jobApi,
   type CommandName,
@@ -68,18 +67,19 @@ export interface ReadCopyLike {
   read<T>(key: string, fetcher: () => Promise<T>): Promise<T>;
 }
 
-/** The rows of one kind from GET /<path> (the domain row shape, §data.gate). Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept as the copy (§data.offline). */
+/** The rows of one kind from GET /<path> (the domain row shape, §data.gate), through readJson: one saved-copy key per route, shared with Today. A 401 or 5xx throws and is never kept as the copy (§data.offline). */
 function rows<T>(
   path: string,
   token: string,
   copy?: ReadCopyLike,
 ): Promise<T[]> {
-  const fetcher = async (): Promise<T[]> => {
-    const r = await api(path, token);
-    if (!r.ok) throw new ApiError(r.status);
-    return ((await r.json()) as { rows: T[] }).rows;
-  };
-  return copy ? copy.read(`library:${path}`, fetcher) : fetcher();
+  return readJson(
+    path,
+    token,
+    `rows:${path}`,
+    copy,
+    (b) => (b as { rows: T[] }).rows,
+  );
 }
 
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */
