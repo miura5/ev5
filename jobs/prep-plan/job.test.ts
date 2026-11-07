@@ -135,7 +135,7 @@ test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   assert.equal(reqs.length, 1);
 });
 
-test('a save step that fails once is retried and the model is called once (B-1005)', async () => {
+test('a save step that fails once is retried and the model is called once', async () => {
   let calls = 0;
   const { env, jobs, wf, log } = setup(async () => (calls++, reply(good)), { failApproveOnce: true });
   const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');

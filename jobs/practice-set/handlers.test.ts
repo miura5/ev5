@@ -1,4 +1,4 @@
-// B-1005: the model call is its own step and its output is kept, so retrying the save step does not pay for the model.
+// the model call is its own step and its output is kept, so retrying the save step does not pay for the model.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { startJob, runJob, workflowExecutor } from "../runtime/index.ts";
