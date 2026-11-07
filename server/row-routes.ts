@@ -10,6 +10,7 @@
 //   GET /sessions           every live session                 GET /sessions/:id
 //   GET /notes              every live note                    GET /notes/:id
 //   GET /links              every live link                    GET /links/:id
+//   GET /attempts           every answer, oldest first         GET /attempts/:id
 // Collections keep their own route (collection-routes.ts), so they are not repeated here.
 // The older /docs?collection=… reads stay until the areas have moved.
 import { Hono } from "hono";
@@ -21,6 +22,10 @@ import { leftOutField, readReport, requestIdOf } from "./read-report.ts";
 
 type Ctx = { Bindings: { DB: DocsD1 }; Variables: AuthVars };
 export const rowRoutes = new Hono<Ctx>();
+type Rows = {
+  list(): Promise<readonly unknown[] & { left_out?: number }>;
+  get(id: string): Promise<unknown>;
+};
 
 // path, repository key, table (the name `onBad` reports, so a bad row is counted once)
 const KINDS = [
@@ -33,6 +38,7 @@ const KINDS = [
   ["sessions", "sessions", "sessions"],
   ["notes", "notes", "notes"],
   ["links", "links", "links"],
+  ["attempts", "attempts", "attempts"],
 ] as const;
 
 for (const [path, key, table] of KINDS) {
@@ -42,7 +48,8 @@ for (const [path, key, table] of KINDS) {
       clock: () => Date.now(),
       onBad: reads.onBad,
     });
-    return { reads, rows: repo[key] };
+    // One shape for every kind: the union of ten repositories is too deep for the checker to call.
+    return { reads, rows: repo[key] as unknown as Rows };
   };
   rowRoutes.get(`/${path}`, async (c) => {
     const { reads, rows } = open(c);
