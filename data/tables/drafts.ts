@@ -156,11 +156,6 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
     },
     deletions: {
-      /** Kept for handlers-sets.ts until the set handlers stop calling it: `removeItem` already sets the item's `deleted_at`, so this writes nothing. */
-      markOwnSetItem: async (
-        _setId: string,
-        _itemId: string,
-      ): Promise<void> => {},
       /** Soft delete of a note by its document id (`deleted_at` on its row, reads hide it, §delete.soft). */
       markNote: (docId: string): Promise<boolean> =>
         softDelete("notes", `note_${docId}`),
