@@ -4488,7 +4488,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed. Run 2026-11-07 1000Z (#786): table and export tests no longer name dayedits. Still naming it: ops/checks/docskinds.ts (check). Claim freed.",
+  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed. Run 2026-11-07 1000Z (#786): table and export tests no longer name dayedits. Still naming it: ops/checks/docskinds.ts (check). Claim freed. Run 2026-11-07 1217Z: D1Like, sizeRefusal, gateProblem moved out of data/docs (#814). /docs removal blocked by: server/index.ts mounts docRoutes and /api/health counts docs; data/export still dumps docs; data/docs/repo.ts + doc-routes only; tests via /api/v1/docs (doc-routes, collection-sets, goal-wire, handlers-dates, handlers-plan-state, left-out, note-routes PUT, plan-wire, refused, session-routes PUT, since-sessions, weak-since) or CREATE TABLE docs (excerpts, collection-routes, matt-handlers-setup, job-routes-setup, plan-home); .github/workflows/gate4-e2e.yml:37 curls /docs (use /goals); ops/checks docswrites.ts, docskinds.ts and tests (checks.test, guards.test); package.json test:node lists data/docs; manifest.mjs comment. Order: migrate server tests to row routes (server/), then one change dropping checks, the workflow curl and the health docs count, then delete doc-routes and data/docs, then squash. Claim freed.",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4598,7 +4598,7 @@
   "depends": [
    "B-997"
   ],
-  "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F34: the slice named jobs/model, which does not exist; the model calls live in jobs/runtime (model-call.ts, output.ts). Rules-to-guards audit 2026-11-06 (D-517): in jobs/practice-set and jobs/study-plan the model call and the D1 write share one step, so a retry pays for the model again. The model call is its own step whose output is kept, and the write is a later step; a test retries the write step and checks the model is called once. Slice for this item: jobs/practice-set, jobs/study-plan.",
+  "notes": "Post-sweep audit 2026-11-06 (audits/2026-11-06-post-sweep/report.md in the ev-build project folder): F34: the slice named jobs/model, which does not exist; the model calls live in jobs/runtime (model-call.ts, output.ts). Rules-to-guards audit 2026-11-06 (D-517): in jobs/practice-set and jobs/study-plan the model call and the D1 write share one step, so a retry pays for the model again. The model call is its own step whose output is kept, and the write is a later step; a test retries the write step and checks the model is called once. Slice for this item: jobs/practice-set, jobs/study-plan. Run 2026-11-07 1217Z: D-517 part already on main: practice-set (plan, call, save) and prep-plan (gather, draft, save) split the model call from the write, each with a retry test (job is jobs/prep-plan, not study-plan). Gap: the store.put/putDraft after the call is in the model step; a throw there pays again; the runtime keeps ids only, so a fix needs a runtime or contract call (jobs/runtime). Claim freed.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
@@ -4826,7 +4826,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1030Z: Gate 5 journeys follow rows and commands (#791, #792); gate5-e2e green on staging. Claim freed.",
+  "notes": "Run 2026-11-07 1030Z: Gate 5 journeys follow rows and commands (#791, #792); gate5-e2e green on staging. Claim freed. Run 2026-11-07 1217Z: shared attempts adapter answersOf/gradedBySpot in domain/answers; the three areas' attempts.ts are gone (#813). Claim freed.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
