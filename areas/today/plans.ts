@@ -1,9 +1,12 @@
-import type { WireDoc } from "../../domain/index.ts";
+import type { AttemptRow, SetItemRow, WireDoc } from "../../domain/index.ts";
 
 export type { WireDoc };
 export interface TodayDocs {
   exams: WireDoc[];
   weakspots: WireDoc[];
+  /** GET /attempts and GET /items: an answer counts for the weak spot its item is aimed at. Absent reads as none. */
+  attempts?: AttemptRow[];
+  items?: SetItemRow[];
   /** The dayedits document for today, when there is one. */
   dayedit?: WireDoc;
   /** The unfinished jobs (GET /jobs); a prep plan waiting at needs-you names its exam. */

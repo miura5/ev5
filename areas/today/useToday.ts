@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { centralDate } from "../../domain/index.ts";
+import type { AttemptRow, SetItemRow } from "../../domain/index.ts";
 import { mapToday, spendAlertLine, prepPlanWaiting } from "./map.ts";
 import type { TodayData, WireDoc, WireJobLine } from "./map.ts";
 import {
@@ -52,6 +53,13 @@ const list = async (collection: string, token: string): Promise<WireDoc[]> => {
   return ((await r.json()) as { docs: WireDoc[] }).docs;
 };
 
+/** The rows of one kind from GET /<path> (the domain row shape, §data.gate). */
+const rowsOf = async <T,>(path: string, token: string): Promise<T[]> => {
+  const r = await api(path, token);
+  if (!r.ok) throw new ApiError(r.status);
+  return ((await r.json()) as { rows: T[] }).rows;
+};
+
 /** The day's edit document, or null when there is none yet (a 404 or any non-ok answer). */
 const dayEdit = async (day: string, token: string): Promise<WireDoc | null> => {
   const r = await get(`collection=dayedits&id=${day}`, token);
@@ -85,20 +93,29 @@ export function useToday(copy?: ReadCopyLike): TodayState {
       const items = saved("today:plan_items", () =>
         list("plan_items", token),
       ).catch((): WireDoc[] => []);
+      // Answers and the items they were aimed at give a spot its misses and streak; unreadable, a spot reads as unanswered.
+      const attempts = saved("today:attempts", () =>
+        rowsOf<AttemptRow>("attempts", token),
+      ).catch((): AttemptRow[] => []);
+      const setItems = saved("today:items", () =>
+        rowsOf<SetItemRow>("items", token),
+      ).catch((): SetItemRow[] => []);
       // The jobs are extra: Today still loads without them.
       const jobRead = jobApi.list(token, c).then(
         (j) => j as WireJobLine[],
         () => undefined,
       );
-      const [day, exams, weakspots, plans, planItems, jobs] = await Promise.all([
+      const [day, exams, weakspots, plans, planItems, jobs, answers, setRows] = await Promise.all([
         saved(`today:dayedits:${today}`, () => dayEdit(today, token)),
         saved("today:exams", () => list("exams", token)),
         saved("today:weakspots", () => list("weakspots", token)),
         planRead,
         items,
         jobRead,
+        attempts,
+        setItems,
       ]);
-      return { day, exams, weakspots, plans, planItems, jobs };
+      return { day, exams, weakspots, plans, planItems, jobs, answers, setRows };
     };
     const first = warm.current;
     warm.current = false;
@@ -109,11 +126,20 @@ export function useToday(copy?: ReadCopyLike): TodayState {
         setAlert(spendAlertLine(r.jobs));
         setPlanWaiting(prepPlanWaiting(r.jobs));
       }
-      const { exams, weakspots, plans, planItems } = r;
+      const { exams, weakspots, plans, planItems, answers, setRows } = r;
       const dayedit = r.day ?? undefined;
       setData(
         mapToday(
-          { exams, weakspots, dayedit, jobs: r.jobs ?? [], plans, planItems },
+          {
+            exams,
+            weakspots,
+            dayedit,
+            jobs: r.jobs ?? [],
+            plans,
+            planItems,
+            attempts: answers,
+            items: setRows,
+          },
           now,
         ),
       );
