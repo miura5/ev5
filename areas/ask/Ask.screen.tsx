@@ -1,6 +1,6 @@
 import { clockTime } from "../../domain/index.ts";
 import { useEffect, useState } from "react";
-import { api, failureSentence, readToken } from "../../commands/client.ts";
+import { call, failureSentence, readToken } from "../../commands/client.ts";
 import { loadChat, tellMe } from "./chat.ts";
 import { AskView } from "./Ask.view.tsx";
 import type { AskMessage } from "./types.ts";
@@ -31,12 +31,14 @@ async function askServer(
   Omit<Extract<AskMessage, { from: "ev" }>, "id"> & { chatId?: string }
 > {
   try {
-    const r = await api("ask", token, {
-      body: chatId ? { text, chat_id: chatId } : { text },
-    });
+    const r = await call(
+      "ask.send",
+      chatId ? { text, chat_id: chatId } : { text },
+      token,
+    );
     // Never the server's own text: a refused or failed reply reads as the client's plain sentence.
-    if (!r.ok) return { from: "ev", text: failureSentence(r.status) };
-    const b = (await r.json()) as { reply?: WireReply };
+    if (!r.ok) return { from: "ev", text: r.reason };
+    const b = (r.result ?? {}) as { reply?: WireReply };
     if (!b.reply) return { from: "ev", text: failureSentence("server") };
     const { reply } = b;
     return {

@@ -44,6 +44,20 @@ test("rows show the title and a plain kind, never an id or a table name", () => 
   );
 });
 
+test("a set item on the sets tables reads as a Set question, and a set as a Set", () => {
+  const out = mapDeletions(
+    [
+      { collection: "set_items", id: "item_1", at, title: "Which lab?" },
+      { collection: "sets", id: "set_1", at: at - 1, title: "Cardiac" },
+    ],
+    at,
+  );
+  expect(out.map((i) => [i.type, i.kind])).toEqual([
+    ["questions", "Set question"],
+    ["note", "Set"],
+  ]);
+});
+
 test("days left never go below zero; none is empty", () => {
   expect(
     mapDeletions(
