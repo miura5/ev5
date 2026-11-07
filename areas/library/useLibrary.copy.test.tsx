@@ -94,7 +94,7 @@ test("a good read refreshes the copy", async () => {
     "library:goals",
     "library:items",
     "library:links",
-    "library:plan_items",
+    "library:plan-items",
     "library:plans",
     "library:sets",
     "library:weak-spot-events",

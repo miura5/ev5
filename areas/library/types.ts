@@ -1,4 +1,3 @@
-import type { WireDoc } from "../../domain/index.ts";
 /** How a topic or exam splits: shares of recent answers that were right, shaky and wrong (each 0..1). */
 export interface Mastery {
   right: number;
@@ -148,4 +147,3 @@ export interface DatePlanData {
   /** The proposed sessions; absent when the server did not send them. */
   sessions?: readonly PlanSession[];
 }
-
