@@ -19,7 +19,7 @@ const wire: PinWire = {
     { collection: "collections", id: "bio" },
     { collection: "collections", id: "run" },
     { collection: "collections", id: "none" },
-    { collection: "notes", id: "n1" },
+    { collection: "notes", id: "note_n1" },
     { collection: "sets", id: "set_s1" },
     { collection: "goals", id: "goal_e1" },
     { collection: "notes", id: "gone" },
@@ -55,5 +55,5 @@ test("a pinned collection shows the day of its next linked date, nested ones inc
     ["Untitled", undefined],
   ]);
   expect(out[0]?.to).toBe("/collection/bio");
-  expect(out[3]?.to).toBe("/notes?open=n1");
+  expect(out[3]?.to).toBe("/notes?open=note_n1");
 });

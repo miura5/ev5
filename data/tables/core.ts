@@ -3,8 +3,7 @@ import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
 
 export type Saved<T> =
-  | { ok: true; row: T }
-  | { ok: false; conflict: true; current: number | null };
+  { ok: true; row: T } | { ok: false; conflict: true; current: number | null };
 
 export type Val = string | number | null;
 export type Raw = Record<string, Val>;

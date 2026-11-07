@@ -41,7 +41,7 @@ async function make() {
     weak_spot_id: null,
     source_ref: null,
   } as const;
-  assert.ok((await repo.setItems.save(item, null)).ok);
+  assert.ok((await repo.setBook.addItem(item)).ok);
   return { repo, item };
 }
 const att = {
@@ -60,7 +60,7 @@ test("record files the answer against the item's current version", async () => {
   const { repo, item } = await make();
   const a = await repo.attempts.record(att);
   assert.ok(a.ok && a.row.item_v === 1);
-  const edited = await repo.setItems.save({ ...item, pos: 2 }, 1);
+  const edited = await repo.setBook.editItem(item.id, { pos: 2 }, 1);
   assert.ok(edited.ok && edited.row.v === 2);
   const b = await repo.attempts.record({ ...att, id: "att_2" });
   assert.ok(b.ok && b.row.item_v === 2);
