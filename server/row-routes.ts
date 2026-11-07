@@ -11,6 +11,8 @@
 //   GET /notes              every live note                    GET /notes/:id
 //   GET /links              every live link                    GET /links/:id
 //   GET /attempts           every answer, oldest first         GET /attempts/:id
+//   GET /plans              every live plan, by first day      GET /plans/:id
+//   GET /plan-items         every live plan item, by day, pos  GET /plan-items/:id
 // Collections keep their own route (collection-routes.ts), so they are not repeated here.
 // The older /docs?collection=… reads stay until the areas have moved.
 import { Hono } from "hono";
@@ -39,6 +41,8 @@ const KINDS = [
   ["notes", "notes", "notes"],
   ["links", "links", "links"],
   ["attempts", "attempts", "attempts"],
+  ["plans", "plans", "plans"],
+  ["plan-items", "planItems", "plan_items"],
 ] as const;
 
 for (const [path, key, table] of KINDS) {
