@@ -40,6 +40,9 @@
     ],
     "jobs/runtime/workflow.fake.ts": [
       "exports"
+    ],
+    "jobs/index.ts": [
+      "exports"
     ]
   }
 }

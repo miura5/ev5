@@ -1,13 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  fakeWorkflows,
   practiceSet,
   practiceSetHandlers,
   startJob,
   workflowExecutor,
   d1JobStore,
 } from "../jobs/index.ts";
-import { fakeWorkflows } from "../jobs/runtime/workflow.fake.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 import type { ModelCall, StartEnv } from "../jobs/index.ts";
 import { d1PracticeStore, runWorkflow } from "./job-run.ts";
