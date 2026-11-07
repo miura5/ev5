@@ -8,6 +8,7 @@ import { SetPageView } from "./SetPage.view.tsx";
 import { useLibrary } from "./useLibrary.ts";
 import {
   useGrade,
+  useReloadHold,
   useStudy,
   useTellMe,
   type LibraryServices,
@@ -41,8 +42,16 @@ export function LibraryScreen({
   onDetail?: (detail: DetailProps | null) => void;
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, runPlan, setKind, linkSpot, answerPlan } =
-    useLibrary(services?.readCopy);
+  const {
+    data,
+    token,
+    refused,
+    error,
+    runPlan,
+    setKind,
+    linkSpot,
+    answerPlan,
+  } = useLibrary(services?.readCopy);
   const setPlanNote = (message: string) => onToast?.(message);
   useEffect(() => {
     if (error && token && !refused) onToast?.(error);
@@ -79,6 +88,7 @@ export function LibraryScreen({
   const [studying, setStudying] = useState(false);
   // Back or Forward to another set (or the list) never lands inside a study run.
   useEffect(() => setStudying(false), [open]);
+  useReloadHold(studying && !!(open && data?.pages[open]), services);
   const onRate = useStudy(open ?? "", services);
   const onTell = useTellMe(open ?? "", services);
   const onGrade = useGrade(open ?? "");
