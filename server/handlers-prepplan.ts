@@ -25,7 +25,7 @@ const PLAN_PREFIX = "plan-";
 
 /** One date keeps one plan in the making: the older drafts for it are put away and the older runs stopped. */
 async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
-  const store = d1JobStore(x.db as never, x.clock);
+  const store = d1JobStore(x.db as never, x.clock, x.onBad);
   const live = (await store.list()).filter(
     (r) => r.kind === def.kind && r.id !== keep && !isTerminal(r.state),
   );
@@ -90,7 +90,7 @@ export const prepPlanHandlers: Record<string, CommandHandler> = {
     if (!note) throw new CommandError(400, "say what to change");
     if (note.length > MAX_NOTE)
       throw new CommandError(400, `keep the note under ${MAX_NOTE} characters`);
-    const store = d1JobStore(x.db as never, x.clock);
+    const store = d1JobStore(x.db as never, x.clock, x.onBad);
     const rec =
       (await store.get(i.id)) ??
       (i.id.startsWith(PLAN_PREFIX)

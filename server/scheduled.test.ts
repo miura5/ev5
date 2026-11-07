@@ -201,3 +201,24 @@ test("a put that loses a race (key appears after the head check) is not an overw
   );
   assert.equal(IMAGES.objects.get(key), "other");
 });
+
+test("the cron reports a job row it could not read, as the request routes do", async () => {
+  const db = sqliteD1();
+  await db
+    .prepare("INSERT INTO job_records (id, data, at, v) VALUES (?, ?, ?, 1)")
+    .bind("bad1", '{"nope":1}', 9)
+    .run();
+  const lines: string[] = [];
+  const warn = console.warn;
+  console.warn = (m: unknown) => void lines.push(String(m));
+  try {
+    await runScheduled({ DB: db as never }, CRON, NOW);
+  } finally {
+    console.warn = warn;
+  }
+  assert.ok(
+    lines.some(
+      (l) => l.includes('"event":"row_left_out"') && l.includes("bad1"),
+    ),
+  );
+});
