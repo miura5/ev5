@@ -82,6 +82,7 @@ export function NotePageView({
       ) : null}
       <RowActions
         className="ev-notes-host"
+        omit={["open"]}
         title={note.title}
         targets={collections}
         current={collectionId}
@@ -131,11 +132,6 @@ export function NotePageView({
               >
                 Make cards
               </Button>
-              {session || !onDelete ? null : (
-                <Button kind="text" onClick={onDelete}>
-                  Delete
-                </Button>
-              )}
               {session ? null : (
                 <Button
                   kind="text"
