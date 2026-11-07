@@ -19,6 +19,7 @@ import {
   d1CeilingStore,
 } from "../jobs/index.ts";
 import type { D1Like, ModelCall } from "../jobs/index.ts";
+import { byName } from "../commands/index.ts";
 import { tablesRepo } from "../data/index.ts";
 import { findPassages } from "./excerpts.ts";
 import { DEFS } from "./job-routes.ts";
@@ -210,13 +211,15 @@ export async function askFromEnv(
   raw: unknown,
   chat?: unknown,
 ): Promise<AskResult | { ok: false; status: 400 | 503; reason: string }> {
-  const text = typeof raw === "string" ? raw.trim() : "";
-  if (!text || text.length > 2000)
+  // The one length rule lives in ask.send's input schema (§cmd.registry); POST /ask reads it from there.
+  const parsed = byName("ask.send")?.input.safeParse({ text: raw });
+  if (!parsed?.success)
     return {
       ok: false,
       status: 400,
-      reason: "text must be 1 to 2000 characters",
+      reason: parsed?.error.issues[0]?.message ?? "ask.send is not registered",
     };
+  const text = (parsed.data as { text: string }).text;
   const call =
     env.ASK_CALL ??
     (env.ANTHROPIC_API_KEY

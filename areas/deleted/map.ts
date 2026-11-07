@@ -19,6 +19,10 @@ const TYPES: Record<string, DeletedItem["type"]> = {
   plans: "plan",
   jobs: "job",
   goals: "date",
+  // Deletions still key a goal as `exams` (data/tables/drafts.ts markGoal); both name the same thing.
+  exams: "date",
+  sessions: "steps",
+  sets: "questions",
   set_items: "questions",
   collections: "collection",
 };
@@ -31,6 +35,8 @@ const KINDS: Record<string, string> = {
   plans: "Prep plan",
   jobs: "Job",
   goals: "Date",
+  exams: "Date",
+  sessions: "Session",
   set_items: "Set question",
   sets: "Set",
   collections: "Collection",

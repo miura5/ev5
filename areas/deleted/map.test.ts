@@ -54,7 +54,7 @@ test("a set item on the sets tables reads as a Set question, and a set as a Set"
   );
   expect(out.map((i) => [i.type, i.kind])).toEqual([
     ["questions", "Set question"],
-    ["note", "Set"],
+    ["questions", "Set"],
   ]);
 });
 
@@ -89,4 +89,18 @@ test("a deleted collection shows the folder icon", () => {
     type: "collection",
     kind: "Collection",
   });
+});
+
+test.each([
+  ["sessions", "steps", "Session"],
+  ["sets", "questions", "Set"],
+  ["goals", "date", "Date"],
+  ["exams", "date", "Date"],
+  ["set_items", "questions", "Set question"],
+  ["collections", "collection", "Collection"],
+  ["plans", "plan", "Prep plan"],
+  ["jobs", "job", "Job"],
+])("%s shows the %s icon and the plain word %s", (collection, type, kind) => {
+  const [row] = mapDeletions([{ collection, id: "x1", at }], at);
+  expect(row).toMatchObject({ id: `${collection}/x1`, type, kind });
 });
