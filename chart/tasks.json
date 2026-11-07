@@ -3735,13 +3735,15 @@
   "title": "Deleting is risky and hard to find: a collection's Delete has no Undo and lands you on the next collection with Delete under the pointer, and a note can only be deleted from a collection page",
   "dod": "Delete on a collection, a note or a row shows a toast with Undo, as in design/mockup.html (toast with undo); after deleting a collection the page goes to Notes, not to another collection; the row menu (right-click, the dots or the . key) on Notes and on a note page has Open, Pin, Move and Delete; test; seen on staging.",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Run 74 (#460, #468): collection delete to Notes with Undo; row menu (Open, Pin, Move with picker, Delete) from the dots, right-click or the . key on Notes rows, By-collection rows, the note page and collection rows. Left: Pin never shows Unpin on Notes rows; two near-duplicate RowActions (areas cannot import each other; a kit component would fix it); not seen on staging. Seen on staging (playtest 7): collection Delete goes to Notes with an Undo toast; Undo restores (item.restore 200) when pressed within the 4 s toast; note row Delete with Undo; right-click and the . key open Open, Pin, Move…, Delete on Notes rows and the note page; Move works. Also: the note page menu offers Open on its own page and Delete twice (button and menu); By-collection rows show no menu; the Move picker is B-950.",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
-  "reportedAt": "2026-11-05T12:52:59.458Z"
+  "reportedAt": "2026-11-05T12:52:59.458Z",
+  "claimedBy": "lane-b-20261107T1640Z",
+  "claimedAt": "2026-11-07T16:40:12.290Z"
  },
  {
   "id": "B-941",
@@ -3942,11 +3944,13 @@
   "title": "Kit tokens that areas use all exist, and transitions use the kit's easing",
   "dod": "Every var(--x) used in a CSS file is defined in kit/tokens/tokens.css (a check fails otherwise); --sp-5, --lh-body, --fw-body and --text-quiet uses are fixed; Stylelint accepts var(--ease) and still refuses raw easing values",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Audit finding 7: collection.css and deleted.css use --sp-5 (gap becomes 0), notes.css uses --lh-body and --fw-body, library.css and today.css use --text-quiet, none defined; the stylelint.config.js regex bans the word ease.",
   "commit": null,
-  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
+  "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
+  "claimedBy": "lane-b-20261107T1640Z",
+  "claimedAt": "2026-11-07T16:40:12.158Z"
  },
  {
   "id": "B-959",
