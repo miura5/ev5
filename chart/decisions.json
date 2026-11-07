@@ -1,5 +1,25 @@
 [
  {
+  "id": "D-530",
+  "date": "Nov 7",
+  "title": "Two build lanes. Lane A (routine E.V. v5 build, :07) keeps the data-layer and ops chain and every task writing data/, domain/, server/, jobs/ or commands/; lane B (routine E.V. v5 build lane B, :37) takes only tasks in docs/handover-b.md whose slice avoids them, and ends with a wait handover when none is free. Each run starts a builder for every free task in its lane and splits large tasks into parts when fewer than 4 are free. Main no longer asks for up-to-date branches.",
+  "why": "Matt asked on 2026-11-07 for at least one more concurrent build routine; one run reached only 2 builders on the serial data chain. The merge queue is offered only on organization-owned repos and miura5 is a personal account, so Matt turned off 'Require branches to be up to date' on main (16:06Z); CI on main checks each merge, and a red main is fixed first by whichever lane sees it. ops/build-lock.sh takes a lane (b uses claude/build-lock-b); each lane keeps its own handover; only lane A files the inbox, makes ids, closes gates and writes to Matt. Second way considered: one run with more builders; rejected, its free tasks were too few. Drift risk: a lane B builder writing lane A folders; the slice rule and refuse-and-report hold it. Long-term cost: two handovers to keep; lane B idles with wait handovers once its list is empty. AGENTS.md §3 (#853).",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev-build channel, 2026-11-07 16:04Z to 16:07Z"
+ },
+ {
+  "id": "D-529",
+  "date": "Nov 7",
+  "title": "D-517 exception: pictureApi.put is the one raw-bytes write door outside the command registry (§cmd.registry). It accepts only note-images/ keys (throws otherwise) and lint allows it only in areas/notes/parts/notePictures.ts.",
+  "why": "Pictures are bytes, not rows; B-1045 F10",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "run-20261107T1537Z"
+ },
+ {
   "id": "D-528",
   "date": "Nov 7",
   "title": "Build run timing follows the run's own clock: hand over and free the lock about 50 minutes after taking it; side sessions use :57 to :05; a wait branch only when Next has no task free to start",
