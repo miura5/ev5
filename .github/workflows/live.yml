@@ -1,6 +1,6 @@
 name: live
 # Manual only, and gated by the "live" environment's required reviewers (CONTRACT §sec.account). The only workflow that names the ev-live Worker.
-# It binds v5's own live store ev5-live, which Matt's word creates (ops/CUTOVER.md step 4); it never creates a store and never names ev4's (§data.own-db, §hard.data-never-lost).
+# It binds v5's own live store ev5-live, which Matt's word creates (ops/CUTOVER.md step 4); it never creates a store and never names the old app's (§data.own-db, §hard.data-never-lost).
 on:
   workflow_dispatch:
 
