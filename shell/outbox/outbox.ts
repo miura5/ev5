@@ -14,6 +14,8 @@ export interface OutboxOptions {
   now?: () => number;
   /** n random letters and digits */
   random?: (n: number) => string;
+  /** Where `online` and `visibilitychange` come from: the page's own window and document when left out, `false` for none. */
+  events?: { window: EventTarget; document: Document } | false;
 }
 
 const defaultRandom = (n: number): string =>
@@ -166,7 +168,24 @@ export function createOutbox(opts: OutboxOptions) {
   /** Calls `l` with the entries a replay found refused for good; returns the way to stop. */
   const onRefused = (l: RefusedListener) => (listeners.add(l), () => void listeners.delete(l));
 
-  return { queueNote, queueCommand, onRefused, replay, waiting, count: async () => (await sendable()).length };
+  // A queued entry is sent as soon as the app is back, with no other save: on `online` and when the tab shows again.
+  const ev = opts.events === undefined ? (typeof window === 'undefined' ? false : { window, document }) : opts.events;
+  const wake = () => void replay();
+  const onVisible = () => {
+    if (ev && ev.document.visibilityState === 'visible') wake();
+  };
+  if (ev) {
+    ev.window.addEventListener('online', wake);
+    ev.document.addEventListener('visibilitychange', onVisible);
+  }
+  /** Stops listening for `online` and the tab showing again. */
+  const close = () => {
+    if (!ev) return;
+    ev.window.removeEventListener('online', wake);
+    ev.document.removeEventListener('visibilitychange', onVisible);
+  };
+
+  return { queueNote, queueCommand, onRefused, replay, close, waiting, count: async () => (await sendable()).length };
 }
 
 export type Outbox = ReturnType<typeof createOutbox>;
