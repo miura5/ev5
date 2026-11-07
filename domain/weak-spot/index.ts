@@ -224,15 +224,6 @@ type Model = { kind?: string; readingDue?: string | null; derived: Derived };
 
 /** An open concept spot. */
 export const isActive = (w: Model): boolean => (w.kind ?? 'concept') === 'concept' && w.derived.status === 'open';
-/** A concept spot marked solid. */
-export const isSolid = (w: Model): boolean => (w.kind ?? 'concept') === 'concept' && w.derived.status === 'reviewed';
-
-/** Whether an active spot is due on `date` (a pre-read spot waits for its reading date). */
-export function isDue(w: Model, date: string): boolean {
-  if (!isActive(w) || !w.derived.nextDue) return false;
-  if (w.derived.preRead && w.readingDue && w.readingDue > date) return false;
-  return w.derived.nextDue <= date;
-}
 
 /** How many more right days a spot needs before it is solid. */
 export const reviewNeed = (w: Model, rules: ReviewRules = REVIEW_RULES): number =>

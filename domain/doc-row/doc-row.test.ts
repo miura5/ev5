@@ -1,18 +1,14 @@
 import { expect, test } from 'vitest';
 import { goalReadSchema } from '../goal/read.ts';
 import { docRowSchema } from './index.ts';
-import { parseObjectiveRow } from '../objective/row.ts';
-import { parseWeakSpotRow } from '../weak-spot/row.ts';
+import { weakSpotSchema } from '../weak-spot/types.ts';
 import { studySetSchema } from '../set/types.ts';
-import { parseSessionRow } from '../session/row.ts';
-import { parseNoteRow } from '../note/row.ts';
 
 const T = '2026-11-03T15:00:00.000Z';
 const N = 1_762_300_800_000;
 const row = (c: string, data: unknown, extra: Record<string, unknown> = {}) => ({ c, id: 'x1', data, at: N, v: 1, ...extra });
 
 const exam = { schema: 2, writer: 'page', at: T, source: 't', title: 'Unit 1', kind: 'unit', date: '2026-11-10' };
-const objective = { schema: 1, writer: 'page', at: T, source: 't', exam: 'e1', text: 'Explain fluid shifts' };
 const weakSpot = {
   schema: 2,
   writer: 'page',
@@ -32,16 +28,11 @@ const set = {
   kind: 'drill',
   items: [{ id: 'q1', stem: 'Which finding needs action first?', options: ['a', 'b', 'c'], correct: [1] }],
 };
-const session = { schema: 2, writer: 'page', at: T, source: 'E.V. Home', date: '2026-11-03' };
-const note = { schema: 1, writer: 'page', at: T, createdAt: T, title: 'Fluids', blocks: [] };
 
 const kinds = [
   { c: 'exams', parse: (r: unknown) => docRowSchema('exams', goalReadSchema).parse(r), data: exam, bad: { ...exam, kind: '' } },
-  { c: 'objectives', parse: parseObjectiveRow, data: objective, bad: { ...objective, text: '' } },
-  { c: 'weakspots', parse: parseWeakSpotRow, data: weakSpot, bad: { ...weakSpot, kind: 'other' } },
+  { c: 'weakspots', parse: (r: unknown) => docRowSchema('weakspots', weakSpotSchema).parse(r), data: weakSpot, bad: { ...weakSpot, kind: 'other' } },
   { c: 'sets', parse: (r: unknown) => docRowSchema('sets', studySetSchema).parse(r), data: set, bad: { ...set, items: [] } },
-  { c: 'sessions', parse: parseSessionRow, data: session, bad: { ...session, date: 'today' } },
-  { c: 'notes', parse: parseNoteRow, data: note, bad: { ...note, schema: 2 } },
 ];
 
 test.each(kinds)('a $c row parses its document, and refuses a wrong shape', ({ c, parse, data, bad }) => {

@@ -23,19 +23,10 @@
     "domain/note/**": [
       "exports"
     ],
-    "domain/objective/**": [
-      "exports"
-    ],
     "domain/own-set/**": [
       "exports"
     ],
-    "domain/pin/**": [
-      "exports"
-    ],
     "domain/session/**": [
-      "exports"
-    ],
-    "domain/weak-spot/**": [
       "exports"
     ],
     "jobs/**": [

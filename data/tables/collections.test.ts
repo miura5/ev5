@@ -53,15 +53,11 @@ test("collection rows: one level of nesting is checked on write", async () => {
   assert.equal((await r.collectionRows.list()).length, 1);
 });
 
-test("pin rows: versioned and soft-deleted, target_c kept beside target_kind; the old pins repo fills the new columns", async () => {
+test("the pins repo fills the id and target_kind columns", async () => {
   const db = new DatabaseSync(":memory:");
   apply(db, "9999");
   const r = tablesRepo(sqliteD1(db), { clock: () => 5000 });
-  const p = await r.pinRows.save(
-    { id: "pin_1", target_kind: "notes", target_id: "n1", pos: 1 },
-    null,
-  );
-  assert.ok(p.ok && p.row.v === 1);
+  await r.pins.set("notes", "n1", 1);
   await r.pins.set("sets", "s1", 2);
   const got = db
     .prepare("SELECT id, target_c, target_kind FROM pins ORDER BY pos")
@@ -74,13 +70,11 @@ test("pin rows: versioned and soft-deleted, target_c kept beside target_kind; th
     ],
   );
   assert.match(got[1]!.id, /^pin_[0-9a-f]{19}$/);
-  assert.equal((await r.pinRows.list()).length, 2);
-  assert.ok((await r.pinRows.remove("pin_1", 1)).ok);
+  assert.ok(await r.pins.remove("notes", "n1"));
   assert.deepEqual(
     (await r.pins.list()).map((x) => x.targetId),
     ["s1"],
   );
-  assert.equal((await r.pinRows.list()).length, 1);
 });
 
 test("migration 0010 prefixes collection ids and follows every reference, once", async () => {

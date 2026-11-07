@@ -9,6 +9,3 @@ export const pinSchema = z.strictObject({
   at: z.string().min(1),
 });
 export type Pin = z.infer<typeof pinSchema>;
-
-/** What the rules read of a pin's target: whether it exists and whether Matt deleted it (§delete.soft). */
-export type TargetState = 'live' | 'deleted' | 'missing';

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Detail,
   Glyph,
   AreaIcon,
   JobLine,
@@ -10,7 +9,6 @@ import {
   SidebarSearch,
   WorkspaceLine,
   ThemeButton,
-  type DetailProps,
   type GlyphType,
   type PaletteGroup,
 } from "../kit/index.ts";
@@ -53,8 +51,6 @@ export interface ShellProps {
   /** The running job as one quiet line at the foot of the sidebar; absent when none runs. */
   runningJob?: { id: string; text: string };
   onOpenJob?: (id: string) => void;
-  /** The open item's Detail panel; absent when none is open. */
-  detail?: DetailProps | null;
   /** Reads and the outbox, handed to every area view. */
   services?: Services;
   /** Forget the saved token and show the token screen; the control is hidden when absent. */
@@ -74,7 +70,6 @@ export function Shell({
   counts = {},
   runningJob,
   onOpenJob,
-  detail,
   services,
   onUseDifferentToken,
 }: ShellProps) {
@@ -284,7 +279,7 @@ export function Shell({
           ) : null}
         </div>
       </main>
-      <DetailSlot opened={od[0]} onClear={od[2]} legacy={detail} />
+      <DetailSlot opened={od[0]} onClear={od[2]} />
       <ToastHost toasts={toasts} onDrop={dropToast} hidden={palette} />
       {palette ? (
         <Palette
