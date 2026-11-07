@@ -173,8 +173,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
     },
     deletions: {
       /** Soft delete of a note by its id (`deleted_at` on its row, reads hide it, §delete.soft). */
-      markNote: (docId: string): Promise<boolean> =>
-        softDelete("notes", docId),
+      markNote: (docId: string): Promise<boolean> => softDelete("notes", docId),
       /** Soft delete of a set by its id (`set_…`). False when it is missing or already deleted. */
       markSet: (id: string): Promise<boolean> => softDelete("sets", id),
       /** Soft delete of a goal by its id (`goal_…`). */

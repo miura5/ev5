@@ -20,7 +20,7 @@ import { attemptsRepo } from "./attempts.ts";
 import { collectionRepo } from "./collections.ts";
 import { collectionReadsRepo } from "./collection-reads.ts";
 import { linkRepo } from "./links.ts";
-import { kindsRepo } from "./kinds.ts";
+import { publicKinds } from "./kinds-public.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
 import { sessionsRepo } from "./sessions.ts";
@@ -185,7 +185,7 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
     ...draftsRepo(db, opts),
     ...jobsRepo(db, opts),
     ...jobStoresRepo(db, opts),
-    ...kindsRepo(db, opts),
+    ...publicKinds(db, opts),
     ...collectionRepo(db, opts),
     ...collectionReadsRepo(db),
     ...linkRepo(db, opts),

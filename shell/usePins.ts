@@ -35,11 +35,11 @@ export interface PinWire {
   titles: Record<string, PinRowTitle[]>;
 }
 
-/** The row route that holds each pinned kind; a pin names the document id, the row id may carry a prefix. */
-const ROUTES: Record<string, { path: string; prefix: string }> = {
-  notes: { path: "notes", prefix: "note_" },
-  sets: { path: "sets", prefix: "set_" },
-  weakspots: { path: "weak-spots", prefix: "ws_" },
+/** The row route that holds each pinned kind; a pin names the row id (one id form). */
+const ROUTES: Record<string, { path: string }> = {
+  notes: { path: "notes" },
+  sets: { path: "sets" },
+  weakspots: { path: "weak-spots" },
 };
 const GOAL_KINDS = new Set(["goals"]);
 
@@ -58,12 +58,8 @@ function whenLabel(date: string, left: number, today: string): string {
     : plainDay(date, today);
 }
 
-const titled = (
-  rows: PinRowTitle[] | undefined,
-  id: string,
-  prefix: string,
-) => {
-  const row = rows?.find((r) => r.id === id || r.id === `${prefix}${id}`);
+const titled = (rows: PinRowTitle[] | undefined, id: string) => {
+  const row = rows?.find((r) => r.id === id);
   return row?.title.trim() || "Untitled";
 };
 
@@ -107,12 +103,8 @@ export function sidebarPins(w: PinWire, now: Date | number): SidebarPin[] {
           p.collection === "collections"
             ? (coll?.title ?? "Untitled")
             : GOAL_KINDS.has(p.collection)
-              ? titled(w.goals, p.id, "goal_")
-              : titled(
-                  w.titles[p.collection],
-                  p.id,
-                  ROUTES[p.collection]?.prefix ?? "",
-                ),
+              ? titled(w.goals, p.id)
+              : titled(w.titles[p.collection], p.id),
         type: TYPES[p.collection] ?? "note",
         ...(p.collection === "collections" && n
           ? { when: whenLabel(n.date, n.left, today) }
