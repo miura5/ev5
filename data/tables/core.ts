@@ -3,14 +3,11 @@ import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
 
 export type Saved<T> =
-  | { ok: true; row: T }
-  | { ok: false; conflict: true; current: number | null };
+  { ok: true; row: T } | { ok: false; conflict: true; current: number | null };
 
 export type Val = string | number | null;
 export type Raw = Record<string, Val>;
 
-export const json = (s: Val | undefined): unknown =>
-  s === null || s === undefined ? null : JSON.parse(String(s));
 export const iso = (ms: number): string => new Date(ms).toISOString();
 export const text = (v: unknown): Val =>
   v === null || v === undefined ? null : JSON.stringify(v);

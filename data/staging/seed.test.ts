@@ -30,9 +30,11 @@ function fakeWorker(record: { notes?: unknown[]; goals?: unknown[] }, fail?: str
         ? { collection: { id: "col_1" } }
         : name === "note.create"
           ? { id: `n-${++n}` }
-          : name === "set.create"
-            ? { set: { id: "set_1" } }
-            : {};
+          : name === "note.save"
+            ? { version: 2 }
+            : name === "set.create"
+              ? { set: { id: "set_1" } }
+              : {};
     const answer =
       path === "/api/v1/notes"
         ? { rows: record.notes ?? [] }

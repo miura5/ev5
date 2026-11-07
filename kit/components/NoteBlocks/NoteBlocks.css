@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--sp-3);
   font-size: var(--fs-body);
-  line-height: var(--lh-body);
+  line-height: var(--lh);
 }
 
 .kit-note p,
@@ -12,7 +12,7 @@
 .kit-note h4 {
   margin: 0;
   font-size: var(--fs-body);
-  font-weight: var(--fw-body);
+  font-weight: var(--fw-regular);
 }
 
 .kit-note .kit-note-title {

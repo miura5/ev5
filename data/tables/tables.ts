@@ -13,14 +13,14 @@ import {
 } from "./core.ts";
 import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
-import { ownRepo } from "./own.ts";
 import { draftsRepo } from "./drafts.ts";
 import { jobsRepo } from "./jobs.ts";
 import { jobStoresRepo } from "./job-stores.ts";
 import { attemptsRepo } from "./attempts.ts";
 import { collectionRepo } from "./collections.ts";
+import { collectionReadsRepo } from "./collection-reads.ts";
 import { linkRepo } from "./links.ts";
-import { kindsRepo } from "./kinds.ts";
+import { publicKinds } from "./kinds-public.ts";
 import { planRepo } from "./plan.ts";
 import { setsRepo } from "./sets.ts";
 import { sessionsRepo } from "./sessions.ts";
@@ -182,12 +182,12 @@ export function tablesRepo(db: D1Like, opts: TablesOptions) {
             .run()
         ).meta.changes > 0,
     },
-    ...ownRepo(db, opts),
     ...draftsRepo(db, opts),
     ...jobsRepo(db, opts),
     ...jobStoresRepo(db, opts),
-    ...kindsRepo(db, opts),
+    ...publicKinds(db, opts),
     ...collectionRepo(db, opts),
+    ...collectionReadsRepo(db),
     ...linkRepo(db, opts),
     ...planRepo(db, opts),
     ...attemptsRepo(db, opts),

@@ -176,6 +176,24 @@ export function readJson<T>(path: string, token: string, key: string, copy?: Rea
   return copy ? copy.read(key, get) : get();
 }
 
+/** Every row of a paged row route (server/row-routes.ts): follows `next` (the offset of the following page) until a page has none, so a list past one page is whole. The saved copy holds all the rows under one key. */
+export function readRows<T>(path: string, token: string, key: string, copy?: ReadCopyLike): Promise<T[]> {
+  const get = async (): Promise<T[]> => {
+    const out: T[] = [];
+    let offset = 0;
+    for (let page = 0; page < 1000; page++) {
+      const r = await api(offset === 0 ? path : `${path}?offset=${offset}`, token);
+      if (!r.ok) throw new ApiError(r.status);
+      const b = (await r.json()) as { rows?: T[]; next?: number };
+      out.push(...(b.rows ?? []));
+      if (typeof b.next !== "number" || b.next <= offset) break;
+      offset = b.next;
+    }
+    return out;
+  };
+  return copy ? copy.read(key, get) : get();
+}
+
 /** Job helpers: the activity list, one job, and answering a job that needs you. */
 export const jobApi = {
   /** The unfinished jobs (the `jobs` array of GET /jobs), kept under "jobs". */

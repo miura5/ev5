@@ -14,13 +14,13 @@
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreIssues": {
-    "domain/ceiling/**": [
-      "exports"
-    ],
     "domain/collection/**": [
       "exports"
     ],
     "domain/note/**": [
+      "exports"
+    ],
+    "domain/ceiling/**": [
       "exports"
     ],
     "domain/own-set/**": [
@@ -29,7 +29,19 @@
     "domain/session/**": [
       "exports"
     ],
-    "jobs/**": [
+    "jobs/runtime/define.ts": [
+      "exports"
+    ],
+    "jobs/runtime/executors.ts": [
+      "exports"
+    ],
+    "jobs/runtime/models.ts": [
+      "exports"
+    ],
+    "jobs/runtime/workflow.fake.ts": [
+      "exports"
+    ],
+    "jobs/index.ts": [
       "exports"
     ]
   }

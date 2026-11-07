@@ -1,7 +1,5 @@
 // The domain barrel: the parsers for the kinds v5 stores, so data/ and ops/ reach them through one door.
-export { parseGoal } from "./goal/read.ts";
 export {
-  parseWeakSpot,
   deriveWeakSpot,
   isActive,
   reviewNeed,
@@ -41,9 +39,9 @@ export {
   type Run,
   type Note,
 } from "./note/index.ts";
-export { noteRowId, noteDocId, noteDocOf, newNoteRow } from "./note/rows.ts";
+export { noteDocOf, newNoteRow } from "./note/rows.ts";
 export { accuracyLine, answersOf, dueCounts, gradedBySpot, type AnswerLike } from "./answers/index.ts";
-export { goalDaysLeft } from "./goal/read.ts";
+export { goalDaysLeft, goalFromRow } from "./goal/read.ts";
 export type { Goal } from "./goal/read.ts";
 export {
   addDays,
@@ -72,6 +70,7 @@ export {
   materialize,
 } from "./item-props/index.ts";
 export { parsePin } from "./pin/index.ts";
+/** @public Row shapes the migration test holds the own-set tables to. */
 export {
   parseOwnSet,
   parseOwnSetItem,
@@ -108,8 +107,6 @@ export { parseDraftTableRow, draftKey } from "./draft/index.ts";
 /** @public Weak spot rows as the scheduler's model; the weak spot reads (plan home, Today, Library) import it when they move to the tables. */
 export {
   eventFromRow,
-  newWeakSpotRow,
-  type NewWeakSpotRow,
   weakSpotDoc,
   weakSpotFromRows,
 } from "./weak-spot/rows.ts";

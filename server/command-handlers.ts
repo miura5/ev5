@@ -2,7 +2,7 @@
 // Table-backed commands use the repositories; commands a screen carries out itself (open, theme, navigation) are
 // acknowledged here so the route never answers 501 for them. Nothing here removes a document (§delete.who).
 import { tablesRepo } from "../data/index.ts";
-import { NOTE_MAX, itemKey, noteRowId } from "../domain/index.ts";
+import { NOTE_MAX, itemKey } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
@@ -35,7 +35,7 @@ async function collectionOf(
 ): Promise<string> {
   if (id.startsWith("set_") && (await t.sets.get(id, o))) return "sets";
   if (id.startsWith("goal_") && (await t.goals.get(id, o))) return "goals";
-  if (await t.noteBook.get(noteRowId(id), o)) return "notes";
+  if (await t.noteBook.get(id, o)) return "notes";
   if (await t.sessionBook.get(id, o)) return "sessions";
   throw new CommandError(404, `no item ${id}`);
 }
@@ -110,7 +110,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
     }
     if (c === "notes") {
       // A note keeps its collection on its own row; GET /memberships reads it from there.
-      const note = await t.noteBook.get(noteRowId(i.id));
+      const note = await t.noteBook.get(i.id);
       if (!note) throw new CommandError(404, `no item ${i.id}`);
       const { at: _a, v: _v, deleted_at: _d, ...f } = note;
       const m = await t.noteBook.change(
@@ -121,7 +121,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
       return { note: { id: i.id, collectionId: i.collection } };
     }
     const cur = await t.memberships.get(c, i.id);
-    if (!cur && i.if_version !== undefined)
+    // 0 names an item with no membership yet (as in note.save); anything else must be the version read.
+    if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0))
       throw new CommandError(409, "that item changed; try again");
     const r = await t.memberships.save(
       { itemC: c, itemId: i.id, collectionId: i.collection },
@@ -226,7 +227,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
       return { version: r.row.v };
     }
     if (c === "notes") {
-      const note = await t.noteBook.get(noteRowId(i.id));
+      const note = await t.noteBook.get(i.id);
       if (note) {
         if (!i.title.trim() || i.title.length > NOTE_MAX.title)
           throw new CommandError(400, "a note title is 1 to 300 characters");

@@ -36,7 +36,7 @@ export async function setup() {
   /** A note as the editor sees it (title and blocks), read from its row. */
   const note = async (id: string) => {
     const r = await DB.prepare("SELECT title, body FROM notes WHERE id = ?")
-      .bind(`note_${id}`)
+      .bind(id)
       .first<{ title: string; body: string }>();
     return r
       ? ({ ...JSON.parse(r.body), title: r.title } as Record<string, any>)

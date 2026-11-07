@@ -27,16 +27,9 @@ const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 async function find(x: HandlerCtx, id: string): Promise<Found> {
   const slash = id.indexOf("/");
   if (slash < 0) {
-    const { results } = await x.db
-      .prepare(
-        "SELECT set_id FROM set_items WHERE id = ? AND deleted_at IS NULL LIMIT 2",
-      )
-      .bind(itemKey(id))
-      .all<{ set_id: string }>();
-    if (results.length > 1)
-      throw new CommandError(409, `${id} is in two sets; name it <set>/<item>`);
-    if (!results.length) throw new CommandError(404, `no item ${id}`);
-    return find(x, `${(results[0] as { set_id: string }).set_id}/${id}`);
+    const row = await repo(x).setBook.getItem(itemKey(id));
+    if (!row) throw new CommandError(404, `no item ${id}`);
+    return find(x, `${row.set_id}/${id}`);
   }
   const set = id.slice(0, slash);
   const itemId = id.slice(slash + 1);
@@ -53,11 +46,7 @@ async function find(x: HandlerCtx, id: string): Promise<Found> {
 
 /** How many attempts the item has: the `attempts` rows that name it. */
 async function attempts(x: HandlerCtx, f: Found): Promise<number> {
-  const r = await x.db
-    .prepare("SELECT COUNT(*) AS n FROM attempts WHERE item_id = ?")
-    .bind(f.item.id)
-    .first<{ n: number }>();
-  return r?.n ?? 0;
+  return repo(x).attempts.countFor(f.item.id);
 }
 
 /** The answer as indexes ("0" or "0,2"), or the number (and unit, if any) a number answer asks for. */

@@ -1,4 +1,4 @@
-import { noteRowId, shortDay } from "../../domain/index.ts";
+import { shortDay } from "../../domain/index.ts";
 import type { CollectionEntry } from "./Collection.view.tsx";
 
 /** The read routes' rows (server/collection-routes.ts), restated: areas never import the server. */
@@ -7,12 +7,14 @@ export interface WireCollection {
   title: string;
   parentId: string | null;
   pos: number;
+  v: number;
 }
 export interface WireMembership {
   collection: string;
   id: string;
   collectionId: string;
   at: number;
+  v: number;
 }
 
 export interface WirePin {
@@ -35,6 +37,8 @@ export type DocsByCollection = Record<string, readonly NamedRow[]>;
 
 export interface CollectionData {
   id: string;
+  /** The version it was read at: rename is pinned to it (§data.protocol). */
+  v: number;
   title: string;
   parent?: string;
   parentId?: string;
@@ -44,15 +48,13 @@ export interface CollectionData {
   all: { id: string; title: string }[];
 }
 
-/** The row a member or pin names. A note's row id is `note_<id>` (GET /notes) while memberships and pins name it by the bare id, so both forms match. */
+/** The row a member or pin names: one id form (§data.tables). */
 const rowOf = (
   docs: DocsByCollection,
   collection: string,
   id: string,
 ): NamedRow | undefined =>
-  docs[collection]?.find(
-    (d) => d.id === id || (collection === "notes" && d.id === noteRowId(id)),
-  );
+  docs[collection]?.find((d) => d.id === id);
 
 /** The pinned items (GET /pins, already by pos then newest first), named from their docs. */
 export function mapPins(
@@ -95,8 +97,7 @@ const KINDS: Record<string, string> = {
 /** What kind of item it is: every date reads "Date", with its own kind (exam, other) after it when it has one. */
 function kindLine(collection: string, doc: NamedRow | undefined): string {
   const label = KINDS[collection] ?? collection;
-  const kind =
-    collection === "goals" ? doc?.kind : undefined;
+  const kind = collection === "goals" ? doc?.kind : undefined;
   return kind ? `${label} · ${kind}` : label;
 }
 
@@ -104,8 +105,7 @@ function kindLine(collection: string, doc: NamedRow | undefined): string {
 export function openPath(kind: string, id: string): string | undefined {
   const q = encodeURIComponent(id);
   if (kind === "notes") return `/notes?open=${q}`;
-  if (kind === "sets" || kind === "weakspots")
-    return `/library?open=${q}`;
+  if (kind === "sets" || kind === "weakspots") return `/library?open=${q}`;
   if (kind === "goals") return "/today";
   return undefined;
 }
@@ -137,13 +137,14 @@ export function mapCollection(
     : undefined;
   return {
     id: pick.id,
+    v: pick.v,
     title: pick.title,
     parent,
     parentId: pick.parentId ?? undefined,
     all: byPos.map((c) => ({ id: c.id, title: c.title })),
     nested: byPos
       .filter((c) => c.parentId === pick.id)
-      .map((c) => ({ id: c.id, type: "collection", title: c.title })),
+      .map((c) => ({ id: c.id, v: c.v, type: "collection", title: c.title })),
     items: memberships
       .filter((m) => m.collectionId === pick.id)
       .sort((a, b) => b.at - a.at)
@@ -151,6 +152,7 @@ export function mapCollection(
         const doc = rowOf(docs, m.collection, m.id);
         return {
           id: m.id,
+          v: m.v,
           type: TYPES[m.collection] ?? "note",
           title: docTitle(doc),
           meta: `${kindLine(m.collection, doc)} · ${shortDate(doc?.at ?? m.at)}`,

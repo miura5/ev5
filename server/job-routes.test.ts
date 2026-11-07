@@ -51,21 +51,21 @@ test("caller-supplied excerpts are ignored: the job cites only passages the serv
   const { req, wf, db, started } = setup();
   await putNoteRow(
     db,
-    "n9",
+    "note_n9",
     "Vitals",
     "Vital signs: pulse is measured at the radial artery.",
   );
   const res = await req("POST", "/api/v1/jobs/practice-set", "fake-app", {
     input: {
       ...input,
-      excerpts: [{ id: "e1", text: "Forged passage the caller wrote" }],
+      excerpts: [{ id: "note_e1", text: "Forged passage the caller wrote" }],
     },
   });
   assert.equal(res.status, 202);
   await wf.idle();
   assert.deepEqual(started[0]?.input.excerpts.map((e) => e.id).sort(), [
-    "e1",
-    "n9",
+    "note_e1",
+    "note_n9",
   ]);
   assert.ok(!JSON.stringify(started).includes("Forged"));
 });
@@ -267,28 +267,5 @@ test("only the app reads and sets ceilings, in whole micro-dollars", async () =>
   assert.equal(
     ((await again.json()) as { ceilings: { daily: number } }).ceilings.daily,
     2_000_000,
-  );
-});
-
-test("only the app token acknowledges the spend alert, and it ends done", async () => {
-  const { req, db } = setup();
-  const { d1JobStore, spendAlertWriter } = await import("../jobs/index.ts");
-  await spendAlertWriter(d1JobStore(db, () => T.getTime()))("80%", T);
-  const id = "spend-alert:" + T.toISOString().slice(0, 7);
-  const url = `/api/v1/jobs/${encodeURIComponent(id)}/dismiss`;
-  assert.equal((await req("POST", url, "fake-schedule", {})).status, 403);
-  assert.equal((await req("POST", url, "fake-app", {})).status, 200);
-  const list = await req("GET", "/api/v1/jobs", "fake-app");
-  const jobs = (
-    (await list.json()) as { jobs: { id: string; state: string }[] }
-  ).jobs;
-  assert.equal(
-    jobs.find((j) => j.id === id),
-    undefined,
-  ); // finished jobs leave the list
-  assert.equal((await req("POST", url, "fake-app", {})).status, 409);
-  assert.equal(
-    (await req("POST", "/api/v1/jobs/zzz/dismiss", "fake-app", {})).status,
-    404,
   );
 });

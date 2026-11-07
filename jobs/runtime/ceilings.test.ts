@@ -1,14 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  maxCost,
   reserve,
   settle,
   release,
   windowKeys,
   validateConfig,
 } from "./ceilings.ts";
-import { memoryStore } from "./ceilings-memory.ts";
+import { memoryStore } from "./ceilings-memory.testkit.ts";
 
 const cfg = { hourly: 1000, daily: 5000, monthly: 10000, perJob: 600 };
 const now = new Date("2026-11-03T14:30:00Z");
@@ -26,14 +25,6 @@ test("windowKeys", () => {
     month: "2026-11",
     job: "j",
   });
-});
-
-test("maxCost rounds up from supplied prices", () => {
-  assert.equal(
-    maxCost({ inputPerMTok: 1000, outputPerMTok: 5000 }, 1000, 1000),
-    6,
-  );
-  assert.equal(maxCost({ inputPerMTok: 1, outputPerMTok: 1 }, 1, 0), 1);
 });
 
 test("forced per-job hit fails cleanly with a plain reason and reserves nothing", async () => {

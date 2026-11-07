@@ -11,7 +11,7 @@ export default {
       "/^(font-size|font-weight|line-height|font-family|letter-spacing)$/": ["/^var\\(--/", "inherit"],
       "/^(margin|padding|gap|row-gap|column-gap)(-.*)?$/": ["/^(var\\(--[^)]*\\)|0|auto)( (var\\(--[^)]*\\)|0|auto))*$/"],
       "/^(border-radius|border-.*-radius)$/": ["/^(var\\(--[^)]*\\)|0)( (var\\(--[^)]*\\)|0))*$/"],
-      "/^(transition|animation)(-duration|-timing-function|-delay)?$/": ["/^(?!.*(\\d(ms|s)\\b|cubic-bezier|ease|linear))/"],
+      "/^(transition|animation)(-duration|-timing-function|-delay)?$/": ["/^(?!.*(\\d(ms|s)\\b|cubic-bezier|(?<!-)\\b(ease|linear|step-start|step-end)|steps\\())/"],
     },
   },
   overrides: [{ files: ["kit/tokens/tokens.css"], rules: { "color-no-hex": null, "function-disallowed-list": null, "color-named": null, "declaration-property-value-allowed-list": null } }],

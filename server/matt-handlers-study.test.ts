@@ -11,12 +11,13 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
     400,
   );
   assert.equal(
-    (await call("set.update", { id: set, title: "Fluids 2" })).body.result.set
-      .title,
+    (await call("set.update", { id: set, title: "Fluids 2", if_version: 1 }))
+      .body.result.set.title,
     "Fluids 2",
   );
   assert.equal(
-    (await call("set.update", { id: "nope", title: "a" })).status,
+    (await call("set.update", { id: "nope", title: "a", if_version: 1 }))
+      .status,
     404,
   );
   const q = "Which is normal sodium?\n- 100\n* 140\n- 180";
@@ -32,6 +33,7 @@ test("an own set takes items, updates and removes them (softly), and drafts are 
         set,
         item,
         text: q.replace("140", "138"),
+        if_version: 1,
       })
     ).status,
     200,

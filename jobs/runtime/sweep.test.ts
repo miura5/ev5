@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { z } from "zod";
-import { defineJob, newJob, sweepStale, transition, addCost } from "./index.ts";
-import type { JobRecord, JobStore } from "./index.ts";
+import { defineJob, newJob } from "./index.ts";
+import { sweepStale } from "./sweep.ts";
+import { transition, addCost } from "./record.ts";
+import type { JobRecord, JobStore } from "./record.ts";
 import { forgetKinds } from "./define.ts";
 
 const T0 = "2026-11-03T12:00:00Z";

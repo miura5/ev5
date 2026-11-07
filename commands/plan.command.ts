@@ -26,7 +26,7 @@ export const planCommands = [
   defineCommand({ name: 'draft.keep_all', title: 'Keep all drafts', input: z.object({ set: id }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'draft.drop_all', title: 'Drop all drafts', input: z.object({ set: id }), callers: M, effect: 'instant' }),
   defineCommand({ name: 'date.create', title: 'Add a date', input: z.object({ title: z.string().min(1), date: z.string().min(1), kind, objectives: z.array(id).optional() }), callers: MP, effect: 'instant', changesPlan: true, palette: true, places: ['today'] }),
-  defineCommand({ name: 'date.update', title: 'Change a date', input: z.object({ id, title: z.string().optional(), date: z.string().optional(), kind, if_version: z.number().int().min(1).optional() }), callers: MP, effect: 'instant', changesPlan: true }),
+  defineCommand({ name: 'date.update', title: 'Change a date', input: z.object({ id, title: z.string().optional(), date: z.string().optional(), kind, if_version: z.number().int().min(1) }), callers: MP, effect: 'instant', changesPlan: true }),
   defineCommand({ name: 'date.plan_with_ev', title: 'Plan this date with E.V.', input: ref, callers: M, effect: 'job' }),
   defineCommand({ name: 'plan.approve', title: 'Approve the prep plan', input: ref, callers: M, effect: 'instant' }),
   defineCommand({ name: 'plan.ask_changes', title: 'Ask for changes to the prep plan', input: z.object({ id, note: z.string().min(1) }), callers: M, effect: 'job' }),

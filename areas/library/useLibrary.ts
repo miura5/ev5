@@ -11,7 +11,7 @@ import type {
   WeakSpotTableRow,
 } from "../../domain/index.ts";
 import {
-  readJson,
+  readRows,
   call,
   jobApi,
   type CommandName,
@@ -73,13 +73,7 @@ function rows<T>(
   token: string,
   copy?: ReadCopyLike,
 ): Promise<T[]> {
-  return readJson(
-    path,
-    token,
-    `rows:${path}`,
-    copy,
-    (b) => (b as { rows: T[] }).rows,
-  );
+  return readRows<T>(path, token, `rows:${path}`, copy);
 }
 
 /** Reads exams, weak spots and sets with the app token Matt keeps in this browser (the shell holds none). */
@@ -90,6 +84,8 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
   const [error, setError] = useState<string>();
   const [refused, setRefused] = useState(false);
   const warm = useRef(true);
+  // The version each date was read at: date.update is pinned to it (§data.protocol).
+  const goalV = useRef(new Map<string, number>());
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -136,6 +132,7 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
           planItems,
           jobs,
         ] = r;
+        goalV.current = new Map(goals.map((g) => [g.id, g.v]));
         setData(
           mapLibrary(
             {
@@ -189,7 +186,10 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
   );
   const setKind = useCallback(
     async (id: string, kind: string) => {
-      const r = await call("date.update", { id, kind }, token);
+      const v = goalV.current.get(id);
+      if (v === undefined)
+        return planFailure(409, "that date changed; try again");
+      const r = await call("date.update", { id, kind, if_version: v }, token);
       if (!r.ok) return planFailure(r.status, r.reason);
       setAgain((n) => n + 1);
       return undefined;

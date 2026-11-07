@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import type { ModelCall, ModelReply } from "../runtime/index.ts";
+import type { ModelCall } from "../runtime/index.ts";
+import type { ModelReply } from "../runtime/output.ts";
 import { parseSet } from "../../domain/index.ts";
 import { MODELS } from "../runtime/models.ts";
 import { outputSchema } from "../runtime/model-call.ts";
@@ -29,7 +30,7 @@ const input = (over: object = {}) => ({
   targetId: "set-1",
   count: 2,
   objectives: ["Cell respiration"],
-  excerpts: [{ id: "e1", text: "Mitochondria make ATP..." }],
+  excerpts: [{ id: "note_e1", text: "Mitochondria make ATP..." }],
   drafts: false,
   ...over,
 });
@@ -52,7 +53,7 @@ test("the job is defined with a models.ts key and the 32,000-token budget", () =
 });
 
 test("sourced items become set items; unsourced ones become drafts and need you", async () => {
-  const { call, reqs } = script(reply([q("e1"), q(null)]));
+  const { call, reqs } = script(reply([q("note_e1"), q(null)]));
   const r = await writePracticeSet("job-1", input(), { call, system });
   assert.ok(r.ok);
   assert.equal(r.items.length, 1);
@@ -63,21 +64,21 @@ test("sourced items become set items; unsourced ones become drafts and need you"
   );
   assert.ok(r.needsYou && r.costCents > 0 && !r.repaired);
   assert.equal(reqs[0]!.model, "haiku");
-  assert.match(reqs[0]!.messages[0]!.content, /\[e1\]/);
+  assert.match(reqs[0]!.messages[0]!.content, /\[note_e1\]/);
 });
 
 test("a fully sourced set does not need you", async () => {
   const r = await writePracticeSet(
     "j",
     input(),
-    script(reply([q("e1"), q("e1")])),
+    script(reply([q("note_e1"), q("note_e1")])),
   );
   assert.ok(r.ok && !r.needsYou && r.drafts.length === 0);
 });
 
 test("write with E.V. makes every item a draft against the set", async () => {
   const r = await writePracticeSet("j", input({ drafts: true }), {
-    ...script(reply([q("e1"), q(null)])),
+    ...script(reply([q("note_e1"), q(null)])),
     system,
   });
   assert.ok(r.ok);
@@ -100,13 +101,13 @@ test("a full practice run asks for one and allows up to 75 items", () => {
 
 test("a cited id that was not in the excerpts gets one repair ask, then succeeds", async () => {
   const { call, reqs } = script(
-    reply([q("zz"), q("e1")]),
-    reply([q("e1"), q("e1")]),
+    reply([q("note_zz"), q("note_e1")]),
+    reply([q("note_e1"), q("note_e1")]),
   );
   const r = await writePracticeSet("j", input(), { call, system });
   assert.ok(r.ok && r.repaired);
   assert.equal(reqs.length, 2);
-  assert.match(reqs[1]!.messages.at(-1)!.content, /"zz"/);
+  assert.match(reqs[1]!.messages.at(-1)!.content, /"note_zz"/);
 });
 
 test("forced invalid output fails cleanly after one repair, with nothing half-parsed", async () => {
@@ -121,8 +122,8 @@ test("forced invalid output fails cleanly after one repair, with nothing half-pa
 
 test("wrong answer keys fail the semantic check", async () => {
   const bad = reply([
-    q("e1", { correct: [9] }),
-    q("e1", { type: "multi_select", correct: [1] }),
+    q("note_e1", { correct: [9] }),
+    q("note_e1", { type: "multi_select", correct: [1] }),
   ]);
   const r = await writePracticeSet("j", input(), script(bad, bad));
   assert.ok(!r.ok);
@@ -180,32 +181,32 @@ test("a scope may name a collection or a note to draw from, with or without obje
 test("citations are checked against the gathered excerpts, not anything the caller named", async () => {
   const gathered = parseInput({
     ...parsePublicInput(input()),
-    excerpts: [{ id: "n9", text: "Gathered." }],
+    excerpts: [{ id: "note_n9", text: "Gathered." }],
   });
-  const bad = reply([q("e1"), q("n9")]);
-  const { call, reqs } = script(bad, reply([q("n9"), q("n9")]));
+  const bad = reply([q("note_e1"), q("note_n9")]);
+  const { call, reqs } = script(bad, reply([q("note_n9"), q("note_n9")]));
   const r = await writePracticeSet("j", gathered, { call, system });
   assert.ok(r.ok && r.repaired);
-  assert.match(reqs[1]!.messages.at(-1)!.content, /"e1"/);
+  assert.match(reqs[1]!.messages.at(-1)!.content, /"note_e1"/);
 });
 
-test("stored items are domain set items: an id, and a sourceRef starting note/", async () => {
+test("stored items are domain set items: an id, and a sourceRef note_…", async () => {
   const r = await writePracticeSet(
     "job-7",
     input({
       excerpts: [
-        { id: "e1", text: "x" },
-        { id: "note/n2", text: "y" },
+        { id: "note_e1", text: "x" },
+        { id: "note_n2", text: "y" },
       ],
     }),
-    { ...script(reply([q("e1"), q("note/n2")])), system },
+    { ...script(reply([q("note_e1"), q("note_n2")])), system },
   );
   assert.ok(r.ok);
   assert.deepEqual(
     r.items.map((i) => [i.id, i.sourceRef]),
     [
-      ["job-7:i0", "note/e1"],
-      ["job-7:i1", "note/n2"],
+      ["job-7:i0", "note_e1"],
+      ["job-7:i1", "note_n2"],
     ],
   );
   const set = parseSet({
@@ -220,11 +221,11 @@ test("stored items are domain set items: an id, and a sourceRef starting note/",
 });
 
 test("an item the domain refuses gets one repair ask, then is refused with the reason", async () => {
-  const seven = q("e1", {
+  const seven = q("note_e1", {
     options: ["1", "2", "3", "4", "5", "6", "7"],
     rationales: ["1", "2", "3", "4", "5", "6", "7"],
   });
-  const bad = reply([seven, q("e1")]);
+  const bad = reply([seven, q("note_e1")]);
   const { call, reqs } = script(bad, bad);
   const r = await writePracticeSet("j", input(), { call, system });
   assert.ok(!r.ok);

@@ -6,7 +6,7 @@ import {
   spendAlertWriter,
 } from "./job-ceilings.ts";
 import { release } from "./ceilings.ts";
-import { memoryStore } from "./ceilings-memory.ts";
+import { memoryStore } from "./ceilings-memory.testkit.ts";
 import { billedOnThrow, runStructured } from "./output.ts";
 import type { JobRecord, JobStore } from "./record.ts";
 

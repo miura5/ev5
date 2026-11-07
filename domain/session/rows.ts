@@ -89,7 +89,7 @@ export function sessionDoc(
     endedAt: row.ended_at === null ? null : iso(row.ended_at),
     ...(row.topic === null ? {} : { topic: row.topic }),
     noteId: row.note_id ?? "",
-    ...(row.note_id && /^n-[A-Za-z0-9-]{1,120}$/.test(row.note_id)
+    ...(row.note_id && /^note_[A-Za-z0-9-]{1,120}$/.test(row.note_id)
       ? { note: `notes/${row.note_id}` }
       : {}),
     ...(row.planned_min === null ? {} : { planned: row.planned_min }),

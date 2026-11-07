@@ -8,7 +8,6 @@ import {
   noteBlocks,
   noteDoc,
   noteDocOf,
-  noteRowId,
   noteWriteProblem,
   parseNote,
 } from "../domain/index.ts";
@@ -20,7 +19,7 @@ import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
 
 /** A note document id, as the note commands accept it. */
-const NOTE_ID = /^n-[A-Za-z0-9-]{1,120}$/;
+const NOTE_ID = /^note_[A-Za-z0-9-]{1,120}$/;
 
 interface NoteSaveInput {
   id: string;
@@ -55,9 +54,7 @@ async function needCollection(x: HandlerCtx, to: string) {
 const fieldsOf = ({ at: _a, v: _v, deleted_at: _d, ...f }: NoteTableRow) => f;
 
 const needNote = async (x: HandlerCtx, id: string) => {
-  const row = await tablesRepo(x.db, { clock: x.clock }).noteBook.get(
-    noteRowId(id),
-  );
+  const row = await tablesRepo(x.db, { clock: x.clock }).noteBook.get(id);
   if (!row) throw new CommandError(404, `no notes entry ${id}`);
   return row;
 };
@@ -85,7 +82,7 @@ export const noteHandlers: Record<string, CommandHandler> = {
   // exists). With no `if_version` a note that exists is saved on its current version and a missing one is a 404.
   "note.save": async (i: NoteSaveInput, _c, x) => {
     const book = tablesRepo(x.db, { clock: x.clock }).noteBook;
-    const cur = await book.get(noteRowId(i.id));
+    const cur = await book.get(i.id);
     const stale = new CommandError(409, "that changed; try again");
     if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0))
       throw stale;

@@ -52,6 +52,8 @@ export interface RowActionsProps {
   current?: string | null;
   onMove?: (collectionId: string) => void;
   className?: string;
+  /** Menu entries to leave out, e.g. Open on the note's own page. */
+  omit?: readonly RowAction[];
 }
 
 /** The row menu: Open, Pin, Move, Delete from the dots, a right-click, or the . key on the focused row. */
@@ -63,15 +65,17 @@ export function RowActions({
   current = null,
   onMove,
   className = "ev-notes-line",
+  omit = [],
 }: RowActionsProps) {
   const [moving, setMoving] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-  const items: MenuItem[] = [
+  const all: MenuItem[] = [
     { key: "open", label: "Open" },
     { key: "pin", label: "Pin" },
     ...(onMove ? [{ key: "move", label: "Move…" }] : []),
     { key: "delete", label: "Delete", danger: true },
   ];
+  const items = all.filter((i) => !omit.includes(i.key as RowAction));
   const pick = (k: string) => {
     if (k === "move") setMoving(true);
     else onAction?.(k as RowAction);

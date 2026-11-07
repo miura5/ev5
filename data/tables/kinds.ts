@@ -1,7 +1,6 @@
-// The tables gate for the per-kind tables of migration 0006 (§data.gate, §data.tables): one generic reader and writer, and
-// one entry per table naming its domain row shape. Every row read is parsed (a bad one is reported and left out), a deleted
-// row is left out unless asked (§delete.soft), every write is parsed and size-checked by gateRow before SQL, and only a
-// stale version answers 409 (§data.protocol). Append-only tables have `add` and no change or delete (§data.append-only).
+// The tables gate for the per-kind tables (§data.gate, §data.tables): one generic reader and writer, one entry per table naming its
+// domain row shape. A row read is parsed (a bad one is reported and left out); a deleted row is left out unless asked (§delete.soft);
+// a write is parsed and size-checked by gateRow before SQL; only a stale version answers 409; append-only tables only `add`.
 import {
   parseAttemptRow,
   parseCollectionRow,
@@ -23,6 +22,7 @@ import {
   parseWeakSpotTableRow,
 } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
+import type { RowTableName } from "../export/row-tables.ts";
 import { ALL_TABLES } from "../export/tables.ts";
 import {
   core,
@@ -42,20 +42,18 @@ type Stamped = { id: string; at: number; v: number };
 export type Fields<R> = Omit<R, "at" | "v" | "deleted_at">;
 
 interface Kind<R> {
-  table: string;
+  table: RowTableName | "collections";
   parse: (raw: unknown) => R;
   /** Columns that hold JSON text, parsed on read and written as text. */
   json: string[];
-  /** Append-only: rows are only added (no change, no delete). */
-  appendOnly?: boolean;
-  /** The order of a list. */
-  order: string;
+  appendOnly?: boolean; // rows are only added (no change, no delete)
+  order: string; // the order of a list
   /** Old column -> new column it copies, until the contract migration (written, never read). */
   mirror: Record<string, string>;
 }
 
 function kind<R>(
-  table: string,
+  table: RowTableName | "collections",
   parse: (raw: unknown) => R,
   json: string[] = [],
   order = "id",
@@ -132,14 +130,16 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
       o: {
         deleted?: boolean;
         where?: Partial<Record<string, string | number>>;
+        page?: { limit: number; offset: number };
       } = {},
     ): Promise<Listed<R>> => {
       const w = Object.entries(o.where ?? {});
       for (const [c] of w)
         if (!cols.includes(c)) throw new Error(`${k.table} has no column ${c}`);
       const rows = await all(
-        `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}`,
+        `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}${o.page ? " LIMIT ? OFFSET ?" : ""}`,
         ...w.map(([, x]) => x as string | number),
+        ...(o.page ? [o.page.limit, o.page.offset] : []),
       );
       const out = rows.flatMap((r) => parseOne(r) ?? []);
       return listed(out, rows.length - out.length);

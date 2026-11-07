@@ -8,6 +8,7 @@ import type { WeakSpotEventRow } from "../domain/index.ts";
 import { linkKey } from "./ids.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
+import { deferWrites } from "./defer-writes.ts";
 import { logAttempt, talkLine } from "./handlers-edit.ts";
 
 const tables = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
@@ -99,15 +100,22 @@ export const weakHandlers: Record<string, CommandHandler> = {
   },
   "weakspot.unlink": async (i: { id: string; goal: string }, _c, x) => {
     await need(x, i.id);
+    // Every link row removed is ONE batch: all go or none does (§data.gate).
+    const w = deferWrites(x.db);
+    const t = tablesRepo(w.db, { clock: x.clock });
     for (const l of await spotLinks(x, i.id, i.goal))
-      await tables(x).links.remove(l.id, l.v);
+      await t.links.remove(l.id, l.v);
+    await w.flush();
     return { id: i.id, goal: i.goal };
   },
   // The reply Matt asked to be told is logged; the answer itself is on the Ask screen.
   "ask.just_tell_me": async (i: { id: string; attempt?: string }, _c, x) => {
-    const line = await talkLine(x, { text: "Just tell me", replyTo: i.id });
+    // The talk line and the attempts row are ONE batch: both land or neither does (§data.gate).
+    const w = deferWrites(x.db);
+    const d = { ...x, db: w.db };
+    const line = await talkLine(d, { text: "Just tell me", replyTo: i.id });
     // One log-only attempts row: an ask turn is not a set item, so the turn asked about stands in for it.
-    const attempt = await logAttempt(x, {
+    const attempt = await logAttempt(d, {
       id: i.attempt,
       item_id: i.id,
       set_id: "ask",
@@ -116,6 +124,7 @@ export const weakHandlers: Record<string, CommandHandler> = {
       how: "told",
       answer: { line },
     });
+    await w.flush("that changed or was already recorded; try again");
     return { id: i.id, told: true, attempt };
   },
 };

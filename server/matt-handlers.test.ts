@@ -22,22 +22,23 @@ test("a note is made, saved and moved", async () => {
   const moved = await call("note.move", {
     id,
     collection: col2.body.result.collection.id,
+    if_version: 2,
   });
   assert.equal(moved.status, 200);
   // the row holds the words in its search column and the collection it moved to
   const row = await DB.prepare(
     "SELECT text, collection_id, v FROM notes WHERE id = ?",
   )
-    .bind(`note_${id}`)
+    .bind(id)
     .first<{ text: string; collection_id: string; v: number }>();
   assert.equal(row?.text, "Fluids\nSodium is 135-145");
   assert.equal(row?.collection_id, col2.body.result.collection.id);
   assert.equal(
-    (await call("note.save", { id: "n-nope", body: "x" })).status,
+    (await call("note.save", { id: "note_nope", body: "x" })).status,
     404,
   );
   assert.equal(
-    (await call("note.move", { id, collection: "nope" })).status,
+    (await call("note.move", { id, collection: "nope", if_version: 3 })).status,
     404,
   );
   // blocks sent as JSON are kept
@@ -96,9 +97,9 @@ test("a session starts, pauses, answers a check, and ends", async () => {
         .bind(`ses_${id}`)
         .all<{ type: string }>()
     ).results.map((e) => e.type);
-  const a = (await call("session.start", { noteId: "n-1" })).body.result
+  const a = (await call("session.start", { noteId: "note_1" })).body.result
     .id as string;
-  assert.equal((await row(a))?.note_id, "n-1");
+  assert.equal((await row(a))?.note_id, "note_1");
   assert.deepEqual(await events(a), ["start"]);
   const p = await call("session.pause", { id: a });
   assert.equal(p.body.result.paused, true);
@@ -234,7 +235,7 @@ test("a check answer and an Ask just-tell-me each write one log-only attempts ro
 
 test("note.save pins to if_version, creates at 0, and sets a title", async () => {
   const { call, note, DB } = await setup();
-  const id = "n-20261106-120000-abcdefghijkl";
+  const id = "note_20261106-120000-abcdefghijkl";
   const body = JSON.stringify([{ type: "p", runs: [{ text: "hello" }] }]);
   // a missing note with a version is a stale pin; with 0 it is a create
   assert.equal(
@@ -246,15 +247,15 @@ test("note.save pins to if_version, creates at 0, and sets a title", async () =>
     body,
     if_version: 0,
     title: "Fluids (earlier)",
-    earlier_of: "n-20261106-110000-zzzzzzzzzzzz",
+    earlier_of: "note_20261106-110000-zzzzzzzzzzzz",
   });
   assert.equal(made.status, 200);
   assert.equal(made.body.result.version, 1);
   assert.equal((await note(id))?.title, "Fluids (earlier)");
   const row = await DB.prepare("SELECT earlier_of FROM notes WHERE id = ?")
-    .bind(`note_${id}`)
+    .bind(id)
     .first<{ earlier_of: string }>();
-  assert.equal(row?.earlier_of, "note_n-20261106-110000-zzzzzzzzzzzz");
+  assert.equal(row?.earlier_of, "note_20261106-110000-zzzzzzzzzzzz");
   // a create over an existing note is stale
   assert.equal(
     (await call("note.save", { id, body, if_version: 0 })).status,

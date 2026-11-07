@@ -27,16 +27,16 @@ test("pin, rename, delete and restore work on a note, read through the row route
     );
   const id = (await call("note.create", {})).body.result.id as string;
   const title = async () =>
-    ((await (await get(`/notes/note_${id}`)).json()) as { title: string })
+    ((await (await get(`/notes/${id}`)).json()) as { title: string })
       .title;
   assert.equal((await call("item.pin", { id })).status, 200);
   assert.equal(
-    (await call("item.rename", { id, title: "Renamed" })).status,
+    (await call("item.rename", { id, title: "Renamed", if_version: 1 })).status,
     200,
   );
   assert.equal(await title(), "Renamed");
   assert.equal((await call("item.delete", { id })).status, 200);
-  assert.equal((await get(`/notes/note_${id}`)).status, 404);
+  assert.equal((await get(`/notes/${id}`)).status, 404);
   const gone = (await (await get("/deletions?collection=notes")).json()) as {
     deletions: { id: string; title: string }[];
   };
@@ -45,7 +45,7 @@ test("pin, rename, delete and restore work on a note, read through the row route
     [[id, "Renamed"]],
   );
   assert.equal((await call("item.restore", { id })).status, 200);
-  assert.equal((await get(`/notes/note_${id}`)).status, 200);
+  assert.equal((await get(`/notes/${id}`)).status, 200);
   assert.equal(
     (
       await DB.prepare("SELECT count(*) AS n FROM deletions").first<{

@@ -58,6 +58,8 @@ export function useToday(copy?: ReadCopyLike): TodayState {
   const [planWaiting, setPlanWaiting] = useState(false);
   const [again, setAgain] = useState(0);
   const warm = useRef(true);
+  // The version each date was read at: date.update is pinned to it (§data.protocol).
+  const goalV = useRef(new Map<string, number>());
   useEffect(() => {
     if (!token) return;
     let live = true;
@@ -141,6 +143,7 @@ export function useToday(copy?: ReadCopyLike): TodayState {
           setPlanWaiting(prepPlanWaiting(r.jobs));
         }
         const { goals, weakspots, plans, planItems, answers, setRows } = r;
+        goalV.current = new Map(goals.map((g) => [g.id, g.v]));
         setData(
           mapToday(
             {
@@ -204,7 +207,12 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     [add],
   );
   const setKind = useCallback(
-    (id: string, kind: string) => add("date.update", { id, kind }),
+    (id: string, kind: string) => {
+      const v = goalV.current.get(id);
+      return v === undefined
+        ? Promise.resolve(false)
+        : add("date.update", { id, kind, if_version: v });
+    },
     [add],
   );
   const tick = useCallback(

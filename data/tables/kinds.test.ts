@@ -111,19 +111,16 @@ test("JSON columns round-trip and list filters by column", async () => {
     options: ["a", "b"],
     correct: [0],
   };
-  const i = await repo.setItems.save(
-    {
-      id: "item_1",
-      set_id: "set_1",
-      pos: 1,
-      type: "single",
-      body,
-      objective_id: null,
-      weak_spot_id: null,
-      source_ref: null,
-    },
-    null,
-  );
+  const i = await repo.setBook.addItem({
+    id: "item_1",
+    set_id: "set_1",
+    pos: 1,
+    type: "single",
+    body,
+    objective_id: null,
+    weak_spot_id: null,
+    source_ref: null,
+  });
   assert.ok(i.ok, JSON.stringify(i));
   const got = await repo.setItems.list({ where: { set_id: "set_1" } });
   assert.deepEqual(got[0]?.body, body);

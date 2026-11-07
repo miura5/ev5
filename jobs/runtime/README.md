@@ -3,5 +3,5 @@
 The Workflows wrapper, job record, executors, budgets and `models.ts`.
 
 <!-- generated:start -->
-Interface: newJob, transition, addCost, JobRecord, JobStore, defineJob, startJob, continueJob, reportJob, continuationId, Executor, Env, sweepStale, jobStatus, runJob, workflowExecutor, cloudflareAdapter, Ceilings, StepHandlers, runStructured, checkCitations, ModelCall, ModelReply
+Interface: newJob, defineJob, startJob, continueJob, Env, jobStatus, workflowExecutor, cloudflareAdapter, runStructured, checkCitations, ModelCall
 <!-- generated:end -->

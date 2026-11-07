@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   noteDocOf,
-  noteRowId,
   parseNote,
   parseNoteTableRow,
   type Note,
@@ -15,6 +14,7 @@ import {
   failureKind,
   failureSentence,
   readJson,
+  readRows,
   readToken,
   savedFirst,
 } from "../../commands/client.ts";
@@ -62,13 +62,7 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     // The session rows and their event rows (§data.gate), each kept under its own key.
     const load = async (c: ReadCopyLike | undefined) => {
       function rows<T>(path: string, key: string) {
-        return readJson<T[]>(
-          path,
-          token,
-          key,
-          c,
-          (b) => (b as { rows: T[] }).rows,
-        );
+        return readRows<T>(path, token, key, c);
       }
       const [sessions, events] = await Promise.all([
         rows<SessionTableRow>("sessions", "sessions:rows"),
@@ -103,7 +97,7 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
         // Offline the saved note answers; a 401 or 5xx throws and leaves the page empty (§data.offline).
         // The note row (§data.tables): its document is built from the columns, its `v` pins the save.
         const d = await readJson<unknown>(
-          `notes/${encodeURIComponent(noteRowId(noteId))}`,
+          `notes/${encodeURIComponent(noteId)}`,
           token,
           `sessions:note:${noteId}`,
           copy,

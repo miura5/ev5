@@ -2,7 +2,6 @@
 // Auth is applied by index.ts before these run. Callers reach /jobs/ by scope; only the app token may reach /ceilings.
 import { Hono } from "hono";
 import {
-  acknowledgeSpendAlert,
   cloudflareAdapter,
   d1JobStore,
   d1PlanStore,
@@ -24,6 +23,7 @@ import { draftTasksOfPlans, examsOfPlans } from "./plan-context.ts";
 import { loadCeilingConfig, saveCeilingConfig } from "./job-run.ts";
 import type { AuthVars } from "./auth.ts";
 import { gatherExcerpts, type ExcerptSource } from "./excerpts.ts";
+import { leftOutField, readReport, requestIdOf } from "./read-report.ts";
 import { lastDraftDay } from "./plan-home.ts";
 import { centralDate, endedReason, planEnded } from "../domain/index.ts";
 import { endedSessionsToday, finishedJobsToday } from "./jobs-done.ts";
@@ -169,21 +169,6 @@ jobRoutes.post("/jobs/:id/continue", async (c) => {
   return c.json({ job: next }, 202);
 });
 
-// The user's acknowledge on the monthly spend alert closes it (done); only the app token, only that kind.
-jobRoutes.post("/jobs/:id/dismiss", async (c) => {
-  if (c.get("caller") !== "app") return c.json({ error: "forbidden" }, 403);
-  const store = d1JobStore(c.env.DB, () => Date.now());
-  const rec = await store.get(c.req.param("id"));
-  if (!rec) return c.json({ error: "not found" }, 404);
-  try {
-    return c.json({
-      job: await acknowledgeSpendAlert(store, rec.id, new Date()),
-    });
-  } catch (e) {
-    return c.json({ error: (e as Error).message }, 409);
-  }
-});
-
 jobRoutes.get("/jobs/:id", async (c) => {
   try {
     const [status] = await jobStatus(
@@ -228,15 +213,18 @@ async function withExams<T extends { id: string; kind: string; state: string }>(
 
 // Only live jobs: one past its deadline is failed first, so a lost runner never shows as running.
 jobRoutes.get("/jobs", async (c) => {
-  const store = d1JobStore(c.env.DB, () => Date.now());
+  // A stored row that does not parse is logged and counted in `left_out`, never a failed list (§data.gate).
+  const reads = readReport(requestIdOf(c));
+  const store = d1JobStore(c.env.DB, () => Date.now(), reads.onBad);
   // ?finished=today is Activity's "Done today": what finished since midnight Central (server/jobs-done.ts).
   if (c.req.query("finished") === "today") {
     const now = Date.now();
     return c.json({
       jobs: [
         ...(await finishedJobsToday(store, c.env.DB, DEFS, now)),
-        ...(await endedSessionsToday(c.env.DB, now)),
+        ...(await endedSessionsToday(c.env.DB, now, reads.onBad)),
       ],
+      ...leftOutField(reads),
     });
   }
   try {
@@ -246,6 +234,7 @@ jobRoutes.get("/jobs", async (c) => {
   }
   return c.json({
     jobs: await withExams(c.env.DB, await jobStatus(store, DEFS)),
+    ...leftOutField(reads),
   });
 });
 

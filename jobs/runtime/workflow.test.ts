@@ -1,13 +1,16 @@
 import test from 'node:test';
 import { z } from 'zod';
 import assert from 'node:assert/strict';
-import { continuationId, continueJob, defineJob, startJob } from './index.ts';
-import type { Env, JobRecord, JobStore } from './index.ts';
+import { continueJob, defineJob, startJob } from './index.ts';
+import { continuationId } from './executors.ts';
+import type { Env } from './index.ts';
+import type { JobRecord, JobStore } from './record.ts';
 import { NonRetryableError } from './non-retryable.ts';
 import { forgetKinds } from './define.ts';
 import { fakeWorkflows } from './workflow.fake.ts';
-import { cloudflareAdapter, runJob, workflowExecutor } from './index.ts';
-import type { Ceilings, StepHandlers } from './index.ts';
+import { cloudflareAdapter, workflowExecutor } from './index.ts';
+import { runJob } from './workflow.ts';
+import type { Ceilings, StepHandlers } from './workflow.ts';
 
 const T = '2026-11-03T12:00:00Z';
 const parse = z.unknown();

@@ -1,8 +1,7 @@
 // What finished today (Central), for Activity's "Done today": finished jobs and ended sessions, in the shape of a
 // GET /jobs entry. A separate read (?finished=today) so every other caller of GET /jobs still gets unfinished jobs only.
 import { tablesRepo } from "../data/index.ts";
-import { centralDate, sessionDocId } from "../domain/index.ts";
-import { goalDoc } from "./goal-wire.ts";
+import { centralDate, goalFromRow, sessionDocId } from "../domain/index.ts";
 import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
 import { examsOfPlans } from "./plan-context.ts";
@@ -33,11 +32,10 @@ async function goalTitles(
   const byExam = new Map<string, string | undefined>();
   for (const [job, goalId] of examOf) {
     if (!byExam.has(goalId)) {
-      const d = await goalDoc(db as never, () => Date.now(), goalId).catch(
-        () => undefined,
-      );
-      const t = (d?.data as { title?: unknown } | undefined)?.title;
-      byExam.set(goalId, typeof t === "string" && t ? t : undefined);
+      const row = await tablesRepo(db as never, { clock: () => Date.now() })
+        .goals.get(goalId)
+        .catch(() => null);
+      byExam.set(goalId, (row && goalFromRow(row))?.title);
     }
     const t = byExam.get(goalId);
     if (t) titles.set(job, t);
@@ -98,11 +96,14 @@ export async function finishedJobsToday(
 export async function endedSessionsToday(
   db: D1Like,
   now: number,
+  onBad?: Parameters<typeof tablesRepo>[1]["onBad"],
 ): Promise<DoneEntry[]> {
   const today = centralDate(now);
-  const ended = await tablesRepo(db, { clock: () => now }).sessions.list({
-    where: { status: "ended" },
-  });
+  const ended = await tablesRepo(db, { clock: () => now, onBad }).sessions.list(
+    {
+      where: { status: "ended" },
+    },
+  );
   const out: DoneEntry[] = [];
   for (const row of ended) {
     if (row.ended_at === null || centralDate(row.ended_at) !== today) continue;
