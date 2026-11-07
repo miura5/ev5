@@ -2,14 +2,14 @@ import { expect, test } from "vitest";
 import { mapCollection, mapPins } from "./map.ts";
 
 const cs = [
-  { id: "b", title: "Economics 101", parentId: null, pos: 2 },
-  { id: "a", title: "Course A", parentId: null, pos: 1 },
-  { id: "s", title: "Labs", parentId: "a", pos: 1 },
+  { id: "b", title: "Economics 101", parentId: null, pos: 2, v: 1 },
+  { id: "a", title: "Course A", parentId: null, pos: 1, v: 1 },
+  { id: "s", title: "Labs", parentId: "a", pos: 1, v: 1 },
 ];
 const ms = [
-  { collection: "notes", id: "n1", collectionId: "a", at: 1 },
-  { collection: "cards", id: "k1", collectionId: "a", at: 5 },
-  { collection: "notes", id: "n2", collectionId: "b", at: 9 },
+  { collection: "notes", id: "n1", collectionId: "a", at: 1, v: 1 },
+  { collection: "cards", id: "k1", collectionId: "a", at: 5, v: 1 },
+  { collection: "notes", id: "n2", collectionId: "b", at: 9, v: 1 },
 ];
 
 test("picks the first top-level collection with its nested and members, newest first", () => {
@@ -29,10 +29,12 @@ test("no collections is the empty state", () => {
 
 test("an id opens that collection, with its parent id for Back", () => {
   const cs = [
-    { id: "a", title: "Course A", parentId: null, pos: 0 },
-    { id: "b", title: "Labs", parentId: "a", pos: 1 },
+    { id: "a", title: "Course A", parentId: null, pos: 0, v: 1 },
+    { id: "b", title: "Labs", parentId: "a", pos: 1, v: 1 },
   ];
-  const ms = [{ collection: "notes", id: "n1", collectionId: "b", at: 1 }];
+  const ms = [
+    { collection: "notes", id: "n1", collectionId: "b", at: 1, v: 1 },
+  ];
   const d = mapCollection(cs, ms, "b")!;
   expect(d.title).toBe("Labs");
   expect(d.parentId).toBe("a");

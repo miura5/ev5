@@ -22,6 +22,7 @@ test("a note is made, saved and moved", async () => {
   const moved = await call("note.move", {
     id,
     collection: col2.body.result.collection.id,
+    if_version: 2,
   });
   assert.equal(moved.status, 200);
   // the row holds the words in its search column and the collection it moved to
@@ -37,7 +38,7 @@ test("a note is made, saved and moved", async () => {
     404,
   );
   assert.equal(
-    (await call("note.move", { id, collection: "nope" })).status,
+    (await call("note.move", { id, collection: "nope", if_version: 3 })).status,
     404,
   );
   // blocks sent as JSON are kept

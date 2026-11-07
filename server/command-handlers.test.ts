@@ -81,7 +81,8 @@ test("pin, unpin and rename work on a set row; delete and restore read rows, not
   };
   assert.equal(un.result.removed, true);
   assert.equal(
-    (await call("item.rename", { id: "set_s1", title: "New" })).status,
+    (await call("item.rename", { id: "set_s1", title: "New", if_version: 1 }))
+      .status,
     200,
   );
   const del = (await (await call("item.delete", { id: "set_s1" })).json()) as {
@@ -115,12 +116,19 @@ test("a collection is created and an item moves into it", async () => {
       await call("item.move", {
         id: "set_s1",
         collection: made.result.collection.id,
+        if_version: 1,
       })
     ).status,
     200,
   );
   assert.equal(
-    (await call("item.move", { id: "set_s1", collection: "missing" })).status,
+    (
+      await call("item.move", {
+        id: "set_s1",
+        collection: "missing",
+        if_version: 1,
+      })
+    ).status,
     404,
   );
 });
@@ -151,7 +159,7 @@ test("deleting a collection sets its deleted_at and writes no deletions row; its
     await call("collection.create", { title: "BIO" })
   ).json()) as { result: { collection: { id: string } } };
   const cid = made.result.collection.id;
-  await call("item.move", { id: "set_s1", collection: cid });
+  await call("item.move", { id: "set_s1", collection: cid, if_version: 1 });
   const ids = async (path: string, key: string) =>
     ((await (await call.get(path)).json()) as Record<string, { id: string }[]>)[
       key
@@ -195,11 +203,13 @@ test("item.rename renames a collection in its own table", async () => {
   ).json()) as { result: { collection: { id: string } } };
   const id = made.result.collection.id;
   assert.equal(
-    (await call("item.rename", { id, title: "Economics 101" })).status,
+    (await call("item.rename", { id, title: "Economics 101", if_version: 1 }))
+      .status,
     200,
   );
   assert.equal(
-    (await call("item.rename", { id, title: "Course B" })).status,
+    (await call("item.rename", { id, title: "Course B", if_version: 2 }))
+      .status,
     200,
   );
 });

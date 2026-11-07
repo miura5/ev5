@@ -15,6 +15,8 @@ import {
 /** One thing in a collection as the collection read reports it; areas never import data, so the shape is restated. */
 export interface CollectionEntry {
   id: string;
+  /** The version it was read at, for the commands pinned to it (§data.protocol). */
+  v?: number;
   type: GlyphType;
   title: string;
   meta?: string;

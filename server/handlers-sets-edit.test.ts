@@ -26,6 +26,7 @@ test("editing an item keeps its rationale, objective, source and table", async (
     set,
     item,
     text: q.replace("140", "138"),
+    if_version: 1,
   });
   assert.equal(r.status, 200);
   const after = await DB.prepare("SELECT body FROM set_items WHERE id = ?")

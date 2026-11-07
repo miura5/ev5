@@ -31,7 +31,7 @@ test("pin, rename, delete and restore work on a note, read through the row route
       .title;
   assert.equal((await call("item.pin", { id })).status, 200);
   assert.equal(
-    (await call("item.rename", { id, title: "Renamed" })).status,
+    (await call("item.rename", { id, title: "Renamed", if_version: 1 })).status,
     200,
   );
   assert.equal(await title(), "Renamed");

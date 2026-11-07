@@ -121,7 +121,8 @@ export const commandHandlers: Record<string, CommandHandler> = {
       return { note: { id: i.id, collectionId: i.collection } };
     }
     const cur = await t.memberships.get(c, i.id);
-    if (!cur && i.if_version !== undefined)
+    // 0 names an item with no membership yet (as in note.save); anything else must be the version read.
+    if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0))
       throw new CommandError(409, "that item changed; try again");
     const r = await t.memberships.save(
       { itemC: c, itemId: i.id, collectionId: i.collection },
