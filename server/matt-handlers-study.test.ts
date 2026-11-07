@@ -135,3 +135,38 @@ test("studying: the attempt comes first, reveal waits for it, just tell me is lo
     404,
   );
 });
+
+test("an offline answer keeps its own time when sane; a future one is clamped, a too-old one takes the server time", async () => {
+  const { call, DB } = await setup();
+  const set = (await call("set.create", { title: "Fluids" })).body.result.set
+    .id as string;
+  const q = "Which is normal sodium?\n- 100\n* 140\n- 180";
+  const item = (await call("set.item_add", { set, text: q })).body.result.item
+    .itemId as string;
+  const day = 24 * 3_600_000;
+  const before = Date.now();
+  const sent = before - 2 * day;
+  const send = async (attempt: string, answered_at: number) => {
+    assert.equal(
+      (
+        await call("study.attempt", {
+          id: item,
+          answer: "1",
+          attempt,
+          answered_at,
+        })
+      ).status,
+      200,
+    );
+    return (
+      await DB.prepare("SELECT answered_at AS t FROM attempts WHERE id = ?")
+        .bind(attempt)
+        .first<{ t: number }>()
+    )?.t as number;
+  };
+  assert.equal(await send("att_kept", sent), sent);
+  const future = await send("att_future", before + 10 * day);
+  assert.ok(future >= before && future <= Date.now());
+  const old = await send("att_old", before - 40 * day);
+  assert.ok(old >= before && old <= Date.now());
+});
