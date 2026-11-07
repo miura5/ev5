@@ -3901,13 +3901,13 @@
   "title": "One write gate in data/ for every writer",
   "dod": "data/ holds the only SQL and one gate every route, command, job and scheduled command writes through: it parses the domain row shape, applies the domain rules, checks size and the protocol (v, at, if_version), and refuses with a plain reason, 409 only when stale; reads come back parsed, a bad row is reported and left out, deleted rows are hidden; item.rename refuses kinds with no title; ops/checks refuses SQL outside data/ (§data.gate, §data.protocol)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-997",
    "B-998"
   ],
-  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022. Run 1718Z: #875 every job-store list in server/ passes onBad (get/put-only callers still none). Left: merge the two gates.",
-  "commit": null,
+  "notes": "Run 1753Z: one gate already (data/tables/gate.ts); no docs-gate code left. Stale comments only (gate.ts l1, tables.ts l2, staging/seed.ts l48, seed.test.ts l64).",
+  "commit": "e42f5aa",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1753Z",
   "claimedAt": "2026-11-07T17:53:50.983Z"
@@ -4838,7 +4838,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1631Z: F9 done (#864 one note id form note_<time>-<random>), KISS 10 done (#866 notes and setItems read-only on the public repo, writes via noteBook/setBook; pins one id form; #872 practice-set sourceRef is the plain note_ id, one table-name list via ROW_TABLES/RowTableName). Left: old doc-row shapes; row routes for item versions and session events; attempts part (plan-home raw SQL, areas/library/weakSpots.ts own copy of the rule); domain/item sourceRef still note/n1# form. Run 1718Z: #876 item sourceRef is note_ form. weakSpots.ts already uses the domain rule. Left: row routes for item versions and session events; plan-home raw SQL in server/.",
+  "notes": "Run 1753Z: row routes for item versions and session events already on main (server/row-routes.ts); plan-home reads only via tablesRepo. Left: WireDoc in areas/library/types.ts and the areas; commands/ and jobs/ own plan Zod shapes (use domain shapes).",
   "commit": null,
   "source": "run 82 B-997 report",
   "claimedBy": "run-20261107T1753Z",
