@@ -81,7 +81,27 @@ function check(q: Item, answer: string, rated: boolean) {
   }
 }
 
-async function record(x: HandlerCtx, f: Found, how: Entry, attemptId?: string) {
+/** Oldest an offline answer's own time is kept. */
+const MAX_AGE_MS = 30 * 24 * 3_600_000;
+
+/** When the answer was made: the client's time (a replayed offline answer), never later than now and not older than 30 days, else the server clock. */
+export function answeredAt(now: number, sent?: number): number {
+  if (
+    typeof sent !== "number" ||
+    !Number.isFinite(sent) ||
+    sent < now - MAX_AGE_MS
+  )
+    return now;
+  return Math.min(sent, now);
+}
+
+async function record(
+  x: HandlerCtx,
+  f: Found,
+  how: Entry,
+  attemptId?: string,
+  sentAt?: number,
+) {
   // One attempts row; a retry that names the same id is a conflict, so the row is never doubled (§data.append-only).
   const id = attemptId ?? `att_${x.newId().replace(/-/g, "")}`;
   const r = await repo(x).attempts.record({
@@ -91,7 +111,7 @@ async function record(x: HandlerCtx, f: Found, how: Entry, attemptId?: string) {
     session_id: null,
     source: "run",
     ...rowOf(itemType(f.item) === "open", how),
-    answered_at: x.clock(),
+    answered_at: answeredAt(x.clock(), sentAt),
   });
   if (!r.ok) throw new CommandError(409, "that attempt was already recorded");
   return id;
@@ -128,6 +148,7 @@ export const studyHandlers: Record<string, CommandHandler> = {
       answer: string;
       rating?: "again" | "good";
       attempt?: string;
+      answered_at?: number;
     },
     _c,
     x,
@@ -140,7 +161,7 @@ export const studyHandlers: Record<string, CommandHandler> = {
     // as a self-rating, never a score, so it counts as studied but never toward accuracy (Matt's call A, 2026-11-06).
     if (i.rating && !checked) {
       const rating = { text: i.answer, rating: i.rating };
-      const key = await record(x, f, rating, i.attempt);
+      const key = await record(x, f, rating, i.attempt, i.answered_at);
       return { id: i.id, key, rating: i.rating };
     }
     if (open && !i.answer.trim())
@@ -167,6 +188,7 @@ export const studyHandlers: Record<string, CommandHandler> = {
       f,
       { text: open ? i.answer : "", g },
       i.attempt,
+      i.answered_at,
     );
     // Only whether it was right comes back: the answer waits for study.reveal (the attempt comes first).
     return {
@@ -186,9 +208,13 @@ export const studyHandlers: Record<string, CommandHandler> = {
   },
 
   // Always available and always logged as its own attempt (outcome "told").
-  "study.just_tell_me": async (i: { id: string; attempt?: string }, _c, x) => {
+  "study.just_tell_me": async (
+    i: { id: string; attempt?: string; answered_at?: number },
+    _c,
+    x,
+  ) => {
     const f = await find(x, i.id);
-    const key = await record(x, f, "told", i.attempt);
+    const key = await record(x, f, "told", i.attempt, i.answered_at);
     return { id: i.id, key, told: true, reveal: reveal(f.item) };
   },
 
