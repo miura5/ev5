@@ -21,6 +21,7 @@ import { checkRules } from './rules.ts';
 import { checkSecrets } from './secrets.ts';
 import { checkSourceIds } from './sourceids.ts';
 import { checkStack } from './stack.ts';
+import { checkTestRuns } from './testruns.ts';
 import { checkTokens } from './tokens.ts';
 import { checkUnusedExports } from './unusedexports.ts';
 import { branchCommits, checkTrailers } from './trailer.ts';
@@ -54,6 +55,7 @@ const findings = [
   ...checkSourceIds(root, files),
   ...checkStack(root, files),
   ...checkSubjectWords(root, files),
+  ...checkTestRuns(root, files),
   ...checkTokens(root, files),
   ...checkUnusedExports(root),
   ...checkTrailers(branchCommits(root, base)),

@@ -1,0 +1,19 @@
+{
+  // Second type-check: the source and test files that tsconfig.json leaves out (data, jobs, ops, server and their tests).
+  "extends": "./tsconfig.json",
+  "include": ["data", "jobs", "ops", "server", "domain", "commands"],
+  "exclude": [
+    // TEMPORARY, part for lane A: test files with type errors in lane A folders. Lane A fixes each one and
+    // deletes its line; the list must end empty.
+    "data/migrations/migrations.test.ts",
+    "data/tables/attempts.test.ts",
+    "data/tables/kinds.test.ts",
+    "data/tables/sets.test.ts",
+    "data/tables/tables.test.ts",
+    "jobs/practice-set/job.test.ts",
+    "jobs/runtime/d1-stores.test.ts",
+    "server/image-routes.test.ts",
+    "server/job-routes.test.ts",
+    "server/sqlite-d1.test.ts"
+  ]
+}
