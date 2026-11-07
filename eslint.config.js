@@ -102,12 +102,9 @@ export default [
     // These screens still write through api() because no registry command carries the write yet. A file leaves this list
     // when its write moves to call() from commands/client.ts; new files are not exempt.
     //   notePictures.ts: a raw picture upload.
-    //   useSessions.ts, useToday.ts: whole-document PUT /docs (no command; goes with the docs removal).
     files: [
       "areas/**/*.test.{ts,tsx}",
       "areas/notes/parts/notePictures.ts",
-      "areas/sessions/useSessions.ts",
-      "areas/today/useToday.ts",
     ],
     rules: { "no-restricted-syntax": ["error", ...areaSyntax] },
   },
