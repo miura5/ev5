@@ -15,6 +15,7 @@ import { tablesRepo } from "../data/index.ts";
 import type { StoredSession } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
+import { deferWrites } from "./defer-writes.ts";
 import { eventKey, iso, logAttempt, rand, talkLine } from "./handlers-edit.ts";
 
 const book = (x: HandlerCtx) =>
@@ -116,10 +117,13 @@ export const sessionHandlers: Record<string, CommandHandler> = {
   "check.answer": async (
     i: { id: string; answer: string; attempt?: string },
     _c,
-    x,
+    ctx,
   ) => {
-    const cur = await open(x, i.id);
-    const n = Math.max(1, sessionState(view(cur), x.clock()).checks);
+    const cur = await open(ctx, i.id);
+    const n = Math.max(1, sessionState(view(cur), ctx.clock()).checks);
+    // The talk line, the session's answer event and the attempts row are ONE batch: all land or none does (§data.gate).
+    const w = deferWrites(ctx.db);
+    const x = { ...ctx, db: w.db };
     const msg = await talkLine(x, {
       text: i.answer.slice(0, 4000),
       sessionId: cur.row.id,
@@ -135,6 +139,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
       how: "typed",
       answer: { text: i.answer.slice(0, 4000) },
     });
+    await w.flush("that changed or was already recorded; try again");
     return { id: i.id, n, attempt };
   },
 
