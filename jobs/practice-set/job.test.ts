@@ -64,7 +64,7 @@ test("sourced items become set items; unsourced ones become drafts and need you"
   );
   assert.ok(r.needsYou && r.costCents > 0 && !r.repaired);
   assert.equal(reqs[0]!.model, "haiku");
-  assert.match(reqs[0]!.messages[0]!.content, /\[e1\]/);
+  assert.match(reqs[0]!.messages[0]!.content, /\[note_e1\]/);
 });
 
 test("a fully sourced set does not need you", async () => {
@@ -101,13 +101,13 @@ test("a full practice run asks for one and allows up to 75 items", () => {
 
 test("a cited id that was not in the excerpts gets one repair ask, then succeeds", async () => {
   const { call, reqs } = script(
-    reply([q("zz"), q("note_e1")]),
+    reply([q("note_zz"), q("note_e1")]),
     reply([q("note_e1"), q("note_e1")]),
   );
   const r = await writePracticeSet("j", input(), { call, system });
   assert.ok(r.ok && r.repaired);
   assert.equal(reqs.length, 2);
-  assert.match(reqs[1]!.messages.at(-1)!.content, /"zz"/);
+  assert.match(reqs[1]!.messages.at(-1)!.content, /"note_zz"/);
 });
 
 test("forced invalid output fails cleanly after one repair, with nothing half-parsed", async () => {
@@ -181,10 +181,10 @@ test("a scope may name a collection or a note to draw from, with or without obje
 test("citations are checked against the gathered excerpts, not anything the caller named", async () => {
   const gathered = parseInput({
     ...parsePublicInput(input()),
-    excerpts: [{ id: "n9", text: "Gathered." }],
+    excerpts: [{ id: "note_n9", text: "Gathered." }],
   });
-  const bad = reply([q("note_e1"), q("n9")]);
-  const { call, reqs } = script(bad, reply([q("n9"), q("n9")]));
+  const bad = reply([q("note_e1"), q("note_n9")]);
+  const { call, reqs } = script(bad, reply([q("note_n9"), q("note_n9")]));
   const r = await writePracticeSet("j", gathered, { call, system });
   assert.ok(r.ok && r.repaired);
   assert.match(reqs[1]!.messages.at(-1)!.content, /"note_e1"/);
