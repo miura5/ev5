@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Empty, NoteBlocks, Page } from "../../kit/index.ts";
-import { sessionState, parseSession } from "../../domain/index.ts";
-import { withEnd, withPause, withTellMe } from "./events.ts";
 import { Picture } from "./Picture.tsx";
 import { SessionView } from "./Sessions.view.tsx";
 import { useSessions, type ReadCopyLike } from "./useSessions.ts";
 
 const none = () => undefined;
-const rand = () => Math.random().toString(36).slice(2, 6).padEnd(4, "0");
 
 /** The mounted view: the running (else latest) session from /api/v1/docs; pause and End act on this screen only. */
 export function SessionsScreen({
@@ -17,7 +14,7 @@ export function SessionsScreen({
   services?: { readCopy?: ReadCopyLike };
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, note, toggleTodo, save } = useSessions(
+  const { data, token, refused, error, note, toggleTodo, send } = useSessions(
     services?.readCopy,
   );
   useEffect(() => {
@@ -31,25 +28,16 @@ export function SessionsScreen({
   const stopped = paused || !!data?.ended || closed;
   const togglePause = () => {
     if (!data || data.ended) return;
-    void save((raw) => withPause(raw, !paused, new Date(), rand()));
+    void send("session.pause");
   };
   // One append-only event on the session; the screen has no open check yet, so no answer is shown (Sessions.view answer).
   const tellMe = async () => {
-    if (data && !data.ended)
-      await save((raw) => withTellMe(raw, new Date(), rand()));
+    if (data && !data.ended) await send("check.just_tell_me");
   };
   const end = async () => {
     if (!data || data.ended) return setClosed(true);
-    const now = new Date();
-    // Built on the latest stored document, so a pause just written is in it and its time is not counted.
-    const ok = await save((raw) => {
-      const minutes = sessionState(
-        { ...parseSession(raw), id: data.id },
-        now.getTime(),
-      ).minutes;
-      return withEnd(raw, minutes, now, rand());
-    });
-    if (ok) setSaved(true);
+    // The server works the minutes out from the events, so a pause just made is not counted.
+    if (await send("session.end")) setSaved(true);
   };
   // Space pauses or resumes unless he is typing or on a control; Esc leaves the field he is typing in.
   const act = useRef({ togglePause });

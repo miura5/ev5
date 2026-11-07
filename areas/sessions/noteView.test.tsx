@@ -44,9 +44,13 @@ function stub(first?: { type: string; runs: { text: string }[] }) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
-      if (init?.method === "PUT") {
+      if (init?.method === "POST" && url.includes("commands/")) {
         puts.push(init.body);
-        return { ok: true, status: 200, json: async () => ({}) };
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ mode: "direct" }),
+        };
       }
       if (url.includes("note-images"))
         return { ok: true, status: 200, blob: async () => new Blob(["x"]) };
