@@ -1,6 +1,7 @@
 // The practice set job's step handlers (plan, call, save). Steps return ids, never content: the written items wait in a
 // result store (keyed by job id, so a retried step writes the same row) until the save step puts them in D1.
 import { billedOnThrow, type ModelCall } from "../runtime/output.ts";
+import { NonRetryableError } from "../runtime/non-retryable.ts";
 import type { StepHandlers } from "../runtime/workflow.ts";
 import { parseInput, practiceSet, writePracticeSet } from "./job.ts";
 import type { PracticeResult } from "./job.ts";
@@ -12,7 +13,7 @@ export interface PracticeStore {
   get(jobId: string): Promise<Written>;
   /** The kept result if the call step already stored it (its step result was lost), else undefined. */
   find?(jobId: string): Promise<Written | undefined>;
-  /** A model failure noted once, so a step retry does not pay for the same failing call again. */
+  /** Unused by the handlers (a failure that repeats throws NonRetryableError); stays until server/job-run.ts drops its copy. */
   putFailure(jobId: string, reason: string): Promise<void>;
   getFailure(jobId: string): Promise<string | undefined>;
   /** One batch: set items and pending drafts land together or not at all. */
@@ -33,8 +34,6 @@ export function practiceSetHandlers({
   return {
     plan: async (c) => ({ ids: [parseInput(c.input).targetId] }),
     call: async (c) => {
-      const earlier = await store.getFailure(c.jobId);
-      if (earlier) throw new Error(earlier);
       // The result is already kept (a retry after the write landed): the model is not paid for again.
       if (await store.find?.(c.jobId)) return { ids: [`${c.jobId}:result`] };
       await c.reserve(practiceSet.costCapCents);
@@ -42,10 +41,7 @@ export function practiceSetHandlers({
         writePracticeSet(c.jobId, c.input, { call, system }),
       );
       await c.spend(r.costCents);
-      if (!r.ok) {
-        await store.putFailure(c.jobId, r.reason);
-        throw new Error(r.reason);
-      }
+      if (!r.ok) throw new NonRetryableError(r.reason);
       return { ids: [await store.put(c.jobId, r)] };
     },
     save: async (c) => {

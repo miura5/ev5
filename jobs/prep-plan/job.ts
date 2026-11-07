@@ -3,6 +3,7 @@
 // in domain (§cmd.code-first); the model only arranges them into tasks. The model call and the store are injected.
 import { z } from 'zod';
 import { defineJob, parseWith } from '../runtime/define.ts';
+import { NonRetryableError } from '../runtime/non-retryable.ts';
 import { outputSchema } from '../runtime/model-call.ts';
 import { billedOnThrow, checkCitations, runStructured, type ModelCall } from '../runtime/output.ts';
 import type { StepHandlers } from '../runtime/workflow.ts';
@@ -58,8 +59,6 @@ export interface PlanStore {
   /** The draft if the draft step already stored it (its step result was lost), else undefined. */
   findDraft?(jobId: string): Promise<Plan | undefined>;
   /** A model failure noted once, so a step retry does not pay for the same failing call again. */
-  putFailure(jobId: string, reason: string): Promise<void>;
-  getFailure(jobId: string): Promise<string | undefined>;
   /** Approve: the plan's tasks go onto Today. Put away: the draft is kept, marked put away. Returns the plan id. */
   approve(jobId: string, plan: Plan): Promise<string>;
   putAway(jobId: string): Promise<string>;
@@ -173,8 +172,6 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
     const a = parseAnswer(c.input);
     if (a.decision !== 'change') return { ids: [] };
     if (!changesSystem || !askChanges) throw new Error('Changing a plan is not set up on this Worker.');
-    const failed = await store.getFailure(c.jobId);
-    if (failed) throw new Error(failed);
     // The days were fixed when the first draft was made; a change round rebuilds them from the day it runs.
     const found = await store.load((await store.getContext(c.jobId)).goal.id);
     if (!found) throw new Error('That date was not found.');
@@ -188,10 +185,7 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
       ),
     );
     await c.spend(r.costCents);
-    if (!r.ok) {
-      await store.putFailure(c.jobId, r.reason);
-      throw new Error(r.reason);
-    }
+    if (!r.ok) throw new NonRetryableError(r.reason);
     await store.putDraft(c.jobId, r.plan);
     return {
       needsYou: `Your prep plan for ${ctx.goal.title} was changed. Approve it or put it away.`,
@@ -205,8 +199,6 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
       return { ids: [await store.putContext(c.jobId, buildContext(found))] };
     },
     draft: async (c) => {
-      const earlier = await store.getFailure(c.jobId);
-      if (earlier) throw new Error(earlier);
       // The draft is already kept (a retry after the write landed): the model is not paid for again.
       if (await store.findDraft?.(c.jobId)) return { ids: [`${c.jobId}:draft`] };
       const ctx = await store.getContext(c.jobId);
@@ -224,10 +216,7 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
         }),
       );
       await c.spend(r.costCents);
-      if (!r.ok) {
-        await store.putFailure(c.jobId, r.reason);
-        throw new Error(r.reason);
-      }
+      if (!r.ok) throw new NonRetryableError(r.reason);
       return { ids: [await store.putDraft(c.jobId, r.value)] };
     },
     approve: async (c) => {
