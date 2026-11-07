@@ -3737,7 +3737,7 @@
   "milestone": "Phase 5",
   "status": "open",
   "depends": [],
-  "notes": "Run 74 (#460, #468): collection delete to Notes with Undo; row menu (Open, Pin, Move with picker, Delete) from the dots, right-click or the . key on Notes rows, By-collection rows, the note page and collection rows. Left: Pin never shows Unpin on Notes rows; two near-duplicate RowActions (areas cannot import each other; a kit component would fix it); not seen on staging. Seen on staging (playtest 7): collection Delete goes to Notes with an Undo toast; Undo restores (item.restore 200) when pressed within the 4 s toast; note row Delete with Undo; right-click and the . key open Open, Pin, Move…, Delete on Notes rows and the note page; Move works. Also: the note page menu offers Open on its own page and Delete twice (button and menu); By-collection rows show no menu; the Move picker is B-950.",
+  "notes": "Run 2026-11-07 lane B (#858): note page menu drops Open and the duplicate Delete button. By-collection rows already had the menu (CollectionTree wraps RowActions; rowMenu.test.tsx). Part for lane A: Pin never shows Unpin on Notes rows (Notes needs the pinned flag; item.pin/item.unpin exist). Left: staging look at the note page menu and By-collection rows.",
   "commit": null,
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
