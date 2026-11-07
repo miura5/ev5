@@ -7,7 +7,7 @@
 #   ops/build-lock.sh take      exit 0: this run holds the lock; while another holds it, retries every 60 s for up to
 #                               LOCK_WAIT seconds (default 450, so one call fits a 10-minute Bash timeout); exit 3: still
 #                               busy. A build run calls take twice (about 15 minutes) before it ends (AGENTS.md §3 step 0)
-#   ops/build-lock.sh renew     after each merged batch, so a long run does not look stale
+#   ops/build-lock.sh renew     after each merge of this run's PRs, so a long run does not look stale
 #   ops/build-lock.sh release   before opening the handover or wait PR
 #   ops/build-lock.sh status    print the holder and the age
 #
