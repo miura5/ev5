@@ -17,7 +17,7 @@ const EMPTY = {
   thisWeek: [],
 };
 
-/** The mounted view: exams, weak spots and today's plan from /api/v1/docs; no data shows the empty day. */
+/** The mounted view: exams, weak spots and today's plan as rows from the row routes; no data shows the empty day. */
 export function TodayScreen({
   services,
   onNavigate,
