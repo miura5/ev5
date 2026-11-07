@@ -67,12 +67,12 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §job.schedule · All time goes through `domain/time` in the user's time zone, today the one constant `ZONE` (America/Chicago); scheduled commands run on a 15-minute cron and one is due when its local wall time has passed and no run exists for that local date; nothing is scheduled 01:00–03:00 local; DST is tested on 2026-11-01 and 2027-03-14. <!-- PLAN §3, §9, D-498 -->
 - §job.trace · Every run leaves a record, and a missing run is caught and reported, never silently re-fired; a missing run or a red main outranks every open task. <!-- D-087, D-111, D-180 -->
 - §ev.cites · Every fact E.V. states cites a source in Matt's notes or sets, else it is marked "unverified"; a source from another collection is allowed when it is the same concept and is named. <!-- PLAN §1, D-205 -->
-- §ev.his-words · A field Matt typed changes only by his tap; E.V. offers her version beside his, never over it. <!-- D-233 -->
+- §ev.his-words · A field Matt typed changes only by his tap; E.V. offers its version beside his, never over it. <!-- D-233 -->
 - §ev.capture · Weak spots E.V. infers are proposed and counted nowhere until Matt confirms; only his own words commit at once and stay as the spot's source line; a duplicate is kept and linked `duplicate-of`, never merged away, and nothing proposed is deleted. <!-- D-235, D-237, D-239, D-240 -->
 - §ev.objectives · Objectives are seeded from the material or source the user names, cited, on the user's OK; never invented. <!-- D-101, D-494 -->
-- §ev.voice · E.V. is short and plain and leads with the point, but on a study question his attempt comes first (§ui.attempt-first); she insists once, with a reason, then respects his call. <!-- D-405, D-415 -->
-- §ev.read-along · Read-along is on by default; E.V.'s comments are rationed, never while a check is open, in a break or while she answers, with limits enforced by the server, and her session comments belong to the session, not to his notes. <!-- D-130, D-339, D-424 -->
-- §ev.reads · App logic and E.V.'s jobs may read all of Matt's record, notes included, and his note text is kept in D1 and its backups; she reads no Apple Notes and never flags or blocks his own content as sensitive. <!-- D-300, D-324, D-335, D-328, D-503 -->
+- §ev.voice · E.V. is short and plain and leads with the point, but on a study question his attempt comes first (§ui.attempt-first); it insists once, with a reason, then respects his call. <!-- D-405, D-415 -->
+- §ev.read-along · Read-along is on by default; E.V.'s comments are rationed, never while a check is open, in a break or while it answers, with limits enforced by the server, and its session comments belong to the session, not to his notes. <!-- D-130, D-339, D-424 -->
+- §ev.reads · App logic and E.V.'s jobs may read all of Matt's record, notes included, and his note text is kept in D1 and its backups; it reads no Apple Notes and never flags or blocks his own content as sensitive. <!-- D-300, D-324, D-335, D-328, D-503 -->
 
 ## 6. Models and cost
 - §model.registry · Model ids and prices live only in `jobs/runtime/models.ts` with a "checked on" date; a check warns when it is old, and no environment variable overrides it. <!-- PLAN §6.5 -->
@@ -96,14 +96,14 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §ui.one-orange · One orange element per screen, the main action or E.V.'s mark; when Detail has a primary action, the screen's own steps down. <!-- PLAN §7.3, D-381 -->
 - §ui.status · Status shows only as a dot or a meter; the plan ring and job ring are glyphs that also carry status. <!-- PLAN §7.4 -->
 - §ui.lists · Lists have no frames; actions appear on hover, focus or right-click. <!-- PLAN §7.5 -->
-- §ui.ev-once · E.V. speaks once per screen; her suggestions appear dashed, in the list they would change. <!-- PLAN §7.6 -->
+- §ui.ev-once · E.V. speaks once per screen; its suggestions appear dashed, in the list they would change. <!-- PLAN §7.6 -->
 - §ui.grid · 8 px grid, 40 px rows, 48 px between sections. <!-- PLAN §7.7 -->
 - §ui.keys · Keys instead of extra buttons; shortcut hints sit quietly beside actions, in tooltips and in ⌘K. <!-- PLAN §7.8 -->
 - §ui.one-question · One question at a time; only the thing being answered gets a frame. <!-- PLAN §7.9 -->
 - §ui.attempt-first · The answer comes after the attempt, in practice and in Ask E.V.; "just tell me" is one key away and logged; browsing his own set shows answers. <!-- PLAN §7.10 -->
 - §ui.own-everything · Every item Matt owns (plan item, note, set, date, collection, saved view) can be created, edited and deleted by hand where it lives. <!-- PLAN §7.11, D-080 -->
 - §ui.delete · Delete moves an item to Recently deleted for 30 days with Undo and Restore; no "delete forever"; jobs are never deleted. <!-- PLAN §7.12 -->
-- §ui.with-ev · Where E.V. can help, one quiet "with E.V." action sits beside the manual one; her output arrives dashed and cited, and Matt keeps or drops each piece. <!-- PLAN §7.13 -->
+- §ui.with-ev · Where E.V. can help, one quiet "with E.V." action sits beside the manual one; its output arrives dashed and cited, and Matt keeps or drops each piece. <!-- PLAN §7.13 -->
 - §ui.keymap · C creates, E edits a set, ⌫ deletes, . or right-click opens the item menu, P pins, M moves, S runs Detail's primary, X toggles a plan item, Esc leaves. <!-- PLAN §7.14 -->
 - §ui.in-place · Titles and properties edit in place, properties in Detail; a set's collection and source sit on its Edit page. <!-- PLAN §7.15 -->
 - §ui.one-collection · An item sits in at most one collection; collections nest one level; deleting one leaves its items ungrouped. <!-- PLAN §7.16 -->

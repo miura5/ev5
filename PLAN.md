@@ -31,9 +31,9 @@ Matt's personal knowledge app for whatever he is learning; he is its only user. 
 **notes → practice → errors → weak spots and review → today's plan → back to practice.**
 
 **E.V. is a coach, not a crutch.** Matt does the retrieval and the planning; E.V. proposes, questions and checks.
-- She asks for his attempt before she explains.
-- She proposes plans and changes, and Matt accepts or edits them.
-- Every fact she states cites a source in his notes or sets. A fact without a source is marked "unverified".
+- It asks for his attempt before it explains.
+- It proposes plans and changes, and Matt accepts or edits them.
+- Every fact it states cites a source in his notes or sets. A fact without a source is marked "unverified".
 
 A design that does Matt's thinking for him is a defect.
 
@@ -281,14 +281,14 @@ Other job kinds (a guide, a share set, a look back after a date) follow after cu
 3. One orange element per screen: the main action, or E.V.'s mark. **[Mock-up: added]** When Detail has a primary action, the screen's own primary steps down.
 4. Status shown only as a dot or a meter. **[Mock-up: added]** The plan ring and the job ring are glyphs that also carry status.
 5. Lists without frames. Actions appear on hover, focus or right-click.
-6. E.V. speaks once per screen. Her suggestions appear dashed, in the list they would change.
+6. E.V. speaks once per screen. Its suggestions appear dashed, in the list they would change.
 7. 8 px grid, 40 px rows, 48 px between sections.
 8. Keys instead of extra buttons. **[Mock-up: changed]** Shortcut hints sit quietly beside actions, as well as in tooltips and ⌘K.
 9. One question at a time. Only the thing being answered gets a frame.
 10. The answer comes after the attempt, in practice **and** in Ask E.V. A "just tell me" is always one key away, and it is logged. (Browsing your own set on its page shows answers; study enforces the attempt.)
 11. **[Mock-up: added]** Every item Matt owns (plan item, note, set, date, collection, saved view) can be created, edited and deleted by hand, from where it lives.
 12. **[Mock-up: added]** Delete moves the item to Recently deleted for 30 days, with Undo and Restore. There is no "delete forever", and jobs are never deleted (§5.6).
-13. **[Mock-up: added]** Where E.V. can help, there is one quiet "with E.V." action beside the manual one. Her output arrives dashed and cited, in the list it would change, and Matt keeps or drops each piece.
+13. **[Mock-up: added]** Where E.V. can help, there is one quiet "with E.V." action beside the manual one. Its output arrives dashed and cited, in the list it would change, and Matt keeps or drops each piece.
 14. **[Mock-up: added]** Keys: **C** creates the thing the screen holds · **E** edits a set · **⌫** deletes · **.** or right-click opens the item menu · **P** pins · **M** moves · **S** runs Detail's primary action · **X** toggles a plan item · **Esc** leaves.
 15. **[Mock-up: added]** Titles and properties edit in place. Properties live in Detail. The one exception: a set's collection and source sit on its Edit page.
 16. **[Mock-up: added]** An item sits in at most one collection. Collections nest one level. Deleting a collection leaves its items, ungrouped.
