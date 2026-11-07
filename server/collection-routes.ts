@@ -234,7 +234,12 @@ collectionRoutes.get("/deletions", async (c) => {
     "SELECT 'notes/' || d.id AS k, x.title AS t FROM deletions d JOIN notes x ON d.c = 'notes' AND x.id = 'note_' || d.id",
     [],
   );
-  for (const r of [...named, ...items, ...colls, ...notes]) {
+  const setsAndGoals = await rows<{ k: string; t: string | null }>(
+    c.env.DB,
+    "SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN sets x ON d.c = 'sets' AND x.id = d.id UNION ALL SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN goals x ON d.c = 'exams' AND x.id = d.id",
+    [],
+  );
+  for (const r of [...named, ...items, ...colls, ...notes, ...setsAndGoals]) {
     if (typeof r.t === "string" && r.t.trim()) titles.set(r.k, r.t.trim());
   }
   return c.json({
