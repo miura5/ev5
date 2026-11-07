@@ -2,8 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { continueJob, startJob } from '../runtime/index.ts';
-import type { Env, JobRecord, JobStore, Ceilings } from '../runtime/index.ts';
-import { cloudflareAdapter, runJob, workflowExecutor } from '../runtime/index.ts';
+import type { Env } from '../runtime/index.ts';
+import type { JobRecord, JobStore } from '../runtime/record.ts';
+import type { Ceilings } from '../runtime/workflow.ts';
+import { cloudflareAdapter, workflowExecutor } from '../runtime/index.ts';
+import { runJob } from '../runtime/workflow.ts';
 import { fakeWorkflows } from '../runtime/workflow.fake.ts';
 import type { ModelCall, ModelReply, ModelRequest } from '../runtime/output.ts';
 import {

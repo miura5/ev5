@@ -1,6 +1,6 @@
 // The shared Worker, fake Workflows and seeded record for the job route tests.
 import { readFileSync } from "node:fs";
-import { fakeWorkflows } from "../jobs/index.ts";
+import { fakeWorkflows } from "../jobs/runtime/workflow.fake.ts";
 import type { D1Like, ModelCall } from "../jobs/index.ts";
 import app from "./index.ts";
 import { runWorkflow } from "./job-run.ts";

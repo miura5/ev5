@@ -13,7 +13,7 @@ import type { DraftRow, PracticeItem } from "../practice-set/job.ts";
 
 /** The slice of D1 the stores use; the data folder defines it. */
 export type D1Like = DocsD1;
-export type D1Statement = ReturnType<D1Like["prepare"]>;
+type D1Statement = ReturnType<D1Like["prepare"]>;
 
 type Clock = () => number;
 

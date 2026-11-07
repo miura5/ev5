@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  maxCost,
   reserve,
   settle,
   release,
@@ -26,14 +25,6 @@ test("windowKeys", () => {
     month: "2026-11",
     job: "j",
   });
-});
-
-test("maxCost rounds up from supplied prices", () => {
-  assert.equal(
-    maxCost({ inputPerMTok: 1000, outputPerMTok: 5000 }, 1000, 1000),
-    6,
-  );
-  assert.equal(maxCost({ inputPerMTok: 1, outputPerMTok: 1 }, 1, 0), 1);
 });
 
 test("forced per-job hit fails cleanly with a plain reason and reserves nothing", async () => {

@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import type { ModelCall, ModelReply } from "../runtime/index.ts";
+import type { ModelCall } from "../runtime/index.ts";
+import type { ModelReply } from "../runtime/output.ts";
 import { parseSet } from "../../domain/index.ts";
 import { MODELS } from "../runtime/models.ts";
 import { outputSchema } from "../runtime/model-call.ts";

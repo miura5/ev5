@@ -69,19 +69,6 @@ export function validateConfig(c: CeilingConfig): void {
   }
 }
 
-// Worst-case cost of one call: all input tokens plus every output token the call may produce.
-// Prices are micro-dollars per million tokens, from models.ts.
-export function maxCost(
-  p: { inputPerMTok: number; outputPerMTok: number },
-  inputTokens: number,
-  maxOutputTokens: number,
-): number {
-  return Math.ceil(
-    (inputTokens * p.inputPerMTok + maxOutputTokens * p.outputPerMTok) /
-      1_000_000,
-  );
-}
-
 const usd = (micro: number) => `$${(micro / 1_000_000).toFixed(2)}`;
 const NAME: Record<Window, string> = {
   hour: "hourly",

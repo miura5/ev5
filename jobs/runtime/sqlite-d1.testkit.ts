@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "./d1-stores.ts";
+import type { D1Like } from "./d1-stores.ts";
+
+type D1Statement = ReturnType<D1Like["prepare"]>;
 
 // A real SQLite behind D1's interface (fake-d1 only knows the docs statements): batch is one transaction.
 export function sqliteD1(): D1Like {

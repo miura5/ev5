@@ -44,7 +44,6 @@ export {
   cloudflareAdapter,
 } from "./runtime/index.ts";
 export type { Env as StartEnv } from "./runtime/index.ts";
-export { fakeWorkflows } from "./runtime/workflow.fake.ts";
 export { runStructured, checkCitations } from "./runtime/output.ts";
 export { outputSchema } from "./runtime/model-call.ts";
 export { modelInfo } from "./runtime/models.ts";
