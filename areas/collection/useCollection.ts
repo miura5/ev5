@@ -46,7 +46,6 @@ const ROUTES: Record<string, string> = {
   notes: "notes",
   sets: "sets",
   goals: "goals",
-  exams: "goals",
   weakspots: "weak-spots",
 };
 /** A weak spot's name is its topic; the rest carry a title. */

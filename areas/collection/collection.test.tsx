@@ -134,7 +134,7 @@ test("pinned items are listed under Pinned, named from their docs", async () => 
     path.includes("pins")
       ? { pins: [{ collection: "notes", id: "n9", pos: 0, at: 3 }] }
       : path.startsWith("notes")
-        ? { rows: [{ id: "n9", title: "Insulin types" }] }
+        ? { rows: [{ id: "note_n9", title: "Insulin types" }] }
         : path.includes("memberships")
           ? { memberships: [] }
           : {

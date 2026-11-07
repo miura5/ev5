@@ -41,14 +41,13 @@ const ROUTES: Record<string, { path: string; prefix: string }> = {
   sets: { path: "sets", prefix: "set_" },
   weakspots: { path: "weak-spots", prefix: "ws_" },
 };
-const GOAL_KINDS = new Set(["exams", "goals"]);
+const GOAL_KINDS = new Set(["goals"]);
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TYPES: Record<string, GlyphType> = {
   notes: "note",
   collections: "collection",
   sets: "questions",
-  exams: "date",
   goals: "date",
 };
 
@@ -72,7 +71,7 @@ const openAt = (c: string, id: string): string | undefined => {
   const q = encodeURIComponent(id);
   if (c === "collections") return `/collection/${q}`;
   if (c === "notes") return `/notes?open=${q}`;
-  if (c === "sets" || c === "exams" || c === "weakspots")
+  if (c === "sets" || c === "goals" || c === "weakspots")
     return `/library?open=${q}`;
   return undefined;
 };
