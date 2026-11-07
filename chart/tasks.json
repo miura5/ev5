@@ -3906,7 +3906,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Run 2026-11-07 1537Z: settings reader already on main (#846, data/tables/jobs.ts settings.readNumbers); L5 done (#850): item.move, item.rename, note.move, set.update, set.item_update, date.update take an optional if_version and 409 only when stale. Left: callers in areas/ (Notes.screen, Collection.screen, useLibrary, useToday) must pass v: add v to those read models, then make if_version required (expand, migrate, contract). Also left: left_out callers in server/jobs, jobStores row reads bypass onBad, export WriteRefused via data/index.ts, merge the two gates; attempts part is on B-1022.",
+  "notes": "Run 1631Z: #863 (areas pass v, if_version required), #867 (job record reads report bad rows, GET /jobs left_out). Left: other store.list callers (sweep, status, handlers-prepplan, scheduled) pass no onBad; merge the two gates (docs gate vs data/tables/gate.ts) after the docs table goes. Attempts part is on B-1022.",
   "commit": null,
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1631Z",
@@ -4494,7 +4494,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 1537Z: (c) done (#849). Pure deletes (#855): domain/claude, system-doc, row.ts doc shapes for note, objective, session; Detail prop and legacy path in shell; itemProps, pinRows; empty ALLOWED sets in ops/checks chartev4 and sourceids. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Pure deletes still open: server/goal-wire.ts and weak-wire.ts (several callers), domain/doc-row (goal/set cases) , data/tables/own.ts (domain/own-set parsers used by row-shapes.test.ts), jobs/runtime/ceilings-memory.ts is a test helper (move to a test file or keep), ops/checks/migrationnames.ts one entry, POST /jobs/:id/dismiss and /jobs/:slug. docs/proposals/table-design.md line 129 names removed files.",
+  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it).",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4604,12 +4604,12 @@
   "title": "Model output uses the SDK's Zod helper",
   "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/runtime",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-997"
   ],
-  "notes": "Run 2026-11-07 1358Z: practice-set call and prep-plan draft skip the model when the result is already kept (#822); d1PracticeStore.find in server/job-run.ts (#825). zodOutputFormat already in use, no strip(). Gap: a throw from the first store put that never lands still pays for the model again; needs a runtime decision.",
-  "commit": null,
+  "notes": "Run 1631Z (#865): putKept retries the store put inside the step, so a put that throws without landing no longer re-pays the model; zodOutputFormat already in use.",
+  "commit": "dc377d1",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
   "claimedAt": "2026-11-07T16:48:08.593Z"
