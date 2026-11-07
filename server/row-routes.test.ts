@@ -153,3 +153,31 @@ test("plans and plan items are read as rows; a bad row is counted and left out",
   assert.equal((await get(DB, "/plan-items/pli_2")).body["minutes"], 30);
   assert.equal((await get(DB, "/plan-items/pli_zz")).status, 404);
 });
+
+test("item versions and session events are read as rows; a bad row is counted and left out", async () => {
+  const { DB } = await setup();
+  const run = (sql: string) => DB.prepare(sql).run();
+  await run(
+    "INSERT INTO set_item_versions (id, item_id, item_v, body, at, v) VALUES ('item_b@2', 'item_b', 2, '{}', 20, 1), ('item_b@1', 'item_b', 1, '{}', 10, 1), ('item_c@1', 'item_c', 1, 'not json', 10, 1)",
+  );
+  await run(
+    "INSERT INTO session_events (id, session_id, type, body, at, v) VALUES ('sese_2', 'ses_a', 'pause', NULL, 20, 1), ('sese_1', 'ses_a', 'start', NULL, 10, 1), ('sese_bad', 'ses_a', 'nope', NULL, 30, 1)",
+  );
+  const vers = await get(DB, "/item-versions");
+  assert.equal(vers.status, 200);
+  assert.deepEqual(
+    vers.body["rows"].map((r: { id: string }) => r.id),
+    ["item_b@1", "item_b@2"],
+  );
+  assert.equal(vers.body["left_out"], 1);
+  assert.equal((await get(DB, "/item-versions/item_b@2")).body["item_v"], 2);
+  assert.equal((await get(DB, "/item-versions/item_zz")).status, 404);
+  const ev = await get(DB, "/session-events");
+  assert.deepEqual(
+    ev.body["rows"].map((r: { id: string }) => r.id),
+    ["sese_1", "sese_2"],
+  );
+  assert.equal(ev.body["left_out"], 1);
+  assert.equal((await get(DB, "/session-events/sese_1")).body["type"], "start");
+  assert.equal((await get(DB, "/session-events/sese_zz")).status, 404);
+});
