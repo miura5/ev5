@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Note document (schema 1): a title, a course and a body of
+// Note document (schema 1): a title and a body of
 // blocks of plain-text runs with inline marks. No HTML is ever stored.
 export const BLOCK_TYPES = ['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'todo'] as const;
 export const LIST_TYPES = ['ul', 'ol', 'todo'] as const;
@@ -13,7 +13,6 @@ export const MAX = {
   text: 20000,
   href: 2000,
   title: 300,
-  label: 80,
   alt: 300,
   indent: 6,
   imgMin: 40,
@@ -57,15 +56,10 @@ export const noteSchema = z.strictObject({
   schema: z.literal(1),
   writer: z.literal('page'),
   at: time,
-  source: z.string().min(1),
   createdAt: time,
   title: z.string().max(MAX.title),
-  course: z.string().min(1).nullable().optional(),
-  label: z.string().max(MAX.label).optional(),
   blocks: z.array(blockSchema).max(MAX.blocks),
   editedAt: time.optional(),
   earlierOf: z.string().regex(EARLIER_OF).optional(),
-  archivedAt: time.nullable().optional(),
-  discardedAt: time.nullable().optional(),
 });
 export type Note = z.infer<typeof noteSchema>;

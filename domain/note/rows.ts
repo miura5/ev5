@@ -4,10 +4,7 @@ import { noteSchema, type Note } from "./types.ts";
 
 // A note as a row (§data.tables, §data.notes). The row's id is the document id with `note_` in front. The title, the earlier
 // link and the plain text are columns; `body` is the block format only (§data.notes): the blocks and the two stamps
-// createdAt and editedAt. The old document fields (source, course, label, archivedAt, discardedAt) are not stored; a
-// stored body that still carries them is read without them. `at` is the row's own stamp.
-/** The `source` every note reads back with: the row no longer stores it. */
-const NOTE_SOURCE = "E.V. Home";
+// createdAt and editedAt. `at` is the row's own stamp.
 const iso = (ms: number) => new Date(ms).toISOString();
 
 export const noteRowId = (docId: string) => `note_${docId}`;
@@ -60,7 +57,6 @@ export function noteDocOf(row: NoteTableRow): Note {
     ...(editedAt === undefined ? {} : { editedAt }),
     schema: 1,
     writer: "page",
-    source: NOTE_SOURCE,
     at: iso(row.at),
     title: row.title,
     ...(row.earlier_of === null

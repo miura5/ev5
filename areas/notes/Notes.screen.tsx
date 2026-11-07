@@ -179,7 +179,6 @@ export function NotesScreen({
           ...toPage(cur.id, cur.note, saveState, today),
           collectionName:
             collections.find((c) => c.id === members.get(cur.id))?.title ??
-            cur.note.course ??
             null,
         }}
         editor={

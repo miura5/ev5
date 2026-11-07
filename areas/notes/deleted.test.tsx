@@ -13,7 +13,6 @@ const note = (title: string) =>
   noteDoc(null, {
     blocks: [{ type: "h1", runs: [{ text: title }] }],
     at: "2026-11-01T10:00:00.000Z",
-    source: "v5/notes",
   });
 
 const services = (): NotesServices => ({

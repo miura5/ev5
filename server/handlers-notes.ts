@@ -19,7 +19,6 @@ import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
 
-const SOURCE = "v5/notes";
 /** A note document id, as server/note-wire.ts accepts it. */
 const NOTE_ID = /^n-[A-Za-z0-9-]{1,120}$/;
 
@@ -82,7 +81,7 @@ export const noteHandlers: Record<string, CommandHandler> = {
       ))
     )
       throw new CommandError(404, `no collection ${i.collection}`);
-    const doc = noteDoc(null, { blocks: [], at, source: SOURCE });
+    const doc = noteDoc(null, { blocks: [], at });
     const made = await tablesRepo(x.db, { clock: x.clock }).noteBook.create(
       newNoteRow(id, doc, i.collection ?? null),
     );
@@ -113,7 +112,6 @@ export const noteHandlers: Record<string, CommandHandler> = {
       const doc = noteDoc(prev, {
         blocks: noteBlocks(blocksOf(i.body)),
         at: iso(x.clock()),
-        source: SOURCE,
       });
       if (i.title !== undefined) doc.title = i.title;
       if (!prev && i.earlier_of) doc.earlierOf = i.earlier_of;
