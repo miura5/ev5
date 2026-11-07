@@ -34,8 +34,8 @@ export interface CommandSpec<S extends z.ZodType = z.ZodType> {
 
 export type Command<S extends z.ZodType = z.ZodType> = Readonly<CommandSpec<S>>;
 
-// E.V. can never call these (§cmd.propose): delete, restore, pin, approve, keep or drop, mark as learned, "just tell me".
-const NEVER_EV = /(?:^|[._])(?:delete|restore|pin|unpin|approve|accept|keep|drop|keep_all|drop_all|mark_learned|just_tell_me)(?:$|[._])/;
+// E.V. can never call these (§cmd.propose): delete,  confirm, decline, dismiss, reject, restore, pin, approve, keep or drop, mark as learned, "just tell me".
+const NEVER_EV = /(?:^|[._])(?:delete|restore|pin|unpin|approve|accept|keep|drop|confirm|decline|dismiss|reject|keep_all|drop_all|mark_learned|just_tell_me)(?:$|[._])/;
 const NAME = /^[a-z]+(?:\.[a-z_]+|_[a-z_]+)?$/;
 
 export function defineCommand<S extends z.ZodType>(spec: CommandSpec<S>): Command<S> {
