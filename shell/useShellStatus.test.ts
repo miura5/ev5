@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
+import { createReadCopy } from "./readCopy.ts";
+import { memoryCopyStore } from "./readCopy.testkit.ts";
 import { statusFromJobs, useShellStatus } from "./useShellStatus.ts";
 
 describe("statusFromJobs", () => {

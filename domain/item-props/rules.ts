@@ -27,12 +27,3 @@ export type DayDoc = {
 export function missingOccurrences(day: DayDoc | null, found: readonly Occurrence[]): Occurrence[] {
   return found.filter((o) => !(day?.added && o.key in day.added) && !(day?.skipped && o.key in day.skipped));
 }
-
-/** Linked targets that do not resolve, reported as text, never dropped. */
-export function linkedProblems(rows: readonly ItemProps[], exists: (c: string, id: string) => boolean): string[] {
-  const out: string[] = [];
-  for (const r of rows)
-    if (r.linked && !exists(r.linked.c, r.linked.id))
-      out.push(`${r.c}/${r.id}: linked ${r.linked.c}/${r.linked.id} not found`);
-  return out;
-}

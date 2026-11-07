@@ -55,8 +55,3 @@ export function chunkMaterials(materials: Material[], chunkChars = CHUNK_CHARS):
   }
   return out;
 }
-
-/** How a passage is named: "a source file, p. 12" or "Chapter 7 ppt, slide 4". */
-export const cite = (p: Pick<Passage, 'id' | 'title' | 'page' | 'unit'>): string =>
-  (p.title || p.id).replace(/\.(pdf|docx|pptx)$/i, '') +
-  (p.page ? (p.unit === 'slide' ? ', slide ' : ', p. ') + p.page : '');

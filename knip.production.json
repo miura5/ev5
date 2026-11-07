@@ -20,12 +20,6 @@
     "domain/collection/**": [
       "exports"
     ],
-    "domain/goal/**": [
-      "exports"
-    ],
-    "domain/item-props/**": [
-      "exports"
-    ],
     "domain/note/**": [
       "exports"
     ],
@@ -38,22 +32,7 @@
     "domain/pin/**": [
       "exports"
     ],
-    "domain/plan/**": [
-      "exports"
-    ],
-    "domain/search/**": [
-      "exports"
-    ],
     "domain/session/**": [
-      "exports"
-    ],
-    "domain/set/**": [
-      "exports"
-    ],
-    "domain/settings/**": [
-      "exports"
-    ],
-    "domain/time/**": [
       "exports"
     ],
     "domain/weak-spot/**": [
@@ -63,9 +42,6 @@
       "exports"
     ],
     "jobs/runtime/**": [
-      "exports"
-    ],
-    "shell/**": [
       "exports"
     ]
   }

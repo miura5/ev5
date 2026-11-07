@@ -1,7 +1,8 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "vitest";
 import { SavedCopyNotice } from "./SavedCopyNotice.tsx";
-import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
+import { createReadCopy } from "./readCopy.ts";
+import { memoryCopyStore } from "./readCopy.testkit.ts";
 
 afterEach(cleanup);
 

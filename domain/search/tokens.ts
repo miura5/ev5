@@ -41,9 +41,3 @@ export const tokenize = (s: string): string[] => words(s).map(stem);
 
 /** The `%word%` patterns for a SQL `LIKE` over docs: one per distinct query word (words are a-z and 0-9 only, so nothing needs escaping). */
 export const likePatterns = (query: string): string[] => [...new Set(words(query))].map((w) => `%${w}%`);
-
-/** The match a `LIKE` over the patterns makes, case-insensitive: the text holds at least one query word. */
-export function likeMatch(text: string, query: string): boolean {
-  const t = text.toLowerCase();
-  return words(query).some((w) => t.includes(w));
-}

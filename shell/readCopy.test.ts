@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { savedFirst } from "../commands/client.ts";
-import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
+import { createReadCopy } from "./readCopy.ts";
+import { memoryCopyStore } from "./readCopy.testkit.ts";
 
 const offline = async (): Promise<never> => {
   throw new TypeError("offline");
