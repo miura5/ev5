@@ -1,6 +1,6 @@
 // Notes (CONTRACT §cmd.registry, §data.protocol): a note is a row of `notes` written on the tables gate with the version
 // read, so a stale save is a 409 and the screen keeps both (the outbox's job). A note's collection is its row's
-// `collection_id`, mirrored in a `memberships` row for the collection screens. "New here" makes a note, set, date or collection inside the collection Matt is looking at.
+// `collection_id`, which GET /memberships reads for the collection screens (no `memberships` row is written). "New here" makes a note, set, date or collection inside the collection Matt is looking at.
 import {
   centralDate,
   newNoteId,
@@ -44,20 +44,12 @@ function blocksOf(body: string): unknown {
     .map((text) => ({ type: "p", runs: [{ text }] }));
 }
 
-async function place(x: HandlerCtx, itemC: string, id: string, to: string) {
+/** The collection a note is made in or moved to must exist (§data.membership). */
+async function needCollection(x: HandlerCtx, to: string) {
   const t = tablesRepo(x.db, { clock: x.clock });
   if (!(await t.collectionRows.get(to)))
     throw new CommandError(404, `no collection ${to}`);
-  const cur = await t.memberships.get(itemC, id);
-  const r = await t.memberships.save(
-    { itemC, itemId: id, collectionId: to },
-    cur ? cur.v : null,
-  );
-  if (!r.ok) throw new CommandError(409, "that item changed; try again");
 }
-
-/** Puts an item in a collection (the set and note handlers share it). */
-export { place };
 
 /** The row's own columns, for a change that keeps all but one. */
 const fieldsOf = ({ at: _a, v: _v, deleted_at: _d, ...f }: NoteTableRow) => f;
@@ -86,7 +78,6 @@ export const noteHandlers: Record<string, CommandHandler> = {
       newNoteRow(id, doc, i.collection ?? null),
     );
     if (!made.ok) throw new CommandError(409, "that changed; try again");
-    if (i.collection) await place(x, "notes", id, i.collection);
     return { id, ...(i.collection ? { collection: i.collection } : {}) };
   },
 
@@ -96,7 +87,8 @@ export const noteHandlers: Record<string, CommandHandler> = {
     const book = tablesRepo(x.db, { clock: x.clock }).noteBook;
     const cur = await book.get(noteRowId(i.id));
     const stale = new CommandError(409, "that changed; try again");
-    if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0)) throw stale;
+    if (i.if_version !== undefined && i.if_version !== (cur?.v ?? 0))
+      throw stale;
     if (!cur && i.if_version === undefined)
       throw new CommandError(404, `no notes entry ${i.id}`);
     let prev: Note | null = null;
@@ -106,7 +98,8 @@ export const noteHandlers: Record<string, CommandHandler> = {
       } catch {
         throw new CommandError(409, `${i.id} is not a note this app can edit`);
       }
-    } else if (!NOTE_ID.test(i.id)) throw new CommandError(400, `${i.id} is not a note id`);
+    } else if (!NOTE_ID.test(i.id))
+      throw new CommandError(400, `${i.id} is not a note id`);
     let row;
     try {
       const doc = noteDoc(prev, {
@@ -122,16 +115,14 @@ export const noteHandlers: Record<string, CommandHandler> = {
     } catch {
       throw new CommandError(400, "that is not a note body");
     }
-    const saved = cur
-      ? await book.change(row, cur.v)
-      : await book.create(row);
+    const saved = cur ? await book.change(row, cur.v) : await book.create(row);
     if (!saved.ok) throw stale;
     return { id: i.id, version: saved.row.v };
   },
 
   "note.move": async (i: { id: string; collection: string }, _c, x) => {
     const cur = await needNote(x, i.id);
-    await place(x, "notes", i.id, i.collection);
+    await needCollection(x, i.collection);
     const moved = await tablesRepo(x.db, { clock: x.clock }).noteBook.change(
       { ...fieldsOf(cur), collection_id: i.collection },
       cur.v,
