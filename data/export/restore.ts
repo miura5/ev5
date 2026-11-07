@@ -61,10 +61,10 @@ export function checkRows(
         `membership ${m.item_c}/${m.item_id}: collection ${m.collection_id} missing`,
       );
   }
-  const sets = new Set((rows.own_sets ?? []).map((r) => r.id as string));
-  for (const i of rows.own_set_items ?? [])
+  const sets = new Set((rows.sets ?? []).map((r) => r.id as string));
+  for (const i of rows.set_items ?? [])
     if (!sets.has(i.set_id as string))
-      orphans.push(`own_set_item ${i.set_id}/${i.item_id}: set missing`);
+      orphans.push(`set_item ${i.set_id}/${i.id}: set missing`);
   for (const a of rows.own_attempts ?? [])
     if (!sets.has(a.set_id as string))
       orphans.push(`own_attempt ${a.set_id}/${a.item_id}: set missing`);
