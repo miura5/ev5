@@ -103,8 +103,8 @@ test("offline, Today shows the saved exams and weak spots", async () => {
     }),
   );
   const copy = fakeCopy({
-    "today:goals": [exam],
-    "today:weak-spots": [],
+    "rows:goals": [exam],
+    "rows:weak-spots": [],
   });
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() => expect(result.current.data).toBeTruthy());
@@ -118,13 +118,13 @@ test("a 5xx shows the error, not the saved copy, and keeps the copy", async () =
     vi.fn(async () => json({}, 503)),
   );
   const saved = [exam];
-  const copy = fakeCopy({ "today:goals": saved, "today:weak-spots": [] });
+  const copy = fakeCopy({ "rows:goals": saved, "rows:weak-spots": [] });
   const { result } = renderHook(() => useToday(copy));
   await waitFor(() =>
     expect(result.current.error).toBe(failureSentence("server")),
   );
   expect(result.current.data).toBeUndefined();
-  expect(copy.kept["today:goals"]).toBe(saved);
+  expect(copy.kept["rows:goals"]).toBe(saved);
 });
 
 test("a 401 shows no data and no sentence, and tells the shell", async () => {
@@ -166,9 +166,7 @@ test("Today follows a plan job that changes while it is open", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string) =>
-      url.includes("jobs")
-        ? json({ jobs })
-        : rowsAnswer(url),
+      url.includes("jobs") ? json({ jobs }) : rowsAnswer(url),
     ),
   );
   const { result } = renderHook(() => useToday());
@@ -215,9 +213,7 @@ test("Today sends every read at once, and a second visit opens on the saved answ
   };
   const pending: ((r: Response) => void)[] = [];
   const answer = (url: string) =>
-    url.includes("jobs")
-      ? json({ jobs: [] })
-      : rowsAnswer(url);
+    url.includes("jobs") ? json({ jobs: [] }) : rowsAnswer(url);
   // The server holds every answer until all nine reads have gone out.
   vi.stubGlobal(
     "fetch",

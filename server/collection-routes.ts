@@ -236,7 +236,7 @@ collectionRoutes.get("/deletions", async (c) => {
   );
   const setsAndGoals = await rows<{ k: string; t: string | null }>(
     c.env.DB,
-    "SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN sets x ON d.c = 'sets' AND x.id = d.id UNION ALL SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN goals x ON d.c = 'exams' AND x.id = d.id UNION ALL SELECT 'sessions/' || d.id AS k, x.topic AS t FROM deletions d JOIN sessions x ON d.c = 'sessions' AND x.id = d.id",
+    "SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN sets x ON d.c = 'sets' AND x.id = d.id UNION ALL SELECT d.c || '/' || d.id AS k, x.title AS t FROM deletions d JOIN goals x ON d.c = 'goals' AND x.id = d.id UNION ALL SELECT 'sessions/' || d.id AS k, x.topic AS t FROM deletions d JOIN sessions x ON d.c = 'sessions' AND x.id = d.id",
     [],
   );
   for (const r of [...named, ...items, ...colls, ...notes, ...setsAndGoals]) {

@@ -80,12 +80,12 @@ test("a set and a goal are soft-deleted by a row mark and come back on restore",
       .all()
       .map((r) => ({ ...r })),
     [
-      { c: "exams", id: "goal_a" },
+      { c: "goals", id: "goal_a" },
       { c: "sets", id: "set_a" },
     ],
   );
   assert.equal(await repo.deletions.restore("sets", "set_a"), 1);
-  assert.equal(await repo.deletions.restore("exams", "goal_a"), 1);
+  assert.equal(await repo.deletions.restore("goals", "goal_a"), 1);
   assert.equal(mark("sets", "set_a").deleted_at, null);
   assert.equal(mark("goals", "goal_a").deleted_at, null);
   assert.equal(mark("sets", "set_a").v, 3);

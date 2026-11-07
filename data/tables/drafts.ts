@@ -210,8 +210,8 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
       },
       /** Soft delete of a set by its id (`set_…`): a deletions row under `sets`, and the row's `deleted_at`. False when it is missing or already deleted. */
       markSet: (id: string): Promise<boolean> => markRow("sets", "sets", id),
-      /** Soft delete of a goal by its id (`goal_…`): a deletions row under `exams` (the name GET /docs gives goals), and the row's `deleted_at`. */
-      markGoal: (id: string): Promise<boolean> => markRow("goals", "exams", id),
+      /** Soft delete of a goal by its id (`goal_…`): a deletions row under `goals`, and the row's `deleted_at`. */
+      markGoal: (id: string): Promise<boolean> => markRow("goals", "goals", id),
       /** Soft delete of a session by its id (`ses_…`): a deletions row under `sessions`, and the row's `deleted_at`. */
       markSession: (id: string): Promise<boolean> =>
         markRow("sessions", "sessions", id),
@@ -239,7 +239,7 @@ export function draftsRepo(db: D1Like, opts: TablesOptions) {
               ? ["notes", `note_${id}`]
               : c === "sets"
                 ? ["sets", id]
-                : c === "exams"
+                : c === "goals"
                   ? ["goals", id]
                   : c === "sessions"
                     ? ["sessions", id]

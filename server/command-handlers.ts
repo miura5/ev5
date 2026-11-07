@@ -26,7 +26,7 @@ type Ref = { id: string };
 type Tables = ReturnType<typeof tablesRepo>;
 
 /** The collection name an item is pinned, moved, renamed and deleted under, read from its row (§data.tables). A set or
- * a goal is named by its id prefix: `set_` is "sets" and `goal_` is "exams" (the goal as GET /docs names it). A note is
+ * a goal is named by its id prefix: `set_` is "sets" and `goal_` is "goals". A note is
  * found by its row id and a session by its own. No document is read. */
 async function collectionOf(
   t: Tables,
@@ -34,7 +34,7 @@ async function collectionOf(
   o: { deleted?: boolean } = {},
 ): Promise<string> {
   if (id.startsWith("set_") && (await t.sets.get(id, o))) return "sets";
-  if (id.startsWith("goal_") && (await t.goals.get(id, o))) return "exams";
+  if (id.startsWith("goal_") && (await t.goals.get(id, o))) return "goals";
   if (await t.noteBook.get(noteRowId(id), o)) return "notes";
   if (await t.sessionBook.get(id, o)) return "sessions";
   throw new CommandError(404, `no item ${id}`);
@@ -141,7 +141,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
     if (c === "notes") return { deleted: await t.deletions.markNote(i.id) };
     // A set or a goal is a row too: hidden there and listed in Recently deleted (§delete.soft).
     if (c === "sets") return { deleted: await t.deletions.markSet(i.id) };
-    if (c === "exams") return { deleted: await t.deletions.markGoal(i.id) };
+    if (c === "goals") return { deleted: await t.deletions.markGoal(i.id) };
     // A session is a row too: hidden there and listed in Recently deleted (§delete.soft).
     return { deleted: await t.deletions.markSession(i.id) };
   },
@@ -205,7 +205,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
       if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { version: r.row.v };
     }
-    const goalRow = c === "exams" ? await t.goals.get(i.id) : null;
+    const goalRow = c === "goals" ? await t.goals.get(i.id) : null;
     if (goalRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = goalRow;
       const r = await t.goals.save({ ...f, title: i.title }, goalRow.v);
