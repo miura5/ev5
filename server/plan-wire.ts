@@ -1,6 +1,7 @@
 // Plans as the screens read them (CONTRACT §data.tables, §data.gate): the `plans` and `plan_items` rows, served as rows (the
 // `plans` and `plan_items` collections).
 import { tablesRepo } from "../data/index.ts";
+import type { Reads } from "./read-report.ts";
 import type { DocsD1 } from "../data/index.ts";
 
 export interface WirePlan {
@@ -14,8 +15,13 @@ export interface WirePlan {
 export async function planRowDocs(
   db: DocsD1,
   clock: () => number,
+  reads?: Reads,
 ): Promise<WirePlan[]> {
-  const plans = await tablesRepo(db, { clock }).plans.list();
+  const plans = await tablesRepo(db, {
+    clock,
+    onBad: reads?.onBad,
+  }).plans.list();
+  reads?.counted("plans", plans);
   return plans
     .map((p) => ({
       id: p.id,
@@ -30,8 +36,13 @@ export async function planRowDocs(
 export async function planItemDocs(
   db: DocsD1,
   clock: () => number,
+  reads?: Reads,
 ): Promise<WirePlan[]> {
-  const items = await tablesRepo(db, { clock }).planItems.list();
+  const items = await tablesRepo(db, {
+    clock,
+    onBad: reads?.onBad,
+  }).planItems.list();
+  reads?.counted("plan_items", items);
   return [...items]
     .sort((a, b) => a.day.localeCompare(b.day) || a.pos - b.pos)
     .map((i) => ({

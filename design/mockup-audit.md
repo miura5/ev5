@@ -52,7 +52,7 @@
 | Type | Controls |
 |---|---|
 | Plan item | Title in place · Status (toggle) · Date, Time, Estimate, Repeat (edit in place, `↵` saves) · Linked (picker: sets and notes) · Collection (picker) · Start / Mark not done · Move to tomorrow · ⋯ |
-| Date | Title in place · Date, Time, Repeat · Kind (picker: Exam, Other) · Collection · Linked · weak spots for this date · on an exam only: Review the prep plan or Plan with E.V. · ⋯ |
+| Date | Title in place · Date · Kind (picker: Exam, Other) · Collection · weak spots for this date · on an exam only: Review the prep plan or Plan with E.V. · ⋯ |
 | Weak spot | Lately, Missed on, Next review · Drill from (opens set) · Matters for (opens date) · Drill `S` · Mark as learned · menu: Drill / Mark as learned |
 | Saved view | Shows (plan items / sets with cards due / dates / notes edited) · Within 7/14/30 days · Sort by date / newest. Applies live |
 | Job | Steps with status dots · Started by, Output, Cost · by state: Stop (running) · Retry, shorter / Dismiss (failed) · Open the set (drafts waiting) |
@@ -73,6 +73,7 @@
 | Control | Effect |
 |---|---|
 | Accuracy line | Progress |
+| Tabs: Practice · Weak spots · Dates · Sets | Show that list. A count is the size of the tab's list |
 | Write with E.V. | New set in Edit mode with the drafting form open |
 | New set, `C` | New blank set in Edit mode, title ready to type |
 | Recent tiles · All sets tiles | Set page. The running job's tile shows Activity |
@@ -216,7 +217,7 @@ Status: **OK** = matches a source · **NEW** = added in rounds 5–7 at Matt's r
    - collections of any kind, and nesting;
    - pins and saved views;
    - plan-item time, repeat and linked item;
-   - dates of any kind, each with its kind;
+   - dates of any kind, each with its kind (title, date, kind and collection only);
    - set items typed by hand, and step sets;
    - E.V.'s drafts awaiting keep or drop;
    - "Mark as learned" on a weak spot.

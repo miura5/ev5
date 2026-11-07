@@ -7,7 +7,12 @@ export type Caller = "app" | "schedule" | "executor";
 /** Route prefixes each caller may reach. Only the app token changes ceilings (§sec.auth), so it alone may reach /api/v1/ceilings. */
 export const SCOPES: Record<Caller, readonly string[]> = {
   app: ["/api/v1/"],
-  schedule: ["/api/v1/jobs", "/api/v1/jobs/", "/api/v1/commands/", "/api/v1/whoami"],
+  schedule: [
+    "/api/v1/jobs",
+    "/api/v1/jobs/",
+    "/api/v1/commands/",
+    "/api/v1/whoami",
+  ],
   executor: ["/api/v1/executor/", "/api/v1/commands/", "/api/v1/whoami"],
 };
 
@@ -72,6 +77,8 @@ export function createLimiter(
 
 export interface AuthVars {
   caller: Caller;
+  /** Set first on every request so a log line and the answer can name the same id. */
+  requestId: string;
 }
 
 /** Middleware: 429 when the client has too many wrong attempts, 401 for a missing or wrong token, 403 outside scope. */
