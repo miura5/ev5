@@ -11,3 +11,5 @@ export { exportAll, checkPictures } from "./export/index.ts";
 export { WriteRefused } from "./tables/gate.ts";
 /** @public The shape of a session read with its events. */
 export type { StoredSession } from "./tables/sessions.ts";
+/** One batch for a command's writes (§data.gate): queued writes sent together, a stale version or taken id rolls all back. */
+export { batchWrites } from "./tables/batch.ts";

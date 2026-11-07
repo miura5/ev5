@@ -3,6 +3,7 @@
 // A link to a deleted end that is later purged is the drill's orphan report, not a write rule.
 import { parseGoalRow, parseLinkRow } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
+import { batchWrites } from "./batch.ts";
 import { insertConflict, type TablesOptions } from "./core.ts";
 import { gateRow, WriteRefused } from "./gate.ts";
 import type { Fields } from "./kinds.ts";
@@ -68,22 +69,24 @@ export function linkRepo(db: D1Like, opts: TablesOptions) {
             "links",
             `objective ${l.from_id} does not exist`,
           );
+      const b = batchWrites(db);
       const insert = (table: string, row: Record<string, unknown>) => {
         const names = Object.keys(row);
-        return db
-          .prepare(
-            `INSERT INTO ${table} (${names.map((n) => `"${n}"`).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`,
-          )
-          .bind(...names.map((n) => row[n] as string | number | null));
+        b.add(
+          db
+            .prepare(
+              `INSERT INTO ${table} (${names.map((n) => `"${n}"`).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`,
+            )
+            .bind(...names.map((n) => row[n] as string | number | null)),
+        );
       };
+      insert("goals", goalRow);
+      for (const l of linkRows) insert("links", l);
       try {
-        await db.batch([
-          insert("goals", goalRow),
-          ...linkRows.map((l) => insert("links", l)),
-        ]);
+        if (!(await b.flush()))
+          return { ok: false as const, conflict: true as const };
       } catch (e) {
         insertConflict("goals", e);
-        return { ok: false as const, conflict: true as const };
       }
       return { ok: true as const, goal: goalRow, links: linkRows };
     },

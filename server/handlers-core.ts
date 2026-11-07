@@ -36,3 +36,11 @@ export type CommandHandler = (
   caller: Caller,
   ctx: HandlerCtx,
 ) => Promise<unknown>;
+
+/** Sends a command's queued writes (data `batchWrites`) as one batch; a taken id or stale version is a 409. */
+export async function flushWrites(
+  w: { flush(): Promise<boolean> },
+  conflict = "that changed; try again",
+): Promise<void> {
+  if (!(await w.flush())) throw new CommandError(409, conflict);
+}
