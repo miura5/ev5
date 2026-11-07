@@ -1,0 +1,133 @@
+.kit-horizon {
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+}
+
+.kit-horizon[role="button"] {
+  cursor: pointer;
+}
+
+.kit-horizon[role="button"]:hover {
+  background: var(--hover);
+}
+
+.kit-horizon:focus-visible {
+  outline: var(--focus-ring) solid var(--text);
+  outline-offset: calc(-1 * var(--focus-ring));
+}
+
+.kit-horizon-wide {
+  padding: var(--sp-2) 0 0;
+}
+
+.kit-horizon svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Bars are data: --quiet keeps 3:1 or more on the sidebar and on hover in both themes */
+.kit-horizon-bar {
+  fill: var(--quiet);
+}
+
+.kit-horizon-bar.today {
+  fill: var(--text);
+}
+
+/* The day being read gets a short tick above its bar, so it never looks like today */
+.kit-horizon-tick {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.kit-horizon-day.sel .kit-horizon-tick {
+  opacity: 1;
+}
+
+/* An empty day is a hairline in --faint, which keeps 3:1 */
+.kit-horizon-zero {
+  stroke: var(--faint);
+  stroke-width: var(--hairline);
+}
+
+/* Posts are solid. Dashes belong to E.V.'s proposals and the step meter. */
+.kit-horizon-post {
+  stroke: var(--quiet);
+  stroke-width: var(--hairline);
+}
+
+.kit-horizon-tag {
+  font: 500 var(--fs-meta) / 1 var(--sans);
+  fill: var(--quiet);
+}
+
+.kit-horizon-dl {
+  font: 400 var(--fs-meta) / 1 var(--sans);
+  fill: var(--faint);
+}
+
+.kit-horizon-dl.today {
+  font-weight: 500;
+  fill: var(--text);
+}
+
+.kit-horizon-hit {
+  fill: transparent;
+}
+
+.kit-horizon-line {
+  display: block;
+  padding-top: var(--sp-1);
+  font-size: var(--fs-meta);
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kit-horizon-line b {
+  font-weight: 500;
+  color: var(--quiet);
+}
+
+/* Dates mode: the rail from the Coming up read alone. A faint baseline, a tick per day (a taller one each week),
+   today's mark in quiet grey and a quiet dot on each dated day. A ring marks the day being read, so it never looks like today. */
+.kit-horizon-base,
+.kit-horizon-mark {
+  stroke: var(--line2);
+  stroke-width: var(--hairline);
+}
+
+.kit-horizon-mark.wk {
+  stroke: var(--faint);
+}
+
+.kit-horizon-now {
+  stroke: var(--quiet);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.kit-horizon-dot {
+  fill: var(--quiet);
+}
+
+.kit-horizon-ring {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+  opacity: 0;
+}
+
+.kit-horizon-day.sel .kit-horizon-ring {
+  opacity: 1;
+}
+
+.kit-horizon-day.sel .kit-horizon-dot {
+  fill: var(--text);
+}

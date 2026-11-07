@@ -1,9 +1,9 @@
 // The Worker's cron entry (CONTRACT §cmd.registry): each fire runs the registry's schedule commands whose cadence matches
 // that cron, through the same handlers the routes use. Only instant commands run here; job-effect ones attach with S-80.
 import { centralDate, centralParts, isDue, weekday } from "../domain/index.ts";
-import { d1JobStore, newJob } from "../jobs/index.ts";
+import { newJob } from "../jobs/index.ts";
 import { commands } from "../commands/index.ts";
-import { exportAll } from "../data/index.ts";
+import { exportAll, tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 import { readReport } from "./read-report.ts";
 import { commandHandlers } from "./command-handlers.ts";
@@ -66,7 +66,10 @@ export async function runScheduled(
 ): Promise<string[]> {
   const ran: string[] = [];
   const reads = readReport(`scheduled-${now}`);
-  const store = d1JobStore(env.DB as never, () => now, reads.onBad);
+  const store = tablesRepo(env.DB as never, {
+    clock: () => now,
+    onBad: reads.onBad,
+  }).jobRecords;
   let records: Awaited<ReturnType<typeof store.list>> | undefined;
   for (const c of commands) {
     if (c.name === "export" && c.callers.schedule) {
@@ -98,7 +101,7 @@ export async function runScheduled(
       cron === "*/15 * * * *"
     ) {
       try {
-        records ??= await store.list();
+        records ??= await store.list({ since: now - 2 * 24 * 60 * 60 * 1000 });
         const kind = SCHEDULED_KINDS[c.name];
         const runDates = records
           .filter((r) => r.kind === kind)

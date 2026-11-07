@@ -3735,10 +3735,10 @@
   "title": "Deleting is risky and hard to find: a collection's Delete has no Undo and lands you on the next collection with Delete under the pointer, and a note can only be deleted from a collection page",
   "dod": "Delete on a collection, a note or a row shows a toast with Undo, as in design/mockup.html (toast with undo); after deleting a collection the page goes to Notes, not to another collection; the row menu (right-click, the dots or the . key) on Notes and on a note page has Open, Pin, Move and Delete; test; seen on staging.",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-07 lane B (#858): note page menu drops Open and the duplicate Delete button. By-collection rows already had the menu (CollectionTree wraps RowActions; rowMenu.test.tsx). Part for lane A: Pin never shows Unpin on Notes rows (Notes needs the pinned flag; item.pin/item.unpin exist). Left: staging look at the note page menu and By-collection rows.",
-  "commit": null,
+  "notes": "Run 2026-11-07 lane B (#858): note page menu drops Open and the duplicate Delete button. By-collection rows already had the menu (CollectionTree wraps RowActions; rowMenu.test.tsx). Part for lane A: Pin never shows Unpin on Notes rows (Notes needs the pinned flag; item.pin/item.unpin exist). Left: staging look at the note page menu and By-collection rows. Matt's staging check 2026-11-07 18:08Z saw Open on the note page menu and new notes refused as \"n-… is not a note id\": both are code from before 16:46Z (#858, #864), so his open tab ran an old build (see B-986). Thread fix PR: the note page dots now sit at the end of its meta line, as in the mock-up, so the menu opens beside them; server note.save checks ids with the domain rule (noteIdOk) with a test. Left: delete and Undo on staging after a fresh load. Seen on staging 2026-11-07 18:36Z (Matt's check 5): pass, but only after he cleared the page's site data, reloaded and signed in again; a plain reload kept the old build. Cause: the service worker had no skipWaiting/clientsClaim since the plugin register switch (vite-plugin-pwa sets them only with its own injected register), so a new build waited behind the open tab. Fixed in this PR (vite.config.ts workbox skipWaiting, clientsClaim). Done.",
+  "commit": "d58323a",
   "source": "Visual playtest 6 of staging in Matt's Chrome, 2026-11-05 (screenshots in the ev-build project folder playtest-2026-11-05-run6)",
   "words": "playtest 6",
   "reportedAt": "2026-11-05T12:52:59.458Z"
@@ -3763,10 +3763,10 @@
   "title": "Today and Progress don't follow the mock-up",
   "dod": "Today matches design/mockup.html #today and Progress matches #progress, in both themes, seen on staging; no Courses section in the sidebar and no course dots on Today; every pinned collection with a linked date shows the day of its next linked date; Progress has the mock-up's sections only, with no Minutes section (§ui.mockup, D-511)",
   "milestone": "Phase 5",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-06 (#636): course dots gone from Today, Progress Minutes section removed (D-511), sidebar pins show next linked date (shell/usePins.ts; assumes a memberships row with item_c exams links a date; check on staging), CONTRACT §ui.sidebar reworded. LEFT: light theme and PNG comparison on staging; pins refresh only on mount/ev5:jobs-changed; --bar token still not in the mock-up. Claim freed.",
-  "commit": null,
+  "notes": "Run 2026-11-06 (#636): course dots gone from Today, Progress Minutes section removed (D-511), sidebar pins show next linked date (shell/usePins.ts; assumes a memberships row with item_c exams links a date; check on staging), CONTRACT §ui.sidebar reworded. LEFT: light theme and PNG comparison on staging; pins refresh only on mount/ev5:jobs-changed; --bar token still not in the mock-up. Claim freed. Seen on staging 2026-11-07 (Matt's staging check 4), light and dark: no Courses section, no course dots, no Minutes section. Not seen: the pinned-to-date day (nothing pinned to a date). No comparison with the mock-up was made. Done.",
+  "commit": "aee5585",
   "source": "design pass, 2026-11-05",
   "words": "playtest 6",
   "reportedAt": "2026-11-05T12:52:59.731Z",
@@ -3906,7 +3906,7 @@
    "B-997",
    "B-998"
   ],
-  "notes": "Run 1753Z: one gate already (data/tables/gate.ts); no docs-gate code left. Stale comments only (gate.ts l1, tables.ts l2, staging/seed.ts l48, seed.test.ts l64). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): M5: two ways to batch writes: server/defer-writes.ts (its own SQL guard in server/, fakes run() as changes 1; used by set.item_delete, check.answer, weakspot.unlink, ask.just_tell_me) and data/tables/links.ts createGoalWithLinks. Make one batch helper in data/tables, port both, delete server/defer-writes.ts. M7 (from #863): the Gate 5 journeys e2e/collection, e2e/question-set and e2e/prep-plan send no if_version on item.move, set.item_update and date.update, so they get 400; gate5-e2e runs only on dispatch. Pass each row's v, then run gate5-e2e once.",
+  "notes": "Run 1753Z: one gate already (data/tables/gate.ts); no docs-gate code left. Stale comments only (gate.ts l1, tables.ts l2, staging/seed.ts l48, seed.test.ts l64). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): M5: two ways to batch writes: server/defer-writes.ts (its own SQL guard in server/, fakes run() as changes 1; used by set.item_delete, check.answer, weakspot.unlink, ask.just_tell_me) and data/tables/links.ts createGoalWithLinks. Make one batch helper in data/tables, port both, delete server/defer-writes.ts. M7 (from #863): the Gate 5 journeys e2e/collection, e2e/question-set and e2e/prep-plan send no if_version on item.move, set.item_update and date.update, so they get 400; gate5-e2e runs only on dispatch. Pass each row's v, then run gate5-e2e once. Run 1812Z: M7 done #891 (gate5-e2e run 19 predates the fix: dispatch it again on main). M5 in PR #902 (replaces closed #897; trailer must read exactly \"Interface: data\").",
   "commit": "e42f5aa",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
@@ -4150,14 +4150,14 @@
   "title": "Recently deleted draws its rows, head and empty state with the kit",
   "dod": "Recently deleted uses kit Row (Restore as a hover action), Page, Section and Empty; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#deleted); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Merged in PR 501 (run 80, 2026-11-05); not yet seen on staging, so not done.",
-  "commit": null,
+  "notes": "Merged in PR 501 (run 80, 2026-11-05); not yet seen on staging, so not done. Seen on staging 2026-11-07 (Matt's staging check 2): the empty page shows Nothing here. in grey, light and dark. Not seen: deleted rows (height, text size) and Restore on hover, as nothing was deleted. Done.",
+  "commit": "cec468c",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -4166,14 +4166,14 @@
   "title": "Activity draws its rows, sections and empty states with the kit",
   "dod": "Activity uses kit Row (a job's status as a dot or its ring glyph), Page, Section and Empty, and any Detail it opens goes through the shell's host; its own row, page-head, section, empty-state and Detail CSS and markup are deleted in the same PR, so no second way is left; its CSS keeps only what no kit part draws, each rule with a one-line reason; both themes match design/mockup.html (#activity); seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-966",
    "B-967",
    "B-968"
   ],
-  "notes": "Merged in PR 500 (run 80, 2026-11-05); not yet seen on staging, so not done. Got it on the spend alert is hover-only until B-1020's always-visible Row actions.",
-  "commit": null,
+  "notes": "Merged in PR 500 (run 80, 2026-11-05); not yet seen on staging, so not done. Got it on the spend alert is hover-only until B-1020's always-visible Row actions. Seen on staging 2026-11-07 (Matt's staging check 3): Needs you, Running and Done today, each with a small heading and a grey None., light and dark. Not seen: job rows and their state dots, as there were no jobs. Done.",
+  "commit": "f283675",
   "source": "D-482 (full audit 2026-11-05, finding 7, proposal F)"
  },
  {
@@ -4324,10 +4324,10 @@
   "title": "Menus and the ⌘K palette follow the theme Matt picked",
   "dod": "data-theme is set on the page root (document.documentElement), not on the .shell div, so Radix and cmdk portals inherit it; a test opens a Menu and the palette with a theme that differs from the system's; seen on staging in both themes",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes. Shape fix for later (supervisor 2026-11-07, no new id until D-497 allows): a GitHub Actions staging smoke run that uses the repo's staging token secret, opens staging in Playwright, and takes screenshots of each screen in both themes, so runs can check staging looks themselves instead of waiting on a person. Covers this task, B-974, B-975, B-942, B-986 and B-940.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1358Z: data-theme on the page root (#827), test with palette and Menu. Left: seen on staging in both themes. Shape fix for later (supervisor 2026-11-07, no new id until D-497 allows): a GitHub Actions staging smoke run that uses the repo's staging token secret, opens staging in Playwright, and takes screenshots of each screen in both themes, so runs can check staging looks themselves instead of waiting on a person. Covers this task, B-974, B-975, B-942, B-986 and B-940. Seen on staging 2026-11-07 (Matt's staging check 1, his Chrome): the palette and row menus follow the page theme in light and dark. Done. Shape fix: the staging smoke run should seed a deleted note and a job, so Recently deleted rows with Restore and Activity job rows with state dots get checked too.",
+  "commit": "761b9c1",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4338,7 +4338,7 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) low: areas/library/reloadHold.test.tsx (#847) re-implements the hold instead of testing the real holdReload in shell/, so a regression there would pass. Test the real function.",
+  "notes": "Run 2026-11-07 1537Z: code complete on main (#840, #847: shell/services.ts holdReload, areas/library useReloadHold, reloadHold.test.tsx). Left: staging check by eye only (loaded index-*.js matches / with no hard reload). 2026-11-07 18:08Z: an open tab in Matt's Chrome still ran a build from before 16:46Z (old n- note ids, Open on the note menu), so focus alone did not bring the new build. Thread fix PR: the page also checks for a new build every 10 minutes (shell/pwa.ts UPDATE_CHECK_MS). Cause found 2026-11-07: with injectRegister false the plugin left skipWaiting and clientsClaim off, and autoUpdate registerSW sends no skip-waiting message, so each new worker waited until every tab closed; a reload kept the old build. Fixed: workbox skipWaiting and clientsClaim set in vite.config.ts, with a test. Left: the staging check after this lands: the new worker skips waiting itself, so an open tab should take it on its next update check. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) low: areas/library/reloadHold.test.tsx (#847) re-implements the hold instead of testing the real holdReload in shell/, so a regression there would pass. Test the real function.",
   "commit": null,
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1537Z",
@@ -4386,10 +4386,10 @@
   "title": "The Interface trailer is asked for only when a folder's interface listing changes",
   "dod": "ops/checks/trailer.ts asks for an Interface: <folder> trailer only when the generated Interface: line of that folder's README changes, as the contract's interface rule says, not on every edit of index.ts or a schema file; the READMEs' Imports: line, which copies .dependency-cruiser.cjs, is no longer generated; tests cover both cases",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Run 2026-11-07 1358Z: trailer asked only when a folder's generated Interface line changes; Imports line no longer generated (#826). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) M9 reopens it: #826 dropped the generated Imports line, which was the README's must-not list, and CONTRACT §drift.interface still wants a generated must-not list. Decided: restore a generated must-not line from .dependency-cruiser.cjs; the trailer stays asked only when the Interface line changes; no CONTRACT change. Slice write: ops/generate and the generated README blocks.",
-  "commit": "c5587d5",
+  "notes": "Run 2026-11-07 1358Z: trailer asked only when a folder's generated Interface line changes; Imports line no longer generated (#826). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) M9 reopens it: #826 dropped the generated Imports line, which was the README's must-not list, and CONTRACT §drift.interface still wants a generated must-not list. Decided: restore a generated must-not line from .dependency-cruiser.cjs; the trailer stays asked only when the Interface line changes; no CONTRACT change. Slice write: ops/generate and the generated README blocks. Run 1812Z: #898 generated must-not line restored as \"Must not import (§drift.imports)\".",
+  "commit": "5fe7157",
   "source": "stack review 2026-11-05 (audits/2026-11-05-stack/report.md in the ev-build project folder)"
  },
  {
@@ -4492,7 +4492,7 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Run 1718Z: (d) done: #877 one baseline 0000 (docs, deletions, own_attempts, system_docs, claude_* tables gone), #880 attempts.was_due. Staging rebuilt from empty 17:50Z (staging run 42398210091 green). Left: rerun the restore drill (no workflow; needs Cloudflare). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H1: #880 edited 0000_baseline.sql 14 min after the squash #877, and D-517's freeze guard did not land in the squash PR. Checked 1810Z: the staging rebuild (run 42398210091, 1749Z, commit 6dea48b, rebuild step ran) already holds #880, so staging has attempts.was_due; the audit's 'staging answers fail' does not hold. Decided: #880 stays in the baseline (nothing live applied it); no restore, no forward migration. Left, first in lane A: (1) an ops/checks freeze guard: a pinned hash of data/migrations/0000_baseline.sql, so any later change goes in a new numbered file (D-517, §data.migrations); (2) ops/verify-staging-schema.mjs compares each table's columns, not only table names. D-524 closed in this filing (the squash folded 0019 in).",
+  "notes": "Run 1631Z (#859): pure deletes done: goal-wire, weak-wire, data/tables/own.ts, domain/doc-row, POST /jobs/:id/dismiss (POST /jobs/:slug stays: gate4-e2e.yml uses it), ceilings-memory is now a .testkit. parseOwn* stays exported with @public for row-shapes.test.ts. Left: (d) squash incl. was_due, staging rebuild, rerun drill (docs table, migrationshape LEGACY/NO_SHAPE, export.test docs filter, migrations.test docs assertion, deletions table and its row-shapes line go with it). Run 1718Z: (d) done: #877 one baseline 0000 (docs, deletions, own_attempts, system_docs, claude_* tables gone), #880 attempts.was_due. Staging rebuilt from empty 17:50Z (staging run 42398210091 green). Left: rerun the restore drill (no workflow; needs Cloudflare). Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H1: #880 edited 0000_baseline.sql 14 min after the squash #877, and D-517's freeze guard did not land in the squash PR. Checked 1810Z: the staging rebuild (run 42398210091, 1749Z, commit 6dea48b, rebuild step ran) already holds #880, so staging has attempts.was_due; the audit's 'staging answers fail' does not hold. Decided: #880 stays in the baseline (nothing live applied it); no restore, no forward migration. Left, first in lane A: (1) an ops/checks freeze guard: a pinned hash of data/migrations/0000_baseline.sql, so any later change goes in a new numbered file (D-517, §data.migrations); (2) ops/verify-staging-schema.mjs compares each table's columns, not only table names. D-524 closed in this filing (the squash folded 0019 in). Run 1812Z: #894 freeze guard (ops/checks/migrationfreeze.ts, pinned sha256) and column-level staging schema check done; .github/workflows/staging.yml changed and not yet run on D1: watch the first staging run. Left: restore drill rerun (needs Cloudflare).",
   "commit": "61f4efd",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4542,7 +4542,7 @@
   "depends": [
    "B-955"
   ],
-  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept. Run 1718Z: #878 date.create is one batch (createGoalWithLinks). Left: nothing known; check raw SQL and bare ids in routes once more. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): H3: still several writes per command: plan.update with a repeat (server/handlers-plan.ts saveRepeat, saveItem, materializeRepeat up to 14 inserts, placeItem) can leave a stray repeat after a 409; session.end (handlers-session.ts change, then append) can end a session with no end event. Make each one batch through the one data/ batch helper (B-955). M4: server/plan-days.ts maps only WriteRefused, so moving a repeating item onto a day its repeat already holds hits the plan_items_repeat_day unique index and returns 500: merge or skip the clash in the same batch, map it to 409, add a test. M6: server/row-routes.ts sets more from parsed rows only, so one bad row in a full page drops next and readRows (commands/client.ts) stops early: count left_out in more, test a bad row in a full page. M8: plan.toggle_done flips on the server (done = cur.done_at === null) with no if_version, and areas/today/useToday.ts skips the call when its stale copy matches: take done and if_version and set the value.",
+  "notes": "Run 1631Z: #862 (draft by kind and id, item lookup via setBook.getItem, paged row lists capped 1000 with next, raw SQL out of handlers-proposal/study/job-plans), #869 (collection-routes SQL moved to data/tables/collection-reads.ts; generated client readRows follows next; ask.just_tell_me and weakspot.unlink batch through defer-writes). Left: date.create still writes in several statements with a compensating goals.remove (links.save checks the goal row exists; needs a pending-goal or a create-goal-with-links function in data/); server/excerpts.ts LIKE is over a text column, kept. Run 1718Z: #878 date.create is one batch (createGoalWithLinks). Left: nothing known; check raw SQL and bare ids in routes once more. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder): H3: still several writes per command: plan.update with a repeat (server/handlers-plan.ts saveRepeat, saveItem, materializeRepeat up to 14 inserts, placeItem) can leave a stray repeat after a 409; session.end (handlers-session.ts change, then append) can end a session with no end event. Make each one batch through the one data/ batch helper (B-955). M4: server/plan-days.ts maps only WriteRefused, so moving a repeating item onto a day its repeat already holds hits the plan_items_repeat_day unique index and returns 500: merge or skip the clash in the same batch, map it to 409, add a test. M6: server/row-routes.ts sets more from parsed rows only, so one bad row in a full page drops next and readRows (commands/client.ts) stops early: count left_out in more, test a bad row in a full page. M8: plan.toggle_done flips on the server (done = cur.done_at === null) with no if_version, and areas/today/useToday.ts skips the call when its stale copy matches: take done and if_version and set the value. Run 1812Z: H3 done #895 (plan.update repeat and session.end one batch each). Left: M4 (repeat clashing with its own day, no test for the unique-index 409), M6, M8, raw SQL and bare ids in routes.",
   "commit": null,
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
@@ -4602,12 +4602,12 @@
   "title": "Model output uses the SDK's Zod helper",
   "dod": "Job calls build output_config.format with the Anthropic SDK's zodOutputFormat from the domain row shapes; the hand-rolled strip() is deleted; current Anthropic docs read, nothing from memory (§model.output, §model.from-docs). Slice write: jobs/runtime",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-997"
   ],
-  "notes": "Run 1631Z (#865): putKept retries the store put inside the step, so a put that throws without landing no longer re-pays the model; zodOutputFormat already in use. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H2 reopens it: §job.steps wants the Claude call and the D1 write as separate steps, with the step retry as the only retry layer. putKept (jobs/runtime/output.ts, #865) is a second retry layer inside the paid step; prep-plan's change round (jobs/prep-plan/job.ts, putDraft) has no find guard, so a failed write re-pays the model; find and findDraft are optional on the store type. Fix: a call step that returns the result, then a write step (practice-set handlers and prep-plan job); delete putKept. Slice write: jobs/.",
-  "commit": "dc377d1",
+  "notes": "Run 1631Z (#865): putKept retries the store put inside the step, so a put that throws without landing no longer re-pays the model; zodOutputFormat already in use. Audit 2026-11-07 1803Z (audits/ev5-audit-2026-11-07-1803.md in the ev-build project folder) H2 reopens it: §job.steps wants the Claude call and the D1 write as separate steps, with the step retry as the only retry layer. putKept (jobs/runtime/output.ts, #865) is a second retry layer inside the paid step; prep-plan's change round (jobs/prep-plan/job.ts, putDraft) has no find guard, so a failed write re-pays the model; find and findDraft are optional on the store type. Fix: a call step that returns the result, then a write step (practice-set handlers and prep-plan job); delete putKept. Slice write: jobs/. Run 1812Z: #896 merged (call step returns carry, separate write step; putKept deleted). Contract note maybe needed: carry is a small exception to steps-return-ids (§job.steps).",
+  "commit": "967790b",
   "source": "D-483/D-484 (data-layer study 2026-11-05)",
   "claimedBy": "run-20261107T1631Z",
   "claimedAt": "2026-11-07T16:48:08.593Z"
@@ -5021,7 +5021,7 @@
   "depends": [
    "B-1035"
   ],
-  "notes": "Run 1753Z: checks (2) #883 and (3) red fixture #884 done; checks (5) to (9) already exist with fixtures. Left: (1) subject words (needs rewording of existing source), (4) knip production; domain/goal/read.ts still writes the old envelope (writer, source v5/goals; on TO_REWORD in ops/checks/ev4word.ts or oldshapes.ts): reword. 'sata'/'matrix' remain only in domain/item/upgrade.ts as a deliberate legacy-read mapping. The red fixture PR record is not done.",
+  "notes": "Run 1753Z: checks (2) #883 and (3) red fixture #884 done; checks (5) to (9) already exist with fixtures. Left: (1) subject words (needs rewording of existing source), (4) knip production; domain/goal/read.ts still writes the old envelope (writer, source v5/goals; on TO_REWORD in ops/checks/ev4word.ts or oldshapes.ts): reword. 'sata'/'matrix' remain only in domain/item/upgrade.ts as a deliberate legacy-read mapping. The red fixture PR record is not done. Run 1812Z: check 4 red fixture #900; checks 1 and 4 were already in. Left: (a) action pins and (e) size check, blocked by sandbox.",
   "commit": null,
   "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
   "claimedBy": "run-20261107T1753Z",
@@ -5340,7 +5340,7 @@
   "milestone": "Phase 6",
   "status": "open",
   "depends": [],
-  "notes": "Lane B. First in lane B's Next. Size: one builder, about 1 run hour. Slice: write design/, CONTRACT.md, PLAN.md; read none. Sources (data, the studio port decision): the final mock-up is the claude.ai artifact VDpGogEUYZrx9JwQxgNEBQ (screens/final.html, 318,416 bytes per the supervisor) and the ev-design channel's drafts/final-reference/design/mockup.html (the supervisor said 219,873 bytes; the copy there was 214,896 bytes at 18:05Z, so it changed after the brief). Neither is in the repo and a lane B run cannot read either: the supervisor stages both files (and ev-design's DESIGN.md) on a branch or in this task's PR before a builder starts. Step 1: compare the two files screen by screen, pick the one with the brief's §5 changes, and say which in the PR. Keep B-1060's neutral sample content (main's mock-up) where the new file has older content. The frozen kit is not final: build rules from mockup.html and DESIGN.md, not from its kit folder. Every removed part is 'after cutover' (KeySheet, wide Horizon, load bars, Drill next, Undo on ratings and talk, stopped-job draft, saved views' home), listed on B-825.",
+  "notes": "Lane B. First in lane B's Next. Size: one builder, about 1 run hour. Slice: write design/, CONTRACT.md, PLAN.md; read none. Sources (data, unblocked 2026-11-07): design/final-reference/ holds ev-design's frozen copy: design/mockup.html (214,896 bytes, sha256 28475da72c6f7da68ad0ead9223ded5bd44de43d8c0436038b422b1d6903bfd3; the mock-up of record, checked by the supervisor against ev-design), DESIGN.md, PRODUCT.md, README.md, kit/tokens/tokens.css and kit/components Mark, Dot, Horizon, JobLine, WorkspaceLine. The folder is reference only: no app or kit code imports it, and ops/checks skips it. Replace design/mockup.html with design/final-reference/design/mockup.html, then check that it has the brief's §5 changes. Keep B-1060's neutral sample content (main's mock-up) where the new file has older content. The frozen kit is not final: build rules from mockup.html and DESIGN.md, not from its kit folder. Every removed part is 'after cutover' (KeySheet, wide Horizon, load bars, Drill next, Undo on ratings and talk, stopped-job draft, saved views' home), listed on B-825.",
   "commit": null,
   "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
  },
@@ -5354,7 +5354,7 @@
   "depends": [
    "B-1065"
   ],
-  "notes": "Lane B. Size: 5 builder parts, about 2 run hours with 5 builders (guess). Port by diff from the final mock-up and DESIGN.md (the mock-up task); never copy ev-design's frozen kit over main (main changed 31 kit files since base 5ed85bc, including B-1060). Parts: (a) tokens, write kit/tokens/, shell/kit-gallery.css, shell/KitGallery.tsx: add --her-hover (#e8834d dark, #a24a18 light), --r-xs 4px, --dur-think 1.4s, tabular-nums, ::selection, scrollbar-color; light --quiet #4a4a4f, --faint #6b6b70, --lh-title 1.25, --track-title -0.02em. Its second PR, after (c), removes --her2, --info, --mono, --r-pill, --dur-3, --dur-spin and --spin-timing and moves their callers (shell/kit-gallery.css 77, 98, 105, 125; KitGallery.tsx). No --line-edge (the studio port decision). (b) Mark, write kit/components/Mark/, EvLine/, WorkspaceLine/, kit/index.ts: one SVG Mark with no modes (no thinking, step or arrive), used by EvLine and WorkspaceLine. (c) status, write kit/components/Dot/, Glyph/, JobLine/: Dot pulse (still under reduced motion; 'Step n of N' for assistive tech), no info tone (Dot.css:25); Glyph has seven types, no job type and no spin rules (Glyph.css:29-30); JobLine shows a pulsing Dot and the glyph of what the job makes, from a small job-kind to glyph map in the kit. The job glyph and info tone are used in areas/activity/Activity.view.tsx, areas/ask/parts/Message.tsx, areas/notes/NotePage.view.tsx and areas/today/Today.view.tsx: change those call sites in the same PR (one line each), or wait if an area task holds the file. (d) data parts, write kit/components/Trend/, StepMeter/, Horizon/, Meter/, kit/index.ts, after (b) merges (both add kit/index.ts lines): Trend (replaces Bars), StepMeter, Horizon (rail size, date dots only, no load bars), Meter neutral parts and risk flag. Bars and Tile are removed by the two area port tasks, which hold their last callers (areas/progress, areas/library/parts/SetsPanel.tsx). (e) Toast and keys, write kit/components/Toast/, Button/, Row/: Toast stays 8 s, Z undoes, it holds on hover and focus; key boxes on Button and Row only where §ui.keymap names a key.",
+  "notes": "Lane B. Size: 5 builder parts, about 2 run hours with 5 builders (guess). Port by diff from design/final-reference/kit/ (tokens.css, Mark, Dot, Horizon, JobLine, WorkspaceLine), design/final-reference/DESIGN.md and the final mock-up (B-1065); move the Horizon and Mark unit tests from design/final-reference/kit/ into kit/ with their parts and run them; never copy ev-design's frozen kit over main (main changed 31 kit files since base 5ed85bc, including B-1060). Parts: (a) tokens, write kit/tokens/, shell/kit-gallery.css, shell/KitGallery.tsx: add --her-hover (#e8834d dark, #a24a18 light), --r-xs 4px, --dur-think 1.4s, tabular-nums, ::selection, scrollbar-color; light --quiet #4a4a4f, --faint #6b6b70, --lh-title 1.25, --track-title -0.02em. Its second PR, after (c), removes --her2, --info, --mono, --r-pill, --dur-3, --dur-spin and --spin-timing and moves their callers (shell/kit-gallery.css 77, 98, 105, 125; KitGallery.tsx). No --line-edge (the studio port decision). (b) Mark, write kit/components/Mark/, EvLine/, WorkspaceLine/, kit/index.ts: one SVG Mark with no modes (no thinking, step or arrive), used by EvLine and WorkspaceLine. (c) status, write kit/components/Dot/, Glyph/, JobLine/: Dot pulse (still under reduced motion; 'Step n of N' for assistive tech), no info tone (Dot.css:25); Glyph has seven types, no job type and no spin rules (Glyph.css:29-30); JobLine shows a pulsing Dot and the glyph of what the job makes, from a small job-kind to glyph map in the kit. The job glyph and info tone are used in areas/activity/Activity.view.tsx, areas/ask/parts/Message.tsx, areas/notes/NotePage.view.tsx and areas/today/Today.view.tsx: change those call sites in the same PR (one line each), or wait if an area task holds the file. (d) data parts, write kit/components/Trend/, StepMeter/, Horizon/, Meter/, kit/index.ts, after (b) merges (both add kit/index.ts lines): Trend (replaces Bars), StepMeter, Horizon (rail size, date dots only, no load bars), Meter neutral parts and risk flag. Bars and Tile are removed by the two area port tasks, which hold their last callers (areas/progress, areas/library/parts/SetsPanel.tsx). (e) Toast and keys, write kit/components/Toast/, Button/, Row/: Toast stays 8 s, Z undoes, it holds on hover and focus; key boxes on Button and Row only where §ui.keymap names a key.",
   "commit": null,
   "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
  },

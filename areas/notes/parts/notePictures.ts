@@ -26,18 +26,66 @@ export function newKey(type: string): string {
   return `note-images/${name}.${EXT[type] ?? "png"}`;
 }
 
+/** The mock-up names no picture size, so a picture's long edge is capped at 1600 px, saved as JPEG at 0.85 (a phone photo ends up well under the server's 5 MB). */
+export const MAX_EDGE = 1600;
+export const QUALITY = 0.85;
+
+/** Decode a picture and draw it into a canvas; the seam lets a test run without a browser. */
+export type Scaler = (
+  file: File,
+  maxEdge: number,
+  quality: number,
+) => Promise<Blob | null>;
+
+const browserScale: Scaler = async (file, maxEdge, quality) => {
+  const bmp = await createImageBitmap(file);
+  try {
+    const k = maxEdge / Math.max(bmp.width, bmp.height);
+    if (k >= 1) return null;
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(bmp.width * k));
+    c.height = Math.max(1, Math.round(bmp.height * k));
+    const ctx = c.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise<Blob | null>((ok) =>
+      c.toBlob(ok, "image/jpeg", quality),
+    );
+  } finally {
+    bmp.close();
+  }
+};
+
+/** The file to send: a picture longer than MAX_EDGE comes back scaled down as a JPEG; gifs, small pictures and any failure come back as they are. */
+export async function shrinkPicture(
+  file: File,
+  scale: Scaler = browserScale,
+): Promise<File | Blob> {
+  if (file.type === "image/gif") return file;
+  try {
+    const out = await scale(file, MAX_EDGE, QUALITY);
+    return out && out.size < file.size ? out : file;
+  } catch {
+    return file;
+  }
+}
+
 export type Upload = { ok: true; key: string } | { ok: false; message: string };
 
 /** Send one picture; any failure comes back as a plain message and never throws. */
-export async function uploadPicture(file: File): Promise<Upload> {
+export async function uploadPicture(
+  file: File,
+  scale?: Scaler,
+): Promise<Upload> {
   if (!isPicture(file))
     return {
       ok: false,
       message: "Only png, jpg, webp and gif pictures can go in a note",
     };
-  const key = newKey(file.type);
+  const body = await shrinkPicture(file, scale);
+  const key = newKey(body.type || file.type);
   try {
-    const r = await pictureApi.put(key, file, readToken());
+    const r = await pictureApi.put(key, body, readToken());
     // 409: the Worker refuses to overwrite (§data.note-images), so the key is already stored; a retry succeeded earlier.
     if (r.ok || r.status === 409) return { ok: true, key };
     return {

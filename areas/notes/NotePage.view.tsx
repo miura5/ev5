@@ -96,54 +96,57 @@ export function NotePageView({
               }
         }
       >
-        <Page
-          title={note.title}
-          onTitle={onRename}
-          titlePlaceholder="Untitled"
-          focusTitle={focusTitle}
-          meta={`edited ${note.edited}`}
-          crumb={
-            session ? undefined : (
-              <Button kind="text" onClick={onBack}>
-                ← Notes
-              </Button>
-            )
-          }
-          actions={
-            <>
-              <Button kind="text" onClick={onPickCollection}>
-                {note.collectionName ?? "no collection"}
-              </Button>
-              <Dot tone={tone} />
-              <span>{note.saveState}</span>
-              {session || !onShortcuts ? null : (
+        {(dots) => (
+          <Page
+            title={note.title}
+            onTitle={onRename}
+            titlePlaceholder="Untitled"
+            focusTitle={focusTitle}
+            meta={`edited ${note.edited}`}
+            crumb={
+              session ? undefined : (
+                <Button kind="text" onClick={onBack}>
+                  ← Notes
+                </Button>
+              )
+            }
+            actions={
+              <>
+                <Button kind="text" onClick={onPickCollection}>
+                  {note.collectionName ?? "no collection"}
+                </Button>
+                <Dot tone={tone} />
+                <span>{note.saveState}</span>
+                {session || !onShortcuts ? null : (
+                  <Button
+                    kind="text"
+                    title="The keys the note editor understands"
+                    onClick={onShortcuts}
+                  >
+                    Shortcuts
+                  </Button>
+                )}
                 <Button
                   kind="text"
-                  title="The keys the note editor understands"
-                  onClick={onShortcuts}
+                  title="Start a set from this note; E.V. drafts, you keep or drop"
+                  onClick={onMakeCards}
                 >
-                  Shortcuts
+                  Make cards
                 </Button>
-              )}
-              <Button
-                kind="text"
-                title="Start a set from this note; E.V. drafts, you keep or drop"
-                onClick={onMakeCards}
-              >
-                Make cards
-              </Button>
-              {session ? null : (
-                <Button
-                  kind="text"
-                  title="Start a session"
-                  onClick={onStartSession}
-                >
-                  Start session
-                </Button>
-              )}
-            </>
-          }
-        />
+                {session ? null : (
+                  <Button
+                    kind="text"
+                    title="Start a session"
+                    onClick={onStartSession}
+                  >
+                    Start session
+                  </Button>
+                )}
+                {dots}
+              </>
+            }
+          />
+        )}
       </RowActions>
       {editor ?? (
         <NoteBlocks
