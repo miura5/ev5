@@ -30,7 +30,8 @@ test('output is deterministic and carries the interface', () => {
   assert.deepEqual([...generate(root)], [...first]);
   assert.match(first.get('areas/registry.generated.ts')!, /import \{ aArea \} from "\.\/a\/area\.ts"/);
   assert.match(first.get('commands/client.ts')!, /"x"/);
-  assert.match(first.get('areas/README.md')!, /Interface: area a\nImports: kit \(§drift\.imports\)/);
+  assert.match(first.get('areas/README.md')!, /Interface: area a\n<!-- generated:end -->/);
+  assert.doesNotMatch(first.get('areas/README.md')!, /Imports:/);
   assert.match(first.get('commands/README.md')!, /Interface: x\.command\.ts/);
 });
 

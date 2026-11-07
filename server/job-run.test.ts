@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import {
   fakeWorkflows,
   practiceSet,
+  practiceSetHandlers,
   startJob,
   workflowExecutor,
   d1JobStore,
 } from "../jobs/index.ts";
 import { sqliteD1 } from "./sqlite-d1.test.ts";
 import type { ModelCall, StartEnv } from "../jobs/index.ts";
-import { runWorkflow } from "./job-run.ts";
+import { d1PracticeStore, runWorkflow } from "./job-run.ts";
 import type { JobRunEnv } from "./job-run.ts";
 
 const T = new Date("2026-11-03T12:00:00Z");
@@ -41,9 +42,7 @@ function setup(
       ["ceiling_monthly", 5_000_000],
       ["ceiling_per_job", over.ceiling ?? 5_000_000],
     ] as const)
-      db.prepare(
-        "INSERT INTO settings (key, value, at) VALUES (?, ?, 0)",
-      )
+      db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
         .bind(k, v)
         .run();
   let calls = 0;
@@ -151,4 +150,32 @@ test("a bad model reply fails the job and a step retry does not pay for the call
   await wf.idle();
   assert.equal((await env.store.get("job_job1"))!.state, "failed");
   assert.equal(n, 2, "the first reply plus the one repair ask, once");
+});
+
+test("d1PracticeStore.find sees a kept result, so a retry after the write landed makes no model call", async () => {
+  const { db } = setup();
+  const store = d1PracticeStore(db, () => T.getTime());
+  assert.equal(await store.find?.("job_x"), undefined);
+  const result = { ok: true as const, items: [], drafts: [], costCents: 3 };
+  await store.put("job_x", result as never);
+  assert.deepEqual(await store.find?.("job_x"), result);
+  let calls = 0;
+  const handlers = practiceSetHandlers({
+    store,
+    call: async () => {
+      calls++;
+      throw new Error("no model call expected");
+    },
+    system: "write",
+  });
+  const ctx = {
+    jobId: "job_x",
+    input,
+    reserve: async () => undefined,
+    spend: async () => undefined,
+  };
+  assert.deepEqual(await handlers.call!(ctx as never), {
+    ids: ["job_x:result"],
+  });
+  assert.equal(calls, 0);
 });
