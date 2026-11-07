@@ -143,6 +143,22 @@ test("objectives: no goal pointer", () => {
   expect(() => parseObjectiveTableRow({ ...o, exam: "x" })).toThrow();
 });
 
+test("objectives: collection_id may be null (a loose objective), not missing", () => {
+  const o = {
+    id: "obj_2",
+    collection_id: null,
+    num: null,
+    text: "t",
+    chapters: null,
+    source_ref: null,
+    created_by: "user",
+    ...D,
+  };
+  expect(parseObjectiveTableRow(o).collection_id).toBeNull();
+  const { collection_id: _omitted, ...missing } = o;
+  expect(() => parseObjectiveTableRow(missing)).toThrow();
+});
+
 test("weak spots: no init_* or links, events need until for snooze", () => {
   const w = {
     id: "ws_1",

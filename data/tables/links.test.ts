@@ -113,6 +113,17 @@ test("a link needs both ends to exist; objectives reach goals through link rows"
   );
 });
 
+test("a loose objective (no collection) hangs off a goal by link only", async () => {
+  const r = make();
+  await r.objectives.save({ ...obj("obj_loose", 1), collection_id: null }, null);
+  const made = await r.createGoalWithLinks({ id: "goal_l", ...goal }, [
+    link("link_l", "obj_loose", "goal_l"),
+  ]);
+  assert.equal(made.ok, true);
+  assert.deepEqual(await r.objectiveIdsOfGoal("goal_l"), ["obj_loose"]);
+  assert.deepEqual(await r.goalIdsOfObjective("obj_loose"), ["goal_l"]);
+});
+
 test("createGoalWithLinks writes the goal and its links together; a missing objective or a taken id leaves nothing", async () => {
   const r = make();
   await r.objectives.save(obj("obj_1", 1), null);

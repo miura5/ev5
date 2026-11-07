@@ -137,7 +137,7 @@ CREATE INDEX IF NOT EXISTS goals_date ON goals (date);
 
 CREATE TABLE IF NOT EXISTS objectives (
   id TEXT PRIMARY KEY CHECK (substr(id, 1, 4) = 'obj_'),
-  collection_id TEXT NOT NULL,
+  collection_id TEXT,
   num INTEGER,
   text TEXT NOT NULL,
   chapters TEXT,
