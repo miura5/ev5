@@ -40,6 +40,8 @@ test("a draft that arrives while the Detail is open shows Approve without a relo
     vi.fn(async (u: string) => {
       const url = String(u);
       if (url.includes("/jobs")) return new Response(JSON.stringify({ jobs }));
+      if (/\/(weak-spots|weak-spot-events|links)$/.test(url))
+        return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [exam()] }));
       return new Response(JSON.stringify({ docs: [] }));

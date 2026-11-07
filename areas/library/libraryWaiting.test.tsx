@@ -43,6 +43,8 @@ function boot(jobs: unknown[] = [waitingJob]) {
       }
       if (/\/jobs$/.test(url))
         return new Response(JSON.stringify({ jobs }), { status: 200 });
+      if (/\/(weak-spots|weak-spot-events|links)$/.test(url))
+        return new Response(JSON.stringify({ rows: [] }));
       if (/\/goals$/.test(url))
         return new Response(JSON.stringify({ rows: [exam] }), { status: 200 });
       return new Response(JSON.stringify({ docs: [] }), { status: 200 });

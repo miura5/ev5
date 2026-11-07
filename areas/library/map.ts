@@ -4,14 +4,12 @@ import {
   dueCounts,
   itemType,
   inDays,
-  deriveWeakSpot,
   daysBetween,
   parseSet,
-  parseWeakSpot,
   plainDay,
   planEnded,
 } from "../../domain/index.ts";
-import type { GoalRow } from "../../domain/index.ts";
+import { spotsOf, type SpotRows } from "./weakSpots.ts";
 import type {
   Accuracy,
   LibraryExam,
@@ -26,9 +24,8 @@ import type {
 export type { WireDoc } from "../../domain/index.ts";
 import type { WireDoc } from "../../domain/index.ts";
 
-export interface LibraryDocs {
-  goals: GoalRow[]; // as GET /goals returns them (§data.gate)
-  weakspots: WireDoc[];
+/** The rows as the GET routes return them (§data.gate): goals, weak spots, their events and links come from SpotRows. */
+export interface LibraryDocs extends SpotRows {
   sets: WireDoc[];
   /** Practice answers; absent reads as none. */
   answers?: WireDoc[];
@@ -166,9 +163,7 @@ const share = (n: number, of: number) => (of > 0 ? n / of : 0);
 /** Maps the three collections Library reads to the views' props; no data gives empty lists. */
 export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
   const today = centralDate(now);
-  const spots = docs.weakspots
-    .flatMap((d) => tryParse(parseWeakSpot, d))
-    .map((s) => ({ ...s, d: deriveWeakSpot(s.v, [], { id: s.id }) }));
+  const spots = spotsOf(docs);
   const weakSpots: WeakSpot[] = spots
     .filter((s) => s.d.status === "open")
     .sort(

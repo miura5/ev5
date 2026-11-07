@@ -44,6 +44,20 @@ test("weak spots are listed as rows", async () => {
   assert.deepEqual(w.body["rows"], []);
 });
 
+test("weak spot events are read as rows, in spot and time order", async () => {
+  const { DB } = await setup();
+  await DB.prepare(
+    "INSERT INTO weak_spot_events (id, weak_spot_id, type, \"by\", note, objective_id, \"until\", at, v) VALUES ('wse_2', 'ws_a', 'reopen', 'user', NULL, NULL, NULL, 20, 1), ('wse_1', 'ws_a', 'reopen', 'user', NULL, NULL, NULL, 10, 1)",
+  ).run();
+  const e = await get(DB, "/weak-spot-events");
+  assert.equal(e.status, 200);
+  assert.deepEqual(
+    e.body["rows"].map((r: { id: string }) => r.id),
+    ["wse_1", "wse_2"],
+  );
+  assert.equal((await get(DB, "/weak-spot-events/wse_1")).body["id"], "wse_1");
+});
+
 test("sets, items, sessions, notes and links are read as rows; a bad row is counted and left out", async () => {
   const { DB } = await setup();
   const run = (sql: string) => DB.prepare(sql).run();

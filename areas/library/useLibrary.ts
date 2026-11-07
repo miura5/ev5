@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapLibrary } from "./map.ts";
 import type { LibraryData, WireDoc, WireJob } from "./map.ts";
-import type { GoalRow } from "../../domain/index.ts";
+import type {
+  GoalRow,
+  LinkRow,
+  WeakSpotEventRow,
+  WeakSpotTableRow,
+} from "../../domain/index.ts";
 import {
   ApiError,
   api,
@@ -102,7 +107,12 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
     const load = (c: ReadCopyLike | undefined) =>
       Promise.all([
         rows<GoalRow>("goals", token, c),
-        list("weakspots", token, c),
+        rows<WeakSpotTableRow>("weak-spots", token, c),
+        // Events and links only refine a spot (its misses, its date): unreadable, a spot reads as new and undated.
+        rows<WeakSpotEventRow>("weak-spot-events", token, c).catch(
+          (): WeakSpotEventRow[] => [],
+        ),
+        rows<LinkRow>("links", token, c).catch((): LinkRow[] => []),
         list("sets", token, c),
         list("answers", token, c),
         // Which plan is in force is a nicety: when it cannot be read, every plan reads as a draft, so a miss is none.
@@ -121,12 +131,24 @@ export function useLibrary(copy?: ReadCopyLike): LibraryState {
       load,
       (r) => {
         if (!live) return;
-        const [goals, weakspots, sets, answers, plans, planItems, jobs] = r;
+        const [
+          goals,
+          weakspots,
+          weakSpotEvents,
+          links,
+          sets,
+          answers,
+          plans,
+          planItems,
+          jobs,
+        ] = r;
         setData(
           mapLibrary(
             {
               goals,
               weakspots,
+              weakSpotEvents,
+              links,
               sets,
               answers,
               plans,

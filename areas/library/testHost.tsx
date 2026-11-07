@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Detail, type DetailProps } from "../../kit/index.ts";
 import { LibraryScreen as RawLibraryScreen } from "./Library.screen.tsx";
-import type { GoalRow } from "../../domain/index.ts";
+import type {
+  GoalRow,
+  LinkRow,
+  WeakSpotEventRow,
+  WeakSpotTableRow,
+} from "../../domain/index.ts";
 import { withToasts } from "../testToasts.tsx";
 
 const LibraryScreen = withToasts(RawLibraryScreen);
@@ -24,6 +29,64 @@ export const goalRow = (over: Partial<GoalRow> = {}): GoalRow => ({
   v: 1,
   deleted_at: null,
   ...over,
+});
+
+/** A weak spot row as GET /weak-spots returns it; tests pass what they care about. */
+export const spotRow = (
+  over: Partial<WeakSpotTableRow> = {},
+): WeakSpotTableRow => ({
+  id: "ws_1",
+  collection_id: null,
+  objective_id: null,
+  topic: "Oral doses",
+  kind: "concept",
+  words: null,
+  source_line: "test",
+  duplicate_of: null,
+  proposed: 0,
+  created_by: "user",
+  pre_read: 0,
+  reading_due: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
+  ...over,
+});
+
+/** An event row (a reopen by default) as GET /weak-spot-events returns it. */
+export const eventRow = (
+  spot: string,
+  n: number,
+  over: Partial<WeakSpotEventRow> = {},
+): WeakSpotEventRow => ({
+  id: `wse_${spot}_${n}`,
+  weak_spot_id: spot,
+  type: "reopen",
+  by: "user",
+  note: null,
+  objective_id: null,
+  until: null,
+  at: Date.parse("2026-11-01T15:00:00Z") + n * 1000,
+  v: 1,
+  ...over,
+});
+
+/** A link row (a spot or objective to a goal) as GET /links returns it. */
+export const linkRow = (
+  from_kind: "weak_spot" | "objective",
+  from_id: string,
+  to_id: string,
+): LinkRow => ({
+  id: `link_${from_id}`,
+  from_kind,
+  from_id,
+  to_kind: "goal",
+  to_id,
+  by: "user",
+  note: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
 });
 
 /** Stands in for the shell in tests: holds the Detail the screen opens, closes it on Esc like the shell's host. */
