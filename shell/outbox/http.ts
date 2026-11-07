@@ -1,8 +1,16 @@
 // The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes, dates, sets and weak spots over their /api/v1 row routes; a collection with no row route has no rows. The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
-import { call as runCommand, readJson, readToken } from "../../commands/client.ts";
+import {
+  call as runCommand,
+  readRows,
+  readToken,
+} from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
-import { noteDocOf, parseNoteTableRow, type NoteTableRow } from "../../domain/index.ts";
+import {
+  noteDocOf,
+  parseNoteTableRow,
+  type NoteTableRow,
+} from "../../domain/index.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -46,7 +54,7 @@ export function docsHttp(
       if (!r.ok && r.status === 0) throw new TypeError("offline"); // no connection: the outbox waits
       if (!r.ok) return { status: r.status, text: r.reason };
       const v = (r.result as { version?: unknown } | null | undefined)?.version;
-      return { status: 200, ...(typeof v === 'number' ? { version: v } : {}) };
+      return { status: 200, ...(typeof v === "number" ? { version: v } : {}) };
     },
     async get(id): Promise<GetAnswer> {
       const r = await doFetch(`/api/v1/notes/${encodeURIComponent(id)}`, {
@@ -60,28 +68,31 @@ export function docsHttp(
 
   /** Dates, sets and weak spots from their row routes; the palette needs a title (a weak spot's topic) and the id. */
   async function listRows(path: string): Promise<DocRow[]> {
-    const rows = await readJson<Record<string, unknown>[]>(
+    const rows = await readRows<Record<string, unknown>>(
       path,
       token(),
       `outbox:/api/v1/${path}`,
-      undefined,
-      (b) => ((b as { rows?: unknown[] }).rows ?? []) as Record<string, unknown>[],
     );
     return rows.flatMap((row) =>
       typeof row.id === "string"
-        ? [{ id: row.id, v: Number(row.v) || 0, at: Number(row.at) || 0, data: row }]
+        ? [
+            {
+              id: row.id,
+              v: Number(row.v) || 0,
+              at: Number(row.at) || 0,
+              data: row,
+            },
+          ]
         : [],
     );
   }
 
   /** Every live note from GET /api/v1/notes as documents; a row that does not parse stays out. */
   async function listNotes(): Promise<DocRow[]> {
-    const rows = await readJson<unknown[]>(
+    const rows = await readRows<unknown>(
       "notes",
       token(),
       "outbox:/api/v1/notes",
-      undefined,
-      (b) => (b as { rows?: unknown[] }).rows ?? [],
     );
     return rows.flatMap((raw) => {
       try {

@@ -14,6 +14,7 @@ import {
   failureKind,
   failureSentence,
   readJson,
+  readRows,
   readToken,
   savedFirst,
 } from "../../commands/client.ts";
@@ -61,13 +62,7 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     // The session rows and their event rows (§data.gate), each kept under its own key.
     const load = async (c: ReadCopyLike | undefined) => {
       function rows<T>(path: string, key: string) {
-        return readJson<T[]>(
-          path,
-          token,
-          key,
-          c,
-          (b) => (b as { rows: T[] }).rows,
-        );
+        return readRows<T>(path, token, key, c);
       }
       const [sessions, events] = await Promise.all([
         rows<SessionTableRow>("sessions", "sessions:rows"),

@@ -13,6 +13,7 @@ import {
   failureKind,
   failureSentence,
   readJson,
+  readRows,
   readToken,
   savedFirst,
 } from "../../commands/client.ts";
@@ -111,12 +112,13 @@ export function useCollection(
           try {
             const route = ROUTES[k];
             if (!route) return;
-            const body = await get<{ rows: Record<string, unknown>[] }>(
+            const rows = await readRows<Record<string, unknown>>(
               route,
               token,
+              `collection:/api/v1/${route}`,
               c,
             );
-            docs[k] = body.rows.map(named);
+            docs[k] = rows.map(named);
           } catch {
             // titles fall back to ids for a kind that will not load
           }

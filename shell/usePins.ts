@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { centralDate, daysBetween, plainDay } from "../domain/index.ts";
-import { readJson, readToken } from "../commands/client.ts";
+import { readJson, readRows, readToken } from "../commands/client.ts";
 import type { ReadCopy } from "./readCopy.ts";
 import type { GlyphType } from "../kit/index.ts";
 
@@ -136,7 +136,7 @@ export function usePins(copy?: ReadCopy): SidebarPin[] {
     const load = async () => {
       try {
         function rows<R>(path: string): Promise<R[]> {
-          return get(path, (b) => (b as { rows?: R[] }).rows ?? []);
+          return readRows<R>(path, token, `shell:/api/v1/${path}`, copy);
         }
         const [pins, collections, goals] = await Promise.all([
           get("pins", (b) => (b as { pins?: PinWire["pins"] }).pins ?? []),
