@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: status
@@ -25,6 +25,9 @@ jobs:
     name: snapshot
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # The one job that writes: it pushes the status-feed branch.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
