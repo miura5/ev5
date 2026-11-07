@@ -27,7 +27,7 @@ const input = {
   targetId: "set-1",
   count: 2,
   objectives: ["Vital signs"],
-  excerpts: [{ id: "e1", text: "Pulse is measured..." }],
+  excerpts: [{ id: "note_e1", text: "Pulse is measured..." }],
   drafts: false,
 };
 
@@ -52,7 +52,7 @@ function setup(
       calls++;
       return {
         stopReason: "end_turn",
-        text: JSON.stringify({ items: [item("e1"), item("e1")] }),
+        text: JSON.stringify({ items: [item("note_e1"), item("note_e1")] }),
         usage: { inputTokens: 2000, outputTokens: 1000 },
       };
     });

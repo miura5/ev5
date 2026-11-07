@@ -1,6 +1,6 @@
 // The tables gate for the per-kind tables (§data.gate, §data.tables): one generic reader and writer, one entry per table naming its
 // domain row shape. A row read is parsed (a bad one is reported and left out); a deleted row is left out unless asked (§delete.soft);
-// a write is parsed and size-checked by gateRow before SQL; only a stale version answers 409 (§data.protocol); append-only tables only `add`.
+// a write is parsed and size-checked by gateRow before SQL; only a stale version answers 409; append-only tables only `add`.
 import {
   parseAttemptRow,
   parseCollectionRow,
@@ -22,6 +22,7 @@ import {
   parseWeakSpotTableRow,
 } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
+import type { RowTableName } from "../export/row-tables.ts";
 import { ALL_TABLES } from "../export/tables.ts";
 import {
   core,
@@ -41,20 +42,18 @@ type Stamped = { id: string; at: number; v: number };
 export type Fields<R> = Omit<R, "at" | "v" | "deleted_at">;
 
 interface Kind<R> {
-  table: string;
+  table: RowTableName | "collections";
   parse: (raw: unknown) => R;
   /** Columns that hold JSON text, parsed on read and written as text. */
   json: string[];
-  /** Append-only: rows are only added (no change, no delete). */
-  appendOnly?: boolean;
-  /** The order of a list. */
-  order: string;
+  appendOnly?: boolean; // rows are only added (no change, no delete)
+  order: string; // the order of a list
   /** Old column -> new column it copies, until the contract migration (written, never read). */
   mirror: Record<string, string>;
 }
 
 function kind<R>(
-  table: string,
+  table: RowTableName | "collections",
   parse: (raw: unknown) => R,
   json: string[] = [],
   order = "id",

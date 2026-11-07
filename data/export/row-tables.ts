@@ -6,13 +6,13 @@ interface RowTable {
   orderBy: string[];
 }
 
-const t = (name: string, columns: string[], orderBy: string[]): RowTable => ({
+const t = <N extends string>(name: N, columns: string[], orderBy: string[]) => ({
   name,
   columns,
   orderBy,
 });
 
-export const ROW_TABLES: RowTable[] = [
+export const ROW_TABLES = [
   t(
     "goals",
     [
@@ -287,4 +287,7 @@ export const ROW_TABLES: RowTable[] = [
     ],
     ["id"],
   ),
-];
+] satisfies RowTable[];
+
+/** The name of a per-kind table: the one list the tables gate (data/tables/kinds.ts) names its kinds from (§data.tables). */
+export type RowTableName = (typeof ROW_TABLES)[number]["name"];
