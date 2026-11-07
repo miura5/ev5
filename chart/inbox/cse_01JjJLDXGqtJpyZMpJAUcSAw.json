@@ -1,0 +1,14 @@
+{
+  "session": "cse_01JjJLDXGqtJpyZMpJAUcSAw",
+  "entries": [
+    {
+      "id": "P-1",
+      "type": "decision",
+      "flags": {
+        "title": "Notes and practice are two tools of equal rank (CONTRACT §what.loop, PLAN §1). Notes are kept, found and reread for their own sake; practice (cards and sets) is for what Matt chooses to drill and can start from a note or from nothing; weak spots and today's plan serve both; E.V. never asks him to turn a note into practice. 'Practice from this' stays only as a quiet action. Replaces the loop 'notes → practice → errors → weak spots and review → today's plan → practice, or it waits'.",
+        "why": "Matt via ev-studio, 2026-11-07: notes are a tool on their own, and the 'make flashcards with E.V.' prompting felt pushy. The old loop ranked every note as a step toward practice. Fixes: the note page's 'Make cards' with the E.V. mark and the note menu's 'Make cards with E.V.' become one quiet 'Practice from this' (B-1065 mock-up, B-1070 area). A set can already start from nothing (set.create keeps no source). Note links, resurfacing, archive, export of notes and 'Today brings back a note to reread' are new features, listed on B-825 for after cutover. Second way: keep the loop and only soften the copy; rejected, the rule itself told designs to push notes into practice. Drift risk: new screens adding practice prompts on notes; §what.loop now says no. Long-term cost: none beyond the copy fixes.",
+        "source": "ev-build channel, studio rule change, Matt via ev-studio 2026-11-07"
+      }
+    }
+  ]
+}

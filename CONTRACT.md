@@ -14,7 +14,7 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 
 ## 2. What E.V. is
 - §what.framing · E.V. is a personal knowledge app for one independent learner with any subject or goal (school, a certification, an interview, a career move, or learning for its own sake). No subject, exam type, unit list, question style or course system is built in: kinds, units and styles are data, and no course is named in code. A course is a collection the user names. A date is a goal with a kind, exam is one kind, and one registry in `domain/goal` maps each kind to its tools. E.V. says "you" to the user and "the user" in a description, never "the student"; "study" is a verb, never part of a thing's name. <!-- C12, D-099, D-494, D-498, D-499, D-500, D-502, D-503, D-512 -->
-- §what.loop · Every feature serves the loop notes → practice → errors → weak spots and review → today's plan → practice, or it waits; Matt does the retrieval and the planning, E.V. proposes, questions and checks, and a design that does his thinking for him is a defect. <!-- PLAN §1 -->
+- §what.loop · E.V. has two tools of equal rank. Notes are kept, found and reread for their own sake. Practice (cards and sets) is for what you choose to drill, and it can start from a note or from nothing. Weak spots and today's plan serve both. E.V. never asks you to turn a note into practice. Matt does the retrieval and the planning, E.V. proposes, questions and checks, and a design that does his thinking for him is a defect. <!-- PLAN §1 -->
 - §what.priority · When goals conflict: data safety → reliability → drift resistance → simplicity → learning features; the higher wins and the trade-off is written down. <!-- PLAN §1 -->
 
 ## 3. Data

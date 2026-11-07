@@ -27,8 +27,7 @@ Matt's personal knowledge app for whatever he is learning; he is its only user. 
 - Matt groups things with his own collections, and pins what he wants in the sidebar.
 - A course is a collection he names, and an exam is one kind of date (§what.framing). v5 has its own tables (§data.own-db).
 
-**The core loop.** Every feature serves it, or it waits:
-**notes → practice → errors → weak spots and review → today's plan → back to practice.**
+**The core loop.** E.V. has two tools of equal rank. Notes are kept, found and reread for their own sake. Practice (cards and sets) is for what you choose to drill, and it can start from a note or from nothing. Weak spots and today's plan serve both. E.V. never asks you to turn a note into practice.
 
 **E.V. is a coach, not a crutch.** Matt does the retrieval and the planning; E.V. proposes, questions and checks.
 - It asks for his attempt before it explains.
