@@ -1,8 +1,7 @@
 // Repositories for the job side tables: a job's saved plan, scope, result or failure (`job_plans`, keyed by job id and kind)
-// and the spend ceilings (`claude_settings`, keyed by name). Neither table carries a version: the latest write wins and its
-// `at` comes from the Worker clock.
+// and the spend ceilings (`settings`, keyed by name). The latest write wins; its `at` comes from the Worker clock and each write raises `v`.
 import {
-  parseClaudeSetting,
+  parseSettingRow,
   parseJobPlanRow,
   parseStoredPlanBody,
 } from "../../domain/index.ts";
@@ -44,13 +43,13 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
       putNumbers: async (values: Record<string, number>): Promise<void> => {
         const at = opts.clock();
         for (const [key, value] of Object.entries(values)) {
-          const row = gateRow("claude_settings", () =>
-            parseClaudeSetting({ key, value, at }),
+          const row = gateRow("settings", () =>
+            parseSettingRow({ key, value, at, v: 1 }),
           );
           await db
             .prepare(
-              "INSERT INTO claude_settings (key, value, at) VALUES (?, ?, ?) " +
-                "ON CONFLICT (key) DO UPDATE SET value = excluded.value, at = excluded.at",
+              "INSERT INTO settings (key, value, at, v) VALUES (?, ?, ?, 1) " +
+                "ON CONFLICT (key) DO UPDATE SET value = excluded.value, at = excluded.at, v = v + 1",
             )
             .bind(row.key, row.value, row.at)
             .run();

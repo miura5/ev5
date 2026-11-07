@@ -34,6 +34,7 @@ import {
   parseCeilingUse,
   parseCeilingHold,
   parseCeilingUsage,
+  parseSettingRow,
 } from '../../domain/index.ts';
 
 const read = (name: string): string => readFileSync(new URL(name, import.meta.url), 'utf8');
@@ -142,6 +143,7 @@ const tables: Entry[] = [
     sample: { id: 'draft_1', job_id: 'j', kind: 'set-item', target_kind: 'own_sets', target_id: 's1', body: {}, state: 'pending', ...S },
     extra: ['target_c'],
   },
+  { table: 'settings', parse: parseSettingRow, sample: { key: 'ceiling_daily', value: 1, ...S } },
   { table: 'deletions', parse: parseDeletion, sample: { c: 'notes', id: 'n1', at: 1 } },
   { table: 'job_plans', parse: parseJobPlanRow, sample: { jobId: 'j', kind: 'plan', body: {}, at: 1 } },
   { table: 'ceiling_use', parse: parseCeilingUse, sample: { w: 'day', k: 'k', used: 0 } },
