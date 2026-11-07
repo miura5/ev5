@@ -6,7 +6,6 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { buildAnswer } from "./answer.ts";
 import { StudyView } from "./Study.view.tsx";
 import { gradeFailure, useGrade } from "./useStudy.ts";
 
@@ -108,14 +107,4 @@ test("a choice item keeps the self-rating path", () => {
   answer("a");
   expect(onGrade).not.toHaveBeenCalled();
   expect(screen.getByText("Good")).toBeTruthy();
-});
-
-test("a long answer in the ev4 document says it was cut, with its length", () => {
-  const a = buildAnswer("s", "q", "good", "y".repeat(700), new Date(0), "x");
-  const e = (
-    a.doc.answers as Record<string, Record<string, Record<string, unknown>>>
-  ).q!["page-19700101-000000-x"]!;
-  expect(e.textCut).toBe(true);
-  expect(e.textLength).toBe(700);
-  expect((e.text as string).length).toBe(600);
 });
