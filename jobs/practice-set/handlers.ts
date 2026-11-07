@@ -1,6 +1,6 @@
-// The practice set job's step handlers (plan, call, save). Steps return ids, never content: the written items wait in a
+// The practice set job's step handlers (plan, call, keep, save). Steps return ids, never content: the written items wait in a
 // result store (keyed by job id, so a retried step writes the same row) until the save step puts them in D1.
-import { billedOnThrow, putKept, type ModelCall } from "../runtime/output.ts";
+import { billedOnThrow, type ModelCall } from "../runtime/output.ts";
 import { NonRetryableError } from "../runtime/non-retryable.ts";
 import type { StepHandlers } from "../runtime/workflow.ts";
 import { parseInput, practiceSet, writePracticeSet } from "./job.ts";
@@ -39,7 +39,13 @@ export function practiceSetHandlers({
       );
       await c.spend(r.costCents);
       if (!r.ok) throw new NonRetryableError(r.reason);
-      return { ids: [await putKept(() => store.put(c.jobId, r))] };
+      // No D1 write here: the result goes to the next step in the Workflow's step state (§job.steps).
+      return { ids: [`${c.jobId}:result`], carry: r };
+    },
+    keep: async (c) => {
+      const r = c.carried?.call as Written | undefined;
+      if (!r) return { ids: [`${c.jobId}:result`] }; // the call step found it already kept
+      return { ids: [await store.put(c.jobId, r)] };
     },
     save: async (c) => {
       const { targetId } = parseInput(c.input);

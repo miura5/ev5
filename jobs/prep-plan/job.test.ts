@@ -61,7 +61,6 @@ function memStore(over: { exam?: typeof exam | undefined; failApproveOnce?: bool
     getContext: async (j) => rows.get(`c${j}`) as PlanContext,
     putDraft: async (j, p) => (rows.set(`d${j}`, p), over.failPutOnce && putTries++ === 0 ? lostReply() : `draft-${j}`),
     getDraft: async (j) => rows.get(`d${j}`) as Plan,
-    findDraft: async (j) => rows.get(`d${j}`) as Plan | undefined,
     approve: async (j, p) => {
       if (over.failApproveOnce && approveTries++ === 0) throw new Error('D1 write failed');
       log.push(`approve ${p.tasks.length}`);

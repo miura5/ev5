@@ -126,7 +126,6 @@ export function d1PlanStore(
     getContext: (j) => need<PlanContext>(j, "context"),
     putDraft: (j, plan) => put(j, "draft", plan),
     getDraft: (j) => need<Plan>(j, "draft"),
-    findDraft: (j) => get<Plan>(j, "draft"),
     async approve(jobId, plan) {
       await writeTables(jobId, plan, "in_force");
       await put(jobId, "status", "approved");
