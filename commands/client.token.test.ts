@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { api, call, failureSentence, forgetToken, readToken, saveToken, UNAUTHORIZED_EVENT } from "./client.ts";
+import { api, call, failureSentence, forgetToken, pictureApi, readToken, saveToken, UNAUTHORIZED_EVENT } from "./client.ts";
 
 let seen = 0;
 const on = () => seen++;
@@ -74,4 +74,16 @@ test("call(): no token, a wrong token and a server error give plain sentences, n
 test("call(): a lost connection is a plain sentence with status 0", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("Failed to fetch"); }));
   expect(await call("item.pin", {}, "t")).toEqual({ ok: false, status: 0, reason: failureSentence(new TypeError("x")) });
+});
+
+test("pictureApi.put refuses any key outside note-images/ and sends a note-images key as a PUT", async () => {
+  const fetchMock = vi.fn(async () => new Response(null, { status: 201 }));
+  vi.stubGlobal("fetch", fetchMock);
+  const file = new Blob(["x"], { type: "image/png" });
+  for (const bad of ["jobs/x/continue", "note-images/../jobs.png", "note-images/a/b.png", "/note-images/a.png", "note-images/a.exe"])
+    expect(() => pictureApi.put(bad, file, "t")).toThrow(/note-images/);
+  expect(fetchMock).not.toHaveBeenCalled();
+  const r = await pictureApi.put("note-images/abcdefghijklmnop.png", file, "t");
+  expect(r.status).toBe(201);
+  expect(fetchMock).toHaveBeenCalledTimes(1);
 });
