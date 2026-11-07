@@ -1,4 +1,4 @@
-// The one write gate for the side tables (§data.gate), the sibling of the docs gate: a row is parsed by its domain rule
+// The one write gate for every table (§data.gate): a row is parsed by its domain rule
 // and measured against the size budget before anything is written, and a refusal carries a plain reason. A stale version
 // is the only conflict (the Saved result); a refused row throws WriteRefused, so no caller can mistake it for a 409.
 import type { Json } from "../protocol/canonical.ts";

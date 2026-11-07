@@ -1,5 +1,5 @@
 // Repositories for collections, memberships and pins (PLAN section 5.10). Rows carry `at` (ms in D1,
-// an ISO string in the domain) and `v` with the docs protocol: a new row needs ifVersion null, a change needs the version
+// an ISO string in the domain) and `v` with the write protocol (gate.ts): a new row needs ifVersion null, a change needs the version
 // last read, and a stale write is refused, never merged. Every row read is parsed by its domain rule.
 import { parseCollection, parseMembership } from "../../domain/index.ts";
 import { parsePin } from "../../domain/index.ts";

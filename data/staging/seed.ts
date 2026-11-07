@@ -45,7 +45,7 @@ async function call(s: Seeder, method: string, path: string, body?: unknown) {
   return JSON.parse(text) as Record<string, unknown>;
 }
 
-/** Rows of one kind over its row route (GET /api/v1/notes, /goals), not the old /docs read. */
+/** Rows of one kind over its row route (GET /api/v1/notes, /goals). */
 const rows = async (s: Seeder, path: "notes" | "goals") =>
   ((await call(s, "GET", `/api/v1/${path}`))["rows"] ?? []) as {
     id: string;
