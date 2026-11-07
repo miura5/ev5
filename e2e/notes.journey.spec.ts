@@ -1,6 +1,7 @@
 import { expect, test } from "./gate5.ts";
+import { cmd, rows, softDelete } from "./helpers.ts";
 
-test("Notes opens; a document writes, updates, refuses a stale write and cannot be deleted", async ({
+test("Notes opens; a note saves, updates, refuses a stale save and reads back", async ({
   page,
   api,
 }) => {
@@ -8,18 +9,25 @@ test("Notes opens; a document writes, updates, refuses a stale write and cannot 
   await expect(
     page.getByRole("heading", { name: "Notes", level: 1 }),
   ).toBeVisible();
-  const notes = await api("GET", "/api/v1/docs?collection=notes");
-  expect((notes.body["docs"] as unknown[]).length).toBeGreaterThanOrEqual(2);
-  const at = `/api/v1/docs?collection=ideas&id=e2e-${Date.now()}`;
-  expect((await api("PUT", at, { text: "e2e one" })).body["version"]).toBe(1);
-  expect(
-    (await api("PUT", `${at}&if_version=1`, { text: "e2e two" })).body[
-      "version"
-    ],
-  ).toBe(2);
-  expect(
-    (await api("PUT", `${at}&if_version=1`, { text: "stale" })).status,
-  ).toBe(409);
-  expect((await api("GET", at)).body["data"]).toEqual({ text: "e2e two" });
-  expect((await api("DELETE", "/api/v1/docs")).status).toBe(403);
+  expect((await rows(api, "notes")).length).toBeGreaterThanOrEqual(2);
+
+  const id = (await cmd(api, "note.create", {}))["id"] as string;
+  try {
+    const one = await cmd(api, "note.save", { id, body: "e2e one" });
+    const two = await cmd(api, "note.save", {
+      id,
+      body: "e2e two",
+      if_version: one["version"] as number,
+    });
+    expect(two["version"]).toBe((one["version"] as number) + 1);
+    const stale = await api("POST", "/api/v1/commands/note.save", {
+      input: { id, body: "stale", if_version: one["version"] },
+    });
+    expect(stale.status).toBe(409);
+    const read = await api("GET", `/api/v1/notes/${id}`);
+    expect(read.status).toBe(200);
+    expect(read.body["text"]).toContain("e2e two");
+  } finally {
+    await softDelete(api, id);
+  }
 });

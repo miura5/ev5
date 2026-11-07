@@ -1,12 +1,12 @@
 import { expect, test } from "./gate5.ts";
+import { rows } from "./helpers.ts";
 
 test("Notes: read once online, then offline a reload shows the shell, the saved copy notice and the notes list", async ({
   page,
   context,
   api,
 }) => {
-  const notes = await api("GET", "/api/v1/docs?collection=notes");
-  expect((notes.body["docs"] as unknown[]).length).toBeGreaterThanOrEqual(1);
+  expect((await rows(api, "notes")).length).toBeGreaterThanOrEqual(1);
 
   const list = page.getByRole("region", { name: "Recent" });
   const row = list.locator(".ev-notes-line").first();
