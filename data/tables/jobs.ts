@@ -3,6 +3,7 @@
 import {
   parseSettingRow,
   parseJobPlanRow,
+  parseStoredPlan,
   parseStoredPlanBody,
 } from "../../domain/index.ts";
 import type { D1Like } from "../d1.ts";
@@ -20,6 +21,28 @@ export function jobsRepo(db: D1Like, opts: TablesOptions) {
           .bind(jobId, kind)
           .first<unknown>();
         return r ? parseStoredPlanBody(r) : undefined;
+      },
+      /** The saved bodies of one kind for several jobs, by job id; a row that does not parse is left out. */
+      getMany: async (
+        kind: string,
+        ids: string[],
+      ): Promise<Map<string, unknown>> => {
+        const out = new Map<string, unknown>();
+        if (!ids.length) return out;
+        const { results } = await db
+          .prepare(
+            `SELECT job_id, body FROM job_plans WHERE kind = ? AND job_id IN (${ids.map(() => "?").join(",")})`,
+          )
+          .bind(kind, ...ids)
+          .all<unknown>();
+        for (const r of results)
+          try {
+            const { jobId, body } = parseStoredPlan(r);
+            out.set(jobId, body);
+          } catch {
+            // a row that does not read is left out
+          }
+        return out;
       },
       /** Saves `body` as the job's `kind` entry, replacing an earlier one. */
       put: async (

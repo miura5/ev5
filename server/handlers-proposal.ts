@@ -3,7 +3,6 @@
 import { byName } from "../commands/index.ts";
 import type { suggest } from "../commands/index.ts";
 import { tablesRepo } from "../data/index.ts";
-import { draftKey } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 
@@ -33,12 +32,7 @@ const repo = (x: Pick<HandlerCtx, "db" | "clock">) =>
   tablesRepo(x.db, { clock: x.clock }).drafts;
 
 async function pending(x: HandlerCtx, id: string): Promise<Row> {
-  const r = await x.db
-    .prepare(
-      "SELECT id, target_id, body, v FROM drafts WHERE id = ? AND kind = ? AND state = 'pending'",
-    )
-    .bind(draftKey(id), KIND)
-    .first<Row>();
+  const r = await repo(x).pendingRow(id, KIND);
   if (!r) throw new CommandError(404, `no pending Suggestion ${id}`);
   return r;
 }

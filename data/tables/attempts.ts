@@ -15,6 +15,14 @@ export function attemptsRepo(db: D1Like, opts: TablesOptions) {
   return {
     attempts: {
       ...k.attempts,
+      /** How many attempts name the item (a count, no rows read). */
+      countFor: async (itemId: string): Promise<number> =>
+        (
+          await db
+            .prepare("SELECT COUNT(*) AS n FROM attempts WHERE item_id = ?")
+            .bind(itemId)
+            .first<{ n: number }>()
+        )?.n ?? 0,
       /** Appends one attempts row. A repeated id (an outbox retry) is a conflict, so the row is never doubled. */
       record: async (a: AttemptInput) => {
         const item = await k.setItems.get(a.item_id);
