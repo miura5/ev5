@@ -268,7 +268,7 @@ Other job kinds (a guide, a share set, a look back after a date) follow after cu
 **The approved mock-up** (`design/mockup.html`) is the visual reference. When the mock-up and this text disagree on looks, the mock-up wins. On rules, this text wins.
 
 **Layout:** five regions, each generated from its folder:
-1. **Sidebar:** from `areas/*/area.ts`: Today, Ask E.V., Library, Notes, Progress, Activity, then **Matt's pins** (collections, saved views, notes, sets, plan items, dates). Counts, no badges. At its foot: a running job as one quiet line, then **Recently deleted**. **[Mock-up: changed]** (was "then Courses"; C12)
+1. **Sidebar:** from `areas/*/area.ts`: Today, Ask E.V., Library, Notes, Progress, Activity, then **Matt's pins** (Pinned holds folders and notes). Counts, no badges. At its foot: **Recently deleted**; a running job has no line here. **[Mock-up: changed]** (was "then Courses"; C12)
 2. **Area:** one centred column, at most 720 px. **[Mock-up: added]** Notes is a home list (recent, then collections as folding rows nested one level) plus one centred page per note. A list and a doc are never side by side. A set has one page with two modes, view and Edit. There is no separate editor screen.
 3. **Detail panel:** one panel for any item. Each domain type defines how it is shown.
 4. **⌘K:** the command registry, filtered by where you are, plus found items and pins. Tab hands the request to E.V.
@@ -292,15 +292,15 @@ Other job kinds (a guide, a share set, a look back after a date) follow after cu
 15. **[Mock-up: added]** Titles and properties edit in place. Properties live in Detail. The one exception: a set's collection and source sit on its Edit page.
 16. **[Mock-up: added]** An item sits in at most one collection. Collections nest one level. Deleting a collection leaves its items, ungrouped.
 17. **[Mock-up: added]** Weak spots come from Matt's misses: E.V. proposes and Matt confirms. "Mark as learned" is a status, not a delete. Weak spots aren't one of the eight item types, so their rows have no glyph.
-18. **[Mock-up: added]** One line glyph per type, eight in all: note, card set, question set, step set, plan item, job, collection, date. No colour-coding. A row shows at most four things.
+18. **[Mock-up: added]** One line glyph per type, seven in all: note, card set, question set, step set, plan item, collection, date. A job row shows the glyph of what it makes, never a job glyph. No colour-coding. A row shows at most four things.
 
-**[Mock-up: changed] The kit's first set** is the mock-up's: Button (primary, one per screen; secondary, text, icon; key hint beside it) · Field (bordered input, segmented choice, borderless cell) · Row (glyph, title, one meta, one value; folding and two-cell editor variants) · Tile · Glyph (8) · E.V. line · Suggestion (proposal, draft) · Source ("from Note · …" or "unverified") · Study card (with the set's hero card) · Text options · Detail (properties in place, ⋯) · Menu (item actions and every picker) · ⌘K palette · Toast (one line, Undo) · Doc (the note page; the session bar and checks only during a session). Compared with the old list, Shortcut hint folds into Button and Job card into Row, and Sheet and Meter wait until an area needs them. Anything else is added when an area needs it, and a new look starts in `kit/` and its story, never in a view.
+**[Mock-up: changed] The kit's first set** is the mock-up's: Button (primary, one per screen; secondary, text, icon; key hint beside it) · Field (bordered input, segmented choice, borderless cell) · Row (glyph, title, one meta, one value; folding and two-cell editor variants) · Mark · Trend · StepMeter · Horizon · Glyph (7) · E.V. line · Suggestion (proposal, draft) · Source ("from Note · …" or "unverified") · Study card (with the set's hero card) · Text options · Detail (properties in place, ⋯) · Menu (item actions and every picker) · ⌘K palette · Toast (one line, Undo) · Doc (the note page; the session bar and checks only during a session). Compared with the old list, Shortcut hint folds into Button and Job card into Row, and Sheet and Meter wait until an area needs them. Anything else is added when an area needs it, and a new look starts in `kit/` and its story, never in a view.
 
 ## 8. Cutover scope
 
 v5 goes live, on Matt's word, when these match or beat ev4:
 1. **Today:** the plan list, including approved prep-plan tasks, the morning review set and note tasks; Suggestions; upcoming dates of any kind. **[Mock-up: changed]** The weekly review is a Needs-you item in Activity on Sundays, not a line on Today.
-2. **Library:** practice (attempt first, cited feedback), weak spots, Dates with their prep plan, sets, and one retrieval-accuracy line. **[Mock-up: changed]** Weak spots (worst first, Drill) sit on the Library home and on a date's Detail, and the accuracy line sits under the Library title. Question sets can be made and edited by hand, with "Write with E.V." drafts (C13).
+2. **Library:** practice (attempt first, cited feedback), weak spots, Dates with their prep plan, sets, and one retrieval-accuracy line. **[Mock-up: changed]** Weak spots (worst first, each with a line on why it is there) sit on the Library home and on a date's Detail, and the accuracy line sits under the Library title. Question sets can be made and edited by hand, with "Write with E.V." drafts (C13).
 3. **Ask E.V.:** chat with the generated tools, attempt-first, and `job_status`.
 4. **Notes, with sessions:** the editor, images, two-column rows, read-along, session comments and check questions, writing time, and the offline outbox **(confirm)**.
 5. **Activity.**
@@ -313,9 +313,9 @@ v5 goes live, on Matt's word, when these match or beat ev4:
    - pushes to the phone through a thin cloud task that only reads v5's summary **(confirm)**;
    - the export and the restore drill.
 
-**After cutover:** Progress (beyond the accuracy line), FSRS cards, the other job kinds, predictions and calibration, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
+**Progress** at cutover is one page, with "Ready for" listing every dated goal, nearest first, with no 30-day filter. **After cutover:** Progress (beyond that page and the accuracy line), FSRS cards, the other job kinds, predictions and calibration, and Matt-first planning **(confirm)**: Matt rates his confidence per objective first, E.V. compares that with his accuracy and proposes, and he edits.
 
-**[Mock-up: added] Also after cutover, though shown in the mock-up:** card sets and step sets, with due counts and Again / Good (C3); "Make cards" from a note; Learn and Test modes; saved views; rating confidence before approving a prep plan (until then Approve works without ratings, C9); the phone layout (the phone stays as it is, §2.2). The mock-up shows the long-term design, and this list decides what ships first.
+**[Mock-up: added] Also after cutover, though shown in the mock-up:** card sets and step sets, with due counts and Again / Good (C3); "Practice from this" on a note (one quiet text action); Learn and Test modes; saved views; rating confidence before approving a prep plan (until then Approve works without ratings, C9); the phone layout (the phone stays as it is, §2.2). The mock-up shows the long-term design, and this list decides what ships first.
 
 ## 9. Failure modes (decided)
 

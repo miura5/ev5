@@ -75,3 +75,20 @@ kit:       Button: primary (one per screen), secondary, text, icon; key hint bes
 3. **The command registry list** that the interaction map implies (PLAN §6.1).
 4. **The kit's first set,** reconciled with PLAN §7.
 5. **Weak spots have no glyph:** confirm that, or add a ninth.
+
+## Final mock-up, 2026-11-07 (replaces round 7)
+
+`design/mockup.html` is now ev-design's final mock-up (copied from `design/final-reference/design/mockup.html`, sha256 28475da7...). Changes against round 7 and the edits they caused:
+
+- No load bars on the Horizon; the rail Horizon shows dates only. Progress has no wide Horizon and no Drill next.
+- The Keys row opens ⌘K; there is no key sheet.
+- Stop shows "Stopped by you." on the job; Approve is always enabled (rating before approval is after cutover); no Undo after ratings or talk; no Mark modes; the collection page keeps its Pinned section.
+- Sidebar: Pinned holds folders and notes; no running-job line.
+- Keys: S starts or runs Detail's primary, ⌘↵ finishes, Y accepts and N dismisses a suggestion, W, ⇧C and ⇧D as drawn; no A.
+- Seven glyphs; a job row shows the glyph of what it makes, with a pulsing dot while it runs. ⌘K matches word starts.
+- Kit first set: no Tile; Mark, Trend, StepMeter and Horizon added.
+- Studio fixes: the session toast reads "Session saved · 25 min" (no "in Progress"); PLAN §8 "Ready for" lists every dated goal, nearest first, no 30-day filter.
+- Notes and practice: the note toolbar action, the note item menu and the design-system Note row read "Practice from this" (quiet, no E.V. mark), not "Make cards".
+
+Rule edits: CONTRACT §ui.mockup, §ui.first-set, §ui.keymap, §ui.glyphs, §ui.status, §ui.sidebar, §ui.palette; PLAN §7 (sidebar, glyphs, first set) and §8 (Progress, weak-spot line, Practice from this).
+The removed parts are all after cutover (see B-825).

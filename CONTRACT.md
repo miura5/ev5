@@ -83,18 +83,18 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §model.alert · At 80% of the monthly ceiling: an Activity "needs you" alert and one line on Today; the Anthropic Console spend limit stays the final backstop. <!-- PLAN §6.5 -->
 
 ## 7. UI
-- §ui.mockup · `design/mockup.html` (round 7) is the visual reference and wins on looks, while these lines win on structure and rules; Proprietary is E.V.'s own design system, not a framework's look, with unstyled Radix primitives and cmdk for behaviour only, and the kit owns every pixel. <!-- PLAN §7, D-370, D-371 -->
+- §ui.mockup · `design/mockup.html` (the final mock-up) is the visual reference and wins on looks, while these lines win on structure and rules; Proprietary is E.V.'s own design system, not a framework's look, with unstyled Radix primitives and cmdk for behaviour only, and the kit owns every pixel. <!-- PLAN §7, D-370, D-371 -->
 - §ui.kit-leads · A new look starts in `kit/` with its story, never in a view, and a view's look changes only through tokens or components; colour, type, space, radius, duration and easing come only from `kit/tokens/tokens.css`, enforced by Stylelint (`stylelint.config.js`), with off-step values snapped to the nearest token. <!-- PLAN §11, D-382, D-380, D-402 -->
 - §ui.gallery · Every kit component shows in the `/kit` gallery in every state, visually diffed by Playwright in its Docker image; tests select by role and name, `data-ui`, `data-key` or region ids, never by visual classes. <!-- PLAN §7, D-383, D-387, D-391 -->
 - §ui.access · Text meets 4.5:1 contrast in both themes, and one reduced-motion setting zeroes every duration. <!-- D-273, D-379 -->
 - §ui.instant · A tap paints its new state at once; a refused write reverts and shows "not saved". <!-- D-208, D-227 -->
 - §ui.layout · Five regions, each generated from its folder: sidebar, area (one centred column, at most 720 px), Detail panel, ⌘K, Activity; Notes is a home list plus one centred page per note, never side by side, and a set has one page with view and Edit modes. <!-- PLAN §7 -->
-- §ui.sidebar · The sidebar lists Today, Ask E.V., Library, Notes, Progress, Activity, then Matt's pins (a pinned collection shows the day of its next linked date), with counts and no badges, and no Courses section, and at its foot the running job as one quiet line, then Recently deleted. <!-- PLAN §7 -->
-- §ui.palette · ⌘K shows the registry filtered by place, found items and pins, and Tab hands the request to E.V.; ⌘J toggles Ask E.V. <!-- PLAN §2.2, §7 -->
+- §ui.sidebar · The sidebar lists Today, Ask E.V., Library, Notes, Progress, Activity, then Matt's pins (Pinned holds folders and notes only; a pinned collection shows the day of its next linked date), with counts and no badges, and no Courses section, and at its foot Recently deleted; the running job has no line in the sidebar. <!-- PLAN §7 -->
+- §ui.palette · ⌘K shows the registry filtered by place, found items and pins, matches the start of any word in a title, and Tab hands the request to E.V.; ⌘J toggles Ask E.V. <!-- PLAN §2.2, §7 -->
 - §ui.two-surfaces · Two surfaces only, sidebar and content; no boxes inside boxes. <!-- PLAN §7.1 -->
 - §ui.three-sizes · Three text sizes (20, 14, 12) and three greys; weight 600 only for titles; the study card face at 24 is the one exception. <!-- PLAN §7.2 -->
 - §ui.one-orange · One orange element per screen, the main action or E.V.'s mark; when Detail has a primary action, the screen's own steps down. <!-- PLAN §7.3, D-381 -->
-- §ui.status · Status shows only as a dot or a meter; the plan ring and job ring are glyphs that also carry status. <!-- PLAN §7.4 -->
+- §ui.status · Status shows only as a dot or a meter; the plan ring is a glyph that also carries status, and a job row shows the glyph of what it makes, with a pulsing dot while it runs. <!-- PLAN §7.4 -->
 - §ui.lists · Lists have no frames; actions appear on hover, focus or right-click. <!-- PLAN §7.5 -->
 - §ui.ev-once · E.V. speaks once per screen; its suggestions appear dashed, in the list they would change. <!-- PLAN §7.6 -->
 - §ui.grid · 8 px grid, 40 px rows, 48 px between sections. <!-- PLAN §7.7 -->
@@ -104,12 +104,12 @@ The only hand-written rules. One rule per line, each with a stable `§id`. Skill
 - §ui.own-everything · Every item Matt owns (plan item, note, set, date, collection, saved view) can be created, edited and deleted by hand where it lives. <!-- PLAN §7.11, D-080 -->
 - §ui.delete · Delete moves an item to Recently deleted for 30 days with Undo and Restore; no "delete forever"; jobs are never deleted. <!-- PLAN §7.12 -->
 - §ui.with-ev · Where E.V. can help, one quiet "with E.V." action sits beside the manual one; its output arrives dashed and cited, and Matt keeps or drops each piece. <!-- PLAN §7.13 -->
-- §ui.keymap · C creates, E edits a set, ⌫ deletes, . or right-click opens the item menu, P pins, M moves, S runs Detail's primary, X toggles a plan item, Esc leaves. <!-- PLAN §7.14 -->
+- §ui.keymap · C creates, E edits a set, ⌫ deletes, . or right-click opens the item menu, P pins, M moves, S starts or runs Detail's primary, ⌘↵ finishes, Y accepts and N dismisses a suggestion, X toggles a plan item, W practises from a note, ⇧C makes a collection, ⇧D a date, Esc leaves; there is no A. <!-- PLAN §7.14 -->
 - §ui.in-place · Titles and properties edit in place, properties in Detail; a set's collection and source sit on its Edit page. <!-- PLAN §7.15 -->
 - §ui.one-collection · An item sits in at most one collection; collections nest one level; deleting one leaves its items ungrouped. <!-- PLAN §7.16 -->
 - §ui.weak-spots · Weak spots come from Matt's misses, E.V. proposes and Matt confirms; "Mark as learned" is a status, not a delete; weak-spot rows have no glyph. <!-- PLAN §7.17, D-289 -->
-- §ui.glyphs · One line glyph per type, eight in all (note, card set, question set, step set, plan item, job, collection, date); no colour-coding; a row shows at most four things. <!-- PLAN §7.18 -->
-- §ui.first-set · The kit's first set is PLAN §7's list (Button, Field, Row, Tile, Glyph, E.V. line, Suggestion, Source, Study card, Text options, Detail, Menu, ⌘K palette, Toast, Doc); anything else is added when an area needs it. <!-- PLAN §7 -->
+- §ui.glyphs · One line glyph per type, seven in all (note, card set, question set, step set, plan item, collection, date); a job row shows the glyph of what it makes, never a job glyph; no colour-coding; a row shows at most four things. <!-- PLAN §7.18 -->
+- §ui.first-set · The kit's first set is PLAN §7's list (Button, Field, Row, Glyph, Mark, Trend, StepMeter, Horizon, E.V. line, Suggestion, Source, Study card, Text options, Detail, Menu, ⌘K palette, Toast, Doc; no Tile); anything else is added when an area needs it. <!-- PLAN §7 -->
 - §ui.targets · The target is desktop Chrome at 1280 as an installed app; the phone stays frozen at "it works" on ev-live's URL, with no phone layout or polish work. <!-- PLAN §2.2, D-367, D-394, D-406, D-407, D-330 -->
 
 ## 8. Security and privacy

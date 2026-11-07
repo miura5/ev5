@@ -13,16 +13,14 @@
   Since approval (2026-11-06): the Library has tabs (Practice · Weak spots · Dates · Sets); a date's Detail is Title, Date, Kind, Collection and its weak spots, and an exam adds its Prep plan.
   Round 6 gave Notes the Library's shape: a home list with collections as folding rows, and one centred page per note.
   Round 5 added the item rule: anything Matt owns is created, edited and deleted by hand from where it lives;
-  where E.V. can help there is one quiet "with E.V." action, and what she writes arrives dashed, cited, kept or dropped.
+  where E.V. can help there is one quiet "with E.V." action, and what E.V. writes arrives dashed, cited, kept or dropped.
   Layout of this file: <style> (A's kit verbatim, A's additions, then "Round 4" and "Round 5"), shell, screens, Detail,
   ⌘K, menu, toast, then <script>: synthetic data, forms, screens, create / delete / edit, Detail, menu, palette, keys,
   #system, #phone.
   Deep links: #today #ask #library #set/s-co #set/s-co/edit #study/s-co #notes #note/n-co #note/n-co/session #c/biology #c/interview #c/spanish
   #v/due #deleted #progress #activity #system #phone
 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../kit/tokens/fonts.css">
 <style>
 /* E.V. v5 · Proprietary revision · the one source for every board on this canvas.
    Tokens first (dark and light), then type, then components. Boards use only these classes. */
@@ -32,26 +30,47 @@
   --side:#101012; --bg:#151517; --surface:#1b1b1e; --hover:#222226; --sel:#2a2a2f;
   --line:#232327; --line2:#303036;
   --text:#ececef; --quiet:#a3a3ab; --faint:#92929a;
-  --her:#e0743a; --her2:#cf5a45; --on-her:#1a0d05;
-  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62; --info:#6b9cf5;
+  --her:#e0743a; --her-hover:#e8834d; --on-her:#1a0d05;
+  --ok:#4cc27e; --warn:#d6a53c; --bad:#ec6a62;
   --scrim:rgba(0,0,0,.5); --shadow-pop:0 0 0 1px #303036,0 24px 60px rgba(0,0,0,.5);
   --fs-meta:12px; --fs-body:14px; --fs-title:20px; --fw-title:600; --lh:1.5;
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-14:56px;
-  --r-sm:6px; --r-md:8px; --r-lg:12px; --row:40px; --row2:48px; --col:720px; --side-w:224px;
+  --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --row:40px; --row2:48px; --col:720px; --side-w:224px;
   --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --icon:16px;
-  --dur-1:150ms; --dur-2:200ms; --dur-3:250ms; --ease:cubic-bezier(.2,0,0,1); --rise:4px;
+  --icon:16px; --hairline:1px; --focus-ring:2px;
+  --dur-1:150ms; --dur-2:200ms; --dur-think:1.4s; --ease:cubic-bezier(.2,0,0,1); --ease-out:cubic-bezier(.16,1,.3,1); --rise:4px;
   color-scheme:dark;
 }
 .ev[data-theme="light"]{
   --side:#f3f3f4; --bg:#fbfbfb; --surface:#ffffff; --hover:#efeff0; --sel:#e9e9eb;
   --line:#ececee; --line2:#dedee1;
-  --text:#1c1c1f; --quiet:#5f5f66; --faint:#66666c;
-  --her:#b6541d; --her2:#bc4741; --on-her:#ffffff;
-  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45; --info:#2f6fde;
+  --text:#1c1c1f; --quiet:#4a4a4f; --faint:#6b6b70;
+  --her:#b6541d; --her-hover:#a24a18; --on-her:#ffffff;
+  --ok:#2c9a5a; --warn:#a87a0c; --bad:#cc4b45;
   --scrim:rgba(0,0,0,.25); --shadow-pop:0 0 0 1px #dedee1,0 16px 40px rgba(0,0,0,.12);
   color-scheme:light;
 }
+
+
+/* ---------- Horizon: what comes due, day by day, against his dates (round 6) ---------- */
+.hz-label{padding-top:var(--sp-3)}
+.hz-gap{height:var(--sp-1)}
+/* The rail is the kit Horizon with show="dates" (kit/components/Horizon): same DOM, same classes, CSS copied from Horizon.css. */
+.kit-horizon{padding:var(--sp-1) var(--sp-2);border-radius:var(--r-sm);font-family:var(--sans)}
+.kit-horizon[role="button"]{cursor:pointer}
+.kit-horizon[role="button"]:hover{background:var(--hover)}
+.kit-horizon:focus-visible{outline:var(--focus-ring) solid var(--text);outline-offset:calc(-1 * var(--focus-ring))}
+.kit-horizon svg{display:block;width:100%;height:auto;overflow:visible}
+.kit-horizon-base,.kit-horizon-mark{stroke:var(--line2);stroke-width:var(--hairline)}
+.kit-horizon-mark.wk{stroke:var(--faint)}
+.kit-horizon-now{stroke:var(--quiet);stroke-width:2;stroke-linecap:round}
+.kit-horizon-dot{fill:var(--quiet)}
+.kit-horizon-ring{fill:none;stroke:var(--text);stroke-width:1.5;opacity:0}
+.kit-horizon-day.sel .kit-horizon-ring{opacity:1}
+.kit-horizon-day.sel .kit-horizon-dot{fill:var(--text)}
+.kit-horizon-hit{fill:transparent}
+.kit-horizon-line{display:block;padding-top:var(--sp-1);font-size:var(--fs-meta);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kit-horizon-line b{font-weight:500;color:var(--quiet)}
 
 /* ---------- Base ---------- */
 .ev{background:var(--side);color:var(--text);font:var(--fs-body)/var(--lh) var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
@@ -60,7 +79,7 @@
 .ev h1,.ev h2,.ev h3,.ev p{margin:0}
 
 /* ---------- Type (three sizes) ---------- */
-.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.01em;line-height:1.3}
+.t-title{font-size:var(--fs-title);font-weight:var(--fw-title);letter-spacing:-.02em;line-height:1.25}
 .t-body{font-size:var(--fs-body)}
 .t-meta{font-size:var(--fs-meta);color:var(--faint)}
 .t-label{font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
@@ -70,6 +89,7 @@
 /* ---------- Layout helpers ---------- */
 .stack{display:flex;flex-direction:column}
 .line{display:flex;align-items:center}
+.line.wrap{flex-wrap:wrap}
 .wrap{flex-wrap:wrap}
 .g1{gap:var(--sp-1)} .g2{gap:var(--sp-2)} .g3{gap:var(--sp-3)} .g4{gap:var(--sp-4)} .g6{gap:var(--sp-6)} .g8{gap:var(--sp-8)} .g12{gap:var(--sp-12)}
 .grow{flex:1;min-width:0}
@@ -78,12 +98,14 @@
 /* ---------- Shell (Sidebar, Area, Detail) ---------- */
 /* Variant A: every size below is one of the three text sizes (12/14/20); spacing is on the 8 px rhythm. */
 .shell{display:flex;flex-wrap:wrap;min-height:100%}
-.sidebar{flex:0 0 var(--side-w);padding:var(--sp-4) var(--sp-2);display:flex;flex-direction:column;gap:2px}
+.sidebar{flex:0 0 var(--side-w);padding:var(--sp-4) var(--sp-2);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sidebar > *{flex:none}
 .ws{display:flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-2);margin-bottom:var(--sp-2);font-weight:600}
 .search{display:flex;align-items:center;justify-content:space-between;height:32px;margin:0 0 var(--sp-3);padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--faint);font-size:var(--fs-body);box-shadow:inset 0 0 0 1px var(--line)}
 .nav{display:flex;align-items:center;gap:10px;height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);color:var(--quiet);font-size:var(--fs-body)}
-.nav.on{background:var(--hover);color:var(--text)}
+.nav.on{background:var(--sel);color:var(--text);font-weight:500}
 .nav svg{width:var(--icon);height:var(--icon);flex:none;stroke:var(--quiet);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.nav .dot.d-run{margin-right:var(--sp-2)}
 .nav .n{margin-left:auto;font-size:var(--fs-meta);color:var(--faint)}
 .navgrp{font-size:var(--fs-meta);font-weight:500;color:var(--faint);padding:var(--sp-6) var(--sp-2) var(--sp-1)}
 .area{flex:999 1 560px;min-width:0;margin:var(--sp-2) var(--sp-2) var(--sp-2) 0;border-radius:var(--r-lg);background:var(--bg);display:flex;flex-wrap:wrap;overflow:hidden}
@@ -92,24 +114,27 @@
 .detail{flex:1 1 340px;max-width:400px;border-left:1px solid var(--line);padding:var(--sp-6) var(--sp-8);display:flex;flex-direction:column;gap:var(--sp-6)}
 
 /* ---------- Components ---------- */
-.mark{width:16px;height:16px;border-radius:50%;border:2px dotted var(--her);flex:none;display:inline-block}
+/* E.V.'s mark: the small-size cut of the Consolidate symbol, in --her (or --faint when quiet). */
+.mark{width:16px;height:16px;flex:none;display:inline-block;background:var(--her);-webkit-mask:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"%3E%3Cpath fill="%23000" d="M128.22 32.88A15.3 15.3 0 1 1 158.82 32.88A15.3 15.3 0 1 1 128.22 32.88ZM183.99 66.6A18 18 0 1 1 219.99 66.6A18 18 0 1 1 183.99 66.6ZM241.99 130.43A114.03 114.03 0 0 1 239.72 150.18A18.33 18.33 0 0 1 203.81 142.83A77.37 77.37 0 0 0 205.36 129.43A18.33 18.33 0 0 1 241.99 130.43ZM200.53 215.31A114.03 114.03 0 0 1 154.61 238.19A18.33 18.33 0 0 1 146.06 202.55A77.37 77.37 0 0 0 177.22 187.03A18.33 18.33 0 0 1 200.53 215.31ZM83.54 232.31A114.03 114.03 0 0 1 44.55 49.62A18.33 18.33 0 0 1 71.38 74.59A77.37 77.37 0 0 0 97.84 198.56A18.33 18.33 0 0 1 83.54 232.31Z"/%3E%3C/svg%3E') center/contain no-repeat;mask:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"%3E%3Cpath fill="%23000" d="M128.22 32.88A15.3 15.3 0 1 1 158.82 32.88A15.3 15.3 0 1 1 128.22 32.88ZM183.99 66.6A18 18 0 1 1 219.99 66.6A18 18 0 1 1 183.99 66.6ZM241.99 130.43A114.03 114.03 0 0 1 239.72 150.18A18.33 18.33 0 0 1 203.81 142.83A77.37 77.37 0 0 0 205.36 129.43A18.33 18.33 0 0 1 241.99 130.43ZM200.53 215.31A114.03 114.03 0 0 1 154.61 238.19A18.33 18.33 0 0 1 146.06 202.55A77.37 77.37 0 0 0 177.22 187.03A18.33 18.33 0 0 1 200.53 215.31ZM83.54 232.31A114.03 114.03 0 0 1 44.55 49.62A18.33 18.33 0 0 1 71.38 74.59A77.37 77.37 0 0 0 97.84 198.56A18.33 18.33 0 0 1 83.54 232.31Z"/%3E%3C/svg%3E') center/contain no-repeat}
 .dot{width:6px;height:6px;border-radius:50%;flex:none;display:inline-block}
-.spin{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line2);border-top-color:var(--info);flex:none;display:inline-block}
 
 .btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:var(--sp-2);height:32px;padding:0 var(--sp-3);border-radius:var(--r-sm);font-size:var(--fs-body);font-weight:500;color:var(--text);cursor:pointer;white-space:nowrap}
 .btn.primary{background:var(--her);color:var(--on-her)}
 .btn.secondary{box-shadow:inset 0 0 0 1px var(--line2)}
 .btn.text{color:var(--quiet);padding:0 var(--sp-2)}
 
-.kbd{display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding:0 var(--sp-1);border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font:var(--fs-meta)/1 var(--sans);font-weight:400;color:var(--faint);text-align:center;flex:none}
+.kbd{display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding:0 var(--sp-1);border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--line2);font:var(--fs-meta)/1 var(--sans);font-weight:400;color:var(--faint);text-align:center;flex:none}
 
 /* Meter: learned / familiar / weak side by side, 4 px, tiny gaps. */
 .meter{display:flex;gap:2px;height:4px;width:100%;flex:none}
 .meter i{display:block;height:100%;border-radius:1px}
 .m-ok{background:var(--ok)} .m-warn{background:var(--warn)} .m-bad{background:var(--bad)}
-.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-info{background:var(--info)} .d-her{background:var(--her)} .d-faint{background:var(--faint)}
+.m-learned{background:var(--quiet)} .m-familiar{background:var(--faint);opacity:.5} .m-weak{box-shadow:inset 0 0 0 1px var(--faint)}
+.legend .k-learned{background:var(--quiet)} .legend .k-familiar{background:var(--faint);opacity:.5} .legend .k-weak{box-shadow:inset 0 0 0 1px var(--faint)} .legend .k-bad{background:var(--bad)}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-her{background:var(--her)} .d-faint{background:var(--faint)}
 
-.tabs{display:flex;gap:var(--sp-6)}
+.tabs{display:flex;align-items:center;gap:var(--sp-6);flex-wrap:wrap}
+.tabs button:hover{color:var(--text)}
 .tabs button{all:unset;display:inline-block;height:32px;line-height:32px;color:var(--quiet);font-size:var(--fs-body);cursor:pointer}
 .tabs button.on{color:var(--text);box-shadow:inset 0 -1.5px 0 var(--text)}
 .tabs button .n{margin-left:6px;font-size:var(--fs-meta);color:var(--faint)}
@@ -117,6 +142,8 @@
 .row{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm)}
 .row:has(.sub){min-height:var(--row2)}
 .row.hover,.row.sel{background:var(--hover)}
+body.detail-on [data-screen] .row:not(.sel) .t > div{color:var(--quiet);transition:color var(--dur-2) var(--ease)}
+body.detail-on [data-screen] .row:not(.sel) :is(.sub,.val){color:var(--faint)}
 .row .t{flex:1;min-width:0}
 .row .t > div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
 .row .sub{display:block;color:var(--faint);font-size:var(--fs-meta);line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -125,12 +152,12 @@
 .ev-line{display:flex;align-items:flex-start;gap:var(--sp-3);color:var(--quiet)}
 .ev-line > .mark{margin-top:3px}
 .ev-line b{color:var(--text);font-weight:500}
-.suggest{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:var(--sp-1) calc(-1 * var(--sp-2)) 0;border-radius:var(--r-sm);border:1px dashed var(--line2);color:var(--quiet)}
+.suggest{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:var(--sp-1) calc(-1 * var(--sp-2)) 0;border-radius:var(--r-sm);border:1px dashed var(--faint);color:var(--quiet)}
 
 .qcard{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line2);padding:var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)}
 .opt{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);padding:0 var(--sp-2);margin:0 calc(-1 * var(--sp-2));border-radius:var(--r-sm)}
 .opt.on{background:var(--hover)}
-.box{width:16px;height:16px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
+.box{width:16px;height:16px;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1.5px var(--line2);flex:none}
 .opt.on .box{background:var(--text);box-shadow:none}
 
 .kv{display:flex;justify-content:space-between;gap:var(--sp-3);font-size:var(--fs-body);color:var(--quiet);min-height:32px;align-items:center}
@@ -159,15 +186,25 @@ html,body{height:100%;margin:0}
 .sec-head{display:flex;align-items:center;gap:var(--sp-3)}
 .head{display:flex;align-items:center;gap:var(--sp-3);min-height:32px}
 .head .t-meta{position:relative;top:2px}
+/* Polish pass: the page title sits over its own line of context. */
+.head:has(> h1.t-title){flex-wrap:wrap;row-gap:var(--sp-1)}
+.head > h1.t-title{min-height:32px;display:flex;align-items:center}
+.head:has(> h1.t-title) > .t-meta{order:3;flex-basis:100%;top:0;font-size:var(--fs-body);color:var(--quiet)}
+/* Polish pass: each section opens on a hairline, so the page reads as a ledger. */
+.sec > .sec-head,[data-tab-panel] > .sec-head{padding-bottom:var(--sp-2);border-bottom:1px solid var(--line);margin-bottom:var(--sp-2)}
+.sec-head > .t-label{color:var(--quiet)}
+/* Polish pass: a field shows focus with a hairline in the quiet grey. */
+.ev input:focus-visible,.ev textarea:focus-visible{outline:1px solid var(--quiet);outline-offset:-1px}
 
 /* Focus (variant A): a crisp 2 px inset ring in the text colour on everything focusable.
    Two surfaces are exempt because the caret already shows focus: the note document and the ⌘K input. */
 .ev :focus{outline:none}
 .ev :focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+.ev .row:focus-visible{outline:1.5px solid var(--quiet);outline-offset:-1.5px}
 .ev .doc:focus-visible,.ev .palette-in:focus-visible{outline:none}
 
 /* Interaction states for kit pieces (the kit draws the static .hover/.sel states). */
-.nav,.search,.row,.opt,.cite,.btn,.tabs button,.seg button,.jobline{transition:background-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
+.nav,.search,.row,.opt,.cite,.btn,.tabs button,.seg button{transition:background-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
 .nav,.search,.row,.opt{cursor:pointer}
 .nav:hover{background:var(--hover);color:var(--text)}
 .search:hover{box-shadow:inset 0 0 0 1px var(--line2)}
@@ -175,34 +212,34 @@ html,body{height:100%;margin:0}
 .row:hover .act,.row:focus-within .act,.row:focus-visible .act{visibility:visible}
 .btn:hover{background:var(--hover)}
 .row .btn:hover,.row.sel .btn:hover{background:var(--sel)}
-.btn.primary:hover{background:var(--her);filter:brightness(1.08)}
+.btn.text:hover .kbd{color:var(--quiet)}
+.btn.primary:hover{background:var(--her-hover)}
 .btn.text:hover{color:var(--text)}
 .btn:disabled{opacity:.45;cursor:default}
-.btn.primary:disabled{opacity:1;background:none;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);filter:none}
-.btn.primary:disabled .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
+.btn.primary:disabled{opacity:1;background:none;color:var(--faint);box-shadow:none;filter:none;padding:0 var(--sp-1)}
+.btn.primary:disabled .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);opacity:1}
 .btn.icon{width:32px;padding:0;justify-content:center}
 .btn.icon svg{width:var(--icon);height:var(--icon);stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
 
 /* Key hints beside actions (variant A, Linear-style): small, low-contrast, never the label. */
 .btn .kbd{margin-right:-4px}
-.btn.primary .kbd{color:var(--on-her);box-shadow:inset 0 0 0 1px currentColor;opacity:.55}
+.btn.primary .kbd{color:var(--on-her);box-shadow:inset 0 0 0 1px currentColor}
 .btn.text .kbd{margin-right:0}
 .hint{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:var(--fs-meta);color:var(--faint);white-space:nowrap}
 .row .kbd.act{margin-left:calc(-1 * var(--sp-2))}
 
-/* Panel leads: when the Detail panel holds a primary action, it takes the ember and the
-   screen's own primary steps down to secondary. Keeps rule 3 (one ember element per screen). */
+/* Panel leads: when the Detail panel holds a primary action, it takes the accent and the
+   screen's own primary steps down to secondary. Keeps rule 3 (one accent element per screen). */
 .area.panel-leads .view .btn.primary{background:none;color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
 .area.panel-leads .view .btn.primary .kbd{color:var(--faint);box-shadow:inset 0 0 0 1px var(--line2);opacity:1}
 
-/* Mark, quiet: E.V.'s mark where it is not the screen's ember element. */
-.mark.quiet{border-color:var(--faint)}
+/* Mark, quiet: E.V.'s mark where it is not the screen's accent element. */
+.mark.quiet{background:var(--faint)}
 /* Spinner motion. */
-.spin{animation:ev-spin 1s linear infinite}
-@keyframes ev-spin{to{transform:rotate(360deg)}}
-.steps .st .spin{margin-top:5px}
+.ev ::selection{background:var(--line2);color:var(--text)}
+.ev{scrollbar-color:var(--line2) transparent}
 .steps .st .dot{margin-left:2px;margin-right:2px}
-.row > .dot{margin:0 3px}  /* dots take the spinner's 12 px slot so row titles line up */
+.row > .dot{margin:0 3px}  /* dots sit in a 12 px slot so row titles line up */
 
 /* Motion (variant A): short fades and small rises, 150–250 ms, never bouncy. */
 @keyframes ev-fade{from{opacity:0}}
@@ -211,16 +248,13 @@ html,body{height:100%;margin:0}
 .detail:not([hidden]){animation:ev-rise var(--dur-2) var(--ease)}
 .scrim:not([hidden]){animation:ev-fade var(--dur-1) var(--ease)}
 .scrim:not([hidden]) .palette{animation:ev-rise var(--dur-2) var(--ease)}
-.reveal:not([hidden]){animation:ev-rise var(--dur-3) var(--ease)}
+.reveal:not([hidden]){animation:ev-rise var(--dur-2) var(--ease)}
 .msg.new{animation:ev-rise var(--dur-2) var(--ease)}
 @media (prefers-reduced-motion:reduce){
   .ev *,.ev *::before{animation:none !important;transition:none !important}
-  .spin{border-top-color:var(--info);border-right-color:var(--info)}
 }
 
 /* Sidebar foot: the running-job line and the theme toggle. */
-.jobline{display:flex;align-items:center;gap:var(--sp-2);margin-top:auto;height:32px;padding:0 var(--sp-2);border-radius:var(--r-sm);font-size:var(--fs-meta);color:var(--quiet);cursor:pointer}
-.jobline:hover{background:var(--hover);color:var(--text)}
 .btn.text.themebtn{justify-content:space-between;font-size:var(--fs-meta);color:var(--faint);padding:0 var(--sp-2)}
 .btn.text.themebtn:hover{color:var(--text)}
 
@@ -235,7 +269,7 @@ html,body{height:100%;margin:0}
 [data-tab-panel] > .sec-head{margin-bottom:var(--sp-2)}
 
 /* Source chip and the "unverified" mark: every fact E.V. gives carries one of these. */
-.cite{display:inline-flex;align-items:center;gap:var(--sp-1);height:20px;padding:0 6px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
+.cite{display:inline-flex;align-items:center;gap:var(--sp-1);height:20px;padding:0 6px;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--line2);font-size:var(--fs-meta);color:var(--quiet);white-space:nowrap;cursor:pointer;vertical-align:middle}
 .cite:hover{background:var(--hover);color:var(--text)}
 .unverified{font-size:var(--fs-meta);color:var(--faint);border-bottom:1px dashed var(--line2);cursor:help;white-space:nowrap}
 
@@ -245,11 +279,14 @@ html,body{height:100%;margin:0}
 
 /* Segmented control: a short choice (confidence, keep or drop). */
 .seg{display:inline-flex;gap:2px;padding:2px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line2);flex:none}
-.seg button{all:unset;height:24px;line-height:24px;padding:0 var(--sp-2);border-radius:4px;font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg button{all:unset;display:inline-flex;align-items:center;gap:6px;height:24px;line-height:24px;padding:0 var(--sp-2);border-radius:var(--r-xs);font-size:var(--fs-meta);color:var(--faint);cursor:pointer}
+.seg .kbd{height:16px;min-width:16px}
+.seg.later .kbd{visibility:hidden}
 .seg button:hover{color:var(--text)}
-.seg button.on{background:var(--sel);color:var(--text)}
+.seg button.on{background:var(--sel);color:var(--text);box-shadow:inset 0 0 0 1px var(--faint)}
 
 /* Toast: one quiet confirmation, bottom centre. */
+.toast:has(#toast-undo[hidden]){padding-right:var(--sp-4)}
 .toast{position:fixed;left:50%;bottom:var(--sp-6);transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-3);height:40px;padding:0 var(--sp-1) 0 var(--sp-4);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-pop);z-index:20}
 @keyframes ev-toast{from{opacity:0;transform:translate(-50%,var(--rise))}}
 .toast:not([hidden]){animation:ev-toast var(--dur-2) var(--ease)}
@@ -257,23 +294,38 @@ html,body{height:100%;margin:0}
 /* ⌘K palette (sits on .pop). */
 .scrim{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:120px;background:var(--scrim)}
 .palette{width:560px;display:flex;flex-direction:column}
+.props .kv.unset:not(.shown){display:none}
+.props .kv.unset b:empty::before{content:attr(data-ph);color:var(--faint)}
+.add-line{color:var(--faint);min-height:32px;display:flex;align-items:center;gap:var(--sp-1)}
+.add-line button{all:unset;cursor:pointer;color:var(--quiet);border-radius:var(--r-xs);padding:0 2px}
+.add-line button:hover,.add-line button:focus-visible{color:var(--text);background:var(--hover)}
+.add-empty{align-self:flex-start;margin-top:var(--sp-1)}
+#try-hint{display:block;min-height:18px}
+#try-hint.flash{color:var(--text)}
+.why .kbd{height:16px;min-width:16px}
+.why.flash{color:var(--text)}
+.line > .why{order:9;flex-basis:100%;min-height:18px}
 .palette-in{height:48px;padding:0 var(--sp-6);border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:var(--fs-body);outline:none}
 .palette-in::placeholder{color:var(--faint)}
+.palette .t-label .t-meta{margin-left:var(--sp-2);font-weight:400;text-transform:none;letter-spacing:0}
 .palette-list{display:flex;flex-direction:column;padding:var(--sp-2) var(--sp-4);max-height:416px;overflow-y:auto}
 .palette-list .row{margin:0}
+.palette-list .row:has(.t-meta){min-height:var(--row2)}
 .palette-list .t-label{padding:var(--sp-2) var(--sp-2) var(--sp-1)}
 .palette-foot{display:flex;align-items:center;gap:var(--sp-4);height:40px;padding:0 var(--sp-6);border-top:1px solid var(--line);font-size:var(--fs-meta);color:var(--faint)}
 
 /* Ask E.V. (variant A): no bubbles. Every turn is a plain row in one text column, Slack-style.
-   Matt's turns carry a quiet "You" label and a time; E.V.'s carry her dotted ring in the gutter. */
+   Matt's turns carry a quiet "You" label and a time; E.V.'s carry its dotted ring in the gutter. */
 .chat{display:flex;flex-direction:column;gap:var(--sp-6)}
+.view[data-screen="ask"]{height:100%;overflow:hidden}
+.view[data-screen="ask"] > .chat{flex:1;min-height:0;overflow-y:auto;padding-top:var(--sp-4);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 var(--sp-4));mask-image:linear-gradient(to bottom,transparent,#000 var(--sp-4))}
 .msg{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:var(--sp-3);align-items:start}
 .msg > .mark{margin-top:2px}
 .msg .say{grid-column:2;display:flex;flex-direction:column;gap:var(--sp-2)}
 .msg .who{display:flex;align-items:baseline;gap:var(--sp-2);margin-bottom:calc(-1 * var(--sp-1));font-size:var(--fs-meta);font-weight:500;color:var(--faint)}
 .msg .who time{font-weight:400}
 .msg.me .say > .who + div{color:var(--text)}
-.msg .say > div{max-width:600px}
+.msg .say > div{max-width:528px}
 .chat-break{height:1px;background:var(--line);margin:var(--sp-2) 0}
 .composer{position:sticky;bottom:0;margin-top:auto;padding:var(--sp-4) 0 0;background:var(--bg);display:flex;flex-direction:column;gap:var(--sp-2)}
 .composer-foot{display:flex;align-items:center;gap:var(--sp-4);padding:0 var(--sp-1)}
@@ -297,10 +349,10 @@ html,body{height:100%;margin:0}
 
 
 /* Progress: a plain CSS bar series. */
-.bars{display:flex;gap:var(--sp-2);height:96px}
+.bars{display:flex;gap:var(--sp-2);height:144px}
 .bars > span{flex:1;display:flex;justify-content:center;align-items:flex-end}
-.bars i{display:block;width:16px;min-height:2px;border-radius:2px 2px 0 0;background:var(--line2)}
-.bars i.now{background:var(--faint)}
+.bars i{display:block;width:24px;min-height:2px;border-radius:var(--r-xs) var(--r-xs) 0 0;background:var(--line2)}
+.bars i.now{background:var(--text)}
 .bars-x{display:flex;gap:var(--sp-2)}
 .bars-x span{flex:1;text-align:center;font-size:var(--fs-meta);color:var(--faint)}
 
@@ -312,9 +364,7 @@ html,body{height:100%;margin:0}
 .gl{width:var(--icon);height:var(--icon);flex:none;fill:none;stroke:var(--quiet);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .gl .fill{fill:var(--quiet);stroke:var(--quiet)}
 .gl .on-fill{stroke:var(--bg)}
-.gl.job circle{stroke-width:1.9;stroke-dasharray:.01 2.88}
-.gl.run{animation:ev-spin 6s linear infinite;transform-origin:50% 50%}
-.row > .gl,.tile .gl{margin:0 0 0 0}
+.row > .gl{margin:0}
 .nav .gl{stroke:var(--quiet)}
 button.ring{all:unset;display:inline-flex;cursor:pointer;border-radius:50%}
 button.ring:hover .gl circle{stroke:var(--text)}
@@ -324,25 +374,15 @@ button.ring:hover .gl circle{stroke:var(--text)}
 .val{display:inline-flex;align-items:center;gap:var(--sp-2);white-space:nowrap;text-align:right}
 
 /* Tile: a set in the Library (tiles mock-ups). Glyph and value on top, title, one quiet meta. No tint, no cover, no bar. */
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-4)}
-.tile{display:flex;flex-direction:column;gap:var(--sp-1);min-height:112px;padding:var(--sp-4);border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;transition:background-color var(--dur-1) var(--ease),box-shadow var(--dur-1) var(--ease)}
-.tile:hover{background:var(--hover);box-shadow:inset 0 0 0 1px var(--line2)}
-.tile-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:auto;padding-bottom:var(--sp-4)}
-.tile-title{font-weight:500;line-height:20px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.tile .t-meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Text options: a filter row or the study modes, as quiet words. */
-.opts{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap}
-.opts button{all:unset;cursor:pointer;color:var(--faint);font-size:var(--fs-body);line-height:32px;transition:color var(--dur-1) var(--ease)}
-.opts button:hover{color:var(--text)}
-.opts button.on{color:var(--text)}
-.opts button .n{margin-left:6px;font-size:var(--fs-meta);color:var(--faint)}
-.opts .sep{color:var(--line2)}
 
 /* Sidebar pins. */
 .nav .pin-x{margin-left:auto;visibility:hidden}
-.foot{margin-top:auto;display:flex;flex-direction:column;gap:2px}
-.foot .jobline{margin-top:0}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:2px;position:sticky;bottom:calc(-1 * var(--sp-4));padding:0 0 var(--sp-3);margin-bottom:calc(-1 * var(--sp-4));background:var(--side)}
+.sidebar.over .foot{box-shadow:0 -1px 0 var(--line2);padding-top:var(--sp-1)}
+.sidebar.over .foot::before{content:'';position:absolute;left:0;right:0;top:-25px;height:24px;background:linear-gradient(transparent,var(--side));pointer-events:none}
+#pins{display:flex;flex-direction:column;gap:2px}
 .foot .links{display:flex;gap:var(--sp-3);padding:0 var(--sp-2);height:28px;align-items:center}
 .foot .links a{font-size:var(--fs-meta);color:var(--faint)}
 .foot .links a:hover{color:var(--text)}
@@ -357,7 +397,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
 .anchor{position:relative}
 
 /* Detail: properties as label / value lines; values edit in place. */
-.props .kv b{cursor:text;border-radius:4px;padding:0 var(--sp-1);margin-right:calc(-1 * var(--sp-1))}
+.props .kv b{cursor:text;border-radius:var(--r-xs);padding:0 var(--sp-1);margin-right:calc(-1 * var(--sp-1))}
 .props .kv b:hover{background:var(--hover)}
 .props .kv b[contenteditable="true"]{background:var(--hover);outline:none}
 .props .kv > span{display:inline-flex;align-items:center;gap:var(--sp-2)}
@@ -412,8 +452,6 @@ button.ring:hover .gl circle{stroke:var(--text)}
 .phone{width:330px;height:640px;border-radius:40px;box-shadow:inset 0 0 0 1px var(--line2),0 0 0 8px var(--side);background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
 .phone-bar{height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 var(--sp-6);font-size:var(--fs-meta);color:var(--faint)}
 .phone-body{flex:1;overflow:hidden;padding:var(--sp-4) var(--sp-4) 0;display:flex;flex-direction:column;gap:var(--sp-6)}
-.phone .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3)}
-.phone .tile{min-height:104px}
 .phone .row{margin:0;padding:0 var(--sp-1)}
 .phone-tabs{height:56px;flex:none;display:flex;justify-content:space-around;align-items:center;border-top:1px solid var(--line)}
 .phone-tabs svg{width:var(--icon);height:var(--icon);stroke:var(--faint);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
@@ -424,11 +462,13 @@ button.ring:hover .gl circle{stroke:var(--text)}
 
 /* ---------- Round 5: manual create / edit / delete, and drafting with E.V. ---------- */
 /* Titles edit in place; an empty title shows its placeholder. */
-[data-title]{outline:none;cursor:text;border-radius:4px}
+[data-title]{outline:none;cursor:text;border-radius:var(--r-xs)}
 .ev [data-title]:focus-visible{outline:none}
+#detail [data-title]:focus{outline:1px solid var(--line2);outline-offset:4px}
 [data-ph]:empty::before{content:attr(data-ph);color:var(--faint);pointer-events:none}
-.pick{all:unset;cursor:pointer;color:var(--quiet);border-bottom:1px dashed var(--line2);line-height:16px}
-.pick:hover{color:var(--text)}
+.pick{all:unset;cursor:pointer;color:var(--quiet);border-bottom:1px solid transparent;line-height:16px}
+.pick:hover{color:var(--text);border-bottom-color:var(--quiet)}
+.pick:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:var(--r-xs)}
 .sec-head .add{height:24px;visibility:hidden}
 .sec:hover .sec-head .add,.sec-head .add:focus-visible{visibility:visible}
 .inline-in{all:unset;flex:1;min-width:0;color:var(--text);font-size:var(--fs-body);line-height:20px}
@@ -453,7 +493,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
 .erow.prop .acts{display:flex;gap:0;justify-content:flex-end}
 .evform{display:flex;flex-direction:column;gap:var(--sp-3);padding-top:var(--sp-4)}
 .evform .seg{vertical-align:middle;margin:0 2px}
-.foot .nav{font-size:var(--fs-meta);color:var(--faint);height:28px}
+.foot .nav{font-size:var(--fs-meta);color:var(--faint)}
 .foot .nav:hover{color:var(--text)}
 .foot .links .variant{margin-left:auto;padding:0}
 .matrix .lrow > span{flex:1;font-size:var(--fs-meta);color:var(--quiet)}
@@ -470,6 +510,63 @@ button.ring:hover .gl circle{stroke:var(--text)}
 .row.trow{gap:var(--sp-2)}
 .row.trow > .gl{margin-right:var(--sp-1)}
 
+/* Round 8 (Impeccable full pass). Every rule maps to a kit part named in its comment. */
+/* Mark (kit Mark): the logo is E.V.'s identity, 20 px in the text grey; parts consolidate on arrival. */
+.mk{display:inline-flex;flex:none}
+.evmark{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-linecap:round;overflow:visible}
+.evmark path{stroke-width:var(--sw)}
+.ws .evmark{width:20px;height:20px;color:var(--text)}
+.ev-line .mk{margin-top:3px;color:var(--faint)}
+.ev-line.lead .mk{color:var(--her)}
+/* Running work (kit Dot, pulse): a quiet dot that pulses. The mark never moves; it is E.V.'s name, not a loading sign. */
+.dot.d-run{background:var(--faint);animation:ev-pulse var(--dur-think) ease-in-out infinite}
+.steps .st .dot.d-run{width:8px;height:8px}
+@keyframes ev-pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.dot.d-run{animation:none;opacity:.7}}
+/* Row (kit Row, keepAction): the one action a row waits on stays in sight. */
+.row.keep-act .act{visibility:visible}
+#today-suggest-text{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.detail-on #today-suggest-text{white-space:normal;padding:var(--sp-2) 0}
+.shadowed > .kbd,.row.keep-act .act.hint-row .kbd{visibility:hidden}
+.btn.primary.shadowed > .kbd{display:none}
+/* Key boxes: only on the primary action and on the selected row's actions (and the next open choice in its panel). ⌘K lists every key. */
+:where([data-screen]:not([data-screen="study"]),#detail,.sidebar) .btn:not(.primary) > .kbd,:where([data-screen]:not([data-screen="study"]),#detail) .seg button > .kbd,.suggest .btn > .kbd{display:none}
+[data-screen] .row:is(:focus,:focus-within) .btn:not(.primary) > .kbd,#detail .seg:not(.later) button[data-key] > .kbd{display:inline-flex}
+#detail .line > .btn:first-child:is(:only-child, :has(+ .t-meta:last-child)) > .kbd{display:inline-flex}
+[data-screen="ask"] [data-act="just-tell"] > .kbd{display:inline-flex}
+.detail-on [data-screen] [data-key] > .kbd{display:none}
+.detail-on [data-screen] .row:is(:focus,:focus-within) [data-key] > .kbd{display:inline-flex}
+.detail-on [data-screen] .row:is(:focus,:focus-within) [data-key] > .kbd,.row.keep-act:is(:hover,:focus,:focus-within) .act.hint-row .kbd{visibility:visible}
+/* Step meter (kit StepMeter): one dash per step, the mark's own dash. */
+.stepm{display:inline-flex;gap:3px;align-items:center}
+.stepm i{width:12px;height:3px;border-radius:1px;background:var(--line2);transition:background-color var(--dur-2) var(--ease-out)}
+.stepm i.on{background:var(--text)} .stepm i.cur{background:var(--quiet)}
+.study-top .stepm{margin-right:var(--sp-3)}
+/* Meter (kit Meter, as it is): learned, familiar, weak, with a legend so colour is never the only key. */
+.meter.ready{width:240px}
+.rrow{gap:var(--sp-4)}
+.rrow .val{width:48px;text-align:right;justify-content:flex-end}
+.legend{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:var(--fs-meta);color:var(--faint)}
+.legend .dot{margin-left:var(--sp-2)}
+.legend .dot:first-child{margin-left:0}
+/* Trend (kit Trend): one series, a 2 px line, two recessive gridlines, the week in hand marked. */
+.trend{position:relative;margin:var(--sp-2) 0 0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.trend svg{width:100%;height:120px;overflow:visible}
+.trend .grid{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
+.trend .ln{stroke:var(--quiet);stroke-width:2;fill:none;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.trend .pt rect{fill:transparent}
+.trend .pt circle{fill:var(--bg);stroke:var(--quiet);stroke-width:2;vector-effect:non-scaling-stroke;opacity:0;transition:opacity var(--dur-1) var(--ease)}
+.trend .pt:hover circle,.trend .pt.now circle{opacity:1}
+.trend .pt.now circle{fill:var(--text);stroke:var(--text)}
+.trend-y span{position:absolute;left:0;margin-top:-10px;font-size:var(--fs-meta);line-height:16px;color:var(--faint);background:var(--bg);padding-right:var(--sp-1)}
+/* Loading (kit Loading): the Thinking wave and one quiet line. */
+.loading{display:flex;align-items:center;gap:var(--sp-3);min-height:var(--row);color:var(--quiet)}
+.hero-gap{flex:1}
+.docmeta > span{white-space:nowrap}
+.docmeta{flex-wrap:wrap}
+.docmeta .docfail{flex-basis:100%;color:var(--quiet)}
+.row.reveal .sub{visibility:hidden}
+.row.reveal:hover .sub,.row.reveal:focus .sub,.row.reveal:focus-within .sub{visibility:visible}
 </style>
 </head>
 <body>
@@ -477,22 +574,23 @@ button.ring:hover .gl circle{stroke:var(--text)}
 
 <!-- ================= SHELL · Sidebar: the six sections, then Matt's pins ================= -->
 <aside class="sidebar" aria-label="Primary">
-  <div class="ws"><span class="mark quiet"></span>E.V.</div>
+  <div class="ws"><span class="mk" id="ws-mark"></span>E.V.</div>
   <div class="search" data-act="palette" role="button" tabindex="0" title="Search or ask"><span>Search or ask</span><span class="kbd">⌘K</span></div>
+  <div class="navgrp hz-label" id="hz-label">Next 14 days</div>
+  <div class="kit-horizon" id="horizon" data-ui="horizon" data-show="dates" data-go="progress" role="button" tabindex="0" title="Open Progress (H, then ← → to read each day)" aria-label="Next 14 days, dated items. Open Progress" aria-describedby="hz-line" aria-keyshortcuts="h ArrowLeft ArrowRight"></div>
+  <div class="hz-gap"></div>
   <a class="nav" href="#today" data-go="today"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3l2 1.5"/></svg>Today<span class="n" id="today-count">4</span></a>
   <a class="nav" href="#ask" data-go="ask" title="Ask E.V. (⌘J)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>Ask E.V.</a>
   <a class="nav" href="#library" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h3v11H3zM7.5 2.5h3v11h-3z"/><path d="m11.5 3 2.5.6-2 10-2.5-.6"/></svg>Library</a>
   <a class="nav" href="#notes" data-go="notes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6 8h4.5M6 10.5h3"/></svg>Notes</a>
   <a class="nav" href="#progress" data-go="progress"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13V8M8 13V3M13 13v-6"/></svg>Progress</a>
-  <a class="nav" href="#activity" data-go="activity" title="Jobs that need you"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>Activity<span class="n" id="activity-count">2</span></a>
+  <a class="nav" href="#activity" data-go="activity" title="Jobs that need you"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>Activity<span class="grow"></span><i class="dot d-run" id="activity-run" role="img" aria-label="E.V. is working" title="E.V. is working" hidden></i><span class="n" id="activity-count">4</span></a>
   <div class="navgrp">Pinned</div>
   <div id="pins"></div>
   <div class="foot">
-    <div class="jobline" data-go="activity" data-job="j-full" role="button" tabindex="0" title="Open in Activity"><span id="jobline-gl"></span>Writing full practice run · 3/4</div>
     <a class="nav small" href="#deleted" data-go="deleted"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>Recently deleted<span class="n" id="deleted-count">2</span></a>
     <button class="btn text themebtn" data-act="theme" id="themebtn" title="Switch theme"><span id="themelabel">Light theme</span><span class="kbd">\</span></button>
-    <div class="links"><a href="#system" data-go="system">Design system</a><a href="#phone" data-go="phone">Phone</a></div>
-    <div class="variant">Approved · round 7</div>
+    <button class="btn text themebtn" data-act="keys" title="Every key, in ⌘K (?)">Keys<span class="kbd">?</span></button>
   </div>
 </aside>
 
@@ -502,23 +600,23 @@ button.ring:hover .gl circle{stroke:var(--text)}
 <section class="col center view" data-screen="today" aria-label="Today">
   <div class="stack g4">
     <div class="head"><h1 class="t-title">Today</h1><span class="t-meta">Monday, November 2</span><span class="grow"></span>
-      <button class="btn primary" data-act="start-next" title="Start the next item">Start next<span class="kbd">S</span></button></div>
-    <div class="ev-line"><span class="mark quiet"></span><span id="today-say"></span></div>
+      <button class="btn primary" data-act="start-next" data-key="s" title="Start the next item">Start next<span class="kbd">S</span></button></div>
+    <div class="ev-line"><span class="mk" id="today-mark"></span><span id="today-say"></span></div>
   </div>
   <div class="sec" id="plan">
     <div class="sec-head"><h2 class="t-label">Plan</h2><span class="t-meta" id="plan-count">4</span><span class="grow"></span><button class="btn text add" data-act="add-plan" title="Add to today (C)">Add<span class="kbd">C</span></button></div>
     <div id="plan-rows"></div>
-    <div class="suggest" id="today-suggest"><span class="c-faint" aria-hidden="true">+</span><span class="grow" id="today-suggest-text">5 genetics problems tonight · 10m</span><button class="btn text" data-act="accept-suggest" title="Accept">Accept<span class="kbd">A</span></button><button class="btn text" data-act="edit-suggest" title="Edit">Edit<span class="kbd">E</span></button><button class="btn text icon" data-act="dismiss-suggest" title="Not now" aria-label="Not now"><svg viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg></button></div>
+    <div class="suggest" id="today-suggest"><span class="c-faint" aria-hidden="true">+</span><span class="grow" id="today-suggest-text">5 more two-carrier crosses tonight</span><span class="t-meta num" id="today-suggest-est">10 min</span><button class="btn text" data-act="accept-suggest" data-key="y" title="Accept">Accept<span class="kbd">Y</span></button><button class="btn text" data-act="edit-suggest" data-key="e" title="Edit">Edit<span class="kbd">E</span></button><button class="btn text" data-act="dismiss-suggest" data-key="n" title="Not now">Not now<span class="kbd">N</span></button></div>
   </div>
   <div class="sec">
-    <div class="sec-head"><h2 class="t-label">Coming up</h2><span class="grow"></span><button class="btn text add" data-act="add-date" title="Add a date">Add date</button></div>
+    <div class="sec-head"><h2 class="t-label">Coming up</h2><span class="grow"></span><button class="btn text add" data-act="add-date" data-key="shift+d" title="Add a date">Add date<span class="kbd">⇧D</span></button></div>
     <div id="date-rows"></div>
   </div>
 </section>
 
 <!-- ================= Ask E.V.: attempt first; "is it ready?" answered from a job ================= -->
 <section class="col center view" data-screen="ask" aria-label="Ask E.V." hidden>
-  <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">ask anything; she'll want your try first</span></div>
+  <div class="head"><h1 class="t-title">Ask E.V.</h1><span class="t-meta">Ask anything. E.V. will want your try first.</span></div>
   <div class="chat" id="chat">
     <div class="msg me"><div class="say"><div class="who">You<time>9:12 am</time></div><div>what's the difference between preload and afterload?</div></div></div>
     <div class="msg"><span class="mark quiet"></span><div class="say">
@@ -533,12 +631,12 @@ button.ring:hover .gl circle{stroke:var(--text)}
     <div class="chat-break" role="separator"></div>
     <div class="msg me"><div class="say"><div class="who">You<time>11:40 am</time></div><div>is the full practice run ready?</div></div></div>
     <div class="msg"><span class="mark"></span><div class="say">
-      <div>Not yet: it's on step 3 of 4, writing question 9 of 15. It lands in Library when it's done.</div>
+      <div>Not yet: it's writing the questions now. It lands in Library when it's done.</div>
       <div id="ask-job"></div>
     </div></div>
   </div>
   <div class="composer">
-    <textarea class="field" id="composer" rows="1" placeholder="Ask E.V., or answer her" aria-label="Message to E.V."></textarea>
+    <textarea class="field" id="composer" rows="1" placeholder="Ask, or answer E.V." aria-label="Message to E.V."></textarea>
     <div class="composer-foot"><span class="hint"><span class="kbd">↵</span>send</span><span class="hint"><span class="kbd">⇧↵</span>new line</span><span class="grow"></span><span class="hint"><span class="kbd">⌘J</span>from anywhere</span></div>
   </div>
 </section>
@@ -546,10 +644,9 @@ button.ring:hover .gl circle{stroke:var(--text)}
 <!-- ================= Library home: the accuracy line, then tabs: Practice · Weak spots · Dates · Sets ================= -->
 <section class="col center view" data-screen="library" aria-label="Library" hidden>
   <div class="stack g4">
-    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta">practice, weak spots, dates and sets</span><span class="grow"></span>
-      <button class="btn text" data-act="new-set-ev" title="Start a set and let E.V. draft items from a note">Write with E.V.</button>
+    <div class="head"><h1 class="t-title">Library</h1><span class="t-meta" id="lib-sub"></span><span class="grow"></span>
+      <button class="btn text" data-act="new-set-ev" data-key="w" title="Start a set and let E.V. draft items from a note">Write with E.V.<span class="kbd">W</span></button>
       <button class="btn primary" data-act="new-set" title="New set">New set<span class="kbd">C</span></button></div>
-    <a class="line g2 t-meta" href="#progress" data-go="progress" title="Open Progress"><span class="c-faint">First-try accuracy, last 14 days</span><span class="c-quiet">72%, up from 66%</span></a>
     <div class="tabs" role="tablist" aria-label="Library" id="lib-tabs"></div>
   </div>
   <div class="sec" data-lib-panel="practice">
@@ -561,11 +658,11 @@ button.ring:hover .gl circle{stroke:var(--text)}
     <div id="lib-weak"></div>
   </div>
   <div class="sec" data-lib-panel="dates">
-    <div class="sec-head"><h2 class="t-label">Dates</h2><span class="grow"></span><button class="btn text add" data-act="add-lib-date" title="Add a date">Add date</button></div>
+    <div class="sec-head"><h2 class="t-label">Dates</h2><span class="grow"></span><button class="btn text add" data-act="add-lib-date" data-key="shift+d" title="Add a date">Add date<span class="kbd">⇧D</span></button></div>
     <div id="lib-dates"></div>
   </div>
   <div class="sec" data-lib-panel="sets">
-    <div class="sec-head"><h2 class="t-label">All sets</h2><span class="grow"></span><div class="opts" id="lib-filter"></div></div>
+    <div class="sec-head"><h2 class="t-label">All sets</h2><span class="grow"></span><div class="tabs" id="lib-filter"></div></div>
     <div id="lib-all"></div>
   </div>
 </section>
@@ -578,23 +675,22 @@ button.ring:hover .gl circle{stroke:var(--text)}
 
 <!-- ================= Notes home: recent notes, then collections as collapsible rows (nested one level) ================= -->
 <section class="col center view" data-screen="notes" aria-label="Notes" hidden>
-  <div class="head"><h1 class="t-title">Notes</h1><span class="t-meta">what you write</span><span class="grow"></span>
-    <button class="btn text" data-act="new-coll" title="New collection">New collection</button>
+  <div class="head"><h1 class="t-title">Notes</h1><span class="grow"></span>
+    <button class="btn text" data-act="new-coll" data-key="shift+c" title="New collection">New collection<span class="kbd">⇧C</span></button>
     <button class="btn primary" data-act="new-note" title="New note">New note<span class="kbd">C</span></button></div>
   <div class="sec"><div class="sec-head"><h2 class="t-label">Recent</h2></div><div id="notes-recent"></div></div>
-  <div class="sec"><div class="sec-head"><h2 class="t-label">By collection</h2><span class="grow"></span><span class="hint"><span class="kbd">←</span><span class="kbd">→</span>fold</span></div><div id="notes-tree"></div></div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">By collection</h2><span class="grow"></span><span class="hint"><span class="kbd">←</span><span class="kbd">→</span>open and close</span></div><div id="notes-tree"></div></div>
 </section>
 
 <!-- ================= A note: one centred page; the session bar appears only while a session runs ================= -->
 <section class="notepage" data-screen="note" aria-label="Note" hidden>
   <div class="sessionbar" id="sessionbar" hidden>
-    <i class="dot d-info" id="session-dot"></i><span class="nowrap">Session <span id="timer">18:20</span></span><span class="t-meta nowrap">read-along on</span><span class="grow"></span>
+    <i class="dot d-ok" id="session-dot"></i><span class="nowrap">Session <span id="timer">18:20</span></span><span class="t-meta nowrap">E.V. reads along</span><span class="grow"></span>
     <button class="btn text" data-act="pause" title="Pause or resume (Space when not typing)"><span id="pausebtn">Pause</span><span class="kbd">Space</span></button>
-    <button class="btn secondary" data-act="end-session" title="End session">End</button>
+    <button class="btn secondary" data-act="end-session" title="End session">End<span class="kbd">⌘↵</span></button>
   </div>
   <div class="col center view" id="doccol">
     <div class="stack g4">
-      <span class="crumb" data-go="notes" id="note-crumb">← Notes</span>
       <div class="docmeta" id="docmeta"></div>
       <article class="doc" id="doc" contenteditable="true" spellcheck="false"></article>
     </div>
@@ -605,25 +701,12 @@ button.ring:hover .gl circle{stroke:var(--text)}
 <section class="col center view" data-screen="coll" aria-label="Collection" hidden></section>
 <section class="col center view" data-screen="deleted" aria-label="Recently deleted" hidden></section>
 
-<!-- ================= Progress (unchanged from A, trimmed to one series) ================= -->
-<section class="col center view" data-screen="progress" aria-label="Progress" hidden>
-  <div class="head"><h1 class="t-title">Progress</h1><span class="t-meta">last 8 weeks</span></div>
-  <div class="sec g4">
-    <h2 class="t-label">Retrieval accuracy</h2>
-    <div class="line g3" style="align-items:baseline"><span class="t-title">72%</span><span class="t-meta">first try, from memory · up 14 points since mid-September</span></div>
-    <div class="stack g2">
-      <div class="bars">
-        <span><i style="height:58%" title="Sep 13 · 58%"></i></span><span><i style="height:61%" title="Sep 20 · 61%"></i></span><span><i style="height:60%" title="Sep 27 · 60%"></i></span><span><i style="height:64%" title="Oct 4 · 64%"></i></span><span><i style="height:66%" title="Oct 11 · 66%"></i></span><span><i style="height:63%" title="Oct 18 · 63%"></i></span><span><i style="height:69%" title="Oct 25 · 69%"></i></span><span><i class="now" style="height:72%" title="Nov 1 · 72%"></i></span>
-      </div>
-      <div class="bars-x"><span>Sep 13</span><span>20</span><span>27</span><span>Oct 4</span><span>11</span><span>18</span><span>25</span><span>Nov 1</span></div>
-    </div>
-  </div>
-  <p class="t-meta">More here after the switch.</p>
-</section>
+<!-- ================= Progress: am I ready for each date, and how accuracy moves ================= -->
+<section class="col center view" data-screen="progress" aria-label="Progress" hidden></section>
 
 <!-- ================= Activity: needs you, running, done (failed carries its reason) ================= -->
 <section class="col center view" data-screen="activity" aria-label="Activity" hidden>
-  <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta">what E.V. and the schedule are doing, and what waits on you</span></div>
+  <div class="head"><h1 class="t-title">Activity</h1><span class="t-meta" id="act-sub"></span></div>
   <div class="sec"><div class="sec-head"><h2 class="t-label">Needs you</h2><span class="t-meta" id="n-needs"></span></div><div id="act-needs"></div></div>
   <div class="sec"><div class="sec-head"><h2 class="t-label">Running</h2><span class="t-meta" id="n-running"></span></div><div id="act-running"></div></div>
   <div class="sec"><div class="sec-head"><h2 class="t-label">Done today</h2><span class="t-meta" id="n-done"></span></div><div id="act-done"></div></div>
@@ -637,7 +720,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
 <aside class="detail" id="detail" aria-label="Detail" hidden></aside>
 </main>
 
-<!-- ================= ⌘K PALETTE ================= -->
+<!-- ================= ⌘K PALETTE (also the key hints: ? or Keys) ================= -->
 <div class="scrim" id="palette" hidden>
   <div class="pop palette" role="dialog" aria-label="Commands">
     <input class="palette-in" id="palette-in" placeholder="Type a command, find anything, or ask E.V." autocomplete="off">
@@ -648,7 +731,7 @@ button.ring:hover .gl circle{stroke:var(--text)}
 
 <!-- ================= MENU (actions and pickers) and TOAST ================= -->
 <div class="pop menu" id="menu" role="menu" hidden></div>
-<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo">Undo</button></div>
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button class="btn text" id="toast-undo" data-act="undo" aria-keyshortcuts="z">Undo<span class="kbd">Z</span></button></div>
 
 </div>
 
@@ -801,15 +884,15 @@ const DRAFTS = {
 
 /* Plan items (Today). Properties live in Detail, not on the row. */
 const PLAN = [
-  { id: 'p-review', type: 'plan', title: 'Review · 6 cards', meta: 'due today from 2 sets', est: '10m', done: true, coll: 'biology', link: 's-co',
+  { id: 'p-review', type: 'plan', cards: 6, title: 'Review · 6 cards', meta: 'due today from 2 sets', est: '10 min', done: true, coll: 'biology', link: 's-co',
     date: 'Today', time: '7:00 am', repeat: 'Every day', from: 'Morning run · E.V.' },
-  { id: 'p-genes', type: 'plan', title: 'Two-carrier crosses · 5 questions', meta: 'from your plan for Biology exam 3', est: '20m', coll: 'biology', link: 's-genes',
-    date: 'Today', time: 'none', repeat: 'None', from: 'Prep plan for Biology exam 3 · you approved it Sat' },
-  { id: 'p-write', type: 'plan', title: 'Write up the Ch 9 lecture', meta: 'note · session', est: '30m', coll: 'biology', link: 'n-co',
-    date: 'Today', time: 'none', repeat: 'None', from: 'You · added Sun' },
-  { id: 'p-verbs', type: 'plan', title: 'Everyday verbs · 4 due', meta: 'Spanish', est: '10m', coll: 'spanish', link: 's-verbs',
+  { id: 'p-genes', type: 'plan', title: 'Two-carrier crosses · 5 questions', meta: 'from your prep plan', est: '20 min', coll: 'biology', link: 's-genes',
+    date: 'Today', time: 'none', repeat: 'none', from: 'Prep plan for Biology exam 3 · you approved it Sat' },
+  { id: 'p-write', type: 'plan', title: 'Write up the Ch 9 lecture', meta: 'note · session', est: '30 min', coll: 'biology', link: 'n-co',
+    date: 'Today', time: 'none', repeat: 'none', from: 'You · added Sun' },
+  { id: 'p-verbs', type: 'plan', cards: 4, title: 'Everyday verbs · 4 cards', meta: 'Spanish', est: '10 min', coll: 'spanish', link: 's-verbs',
     date: 'Today', time: 'none', repeat: 'Every day', from: 'You' },
-  { id: 'p-run', type: 'plan', title: 'Easy run · 5 km', meta: 'repeats Mon, Wed, Sat', est: '35m', coll: 'running', link: 'n-log',
+  { id: 'p-run', type: 'plan', title: 'Easy run · 5 km', meta: 'repeats Mon, Wed, Sat', est: '35 min', coll: 'running', link: 'n-log',
     date: 'Today', time: '6:30 pm', repeat: 'Mon, Wed, Sat', from: 'You' },
 ];
 
@@ -830,32 +913,32 @@ const DATES = [
   { id: 'd-oax', type: 'date', kind: 'other', title: 'Trip to Oaxaca', coll: 'spanish', days: 132, short: 'Mar 14', full: 'Sunday, Mar 14' },
 ];
 /* A date row's meta: its collection, and the waiting prep plan where its kind offers one. */
-const datePlanWaits = d => !!d.plan && kindOffers(d, 'prep-plan');
-const dateMeta = d => [collName(d.coll) || 'no collection', datePlanWaits(d) ? 'prep plan waiting for you' : ''].filter(Boolean).join(' · ');
+const datePlanWaits = d => !!d.plan && !BY['j-plan']?.html && kindOffers(d, 'prep-plan');
+const dateMeta = d => [collName(d.coll) || 'no collection', datePlanWaits(d) ? 'prep plan waiting for you' : d.plan && BY['j-plan']?.html ? 'prep plan · 3 sessions, Tue to Thu' : ''].filter(Boolean).join(' · ');
 /* A collection's next linked date (its own or a nested collection's), soonest first; none when it has no dated date. */
 const nextDateOf = id => live(DATES).filter(d => d.days != null && d.days >= 0 && (d.coll === id || (COLLS[d.coll] && COLLS[d.coll].parent === id)))
   .sort((a, b) => a.days - b.days)[0];
 
 /* Jobs: E.V.'s dotted ring with a step count. Jobs are never deleted; they end done or failed. */
 const JOBS = [
-  { id: 'j-plan', type: 'job', state: 'needs', kind: 'prep plan', title: 'Prep plan for Biology exam 3', meta: 'ready to approve · rate your confidence first', step: [3, 3] },
-  { id: 'j-weekly', type: 'job', state: 'needs', kind: 'weekly review', title: 'Weekly review', meta: 'Sun · 2 weak spots to confirm · 5 h 10 m studied, accuracy 72%', step: [3, 3],
-    steps: [['ok', 'Gathered the week', '28 sessions, 5 h 10 m, 164 answers'], ['ok', 'Wrote the summary', 'accuracy 72%, up from 69% · saved to Progress'], ['warn', 'Found 2 new weak spots', 'waiting for you to confirm']],
-    by: 'Schedule · Sunday', out: 'Progress · weekly review; Library · Weak spots', cost: 'under 1¢' },
-  { id: 'j-src', type: 'job', state: 'needs', kind: 'practice set', title: 'Practice set · Hash maps', meta: '2 questions have no source · keep or drop them', step: [3, 4],
+  { id: 'j-plan', type: 'job', makes: 'date', state: 'needs', kind: 'prep plan', title: 'Prep plan for Biology exam 3', meta: 'ready to approve · 3 sessions, Tue to Thu', step: [3, 3] },
+  { id: 'j-weekly', type: 'job', makes: 'note', state: 'needs', kind: 'weekly review', title: 'Weekly review', meta: 'Sun · 2 weak spots to confirm · 5 h 10 min studied, accuracy 72%', step: [3, 3],
+    steps: [['ok', 'Gathered the week', '28 sessions, 5 h 10 min, 164 answers'], ['ok', 'Wrote the summary', 'accuracy 72%, up from 69% · saved to Progress'], ['warn', 'Found 2 new weak spots', 'waiting for you to confirm']],
+    by: 'Schedule · Sunday', out: 'Progress and Weak spots', cost: 'under 1¢' },
+  { id: 'j-src', type: 'job', makes: 'questions', state: 'needs', kind: 'practice set', title: 'Practice set · Hash maps', meta: '2 questions have no source · keep or drop them', step: [3, 4],
     steps: [['ok', 'Read the note', 'Note · Hash maps'], ['ok', 'Wrote 12 questions', 'from 3 sections'], ['warn', 'Checked each against its source', '10 cited · 2 have no source'], ['faint', 'Save to Library', 'waits for you']],
     by: 'You · Library', out: 'Library · Interview prep, when you decide', cost: 'about 1¢' },
-  { id: 'j-full', type: 'job', state: 'running', kind: 'full practice run', title: 'Full practice run · Chapter 9', meta: 'writing questions · 9 of 15 · you asked in Ask E.V.', step: [3, 4],
-    steps: [['ok', 'Read the chapter', '3 notes, Exam 3 objectives'], ['ok', 'Planned 15 questions', 'weak spots first, 12 objectives'], ['run', 'Writing questions', '9 of 15'], ['faint', 'Checking each answer against its source', 'next']],
+  { id: 'j-full', type: 'job', makes: 'questions', state: 'running', kind: 'full practice run', title: 'Full practice run · Chapter 9', meta: 'writing questions, 9 of 15 · you asked in Ask E.V.', prog: '9 of 15', step: [3, 4],
+    steps: [['ok', 'Read the chapter', '3 notes, Exam 3 objectives'], ['ok', 'Planned 15 questions', 'weak spots first, 12 objectives'], ['run', 'Writing questions', '9 written so far'], ['faint', 'Checking each answer against its source', 'next']],
     by: 'You · Ask E.V.', out: 'Library · Biology, when done', cost: 'about 2¢ so far' },
-  { id: 'j-today', type: 'job', state: 'done', kind: 'daily plan', title: 'Plan for today', meta: '4:25 am · 5 items and 1 proposal → Today', step: [2, 2],
+  { id: 'j-today', type: 'job', makes: 'date', state: 'done', kind: 'daily plan', title: 'Plan for today', meta: '4:25 am · 5 items and 1 proposal → Today', step: [2, 2],
     steps: [['ok', 'Read your plans, dates and due cards', 'Biology exam 3 plan, 3 dates, 2 sets'], ['ok', 'Wrote today’s list', '5 items, 1 proposal']],
     by: 'Schedule · morning', out: 'Today · Plan', cost: 'under 1¢' },
-  { id: 'j-verbs', type: 'job', state: 'done', kind: 'card set', title: 'Cards from “Verb endings”', meta: '8:02 am · you kept 6 of 8 → Everyday verbs', step: [3, 3],
+  { id: 'j-verbs', type: 'job', makes: 'cards', state: 'done', kind: 'card set', title: 'Cards from “Verb endings”', meta: '8:02 am · you kept 6 of 8 → Everyday verbs', step: [3, 3],
     steps: [['ok', 'Read the note', 'Note · Verb endings'], ['ok', 'Wrote 8 cards', 'one per verb'], ['ok', 'Checked each against the note', '8 of 8 cited']],
     by: 'You · set editor', out: 'Library · Everyday verbs', cost: 'under 1¢' },
-  { id: 'j-guide', type: 'job', state: 'failed', kind: 'guide', title: 'Guide · Hash maps', meta: 'failed: the answer ran out of room · nothing was saved', step: [2, 3],
-    steps: [['ok', 'Read the note', 'Note · Hash maps'], ['bad', 'Wrote the guide', 'failed: the answer ran out of room'], ['faint', 'Saved', 'nothing was saved']],
+  { id: 'j-guide', type: 'job', makes: 'note', state: 'failed', kind: 'guide', title: 'Guide · Hash maps', meta: 'failed: the guide got too long to finish · nothing was saved', step: [2, 3],
+    steps: [['ok', 'Read the note', 'Note · Hash maps'], ['bad', 'Wrote the guide', 'failed: the guide got too long to finish'], ['faint', 'Saved', 'nothing was saved']],
     by: 'Schedule · nightly', out: 'none', cost: 'under 1¢' },
 ];
 
@@ -873,7 +956,7 @@ const WEAK_PROPOSED = [
 ];
 
 /* The user's pins: anything they choose. */
-const PINS = ['biology', 'interview', 'spanish', 'running', 'due', 'n-punnett'];
+const PINS = ['biology', 'interview', 'spanish', 'running', 'n-punnett'];
 
 /* Recently deleted: id → when, and days left of the 30. */
 const DELETED_SEED = [['n-old', 'Oct 29', 26], ['s-old', 'Oct 20', 17]];
@@ -912,20 +995,29 @@ const GP = {
   steps: '<path d="M2.5 13.5v-3h3.5V7h3.5V3.5h4v10z"/>',
   plan: '<circle cx="8" cy="8" r="5.5"/>',
   done: '<circle class="fill" cx="8" cy="8" r="5.75"/><path class="on-fill" d="M5.6 8.1l1.7 1.7 3.2-3.3"/>',
-  job: '<circle cx="8" cy="8" r="5.5"/>',
   collection: '<path d="M2.5 5a1 1 0 0 1 1-1h3l1.5 1.5h4.5a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z"/>',
   date: '<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>',
   view: '<path d="M2.5 3.5h11L9.3 8.5v4.2l-2.6-1.3V8.5z"/>',
 };
-const gl = (type, cls = '') => `<svg class="gl${type === 'job' ? ' job' : ''}${cls ? ' ' + cls : ''}" viewBox="0 0 16 16" aria-hidden="true">${GP[type]}</svg>`;
-const glyphFor = x => x.type === 'plan' ? gl(x.done ? 'done' : 'plan') : x.type === 'job' ? gl('job', x.state === 'running' ? 'run' : '') : gl(x.type);
+const gl = (type, cls = '') => `<svg class="gl${cls ? ' ' + cls : ''}" viewBox="0 0 16 16" aria-hidden="true">${GP[type]}</svg>`;
+const MARK_PARTS = [['M143.48 32.87A95.70 95.70 0 0 1 143.56 32.88',30.6,4,-40],['M201.96 66.57A95.70 95.70 0 0 1 202.01 66.63',36.0,30,-24],['M223.67 129.93A95.70 95.70 0 0 1 221.77 146.50',36.65,40,4],['M188.87 201.17A95.70 95.70 0 0 1 150.34 220.37',36.65,18,36],['M90.69 215.44A95.70 95.70 0 0 1 57.97 62.10',36.65,-30,6]];
+/* E.V.'s mark as SVG. Still: it is E.V.'s name, so it never animates. */
+const markSvg = (cls = '') => `<svg class="evmark${cls ? ' ' + cls : ''}" viewBox="0 0 256 256" aria-hidden="true">${MARK_PARTS.map(([p, sw, dx, dy], i) => `<path style="--i:${i};--sw:${sw};--dx:${dx}px;--dy:${dy}px" d="${p}"/>`).join('')}</svg>`;
+/* think(): running work, as the kit's Dot with pulse. think(n, N) also says "Step n of N" to assistive tech;
+   the row's own meta line says it in words. The mark is never used for this. */
+const think = (n, N) => `<i class="dot d-run" ${N ? `role="img" aria-label="Step ${n} of ${N}"` : 'aria-hidden="true"'}></i>`;
+const glyphFor = x => x.type === 'plan' ? gl(x.done ? 'done' : 'plan') : x.type === 'job' ? gl(x.makes || 'note') : GP[x.type] ? gl(x.type) : '';
 const ICON = {
   x: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
   more: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h.01M8 8h.01M12.5 8h.01" stroke-width="2.2"/></svg>',
   keep: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg>',
 };
-const CLOSE = `<button class="btn text icon" data-close title="Close (Esc)" aria-label="Close">${ICON.x}</button>`;
-const MORE = id => `<button class="btn text icon" data-act="item-menu" data-for="${id}" title="More (.)" aria-label="More">${ICON.more}</button>`;
+/* Step meter: one dash per step, in the mark's own dash. Done is the text grey, now is quiet, the rest is the line. */
+const stepMeter = (done, n) => `<span class="stepm" role="img" aria-label="${done} of ${n} done">${Array.from({ length: n }, (_, i) => `<i class="${i < done ? 'on' : i === done ? 'cur' : ''}"></i>`).join('')}</span>`;
+const LOADING = what => `<div class="loading" role="status">${think()}<span>${what}</span></div>`;
+const KB = k => `<span class="kbd">${k}</span>`;
+const CLOSE = `<button class="btn text icon" data-close title="Close (Esc)" aria-label="Close" aria-keyshortcuts="Escape"><span aria-hidden="true" style="display:contents">${ICON.x}</span></button>`;
+const MORE = id => `<button class="btn text icon" data-act="item-menu" data-for="${id}" title="More (.)" aria-label="More" aria-keyshortcuts="."><span aria-hidden="true" style="display:contents">${ICON.more}</span></button>`;
 const UNVERIFIED = '<span class="unverified" title="No source yet. Link a note to verify.">unverified</span>';
 
 /* ================= Forms: a row shows glyph · title · one quiet meta · one value ================= */
@@ -933,35 +1025,29 @@ function row({ id, g = '', title, meta = '', val = '', dot = '', act = '', cls =
   return `<div class="row ${cls}" tabindex="0" data-id="${id}">${g}<div class="t"><div>${title}</div>${meta ? `<span class="sub">${meta}</span>` : ''}</div>${act}${val || dot ? `<span class="t-meta val">${dot ? `<i class="dot ${dot}"></i>` : ''}${val}</span>` : ''}</div>`;
 }
 const setMeta = (s, inColl) => `${s.items.length} ${unit(s)}` + (!inColl && collName(topColl(s.coll)) ? ' · ' + collName(topColl(s.coll)) : '');
-const setVal = s => s.type === 'cards' ? (s.due ? `${s.due} due` : '') : (s.last || '');
+const setVal = s => s.type === 'cards' ? (s.due ? `${s.due} due` : '') : (s.last ? s.last.replace('/', ' of ') + ' right' : '');
 const setTitle = s => titleOf(s) + (s.src || !s.items.length ? '' : ' ' + UNVERIFIED);
-const jobDot = j => ({ needs: 'd-warn', failed: 'd-bad' })[j.state] || '';
+const jobDot = j => ({ needs: 'd-warn', failed: 'd-bad', running: 'd-run' })[j.state] || '';
 
 function itemRow(x, opt = {}) {
   switch (x.type) {
     case 'note': return row({ id: x.id, g: opt.noGlyph ? '' : gl('note'), title: titleOf(x), meta: x.preview, val: x.when });
     case 'cards': case 'questions': case 'steps':
-      return row({ id: x.id, g: gl(x.type), title: setTitle(x), meta: opt.recent ? x.recent : setMeta(x, opt.inColl), val: opt.recent ? x.rv : setVal(x) });
-    case 'plan': return row({ id: x.id, cls: x.done ? 'done' : '', g: `<button class="ring" data-act="toggle-done" title="Done (X)" aria-label="Mark done">${glyphFor(x)}</button>`, title: titleOf(x), meta: x.meta, val: x.est,
-      act: x.done ? '' : '<button class="btn text act" data-act="start-item">Start</button>' });
-    case 'date': return row({ id: x.id, g: gl('date'), title: titleOf(x), meta: opt.meta ?? dateMeta(x), val: x.short });
-    case 'job': return row({ id: x.id, g: glyphFor(x), title: x.title, meta: x.meta, val: `${x.step[0]}/${x.step[1]}`, dot: jobDot(x),
-      act: x.state === 'failed' ? '<button class="btn text act" data-act="retry">Retry</button>' : '' });
+      { const f = opt.recent && /^(\d+)\/(\d+)$/.exec(x.rv || '');
+      return row({ id: x.id, g: gl(x.type), title: setTitle(x), meta: opt.recent ? x.recent : setMeta(x, opt.inColl), val: f ? stepMeter(+f[1] - 1, +f[2]) : opt.recent ? x.rv : setVal(x) }); }
+    case 'plan': return row({ id: x.id, cls: x.done ? 'done' : '', g: `<button class="ring" data-act="toggle-done" title="Done (X)" aria-label="Mark done" aria-keyshortcuts="x">${glyphFor(x)}</button>`, title: titleOf(x), meta: x.meta, val: x.est,
+      act: x.done ? '' : '<button class="btn text act" data-act="start-item" data-key="s">Start<span class="kbd">S</span></button>' });
+    case 'date': return row({ id: x.id, g: gl('date'), title: titleOf(x), meta: opt.meta ?? dateMeta(x), val: x.short,
+      cls: datePlanWaits(x) ? 'keep-act' : '', act: datePlanWaits(x) ? '<button class="btn text act" data-detail-open="j-plan" data-key="o">Open plan<span class="kbd">O</span></button>' : '' });
+    case 'job': return row({ id: x.id, g: glyphFor(x), title: x.title, meta: x.meta, dot: jobDot(x),
+      cls: x.state === 'failed' ? 'keep-act' : '', act: x.state === 'failed' ? `<button class="btn text act" data-act="retry" data-key="r">${x.stopped ? 'Try again' : 'Try again, shorter'}<span class="kbd">R</span></button>` : '' });
     case 'collection': { const n = allIn(x.id).length; return row({ id: x.id, g: gl('collection'), title: titleOf(x), meta: `${n} item${n === 1 ? '' : 's'}` }); }
     case 'view': return row({ id: x.id, g: gl('view'), title: titleOf(x), meta: 'saved view' });
-    case 'weak': return row({ id: x.id, title: x.title, meta: `${opt.noColl ? '' : collName(topColl(x.coll)) + ' · '}${x.right[0]} of ${x.right[1]} right lately`, val: x.next === 'today' ? 'due today' : x.next,
-      act: '<button class="btn text act" data-act="drill">Drill</button>' });
+    case 'weak': return row({ id: x.id, g: BY[x.set] ? glyphFor(BY[x.set]) : '', title: x.title, meta: `${opt.noColl ? '' : collName(topColl(x.coll)) + ' · '}${x.right[0]} of ${x.right[1]} right lately${x.planned ? ' · in today’s plan' : ''}`, val: x.next === 'today' ? 'due today' : x.next,
+      cls: '', act: (opt.plan && !x.planned ? '<button class="btn text act" data-act="weak-plan" data-key="c" title="Add to today’s plan">Add to plan<span class="kbd">C</span></button>' : opt.plan ? '<span data-act="toast" data-msg="Already in today’s plan" data-key="c" hidden></span>' : '') + '<button class="btn text act" data-act="drill" data-key="d">Drill<span class="kbd">D</span></button>' });
   }
   return '';
 }
-function tile(x, opt = {}) {
-  const isJob = x.type === 'job';
-  const meta = isJob ? 'E.V. is writing · lands here' : opt.recent ? x.recent : setMeta(x);
-  const val = isJob ? `${x.step[0]}/${x.step[1]}` : opt.recent ? x.rv : setVal(x);
-  return `<div class="tile" tabindex="0" data-id="${x.id}"><div class="tile-top">${glyphFor(x)}<span class="t-meta">${val}</span></div><div class="tile-title">${isJob ? x.title : setTitle(x)}</div><div class="t-meta">${meta}</div></div>`;
-}
-const tiles = (list, opt) => `<div class="tiles">${list.map(x => tile(x, opt)).join('')}</div>`;
-
 /* ================= Sidebar ================= */
 function renderPins() {
   $('#pins').innerHTML = PINS.filter(id => BY[id] && !isDel(id)).map(id => {
@@ -980,28 +1066,97 @@ function markNav() {
 }
 function updateCounts() {
   const j = st => live(JOBS).filter(x => st.includes(x.state)).length;
-  $('#activity-count').textContent = j(['needs']) || '';
+  $('#activity-count').textContent = j(['needs', 'failed']) || '';
   $('#deleted-count').textContent = state.deleted.size || '';
-  if ($('#n-needs')) { $('#n-needs').textContent = j(['needs']); $('#n-running').textContent = j(['running']); $('#n-done').textContent = j(['done', 'failed']); }
+  if ($('#n-needs')) { $('#n-needs').textContent = j(['needs', 'failed']); $('#n-running').textContent = j(['running']); $('#n-done').textContent = j(['done']);
+    const nn = j(['needs', 'failed']), nr = j(['running']);
+    $('#act-sub').textContent = ''; }
+  if ($('#activity-run')) $('#activity-run').hidden = !j(['running']);
   const n = live(PLAN).filter(p => !p.done).length;
-  $('#today-count').textContent = $('#plan-count').textContent = n;
+  $('#today-count').textContent = ''; $('#plan-count').textContent = n ? `${n} item${n === 1 ? '' : 's'} left` : live(PLAN).length ? 'all done' : 'nothing planned';
+  const sb = $('.sidebar'); if (sb) sb.classList.toggle('over', sb.scrollHeight > sb.clientHeight + 1);
+  if (typeof renderHorizon === 'function') renderHorizon();
 }
-$('#jobline-gl').innerHTML = gl('job', 'run');
+
+/* Horizon (rail): what is dated in the next 14 days, from the same read as Today's Coming up. No load bars (after cutover). */
+const HZ_N = 14;
+const HZ_DAYS = ['Today', 'Tue Nov 3', 'Wed Nov 4', 'Thu Nov 5', 'Fri Nov 6', 'Sat Nov 7', 'Sun Nov 8', 'Mon Nov 9', 'Tue Nov 10', 'Wed Nov 11', 'Thu Nov 12', 'Fri Nov 13', 'Sat Nov 14', 'Sun Nov 15'];
+const HZ_TAG = { 'd-exam3': 'Exam 3', 'd-interview': 'Interview' };
+const SMOOTH = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+const hzDates = () => live(DATES).filter(d => d.days != null && d.days >= 0 && d.days < HZ_N).sort((a, b) => a.days - b.days);
+const hzName = d => HZ_TAG[d.id] || titleOf(d);
+const hzDay = i => i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : HZ_DAYS[i].replace(/ Nov/, '');
+function hzSvg() {
+  // Kit Horizon, show="dates": baseline, a tick per day (taller each week), today's mark, a dot per dated day, a ring on the day being read.
+  const posts = hzDates(), W = 192, H = 16, step = W / HZ_N, y = 8;
+  const days = Array.from({ length: HZ_N }, (_, i) => {
+    const cx = (i * step + step / 2).toFixed(1), on = posts.filter(d => d.days === i);
+    return `<g class="kit-horizon-day" data-i="${i}"><title>${HZ_DAYS[i]}${on.length ? ': ' + on.map(titleOf).join(', ') : ''}</title><rect class="kit-horizon-hit" x="${(i * step).toFixed(1)}" y="0" width="${step.toFixed(1)}" height="${H}"/>`
+      + (i === 0 ? `<line class="kit-horizon-now" x1="${cx}" x2="${cx}" y1="${y - 5}" y2="${y + 5}"/>` : `<line class="kit-horizon-mark${i % 7 === 0 ? ' wk' : ''}" x1="${cx}" x2="${cx}" y1="${y - 1.5}" y2="${y + 1.5}"/>`)
+      + (on.length ? `<circle class="kit-horizon-dot" cx="${cx}" cy="${y}" r="3.5"/>` : '') + `<circle class="kit-horizon-ring" cx="${cx}" cy="${y}" r="6"/></g>`;
+  }).join('');
+  const said = posts.length ? posts.map(d => `${titleOf(d)}, ${d.full}`).join('; ') : 'nothing dated';
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Next 14 days: ${said}."><line class="kit-horizon-base" x1="0" x2="${W}" y1="${y}" y2="${y}"/>${days}</svg>`;
+}
+function hzLine(sel) {
+  const posts = hzDates();
+  if (sel != null) { const on = posts.filter(d => d.days === sel); return `<b>${hzDay(sel)}</b> · ${on.length ? on.map(titleOf).join(', ') : 'nothing dated'}`; }
+  return posts.length ? posts.slice(0, 2).map(d => `<b>${hzName(d)}</b> ${d.short}`).join(' · ') : 'Nothing dated in 14 days';
+}
+let hzSel = null, hzBack = null;
+function hzSelect(el, i) {
+  hzSel = i;
+  $$('.kit-horizon-day', el).forEach(g => g.classList.toggle('sel', +g.dataset.i === i));
+  const line = $('.kit-horizon-line', el); if (line) line.innerHTML = hzLine(i);
+}
+function renderHorizon() {
+  const el = $('#horizon'); if (!el) return;
+  el.innerHTML = `${hzSvg()}<span class="kit-horizon-line" id="hz-line" aria-live="polite">${hzLine(null)}</span>`;
+  if (hzSel != null) hzSelect(el, hzSel);
+}
+function wireHorizon(el) {
+  el.addEventListener('mouseover', e => { const g = e.target.closest('.kit-horizon-day'); if (g) hzSelect(el, +g.dataset.i); });
+  el.addEventListener('mouseleave', () => { if (document.activeElement !== el) hzSelect(el, null); });
+  el.addEventListener('blur', () => setTimeout(() => hzSelect(el, null)));
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); hzSelect(el, null); const b = hzBack; hzBack = null; return b && b.isConnected && b !== document.body ? b.focus() : el.blur(); }
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault(); e.stopPropagation();
+    const cur = hzSel ?? (e.key === 'ArrowRight' ? -1 : HZ_N);
+    hzSelect(el, Math.max(0, Math.min(HZ_N - 1, cur + (e.key === 'ArrowRight' ? 1 : -1))));
+  });
+}
+renderHorizon(); wireHorizon($('#horizon'));
+addEventListener('resize', () => { const sb = $('.sidebar'); sb.classList.toggle('over', sb.scrollHeight > sb.clientHeight + 1); });
+$('#ws-mark').innerHTML = markSvg();
+$('#today-mark').innerHTML = markSvg('quiet');
 
 /* ================= Today ================= */
-const SAY_TODAY = '<b>Biology exam 3 is Thursday.</b> You missed 2 of 3 two-carrier crosses yesterday, so I’ve proposed five more for tonight. <span class="cite" data-cite="s-genes" tabindex="0">from Set · Genetics problems</span>';
+const SAY_TODAY = '<b>Two-carrier crosses need work.</b> You missed 2 of 3 yesterday, so I’ve proposed 5 more for tonight. <span class="cite" data-cite="s-genes" tabindex="0">from Set · Genetics problems</span>';
+const SAY_TODAY_CLEAR = '<b>Today is clear.</b> Ask and I’ll add a short review of your weak spots.';
 function renderToday() {
-  $('#plan-rows').innerHTML = live(PLAN).map(p => itemRow(p)).join('');
+  const nextId = (live(PLAN).find(p => !p.done) || {}).id;
+  $('[data-act="start-next"]').hidden = !nextId;
+  $('#today-mark').closest('.ev-line').classList.toggle('lead', !nextId);
+  $('#plan-rows').innerHTML = [...live(PLAN)].sort((a, b) => !!(a.done && !a.settling) - !!(b.done && !b.settling)).map(p => itemRow(p, { next: p.id === nextId })).join('')
+    || '<div class="empty"><span>Nothing on today’s plan. Add something with C, or let it be a rest day. E.V. writes tomorrow’s list at 4:25 am.</span></div>';
   $('#date-rows').innerHTML = live(DATES).filter(d => d.soon).map(d => itemRow(d)).join('') || '<span class="t-meta">No dates coming up.</span>';
-  if (!$('#today-say').innerHTML) $('#today-say').innerHTML = SAY_TODAY;
+  if (!live(PLAN).length && $('#today-suggest').hidden) $('#today-say').innerHTML = SAY_TODAY_CLEAR;
+  else if (!$('#today-say').innerHTML) $('#today-say').innerHTML = SAY_TODAY;
   updateCounts();
 }
 function toggleDone(id) {
   const p = BY[id]; if (!p || p.type !== 'plan') return;
-  p.done = !p.done; paint();
+  p.done = !p.done; p.settling = p.done; p.doneAt = Date.now(); clearTimeout(p.settleT); paint();
   $(`.view .row[data-id="${id}"]`)?.focus();
-  toast(p.done ? 'Done' : 'Back to to-do', () => { p.done = !p.done; paint(); });
+  toast(p.done ? 'Done' : 'Back to to-do', () => { p.done = !p.done; p.settling = false; clearTimeout(p.settleT); paint(); $(`.view .row[data-id="${id}"]`)?.focus(); });
 }
+/* A done row keeps its place until you move on (or the Undo notice ends), then joins the done rows at the end. */
+function settle(id) { const p = BY[id]; if (!p || !p.settling) return; p.settling = false; clearTimeout(p.settleT); if (state.screen !== 'today') return;
+  const rows = () => $$('#plan-rows .row[data-id]'), a = document.activeElement, i = a?.dataset?.id === id ? rows().indexOf(a) : -1;
+  paint(); if (i >= 0) { const r = rows(); (r[i] || r.at(-1))?.focus(); } }
+document.addEventListener('focusout', e => { const r = e.target.closest && e.target.closest('#plan-rows .row[data-id]'), p = r && BY[r.dataset.id];
+  if (p && p.settling && Date.now() - p.doneAt > 300) setTimeout(() => { if (document.activeElement !== r) settle(p.id); }, 0); });
 function startItem(id) {
   const p = BY[id]; if (!p) return;
   const l = BY[p.link];
@@ -1011,33 +1166,35 @@ function startItem(id) {
 }
 function startNext() { const p = live(PLAN).find(p => !p.done); p ? startItem(p.id) : toast('Nothing left on today’s plan'); }
 /* Create a plan item by hand: an inline line at the end of the plan. Enter adds it; properties live in Detail. */
-function addPlanInline() {
+function addPlanInline(after) {
   if (state.screen !== 'today') go('today');
   let r = $('#plan-rows .adding');
   if (!r) {
     r = document.createElement('div');
     r.className = 'row adding';
     r.innerHTML = `${gl('plan')}<input class="inline-in" id="plan-in" placeholder="New plan item · Enter to add, Esc to cancel" aria-label="New plan item">`;
-    $('#plan-rows').append(r);
+    if (after && after.closest('#plan-rows')) { r.dataset.after = after.dataset.id; after.after(r); } else $('#plan-rows').append(r);
   }
   $('#plan-in').focus();
 }
 function commitPlanInline() {
-  const v = $('#plan-in').value.trim();
+  const v = $('#plan-in').value.trim(), after = $('#plan-rows .adding')?.dataset.after;
   $('#plan-rows .adding')?.remove();
   if (!v) return;
-  const p = { id: uid('p'), type: 'plan', title: escH(v), meta: 'added by you', est: '', coll: null, link: null, date: 'Today', time: 'none', repeat: 'None', from: 'You' };
-  PLAN.push(p); BY[p.id] = p; paint();
+  const p = { id: uid('p'), type: 'plan', title: escH(v), meta: 'added by you', est: '', coll: null, link: null, date: 'Today', time: 'none', repeat: 'none', from: 'You' };
+  const at = after ? PLAN.indexOf(BY[after]) : -1;
+  if (at >= 0) PLAN.splice(at + 1, 0, p); else PLAN.push(p); BY[p.id] = p; paint();
   $(`#plan-rows .row[data-id="${p.id}"]`)?.focus();
   toast('Added to today', () => { PLAN.splice(PLAN.indexOf(p), 1); paint(); });
 }
+function cancelPlanInline() { const r = $('#plan-rows .adding'), after = r?.dataset.after; r?.remove(); if (after) $(`#plan-rows .row[data-id="${after}"]`)?.focus(); }
 function acceptSuggest() {
   const s = $('#today-suggest'); if (!s || s.hidden) return;
-  const [title, est] = $('#today-suggest-text').textContent.split(' · ');
-  const p = { id: uid('p'), type: 'plan', title, meta: 'you accepted E.V.’s proposal', est: est || '', coll: 'biology', link: 's-genes', date: 'Today', time: 'tonight', repeat: 'None', from: 'E.V.’s proposal · you accepted it' };
+  const title = $('#today-suggest-text').textContent.trim(), est = $('#today-suggest-est').textContent.trim();
+  const p = { id: uid('p'), type: 'plan', title, meta: 'you accepted E.V.’s proposal', est: est || '', coll: 'biology', link: 's-genes', date: 'Today', time: 'tonight', repeat: 'none', from: 'E.V.’s proposal · you accepted it' };
   PLAN.push(p); BY[p.id] = p;
   s.hidden = true; paint();
-  $('#today-say').innerHTML = '<b>Biology exam 3 is Thursday.</b> Five genetics problems are on tonight’s plan.';
+  $('#today-say').innerHTML = '<b>On tonight’s plan.</b> Start with the two kinds you missed.';
   toast('Added to today', () => { PLAN.pop(); s.hidden = false; paint(); $('#today-say').innerHTML = SAY_TODAY; });
 }
 function editSuggest() {
@@ -1047,13 +1204,13 @@ function editSuggest() {
   t.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); t.contentEditable = 'false'; t.blur(); } };
 }
 function dismissSuggest() {
-  const s = $('#today-suggest'); s.hidden = true;
-  toast('Not now · E.V. won’t propose it again today', () => { s.hidden = false; });
+  const s = $('#today-suggest'); s.hidden = true; $('#today-say').innerHTML = '<b>Okay.</b> I won’t suggest it again today.';
+  toast('Left out of today’s plan', () => { s.hidden = false; $('#today-say').innerHTML = SAY_TODAY; });
 }
 
 /* ================= Ask E.V. ================= */
 $('#ask-job').innerHTML = itemRow(BY['j-full']);
-const clock = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }).toLowerCase();
+let clockMin = 41; const clock = () => `11:${String(Math.min(59, clockMin++)).padStart(2, '0')} am`;
 function addMsg(html, me) {
   const m = document.createElement('div');
   m.className = 'msg new' + (me ? ' me' : '');
@@ -1061,20 +1218,41 @@ function addMsg(html, me) {
   if (me) m.querySelector('.say > div:last-child').textContent = html;
   $$('#chat .msg > .mark').forEach(k => k.classList.add('quiet'));
   $('#chat').append(m);
-  const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight;
+  const c = $('#chat'); c.scrollTop = c.scrollHeight;
 }
+/* "Just tell me" belongs only to a question nobody has answered yet. */
+function pruneJustTell() { $$('#chat [data-act="just-tell"]').forEach(b => { let m = b.closest('.msg'); while ((m = m.nextElementSibling)) if (m.matches('.msg.me')) return b.closest('.line')?.remove() ?? b.remove(); }); }
+pruneJustTell();
+/* E.V.'s answer to a question, after your try or after Just tell me. */
+const SV_CITE = '<div><span class="cite" data-cite="n-co" tabindex="0">from Note · Ch 9 · Cardiac output</span></div>';
+const CH9 = [
+  { re: /stroke volume/i, hit: /beat|edv|esv|diastol|systol|volume/i, a: 'stroke volume is the blood one beat pushes out: end-diastolic volume minus end-systolic volume, about 70 mL at rest.' },
+  { re: /afterload/i, hit: /pressure|against|eject|arter|resist/i, a: 'afterload is the pressure the ventricle has to beat against to eject, mostly arterial pressure. Higher afterload means harder work.' },
+  { re: /preload/i, hit: /stretch|fill|venous|return|volume/i, a: 'preload is the stretch on the ventricle at the end of filling, set mostly by venous return.' },
+  { re: /frank|starling/i, hit: /stretch|strong|harder|fill/i, a: 'Frank–Starling says more stretch gives a stronger beat, up to a point; past it the curve flattens.' },
+  { re: /cardiac output/i, hit: /rate|minute|stroke|×|x|times/i, a: 'cardiac output is the blood the heart pumps in a minute: heart rate times stroke volume, about 5 L/min at rest.' }];
+const cap = t => t[0].toUpperCase() + t.slice(1);
+function evAnswer(q, tried) {
+  const t = CH9.find(x => x.re.test(q || ''));
+  if (!t) return tried ? '<div>That isn’t in your notes yet, so I can’t check your try. Add a source and I’ll check it against that.</div>' : '<div>That isn’t in your notes yet, so I won’t guess. Add a source and I’ll answer from it.</div>';
+  if (tried === false) return `<div>${cap(t.a)}</div>` + SV_CITE;
+  const blank = /^(no idea|idk|i don.?t know|not sure|dunno|\?+)$/i.test(tried.trim()) || tried.trim().length < 3;
+  return `<div>${blank ? 'No problem, here it is: ' + t.a : t.hit.test(tried) ? 'Right idea. Exactly, ' + t.a : 'Not quite. ' + cap(t.a)}</div>` + SV_CITE;
+}
+const lastAsk = el => { let q = el; while (q && !q.matches('.msg.me')) q = q.previousElementSibling; return q?.textContent || ''; };
 function sendChat() {
   const f = $('#composer'), v = f.value.trim();
   if (!v) return;
-  addMsg(v, true); f.value = '';
-  setTimeout(() => addMsg(`<div>Good one. Before I answer: what’s your best guess, in one line?</div><div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>`), 500);
+  const open = !/\?$/.test(v) && $$('#chat [data-act="just-tell"]').pop(), q = open && lastAsk(open.closest('.msg'));
+  addMsg(v, true); f.value = ''; pruneJustTell();
+  setTimeout(() => addMsg(open ? evAnswer(q, v) : `<div>Good one. Before I answer: what’s your best guess, in one line?</div><div><button class="btn text" style="margin-left:-8px" data-act="just-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>`), 500);
 }
 
 /* ================= Library home ================= */
 function renderLibrary() {
   const sets = live(SETS);
   const recent = sets.filter(s => s.recent).sort((a, b) => b.t - a.t).slice(0, 3);
-  $('#lib-recent').innerHTML = recent.length ? tiles(recent, { recent: true }) : '<span class="t-meta">Nothing yet.</span>';
+  $('#lib-recent').innerHTML = state.loading ? LOADING('Opening your sets') : recent.length ? recent.map(x => itemRow(x, { recent: true })).join('') : '<span class="t-meta">Nothing yet. Sets you study show here.</span>';
   const counts = { all: sets.length, cards: 0, questions: 0, steps: 0 };
   sets.forEach(s => counts[s.type]++);
   $('#lib-filter').innerHTML = [['all', 'All'], ['cards', 'Cards'], ['questions', 'Questions'], ['steps', 'Steps']]
@@ -1082,14 +1260,18 @@ function renderLibrary() {
   const list = sets.filter(s => state.libFilter === 'all' || s.type === state.libFilter).sort((a, b) => b.t - a.t);
   if (['all', 'questions'].includes(state.libFilter) && BY['j-full'].state === 'running') list.splice(1, 0, BY['j-full']);
   const ws = liveWeak();
-  $('#lib-weak').innerHTML = ws.length ? ws.map(w => itemRow(w)).join('') : '<span class="t-meta">None right now. New ones come from your misses; E.V. proposes, you confirm.</span>';
+  if (BY['j-full'].state === 'running') { counts.all++; counts.questions++; $('#lib-filter').innerHTML = [['all', 'All'], ['cards', 'Cards'], ['questions', 'Questions'], ['steps', 'Steps']].map(([k, l]) => `<button data-filter="${k}" class="${state.libFilter === k ? 'on' : ''}">${l}<span class="n">${counts[k]}</span></button>`).join(''); }
+  const soon = live(DATES).filter(d => d.days != null && d.days >= 0).sort((a, b) => a.days - b.days).find(d => ws.some(w => w.date === d.id));
+  const nw = soon ? ws.filter(w => w.date === soon.id).length : 0;
+  $('#lib-sub').textContent = ws.length ? (soon ? `${soon.title} is next · ${nw === ws.length ? 'all your weak spots are' : nw + ' of your ' + ws.length + ' weak spots are'} for it` : 'Practice what you missed') : `${sets.length} sets`;
+  $('#lib-weak').innerHTML = ws.length ? ws.map(w => itemRow(w, { plan: true })).join('') : '<span class="t-meta">None right now. New ones come from your misses; E.V. proposes, you confirm.</span>';
   const ds = live(DATES).sort((a, b) => (a.days ?? 1e9) - (b.days ?? 1e9));
   $('#lib-dates').innerHTML = ds.length ? ds.map(d => itemRow(d)).join('') : '<span class="t-meta">No dates. Add one for an exam, an interview, a race or a trip.</span>';
   /* The tabs, in the app's order (areas/library/Library.view.tsx); a count is the size of the tab's list. */
-  $('#lib-tabs').innerHTML = [['practice', 'Practice'], ['weak', 'Weak spots', ws.length], ['dates', 'Dates', ds.length], ['sets', 'Sets', sets.length]]
+  $('#lib-tabs').innerHTML = [['practice', 'Practice'], ['weak', 'Weak spots', ws.length], ['dates', 'Dates', ds.length], ['sets', 'Sets', counts.all]]
     .map(([k, l, n]) => `<button role="tab" data-lib-tab="${k}" aria-selected="${state.libTab === k}" class="${state.libTab === k ? 'on' : ''}">${l}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
   $$('[data-lib-panel]').forEach(p => (p.hidden = p.dataset.libPanel !== state.libTab));
-  $('#lib-all').innerHTML = list.length ? tiles(list, {}) : `<div class="empty"><span>No ${state.libFilter} sets yet.</span><button class="btn secondary" data-act="new-set">New set</button></div>`;
+  $('#lib-all').innerHTML = state.loading ? LOADING('Opening your sets') : list.length ? list.map(x => x.type === 'job' ? itemRow({ ...x, meta: 'E.V. is writing it · lands here' }) : itemRow(x)).join('') : `<div class="empty"><span>No ${state.libFilter} sets yet.</span><button class="btn secondary" data-act="new-set">New set</button></div>`;
 }
 
 /* ================= Set page: one page, two modes (view and Edit) ================= */
@@ -1105,30 +1287,29 @@ function renderSetView(s) {
   const kick = LABELS[s.type][0] + 's';
   const n = s.items.length;
   const say = s.ev && n ? `<div class="ev-line"><span class="mark quiet"></span><span>${s.ev} <span class="cite" tabindex="0" data-cite="${s.id}">from your last 3 sessions</span></span></div>` : '';
-  const due = s.due ? `Study ${s.due} due` : 'Study';
+  const due = 'Study';
   $('[data-screen="set"]').innerHTML = `
   <div class="stack g4">
     <span class="crumb" data-go="library">← Library</span>
     <div class="phead">${gl(s.type)}<div class="stack g1 grow">
       <h1 class="t-title">${titleOf(s)}</h1>
-      <div class="line g2 wrap t-meta"><span>${n} ${unit(s)}${collName(topColl(s.coll)) ? ' · ' + collName(topColl(s.coll)) : ''}</span>${n ? sourceChip(s) : ''}</div>
+      <div class="line g2 wrap t-meta"><span>${n} ${unit(s)}${s.due ? ` · ${s.due} due` : ''}${collName(topColl(s.coll)) ? ' · ' + collName(topColl(s.coll)) : ''}</span>${n ? sourceChip(s) : ''}</div>
     </div>
     <button class="btn text" data-act="edit-set" title="Edit the set">Edit<span class="kbd">E</span></button>
-    ${n ? `<button class="btn primary" data-act="study" title="Study">${due}<span class="kbd">↵</span></button>` : ''}${MORE(s.id)}</div>
-    ${n ? `<div class="opts"><span class="t-meta">Modes</span><button class="on" data-act="study">${s.type === 'steps' ? 'In order' : 'Cards'}</button><span class="sep">·</span><button data-act="mode-later">Learn</button><span class="sep">·</span><button data-act="mode-later">Test</button></div>` : ''}
+    ${n ? `<button class="btn primary" data-act="study" title="Study">${due}<span class="kbd">S</span></button>` : ''}${MORE(s.id)}</div>
     ${say}
   </div>
   ${n ? `<div class="stack">
     <div class="card hero" id="hero" tabindex="0" data-act="flip" title="Space to flip"></div>
-    <div class="hero-nav"><button class="btn text icon" data-act="hero-prev" title="Previous (←)" aria-label="Previous"><svg viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg></button><span class="t-meta" id="hero-pos"></span><button class="btn text icon" data-act="hero-next" title="Next (→)" aria-label="Next"><svg viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5"/></svg></button></div>
+    <div class="hero-nav"><button class="btn text icon" data-act="hero-prev" title="Previous (←)" aria-label="Previous" aria-keyshortcuts="ArrowLeft"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg></button><span class="hero-gap"></span><button class="btn text icon" data-act="hero-next" title="Next (→)" aria-label="Next" aria-keyshortcuts="ArrowRight"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5"/></svg></button></div>
   </div>
   <div class="sec">
     <div class="sec-head"><h2 class="t-label">${kick}</h2><span class="t-meta">${n}</span></div>
     ${s.items.map((it, i) => s.type === 'steps'
       ? `<div class="row" tabindex="0" data-hero="${i}"><span class="t-meta" style="width:16px;text-align:right">${i + 1}</span><div class="t"><div>${it.s}</div></div></div>`
-      : `<div class="row" tabindex="0" data-hero="${i}"><div class="t"><div>${it.f}</div><span class="sub">${it.b}</span></div></div>`).join('')}
+      : `<div class="row reveal" tabindex="0" data-hero="${i}"><div class="t"><div>${it.f}</div><span class="sub">${it.b}</span></div></div>`).join('')}
   </div>` : `<div class="empty"><span>No ${unit(s, 2)} yet. Add them yourself, or let E.V. draft some from one of your notes.</span>
-    <div class="line g2"><button class="btn secondary" data-act="edit-set">Edit<span class="kbd">E</span></button><button class="btn text" data-act="set-ev"><span class="mark quiet"></span>Write with E.V.</button></div></div>`}`;
+    <div class="line g2"><button class="btn secondary" data-act="edit-set">Edit<span class="kbd">E</span></button><button class="btn text" data-act="set-ev" data-key="w"><span class="mark quiet"></span>Write with E.V.<span class="kbd">W</span></button></div></div>`}`;
   if (n) renderHero();
 }
 function renderHero() {
@@ -1136,23 +1317,22 @@ function renderHero() {
   const kick = { cards: 'Term', questions: 'Question', steps: 'Step ' + (i + 1) }[s.type];
   const f = front(s, i);
   $('#hero').innerHTML = state.hero.flipped
-    ? `<div class="card-head"><span class="t-meta">Answer</span><span class="t-meta">${i + 1} / ${n}</span></div><div class="back"><div>${back(s, i)}</div>${sourceChip(s)}</div><div class="card-head"><span></span><span class="hint"><span class="kbd">Space</span>flip back</span></div>`
-    : `<div class="card-head"><span class="t-meta">${kick}</span><span class="t-meta">${i + 1} / ${n}</span></div><div class="face ${plain(f).length > 40 ? 'q' : ''}">${f}</div><div class="card-head"><span class="t-meta">Say it first, then flip</span><span class="hint"><span class="kbd">Space</span>flip</span></div>`;
-  $('#hero-pos').textContent = `${i + 1} / ${n}`;
+    ? `<div class="card-head"><span class="t-meta">Answer</span><span class="t-meta">${i + 1} of ${n}</span></div><div class="back"><div>${back(s, i)}</div>${sourceChip(s)}</div><div class="card-head"><span></span><span class="hint"><span class="kbd">Space</span>flip back</span></div>`
+    : `<div class="card-head"><span class="t-meta">${kick}</span><span class="t-meta">${i + 1} of ${n}</span></div><div class="face ${plain(f).length > 40 ? 'q' : ''}">${f}</div><div class="card-head"><span class="t-meta">Say it first, then flip</span><span class="hint"><span class="kbd">Space</span>flip</span></div>`;
 }
 function heroMove(d) { const s = BY[state.param]; if (!s.items.length) return; state.hero.i = (state.hero.i + d + s.items.length) % s.items.length; state.hero.flipped = false; renderHero(); }
 
 /* Edit mode: title, type, collection and source on top; one row per item; drafts from E.V. at the bottom. */
 function renderSetEdit(s) {
   const steps = s.type === 'steps', L = LABELS[s.type];
-  const types = [['cards', 'Cards'], ['questions', 'Questions'], ['steps', 'Steps']].map(([k, l]) => `<button data-stype="${k}" class="${s.type === k ? 'on' : ''}">${l}</button>`).join('<span class="sep">·</span>');
+  const types = [['cards', 'Cards'], ['questions', 'Questions'], ['steps', 'Steps']].map(([k, l]) => `<button data-stype="${k}" class="${s.type === k ? 'on' : ''}">${l}</button>`).join('');
   const srcName = s.src && BY[s.src] && !isDel(s.src) ? 'Note · ' + titleOf(BY[s.src]) : 'none yet';
   $('[data-screen="set"]').innerHTML = `
   <div class="stack g4">
     <span class="crumb" data-go="library">← Library</span>
     <div class="phead">${gl(s.type)}<div class="stack g2 grow">
       <h1 class="t-title" contenteditable="true" data-title="${s.id}" data-ph="Untitled set">${s.title}</h1>
-      <div class="opts">${types}</div>
+      <div class="tabs">${types}</div>
       <div class="line g2 wrap t-meta"><span>In</span><button class="pick" data-act="pick-coll" data-for="${s.id}">${collName(s.coll) || 'no collection'}</button><span>· Source</span><button class="pick" data-act="pick-src" data-for="${s.id}">${srcName}</button></div>
     </div><button class="btn primary" data-act="done-edit" title="Done (⌘↵)">Done<span class="kbd">⌘↵</span></button></div>
   </div>
@@ -1160,8 +1340,8 @@ function renderSetEdit(s) {
     <div class="erow ehead ${steps ? 'steps' : ''}"><span></span><span class="t-label">${L[0]}</span>${steps ? '' : `<span class="t-label">${L[1]}</span>`}<span></span></div>
     ${s.items.map((it, i) => `<div class="erow ${steps ? 'steps' : ''}" data-i="${i}"><span class="t-meta num">${i + 1}</span>${steps
       ? `<div class="cell" contenteditable="true" data-cell="s" data-ph="${L[0]}">${it.s}</div>`
-      : `<div class="cell" contenteditable="true" data-cell="f" data-ph="${L[0]}">${it.f}</div><div class="cell" contenteditable="true" data-cell="b" data-ph="${L[1]}">${it.b}</div>`}<button class="btn text icon x" data-act="del-item" title="Delete row" aria-label="Delete row">${ICON.x}</button></div>`).join('')}
-    <div class="line g3 eadd"><button class="btn text" data-act="add-item" style="margin-left:-8px">+ ${L[2]}</button><span class="t-meta">↵ in the last cell adds one</span><span class="grow"></span>${s.draft ? '' : '<button class="btn text" data-act="set-ev"><span class="mark quiet"></span>Write with E.V.</button>'}</div>
+      : `<div class="cell" contenteditable="true" data-cell="f" data-ph="${L[0]}">${it.f}</div><div class="cell" contenteditable="true" data-cell="b" data-ph="${L[1]}">${it.b}</div>`}<button class="btn text icon x" data-act="del-item" title="Delete row (⌫ on an empty row)" aria-label="Delete row"><span aria-hidden="true" style="display:contents">${ICON.x}</span></button></div>`).join('')}
+    <div class="line g3 eadd"><button class="btn text" data-act="add-item" style="margin-left:-8px">+ ${L[2]}</button><span class="t-meta">↵ in the last cell adds one</span><span class="grow"></span>${s.draft ? '' : '<button class="btn text" data-act="set-ev" data-key="w"><span class="mark quiet"></span>Write with E.V.<span class="kbd">W</span></button>'}</div>
     ${draftHTML(s)}
   </div>`;
 }
@@ -1194,7 +1374,7 @@ function doneEdit() {
   if (wasFresh) toast(`Set created · ${s.items.length} ${unit(s)}`);
 }
 
-/* Write with E.V.: she drafts items from one of Matt's notes; each draft cites it and arrives dashed. He keeps or drops each. */
+/* Write with E.V.: it drafts items from one of Matt's notes; each draft cites it and arrives dashed. He keeps or drops each. */
 function draftHTML(s) {
   const d = s.draft; if (!d) return '';
   const steps = s.type === 'steps', noun = unit(s, d.n);
@@ -1202,16 +1382,16 @@ function draftHTML(s) {
   if (d.phase === 'ask') return `<div class="evform">
     <div class="ev-line"><span class="mark quiet"></span><span>Draft <span class="seg" data-evn>${[3, 5, 8].map(k => `<button class="${d.n === k ? 'on' : ''}" data-n="${k}">${k}</button>`).join('')}</span> ${noun} from <button class="pick" data-act="pick-draft-src">${srcName}</button>. Each one cites the note, and you keep or drop it.</span></div>
     <div class="line g2" style="padding-left:28px"><button class="btn secondary" data-act="ev-write" ${d.src ? '' : 'disabled'}>Write</button><button class="btn text" data-act="ev-cancel">Cancel</button></div></div>`;
-  if (d.phase === 'writing') return `<div class="evform">${row({ id: d.job, g: gl('job', 'run'), title: `E.V. is writing ${d.n} ${noun} from ${srcName}`, meta: 'a job · you can leave; the drafts wait here and in Activity', val: '1/2' })}</div>`;
+  if (d.phase === 'writing') return `<div class="evform">${row({ id: d.job, g: think(), title: `E.V. is writing ${d.n} ${noun} from ${srcName}`, meta: 'you can leave; the drafts wait here and in Activity' })}</div>`;
   return `<div class="evform"><div class="sec-head"><span class="mark quiet"></span><span class="c-quiet">E.V.’s drafts from ${srcName} · keep or drop each</span><span class="grow"></span><button class="btn text" data-act="keep-all">Keep all</button><button class="btn text" data-act="drop-all">Drop all</button></div>
-    ${d.props.map((p, i) => `<div class="erow prop ${steps ? 'steps' : ''}" data-p="${i}"><span class="t-meta num">+</span>${steps ? `<div>${p.s}</div>` : `<div>${p.f}</div><div>${p.b}</div>`}<div class="acts"><button class="btn text icon" data-act="keep" title="Keep" aria-label="Keep">${ICON.keep}</button><button class="btn text icon" data-act="drop" title="Drop" aria-label="Drop">${ICON.x}</button></div></div>`).join('')}
+    ${d.props.map((p, i) => `<div class="erow prop ${steps ? 'steps' : ''}" data-p="${i}"><span class="t-meta num">+</span>${steps ? `<div>${p.s}</div>` : `<div>${p.f}</div><div>${p.b}</div>`}<div class="acts"><button class="btn text icon" data-act="keep" title="Keep" aria-label="Keep"><span aria-hidden="true" style="display:contents">${ICON.keep}</span></button><button class="btn text icon" data-act="drop" title="Drop" aria-label="Drop"><span aria-hidden="true" style="display:contents">${ICON.x}</span></button></div></div>`).join('')}
     <span class="t-meta">${sourceChipFor(d.src)}</span></div>`;
 }
 const sourceChipFor = id => `<span class="cite" data-cite="${id}" tabindex="0">from Note · ${titleOf(BY[id])}</span>`;
 function openDraft(s, src) {
   s.draft = { phase: 'ask', n: 5, src: src || s.src || null };
   renderSetEdit(s);
-  $('.evform')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  $('.evform')?.scrollIntoView({ block: 'nearest', behavior: SMOOTH() });
 }
 function writeDraft() {
   const s = BY[state.param], d = s.draft; if (!d || !d.src) return;
@@ -1233,6 +1413,8 @@ function writeDraft() {
 }
 function decide(i, keep) {
   const s = BY[state.param], d = s.draft; if (!d || d.phase !== 'review') return;
+  const j0 = BY[d.job], was = { items: [...s.items], props: [...d.props], kept: d.kept, seen: d.seen, src: s.src, j: { state: j0.state, meta: j0.meta, steps: j0.steps } };
+  const undo = () => { s.items = was.items; d.props = was.props; d.kept = was.kept; d.seen = was.seen; s.src = was.src; s.draft = d; Object.assign(j0, was.j); updateCounts(); renderSetEdit(s); };
   const idx = i == null ? null : i;
   const take = idx == null ? d.props.splice(0) : d.props.splice(idx, 1);
   d.kept = (d.kept || 0) + (keep ? take.length : 0); d.seen = (d.seen || 0) + take.length;
@@ -1241,8 +1423,8 @@ function decide(i, keep) {
     const j = BY[d.job];
     Object.assign(j, { state: 'done', meta: `you kept ${d.kept} of ${d.seen} → ${plain(titleOf(s))}`, steps: [j.steps[0], ['ok', `Wrote ${d.seen} drafts`, `you kept ${d.kept}`]] });
     s.draft = null; updateCounts();
-    toast(`Kept ${d.kept} of ${d.seen}`);
-  }
+    toast(`Kept ${d.kept} of ${d.seen}`, undo);
+  } else toast(keep ? 'Kept' : 'Dropped', undo);
   renderSetEdit(s);
 }
 
@@ -1256,7 +1438,7 @@ function learned(id) {
 /* ================= Study mode: one card, attempt first, then the reveal with its source ================= */
 function renderStudy() {
   const st = state.study, s = BY[st.set], sec = $('[data-screen="study"]'), n = s.items.length;
-  const top = `<div class="study-top"><span class="crumb" data-act="leave-study">← ${titleOf(s)}</span><span class="hint"><span class="kbd">Esc</span></span><span class="grow"></span><span class="t-meta">${Math.min(st.i + 1, n)} of ${n}</span></div>`;
+  const top = `<div class="study-top"><span class="crumb" data-act="leave-study">← ${titleOf(s)}</span><span class="hint"><span class="kbd">Esc</span>leave</span><span class="grow"></span>${stepMeter(Math.min(st.i, n), n)}<span class="t-meta">${Math.min(st.i + 1, n)} of ${n}</span></div>`;
   if (st.i >= n) {
     const good = st.results.filter(r => r === 'good').length;
     sec.innerHTML = `${top}<div class="study-body"><div class="study-wrap"><div class="card">
@@ -1282,22 +1464,25 @@ function renderStudy() {
         <div class="ev-line"><span class="mark"></span><span>${ev}</span></div>
         <div class="card-foot"><button class="btn secondary" data-act="rate" data-r="again">Again<span class="kbd">1</span></button><button class="btn secondary" data-act="rate" data-r="good">Good<span class="kbd">2</span></button></div>
       </div>` : `
-      <textarea class="field" id="attempt" rows="3" placeholder="Your answer, in your words"></textarea>
-      <div class="card-foot"><button class="btn primary" id="turn" data-act="turn" disabled>Turn over<span class="kbd">↵</span></button><button class="btn text" data-act="peek" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>`}
+      <textarea class="field" id="attempt" rows="3" placeholder="Your answer, in your words"></textarea><span class="t-meta" id="try-hint" aria-live="polite"></span>
+      <div class="card-foot"><button class="btn primary" id="turn" data-act="turn">Turn over<span class="kbd">↵</span></button><button class="btn text" data-act="peek" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>`}
   </div>
-  <div class="study-keys">${shown ? '<span class="hint"><span class="kbd">1</span>again</span><span class="hint"><span class="kbd">2</span>good</span>' : '<span class="hint"><span class="kbd">↵</span>turn over</span><span class="hint"><span class="kbd">⇧↵</span>new line</span>'}<span class="hint"><span class="kbd">Esc</span>leave</span></div>
+  <div class="study-keys">${shown ? '' : '<span class="hint"><span class="kbd">⇧↵</span>new line</span>'}</div>
   </div></div>`;
   if (!shown) setTimeout(() => $('#attempt')?.focus(), 0);
 }
 function turnOver(peek) {
   const st = state.study; if (!st || st.phase !== 'try') return;
   const v = $('#attempt')?.value.trim() || '';
-  if (!v && !peek) return;
-  st.attempt = peek ? '' : v; st.phase = 'shown'; renderStudy();
+  if (peek && v) peek = false;
+  if (st.escAt) { st.escAt = 0; toastHide(); }
+  if (!v && !peek) { const h = $('#try-hint'); if (h) { h.textContent = 'Write a try first, or press ⌥↵ to be told.'; h.classList.add('flash'); } return; }
+  st.attempt = peek ? '' : v; st.phase = 'shown'; renderStudy(); $('[data-screen="study"] [data-act="rate"]')?.focus({ preventScroll: true });
 }
 function rate(r) {
   const st = state.study; if (!st || st.phase !== 'shown') return;
   st.results.push(r); st.i++; st.phase = 'try'; st.attempt = ''; renderStudy();
+  const last = st.i >= BY[st.set].items.length; toast(r === 'good' ? (last ? 'Good · that was the last card' : 'Good · next card') : 'Again · it comes back tomorrow');
 }
 
 /* ================= Notes ================= */
@@ -1314,7 +1499,7 @@ const DOC_CO = `
   <div class="checkblock in-session blk" contenteditable="false">
     <div class="ev-line"><span class="mark quiet"></span><span><b>Check, in your own words.</b> Why does stroke volume rise when preload rises?</span></div>
     <textarea class="field check-field" rows="2" placeholder="Your words"></textarea>
-    <div class="line g2 wrap"><button class="btn primary" data-act="send-check">Check<span class="kbd">↵</span></button><button class="btn text" data-act="check-tell" title="Just tell me · logged">Just tell me</button></div>
+    <div class="line g2 wrap"><button class="btn primary" data-act="send-check">Check<span class="kbd">↵</span></button><button class="btn text" data-act="check-tell" title="Just tell me · logged">Just tell me<span class="kbd">⌥↵</span></button></div>
   </div>
   <div class="checks blk" contenteditable="false">
     <div class="check done" data-check><span class="box"></span>Read pp. 212–219</div>
@@ -1336,7 +1521,7 @@ const notesDirect = c => live(NOTES).filter(n => (c === 'none' ? !collName(n.col
 const CHEV = open => `<svg class="chev${open ? ' open' : ''}" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg>`;
 function treeColl(c, lv) {
   const open = state.open.has(c.id), n = c.id === 'none' ? notesDirect('none').length : notesIn(c.id).length;
-  return `<div class="row trow" tabindex="0" data-tree="${c.id}" ${c.id === 'none' ? '' : `data-id="${c.id}"`} style="--lv:${lv}" aria-expanded="${open}">${CHEV(open)}${c.id === 'none' ? gl('note') : gl('collection')}<div class="t"><div>${c.id === 'none' ? 'No collection' : titleOf(c)}</div></div>${c.id === 'none' ? '' : `<button class="btn text act" data-act="new-note-in" data-for="${c.id}" title="New note here">New note</button>`}<span class="t-meta val">${n} ${n === 1 ? 'note' : 'notes'}</span></div>`;
+  return `<div class="row trow" tabindex="0" data-tree="${c.id}" ${c.id === 'none' ? '' : `data-id="${c.id}"`} style="--lv:${lv}" aria-expanded="${open}">${CHEV(open)}${c.id === 'none' ? gl('note') : gl('collection')}<div class="t"><div>${c.id === 'none' ? 'No collection' : titleOf(c)}</div></div>${c.id === 'none' ? '' : `<button class="btn text act" data-act="new-note-in" data-for="${c.id}" data-key="c" title="New note here">New note<span class="kbd">C</span></button>`}<span class="t-meta val">${n} ${n === 1 ? 'note' : 'notes'}</span></div>`;
 }
 const treeNote = (n, lv) => itemRow(n).replace('class="row ', `style="--lv:${lv}" class="row trow `).replace(gl('note'), `<span class="chev-sp"></span>${gl('note')}`);
 function renderNotesHome() {
@@ -1370,9 +1555,9 @@ function fold(id, open) {
 /* A note: one centred page. */
 function renderDocMeta() {
   const n = BY[state.param]; if (!n) return;
-  $('#docmeta').innerHTML = `${gl('collection')}<button class="pick" data-act="pick-coll" data-for="${n.id}">${collName(n.coll) || 'no collection'}</button><span>edited ${n.when}</span><span class="line g2" title="Saved on this device; sending to the server"><i class="dot d-faint"></i>saved</span><span class="grow"></span>
-    <button class="btn text" data-act="cards-from-note" title="Start a set from this note; E.V. drafts, you keep or drop"><span class="mark quiet"></span>Make cards</button>
-    ${state.session ? '' : '<button class="btn text" data-act="start-session" title="Start a session">Start session</button>'}${MORE(n.id)}`;
+  $('#docmeta').innerHTML = `${state.session ? '' : '<span class="crumb" data-go="notes" id="note-crumb">← Notes</span><span class="c-faint" aria-hidden="true">/</span>'}${gl('collection')}<button class="pick" data-act="pick-coll" data-for="${n.id}">${collName(n.coll) || 'no collection'}</button>${state.saveFail ? '<span class="line g2"><i class="dot d-bad"></i>Not saved</span>' : `<span class="line g2" title="Edited ${n.when}. Saved on this device and sent."><i class="dot d-faint"></i>Saved</span>`}<span class="grow"></span>
+    <button class="btn text" data-act="cards-from-note" data-key="w" title="Practice from this note; E.V. drafts, you keep or drop">Practice from this<span class="kbd">W</span></button>
+    ${state.session ? '' : '<button class="btn text" data-act="start-session" data-key="s" title="Start a session">Start session<span class="kbd">S</span></button>'}${MORE(n.id)}${state.saveFail ? '<span class="docfail line g2" role="status" title="Your edits are kept on this device until the server takes them">Your edits are kept on this device.<button class="btn text" data-act="toast" data-msg="Saved" data-key="r">Try again<span class="kbd">R</span></button></span>' : ''}`;
 }
 function renderNote() {
   const n = BY[state.param]; if (!n || isDel(n.id)) return go('notes');
@@ -1387,25 +1572,25 @@ function setSession(on) {
   state.session = on; state.paused = false;
   $('[data-screen="note"]').classList.toggle('in-sess', on);
   $('#sessionbar').hidden = !on;
-  $('#note-crumb').hidden = on;
+  if ($('#note-crumb')) $('#note-crumb').hidden = on;
   $('#pausebtn').textContent = 'Pause';
   clearInterval(timer);
   if (on) timer = setInterval(() => {
     if (state.paused) return;
     state.seconds++;
-    $('#timer').textContent = `${Math.floor(state.seconds / 60)}:${String(state.seconds % 60).padStart(2, '0')}`;
+    $('#timer').textContent = `${Math.max(1, Math.round(state.seconds / 60))} min`;
   }, 1000);
 }
 function togglePause() {
   state.paused = !state.paused;
   $('#pausebtn').textContent = state.paused ? 'Resume' : 'Pause';
-  $('#session-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-info');
+  $('#session-dot').className = 'dot ' + (state.paused ? 'd-faint' : 'd-ok');
 }
 function endSession() {
   const m = Math.floor(state.seconds / 60);
   setSession(false); renderDocMeta();
   history.replaceState(null, '', '#note/' + state.param);
-  toast(`Session saved · ${m} min · in Progress`);
+  toast(`Session saved · ${m} min`);
 }
 function sendCheck(btn, tell) {
   const box = btn.closest('.checkblock');
@@ -1472,7 +1657,7 @@ function newView() {
 }
 function createHere(anchor) {
   const s = state.screen;
-  if (s === 'today') return addPlanInline();
+  if (s === 'today') return addPlanInline(document.activeElement?.closest?.('#plan-rows .row[data-id]'));
   if (s === 'library') return newSet();
   if (s === 'set' && !state.edit) { state.edit = true; renderSet(); return addItem(); }
   if (s === 'notes') return newNote();
@@ -1500,25 +1685,29 @@ function del(id, silent) {
   const kids = x.type === 'collection' ? allIn(id).length : 0;
   toast(x.type === 'collection' ? `Collection deleted · its ${kids} items stay, ungrouped` : 'Moved to Recently deleted · kept 30 days', () => restore(id));
 }
-function restore(id) { state.deleted.delete(id); paint(); toast('Restored'); }
+function restore(id) { const m = state.deleted.get(id), x = BY[id]; state.deleted.delete(id); paint(); toast(`Restored${collName(topColl(x?.coll)) ? ' to ' + collName(topColl(x.coll)) : ''}`, () => { state.deleted.set(id, m); paint(); }); }
 
 /* ================= Edit in place: titles and Detail properties ================= */
 function commitTitle(el) {
   const x = BY[el.dataset.title]; if (!x) return;
+  const was = el.dataset.was; delete el.dataset.was;
   x.title = escH(el.textContent.trim());
   if (!x.title) el.innerHTML = '';
   if (state.screen === 'set' && state.edit) { renderPins(); return; }
   paint();
+  if (was && x.title !== was) toast('Saved', () => { x.title = was; $$(`[data-title="${x.id}"]`).forEach(t => (t.innerHTML = was)); paint(); });
 }
+app.addEventListener('focusin', e => { if (e.target.matches?.('[data-title]') && e.target.dataset.was == null) e.target.dataset.was = e.target.innerHTML.trim(); });
 function commitProp(el) {
   const x = BY[el.dataset.id], k = el.dataset.prop, v = el.textContent.trim();
   el.contentEditable = 'false';
   if (!x) return;
-  if (k === 'est') x.est = v.replace(/\s*min(utes)?$/, 'm');
+  const before = { est: x.est, full: x.full, short: x.short, [k]: x[k] };
+  if (k === 'est') x.est = v && v !== 'none' ? v.replace(/\s*m(in(utes)?)?$/i, '').trim() + ' min' : '';
   else if (k === 'full') { x.full = v; x.short = v.length <= 7 ? v : v.split(', ').pop(); }
   else x[k] = escH(v);
   paint(); openDetail(x.id, null, true);
-  toast('Saved');
+  toast('Saved', () => { Object.assign(x, before); paint(); openDetail(x.id, null, true); });
 }
 
 /* ================= A collection, or a saved view ================= */
@@ -1533,13 +1722,15 @@ function renderColl(id) {
   const items = allIn(id);
   const kids = liveColls().filter(k => k.parent === id);
   const dates = items.filter(x => x.type === 'date');
-  const rest = items.filter(x => x.type !== 'date' && (x.type !== 'plan' || !x.done)).sort((a, b) => (b.type === 'plan' ? 300 : b.t || 0) - (a.type === 'plan' ? 300 : a.t || 0));
+  const pinned = items.filter(x => x.type !== 'date' && PINS.includes(x.id));
+  const rest = items.filter(x => x.type !== 'date' && !pinned.includes(x) && (x.type !== 'plan' || !x.done || x.settling)).sort((a, b) => (b.type === 'plan' ? 300 : b.t || 0) - (a.type === 'plan' ? 300 : a.t || 0));
   const parent = c.parent ? `<span class="crumb" data-open="${c.parent}">← ${collName(c.parent)}</span>` : '';
   sec.innerHTML = `
   <div class="stack g4">${parent}
     <div class="phead">${gl('collection')}<div class="stack g1 grow"><h1 class="t-title" contenteditable="true" data-title="${id}" data-ph="Untitled collection">${c.title}</h1><span class="t-meta">Collection · ${items.length} items${PINS.includes(id) ? ' · pinned' : ''}</span></div>
       <button class="btn text" data-act="new-in" title="New in this collection (C)">New<span class="kbd">C</span></button>${MORE(id)}</div>
   </div>
+  ${pinned.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Pinned</h2></div>${pinned.map(x => itemRow(x, { inColl: true })).join('')}</div>` : ''}
   ${dates.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Coming up</h2></div>${dates.map(d => itemRow(d, { meta: datePlanWaits(d) ? 'prep plan waiting for you' : d.full === 'none' ? 'no date yet' : d.full })).join('')}</div>` : ''}
   ${kids.length || rest.length ? `<div class="sec"><div class="sec-head"><h2 class="t-label">Everything</h2><span class="t-meta">newest first</span></div>
     ${kids.map(k => itemRow(k)).join('')}${rest.map(x => itemRow(x, { inColl: true })).join('')}</div>`
@@ -1562,7 +1753,7 @@ function renderView(id) {
   sec.innerHTML = `
   <div class="phead">${gl('view')}<div class="stack g1 grow"><h1 class="t-title" contenteditable="true" data-title="${id}" data-ph="Untitled view">${v.title}</h1><span class="t-meta">Saved view · ${viewRule(v)}</span></div>
     <button class="btn text" data-act="edit-view" data-for="${id}" title="Edit the filter and sort">Edit view</button>${MORE(id)}</div>
-  <div class="sec"><div class="sec-head"><h2 class="t-label">${list.length} items</h2></div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">${list.length} item${list.length === 1 ? '' : 's'}</h2></div>
     ${list.map(o => o.html).join('') || '<span class="t-meta">Nothing matches yet.</span>'}
   </div>`;
 }
@@ -1571,27 +1762,62 @@ function renderView(id) {
 function renderDeleted() {
   const list = [...state.deleted.entries()].map(([id, m]) => ({ x: BY[id], m })).filter(o => o.x);
   $('[data-screen="deleted"]').innerHTML = `
-  <div class="head"><h1 class="t-title">Recently deleted</h1><span class="t-meta">kept 30 days, then removed from E.V. Backups keep everything.</span></div>
-  <div class="sec"><div class="sec-head"><h2 class="t-label">${list.length} items</h2></div>
-    ${list.map(({ x, m }) => row({ id: x.id, g: x.type === 'plan' ? gl('plan') : glyphFor(x), title: titleOf(x), meta: `deleted ${m.on}${collName(topColl(x.coll)) ? ' · from ' + collName(topColl(x.coll)) : ''}`, val: `${m.left} days left`,
-      act: '<button class="btn text act" data-act="restore">Restore</button>' })).join('') || '<span class="t-meta">Nothing here.</span>'}
+  <div class="head"><h1 class="t-title">Recently deleted</h1><span class="t-meta">Kept 30 days, then removed from E.V. Backups keep everything.</span></div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">${list.length} item${list.length === 1 ? '' : 's'}</h2></div>
+    ${list.map(({ x, m }) => row({ id: x.id, g: x.type === 'plan' ? gl('plan') : glyphFor(x), title: titleOf(x), meta: `deleted ${m.on}${collName(topColl(x.coll)) ? ' · from ' + collName(topColl(x.coll)) : ''}`, val: `${m.left} days left`, cls: 'keep-act',
+      act: '<button class="btn text act" data-act="restore" data-key="r">Restore<span class="kbd">R</span></button>' })).join('') || '<span class="t-meta">Nothing here. Deleted things wait here for 30 days.</span>'}
   </div>`;
+}
+
+/* ================= Progress ================= */
+/* Readiness per date: ready, shaky, weak (the same numbers as Today's readiness). Greys; red only for weak cards within 3 days. */
+const READY = { 'd-exam3': [19, 9, 3], 'd-interview': [11, 6, 7] };
+const ACC = [['Sep 13', 58], ['20', 61], ['27', 60], ['Oct 4', 64], ['11', 66], ['18', 63], ['25', 69], ['Nov 1', 72]];
+function trend(pts) {
+  const W = 720, H = 120, lo = 55, hi = 75, x = i => (i + 0.5) * W / pts.length, y = v => H - 8 - (v - lo) / (hi - lo) * (H - 16);
+  const line = pts.map(([, v], i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join('');
+  return `<figure class="trend"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="First-try accuracy by week, ${pts.map(([d, v]) => d + ' ' + v + '%').join(', ')}">
+    <path class="grid" d="M0 ${y(60)}H${W}M0 ${y(70)}H${W}"/><path class="ln" d="${line}"/>
+    ${pts.map(([d, v], i) => `<g class="pt${i === pts.length - 1 ? ' now' : ''}"><rect x="${x(i) - 40}" y="0" width="80" height="${H}"/><circle cx="${x(i)}" cy="${y(v)}" r="4"/><title>${d} · ${v}%</title></g>`).join('')}
+  </svg><div class="trend-y"><span style="top:${y(70)}px">70%</span><span style="top:${y(60)}px">60%</span></div>
+  <figcaption class="bars-x">${pts.map(([d]) => `<span>${d}</span>`).join('')}</figcaption></figure>`;
+}
+function readyRow(d) {
+  const r = READY[d.id], tot = r ? r[0] + r[1] + r[2] : 0, nw = liveWeak().filter(w => w.date === d.id).length;
+  const risk = r && nw > 0 && d.days != null && d.days <= 3;   /* real risk: weak spots before a date in the next 3 days (weak cards are after cutover) */
+  const meta = r ? `${r[0]} of ${tot} ready · ${r[2]} weak${risk ? ` · at risk: ${nw} weak spot${nw === 1 ? '' : 's'}` : ''}` : 'nothing to practise yet';
+  const meter = r ? `<span class="meter ready" role="img" aria-label="${r[0]} ready, ${r[1]} shaky, ${r[2]} weak${risk ? ', at risk' : ''}">${r.map((n, i) => `<i class="${['m-learned', 'm-familiar', risk ? 'm-bad' : 'm-weak'][i]}" style="flex:${n}"></i>`).join('')}</span>` : '<span class="meter ready"></span>';
+  return `<div class="row rrow" tabindex="0" data-id="${d.id}"><div class="t"><div>${titleOf(d)}</div><span class="sub">${meta}</span></div>${meter}<span class="t-meta val">${d.short}</span></div>`;
+}
+function renderProgress() {
+  const ds = live(DATES).filter(d => d.days != null && d.days >= 0).sort((a, b) => a.days - b.days);
+  const first = ds[0];
+  $('[data-screen="progress"]').innerHTML = `
+  <div class="head"><h1 class="t-title">Progress</h1></div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">Ready for</h2><span class="grow"></span><span class="legend"><i class="dot k-learned"></i>ready<i class="dot k-familiar"></i>shaky<i class="dot k-weak"></i>weak<i class="dot k-bad"></i>at risk</span></div>
+    ${ds.map(readyRow).join('') || '<span class="t-meta">No dates yet.</span>'}</div>
+  <div class="sec"><div class="sec-head"><h2 class="t-label">First-try accuracy</h2><span class="grow"></span><span class="t-meta">72%, up 14 points in 8 weeks</span></div>
+    ${trend(ACC)}</div>`;
 }
 
 /* ================= Activity ================= */
 function renderActivity() {
-  const by = st => live(JOBS).filter(j => st.includes(j.state)).map(j => itemRow(j)).join('') || '<span class="t-meta">None.</span>';
-  $('#act-needs').innerHTML = by(['needs']);
-  $('#act-running').innerHTML = by(['running']);
-  $('#act-done').innerHTML = by(['done', 'failed']);
+  const by = (st, none) => live(JOBS).filter(j => st.includes(j.state)).sort((a, b) => (b.state === 'failed') - (a.state === 'failed')).map(j => itemRow(j)).join('') || `<span class="t-meta">${none}</span>`;
+  $('#act-needs').innerHTML = by(['needs', 'failed'], 'Nothing waits on you.');
+  $('#act-running').innerHTML = by(['running'], 'Nothing running. E.V. starts work when you ask, and on the schedule.');
+  $('#act-done').innerHTML = by(['done'], 'Nothing finished yet today.');
   updateCounts();
 }
 
 /* ================= Detail panel: one panel; properties edit in place ================= */
-function head(id, kicker, title, sub, editable) {
-  return `<div class="stack g2"><div class="line g2"><span class="t-meta">${kicker}</span><span class="grow"></span>${id ? MORE(id) : ''}${CLOSE}</div><h2 class="t-title" ${editable ? `contenteditable="true" data-title="${id}" data-ph="Untitled"` : ''}>${title}</h2>${sub ? `<span class="t-meta">${sub}</span>` : ''}</div>`;
+function head(id, kind, title, sub, editable) {
+  return `<div class="stack g2"><div class="line g2"><span class="grow"></span>${id ? MORE(id) : ''}${CLOSE}</div><h2 class="t-title" ${editable ? `contenteditable="true" data-title="${id}" data-ph="Untitled"` : ''}>${title}</h2><span class="t-meta">${[kind, sub].filter(Boolean).join(' · ')}</span></div>`;
 }
 const kv = (x, label, val, prop) => `<div class="kv"><span>${label}</span><b ${prop ? `data-prop="${prop}" data-id="${x.id}"` : ''}>${val}</b></div>`;
+const kvE = (x, label, val, prop) => { const un = !val || val === 'none'; return kv(x, label, un ? '' : val, prop).replace('class="kv"', `class="kv${un ? ' unset' : ''}" data-name="${prop}"`).replace('<b ', `<b data-ph="Add ${label.toLowerCase()}" `); };
+/* Empty properties stay out of sight; one quiet line names them and shows them on a click. */
+const addEmpty = x => { const e = [[!x.time || x.time === 'none', 'time'], [!x.est, 'est', 'estimate'], [!x.repeat || x.repeat === 'none', 'repeat'], [!x.link || isDel(x.link), 'link']].filter(([v]) => v);
+  return e.length ? `<div class="add-line t-meta">Add ${e.map(([, n, w]) => `<button data-act="add-prop" data-prop="${n}">${w || n}</button>`).join('<span aria-hidden="true">·</span>')}</div>` : ''; };
 const kvPick = (label, val, act, id) => `<div class="kv"><span>${label}</span><b class="pickb" data-act="${act}" data-for="${id}" style="cursor:pointer">${val}</b></div>`;
 function linkLabel(id) { const x = BY[id]; return x && !isDel(id) ? `<span class="line g2" style="justify-content:flex-end">${glyphFor(x)}${plain(titleOf(x))}</span>` : '<span class="c-faint">none</span>'; }
 
@@ -1599,18 +1825,19 @@ function detailFor(id) {
   const x = BY[id];
   if (!x) return '';
   if (x.type === 'plan') return `
-    ${head(x.id, 'Plan item', x.title, `${collName(topColl(x.coll)) || 'no collection'}${x.est ? ' · about ' + x.est.replace('m', ' min') : ''}`, true)}
+    ${head(x.id, 'Plan item', x.title, collName(topColl(x.coll)) || 'no collection', true)}
     <div class="props">
       <div class="kv"><span>Status</span><b class="pickb" data-act="toggle-done" data-for="${x.id}" style="cursor:pointer"><span class="line g2" style="justify-content:flex-end">${glyphFor(x)}${x.done ? 'Done' : 'To do'}</span></b></div>
       ${kv(x, 'Date', x.date === 'Today' ? 'Today, Mon Nov 2' : x.date, 'date')}
-      ${kv(x, 'Time', x.time, 'time')}
-      ${kv(x, 'Estimate', x.est ? x.est.replace('m', ' min') : 'none', 'est')}
-      ${kv(x, 'Repeat', x.repeat, 'repeat')}
-      ${kvPick('Linked', linkLabel(x.link), 'pick-link', x.id)}
+      ${kvE(x, 'Time', x.time, 'time')}
+      ${kvE(x, 'Estimate', x.est || 'none', 'est')}
+      ${kvE(x, 'Repeat', x.repeat, 'repeat')}
+      ${kvPick('Linked', linkLabel(x.link), 'pick-link', x.id).replace('class="kv"', `class="kv${x.link && !isDel(x.link) ? '' : ' unset'}" data-name="link"`)}
       ${kvPick('Collection', linkLabel(topColl(x.coll)), 'pick-coll', x.id)}
       ${kv(x, 'From', x.from)}
+      ${addEmpty(x)}
     </div>
-    <div class="line g2">${x.done ? `<button class="btn secondary" data-act="toggle-done" data-for="${x.id}">Mark not done</button>` : `<button class="btn primary" data-act="start-item" data-for="${x.id}">Start<span class="kbd">S</span></button><button class="btn text" data-act="toast" data-msg="Moved to tomorrow">Move to tomorrow</button>`}</div>`;
+    <div class="line g2">${x.done ? `<button class="btn secondary" data-act="toggle-done" data-for="${x.id}" data-key="x">Mark not done<span class="kbd">X</span></button>` : `<button class="btn primary" data-act="start-item" data-for="${x.id}" data-key="s">Start<span class="kbd">S</span></button><button class="btn text" data-act="toast" data-msg="Moved to tomorrow" data-key="t">Move to tomorrow<span class="kbd">T</span></button>`}<button class="btn text" data-act="edit-title" title="Rename">Rename</button></div>`;
   if (x.type === 'date') return `
     ${head(x.id, 'Date', x.title, x.full === 'none' ? 'no date yet' : x.full, true)}
     <div class="props">
@@ -1619,10 +1846,10 @@ function detailFor(id) {
       ${kvPick('Collection', linkLabel(x.coll), 'pick-coll', x.id)}
     </div>
     ${liveWeak().some(w => w.date === x.id) ? `<div class="sec"><h2 class="t-label">Weak spots for this date</h2>${liveWeak().filter(w => w.date === x.id).map(w => itemRow(w, { noColl: true })).join('')}</div>` : ''}
-    ${!kindOffers(x, 'prep-plan') ? '' : `<div class="sec"><h2 class="t-label">Prep plan</h2>${x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan">Review the prep plan</button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a prep plan · it will wait in Activity for you"><span class="mark quiet"></span>Plan with E.V.</button></div>'}</div>`}`;
+    ${!kindOffers(x, 'prep-plan') ? '' : `<div class="sec"><h2 class="t-label">Prep plan</h2>${x.plan ? '<div class="line g2"><button class="btn secondary" data-detail-open="j-plan" data-key="o">Open the prep plan<span class="kbd">O</span></button></div>' : '<div class="line g2"><button class="btn text" data-act="toast" data-msg="E.V. is drafting a prep plan · it will wait in Activity for you" data-key="w"><span class="mark quiet"></span>Plan with E.V.<span class="kbd">W</span></button></div>'}</div>`}`;
   if (x.type === 'view') return `
     ${head(null, 'Saved view · filter and sort', titleOf(x), 'Changes apply as you pick.')}
-    <div class="sec"><h2 class="t-label">Shows</h2><div class="opts">${Object.entries(SHOWS).map(([k, l]) => `<button data-vshow="${k}" class="${x.shows.includes(k) ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+    <div class="sec"><h2 class="t-label">Shows</h2><div class="tabs">${Object.entries(SHOWS).map(([k, l]) => `<button data-vshow="${k}" class="${x.shows.includes(k) ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     <div class="lrow"><span class="grow c-quiet">Within</span><span class="seg" data-v="within">${[7, 14, 30].map(n => `<button data-val="${n}" class="${x.within === n ? 'on' : ''}">${n} days</button>`).join('')}</span></div>
     <div class="lrow"><span class="grow c-quiet">Sort</span><span class="seg" data-v="sort">${[['date', 'By date'], ['new', 'Newest']].map(([k, l]) => `<button data-val="${k}" class="${x.sort === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>`;
   if (x.type === 'weak') return `
@@ -1634,22 +1861,24 @@ function detailFor(id) {
       ${kvPick('Drill from', linkLabel(x.set), 'open-link', x.set)}
       ${kvPick('Matters for', linkLabel(x.date), 'open-link', x.date)}
     </div>
-    <div class="line g2"><button class="btn primary" data-act="drill" data-for="${x.id}">Drill<span class="kbd">S</span></button><button class="btn text" data-act="learned" data-for="${x.id}">Mark as learned</button></div>`;
-  if (x.id === 'j-plan') return PLAN_PROPOSAL;
+    <div class="line g2"><button class="btn primary" data-act="drill" data-for="${x.id}" data-key="d">Drill<span class="kbd">D</span></button><button class="btn text" data-act="learned" data-for="${x.id}" data-key="l">Mark as learned<span class="kbd">L</span></button></div>`;
+  if (x.id === 'j-plan') return x.html || PLAN_PROPOSAL;
+  if (x.html) return x.html;
   if (x.type === 'job') {
     const dot = { ok: 'd-ok', bad: 'd-bad', warn: 'd-warn', faint: 'd-faint' };
-    const steps = (x.steps || []).map(([s, t, m]) => `<div class="st">${s === 'run' ? '<i class="spin"></i>' : `<i class="dot ${dot[s]}"></i>`}<div>${t}<div class="t-meta">${m}</div></div></div>`).join('');
-    const extra = x.id === 'j-src' ? `<div class="sec"><h2 class="t-label">No source found</h2>
-        <div class="stack g2" style="padding:8px 0"><span>Most hash maps resize when about three-quarters full.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div>
-        <div class="stack g2" style="padding:8px 0"><span>A good hash function spreads keys evenly across buckets.</span><span class="seg" data-pick style="align-self:flex-start"><button>Keep, marked unverified</button><button>Drop</button></span></div></div>` : '';
+    const sub = '';
+    const steps = (x.steps || []).map(([s, t, m]) => `<div class="st">${s === 'run' ? think() : `<i class="dot ${dot[s]}"></i>`}<div>${t}<div class="t-meta">${m}</div></div></div>`).join('');
+    const extra = x.id === 'j-src' && x.state === 'needs' ? `<div class="sec"><h2 class="t-label">No source found</h2>
+        <div class="stack g2" style="padding:8px 0"><span>Most hash maps resize when about three-quarters full.</span><span class="seg" data-pick style="align-self:flex-start"><button data-key="y">Keep, marked unverified<span class="kbd">Y</span></button><button data-key="n">Drop<span class="kbd">N</span></button></span></div>
+        <div class="stack g2" style="padding:8px 0"><span>A good hash function spreads keys evenly across buckets.</span><span class="seg" data-pick style="align-self:flex-start"><button data-key="y">Keep, marked unverified<span class="kbd">Y</span></button><button data-key="n">Drop<span class="kbd">N</span></button></span></div></div>` : '';
     const weekly = x.id === 'j-weekly' && x.state === 'needs' ? `<div class="sec"><h2 class="t-label">Confirm weak spots</h2>
-        ${WEAK_PROPOSED.map(w => `<div class="stack g2" style="padding:8px 0"><span>${w.title} <span class="t-meta">· ${w.right[0]} of ${w.right[1]} right · missed ${w.miss}</span></span><span class="seg" data-pick data-w="${w.id}" style="align-self:flex-start"><button data-val="yes">Confirm</button><button data-val="no">Not now</button></span></div>`).join('')}</div>` : '';
-    const acts = x.state === 'failed' ? '<button class="btn secondary" data-act="retry">Retry, shorter</button><button class="btn text" data-close>Dismiss</button>'
-      : x.state === 'running' ? '<button class="btn text" data-act="toast" data-msg="Stopped · nothing was saved">Stop</button>'
-      : x.id === 'j-src' ? '<button class="btn primary" data-act="save-set" disabled title="Decide on both first">Save the set<span class="kbd">⌘↵</span></button>'
-      : x.id === 'j-weekly' && x.state === 'needs' ? '<button class="btn primary" data-act="weekly-done" disabled title="Decide on both first">Done<span class="kbd">⌘↵</span></button>'
-      : x.set && x.state === 'needs' ? `<button class="btn secondary" data-open-edit="${x.set}">Open the set</button>` : '';
-    return `${head(null, 'Job · ' + x.kind, x.title, x.meta)}<div class="steps">${steps}</div>${extra}${weekly}${acts ? `<div class="line g2">${acts}</div>` : ''}
+        ${WEAK_PROPOSED.map(w => `<div class="stack g2" style="padding:8px 0"><span>${w.title} <span class="t-meta">· ${w.right[0]} of ${w.right[1]} right · missed ${w.miss}</span></span><span class="seg" data-pick data-w="${w.id}" style="align-self:flex-start"><button data-val="yes" data-key="y">Confirm<span class="kbd">Y</span></button><button data-val="no" data-key="n">Not now<span class="kbd">N</span></button></span></div>`).join('')}</div>` : '';
+    const acts = x.state === 'failed' ? `<button class="btn secondary" data-act="retry" data-key="r">${x.stopped ? 'Try again' : 'Try again, shorter'}<span class="kbd">R</span></button>${x.stopped ? '<span class="t-meta">Stopped by you.</span>' : ''}`
+      : x.state === 'running' ? '<button class="btn secondary" data-act="stop-job" title="Stop this job (press twice)">Stop</button><span class="t-meta">Press twice. It stops now and can’t be undone.</span>'
+      : x.id === 'j-src' && x.state === 'needs' ? '<button class="btn primary" data-act="save-set" disabled title="Decide on both first">Save the set<span class="kbd">⌘↵</span></button><span class="t-meta why" data-why="pick"></span>'
+      : x.id === 'j-weekly' && x.state === 'needs' ? '<button class="btn primary" data-act="weekly-done" disabled title="Decide on both first">Done<span class="kbd">⌘↵</span></button><span class="t-meta why" data-why="pick"></span>'
+      : x.set && x.state === 'needs' ? `<button class="btn secondary" data-open-edit="${x.set}" data-key="o">Open the set<span class="kbd">O</span></button>` : '';
+    return `${head(null, x.makes ? 'Makes ' + ({ note: 'a note', cards: 'cards', questions: 'questions', date: 'a date' })[x.makes] : '', x.title, sub)}<div class="steps">${steps}</div>${extra}${weekly}${acts ? `<div class="line g2">${acts}</div>` : ''}
       <div>${kv(x, 'Started by', x.by || 'Schedule')}${kv(x, 'Output', x.out || 'Today')}${kv(x, 'Cost', x.cost || 'under 1¢')}</div>`;
   }
   if (x.type === 'note') return `${head(x.id, 'Source · note', x.title, `${collName(x.coll)} · edited ${x.when}`)}<p class="answer">${x.preview}</p><div class="line g2"><button class="btn secondary" data-open="${x.id}">Open note</button></div>`;
@@ -1657,62 +1886,100 @@ function detailFor(id) {
   return '';
 }
 const PLAN_PROPOSAL = `
-  ${head(null, 'Proposal · prep plan', 'Prep plan for Biology exam 3', 'Biology · Thursday, Nov 5 · 3 sessions, 1&nbsp;h&nbsp;20&nbsp;m')}
-  <div class="sec">
-    <h2 class="t-label">Your confidence</h2>
-    <span class="t-meta" id="conf-note">Rate these first. E.V. shapes the plan around them.</span>
-    <div class="lrow"><span class="grow">Two-carrier crosses</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
-    <div class="lrow"><span class="grow">Cardiac output</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
-    <div class="lrow"><span class="grow">Crossbridge cycle</span><span class="seg" data-conf><button>Low</button><button>Some</button><button>Sure</button></span></div>
-  </div>
+  ${head(null, 'Proposal', 'Prep plan for Biology exam 3', 'Thursday, Nov 5 · 3&nbsp;sessions, 1&nbsp;h&nbsp;20&nbsp;min').replace('data-close title="Close (Esc)" aria-label="Close"', 'data-close data-put-away title="Put away (Esc): it stays in Activity" aria-label="Put away"')}
   <div class="sec" id="plan-items">
     <h2 class="t-label">Proposed</h2>
-    <div class="suggest"><span class="t-meta" style="width:32px">Tue</span><span class="grow">Genetics problems · mixed set</span><span class="t-meta">25m</span></div>
-    <div class="suggest"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Full practice run · Chapter 9</span><span class="t-meta">45m</span></div>
-    <div class="suggest"><span class="t-meta" style="width:32px">Thu</span><span class="grow">Misses only, before the exam</span><span class="t-meta">10m</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Tue</span><span class="grow">Genetics problems · mixed set</span><span class="t-meta">25 min</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Wed</span><span class="grow">Full practice run · Chapter 9</span><span class="t-meta">45 min</span></div>
+    <div class="suggest"><span class="t-meta" style="width:32px">Thu</span><span class="grow">Misses only, before the exam</span><span class="t-meta">10 min</span></div>
   </div>
-  <div><div class="kv"><span>Built from</span><b>Exam 3 objectives · Ch 8–9 notes</b></div><div class="kv"><span>Weighted by</span><b>your answers · your ratings</b></div></div>
-  <div class="line g2" data-swap="plan"><button class="btn primary" data-act="approve-plan" title="Rate your confidence first" disabled>Approve<span class="kbd">⌘↵</span></button><button class="btn secondary" data-act="plan-changes">Ask for changes</button><button class="btn text" data-act="put-away" title="Put away; it stays in Activity">Put away</button></div>`;
+  <div><div class="kv"><span>Built from</span><b>Exam 3 objectives · Ch 8–9 notes</b></div><div class="kv"><span>More of</span><b>what you missed</b></div></div>
+  <div class="line wrap g2" data-swap="plan"><button class="btn primary" data-act="approve-plan" title="Approve plan">Approve<span class="kbd">⌘↵</span></button><button class="btn text" data-act="plan-changes" title="Ask E.V. for changes">Ask for changes<span class="kbd">⌘J</span></button></div>`;
 
+let detailFrom = null;
+let detailBack = null;
 function openDetail(id, rowEl, quiet) {
   const html = detailFor(id);
   if (!html) return;
-  detail.innerHTML = html; detail.dataset.id = id;
+  if (detail.hidden) detailBack = (document.activeElement?.closest?.('.view .row[data-id]') || rowEl)?.dataset?.id || null;
+  detailFrom = id;
+  detail.innerHTML = html; detail.dataset.id = id; document.body.classList.add('detail-on');
+  markNextKeys(); whyNow();
   if (!quiet) { detail.hidden = true; void detail.offsetWidth; }
   detail.hidden = false;
   area.classList.toggle('panel-leads', !!$('.btn.primary', detail));
   markSel(id);
 }
 function markSel(id) {
-  $$('.view .row.sel, .view .tile.sel').forEach(r => r.classList.remove('sel'));
+  $$('.view .row.sel').forEach(r => r.classList.remove('sel'));
   if (id && !detail.hidden) $$(`.view [data-id="${id}"]`).forEach(r => { if (r.closest('[data-screen]:not([hidden])')) r.classList.add('sel'); });
 }
-function closeDetail() {
-  detail.hidden = true; detail.replaceChildren(); delete detail.dataset.id;
+function closeDetail(back = true) {
+  const from = detailFrom; detailFrom = null;
+  detail.hidden = true; detail.replaceChildren(); delete detail.dataset.id; document.body.classList.remove('detail-on');
   area.classList.remove('panel-leads'); markSel(null);
+  const fromRow = back && from && $(`[data-screen="${state.screen}"]:not([hidden]) .row[data-id="${from}"]`), bk = detailBack; detailBack = null;
+  if (fromRow) fromRow.focus({ preventScroll: true }); else if (back && bk) $(`[data-screen="${state.screen}"]:not([hidden]) .row[data-id="${bk}"]`)?.focus({ preventScroll: true });
 }
 function approvePlan() {
+  const before = detail.innerHTML, j = BY['j-plan'], was = { state: j.state, meta: j.meta };
   $$('#plan-items .suggest', detail).forEach(s => { s.className = 'lrow'; });
   $('[data-swap="plan"]', detail).outerHTML = '<span class="t-meta">Approved · 3 sessions added to your plan</span>';
   area.classList.remove('panel-leads');
-  toast('Plan approved');
+  const hm = $$('.t-meta', detail).find(x => /^Proposal/.test(x.textContent.trim())); if (hm) hm.innerHTML = hm.innerHTML.replace('Proposal', 'Approved');
+  $$('[data-put-away]', detail).forEach(x => { x.removeAttribute('data-put-away'); x.title = 'Close (Esc)'; x.setAttribute('aria-label', 'Close'); });
+  const pl = $$('.t-label', detail).find(x => x.textContent.trim() === 'Proposed'); if (pl) pl.textContent = 'In your plan';
+  Object.assign(j, { state: 'done', meta: 'you approved · 3 sessions, Tue to Thu', html: detail.innerHTML }); paint();
+  toast('Plan approved · 3 sessions added', () => { Object.assign(j, was); delete j.html; paint();
+    if (detail.dataset.id === 'j-plan' && !detail.hidden) { detail.innerHTML = before; area.classList.add('panel-leads'); markNextKeys(); } });
+}
+function shadowKeys() {
+  $$('.shadowed').forEach(b => b.classList.remove('shadowed'));
+  const r = document.activeElement?.closest?.('[data-screen] .row'); if (!r) return;
+  const own = new Set($$('[data-key]', r).map(b => b.dataset.key));
+  $$('[data-key]', r.closest('[data-screen]')).forEach(b => { if (!r.contains(b) && (own.has(b.dataset.key) || b.closest('.row, .suggest'))) b.classList.add('shadowed'); });
+}
+document.addEventListener('focusin', shadowKeys); document.addEventListener('focusout', () => setTimeout(shadowKeys, 0));
+function markRowKeys() {
+  $$('[data-screen]').forEach(v => {
+    const by = {}; $$('.row.keep-act .act[data-key]', v).forEach(b => (by[b.dataset.key] ||= []).push(b));
+    Object.values(by).forEach(bs => bs.forEach(b => b.classList.toggle('hint-row', bs.length > 1)));
+  });
+}
+new MutationObserver(() => { cancelAnimationFrame(markRowKeys.f); markRowKeys.f = requestAnimationFrame(markRowKeys); }).observe(document.getElementById('area'), { childList: true, subtree: true });
+/* A blocked main action says, beside it, what is left and which keys do it. */
+function whyNow() {
+  $$('.why', detail).forEach(w => {
+    const segs = $$(w.dataset.why === 'conf' ? '.seg[data-conf]' : '.seg[data-pick]', detail), left = segs.filter(sg => !$('.on', sg)).length;
+    const keys = w.dataset.why === 'conf' ? '<span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span>' : segs[0] && $('[data-key="y"]', segs[0]) ? '<span class="kbd">Y</span> or <span class="kbd">N</span>' : '';
+    w.innerHTML = left ? `${left} left to ${w.dataset.why === 'conf' ? 'rate' : 'decide'} · ${keys}` : '';
+  });
+}
+function markNextKeys() {
+  const seen = new Set();
+  $$('.seg', detail).filter(sg => $('[data-key]', sg)).forEach(sg => {
+    const sig = $$('[data-key]', sg).map(b => b.dataset.key).join(), next = !$('.on', sg) && !seen.has(sig);
+    if (next) seen.add(sig); sg.classList.toggle('later', !next);
+  });
 }
 function rateSeg(btn) {
   const seg = btn.parentElement;
   $$('button', seg).forEach(b => b.classList.toggle('on', b === btn));
   const conf = $$('.seg[data-conf]', detail), pick = $$('.seg[data-pick]', detail);
   if (conf.length) {
+    if (detail.dataset.id === 'j-plan') BY['j-plan'].rates = conf.map(s => $$('button', s).findIndex(b => b.classList.contains('on')));
     const done = conf.every(s => $('.on', s));
-    if (done) $('#conf-note', detail).textContent = 'Thanks. The plan below now leans on what you rated Low.';
+
     const ap = $('[data-act="approve-plan"]', detail);
     if (ap) { ap.disabled = !done; ap.title = done ? 'Approve plan' : 'Rate your confidence first'; }
   }
   if (pick.length) { const sv = $('[data-act="save-set"], [data-act="weekly-done"]', detail); if (sv) sv.disabled = !pick.every(s => $('.on', s)); }
+  markNextKeys(); whyNow();
 }
 
 /* ================= Repaint the current screen without navigating ================= */
 function paint() {
-  const a = document.activeElement, fid = a && a.matches && a.matches('.row[data-id], .tile[data-id]') ? a.dataset.id : null;
+  const a = document.activeElement, fid = a && a.matches && a.matches('.row[data-id]') ? a.dataset.id : null;
   renderPins(); updateCounts();
   const s = state.screen;
   if (s === 'today') renderToday();
@@ -1722,6 +1989,7 @@ function paint() {
   if (s === 'note') renderDocMeta();
   if (s === 'coll') renderColl(state.param);
   if (s === 'activity') renderActivity();
+  if (s === 'progress') renderProgress();
   if (s === 'deleted') renderDeleted();
   if (!detail.hidden && detail.dataset.id) { if (isDel(detail.dataset.id)) closeDetail(); else markSel(detail.dataset.id); }
   if (fid) $(`[data-screen="${s}"] [data-id="${fid}"]`)?.focus();
@@ -1735,13 +2003,20 @@ function leaveEdit(s) {
   if (s.fresh && !s.items.length && !s.title && (!s.draft || s.draft.phase === 'ask')) { SETS.splice(SETS.indexOf(s), 1); delete BY[s.id]; return; }
   delete s.fresh;
 }
+/* A typed try is never dropped without a word: the first way out warns, the second leaves. */
+function studyGuard() {
+  const st = state.study; if (state.screen !== 'study' || !st || st.phase !== 'try' || !$('#attempt')?.value.trim()) return false;
+  if (st.escAt > Date.now() - 4000) return false;
+  st.escAt = Date.now(); toast('Do that again to leave. Your try is not kept.'); setTimeout(() => $('#attempt')?.focus()); return true;
+}
 function go(screen, param, edit) {
+  if (screen !== 'study' && studyGuard()) return;
   if (state.session) setSession(false);
   if (state.screen === 'set' && state.edit && !(screen === 'set' && param === state.param)) leaveEdit(BY[state.param]);
   $$('[data-screen]').forEach(s => (s.hidden = s.dataset.screen !== screen));
   state.screen = screen; state.param = param || null; state.edit = !!edit;
   app.classList.toggle('focus', screen === 'study');
-  closeDetail(); closeMenu();
+  closeDetail(false); closeMenu();
   if (screen === 'today') renderToday();
   if (screen === 'library') renderLibrary();
   if (screen === 'set') { state.hero = { i: 0, flipped: false }; renderSet(); }
@@ -1751,13 +2026,19 @@ function go(screen, param, edit) {
   if (screen === 'coll') renderColl(param);
   if (screen === 'deleted') renderDeleted();
   if (screen === 'activity') renderActivity();
+  if (screen === 'progress') renderProgress();
   if (screen === 'system') renderSystem();
   if (screen === 'phone') renderPhone();
   const sv = $(`[data-screen="${screen}"]`); if (sv && sv.classList.contains('view')) sv.scrollTop = screen === 'ask' ? sv.scrollHeight : 0;
-  if (screen === 'ask') { const c = $('[data-screen="ask"]'); c.scrollTop = c.scrollHeight; }
+  if (screen === 'ask') { const c = $('#chat'); c.scrollTop = c.scrollHeight; requestAnimationFrame(() => { if (state.screen === 'ask' && pal.hidden) $('#composer')?.focus(); }); }
   renderPins(); updateCounts();
   const hash = screen === 'coll' ? (VIEWS[param] ? 'v' : 'c') : screen;
   if (state.screen === screen) history.replaceState(null, '', '#' + hash + (param ? '/' + param : '') + (edit ? (screen === 'note' ? '/session' : '/edit') : ''));
+}
+/* E on a row edits a set. Renaming is not on E: it is the Rename button in Detail, or a click on the title. */
+function editRow(id, row) {
+  const x = BY[id]; if (!x || !isSet(x)) return false;
+  go('set', id, true); return true;
 }
 function openItem(id, el) {
   const x = BY[id]; if (!x) return;
@@ -1770,7 +2051,7 @@ function openItem(id, el) {
   if (x.type === 'job' && state.screen !== 'activity') { go('activity'); return openDetail(id, $(`.view [data-id="${id}"]`)); }
   openDetail(id, el);
 }
-function leaveStudy() { const s = state.study?.set; go(s ? 'set' : 'library', s); }
+function leaveStudy() { if (state.study?.escAt) toastHide(); const s = state.study?.set; go(s ? 'set' : 'library', s); }
 
 /* ================= Theme and toast ================= */
 function toggleTheme() {
@@ -1778,15 +2059,25 @@ function toggleTheme() {
   app.dataset.theme = light ? 'light' : 'dark';
   $('#themelabel').textContent = light ? 'Dark theme' : 'Light theme';
 }
-let toastTimer;
+let toastTimer, toastLeft = 0, toastAt = 0, toastHeld = false;
+function toastHide() { $('#toast').hidden = true; state.undo = null; PLAN.filter(p => p.settling).forEach(p => settle(p.id)); }
+function toastRun(ms) { clearTimeout(toastTimer); toastLeft = ms; toastAt = Date.now(); toastTimer = setTimeout(toastHide, ms); }
+function toastHold(on) {
+  if (on === toastHeld || $('#toast').hidden) return;
+  toastHeld = on;
+  if (on) { clearTimeout(toastTimer); toastLeft = Math.max(1500, toastLeft - (Date.now() - toastAt)); } else toastRun(toastLeft);
+}
+/* With an undo, the toast stays 8 seconds and holds while the pointer or focus is on it. Z undoes. */
 function toast(msg, undo) {
   $('#toast-msg').textContent = msg;
   $('#toast-undo').hidden = !undo;
   state.undo = undo || null;
-  $('#toast').hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => ($('#toast').hidden = true), 4000);
+  const cp = state.screen === 'ask' && $('#composer'); $('#toast').style.bottom = cp ? (innerHeight - cp.getBoundingClientRect().top + 12) + 'px' : '';
+  $('#toast').hidden = false; toastHeld = false;
+  toastRun(undo ? 8000 : 4000);
 }
+['mouseenter', 'focusin'].forEach(t => $('#toast').addEventListener(t, () => toastHold(true)));
+['mouseleave', 'focusout'].forEach(t => $('#toast').addEventListener(t, () => toastHold(false)));
 
 /* ================= Menu: item actions, and pickers (collection, link, source) ================= */
 let menuPick = null;
@@ -1808,7 +2099,7 @@ function itemMenu(id, x, y) {
   const opts = here ? [] : [{ k: 'open', label: it.type === 'collection' ? 'Open collection page' : 'Open', kbd: '↵' }];
   if (it.type === 'collection') opts.push({ k: 'newnote', label: 'New note here' });
   if (isSet(it)) opts.push({ k: 'edit', label: 'Edit set', kbd: 'E' });
-  if (it.type === 'note') opts.push({ k: 'cards', label: 'Make cards with E.V.' });
+  if (it.type === 'note') opts.push({ k: 'cards', label: 'Practice from this' });
   opts.push({ k: 'pin', label: PINS.includes(id) ? 'Unpin from sidebar' : 'Pin to sidebar', kbd: 'P' });
   if (!['collection', 'view'].includes(it.type)) opts.push({ k: 'move', label: 'Move to collection…', kbd: 'M' });
   opts.push({ k: 'delete', label: 'Delete', kbd: '⌫' });
@@ -1857,42 +2148,99 @@ function togglePin(id) {
 const pal = $('#palette'), palIn = $('#palette-in');
 let palIdx = 0;
 const CMDS = [
-  ['start-next', 'Start next', 'S'], ['new-plan', 'New plan item', ''], ['new-note', 'New note', ''], ['new-set', 'New set', ''], ['new-set-ev', 'Write a set with E.V.', ''],
-  ['new-date', 'New date', ''], ['new-coll', 'New collection', ''], ['new-view', 'New saved view', ''], ['go:deleted', 'Recently deleted', ''], ['theme', 'Switch theme', '\\'],
+  ['start-next', 'Start next', 'S'], ['new-plan', 'New plan item', ''], ['new-note', 'New note', ''], ['new-set', 'New set', ''], ['new-set-ev', 'Write a set with E.V.', 'W'],
+  ['new-date', 'New date', '⇧D'], ['new-coll', 'New collection', '⇧C'], ['go:deleted', 'Recently deleted', ''], ['theme', 'Switch theme', '\\'], ['keys', 'Keys: every key and where it works', '?'],
 ];
-const GOTO = [['today', 'Today', ''], ['ask', 'Ask E.V.', '⌘J'], ['library', 'Library', ''], ['notes', 'Notes', ''], ['progress', 'Progress', ''], ['activity', 'Activity', '']];
+const KEYMAP = [['D', 'Drill'], ['E', 'Edit'], ['L', 'Mark learned'], ['O', 'Open'], ['R', 'Try again or restore'], ['S', 'Start'], ['T', 'Move to tomorrow'], ['W', 'Write with E.V.'], ['Y', 'Yes: accept, keep, confirm'], ['N', 'Not now or drop'],
+  ['X', 'Done or not done'], ['C', 'Create: a new thing, or add to the plan'], ['⇧C', 'New collection'], ['⇧D', 'New date'], ['1 2', 'Rate a card: again or good'], ['⌥↵', 'Just tell me (logged)'], ['Space', 'Flip the card, or pause a session'], ['← →', 'Previous or next card, or a day on the Horizon'], ['⌘↵', 'Done, save, approve, end a session'], ['⌘J', 'Ask E.V.'], ['H', 'Read the next 14 days'], ['Z', 'Undo'],
+  ['P', 'Pin'], ['M', 'Move to a collection'], ['.', 'More'], ['⌫', 'Delete'], ['J K', 'Move down or up'], ['↵', 'Open, or turn the card over'], ['Esc', 'Close, put away, or leave'], ['?', 'Keys here, in ⌘K'], ['\\', 'Light or dark']];
+const KEYRUN = { '⇧C': 'new-coll', '⇧D': 'new-date', '⌘J': 'go:ask', '?': 'keys', '\\': 'theme', 'C': 'create-here' };
+const KEYWHERE = { E: 'on a set, or E.V.’s proposal on Today', C: 'a plan line on Today, a set in Library, a note in Notes; on a weak spot, adds it to the plan', Y: 'on a proposal or a choice', H: 'anywhere', Z: 'while an Undo notice shows', 'J K': 'in a list', '↵': 'on a row, or in Study after your try', Esc: 'anywhere', '1 2': 'in Study, after you turn over', '⌥↵': 'in Study and Ask, while E.V.’s question is open', Space: 'on a set, or in a note session', '← →': 'on a set, or on the Horizon after H', '⌘↵': 'in a panel or a note session', X: 'on a row', P: 'on a row', M: 'on a row', '⌫': 'on a row', '.': 'on a row or panel' };
+const GOTO = [['today', 'Today', ''], ['ask', 'Ask E.V.', '⌘J'], ['library', 'Library', ''], ['lib:weak', 'Weak spots · Library', ''], ['lib:dates', 'Dates · Library', ''], ['lib:sets', 'Sets · Library', ''], ['notes', 'Notes', ''], ['progress', 'Progress', ''], ['activity', 'Activity', '']];
 function renderPalette() {
   const q = palIn.value.trim().toLowerCase();
-  const m = t => !q || plain(t).toLowerCase().includes(q);
-  const r = (cmd, label, key, g = '') => `<div class="row" data-cmd="${cmd}">${g}<div class="t"><div>${label}</div></div>${key ? `<span class="kbd">${key}</span>` : ''}</div>`;
+  const ws = t => plain(t).toLowerCase().split(/[^a-z0-9]+/).some(w => w.startsWith(q));
+  const m = t => !q || (q.length < 3 ? ws(t) : plain(t).toLowerCase().includes(q));
+  const exact = q && KEYMAP.some(([k]) => k.toLowerCase().split(' ').includes(q));
+  const r = (cmd, label, key, g = '', sub = '') => `<div class="row" data-cmd="${cmd}">${g}<div class="t"><div>${label}</div>${sub ? `<div class="t-meta">${sub}</div>` : ''}</div>${key ? `<span class="kbd">${key}</span>` : ''}</div>`;
   const grp = (name, rows) => rows.length ? `<div class="t-label">${name}</div>${rows.join('')}` : '';
-  const found = q ? [...live(SETS), ...live(NOTES), ...live(DATES), ...live(PLAN), ...liveWeak(), ...liveColls(), ...live(Object.values(VIEWS))].filter(x => m(titleOf(x))).slice(0, 6) : [];
-  $('#palette-list').innerHTML =
+  const found = q ? [...live(SETS), ...live(NOTES), ...live(DATES), ...live(PLAN), ...liveWeak(), ...liveColls()].filter(x => m(titleOf(x)) || (x.items || []).some(it => m(it.f || it.s || '') || m(it.b || ''))).slice(0, 6) : [];
+  const kr = ([k, d]) => r(KEYRUN[k] || 'key', d, k, '', KEYRUN[k] ? '' : (KEYWHERE[k] || 'on the row or panel in hand'));
+  if (palKeys && !q) { $('#palette-list').innerHTML = grp(`Keys here <span class="t-meta">${escH(palKeys.name)}</span>`, palKeys.here.map(([k, d]) => r('key', escH(d), k))) + grp('Every key', KEYMAP.map(kr)); palIdx = 0; return markPalette(); }
+  const keys = grp('Keys', q ? KEYMAP.filter(([k, d]) => (k.toLowerCase().split(' ').includes(q) || (q.length > 1 && d.toLowerCase().includes(q))) && !(KEYRUN[k] && CMDS.some(c => c[0] === KEYRUN[k] && m(c[1])))).slice(0, 5).map(kr) : []);
+  $('#palette-list').innerHTML = (exact ? keys : '') +
     grp('Commands', CMDS.filter(c => m(c[1])).map(c => r(c[0], c[1], c[2]))) +
-    grp('Found', found.map(x => r('open:' + x.id, titleOf(x), '', glyphFor(x)))) +
+    grp('Found', found.map(x => { const it = !m(titleOf(x)) && (x.items || []).find(it => m(it.f || it.s || '') || m(it.b || '')); return r('open:' + x.id, titleOf(x), '', glyphFor(x), it ? 'card · ' + plain([it.f, it.s, it.b].find(t => t && m(t)) || '').slice(0, 48) : ''); })) +
     grp('Pinned', PINS.filter(p => BY[p] && !isDel(p) && m(titleOf(BY[p]))).map(p => r('open:' + p, titleOf(BY[p]), '', glyphFor(BY[p])))) +
     grp('Go to', GOTO.filter(g => m(g[1])).map(g => r('go:' + g[0], g[1], g[2]))) +
+    (exact ? '' : keys) +
     (q ? r('ask', `Ask E.V.: ${escH(palIn.value.trim())}`, 'Tab', '<span class="mark quiet"></span>') : '');
   palIdx = 0; markPalette();
 }
 const palRows = () => $$('#palette-list .row');
 function markPalette() { palRows().forEach((r, i) => r.classList.toggle('sel', i === palIdx)); palRows()[palIdx]?.scrollIntoView({ block: 'nearest' }); }
-function openPalette(q = '') { closeMenu(); pal.hidden = false; palIn.value = q; renderPalette(); palIn.focus(); }
-function closePalette() { pal.hidden = true; }
-function askEV(text) { closePalette(); go('ask'); const f = $('#composer'); f.value = text || ''; f.focus(); }
+let palBack = null;
+function openPalette(q = '', keys = null) { closeMenu(); if (pal.hidden) palBack = keys ? keysBack : document.activeElement; palKeys = keys; pal.hidden = false; palIn.value = q; palIn.placeholder = keys ? 'Type a key or a word to find it' : 'Type a command, find anything, or ask E.V.'; renderPalette(); palIn.focus(); }
+function closePalette() { pal.hidden = true; palKeys = null; }
+/* Esc or a click outside puts focus back where it was. */
+function dismissPalette() { const back = palBack; closePalette(); if (back && back.isConnected && back !== document.body) back.focus(); }
+let keysBack = null;
+const KEY_NAME = { ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓', Enter: '↵', Escape: 'Esc', ' ': 'Space' };
+const SCREEN_NAME = { today: 'Today', ask: 'Ask E.V.', library: 'Library', notes: 'Notes', note: 'This note', set: 'This set', study: 'Study', progress: 'Progress', activity: 'Activity', deleted: 'Recently deleted', coll: 'This collection' };
+const SCREEN_KEYS = {
+  study: () => { const st = state.study; if (!st) return []; if (st.i >= BY[st.set].items.length) return [['↵', 'Back to the set'], ['Esc', 'Leave']];
+    return st.phase === 'try' ? [['↵', 'Turn over after your try'], ['⌥↵', 'Just tell me (logged)'], ['Esc', 'Leave (twice if you typed a try)']] : [['1 2', 'Again, or good'], ['Esc', 'Leave']]; },
+  set: () => state.edit ? [] : [['← →', 'Previous or next card'], ['Space', 'Flip the card']],
+  note: () => state.session ? [['Space', 'Pause or resume'], ['⌘↵', 'End the session']] : [] };
+function keysHere() {
+  const inD = !detail.hidden, root = inD ? detail : $(`[data-screen="${state.screen}"]`), seen = new Set(), out = [];
+  const fr = !inD && document.activeElement?.closest?.('[data-screen] .row');
+  const lone = b => { const k = b.dataset.key; return k && $$(`.row.keep-act [data-key="${k}"]`, root).filter(x => x.offsetParent !== null).length === 1; };
+  const answers = b => { const rw = b.closest('.row, .suggest'); if (!rw || inD) return true; if (fr) return fr === rw; return !rw.classList.contains('row') || (rw.classList.contains('keep-act') && lone(b)); };
+  const add = (k, d) => { if (!k || !d) return; const ks = k.split(' '); if (ks.every(x => seen.has(x))) return; ks.forEach(x => seen.add(x)); out.push([k, d]); };
+  const lab = b => { const kb = $(':scope > .kbd', b); return (kb ? b.textContent.slice(0, -kb.textContent.length) : b.getAttribute('aria-label') || b.title || b.textContent || '').trim(); };
+  if (!inD) (SCREEN_KEYS[state.screen]?.() || []).forEach(([k, d]) => add(k, d));
+  if (fr) $$('button[data-key]', fr).forEach(b => { const kb = $(':scope > .kbd', b); add(kb ? kb.textContent : b.dataset.key.toUpperCase(), lab(b)); });
+  if (root) {
+    $$('.seg', root).forEach(sg => { const bs = $$('button[data-key]', sg); if (!bs.length || $('.on', sg) || sg.classList.contains('later') || sg.offsetParent === null) return;
+      const ns = bs.map(lab).map(t => t.split(',')[0].toLowerCase()); const t = ns.slice(0, -1).join(', ') + ' or ' + ns.at(-1); add(bs.map(x => x.dataset.key.toUpperCase()).join(' '), t[0].toUpperCase() + t.slice(1)); });
+    $$('button, [role="button"]', root).sort((a, b) => !$(':scope > .kbd', a) - !$(':scope > .kbd', b)).forEach(b => {
+      if (b.offsetParent === null || b.closest('.seg') || !answers(b)) return;
+      const kb = $(':scope > .kbd', b), ks = b.getAttribute('aria-keyshortcuts');
+      if (kb && getComputedStyle(kb).visibility === 'hidden') return;
+      const key = kb ? kb.textContent : ks ? ks.split(' ').map(x => KEY_NAME[x] || x.toUpperCase()).join(' ') : '';
+      let label = lab(b);
+      if (b.disabled) { const w = b.parentElement && $('.why', b.parentElement); if (!b.classList.contains('primary') || !w || !w.textContent) return; label += ' (' + w.textContent.split(' · ')[0] + ')'; }
+      add(key, label);
+    });
+  }
+  if (fr && BY[fr.dataset.id]?.type === 'plan') { add('X', BY[fr.dataset.id].done ? 'Not done' : 'Done'); add('C', 'Add an item below'); }
+  if (fr) { add('↵', 'Open'); add('J K', 'Next or previous row'); }
+  if (fr && isSet(BY[fr.dataset.id] || {})) add('E', 'Edit the set');
+  if (inD) add('Esc', $('[data-put-away]', detail) ? 'Put away' : 'Close');
+  return { name: inD ? ($('.t-title', detail)?.textContent.trim() || 'this panel') : (SCREEN_NAME[state.screen] || 'this screen'), here: out.slice(0, 10) };
+}
+/* ? and the Keys row open ⌘K in its key state: the keys that answer here first, then every key with where it works. */
+let palKeys = null;
+function openKeys() { closeMenu(); const k = keysHere(); keysBack = document.activeElement; openPalette('', k); }
+function askEV(text) { closePalette(); if (state.screen === 'study' && studyGuard()) return; go('ask'); const f = $('#composer'); f.value = text || ''; f.focus(); }
 function runCmd(cmd) {
   closePalette();
+  if (state.screen === 'study' && !['key', 'keys', 'theme'].includes(cmd) && !cmd.startsWith('go:') && studyGuard()) return;
+  if (cmd.startsWith('go:lib:')) { state.libTab = cmd.slice(7); return go('library'); }
   if (cmd.startsWith('go:')) return go(cmd.slice(3));
   if (cmd.startsWith('open:')) return openItem(cmd.slice(5));
+  if (cmd === 'key') return keysBack?.focus?.();
   ({
-    'start-next': startNext, 'new-plan': addPlanInline, 'new-note': () => newNote(), 'new-set': () => newSet(), 'new-set-ev': () => newSet({ ev: true }),
-    'new-date': () => { if (state.screen !== 'today') go('today'); newDate(null, true); }, 'new-coll': () => newColl(), 'new-view': newView,
+    'start-next': startNext, 'new-plan': addPlanInline, 'create-here': () => createHere(), 'new-note': () => newNote(), 'new-set': () => newSet(), 'new-set-ev': () => newSet({ ev: true }),
+    'new-date': () => { if (state.screen !== 'today') go('today'); newDate(null, true); }, 'new-coll': () => newColl(), keys: () => openKeys(),
     theme: toggleTheme, ask: () => askEV(palIn.value.trim()),
   })[cmd]?.();
 }
 palIn.addEventListener('input', renderPalette);
+document.addEventListener('input', e => { if (e.target.id === 'attempt' && state.study) state.study.escAt = 0; });
 pal.addEventListener('click', e => {
-  if (e.target === pal) return closePalette();
+  if (e.target === pal) return dismissPalette();
   const r = e.target.closest('[data-cmd]');
   if (r) runCmd(r.dataset.cmd);
 });
@@ -1911,7 +2259,11 @@ const actions = {
   'accept-suggest': acceptSuggest,
   'edit-suggest': editSuggest,
   'dismiss-suggest': dismissSuggest,
-  'just-tell': b => b.replaceWith(Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' })),
+  'just-tell': b => {
+    const sp = Object.assign(document.createElement('span'), { className: 't-meta', textContent: 'Logged: you asked for the answer first.' }); b.replaceWith(sp);
+    const q = lastAsk(sp.closest('.msg'));
+    setTimeout(() => addMsg(evAnswer(q, false)), 400);
+  },
   'new-set': () => newSet(),
   'new-set-ev': () => newSet({ ev: true }),
   'edit-set': () => { state.edit = true; history.replaceState(null, '', `#set/${state.param}/edit`); renderSet(); },
@@ -1936,14 +2288,18 @@ const actions = {
   'edit-view': b => openDetail(forId(b)),
   restore: b => restore(forId(b)),
   drill: b => drill(forId(b)),
+  'weak-plan': b => { const w = BY[forId(b)]; if (!w) return;
+    const it = { id: 'p-w-' + w.id, type: 'plan', title: 'Drill · ' + w.title, meta: 'weak spot · from Library', est: '10 min', coll: w.coll, link: w.set, date: 'Today', time: 'none', repeat: 'none', from: 'You · from Library' };
+    PLAN.push(it); BY[it.id] = it; w.planned = true; paint();
+    toast('Added to today’s plan', () => { PLAN.splice(PLAN.indexOf(it), 1); delete BY[it.id]; w.planned = false; paint(); }); },
   learned: b => learned(forId(b)),
   'open-link': b => openItem(forId(b)),
   'weekly-done': () => {
     const j = BY['j-weekly'], picks = $$('.seg[data-w]', detail).map(s => [s.dataset.w, $('.on', s).dataset.val]);
-    const yes = picks.filter(([, v]) => v === 'yes').map(([id]) => BY[id]);
+    const yes = picks.filter(([, v]) => v === 'yes').map(([id]) => BY[id]), was = { state: j.state, meta: j.meta, steps: j.steps };
     WEAK.push(...yes);
     Object.assign(j, { state: 'done', meta: `Sun · you confirmed ${yes.length} of ${picks.length} weak spots`, steps: [j.steps[0], j.steps[1], ['ok', 'Weak spots', `you confirmed ${yes.length} of ${picks.length}`]] });
-    closeDetail(); paint(); toast(yes.length ? `${yes.length} added to Weak spots` : 'Nothing added');
+    closeDetail(); paint(); toast(yes.length ? `${yes.length} added to Weak spots` : 'Nothing added', () => { yes.forEach(w => WEAK.splice(WEAK.indexOf(w), 1)); Object.assign(j, was); paint(); });
   },
   study: () => go('study', state.param),
   'mode-later': () => toast('Learn and Test come later; Study covers it for now'),
@@ -1963,12 +2319,42 @@ const actions = {
   'end-session': endSession,
   'new-note': () => newNote(),
   'approve-plan': approvePlan,
-  'plan-changes': () => askEV('Changes to the Biology exam 3 plan: '),
+  'plan-changes': () => { askEV('Changes to the Biology exam 3 plan: '); toast('The plan waits in Activity · back with O on the exam'); },
   'put-away': () => { closeDetail(); toast('Put away · it stays in Activity'); },
-  'save-set': () => { $('[data-act="save-set"]', detail).outerHTML = '<span class="t-meta">Saved to Library · Interview prep</span>'; area.classList.remove('panel-leads'); toast('Set saved'); },
-  retry: () => toast('Retrying, shorter · see Running'),
+  'save-set': () => { const before = detail.innerHTML, j = BY['j-src'], kept = 10 + $$('.seg[data-pick] .on', detail).filter(b => b.dataset.key === 'y').length;
+    const was = { state: j.state, meta: j.meta, out: j.out, steps: j.steps.map(r => [...r]) };
+    const set = { id: 's-hash', t: 99, type: 'questions', title: 'Hash maps', coll: 'interview', src: 'n-hash', recent: 'new · from E.V.', items: [
+      { f: 'What does a hash map do with a key before it stores the value?', b: 'It hashes the key into an array index.' },
+      { f: 'Why can a lookup take O(n) in the worst case?', b: 'When many keys collide, the bucket has to be searched one by one.' }] };
+    area.classList.remove('panel-leads');
+    SETS.push(set); BY[set.id] = set;
+    j.steps[2] = ['ok', j.steps[2][1], `10 cited · you kept ${kept - 10} of 2 without a source`];
+    j.steps[3] = ['ok', 'Save to Library', `${kept} questions · Interview prep`];
+    Object.assign(j, { state: 'done', meta: `saved · ${kept} questions in Interview prep`, out: 'Library · Interview prep' });
+    paint(); openDetail('j-src', null, true);
+    toast('Set saved', () => { SETS.splice(SETS.indexOf(set), 1); delete BY[set.id]; Object.assign(j, was); paint();
+      if (detail.dataset.id === 'j-src' && !detail.hidden) { detail.innerHTML = before; area.classList.add('panel-leads'); markNextKeys(); } }); },
+  keys: () => openKeys(),
+  'add-prop': b => { const p = b.closest('.props'), r = p && $(`.kv.unset[data-name="${b.dataset.prop}"]`, p); if (!r) return; r.classList.add('shown'); const line = b.closest('.add-line'); b.nextElementSibling?.remove() || b.previousElementSibling?.remove(); b.remove(); if (!$('button', line)) line.remove(); $('b', r)?.click(); $('b', r)?.focus(); },
+  'edit-title': () => { const t = $('[data-title]', detail); if (!t) return; t.focus(); getSelection().selectAllChildren(t); },
+  retry: b => { const rw = b.closest('.row'), id = rw?.dataset.id || detail.dataset.id, x = BY[id];
+    const sib = rw && document.activeElement && rw.contains(document.activeElement) ? (rw.nextElementSibling?.matches('.row[data-id]') ? rw.nextElementSibling : rw.previousElementSibling?.matches('.row[data-id]') ? rw.previousElementSibling : null)?.dataset.id : null;
+    if (sib) setTimeout(() => $(`.view .row[data-id="${sib}"]`)?.focus());
+    if (!x || x.state !== 'failed') return toast('Trying again, shorter');
+    const was = { state: x.state, meta: x.meta, stopped: x.stopped, steps: x.steps.map(r => [...r]) }, again = () => { paint(); if (!detail.hidden && detail.dataset.id === id) openDetail(id, null, true); };
+    const st = x.stopped; x.state = 'running'; x.stopped = false; x.meta = `trying again${st ? '' : ', shorter'} · step 1 of ${x.steps.length}`;
+    x.steps = x.steps.map((r, i) => i === 0 ? ['run', r[1], st ? 'again, from the start' : 'again, asking for a shorter answer'] : ['faint', r[1], 'next']);
+    again(); toast(`Trying again${st ? '' : ', shorter'} · now in Running`, () => { Object.assign(x, was); again(); }); },
+  'stop-job': () => { const x = BY[detail.dataset.id]; if (!x) return;
+    if (!x.stopArm || Date.now() - x.stopArm > 4000) { x.stopArm = Date.now(); return toast('Press Stop again to stop it. It can’t be undone.'); }
+    x.stopArm = 0; toastHide();
+    const m = /(\d+) of (\d+)/.exec(x.prog || x.meta) || [, 'the', ''], done = m[1];
+    x.state = 'failed'; x.stopped = true; x.meta = 'Stopped by you.';
+    x.steps[2] = ['faint', x.steps[2][1], `stopped at ${done} of ${m[2]}`]; x.steps[3][0] = 'faint'; x.steps[3][2] = 'skipped';
+    x.out = 'Not finished'; x.cost = (x.cost || '').replace(/ so far$/, '');
+    paint(); openDetail(x.id, null, true); toast('Stopped · it waits in Needs you'); },
   toast: b => toast(b.dataset.msg),
-  undo: () => { const u = state.undo; $('#toast').hidden = true; u?.(); },
+  undo: () => { const u = state.undo; toastHide(); u?.(); },
 };
 
 /* ================= Clicks (one delegated handler) ================= */
@@ -1989,7 +2375,7 @@ app.addEventListener('click', e => {
   if (seg) return rateSeg(seg);
   const act = e.target.closest('[data-act]');
   if (act && !act.disabled) { e.preventDefault(); e.stopPropagation(); return actions[act.dataset.act]?.(act); }
-  if (e.target.closest('[data-close]')) return closeDetail();
+  if (e.target.closest('[data-close]')) return e.target.closest('[data-put-away]') ? actions['put-away']() : closeDetail();
   const prop = e.target.closest('[data-prop]');
   if (prop && prop.contentEditable !== 'true') { prop.contentEditable = 'true'; prop.focus(); getSelection().selectAllChildren(prop); return; }
   if (prop) return;
@@ -2010,7 +2396,7 @@ app.addEventListener('click', e => {
   const tr = e.target.closest('[data-tree]');
   if (tr) return fold(tr.dataset.tree);
   const hr = e.target.closest('[data-hero]');
-  if (hr) { state.hero = { i: +hr.dataset.hero, flipped: false }; renderHero(); return $('#hero').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  if (hr) { state.hero = { i: +hr.dataset.hero, flipped: false }; renderHero(); return $('#hero').scrollIntoView({ block: 'nearest', behavior: SMOOTH() }); }
   const pin = e.target.closest('[data-pin]');
   if (pin) { e.preventDefault(); return openItem(pin.dataset.pin); }
   const nav = e.target.closest('[data-go]');
@@ -2021,11 +2407,11 @@ app.addEventListener('click', e => {
     return;
   }
   if (e.target.closest('[data-title], .cell, .inline-in')) return;
-  const r = e.target.closest('.view .row[data-id], .view .tile[data-id], .detail .row[data-id]');
+  const r = e.target.closest('.view .row[data-id], .detail .row[data-id]');
   if (r && state.screen !== 'deleted') return openItem(r.dataset.id, r);
 });
 app.addEventListener('contextmenu', e => {
-  const r = e.target.closest('.row[data-id], .tile[data-id], .nav[data-id]');
+  const r = e.target.closest('.row[data-id], .nav[data-id]');
   if (!r || !BY[r.dataset.id] || r.closest('#palette, #menu')) return;
   e.preventDefault();
   itemMenu(r.dataset.id, e.clientX, e.clientY);
@@ -2038,7 +2424,6 @@ app.addEventListener('focusout', e => {
 });
 /* Set editor cells write straight to the set. */
 app.addEventListener('input', e => {
-  if (e.target.id === 'attempt') $('#turn').disabled = !e.target.value.trim();
   const c = e.target.closest('.cell');
   if (c) { const s = BY[state.param], i = +c.closest('.erow').dataset.i; s.items[i][c.dataset.cell] = c.innerHTML.replace(/<br>$/, ''); }
 });
@@ -2046,14 +2431,48 @@ app.addEventListener('input', e => {
 /* ================= Keys: keyboard-first ================= */
 function focusables() {
   const scr = $(`[data-screen="${state.screen}"]`);
-  return scr ? $$('.row[tabindex], .tile', scr).filter(el => el.offsetParent !== null) : [];
+  return scr ? $$('.row[tabindex]', scr).filter(el => el.offsetParent !== null) : [];
+}
+/* A key goes to the focused row first, then the open Detail, then the screen. A focused row on a screen keeps the key:
+   it never falls through to a screen action. A choice already made is skipped, so K or D steps to the next open one. */
+/* After a key acts, focus lands on what the person works on next, never on the page itself. */
+/* A key that acted in Detail keeps focus in Detail: on the next open choice, else its main action.
+   A key that acted on a row keeps focus at that place in the list. It never jumps to a row nobody chose. */
+function keepFocus(inDetail, idx) {
+  const a = document.activeElement, kept = a && a !== document.body && a.isConnected && a.offsetParent !== null;
+  if (inDetail && !detail.hidden) {
+    if (a && detail.contains(a) && a.matches('[contenteditable="true"], input, textarea')) return;
+    const open = $$('.seg', detail).find(sg => $('[data-key]', sg) && !$('.on', sg) && sg.offsetParent !== null);
+    const t = open ? $('button', open) : $$('.btn.primary:not(:disabled), .btn.secondary:not(:disabled)', detail).find(b => b.offsetParent !== null);
+    return (t || $('[data-close]', detail))?.focus();
+  }
+  if (kept) return;
+  const scr = $(`[data-screen="${state.screen}"]`); if (!scr) return;
+  const t = state.screen === 'set' && state.edit ? $('[data-title]', scr)
+    : state.screen === 'note' && state.session ? $('.sessionbar button') : null;
+  if (t) return t.focus();
+  if (idx >= 0) { const fr = focusables(); fr[Math.min(idx, fr.length - 1)]?.focus(); }
+}
+function keyTarget(key) {
+  const cur = document.activeElement, r = cur && cur.closest ? cur.closest('.row') : null;
+  const sel = `[data-key="${key}"]`, shown = b => b.offsetParent !== null && !b.disabled && !b.closest('.seg')?.querySelector('.on');
+  if (r) { const b = r.querySelector(sel); if (b) return b; }
+  if (!detail.hidden) return [...detail.querySelectorAll(sel)].find(shown) || null;
+  const rowLike = b => b.closest('.row, .suggest');
+  for (const v of $$('[data-screen]:not([hidden])')) {
+    const all = [...v.querySelectorAll(sel)].filter(shown), b = all.find(b => !(r ? rowLike(b) : b.closest('.row')));
+    if (b) return b;
+    if (r) continue;
+    const ra = all.filter(b => b.closest('.row.keep-act')); if (ra.length === 1) return ra[0];
+  }
+  return null;
 }
 document.addEventListener('keydown', e => {
   const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
   const typing = e.target.matches('input, textarea, [contenteditable="true"], [contenteditable="true"] *');
   if (!pal.hidden) {
     const rows = palRows();
-    if (e.key === 'Escape') return closePalette();
+    if (e.key === 'Escape') return dismissPalette();
     if (e.key === 'ArrowDown') { e.preventDefault(); palIdx = Math.min(palIdx + 1, rows.length - 1); return markPalette(); }
     if (e.key === 'ArrowUp') { e.preventDefault(); palIdx = Math.max(palIdx - 1, 0); return markPalette(); }
     if (e.key === 'Enter') { e.preventDefault(); return rows[palIdx] && runCmd(rows[palIdx].dataset.cmd); }
@@ -2068,16 +2487,25 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (mod && k === 'k') { e.preventDefault(); return openPalette(); }
-  if (mod && k === 'j') { e.preventDefault(); go('ask'); return $('#composer').focus(); }
+  if (mod && k === 'j') { e.preventDefault(); const pc = !detail.hidden && $('[data-act="plan-changes"]', detail); if (pc) return pc.click(); go('ask'); return $('#composer').focus(); }
   if (mod && e.key === 'Enter') {
+    if (state.session) { e.preventDefault(); return endSession(); }
     if (state.screen === 'set' && state.edit) { e.preventDefault(); document.activeElement?.blur(); return doneEdit(); }
     const ap = $('[data-act="approve-plan"]:not(:disabled), [data-act="save-set"]:not(:disabled), [data-act="weekly-done"]:not(:disabled)', detail);
-    if (ap) { e.preventDefault(); return ap.click(); }
+    if (ap) { e.preventDefault(); ap.click(); return setTimeout(() => keepFocus(true, -1), 80); }
+    const blocked = !detail.hidden && $('.btn.primary:disabled', detail);
+    if (blocked) { e.preventDefault(); const w = $('.why', detail); w?.classList.add('flash'); setTimeout(() => w?.classList.remove('flash'), 1200); return $$('.seg', detail).find(sg => $('[data-key]', sg) && !$('.on', sg))?.querySelector('button')?.focus(); }
   }
+  if (e.key === '?' && !mod && (!typing || (e.target.id === 'attempt' && !e.target.value))) { e.preventDefault(); return openKeys(); }
   /* Study mode */
   if (state.screen === 'study' && state.study) {
     const st = state.study;
-    if (e.key === 'Escape') { e.preventDefault(); return leaveStudy(); }
+    if (!typing && e.key === '\\') return toggleTheme();
+    if ((!typing || (e.target.id === 'attempt' && !e.target.value)) && k === 'z' && !mod && !e.altKey && !$('#toast').hidden && state.undo) { e.preventDefault(); return actions.undo(); }
+    if (e.key === 'Escape') { e.preventDefault();
+      const a = $('#attempt');
+      if (st.phase === 'try' && a && a.value.trim() && !(st.escAt > Date.now() - 4000)) { st.escAt = Date.now(); return toast('Press Esc again to leave. Your try is not kept.'); }
+      return leaveStudy(); }
     if (st.i >= BY[st.set].items.length) { if (e.key === 'Enter') { e.preventDefault(); return leaveStudy(); } return; }
     if (st.phase === 'try') {
       if (e.altKey && e.key === 'Enter') { e.preventDefault(); return turnOver(true); }
@@ -2089,9 +2517,11 @@ document.addEventListener('keydown', e => {
     return;
   }
   /* Inline editing */
-  if (e.target.id === 'plan-in') { if (e.key === 'Enter') { e.preventDefault(); return commitPlanInline(); } if (e.key === 'Escape') { e.preventDefault(); return $('#plan-rows .adding').remove(); } return; }
+  if (e.target.id === 'plan-in') { if (e.key === 'Enter') { e.preventDefault(); return commitPlanInline(); } if (e.key === 'Escape') { e.preventDefault(); return cancelPlanInline(); } return; }
   if (e.target.matches('[data-title]') && (e.key === 'Enter' || e.key === 'Escape')) {
-    e.preventDefault(); e.target.blur();
+    e.preventDefault(); if (e.key === 'Escape' && e.target.dataset.was != null) e.target.innerHTML = e.target.dataset.was;
+    const inD = detail.contains(e.target); e.target.blur();
+    if (inD) ($('.btn.primary:not(:disabled)', detail) || $$('button[data-key]', detail).find(b => b.offsetParent) || $('[data-close]', detail))?.focus();
     if (state.screen === 'set' && state.edit && e.key === 'Enter') $('#editor .cell')?.focus();
     return;
   }
@@ -2108,16 +2538,23 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Escape') {
     if (typing) return e.target.blur();
-    if (!detail.hidden) return closeDetail();
+    if (!detail.hidden) return $('[data-put-away]', detail) ? actions['put-away']() : closeDetail();
     if (state.screen === 'set' && state.edit) return doneEdit();
     return;
   }
-  if (e.altKey && e.key === 'Enter' && state.screen === 'ask') { e.preventDefault(); const b = $$('#chat [data-act="just-tell"]').pop(); return b && actions['just-tell'](b); }
+  if (e.altKey && e.key === 'Enter' && state.screen === 'ask') { e.preventDefault(); pruneJustTell(); const b = $$('#chat [data-act="just-tell"]').pop(); return b ? actions['just-tell'](b) : toast('No open question. Ask, and E.V. will want your try first.'); }
+  if (e.target.id === 'composer' && !e.target.value && e.key === '?') { e.preventDefault(); return openKeys(); }
   if (e.target.id === 'composer' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendChat(); }
+  if (e.target.id === 'composer' && !e.target.value && k === 'z' && !mod && !e.altKey && !$('#toast').hidden && state.undo) { e.preventDefault(); return actions.undo(); }
+  if (e.target.matches('.check-field') && e.altKey && e.key === 'Enter') { e.preventDefault(); return $('[data-act="check-tell"]', e.target.closest('.checkblock'))?.click(); }
   if (e.target.matches('.check-field') && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); return sendCheck($('[data-act="send-check"]', e.target.closest('.checkblock')), false); }
   if (typing) return;
   if (e.key === '\\') return toggleTheme();
-  if (k === 'c' && !mod) { e.preventDefault(); return createHere(); }
+  if (e.key === '?') { e.preventDefault(); return openKeys(); }
+  if (k === 'z' && !e.altKey && !e.shiftKey && !$('#toast').hidden && state.undo) { e.preventDefault(); return actions.undo(); }
+  if (k === 'h' && !mod && !e.altKey && !e.shiftKey) { const h = $('#horizon'); if (h) { e.preventDefault(); hzBack = document.activeElement; h.focus(); return hzSelect(h, null); } }
+  if (!mod && !e.altKey) { const kt = keyTarget((e.shiftKey && k.length === 1 && k !== '?' ? 'shift+' : '') + k); if (kt) { e.preventDefault(); const inDetail = detail.contains(kt), idx = focusables().indexOf(document.activeElement); kt.click(); return setTimeout(() => keepFocus(inDetail, idx), 80); } }
+  if (k === 'c' && !mod && !e.shiftKey) { e.preventDefault(); return detail.hidden ? createHere() : undefined; }
   /* Rows: arrows (or j/k) move, Enter opens, X marks done, Delete deletes, . opens the menu, P pins, M moves */
   const fr = focusables(), cur = document.activeElement, idx = fr.indexOf(cur);
   if (['arrowdown', 'arrowup', 'j', 'k'].includes(k) && !(state.screen === 'set' && cur && cur.id === 'hero')) {
@@ -2137,19 +2574,16 @@ document.addEventListener('keydown', e => {
     const id = cur.dataset.id, b = cur.getBoundingClientRect();
     if (state.screen === 'deleted') { if (k === 'enter' || k === 'r') return restore(id); return; }
     if (k === 'x' && BY[id].type === 'plan') return toggleDone(id);
+    if (k === 'e' && !mod && editRow(id, cur)) return e.preventDefault();
     if (e.key === 'Delete' || e.key === 'Backspace') return del(id);
     if (e.key === '.') return itemMenu(id, b.right - 220, b.bottom);
     if (k === 'p') return togglePin(id);
     if (k === 'm' && BY[id].type !== 'collection' && BY[id].type !== 'job') return moveMenu(id, b.left + 40, b.bottom);
   }
+  if (e.key === '.' && detail.hidden) { const m = $$(`[data-screen="${state.screen}"] [data-act="item-menu"]`).find(b => b.offsetParent !== null && !b.closest('.row')); if (m) return m.click(); }
   if (e.key === '.' && !detail.hidden && detail.dataset.id) { const b = detail.getBoundingClientRect(); return itemMenu(detail.dataset.id, b.right - 236, b.top + 56); }
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.row, .tile, .cite, [role="button"]')) { e.preventDefault(); return e.target.click(); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.row, .cite, [role="button"]')) { e.preventDefault(); return e.target.click(); }
   if (k === 's' && !mod && !detail.hidden) { const pb = $('.btn.primary', detail); if (pb && $('.kbd', pb)?.textContent === 'S') return pb.click(); }
-  if (state.screen === 'today' && !mod) {
-    if (k === 's') return startNext();
-    if (k === 'a' && !$('#today-suggest').hidden) return acceptSuggest();
-    if (k === 'e' && !$('#today-suggest').hidden) { e.preventDefault(); return editSuggest(); }
-  }
   if (state.screen === 'set' && !state.edit) {
     const s = BY[state.param];
     if (k === 'e') { e.preventDefault(); return actions['edit-set'](); }
@@ -2157,7 +2591,7 @@ document.addEventListener('keydown', e => {
     if (e.key === ' ') { e.preventDefault(); return actions.flip(); }
     if (e.key === 'ArrowLeft') return heroMove(-1);
     if (e.key === 'ArrowRight') return heroMove(1);
-    if (e.key === 'Enter') return go('study', state.param);
+    if (k === 's') return go('study', state.param);
   }
   if (e.key === ' ' && state.session && state.screen === 'note') { e.preventDefault(); return togglePause(); }
 });
@@ -2172,11 +2606,11 @@ function renderSystem() {
   $('[data-screen="system"]').innerHTML = `
   <div class="head"><h1 class="t-title">Design system</h1><span class="t-meta">${app.dataset.label}</span></div>
   <div class="sec g4"><h2 class="t-label">Every item · manual first, E.V. beside it</h2>
-    <span class="c-quiet">Anything Matt owns can be created, edited and deleted by hand, from where it lives. Where E.V. can help, there is one quiet “with E.V.” action next to it; what she writes arrives dashed, with its source, and he keeps or drops each piece. Delete moves to Recently deleted for 30 days, with Undo.</span>
+    <span class="c-quiet">Anything Matt owns can be created, edited and deleted by hand, from where it lives. Where E.V. can help, there is one quiet “with E.V.” action next to it; what E.V. writes arrives dashed, with its source, and he keeps or drops each piece. Delete moves to Recently deleted for 30 days, with Undo.</span>
     <div class="kit matrix">
       ${m('', 'Create', 'Edit', 'Delete', 'With E.V.')}
-      ${m('Plan item', 'Today · Add, or C', 'Title and properties in Detail', 'Menu, or ⌫', 'Her one dashed proposal')}
-      ${m('Note', 'Notes · New note, or C', 'Type on its page', 'Menu, or ⌫', 'Make cards from it; checks in a session')}
+      ${m('Plan item', 'Today · Add, or C', 'Title and properties in Detail', 'Menu, or ⌫', 'E.V.’s one dashed proposal')}
+      ${m('Note', 'Notes · New note, or C', 'Type on its page', 'Menu, or ⌫', 'Practice from this (quiet); checks in a session')}
       ${m('Set', 'Library · New set, or C', 'Edit on the set page (E)', 'Menu, or ⌫', 'Write with E.V.: dashed drafts from a note')}
       ${m('Date', 'Today · Add date; a collection’s New', 'Title and properties in Detail', 'Menu, or ⌫', 'Plan with E.V. (a job), on an exam')}
       ${m('Weak spot', 'From your misses: E.V. proposes, you confirm', 'none; it follows your answers', 'Mark as learned (a status)', 'is how they appear')}
@@ -2196,7 +2630,7 @@ function renderSystem() {
     <div class="swatches">
       ${sw('--side', 'Side', 'sidebar')}${sw('--bg', 'Background', 'content')}${sw('--surface', 'Surface', 'popovers')}${sw('--line2', 'Line', 'frames, dashes')}
       ${sw('--text', 'Text', 'titles, body')}${sw('--quiet', 'Quiet', 'glyphs, E.V.')}${sw('--faint', 'Faint', 'meta, hints')}${sw('--her', 'Ember', 'one per screen')}
-      ${sw('--ok', 'OK', 'status dot')}${sw('--warn', 'Needs you', 'status dot')}${sw('--bad', 'Failed', 'status dot')}${sw('--info', 'Running', 'spinner, session')}
+      ${sw('--ok', 'OK', 'status dot')}${sw('--warn', 'Needs you', 'status dot')}${sw('--bad', 'Failed', 'status dot')}
     </div>
     <span class="t-meta">No per-type colours. Colour is for the one primary action, E.V.’s mark, and small status dots.</span>
   </div>
@@ -2251,9 +2685,9 @@ function renderPhone() {
     <div><div class="phone">
       <div class="phone-bar"><span>9:41</span><span>E.V.</span></div>
       <div class="phone-body">
-        <div class="line"><h1 class="t-title grow">Library</h1><button class="btn text icon" aria-label="Search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg></button></div>
-        <div class="sec"><div class="sec-head"><h2 class="t-label">Recent</h2></div>${tiles(recent, { recent: true })}</div>
-        <div class="sec"><div class="sec-head"><h2 class="t-label">All sets</h2></div><div class="opts" style="margin-bottom:8px"><button class="on">All</button><button>Cards</button><button>Questions</button><button>Steps</button></div>${tiles(all, {})}</div>
+        <div class="line"><h1 class="t-title grow">Library</h1><button class="btn text icon" aria-label="Search"><svg aria-hidden="true" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg></button></div>
+        <div class="sec"><div class="sec-head"><h2 class="t-label">Recent</h2></div>${recent.map(x => itemRow(x, { recent: true })).join('')}</div>
+        <div class="sec"><div class="sec-head"><h2 class="t-label">All sets</h2></div><div class="tabs" style="margin-bottom:8px"><button class="on">All</button><button>Cards</button><button>Questions</button><button>Steps</button></div>${all.map(x => itemRow(x)).join('')}</div>
       </div>
       ${tabs('library')}
     </div><div class="t-meta cap">Library</div></div>
