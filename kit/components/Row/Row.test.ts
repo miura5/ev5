@@ -131,7 +131,7 @@ test("an editor row has two named cells that edit in place", () => {
     createElement(EditorRow, {
       cells: [
         { label: "Term", value: "Photosynthesis", onChange: onTerm },
-        { label: "Meaning", value: "Anticoagulant", onChange: vi.fn() },
+        { label: "Meaning", value: "Price", onChange: vi.fn() },
       ],
     }),
   );
@@ -172,7 +172,7 @@ test("a row's bar slot is always drawn, apart from the hover actions", () => {
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("Fluid balance")).toBeTruthy();
+  expect(screen.getByText("Market structure")).toBeTruthy();
 });
 
 test("level 2 nests a row two steps in", () => {
@@ -214,17 +214,17 @@ test("a menu button opens the item menu without opening the row", async () => {
   const onPick = vi.fn();
   render(
     createElement(Row, {
-      title: "Lab values",
+      title: "Vocabulary list",
       onOpen,
       menu: {
         items: [{ key: "pin", label: "Pin" }],
         onPick,
-        label: "Actions for Lab values",
+        label: "Actions for Vocabulary list",
         button: true,
       },
     }),
   );
-  const dots = screen.getByRole("button", { name: "Actions for Lab values" });
+  const dots = screen.getByRole("button", { name: "Actions for Vocabulary list" });
   fireEvent.click(dots);
   expect(onOpen).not.toHaveBeenCalled();
   fireEvent.keyDown(dots, { key: "Enter" });

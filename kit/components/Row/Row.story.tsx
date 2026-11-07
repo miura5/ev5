@@ -12,7 +12,7 @@ const MENU = [
 export function Story() {
   const [open, setOpen] = useState(true);
   const [term, setTerm] = useState("Photosynthesis");
-  const [meaning, setMeaning] = useState("Anticoagulant; watch aPTT");
+  const [meaning, setMeaning] = useState("A word for a market price");
   const [step, setStep] = useState("Check the order");
   return (
     <div data-ui="story-row">
@@ -28,10 +28,10 @@ export function Story() {
         }
         menu={{ items: MENU, onPick: () => undefined, label: "Row actions" }}
       />
-      <Row title="Fluid balance" value="Yesterday" selected />
+      <Row title="Market structure" value="Yesterday" selected />
       <Row title="Add a note" />
       <Row
-        title="Quiz on electrolytes"
+        title="Quiz on verb tenses"
         status={{ tone: "warn", label: "Due soon" }}
         value="Fri"
       />
@@ -40,7 +40,7 @@ export function Story() {
         title="Cell biology"
         fold={{ open, onToggle: () => setOpen(!open) }}
       />
-      {open ? <Row title="Anticoagulants" level={1} /> : null}
+      {open ? <Row title="Irregular verbs" level={1} /> : null}
       {open ? (
         <Row title="Photosynthesis notes" level={2} glyph={<Glyph type="note" />} />
       ) : null}
@@ -51,13 +51,13 @@ export function Story() {
         actions={<Button kind="secondary">Got it</Button>}
       />
       <Row
-        title="Lab values"
+        title="Vocabulary list"
         onOpen={() => undefined}
         actionsShown
         menu={{
           items: MENU,
           onPick: () => undefined,
-          label: "Actions for Lab values",
+          label: "Actions for Vocabulary list",
           button: true,
         }}
       />
@@ -73,7 +73,7 @@ export function Story() {
         }
       />
       <Row
-        title="Heart failure"
+        title="Chapter review"
         meta="Due Friday"
         value="Tomorrow"
         bar={

@@ -7,12 +7,12 @@ import { Story } from "./PracticeCard.story";
 afterEach(cleanup);
 
 const base = {
-  title: "Fluid balance",
+  title: "Market structure",
   question: "Which sign?",
   position: 2,
   total: 8,
   options: ["A", "B"],
-  source: "Note · Fluids",
+  source: "Note · Markets",
 };
 
 test("it commits the picked option and ends on End", () => {
@@ -40,5 +40,5 @@ test("the hint shows only after Hint, and no button without one", () => {
 
 test("the story renders", () => {
   render(createElement(Story));
-  expect(screen.getByText("Fluid balance")).toBeTruthy();
+  expect(screen.getByText("Market structure")).toBeTruthy();
 });
