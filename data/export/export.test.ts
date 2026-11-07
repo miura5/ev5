@@ -58,6 +58,7 @@ function migrated(withNew: boolean): DatabaseSync {
   if (withNew) db.exec(sql("0009_collections_pins_expand.sql")); // the pins columns the exporter selects
   if (withNew) db.exec(sql("0018_files.sql")); // the files table
   db.exec(sql("0007_plans_drafts.sql")); // drafts.target_kind (the exporter selects it), plans, plan_items, repeats and drafts.target_kind
+  if (withNew) db.exec(sql("0019_settings.sql")); // settings, seeded from claude_settings
   return db;
 }
 
