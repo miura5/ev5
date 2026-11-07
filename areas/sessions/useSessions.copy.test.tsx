@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
+import { sessionRowsBody } from "./sessionRows.testkit.ts";
 import { useSessions } from "./useSessions.ts";
 
 /** Stands in for the shell's ReadCopy (areas never import the shell): a good read is kept; a rejected fetch gets it back. */
@@ -31,25 +32,34 @@ const offline = () =>
   });
 const status = (n: number) =>
   stub(async () => new Response("{}", { status: n }));
-const ok = (body: unknown) =>
-  stub(async () => new Response(JSON.stringify(body), { status: 200 }));
+const doc = {
+  id: "s1",
+  v: 3,
+  data: {
+    schema: 2,
+    writer: "page",
+    at: "2026-11-04T15:00:00.000Z",
+    source: "E.V. Home",
+    date: "2026-11-04",
+    topic: "Cardiac output",
+    status: "active",
+    startedAt: "2026-11-04T15:00:00.000Z",
+  },
+};
+/** The server answers the session rows and the event rows by the url asked. */
+const ok = (docs: object[]) =>
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(
+      async (url: string) =>
+        new Response(JSON.stringify(sessionRowsBody(url, docs as never)), {
+          status: 200,
+        }),
+    ),
+  );
 const saved: Record<string, unknown> = {
-  "sessions:list": [
-    {
-      id: "s1",
-      v: 3,
-      data: {
-        schema: 2,
-        writer: "page",
-        at: "2026-11-04T15:00:00.000Z",
-        source: "E.V. Home",
-        date: "2026-11-04",
-        topic: "Cardiac output",
-        status: "active",
-        startedAt: "2026-11-04T15:00:00.000Z",
-      },
-    },
-  ],
+  "sessions:rows": sessionRowsBody("sessions", [doc]).rows,
+  "sessions:events": [],
 };
 const ready = (s: { data?: unknown }) => s.data !== undefined;
 const use = () => localStorage.setItem("ev5.token", "t");
@@ -68,7 +78,9 @@ test("a server error shows the error and keeps the saved copy", async () => {
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() =>
-    expect(result.current.error).toBe("Something went wrong on E.V.'s side. Try again in a moment."),
+    expect(result.current.error).toBe(
+      "Something went wrong on E.V.'s side. Try again in a moment.",
+    ),
   );
   expect(copy.kept).toEqual(saved);
 });
@@ -78,51 +90,24 @@ test("a 401 is not answered from the copy", async () => {
   status(401);
   const copy = fakeCopy(saved);
   const { result } = renderHook(() => useSessions(copy));
-  await waitFor(() =>
-    expect(result.current.refused).toBe(true),
-  );
+  await waitFor(() => expect(result.current.refused).toBe(true));
   expect(ready(result.current)).toBe(false);
   expect(copy.kept).toEqual(saved);
 });
 
 test("a good read refreshes the copy", async () => {
   use();
-  ok({
-    docs: [
-      {
-        id: "s1",
-        v: 3,
-        data: {
-          schema: 2,
-          writer: "page",
-          at: "2026-11-04T15:00:00.000Z",
-          source: "E.V. Home",
-          date: "2026-11-04",
-          topic: "Cardiac output",
-          status: "active",
-          startedAt: "2026-11-04T15:00:00.000Z",
-        },
-      },
-    ],
-  });
+  ok([doc]);
   const copy = fakeCopy();
   const { result } = renderHook(() => useSessions(copy));
   await waitFor(() => expect(ready(result.current)).toBe(true));
-  expect(Object.keys(copy.kept).sort()).toEqual(["sessions:list"]);
+  expect(Object.keys(copy.kept).sort()).toEqual([
+    "sessions:events",
+    "sessions:rows",
+  ]);
 });
 
-const sessionWithNote = {
-  docs: [
-    {
-      id: "s1",
-      v: 3,
-      data: {
-        ...(saved["sessions:list"] as { data: object }[])[0]!.data,
-        noteId: "n1",
-      },
-    },
-  ],
-};
+const withNote = { ...doc, data: { ...doc.data, noteId: "n1" } };
 const note = {
   v: 2,
   data: {
@@ -139,7 +124,8 @@ test("offline, the note read-along comes from the saved copy", async () => {
   use();
   offline();
   const copy = fakeCopy({
-    "sessions:list": sessionWithNote.docs,
+    "sessions:rows": sessionRowsBody("sessions", [withNote]).rows,
+    "sessions:events": [],
     "sessions:note:n1": note,
   });
   const { result } = renderHook(() => useSessions(copy));
@@ -153,7 +139,9 @@ test("a 5xx on the note never overwrites its saved copy", async () => {
     vi.fn(async (url: string) =>
       url.includes("collection=notes")
         ? new Response("{}", { status: 503 })
-        : new Response(JSON.stringify(sessionWithNote), { status: 200 }),
+        : new Response(JSON.stringify(sessionRowsBody(url, [withNote])), {
+            status: 200,
+          }),
     ),
   );
   const copy = fakeCopy({ "sessions:note:n1": note });

@@ -1,4 +1,5 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
+import { sessionRowsBody } from "./sessionRows.testkit.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { useSessions } from "./useSessions.ts";
 
@@ -40,7 +41,11 @@ function setup(status: number) {
           json: async () => ({ mode: "direct", result: {} }),
         };
       }
-      return { ok: true, status: 200, json: async () => ({ docs: [session] }) };
+      return {
+        ok: true,
+        status: 200,
+        json: async () => sessionRowsBody(url, [session]),
+      };
     }),
   );
   return sent;

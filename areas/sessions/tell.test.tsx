@@ -44,7 +44,7 @@ test("the screen has no open check yet, so no Just tell me tap is offered there"
     vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ docs: [] }),
+      json: async () => ({ rows: [] }),
     }),
   );
   render(<SessionsScreen />);

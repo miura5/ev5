@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { parseNote, type Note } from "../../domain/index.ts";
+import {
+  parseNote,
+  type Note,
+  type SessionEventRow,
+  type SessionTableRow,
+} from "../../domain/index.ts";
 import { mapSessions } from "./map.ts";
-import type { SessionData, WireDoc } from "./map.ts";
+import type { SessionData } from "./map.ts";
 import {
   call,
   failureKind,
@@ -51,18 +56,27 @@ export function useSessions(copy?: ReadCopyLike): SessionsState {
     if (!token) return;
     let live = true;
     // Offline (a rejected fetch) the saved copy answers; a 401 or 5xx throws and is never kept (§data.offline).
-    const load = (c: ReadCopyLike | undefined) =>
-      readJson<WireDoc[]>(
-        "docs?collection=sessions",
-        token,
-        "sessions:list",
-        c,
-        (b) => (b as { docs: WireDoc[] }).docs,
-      );
+    // The session rows and their event rows (§data.gate), each kept under its own key.
+    const load = async (c: ReadCopyLike | undefined) => {
+      function rows<T>(path: string, key: string) {
+        return readJson<T[]>(
+          path,
+          token,
+          key,
+          c,
+          (b) => (b as { rows: T[] }).rows,
+        );
+      }
+      const [sessions, events] = await Promise.all([
+        rows<SessionTableRow>("sessions", "sessions:rows"),
+        rows<SessionEventRow>("session-events", "sessions:events"),
+      ]);
+      return { sessions, events };
+    };
     // The screen opens on the last answer kept, then the server's (§ui.instant); a re-read after a change does not.
-    savedFirst(copy, tick === 0, load, (docs) => {
+    savedFirst(copy, tick === 0, load, ({ sessions, events }) => {
       if (!live) return;
-      setData(mapSessions(docs, Date.now()));
+      setData(mapSessions(sessions, events, Date.now()));
       setError(undefined);
       setRefused(false);
     }).catch((e: unknown) => {
