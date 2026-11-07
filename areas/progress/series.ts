@@ -1,4 +1,4 @@
-import type { WireDoc } from "../../domain/index.ts";
+import type { AnswerLike } from "./attempts.ts";
 import { addDays, centralDate, weekday } from "../../domain/index.ts";
 
 export interface Point {
@@ -35,9 +35,10 @@ function dayLabel(
 
 /** Each item's first answer (the first-try rule), skipping "just tell me" taps and anything malformed. */
 function firstTries(
-  answers: readonly WireDoc[],
+  answers: readonly AnswerLike[],
 ): { at: number; correct: boolean }[] {
-  const out: { at: number; correct: boolean }[] = [];
+  // One attempts row is one answer, so an item's first try is found across rows.
+  const firsts = new Map<string, { at: number; correct: unknown }>();
   for (const d of answers) {
     const doc = d.data as { setId?: unknown; answers?: unknown } | null;
     if (
@@ -47,25 +48,29 @@ function firstTries(
       typeof doc.answers !== "object"
     )
       continue;
-    for (const keyed of Object.values(doc.answers)) {
+    for (const [item, keyed] of Object.entries(doc.answers)) {
       if (!keyed || typeof keyed !== "object") continue;
-      let first: { at: number; correct: unknown } | undefined;
+      const key = `${doc.setId}/${item}`;
       for (const a of Object.values(keyed as Record<string, unknown>)) {
         const r = a as { at?: unknown; correct?: unknown } | null;
         const at = typeof r?.at === "string" ? Date.parse(r.at) : NaN;
         if (Number.isNaN(at)) continue;
-        if (!first || at < first.at) first = { at, correct: r?.correct };
+        const first = firsts.get(key);
+        if (!first || at < first.at)
+          firsts.set(key, { at, correct: r?.correct });
       }
-      if (first && typeof first.correct === "boolean")
-        out.push({ at: first.at, correct: first.correct });
     }
   }
+  const out: { at: number; correct: boolean }[] = [];
+  for (const f of firsts.values())
+    if (typeof f.correct === "boolean")
+      out.push({ at: f.at, correct: f.correct });
   return out;
 }
 
 /** First-try accuracy for each of the last `weeks` Sunday-start Central weeks (oldest first, the last is this week so far); a week with no answers reads 0. Each bar is labelled with its week's first day. */
 export function weeklyAccuracy(
-  answers: readonly WireDoc[],
+  answers: readonly AnswerLike[],
   now: number,
   weeks = 8,
 ): Point[] {
