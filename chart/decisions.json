@@ -1,5 +1,17 @@
 [
  {
+  "id": "D-528",
+  "date": "Nov 7",
+  "title": "Build run timing follows the run's own clock: hand over and free the lock about 50 minutes after taking it; side sessions use :57 to :05; a wait branch only when Next has no task free to start",
+  "why": "Matt's workflow audit, 2026-11-07 (items 2, 3 and 6), approved by Matt in the ev-build channel. Runs that take the lock late (after waiting or a restart) were cut short by a fixed :55 clock, so §3 steps 5 and 10 and §9 now count from when the run took the lock (stop starting builders at about 40 minutes, hand over at about 50). Side sessions take the lock only between :57 and :05, not while a run waits for it, and release before :05 (§3 step 0). A claude/wait- handover is only for a Next with no task free to start; otherwise the branch is claude/handover-, so its merge starts the next run (§3 step 10). Amends D-527. Second way considered: a timer in ops/build-lock.sh; rejected, the steps stay in AGENTS.md §3 only. Drift risk: none.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [
+   "D-527"
+  ],
+  "source": "Matt's workflow audit in the ev-build channel, 2026-11-07"
+ },
+ {
   "id": "D-527",
   "date": "Nov 7",
   "title": "Build runs never wait asleep: they check their open PRs every 2 to 3 minutes, land each PR as it turns green, and free the lock at about :55 whatever state their PRs are in",
