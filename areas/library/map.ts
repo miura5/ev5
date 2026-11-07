@@ -1,5 +1,6 @@
 import {
   accuracyLine,
+  answersOf,
   centralDate,
   dueCounts,
   inDays,
@@ -8,7 +9,6 @@ import {
   planEnded,
 } from "../../domain/index.ts";
 import type { SetTableRow } from "../../domain/index.ts";
-import { tallyDocs } from "./attempts.ts";
 import { questionOf } from "./questions.ts";
 import { spotsOf, type SpotRows } from "./weakSpots.ts";
 import type {
@@ -231,7 +231,7 @@ export function mapLibrary(docs: LibraryDocs, now: Date | number): LibraryData {
         ...(sessions.length ? { sessions } : {}),
       };
     });
-  const answered = tallyDocs(docs.attempts ?? []);
+  const answered = answersOf(docs.attempts ?? []);
   const dues = dueCounts(answered);
   const sets: LibrarySet[] = [];
   const pages: Record<string, SetPageData> = {};

@@ -43,7 +43,7 @@ export {
   type Note,
 } from "./note/index.ts";
 export { noteRowId, noteDocId, noteDocOf, newNoteRow } from "./note/rows.ts";
-export { accuracyLine, dueCounts } from "./answers/index.ts";
+export { accuracyLine, answersOf, dueCounts, gradedBySpot, type AnswerLike } from "./answers/index.ts";
 export { goalDaysLeft } from "./goal/read.ts";
 export type { Goal } from "./goal/read.ts";
 export {

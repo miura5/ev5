@@ -70,7 +70,7 @@ dependency-cruiser keeps imports in this direction. Each folder's README lists w
 
 ## Setup for a fresh clone
 
-1. Install Node 26 (see `engines` in `package.json`), then run `npm ci`.
+1. Install the Node version in `.nvmrc` (26; CI uses the same file), then run `npm ci`. On a Claude Code cloud sandbox, `npm run precheck` installs it when the sandbox has an older Node (`ops/setup-node.sh`).
 2. Run `npm run dev` for the app, and `npm run precheck` for every check CI runs.
 3. In GitHub, add these repository secrets. Each is a value you make once:
    - `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN_STAGING`;

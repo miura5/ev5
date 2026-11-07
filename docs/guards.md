@@ -2,7 +2,7 @@
 
 `ops/guards/guards.test.ts` proves each guard fails when it should. For every row it builds a temp repo holding the real guard config (copied, never loosened), links `node_modules`, checks the clean repo passes, adds one violation, runs the guard's real command and asserts a non-zero exit and the finding below.
 
-Run: `node --experimental-strip-types --test ops/guards/guards.test.ts` (Node 22; no flag needed on 24+). Add `GUARDS_SHOW=1` to print the red output. The output below was observed on 2026-11-03.
+Run: `node --test ops/guards/guards.test.ts` (Node 26, from `.nvmrc`). Add `GUARDS_SHOW=1` to print the red output. The output below was observed on 2026-11-03.
 
 | Violation | Command | Observed red output |
 |---|---|---|
