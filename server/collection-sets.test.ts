@@ -61,10 +61,8 @@ test("a new set shows once on its collection page, titled", async () => {
     m.memberships.map((x) => [x.collection, x.id]),
     [["sets", id]],
   );
-  const d = (await (await get("/docs?collection=sets")).json()) as {
-    docs: { id: string; data: { title: string } }[];
-  };
-  assert.equal(d.docs.find((x) => x.id === id)?.data.title, "Heart");
+  const row = (await (await get(`/sets/${id}`)).json()) as { title: string };
+  assert.equal(row.title, "Heart");
 });
 
 test("an own set copied by the migration is not listed twice", async () => {

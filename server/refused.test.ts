@@ -19,7 +19,7 @@ function failing(err: Error): Env["DB"] {
 }
 const call = (err: Error) =>
   app.request(
-    "/api/v1/docs?collection=scratch&id=x",
+    "/api/v1/goals/x",
     { headers: { authorization: "Bearer app-t" } },
     {
       DB: failing(err),
