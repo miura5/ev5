@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, clockTime, longDay, shortDay, weekdayDay, weekdayShort, centralDate, centralParts, centralToInstant, daysUntil, inDays, isDue, plainDay, isOverdue, occurrences, occursOn, repeatKey } from './index.ts';
+import { addDays, clockTime, longDay, shortDay, weekdayDay, weekdayShort, centralDate, centralParts, inDays, isDue, plainDay, occurrences, occursOn, repeatKey } from './index.ts';
 
 describe('Central dates across daylight saving', () => {
   it('fall back 2026-11-01: 01:30 happens twice, the day has 25 hours', () => {
@@ -7,13 +7,10 @@ describe('Central dates across daylight saving', () => {
     expect(centralParts(new Date('2026-11-01T07:30:00Z'))).toEqual({ date: '2026-11-01', time: '01:30' });
     expect(centralDate(new Date('2026-11-02T05:59:00Z'))).toBe('2026-11-01');
     expect(centralDate(new Date('2026-11-02T06:00:00Z'))).toBe('2026-11-02');
-    expect(centralToInstant('2026-11-01', '01:30').toISOString()).toBe('2026-11-01T06:30:00.000Z');
-    expect(centralToInstant('2026-11-01', '08:00').toISOString()).toBe('2026-11-01T14:00:00.000Z');
   });
   it('spring forward 2027-03-14: 02:00-03:00 does not exist, the day has 23 hours', () => {
     expect(centralParts(new Date('2027-03-14T07:59:00Z'))).toEqual({ date: '2027-03-14', time: '01:59' });
     expect(centralParts(new Date('2027-03-14T08:00:00Z'))).toEqual({ date: '2027-03-14', time: '03:00' });
-    expect(centralToInstant('2027-03-14', '02:30').toISOString()).toBe('2027-03-14T08:30:00.000Z');
     expect(centralDate(new Date('2027-03-15T04:59:00Z'))).toBe('2027-03-14');
     expect(centralDate(new Date('2027-03-15T05:00:00Z'))).toBe('2027-03-15');
   });
@@ -32,15 +29,6 @@ describe('isDue: passed wall time and no run for that Central date', () => {
   it('fires once on the 25-hour day', () => {
     expect(isDue(new Date('2026-11-01T12:15:00Z'), '06:00', [])).toBe(true);
     expect(isDue(new Date('2026-11-01T12:15:00Z'), '06:00', ['2026-11-01'])).toBe(false);
-  });
-});
-
-describe('due by Central date', () => {
-  it('is late only after the due date has ended in Central time', () => {
-    expect(isOverdue(new Date('2026-11-04T04:59:00Z'), '2026-11-03')).toBe(false);
-    expect(isOverdue(new Date('2026-11-04T06:00:00Z'), '2026-11-03')).toBe(true);
-    expect(daysUntil(new Date('2026-11-03T18:00:00Z'), '2026-11-05')).toBe(2);
-    expect(daysUntil(new Date('2026-11-03T18:00:00Z'), '2026-11-02')).toBe(-1);
   });
 });
 

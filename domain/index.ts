@@ -131,8 +131,6 @@ export {
   weakSpotFromRows,
 } from "./weak-spot/rows.ts";
 /** @public */
-export { parseSetRow, type SetRow } from "./set/row.ts";
-/** @public */
 export { parseSessionRow, type SessionRow } from "./session/row.ts";
 /** @public */
 export { parseNoteRow, type NoteRow } from "./note/row.ts";

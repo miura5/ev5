@@ -22,19 +22,7 @@ export function parseGoal(raw: unknown): Goal {
   return goalReadSchema.parse(raw);
 }
 
-/** An exam with no status counts as upcoming. */
-export function isUpcoming(e: Goal): boolean {
-  return (e.status ?? 'upcoming') === 'upcoming';
-}
-
 /** Whole Central days until the exam, or null when it has no date. */
 export function goalDaysLeft(e: Goal, today: string): number | null {
   return e.date ? daysBetween(today, e.date) : null;
-}
-
-/** Upcoming exams, dated ones first by date, undated last. */
-export function sortUpcoming(goals: Goal[]): Goal[] {
-  return goals
-    .filter(isUpcoming)
-    .sort((a, b) => (a.date ?? '9999').localeCompare(b.date ?? '9999') || a.title.localeCompare(b.title));
 }

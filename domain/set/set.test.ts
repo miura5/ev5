@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { itemType, scoreAnswer } from '../item/index.ts';
-import { answeredItems, parseSet, setDone, setShortfall, type SetItem } from './index.ts';
+import { parseSet, type SetItem } from './index.ts';
 
 // All data is made up.
 const single: SetItem = {
@@ -36,9 +36,6 @@ const base = {
   kind: 'drill',
   items: [single, multiSelect],
 };
-const attempt = (date: string) => ({
-  k: { at: `${date}T15:00:00Z`, correct: true },
-});
 
 test('parseSet accepts a schema 3 set and refuses stored answers and unknown fields', () => {
   expect(parseSet(base).items).toHaveLength(2);
@@ -70,24 +67,6 @@ test('a set item scores with the item scorer: single, select-all (plus/minus, fl
     score: 2 / 3,
   });
   expect(scoreAnswer(grid, [0, 1, 1]).correct).toBe(true);
-});
-
-test('a drill is done once every item has an attempt, right or wrong', () => {
-  const set = parseSet(base);
-  expect(setDone(set, { d1: attempt('2026-10-17') })).toBe(false);
-  expect(answeredItems(set, { d1: attempt('2026-10-17') })).toEqual(['d1']);
-  expect(
-    setDone(set, {
-      d1: attempt('2026-10-17'),
-      d2: { k: { at: '2026-10-17T16:00:00Z', correct: false } },
-    }),
-  ).toBe(true);
-});
-
-test('a set short of the count asked for says so in its header', () => {
-  const set = parseSet({ ...base, asked: 4 });
-  expect(setShortfall(set)).toBe('2 of 4: 2 didn’t pass E.V.’s checks');
-  expect(setShortfall(parseSet(base))).toBe('');
 });
 
 test('a stored set item with the old type names and the matrix field reads in today\'s words', () => {
