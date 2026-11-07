@@ -15,10 +15,7 @@ async function setup(withTables: boolean) {
     "INSERT INTO deletions VALUES ('own_set_items','set_1/item_1',20)",
   ).run();
   await DB.prepare(
-    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
-  ).run();
-  await DB.prepare(
-    `INSERT INTO docs VALUES ('notes','a','{"title":"Key terms"}',1,1)`,
+    `INSERT INTO notes (id, collection_id, title, body, text, at, v, deleted_at) VALUES ('note_a', NULL, 'Key terms', '{}', '', 1, 1, 10)`,
   ).run();
   await DB.prepare(
     `INSERT INTO set_items (id, set_id, pos, type, body, at) VALUES ('item_1','set_1',1,'single','{"stem":"Which lab is highest priority?"}',1)`,

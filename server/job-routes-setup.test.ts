@@ -38,11 +38,6 @@ export function setup() {
       if (stmt.trim()) void db.prepare(stmt.trim()).run();
   void db
     .prepare(
-      "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
-    )
-    .run();
-  void db
-    .prepare(
       "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
     )
     .run();

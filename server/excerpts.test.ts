@@ -7,22 +7,12 @@ function seeded() {
   const db = sqliteD1();
   void db
     .prepare(
-      "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
-    )
-    .run();
-  void db
-    .prepare(
       "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
     )
     .run();
-  const put = (c: string, id: string, data: string) =>
-    db
-      .prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 0, 1)")
-      .bind(c, id, data)
-      .run();
   const note = (id: string, title: string, text: string) =>
     putNoteRow(db, id, title, text);
-  return { db, put, note };
+  return { db, note };
 }
 
 const inCollection = (
@@ -36,14 +26,13 @@ const inCollection = (
     .run();
 
 test("passages come from the user's notes that match the objectives, never from other collections", async () => {
-  const { db, put, note } = seeded();
+  const { db, note } = seeded();
   await note(
     "n1",
     "Accounts",
     "Posting splits ledger entries into invoice lines in the journal.",
   );
   await note("n2", "Verbs", "Ser and ir share the same preterite forms.");
-  await put("sets", "s1", JSON.stringify({ title: "Ledger set", items: [] }));
   // only a note's text column is searched: ledger in a title or body alone is not a match
   await note("n3", "Ledger", "Verbs again.");
   const got = await gatherExcerpts(db, ["Ledger breakdown"]);

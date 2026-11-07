@@ -7,12 +7,6 @@ import { sqliteD1 } from "./sqlite-d1.test.ts";
 
 function setup(monthly: number) {
   const db = sqliteD1();
-  db.prepare(
-    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
-  ).run();
-  db.prepare(
-    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
-  ).run();
   for (const [k, v] of Object.entries({
     ceiling_hourly: 5e9,
     ceiling_daily: 5e9,

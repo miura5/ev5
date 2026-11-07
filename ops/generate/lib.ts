@@ -1,7 +1,6 @@
 // Generated files (CONTRACT §cmd.generated, §drift.interface): the area registry, the command client and the
 // interface block of each folder README. Pure over a root: `generate` returns {path: text}, nothing is written here.
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { CLIENT_BODY } from './client-body.ts';
 
@@ -105,27 +104,8 @@ function interfaceOf(root: string, dir: string): string {
   return items.length ? items.join(', ') : '(none yet)';
 }
 
-// Import rules from .dependency-cruiser.cjs, as the folders each top-level folder may import.
-function importRules(root: string): Map<string, string> {
-  const cfg = createRequire(path.join(root, 'x.cjs'))(path.join(root, '.dependency-cruiser.cjs')) as {
-    forbidden: { name: string; to: { pathNot?: string[] } }[];
-  };
-  const clean = (re: string): string => re.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\./g, '.').replace(/\/$/, '').replace(/\.ts$/, '');
-  const rules = new Map<string, string>();
-  const npm = new Map<string, string[]>();
-  for (const r of cfg.forbidden) {
-    const imp = /^(\w+)-imports$/.exec(r.name);
-    const ext = /^(\w+)-externals$/.exec(r.name);
-    if (imp) rules.set(imp[1]!, (r.to.pathNot ?? []).slice(1).map(clean).join(', ') || 'nothing outside its folder');
-    if (ext) npm.set(ext[1]!, (r.to.pathNot ?? []).map(p => p.replace(/^node_modules\//, '').replace(/\/$/, '')));
-  }
-  for (const [k, pkgs] of npm) rules.set(k, `${rules.get(k) ?? 'nothing outside its folder'}; npm: ${pkgs.join(', ')}`);
-  return rules;
-}
-
-function block(root: string, dir: string, rules: Map<string, string>): string {
-  const imports = rules.get(dir.split('/')[0]!) ?? "other folders through their index.ts";
-  return [START, `Interface: ${interfaceOf(root, dir)}`, `Imports: ${imports} (§drift.imports)`, END].join('\n');
+function block(root: string, dir: string): string {
+  return [START, `Interface: ${interfaceOf(root, dir)}`, END].join('\n');
 }
 
 function readmes(root: string, d = ''): string[] {
@@ -142,11 +122,10 @@ export function generate(root: string): Map<string, string> {
   out.set('areas/registry.generated.ts', registryFile(root));
   out.set('commands/client.ts', clientFile(root));
   out.set('commands/all.generated.ts', allCommandsFile(root));
-  const rules = importRules(root);
   for (const f of readmes(root)) {
     const text = read(root, f);
     const dir = path.dirname(f);
-    const b = block(root, dir === '.' ? '' : dir, rules);
+    const b = block(root, dir === '.' ? '' : dir);
     if (text.includes(START) && text.includes(END)) {
       out.set(f, text.slice(0, text.indexOf(START)) + b + text.slice(text.indexOf(END) + END.length));
     } else if (text.includes(PLACEHOLDER)) {
