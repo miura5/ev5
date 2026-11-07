@@ -43,8 +43,9 @@ export function moveItems(
 export interface RowActionsProps {
   /** What the menu is about, for its label: a note title. */
   title: string;
-  /** The row (or bar) the menu belongs to. */
-  children: ReactNode;
+  /** The row (or bar) the menu belongs to. A function places the dots itself (the note page puts them at the end of
+   * its meta line, as the mock-up does); otherwise the dots follow the row. */
+  children: ReactNode | ((dots: ReactNode) => ReactNode);
   onAction?: (action: RowAction) => void;
   /** The collections Move can pick; Move is left out when there is no onMove. */
   targets?: readonly MoveTarget[];
@@ -118,8 +119,14 @@ export function RowActions({
                 );
             }}
           >
-            {children}
-            {onAction ? dots : null}
+            {typeof children === "function" ? (
+              children(onAction ? dots : null)
+            ) : (
+              <>
+                {children}
+                {onAction ? dots : null}
+              </>
+            )}
           </div>
         }
       />
