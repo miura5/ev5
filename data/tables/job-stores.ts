@@ -19,6 +19,7 @@ import {
   type TablesOptions,
 } from "./core.ts";
 import { gateRow } from "./gate.ts";
+import { jobListQuery, type JobListOptions } from "./job-list.ts";
 
 export type CeilingWindow = "hour" | "day" | "month" | "job";
 export type CeilingLimit = {
@@ -105,17 +106,15 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
         if (!r) return undefined;
         return readRows("job_records", [{ id, ...r }], parseRec, opts)[0];
       },
-      list: async (): Promise<Listed<JobRecordRow>> =>
-        readRows(
-          "job_records",
-          (
-            await db
-              .prepare("SELECT id, data FROM job_records ORDER BY at, id")
-              .all<{ id: string; data: string }>()
-          ).results,
-          parseRec,
-          opts,
-        ),
+      /** Every readable record, oldest write first; the options narrow it in the query (job-list.ts). */
+      list: async (o: JobListOptions = {}): Promise<Listed<JobRecordRow>> => {
+        const { sql, binds } = jobListQuery(o);
+        const { results } = await db
+          .prepare(sql)
+          .bind(...binds)
+          .all<{ id: string; data: string }>();
+        return readRows("job_records", results, parseRec, opts);
+      },
       /** v 1 creates (false if the id exists); a later v updates only if the stored version is v - 1. */
       put: async (rec: JobRecordRow): Promise<boolean> => {
         const row = gateRow("job_records", () => parseJobRecord(rec));
