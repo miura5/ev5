@@ -7,6 +7,7 @@ import { checkCompatImport } from './compatimport.ts';
 import { checkDocsKinds } from './docskinds.ts';
 import { checkDocsWrites } from './docswrites.ts';
 import { checkEv4Word } from './ev4word.ts';
+import { checkSubjectWords } from './subjectwords.ts';
 import { checkIds } from './ids.ts';
 import { checkHandover } from './handover.ts';
 import { listFiles } from './lib.ts';
@@ -53,6 +54,7 @@ const findings = [
   ...checkServerWrites(root, files),
   ...checkSourceIds(root, files),
   ...checkStack(root, files),
+  ...checkSubjectWords(root, files),
   ...checkUnusedExports(root),
   ...checkTrailers(branchCommits(root, base)),
 ];

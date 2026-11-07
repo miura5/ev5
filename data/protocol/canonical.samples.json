@@ -1,7 +1,7 @@
 {
  "about": "Synthetic bodies as a page might send them, and the exact text stored for each (canonicalJson: JSON.stringify of JSON.parse). Keys are not sorted: integer-like keys come first, ascending, then the rest as written.",
  "canonical": [
-  { "in": "{\n  \"title\": \"Cardiac output\",\n  \"tags\": [ \"BIO 201\", \"exam 2\" ],\n  \"done\": false\n}", "out": "{\"title\":\"Cardiac output\",\"tags\":[\"BIO 201\",\"exam 2\"],\"done\":false}" },
+  { "in": "{\n  \"title\": \"Cardiac output\",\n  \"tags\": [ \"Course A\", \"exam 2\" ],\n  \"done\": false\n}", "out": "{\"title\":\"Cardiac output\",\"tags\":[\"Course A\",\"exam 2\"],\"done\":false}" },
   { "in": "{\"text\":\"caf\\u00e9 \\u2014 \\/ok\",\"n\":1.0,\"big\":1e2,\"neg\":-0.50}", "out": "{\"text\":\"café — /ok\",\"n\":1,\"big\":100,\"neg\":-0.5}" },
   { "in": "{\"b\":1,\"a\":{\"10\":\"x\",\"2\":\"y\",\"z\":null},\"1\":true}", "out": "{\"1\":true,\"b\":1,\"a\":{\"2\":\"y\",\"10\":\"x\",\"z\":null}}" },
   { "in": "{ \"schema\" : 2 , \"items\" : [ { \"id\" : \"i1\" , \"done\" : true } ] }\n", "out": "{\"schema\":2,\"items\":[{\"id\":\"i1\",\"done\":true}]}" },
