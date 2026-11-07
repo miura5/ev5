@@ -21,7 +21,7 @@ export interface PracticeSession {
 export interface WeakSpot {
   id: string;
   title: string;
-  /** Course and the recent tally, e.g. "NUR 112 · 4 of 9 right lately". */
+  /** Course and the recent tally, e.g. "Course A · 4 of 9 right lately". */
   meta: string;
   mastery: Mastery;
   /** When it is next due, e.g. "due today". */
@@ -75,7 +75,7 @@ export interface LibrarySet {
   id: string;
   title: string;
   kind: SetKind;
-  /** Course and size, e.g. "BIO 201 · 24 cards". */
+  /** Course and size, e.g. "Course B · 24 cards". */
   meta: string;
   /** Quiet value top right, e.g. "6 due"; empty when nothing is due. */
   due?: string;
