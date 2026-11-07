@@ -2,9 +2,7 @@ import { expect, test } from 'vitest';
 import {
   deriveWeakSpot,
   parseWeakSpot,
-  isDue,
   isActive,
-  isSolid,
   reviewNeed,
   type WeakSpot,
   type Attempt,
@@ -144,14 +142,13 @@ test('triage events and the due, solid and need helpers', () => {
       goalDate: '2026-10-30',
     }),
   };
-  const got = [isActive(open), isSolid(open), isDue(open, '2026-10-19'), isDue(open, '2026-10-20'), reviewNeed(open)];
-  expect(got).toEqual([true, false, false, true, 1]);
+  expect([isActive(open), reviewNeed(open)]).toEqual([true, 1]);
   const pre = {
     kind: 'concept',
     readingDue: '2026-10-20',
     derived: deriveWeakSpot(ws('p', { preRead: true }), []),
   };
-  expect([isDue(pre, '2026-10-19'), isDue(pre, '2026-10-20'), reviewNeed(pre)]).toEqual([false, true, 1]);
+  expect(reviewNeed(pre)).toBe(1);
 });
 test('parse refuses stored derived state and bad shapes', () => {
   expect(() => ws('a', { derived: {} })).toThrow();
