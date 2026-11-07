@@ -4,9 +4,8 @@ import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { D1Like } from "../jobs/index.ts";
 import { loadCeilingConfig, DEFAULT_CEILINGS } from "./job-run.ts";
-import { planHome } from "./plan-home.ts";
-import { weakSpotDocs } from "./weak-wire.ts";
-import { deriveWeakSpot, parseWeakSpot } from "../domain/index.ts";
+import { planHome, weakSpotsWithGoal } from "./plan-home.ts";
+import { deriveWeakSpot } from "../domain/index.ts";
 import type { DocsD1 } from "../data/index.ts";
 
 // A real SQLite behind D1's interface (the baseline and jobs migrations).
@@ -158,7 +157,7 @@ test("weak spots read as documents the screens parse: goal from the objective's 
       Date.parse("2026-11-03T08:00:00Z") +
       ", 1)",
   );
-  const docs = await weakSpotDocs(db as unknown as DocsD1, () => T);
+  const docs = await weakSpotsWithGoal(db, () => T);
   assert.deepEqual(docs.map((d) => [d.id, d.data.exam]).sort(), [
     ["ws_w1", "goal_e1"],
     ["ws_w2", "goal_e1"],
@@ -169,7 +168,7 @@ test("weak spots read as documents the screens parse: goal from the objective's 
   const w1 = docs.find((d) => d.id === "ws_w1")!;
   assert.equal("course" in w1.data, false);
   assert.equal(
-    deriveWeakSpot(parseWeakSpot(w1.data), []).status,
+    deriveWeakSpot(w1.data, []).status,
     "reviewed",
     "mark as learned shows",
   );

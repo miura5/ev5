@@ -23,7 +23,6 @@ export {
   type Derived,
   type ReviewRules,
 } from './types.ts';
-export { parseWeakSpot } from './parse.ts';
 
 const KEY_TIME = /-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})(\d{3})?(?:-[a-z0-9]+)?$/;
 const UNTRIAGED: Status[] = ['proposed', 'snoozed', 'declined', 'duplicate'];

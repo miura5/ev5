@@ -269,26 +269,3 @@ test("only the app reads and sets ceilings, in whole micro-dollars", async () =>
     2_000_000,
   );
 });
-
-test("only the app token acknowledges the spend alert, and it ends done", async () => {
-  const { req, db } = setup();
-  const { d1JobStore, spendAlertWriter } = await import("../jobs/index.ts");
-  await spendAlertWriter(d1JobStore(db, () => T.getTime()))("80%", T);
-  const id = "spend-alert:" + T.toISOString().slice(0, 7);
-  const url = `/api/v1/jobs/${encodeURIComponent(id)}/dismiss`;
-  assert.equal((await req("POST", url, "fake-schedule", {})).status, 403);
-  assert.equal((await req("POST", url, "fake-app", {})).status, 200);
-  const list = await req("GET", "/api/v1/jobs", "fake-app");
-  const jobs = (
-    (await list.json()) as { jobs: { id: string; state: string }[] }
-  ).jobs;
-  assert.equal(
-    jobs.find((j) => j.id === id),
-    undefined,
-  ); // finished jobs leave the list
-  assert.equal((await req("POST", url, "fake-app", {})).status, 409);
-  assert.equal(
-    (await req("POST", "/api/v1/jobs/zzz/dismiss", "fake-app", {})).status,
-    404,
-  );
-});

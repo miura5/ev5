@@ -12,11 +12,11 @@ import {
   update,
 } from "../jobs/index.ts";
 import type { JobDef } from "../jobs/index.ts";
-import { kindOffers } from "../domain/index.ts";
+import { tablesRepo } from "../data/index.ts";
+import { goalFromRow, kindOffers } from "../domain/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { startEnv } from "./job-routes.ts";
-import { goalDoc } from "./goal-wire.ts";
 import { examsOfPlans } from "./plan-context.ts";
 
 const def = prepPlanJob as JobDef;
@@ -61,11 +61,13 @@ async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
 export const prepPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
-    const exam = await goalDoc(x.db as never, x.clock, i.id);
+    const row = await tablesRepo(x.db as never, { clock: x.clock }).goals.get(
+      i.id,
+    );
+    const exam = row && goalFromRow(row);
     if (!exam) throw new CommandError(404, `no date ${i.id}`);
-    const d = exam.data as { title?: unknown; kind?: unknown };
-    if (typeof d.kind !== "string" || !kindOffers(d.kind, "prep-plan"))
-      throw new CommandError(409, noPlanReason(String(d.title ?? i.id)));
+    if (!kindOffers(exam.kind, "prep-plan"))
+      throw new CommandError(409, noPlanReason(exam.title));
     const job = await startJob(
       startEnv({ DB: x.db as never, JOBS: x.jobs }, def),
       def,

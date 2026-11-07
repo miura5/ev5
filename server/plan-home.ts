@@ -8,12 +8,11 @@ import {
   gradedBySpot,
   lastDay,
   isActive,
-  parseGoal,
+  goalFromRow,
   reviewNeed,
+  weakSpotDoc,
 } from "../domain/index.ts";
 import { readJobPlan } from "./job-plans.ts";
-import { goalDoc } from "./goal-wire.ts";
-import { weakSpotDocs } from "./weak-wire.ts";
 import { tablesRepo, type DocsD1 } from "../data/index.ts";
 import type { Attempt } from "../domain/index.ts";
 import type { D1Like } from "../jobs/index.ts";
@@ -48,19 +47,66 @@ export async function lastDraftDay(
   );
 }
 
+export interface SpotWithGoal {
+  id: string;
+  data: ReturnType<typeof weakSpotDoc>;
+  /** The date of the spot's goal, for the near-date interval. */
+  goalDate: string | null;
+}
+
+/**
+ * Every live weak spot (a duplicate counts once, as its twin) as its document, in id order. A spot has no goal of its own:
+ * it links to a goal directly or through its objective (§data.links), so its goal is the soonest upcoming goal it is
+ * linked to (a goal with no date comes after the dated ones). No name is matched.
+ */
+export async function weakSpotsWithGoal(
+  db: D1Like,
+  clock: () => number,
+): Promise<SpotWithGoal[]> {
+  const t = tablesRepo(db as DocsD1, { clock });
+  const [spots, events, goals, links] = await Promise.all([
+    t.weakSpots.list(),
+    t.weakSpotEvents.list(),
+    t.goals.list(),
+    t.links.list(),
+  ]);
+  const upcoming = goals.filter((g) => g.status !== "done" && goalFromRow(g));
+  const linked = new Map<string, string[]>();
+  for (const l of links)
+    if (
+      l.to_kind === "goal" &&
+      (l.from_kind === "objective" || l.from_kind === "weak_spot")
+    )
+      linked.set(l.from_id, [...(linked.get(l.from_id) ?? []), l.to_id]);
+  return spots
+    .filter((s) => s.duplicate_of === null)
+    .map((s) => {
+      const ids = [s.id, ...(s.objective_id ? [s.objective_id] : [])];
+      const goal = upcoming
+        .filter((g) => ids.some((i) => (linked.get(i) ?? []).includes(g.id)))
+        .sort((a, b) => (a.date ?? "9999").localeCompare(b.date ?? "9999"))[0];
+      const own = events.filter((e) => e.weak_spot_id === s.id);
+      return {
+        id: s.id,
+        data: weakSpotDoc(s, own, { exam: goal?.id ?? null }),
+        goalDate: goal?.date ?? null,
+      };
+    });
+}
+
 export function planHome(
   db: D1Like,
   clock: () => number,
 ): JobRunEnv["planHome"] {
   return {
     async load(goalId) {
-      const row = await goalDoc(db as DocsD1, clock, goalId);
-      if (!row) return undefined;
-      const exam = parseGoal(row.data);
+      const row = await tablesRepo(db as DocsD1, { clock }).goals.get(goalId);
+      const exam = row && goalFromRow(row);
+      if (!exam) return undefined;
       const today = centralDate(clock());
       // The weak spots are rows (§data.tables); the ones whose objective is linked to this goal are aimed at it.
       const attempts = await attemptsBySpot(db, clock);
-      const spots = (await weakSpotDocs(db as DocsD1, clock)).flatMap((r) => {
+      const spots = (await weakSpotsWithGoal(db, clock)).flatMap((r) => {
         const spot = r.data;
         if (spot.exam !== goalId) return [];
         const model = {
