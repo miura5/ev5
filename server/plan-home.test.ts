@@ -140,6 +140,17 @@ test("ceilings use the documented defaults when unset and a stored value wins", 
   });
 });
 
+test("a bad settings row is left out and does not fail the ceilings; good rows still read", async () => {
+  const db = sqliteD1();
+  db.sql.exec(
+    "INSERT INTO settings (key, value, at, v) VALUES ('ceiling_daily', 9, 0, 1), ('ceiling_hourly', 7, 0, 0)",
+  );
+  assert.deepEqual(await loadCeilingConfig(db), {
+    ...DEFAULT_CEILINGS,
+    daily: 9,
+  });
+});
+
 test("weak spots read as documents the screens parse: goal from the objective's link, a tap's event derives its state", async () => {
   const db = seeded();
   db.sql.exec(
