@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-527",
+  "date": "Nov 7",
+  "title": "Build runs never wait asleep: they check their open PRs every 2 to 3 minutes, land each PR as it turns green, and free the lock at about :55 whatever state their PRs are in",
+  "why": "Matt approved in the ev-build channel 2026-11-07 15:07Z, and asked for it to land at once. Evidence that day: the 8:07 run ended its turn at 14:32Z waiting for #842, never woke, and held the lock until Matt woke it at 15:05Z; the 7:07 run spent its last 16 minutes merging 6 PRs one at a time; the full-hour decision (D-525) sat in the Chart inbox all morning. AGENTS.md §3 steps 0, 6 and 10 and §9 now say: file the inbox right after taking the lock; never end a turn to wait for a merge or CI notice; update PRs that fall behind main at once (conflicts outside the slice stay open with a handover note); release the lock at about :55; side sessions take the lock only between :57 and :07. Second way considered: a timer in ops/build-lock.sh that frees the lock; rejected because the 75-minute stale rule already covers dead runs and the stall came from waiting, not from the script. Drift risk: none, the steps stay in AGENTS.md §3 only.",
+  "status": "accepted",
+  "supersedes": [],
+  "amends": [],
+  "source": "Matt in the ev-build channel, 2026-11-07"
+ },
+ {
   "id": "D-526",
   "date": "Nov 7",
   "title": "ev-studio KISS and data-loss audits 2026-11-07: note editor and outbox fixes, one delete mechanism, guard and dead-code removal before cutover; copy cleanups after; collection Pinned section kept",
