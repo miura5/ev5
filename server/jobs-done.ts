@@ -6,7 +6,14 @@ import { d1JobStore, isTerminal } from "../jobs/index.ts";
 import type { D1Like, JobDef } from "../jobs/index.ts";
 import { examsOfPlans } from "./plan-context.ts";
 
-type JobStore = ReturnType<typeof d1JobStore>;
+/** The job store as this file reads it: the options are honoured by the D1 store and ignored by a plain one. */
+type JobStore = {
+  list(o?: {
+    since?: number;
+  }): Promise<Awaited<ReturnType<ReturnType<typeof d1JobStore>["list"]>>>;
+};
+/** A Central day is at most 25 hours; two days back covers every record last written today. */
+const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
 
 export interface DoneEntry {
   id: string;
@@ -52,7 +59,7 @@ export async function finishedJobsToday(
 ): Promise<DoneEntry[]> {
   const today = centralDate(now);
   const out: (DoneEntry & { at: string })[] = [];
-  const todays = (await store.list()).filter(
+  const todays = (await store.list({ since: now - TWO_DAYS })).filter(
     (r) =>
       isTerminal(r.state) && centralDate(Date.parse(r.updatedAt)) === today,
   );
@@ -102,6 +109,7 @@ export async function endedSessionsToday(
   const ended = await tablesRepo(db, { clock: () => now, onBad }).sessions.list(
     {
       where: { status: "ended" },
+      min: { ended_at: now - TWO_DAYS },
     },
   );
   const out: DoneEntry[] = [];

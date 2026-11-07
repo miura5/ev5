@@ -176,3 +176,34 @@ test("job output: items and drafts land in one batch, a retry changes nothing", 
     "pending",
   );
 });
+
+test("job records: list narrows by write time, kind and open state in the query", async () => {
+  const { repo } = make();
+  const day = (d: number) => `2026-11-0${d}T00:00:00.000Z`;
+  await repo.jobRecords.put({ ...rec(1), id: "a", updatedAt: day(1) });
+  await repo.jobRecords.put({
+    ...rec(1),
+    id: "b",
+    kind: "prep-plan",
+    updatedAt: day(2),
+  });
+  await repo.jobRecords.put({ ...rec(1), id: "c", updatedAt: day(3) });
+  await repo.jobRecords.put({
+    ...rec(2, "running"),
+    id: "c",
+    updatedAt: day(3),
+  });
+  await repo.jobRecords.put({
+    ...rec(3, "running"),
+    id: "c",
+    state: "done",
+    updatedAt: day(3),
+  });
+  const ids = async (o: Parameters<typeof repo.jobRecords.list>[0]) =>
+    (await repo.jobRecords.list(o)).map((r) => r.id);
+  assert.deepEqual(await ids({}), ["a", "b", "c"]);
+  assert.deepEqual(await ids({ since: Date.parse(day(2)) }), ["b", "c"]);
+  assert.deepEqual(await ids({ kind: "prep-plan" }), ["b"]);
+  assert.deepEqual(await ids({ open: true }), ["a", "b"]);
+  assert.deepEqual(await ids({ kind: "practice-set", open: true }), ["a"]);
+});

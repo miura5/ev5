@@ -25,8 +25,11 @@ const PLAN_PREFIX = "plan-";
 
 /** One date keeps one plan in the making: the older drafts for it are put away and the older runs stopped. */
 async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
-  const store = d1JobStore(x.db as never, x.clock, x.onBad);
-  const live = (await store.list()).filter(
+  const store = tablesRepo(x.db as never, {
+    clock: x.clock,
+    onBad: x.onBad,
+  }).jobRecords;
+  const live = (await store.list({ kind: def.kind, open: true })).filter(
     (r) => r.kind === def.kind && r.id !== keep && !isTerminal(r.state),
   );
   const exams = await examsOfPlans(

@@ -36,6 +36,7 @@ import {
   type TablesOptions,
 } from "./core.ts";
 import { gateRow } from "./gate.ts";
+import { listQuery, type ListOptions } from "./list-query.ts";
 
 type Stamped = { id: string; at: number; v: number };
 /** What a caller supplies: the row without the columns the gate sets (`at`, `v`, `deleted_at`). */
@@ -126,21 +127,15 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
         ),
       ),
     /** Every readable row; a bad one is reported through onBad and left out. */
-    list: async (
-      o: {
-        deleted?: boolean;
-        where?: Partial<Record<string, string | number>>;
-        page?: { limit: number; offset: number };
-      } = {},
-    ): Promise<Listed<R>> => {
-      const w = Object.entries(o.where ?? {});
-      for (const [c] of w)
-        if (!cols.includes(c)) throw new Error(`${k.table} has no column ${c}`);
-      const rows = await all(
-        `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}${o.page ? " LIMIT ? OFFSET ?" : ""}`,
-        ...w.map(([, x]) => x as string | number),
-        ...(o.page ? [o.page.limit, o.page.offset] : []),
+    list: async (o: ListOptions = {}): Promise<Listed<R>> => {
+      const { sql, binds } = listQuery(
+        k.table,
+        cols,
+        k.order,
+        live(o.deleted),
+        o,
       );
+      const rows = await all(sql, ...binds);
       const out = rows.flatMap((r) => parseOne(r) ?? []);
       return listed(out, rows.length - out.length);
     },

@@ -270,3 +270,21 @@ test("plans: one in force per goal is a refusal, not a 409; items likewise per r
   assert.ok(same.ok && same.row.v === 2);
   assert.equal(db.prepare("SELECT count(*) AS n FROM plan_items").get()?.n, 1);
 });
+
+test("a kind list can bound a number column from below, and refuses an unknown column", async () => {
+  const { db, repo } = make();
+  for (const [id, at] of [
+    ["ses_a", 1],
+    ["ses_b", 5],
+  ] as const)
+    db.prepare(
+      "INSERT INTO sessions (id, kind, day, status, topic, ended_at, at) VALUES (?, 'note', '2026-11-07', 'ended', 'T', ?, 1)",
+    ).run(id, at);
+  const ids = async (min: Record<string, number>) =>
+    (await repo.sessions.list({ where: { status: "ended" }, min })).map(
+      (r) => r.id,
+    );
+  assert.deepEqual(await ids({ ended_at: 3 }), ["ses_b"]);
+  assert.deepEqual(await ids({ ended_at: 1 }), ["ses_a", "ses_b"]);
+  await assert.rejects(ids({ nope: 1 }), /no column/);
+});
