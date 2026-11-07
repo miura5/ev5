@@ -15,7 +15,6 @@ const CUTOVER_FOLDERS = ['ops/record/'];
 // Files outside this check's slice that still carry the word, found when the check landed. SHRINKS: reword the hit in
 // the file's own task and delete its line here. Never add one.
 const TO_REWORD = new Set<string>([
-  '.github/workflows/live.yml',
   'data/migrations/0000_baseline.sql',
   'data/migrations/0001_deletions.sql',
   'data/migrations/0002_jobs_ceilings.sql',
@@ -26,7 +25,6 @@ const TO_REWORD = new Set<string>([
   'server/handlers-sets.ts',
   'server/index.ts',
   'vite.config.ts',
-  'wrangler.jsonc',
 ]);
 
 export function checkEv4Word(root: string, files: string[]): Finding[] {

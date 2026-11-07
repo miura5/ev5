@@ -14,9 +14,8 @@ export function SessionsScreen({
   services?: { readCopy?: ReadCopyLike };
   onToast?: (message: string) => void;
 }) {
-  const { data, token, refused, error, note, toggleTodo, send } = useSessions(
-    services?.readCopy,
-  );
+  const { data, token, refused, error, note, toggleTodo, send, answer } =
+    useSessions(services?.readCopy);
   useEffect(() => {
     if (error && token && !refused) onToast?.(error);
   }, [error, token, refused, onToast]);
@@ -30,7 +29,7 @@ export function SessionsScreen({
     if (!data || data.ended) return;
     void send("session.pause");
   };
-  // One append-only event on the session; the screen has no open check yet, so no answer is shown (Sessions.view answer).
+  // One append-only event on the session; the screen has no open check yet (none comes from the server), so no answer is shown (Sessions.view answer).
   const tellMe = async () => {
     if (data && !data.ended) await send("check.just_tell_me");
   };
@@ -93,7 +92,7 @@ export function SessionsScreen({
           onTogglePause={togglePause}
           onEnd={() => void end()}
           onToggleCheck={none}
-          onAnswer={none}
+          onAnswer={(a) => void answer(a)}
           onTellMe={() => void tellMe()}
         >
           {note ? (
