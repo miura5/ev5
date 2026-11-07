@@ -1,13 +1,13 @@
-// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads over /api/v1/docs (server/doc-routes.ts). The app token is read at each
+// The outbox's transport (commands, and the notes row route for a stale save) and the page's reads: notes over the row route /api/v1/notes, other collections over /api/v1/docs (server/doc-routes.ts). The app token is read at each
 // call, so a token pasted in Activity works without a reload. A rejected fetch means offline; the outbox waits.
 import { ApiError, call as runCommand, readToken } from "../../commands/client.ts";
 import type { CommandName } from "../../commands/client.ts";
-import { noteDocOf, noteRowId, type NoteTableRow } from "../../domain/index.ts";
+import { noteDocId, noteDocOf, noteRowId, parseNoteTableRow, type NoteTableRow } from "../../domain/index.ts";
 import type { GetAnswer, PutAnswer, Transport } from "./types.ts";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
-/** One document as GET /docs returns it. */
+/** One document as the page reads it (GET /docs, or a notes row turned into one). */
 export interface DocRow {
   id: string;
   v: number;
@@ -61,12 +61,33 @@ export function docsHttp(
     },
   };
 
-  /** Every document of a collection; throws on a refusal or no connection. */
-  async function list(c: string): Promise<DocRow[]> {
+  /** Every document of a collection (any but notes); throws on a refusal or no connection. */
+  async function listCollection(c: string): Promise<DocRow[]> {
     const r = await call(`?${q({ collection: c })}`);
     if (!r.ok) throw new ApiError(r.status);
     return ((await json(r)).docs ?? []) as DocRow[];
   }
+
+  /** Every live note from GET /api/v1/notes as documents; a row that does not parse stays out. */
+  async function listNotes(): Promise<DocRow[]> {
+    const r = await doFetch("/api/v1/notes", {
+      headers: { authorization: `Bearer ${token()}` },
+    });
+    if (!r.ok) throw new ApiError(r.status);
+    const rows = ((await json(r)).rows ?? []) as unknown[];
+    return rows.flatMap((raw) => {
+      try {
+        const row = parseNoteTableRow(raw);
+        return [{ id: noteDocId(row.id), v: row.v, at: row.at, data: noteDocOf(row) }];
+      } catch {
+        return [];
+      }
+    });
+  }
+
+  /** Every document of a collection: notes come from the row route, the rest from /docs. */
+  const list = (c: string): Promise<DocRow[]> =>
+    c === "notes" ? listNotes() : listCollection(c);
 
   return { transport, list };
 }
