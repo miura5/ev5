@@ -131,7 +131,7 @@ test("a plan with items never says Nothing planned yet, and rows read as added b
 test("while the prep plan job still runs after Approve, the exam is not shown as approved", () => {
   const d = mapToday(
     {
-      exams: [{ id: "e4", data: exam("2026-11-20", { planId: "plan-old" }) }],
+      exams: [{ id: "e4", data: exam("2026-11-20") }],
       weakspots: [],
       plans: [{ id: "plan-old", data: { goal_id: "e4", state: "in_force" } }],
       jobs: [
