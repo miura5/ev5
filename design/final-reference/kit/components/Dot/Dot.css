@@ -1,0 +1,48 @@
+.kit-dot {
+  display: inline-block;
+  flex: none;
+  width: var(--sp-1);
+  height: var(--sp-1);
+  box-sizing: content-box;
+  border: var(--hairline) solid transparent;
+  border-radius: var(--r-round);
+  background: var(--faint);
+}
+
+.kit-dot[data-tone="ok"] {
+  background: var(--ok);
+}
+
+.kit-dot[data-tone="warn"] {
+  background: var(--warn);
+}
+
+.kit-dot[data-tone="bad"] {
+  background: var(--bad);
+}
+
+.kit-dot[data-tone="her"] {
+  background: var(--her);
+}
+
+/* Running work: the one moving sign in E.V. (the Mark never moves). */
+.kit-dot[data-pulse] {
+  animation: kit-dot-pulse var(--dur-think) ease-in-out infinite;
+}
+
+@keyframes kit-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-dot[data-pulse] {
+    animation: none;
+    opacity: 0.7;
+  }
+}
