@@ -4,6 +4,42 @@
 import babelParser from "@babel/eslint-parser";
 import reactHooks from "eslint-plugin-react-hooks";
 
+// A write through api() in an area: a POST, PUT, PATCH or DELETE, or a body (which makes it a POST). Reads stay.
+const writeMessage = "An area writes through a registry command, call(name, input, token) from commands/client.ts, not api().";
+const areaWriteSyntax = [
+  {
+    selector: "CallExpression[callee.name='api'] > ObjectExpression > Property[key.name='method'][value.value=/^(POST|PUT|PATCH|DELETE)$/i]",
+    message: writeMessage,
+  },
+  {
+    selector: "CallExpression[callee.name='api'] > ObjectExpression > Property[key.name=/^(body|raw)$/]",
+    message: writeMessage,
+  },
+];
+
+const areaSyntax = [
+  {
+    selector: "ExportAllDeclaration",
+    message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
+  },
+  {
+    selector: "MemberExpression[property.name=/^toLocale(Date|Time)String$/]",
+    message: "Format dates and times through domain/time, not toLocaleDateString or toLocaleTimeString (§job.schedule).",
+  },
+  {
+    selector: "MemberExpression[object.name='Intl'][property.name='DateTimeFormat']",
+    message: "Format dates and times through domain/time, not Intl.DateTimeFormat (§job.schedule).",
+  },
+  {
+    selector: "MemberExpression[object.name='window'][property.name=/^(location|history)$/]",
+    message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never window.location or window.history (wouter-only-in-shell).",
+  },
+  {
+    selector: "MemberExpression[object.name=/^(location|history)$/][property.name=/^(assign|replace|search|href|pathname|pushState|replaceState|back|forward)$/]",
+    message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never location or history (wouter-only-in-shell).",
+  },
+];
+
 export default [
   { ignores: ["dist/", "node_modules/", "fixtures/", "docs/", ".claude/"] },
   {
@@ -59,29 +95,22 @@ export default [
     // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
     files: ["areas/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ExportAllDeclaration",
-          message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
-        },
-        {
-          selector: "MemberExpression[property.name=/^toLocale(Date|Time)String$/]",
-          message: "Format dates and times through domain/time, not toLocaleDateString or toLocaleTimeString (§job.schedule).",
-        },
-        {
-          selector: "MemberExpression[object.name='Intl'][property.name='DateTimeFormat']",
-          message: "Format dates and times through domain/time, not Intl.DateTimeFormat (§job.schedule).",
-        },
-        {
-          selector: "MemberExpression[object.name='window'][property.name=/^(location|history)$/]",
-          message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never window.location or window.history (wouter-only-in-shell).",
-        },
-        {
-          selector: "MemberExpression[object.name=/^(location|history)$/][property.name=/^(assign|replace|search|href|pathname|pushState|replaceState|back|forward)$/]",
-          message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never location or history (wouter-only-in-shell).",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...areaSyntax, ...areaWriteSyntax],
     },
   },
+  {
+    // These screens still write through api() because no registry command carries the write yet. A file leaves this list
+    // when its write moves to call() from commands/client.ts; new files are not exempt.
+    //   Ask.screen.tsx: ask.send takes no chat_id.  notePictures.ts: a raw picture upload.
+    //   useSessions.ts, useToday.ts: whole-document PUT /docs (no command; goes with the docs removal).
+    files: [
+      "areas/**/*.test.{ts,tsx}",
+      "areas/ask/Ask.screen.tsx",
+      "areas/notes/parts/notePictures.ts",
+      "areas/sessions/useSessions.ts",
+      "areas/today/useToday.ts",
+    ],
+    rules: { "no-restricted-syntax": ["error", ...areaSyntax] },
+  },
 ];
+

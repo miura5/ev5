@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ActivityJob } from "./Activity.view.tsx";
 import {
-  api,
+  call,
   failureKind,
   failureSentence,
   jobApi,
@@ -115,12 +115,10 @@ export function useJobs(copy?: ReadCopyLike): JobsState {
   const [tick, setTick] = useState(0);
   const dismiss = useCallback(
     async (id: string) => {
-      const r = await api(`jobs/${encodeURIComponent(id)}/dismiss`, token, {
-        method: "POST",
-      });
+      const r = await call("job.dismiss", { id }, token);
       if (!r.ok) {
         setRefused(failureKind(r.status) === "refused");
-        setError(failureSentence(r.status));
+        setError(r.reason);
       } else setTick((n) => n + 1);
     },
     [token],
