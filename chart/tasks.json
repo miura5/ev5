@@ -3942,10 +3942,10 @@
   "title": "Kit tokens that areas use all exist, and transitions use the kit's easing",
   "dod": "Every var(--x) used in a CSS file is defined in kit/tokens/tokens.css (a check fails otherwise); --sp-5, --lh-body, --fw-body and --text-quiet uses are fixed; Stylelint accepts var(--ease) and still refuses raw easing values",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [],
-  "notes": "Audit finding 7: collection.css and deleted.css use --sp-5 (gap becomes 0), notes.css uses --lh-body and --fw-body, library.css and today.css use --text-quiet, none defined; the stylelint.config.js regex bans the word ease.",
-  "commit": null,
+  "notes": "Run 2026-11-07 lane B: tokens check ops/checks/tokens.ts, var(--ease) allowed, --lh-body/--fw-body fixed (#860).",
+  "commit": "cc0c42c",
   "source": "full audit 2026-11-05 (audits/2026-11-05-full/report.md in the ev-build project folder)"
  },
  {
