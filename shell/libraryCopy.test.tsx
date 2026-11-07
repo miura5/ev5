@@ -21,19 +21,36 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const set = {
-  schema: 3,
-  writer: "page",
-  at: "2026-10-01T15:00:00Z",
-  source: "test",
+const setRow = {
+  id: "set_1",
+  collection_id: null,
   kind: "drill",
   title: "Doses",
-  items: [
-    { id: "q1", stem: "How many mL?", options: ["2 mL", "5 mL"], correct: [1] },
-  ],
+  source_kind: null,
+  source_id: null,
+  created_by: "user",
+  job_id: null,
+  focus: null,
+  asked: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
 };
-const body = (docs: unknown[]) =>
-  new Response(JSON.stringify({ docs, rows: [] }), { status: 200 });
+const itemRow = {
+  id: "item_1",
+  set_id: "set_1",
+  pos: 1,
+  type: "single",
+  body: { stem: "How many mL?", options: ["2 mL", "5 mL"], correct: [1] },
+  objective_id: null,
+  weak_spot_id: null,
+  source_ref: null,
+  at: 1,
+  v: 1,
+  deleted_at: null,
+};
+const body = (docs: unknown[], rows: unknown[] = []) =>
+  new Response(JSON.stringify({ docs, rows }), { status: 200 });
 const showSets = async () => {
   // Sets sit on their own tab; wait until the lists have loaded (the tab is there from the first paint).
   await new Promise((r) => setTimeout(r, 50));
@@ -42,7 +59,11 @@ const showSets = async () => {
 const good = (url: string) =>
   url.endsWith("/jobs")
     ? new Response(JSON.stringify({ jobs: [] }), { status: 200 })
-    : body(url.includes("collection=sets") ? [{ id: "s1", data: set }] : []);
+    : url.includes("/sets")
+      ? body([], [setRow])
+      : url.includes("/items")
+        ? body([], [itemRow])
+        : body([]);
 
 test("online the lists save; offline the saved sets show; a 503 neither shows them nor overwrites the copy", async () => {
   localStorage.setItem("ev5.token", "t");
