@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { sessionRowsBody } from "./sessionRows.testkit.ts";
+import { noteRowBody, sessionRowsBody } from "./sessionRows.testkit.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { SessionsScreen } from "./Sessions.screen.tsx";
 
@@ -70,8 +70,8 @@ function stub() {
       puts.push(c);
       return ok({ mode: "direct", result: {} });
     }
-    const json = url.includes("collection=notes")
-      ? note
+    const json = url.includes("/notes/")
+      ? noteRowBody("n1", note)
       : sessionRowsBody(url, [session]);
     return { ok: true, status: 200, json: async () => json };
   });
@@ -112,8 +112,8 @@ test("the timer counts up each second while running and holds while paused", asy
         };
         return ok({ mode: "direct", result: {} });
       }
-      const json = url.includes("collection=notes")
-        ? note
+      const json = url.includes("/notes/")
+        ? noteRowBody("n1", note)
         : sessionRowsBody(url, [{ ...session, data: stored }]);
       return { ok: true, status: 200, json: async () => json };
     }),
@@ -184,8 +184,8 @@ function stateful(startedAt: string) {
           stored = { ...stored, status: "ended", endedAt: at, minutes: 10 };
         return ok({ mode: "direct", result: {} });
       }
-      const json = url.includes("collection=notes")
-        ? note
+      const json = url.includes("/notes/")
+        ? noteRowBody("n1", note)
         : sessionRowsBody(url, [{ ...session, v, data: stored }]);
       return ok(json);
     }),

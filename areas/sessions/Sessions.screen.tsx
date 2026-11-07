@@ -6,7 +6,7 @@ import { useSessions, type ReadCopyLike } from "./useSessions.ts";
 
 const none = () => undefined;
 
-/** The mounted view: the running (else latest) session from /api/v1/docs; pause and End act on this screen only. */
+/** The mounted view: the running (else latest) session from /api/v1/sessions; pause and End act on this screen only. */
 export function SessionsScreen({
   services,
   onToast,

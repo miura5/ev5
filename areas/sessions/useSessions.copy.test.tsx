@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { sessionRowsBody } from "./sessionRows.testkit.ts";
+import { noteRowBody, sessionRowsBody } from "./sessionRows.testkit.ts";
 import { useSessions } from "./useSessions.ts";
 
 /** Stands in for the shell's ReadCopy (areas never import the shell): a good read is kept; a rejected fetch gets it back. */
@@ -108,7 +108,7 @@ test("a good read refreshes the copy", async () => {
 });
 
 const withNote = { ...doc, data: { ...doc.data, noteId: "n1" } };
-const note = {
+const noteDoc = {
   v: 2,
   data: {
     schema: 1,
@@ -119,6 +119,7 @@ const note = {
     blocks: [],
   },
 };
+const note = noteRowBody("n1", noteDoc);
 
 test("offline, the note read-along comes from the saved copy", async () => {
   use();
@@ -137,7 +138,7 @@ test("a 5xx on the note never overwrites its saved copy", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string) =>
-      url.includes("collection=notes")
+      url.includes("/notes/")
         ? new Response("{}", { status: 503 })
         : new Response(JSON.stringify(sessionRowsBody(url, [withNote])), {
             status: 200,
