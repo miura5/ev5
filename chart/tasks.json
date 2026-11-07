@@ -5246,11 +5246,13 @@
   "title": "Neutral sample content in the mock-up and kit stories",
   "dod": "design/mockup.html, every kit story and test named in scope audit A10 (Suggestion, EvLine, Row, Tile, Source, MovePicker, NavItem, Page, PracticeCard, Doc, Detail; Row, Page, MovePicker, Palette and PracticeCard tests), test fixtures in areas/, domain/, data/ and server/, and prompts/START-MOCKUP.md use sample content from no single subject; the /kit baselines are retaken in the same change; design/DESIGN-BRIEF.md says sample content is any subject (§what.framing). Slice: write design/, kit/ stories and tests, test fixtures, prompts/START-MOCKUP.md",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "in progress",
   "depends": [],
   "notes": "Run 2026-11-07 0746Z (#767): kit stories/tests neutral. Left: /kit baselines retake (Docker); fixtures in areas/domain/data/server; prompts/START-MOCKUP.md; mockup-audit.md; canonical.samples.json. Claim freed.",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
+  "claimedBy": "run-0900Z",
+  "claimedAt": "2026-11-07T09:01:39.053Z"
  },
  {
   "id": "B-1061",
