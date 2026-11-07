@@ -4488,11 +4488,9 @@
    "B-1022",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed.",
+  "notes": "Run 2026-11-07 0800Z: no code reads dayedits/planedits/dateedits/examedits any more (only stale comments in domain/item-props/rules.ts, domain/time/index.ts, domain/draft/table.ts, and dead url.includes mocks in areas/today tests; a comment edit in an interface file needs an Interface trailer). plan_items has no collection_id (squash baseline); item_props drops with squash; part 2 and squash as before. Claim freed. Run 2026-11-07 0930Z: stale dayedits comments and test mocks removed (#783). Still naming dayedits: ops/checks/docskinds.ts and test, fixtures in data/tables and data/export. Claim freed. Run 2026-11-07 1000Z (#786): table and export tests no longer name dayedits. Still naming it: ops/checks/docskinds.ts (check). Claim freed.",
   "commit": "61f4efd",
-  "source": "D-483/D-484 (data-layer study 2026-11-05)",
-  "claimedBy": "cse_01JjJLDVnhSX8bcjni6wQ7Qg",
-  "claimedAt": "2026-11-07T09:56:48.519Z"
+  "source": "D-483/D-484 (data-layer study 2026-11-05)"
  },
  {
   "id": "B-999",
@@ -5250,11 +5248,9 @@
   "milestone": "Phase 6",
   "status": "in progress",
   "depends": [],
-  "notes": "Run 2026-11-07 0900Z (#779): fixtures in areas/domain/data/server neutral; canonical.samples.json done. Left: /kit baselines retake (Docker); check design/mockup.html and DESIGN-BRIEF.md; stray biology strings (col_biology in prep-plan-names.test.ts, krebs-cycle in domain/search fixtures). Claim freed.",
+  "notes": "Run 2026-11-07 0900Z (#779): fixtures in areas/domain/data/server neutral; canonical.samples.json done. Left: /kit baselines retake (Docker); check design/mockup.html and DESIGN-BRIEF.md; stray biology strings (col_biology in prep-plan-names.test.ts, krebs-cycle in domain/search fixtures). Claim freed. Run 2026-11-07 1000Z (#787): search and excerpts tests neutral. Left: /kit baselines (Docker); check design/mockup.html, DESIGN-BRIEF.md. Claim freed.",
   "commit": null,
-  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)",
-  "claimedBy": "cse_01JjJLDVnhSX8bcjni6wQ7Qg",
-  "claimedAt": "2026-11-07T09:56:48.360Z"
+  "source": "ev4 spillover audit 2026-11-05 (audits/2026-11-05-ev4-spillover/report.md in the ev-build project folder)"
  },
  {
   "id": "B-1061",
