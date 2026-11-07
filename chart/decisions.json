@@ -1,5 +1,17 @@
 [
  {
+  "id": "D-531",
+  "date": "Nov 7",
+  "title": "Studio UI port before cutover: the final mock-up lands on round 7 as six tasks. D-497's freeze is lifted for these six ids only. ⌘K uses one short kit matcher (word-start for 1 or 2 letters, in-order letters after that, no fuzzy package) with cmdk filtering off; no --line-edge token; Undo on ratings and talk waits until after cutover; drafts that landed before a Stop stay in Library (the shell task checks it).",
+  "why": "Matt approved the ev-studio proposal and the compat brief's verdicts (A1-A17, B1-B10, C1-C8) at 16:33Z and the filing at 18:10Z. His picks: sidebar Pinned holds folders and notes only (pin data keeps its other kinds; the collection page's Pinned section stays, D-526); the Horizon rail ships at cutover with dates only, from Today's dates read, no forecast read; Progress 'Ready for' uses Today's readiness numbers (areas/today/map.ts:95-120); pictures shrink before upload; the confidence rating before Approve waits until after cutover and Approve is always enabled. Matcher: cmdk's own filter ranks badly on 1-2 letters and the mock-up shows word-start hits; one 30-line kit function is less than a package, and it replaces B-991's 'let cmdk filter' plan. Second way: cmdk's filter plus a custom score; rejected, two filters. No --line-edge: the mock-up's edge line uses --line. Undo on ratings and talk needs a void row in append-only tables (§data.append-only); decide after cutover. Drift risk: copying the frozen ev-design kit over main loses B-1060 and 31 kit changes; port by diff only. Long-term cost: six tasks, about 8 to 12 lane B run hours (guess).",
+  "status": "proposed",
+  "supersedes": [],
+  "amends": [
+   "D-497"
+  ],
+  "source": "ev-build channel, studio UI port, Matt 2026-11-07 16:33Z and 18:10Z"
+ },
+ {
   "id": "D-530",
   "date": "Nov 7",
   "title": "Two build lanes. Lane A (routine E.V. v5 build, :07) keeps the data-layer and ops chain and every task writing data/, domain/, server/, jobs/ or commands/; lane B (routine E.V. v5 build lane B, :37) takes only tasks in docs/handover-b.md whose slice avoids them, and ends with a wait handover when none is free. Each run starts a builder for every free task in its lane and splits large tasks into parts when fewer than 4 are free. Main no longer asks for up-to-date branches.",
