@@ -22,12 +22,6 @@ function setup(
   settings: Record<string, number> = {},
 ) {
   const db = sqliteD1();
-  db.prepare(
-    "CREATE TABLE docs (c TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, v INTEGER NOT NULL, PRIMARY KEY (c, id))",
-  ).run();
-  db.prepare(
-    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
-  ).run();
   void putNoteRow(db, "n-1", NOTE.title, NOTE.blocks[0]!.runs[0]!.text);
   for (const [k, v] of Object.entries(settings))
     db.prepare("INSERT INTO settings (key, value, at) VALUES (?, ?, 0)")
