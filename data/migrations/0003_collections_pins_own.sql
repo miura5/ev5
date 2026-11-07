@@ -1,4 +1,4 @@
--- Collections, memberships, pins, item properties, own sets and own attempts (PLAN section 5.10). Additive and idempotent; ev4 ignores them.
+-- Collections, memberships, pins, item properties, own sets and own attempts (PLAN section 5.10). Additive and idempotent.
 -- `views` is left out on purpose: saved views come after the cutover. Timestamps are ms; `v` is the docs protocol version.
 CREATE TABLE IF NOT EXISTS collections (
   id TEXT PRIMARY KEY,

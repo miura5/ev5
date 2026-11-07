@@ -1,4 +1,4 @@
--- Baseline: restates ev4's pwa/schema.sql. Every statement is IF NOT EXISTS, so it changes nothing where ev4's schema exists.
+-- Baseline of the first tables. Every statement is IF NOT EXISTS, so it changes nothing where they already exist.
 CREATE TABLE IF NOT EXISTS docs (
   c TEXT NOT NULL,
   id TEXT NOT NULL,

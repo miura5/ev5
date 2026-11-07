@@ -33,12 +33,6 @@ export async function setup() {
     );
     return { status: r.status, body: (await r.json()) as Record<string, any> };
   };
-  const doc = async (c: string, id: string) => {
-    const r = await DB.prepare("SELECT data FROM docs WHERE c = ? AND id = ?")
-      .bind(c, id)
-      .first<{ data: string }>();
-    return r ? (JSON.parse(r.data) as Record<string, any>) : null;
-  };
   /** A note as the editor sees it (title and blocks), read from its row. */
   const note = async (id: string) => {
     const r = await DB.prepare("SELECT title, body FROM notes WHERE id = ?")
@@ -48,9 +42,5 @@ export async function setup() {
       ? ({ ...JSON.parse(r.body), title: r.title } as Record<string, any>)
       : null;
   };
-  const put = (c: string, id: string, data: object) =>
-    DB.prepare("INSERT INTO docs (c, id, data, at, v) VALUES (?, ?, ?, 1, 1)")
-      .bind(c, id, JSON.stringify(data))
-      .run();
-  return { DB, call, doc, note, put };
+  return { DB, call, note };
 }
