@@ -149,6 +149,7 @@ test("append-only tables add rows and refuse a repeated id", async () => {
     answer: { chosen: [0] },
     score: 1,
     answered_at: 5,
+    was_due: null,
   } as const;
   const a = await repo.attempts.add(att);
   assert.ok(a.ok && a.row.v === 1);

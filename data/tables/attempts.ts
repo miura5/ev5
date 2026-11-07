@@ -8,7 +8,10 @@ import { WriteRefused } from "./gate.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";
 
 /** What a caller says about an answer; the item's version and the row's `at` and `v` are not theirs to say. */
-export type AttemptInput = Omit<Fields<AttemptRow>, "item_v">;
+export type AttemptInput = Omit<Fields<AttemptRow>, "item_v" | "was_due"> & {
+  /** Whether the item was due as it was answered; left out (stored null) when the caller does not know. */
+  was_due?: AttemptRow["was_due"];
+};
 
 export function attemptsRepo(db: D1Like, opts: TablesOptions) {
   const k = kindsRepo(db, opts);
@@ -31,7 +34,11 @@ export function attemptsRepo(db: D1Like, opts: TablesOptions) {
             "attempts",
             `${a.item_id} is not an item of ${a.set_id}`,
           );
-        return k.attempts.add({ ...a, item_v: item.v });
+        return k.attempts.add({
+          ...a,
+          was_due: a.was_due ?? null,
+          item_v: item.v,
+        });
       },
       /**
        * Appends one attempts row for a turn that is not a set item (a note check-in line, an Ask E.V. "just tell me"). It names
@@ -39,7 +46,12 @@ export function attemptsRepo(db: D1Like, opts: TablesOptions) {
        * accuracy. Still one row through the gate; a repeated id is a conflict (§data.append-only, §data.gate).
        */
       recordLogOnly: (a: Omit<AttemptInput, "score"> & { score?: null }) =>
-        k.attempts.add({ ...a, score: null, item_v: 1 }),
+        k.attempts.add({
+          ...a,
+          was_due: a.was_due ?? null,
+          score: null,
+          item_v: 1,
+        }),
     },
   };
 }

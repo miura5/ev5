@@ -147,6 +147,7 @@ export const attemptRow = (
   how: score === null ? "told" : "chose",
   answer: null,
   score,
+  was_due: null,
   answered_at: Date.parse(at),
   at: Date.parse(at),
   v: 1,

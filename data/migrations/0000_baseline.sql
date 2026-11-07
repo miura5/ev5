@@ -274,6 +274,7 @@ CREATE TABLE IF NOT EXISTS attempts (
   answer TEXT,
   score REAL,
   answered_at INTEGER NOT NULL,
+  was_due INTEGER,
   at INTEGER NOT NULL,
   v INTEGER NOT NULL DEFAULT 1
 );
