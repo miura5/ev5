@@ -7,10 +7,10 @@ import {
 } from "./outbox/index.ts";
 import { createReadCopy, indexedDbCopyStore, type ReadCopy } from "./readCopy.ts";
 
-/** What the shell hands every area view: reads over the document routes and the offline outbox. */
+/** What the shell hands every area view: reads over the row routes and the offline outbox. */
 export interface Services {
   /** With `copy` (the read copy's saved-only reader) the list comes from the saved copy, never the server. */
-  docs: {
+  rows: {
     list(
       collection: string,
       copy?: { read<T>(k: string, f: () => Promise<T>): Promise<T> },
@@ -31,6 +31,6 @@ export function createServices(): Services {
   const list = (
     c: string,
     copy: { read<T>(k: string, f: () => Promise<T>): Promise<T> } = readCopy,
-  ) => copy.read(`docs:${c}`, () => http.list(c));
-  return { docs: { list }, readCopy, outbox };
+  ) => copy.read(`rows:${c}`, () => http.list(c));
+  return { rows: { list }, readCopy, outbox };
 }

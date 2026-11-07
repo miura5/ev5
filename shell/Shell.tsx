@@ -127,15 +127,15 @@ export function Shell({
       return;
     }
     let live = true;
-    const docs = services?.docs;
-    if (docs)
+    const rows = services?.rows;
+    if (rows)
       void Promise.all([
         readDeletedKeys(),
         ...FOUND.map(
           async (f) =>
             [
               f.collection,
-              await docs.list(f.collection).catch(() => []),
+              await rows.list(f.collection).catch(() => []),
             ] as const,
         ),
       ]).then(([gone, ...all]) => {

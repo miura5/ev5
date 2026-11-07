@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 const services: NotesServices = {
-  docs: {
+  rows: {
     list: async () => [
       {
         id: "n1",

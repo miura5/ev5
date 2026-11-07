@@ -26,7 +26,7 @@ const note = {
   blocks: [{ type: "h1", runs: [{ text: "Fluids" }] }],
 };
 const services: NotesServices = {
-  docs: {
+  rows: {
     list: async (c) =>
       c === "notes" ? [{ id: "n1", v: 1, at: 1, data: note }] : [],
   },
