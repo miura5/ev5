@@ -34,3 +34,21 @@ export const planBodySchema = z.object(
 
 export type PlanBody = z.infer<typeof planBodySchema>;
 export type PlanTask = z.infer<typeof planTaskSchema>;
+
+/**
+ * The fields Matt (or E.V., by proposal) sends to add or change a plan item. The wire names are the command's;
+ * the plan_items row (./table.ts) is what the gate writes. One shape here, so commands/ keeps none of its own.
+ */
+export const planItemInputSchema = z.object({
+  title: z.string().min(1),
+  date: z.string().optional(),
+  time: z.string().optional(),
+  estimateMinutes: z.number().int().positive().optional(),
+  repeat: z.string().optional(),
+  linked: z.string().optional(),
+  collection: z.string().optional(),
+});
+/** A change names the item and sends only the fields that change. */
+export const planItemPatchSchema = planItemInputSchema
+  .partial()
+  .extend({ id: z.string().min(1) });
