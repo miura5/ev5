@@ -123,9 +123,6 @@ test("a finished prep plan's Done today entry carries its exam's title, and none
   const { jobs } = (await res.json()) as {
     jobs: { id: string; goalTitle?: string }[];
   };
-  assert.equal(
-    jobs.find((j) => j.id === "sp-t")?.goalTitle,
-    "Course A Exam 2",
-  );
+  assert.equal(jobs.find((j) => j.id === "sp-t")?.goalTitle, "Course A Exam 2");
   assert.equal(jobs.find((j) => j.id === "sp-x")?.goalTitle, undefined);
 });

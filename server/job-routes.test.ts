@@ -237,7 +237,7 @@ test("the schedule token reads jobs but cannot start them or touch ceilings; the
     (await req("GET", "/api/v1/ceilings", "fake-executor")).status,
     403,
   );
-  assert.equal((await req("GET", "/api/v1/jobs")).status, 401);
+  assert.equal((await req("GET", "/api/v1/jobs", undefined)).status, 401);
 });
 
 test("only the app reads and sets ceilings, in whole micro-dollars", async () => {
