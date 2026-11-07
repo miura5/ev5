@@ -4703,12 +4703,12 @@
   "title": "Back and Forward move between screens, through wouter in the shell",
   "dod": "wouter, pinned to an exact version, replaces the shell's hand-written routing (the useState screen, pushState and entryPath in shell/App.tsx); / goes to /today with replace; /kit stays outside the shell; Back, Forward and a reload show the same screen and its ?open= item; the shell passes each area view its address (path, params, search) and a navigate function as props; a dependency-cruiser rule refuses a wouter import outside shell/; an e2e test opens Library, opens a set, goes Back and Forward; seen on staging",
   "milestone": "Phase 6",
-  "status": "open",
+  "status": "done",
   "depends": [
    "B-969"
   ],
-  "notes": "Run 2026-11-07 0746Z: all code items already on main (Notes/Collection navigate, Esc clears ?open=). Only left: first staging run of e2e journey library-back, seen on staging. Claim freed.",
-  "commit": null,
+  "notes": "Run 2026-11-07 1030Z: gate5-e2e on staging (run 42364396161, all journeys pass incl. library-back).",
+  "commit": "7e6746c",
   "source": "stack review 2026-11-05 and Matt's message in ev-build 2026-11-05 10:02 CT",
   "claimedBy": "cse_01JjJLDWjUVDe4aayAt6q5AY",
   "claimedAt": "2026-11-06T14:29:47.768Z"
@@ -4826,7 +4826,7 @@
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 2026-11-07 0800Z: sessions area reads session and session-event rows (#771); progress reads attempts rows (#772); shell/usePins and areas/collection off WireDoc (#773, #774). Left: WireDoc in areas/today (useToday, map, plans) and domain/doc-row export; item-versions has no area reader (no UI wants it); old doc-row shapes after B-1037 to B-1043; collection column (B-998). Optional: share the attempts adapter of library and progress in domain/answers (Interface trailer). Claim freed. Run 2026-11-07 0930Z: WireDoc already gone from areas/today (#777); comment fixed (#782). Left: objective, weak-spot, session, note rows still import docRowSchema (moves with B-1037 to B-1043), then remove domain/doc-row; item-versions reader; collection column (B-998). Claim freed.",
+  "notes": "Run 2026-11-07 1030Z: Gate 5 journeys follow rows and commands (#791, #792); gate5-e2e green on staging. Claim freed.",
   "commit": null,
   "source": "run 82 B-997 report"
  },
