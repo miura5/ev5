@@ -6,7 +6,8 @@
     "commands/client.ts!",
     "data/export/index.ts!",
     "shell/outbox/index.ts!",
-    "shell/main.tsx!"
+    "shell/main.tsx!",
+    "ops/restore-drill/manifest.mjs!"
   ],
   "project": [
     "{areas,shell,kit,domain,commands,jobs,data,server}/**/*.{ts,tsx}!"
