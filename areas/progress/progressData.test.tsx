@@ -5,7 +5,7 @@ import { ProgressScreen } from "./Progress.screen.tsx";
 import { mapProgress } from "./useProgress.ts";
 import { trendText } from "./text.ts";
 import { weeklyAccuracy } from "./series.ts";
-import { answersOf } from "./attempts.ts";
+import { answersOf } from "../../domain/index.ts";
 
 const NOW = Date.UTC(2026, 10, 5, 12);
 const ans = (

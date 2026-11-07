@@ -1,6 +1,9 @@
-import { deriveWeakSpot, weakSpotFromRows } from "../../domain/index.ts";
+import {
+  deriveWeakSpot,
+  gradedBySpot,
+  weakSpotFromRows,
+} from "../../domain/index.ts";
 import type { TodayDocs } from "./plans.ts";
-import { attemptsBySpot } from "./attempts.ts";
 
 /** Each live weak spot as the scheduler's model plus its derived state; `exam` is the soonest open goal it is linked to,
  * directly or through its objective (Library's rule, restated: areas never import each other). */
@@ -12,7 +15,7 @@ export function spotsOf(docs: TodayDocs) {
   const openGoals = docs.goals
     .filter((g) => g.status === "open")
     .sort((a, b) => (a.date ?? "9999").localeCompare(b.date ?? "9999"));
-  const answered = attemptsBySpot(docs.attempts, docs.items);
+  const answered = gradedBySpot(docs.attempts, docs.items);
   return docs.weakspots
     .filter((r) => r.duplicate_of === null)
     .map((r) => {
