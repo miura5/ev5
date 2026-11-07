@@ -1,7 +1,7 @@
 // The links table's cross-row rules on top of the generic gate (§data.links, §data.gate): both ends must resolve to a
 // live row on write, and the reads that say which objectives are on a goal and which goals an objective is on.
 // A link to a deleted end that is later purged is the drill's orphan report, not a write rule.
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo } from "./kinds.ts";

@@ -1,7 +1,7 @@
 // The plan tables' cross-row rules on top of the generic gate (§data.gate, §data.repeat): at most one plan in force per goal
 // and one plan item per repeat and day. The database's unique indexes hold the same rules, but a violated index would read as
 // a lost race (409); here it is a plain refusal first (WriteRefused), so no caller mistakes it for a stale version.
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo } from "./kinds.ts";

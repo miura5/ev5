@@ -1,5 +1,5 @@
 // An in-memory stand-in for D1 that understands exactly the statements data/docs sends (test use only).
-import type { D1Like, D1Statement } from "./d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 
 type Val = string | number | null;
 interface DocRow {

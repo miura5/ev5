@@ -2,7 +2,7 @@
 // screen it came from, is recorded here as one row through the gate. The row names the item and the version it answered, read
 // from the item's own row, so an answer cannot be filed against an item that does not exist, is deleted, or sits in another set.
 import type { AttemptRow } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";

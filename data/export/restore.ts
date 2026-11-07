@@ -1,6 +1,6 @@
 // Restore an export into an empty scratch D1 (migrations already applied), then prove it: the scratch's own manifest
 // must equal the export's, and the PLAN §5.10 checks run. Orphans are reported, never dropped. Writes only to `scratch`.
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import { ALL_TABLES } from "./tables.ts";
 import { checkPictures, type PictureBucket } from "./pictures.ts";
 import {

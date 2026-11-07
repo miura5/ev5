@@ -25,9 +25,9 @@ import {
   sizeWarning,
   DOC_CEILING,
   type SizeWarning,
-} from "./budget.ts";
+} from "../budget.ts";
 import { parseDeletion } from "../../domain/index.ts";
-import type { D1Like, D1Statement } from "./d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 import {
   type Row,
   stored,

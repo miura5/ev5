@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "../docs/d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 import { exportAll, restoreInto, checkExport, ALL_TABLES } from "./index.ts";
 
 // A D1 stand-in over node:sqlite (real SQL, so the export's SELECTs and the restore's INSERTs are exercised).

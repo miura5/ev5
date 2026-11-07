@@ -2,7 +2,7 @@
 // (a stale one is a conflict, never a merge, §data.notes). Search reads only the plain-text column (§data.search): a SQL `LIKE`
 // over `text`, no virtual table.
 import { NOTE_MAX, type NoteTableRow } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import type { TablesOptions } from "./core.ts";
 import { WriteRefused } from "./gate.ts";
 import { kindsRepo, type Fields } from "./kinds.ts";

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type { D1Like, D1Statement } from "../docs/d1.ts";
+import type { D1Like, D1Statement } from "../d1.ts";
 import { tablesRepo } from "./tables.ts";
 import { WriteRefused } from "./gate.ts";
 import { insertConflict } from "./core.ts";

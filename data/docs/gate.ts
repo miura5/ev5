@@ -4,7 +4,7 @@
 import { noteWriteProblem, type Note } from "../../domain/index.ts";
 import type { Json } from "../protocol/canonical.ts";
 import type { StoredDoc, WriteProblem } from "../protocol/protocol.ts";
-import type { D1Like } from "./d1.ts";
+import type { D1Like } from "../d1.ts";
 import { DOMAIN_PARSERS } from "./parsers.ts";
 
 /** The kinds whose documents carry a `title` a rename may change; every other kind refuses one. */

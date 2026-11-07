@@ -23,7 +23,7 @@ import {
   parseWeakSpotEventRow,
   parseWeakSpotTableRow,
 } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import { ALL_TABLES } from "../export/tables.ts";
 import {
   core,

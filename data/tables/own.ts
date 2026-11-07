@@ -4,7 +4,7 @@ import {
   parseOwnSet,
   parseOwnSetItem,
 } from "../../domain/index.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
 import {
   core,

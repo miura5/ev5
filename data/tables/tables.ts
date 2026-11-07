@@ -14,7 +14,7 @@ import {
   type Raw,
   type TablesOptions,
 } from "./core.ts";
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
 import { ownRepo } from "./own.ts";
 import { draftsRepo } from "./drafts.ts";

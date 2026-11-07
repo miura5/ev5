@@ -1,5 +1,5 @@
 // Shared row plumbing for the repositories in this folder: ms timestamps, JSON columns and the versioned write.
-import type { D1Like } from "../docs/d1.ts";
+import type { D1Like } from "../d1.ts";
 import { gateRow } from "./gate.ts";
 
 export type Saved<T> =
