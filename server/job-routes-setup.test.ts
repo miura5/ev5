@@ -66,8 +66,8 @@ export function setup() {
     call,
     prompts: {
       practice_set: "write",
-      study_plan: "plan",
-      study_plan_changes: "chg",
+      prep_plan: "plan",
+      prep_plan_changes: "chg",
     },
     planHome: { load: async () => undefined },
     now: () => T,

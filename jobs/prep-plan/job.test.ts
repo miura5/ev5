@@ -12,8 +12,8 @@ import {
   checkPlan,
   parseDecision,
   parsePlan,
-  studyPlanHandlers,
-  studyPlanJob,
+  prepPlanHandlers,
+  prepPlanJob,
 } from './job.ts';
 import type { Plan, PlanContext, PlanStore } from './job.ts';
 import { askChanges } from './changes.ts';
@@ -83,7 +83,7 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     reserve: async () => {},
     record: async (_k, _j, c) => void spent.push(c),
   };
-  const handlers = studyPlanHandlers({
+  const handlers = prepPlanHandlers({
     store,
     call,
     system: 'sys',
@@ -91,7 +91,7 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
     askChanges,
   });
   const wf = fakeWorkflows((step, p) =>
-    runJob({ store: jobs, ceilings, now: () => T }, step, studyPlanJob, handlers, p),
+    runJob({ store: jobs, ceilings, now: () => T }, step, prepPlanJob, handlers, p),
   );
   let n = 0;
   const env: Env = {
@@ -105,14 +105,14 @@ function setup(call: ModelCall, over?: Parameters<typeof memStore>[0]) {
 
 test('only Matt can start it, never a schedule or the Mac', async () => {
   const { env } = setup(async () => reply(good));
-  await assert.rejects(startJob(env, studyPlanJob, { goalId: 'e1' }, 'schedule'), /cannot be started/);
-  await assert.rejects(startJob(env, studyPlanJob, { goalId: 'e1' }, 'mac'), /cannot be started/);
+  await assert.rejects(startJob(env, prepPlanJob, { goalId: 'e1' }, 'schedule'), /cannot be started/);
+  await assert.rejects(startJob(env, prepPlanJob, { goalId: 'e1' }, 'mac'), /cannot be started/);
 });
 
 test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   const reqs: ModelRequest[] = [];
   const { env, jobs, wf, log, spent } = setup(async (r) => (reqs.push(r), reply(good)));
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const waiting = (await jobs.get(job.id))!;
   assert.equal(waiting.state, 'needs-you');
@@ -121,8 +121,8 @@ test('tap, draft, needs you, approve once, tasks go to Today', async () => {
   assert.equal(reqs.length, 1);
   assert.equal(reqs[0]!.model, 'sonnet');
   assert.equal(spent.length, 1);
-  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' });
-  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' }).catch(() => {});
+  await continueJob(env, prepPlanJob, job.id, { decision: 'approve' });
+  await continueJob(env, prepPlanJob, job.id, { decision: 'approve' }).catch(() => {});
   await wf.idle();
   const done = (await jobs.get(job.id))!;
   assert.equal(done.state, 'done');
@@ -136,9 +136,9 @@ test('a change request on the draft calls Haiku, stores the patched draft, then 
     reqs.push(r);
     return r.model === 'haiku' ? reply({ summary: 'Lighter.', ops: [{ op: 'remove', task: 2 }] }) : reply(good);
   });
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
-  await continueJob(env, studyPlanJob, job.id, {
+  await continueJob(env, prepPlanJob, job.id, {
     decision: 'change',
     note: 'drop the light review',
   });
@@ -153,7 +153,7 @@ test('a change request on the draft calls Haiku, stores the patched draft, then 
   const d = planRows.get(`d${job.id}`) as Plan;
   assert.equal(d.summary, 'Lighter.');
   assert.equal(d.tasks.length, 1);
-  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' });
+  await continueJob(env, prepPlanJob, job.id, { decision: 'approve' });
   await wf.idle();
   assert.equal((await jobs.get(job.id))!.state, 'done');
   assert.deepEqual(log, ['approve 1']);
@@ -166,10 +166,10 @@ test('several change rounds on one draft, then approve saves the last', async ()
     const ops = [{ op: 'update', task: 1, minutes: 20 + reqs.length }];
     return r.model === 'haiku' ? reply({ summary: `Round ${reqs.length - 1}.`, ops }) : reply(good);
   });
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   for (let i = 1; i <= 3; i++) {
-    await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: `note ${i}` });
+    await continueJob(env, prepPlanJob, job.id, { decision: 'change', note: `note ${i}` });
     await wf.idle();
     const w = (await jobs.get(job.id))!;
     assert.equal(w.state, 'needs-you');
@@ -178,7 +178,7 @@ test('several change rounds on one draft, then approve saves the last', async ()
   assert.deepEqual(reqs.map((r) => r.model), ['sonnet', 'haiku', 'haiku', 'haiku']);
   assert.equal(spent.length, 4);
   assert.equal((planRows.get(`d${job.id}`) as Plan).summary, 'Round 3.');
-  await continueJob(env, studyPlanJob, job.id, { decision: 'approve' });
+  await continueJob(env, prepPlanJob, job.id, { decision: 'approve' });
   await wf.idle();
   assert.equal((await jobs.get(job.id))!.state, 'done');
   assert.equal(log.length, 1);
@@ -187,10 +187,10 @@ test('several change rounds on one draft, then approve saves the last', async ()
 test('after the last change round another change fails the job in plain words', async () => {
   const ops = [{ op: 'update', task: 1, minutes: 25 }];
   const { env, jobs, wf } = setup(async (r) => (r.model === 'haiku' ? reply({ ops }) : reply(good)));
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   for (let i = 0; i <= MAX_CHANGE_ROUNDS; i++) {
-    await continueJob(env, studyPlanJob, job.id, { decision: 'change', note: 'again' });
+    await continueJob(env, prepPlanJob, job.id, { decision: 'change', note: 'again' });
     await wf.idle();
     const w = (await jobs.get(job.id))!;
     if (i < MAX_CHANGE_ROUNDS) assert.equal(w.state, 'needs-you', `round ${i}: ${w.reason}`);
@@ -203,9 +203,9 @@ test('after the last change round another change fails the job in plain words', 
 
 test('put away keeps the draft and approves nothing', async () => {
   const { env, jobs, wf, log } = setup(async () => reply(good));
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
-  await continueJob(env, studyPlanJob, job.id, { decision: 'put_away' });
+  await continueJob(env, prepPlanJob, job.id, { decision: 'put_away' });
   await wf.idle();
   assert.equal((await jobs.get(job.id))!.state, 'done');
   assert.deepEqual(log, ['put away']);
@@ -216,7 +216,7 @@ test('an undated exam fails in plain words with no model call', async () => {
   const { env, jobs, wf } = setup(async () => (calls++, reply(good)), {
     exam: { ...exam, date: null } as never,
   });
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const r = (await jobs.get(job.id))!;
   assert.equal(r.state, 'failed');
@@ -231,7 +231,7 @@ test('a plan citing an unknown weak spot gets one repair ask, then fails without
     tasks: [{ date: '2026-11-03', title: 'x', minutes: 30, weakSpotId: 'nope' }],
   };
   const { env, jobs, wf, spent } = setup(async () => (calls++, reply(bad)));
-  const job = await startJob(env, studyPlanJob, { goalId: 'e1' }, 'matt');
+  const job = await startJob(env, prepPlanJob, { goalId: 'e1' }, 'matt');
   await wf.idle();
   const r = (await jobs.get(job.id))!;
   assert.equal(r.state, 'failed');

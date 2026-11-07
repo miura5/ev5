@@ -7,7 +7,7 @@ import {
   isTerminal,
   noPlanReason,
   startJob,
-  studyPlanJob,
+  prepPlanJob,
   transition,
   update,
 } from "../jobs/index.ts";
@@ -19,7 +19,7 @@ import { startEnv } from "./job-routes.ts";
 import { goalDoc } from "./goal-wire.ts";
 import { examsOfPlans } from "./plan-context.ts";
 
-const def = studyPlanJob as JobDef;
+const def = prepPlanJob as JobDef;
 const MAX_NOTE = 2000;
 const PLAN_PREFIX = "plan-";
 
@@ -58,7 +58,7 @@ async function replaceOlder(x: HandlerCtx, goalId: string, keep: string) {
   }
 }
 
-export const studyPlanHandlers: Record<string, CommandHandler> = {
+export const prepPlanHandlers: Record<string, CommandHandler> = {
   "date.plan_with_ev": async (i: { id: string }, _c, x) => {
     if (!x.jobs) throw new CommandError(503, "jobs are not available here");
     const exam = await goalDoc(x.db as never, x.clock, i.id);

@@ -37,8 +37,8 @@ async function practiceMessage(variant: string): Promise<string> {
 async function prompts(): Promise<Record<string, string>> {
   const out: Record<string, string> = {
     "jobs/practice-set/prompt.md": read("../jobs/practice-set/prompt.md"),
-    "jobs/study-plan/prompt.md": read("../jobs/study-plan/prompt.md"),
-    "jobs/study-plan/changes-prompt.md": read("../jobs/study-plan/changes-prompt.md"),
+    "jobs/prep-plan/prompt.md": read("../jobs/prep-plan/prompt.md"),
+    "jobs/prep-plan/changes-prompt.md": read("../jobs/prep-plan/changes-prompt.md"),
     "server/ask-chat.ts ASK_SYSTEM": ASK_SYSTEM,
     "jobs/grade GRADE_SYSTEM": GRADE_SYSTEM,
     "jobs/grade gradePrompt": gradePrompt({ question: "Q", reference: "R", answer: "A" }),

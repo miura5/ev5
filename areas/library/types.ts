@@ -132,7 +132,7 @@ export interface StudyItem {
 }
 
 /** An exam as a date with its plan: properties plus E.V.s dashed session proposals. */
-export interface ExamPlanData {
+export interface DatePlanData {
   id: string;
   title: string;
   /** Date and time, e.g. "Thursday, Nov 5 · 9:00 am". */
