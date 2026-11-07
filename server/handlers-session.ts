@@ -11,11 +11,10 @@ import {
   sessionState,
 } from "../domain/index.ts";
 import type { NewSessionRow, SessionEvent } from "../domain/index.ts";
-import { tablesRepo } from "../data/index.ts";
+import { batchWrites, tablesRepo } from "../data/index.ts";
 import type { StoredSession } from "../data/index.ts";
-import { CommandError } from "./handlers-core.ts";
+import { CommandError, flushWrites } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
-import { deferWrites } from "./defer-writes.ts";
 import { eventKey, iso, logAttempt, rand, talkLine } from "./handlers-edit.ts";
 
 const book = (x: HandlerCtx) =>
@@ -105,7 +104,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
     const cur = await open(ctx, i.id);
     const minutes = sessionState(view(cur), ctx.clock()).minutes;
     // The session row and its end event are ONE batch, so a session never ends with no end event (§data.gate).
-    const w = deferWrites(ctx.db);
+    const w = batchWrites(ctx.db);
     const x = { ...ctx, db: w.db };
     await addEvent(
       x,
@@ -113,7 +112,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
       { type: "end", why: "ended" },
       { status: "ended", ended_at: x.clock(), minutes: Math.round(minutes) },
     );
-    await w.flush("that changed; try again");
+    await flushWrites(w, "that changed; try again");
     return { id: i.id, minutes };
   },
 
@@ -126,7 +125,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
     const cur = await open(ctx, i.id);
     const n = Math.max(1, sessionState(view(cur), ctx.clock()).checks);
     // The talk line, the session's answer event and the attempts row are ONE batch: all land or none does (§data.gate).
-    const w = deferWrites(ctx.db);
+    const w = batchWrites(ctx.db);
     const x = { ...ctx, db: w.db };
     const msg = await talkLine(x, {
       text: i.answer.slice(0, 4000),
@@ -143,7 +142,7 @@ export const sessionHandlers: Record<string, CommandHandler> = {
       how: "typed",
       answer: { text: i.answer.slice(0, 4000) },
     });
-    await w.flush("that changed or was already recorded; try again");
+    await flushWrites(w, "that changed or was already recorded; try again");
     return { id: i.id, n, attempt };
   },
 
