@@ -110,3 +110,18 @@ test("a deleted row is left out of the list and the single read", async () => {
   assert.equal("left_out" in list.body, false);
   assert.equal((await get(DB, "/sets/set_gone")).status, 404);
 });
+
+test("attempts are read as rows, oldest first", async () => {
+  const { DB } = await setup();
+  await DB.prepare(
+    "INSERT INTO attempts (id, item_id, item_v, set_id, session_id, source, how, answer, score, answered_at, at, v) VALUES ('att_2', 'item_a', 1, 'set_a', NULL, 'run', 'chose', NULL, 0, 20, 20, 1), ('att_1', 'item_a', 1, 'set_a', NULL, 'run', 'chose', NULL, 1, 10, 10, 1)",
+  ).run();
+  const a = await get(DB, "/attempts");
+  assert.equal(a.status, 200);
+  assert.deepEqual(
+    a.body["rows"].map((r: { id: string }) => r.id),
+    ["att_1", "att_2"],
+  );
+  assert.equal((await get(DB, "/attempts/att_1")).body["score"], 1);
+  assert.equal((await get(DB, "/attempts/att_zz")).status, 404);
+});
