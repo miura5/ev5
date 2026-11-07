@@ -17,8 +17,12 @@ export type D1Statement = ReturnType<D1Like["prepare"]>;
 
 type Clock = () => number;
 
-export function d1JobStore(db: D1Like, clock: Clock): JobStore {
-  return tablesRepo(db, { clock }).jobRecords;
+export function d1JobStore(
+  db: D1Like,
+  clock: Clock,
+  onBad?: NonNullable<Parameters<typeof tablesRepo>[1]["onBad"]>,
+): JobStore {
+  return tablesRepo(db, { clock, onBad }).jobRecords;
 }
 
 export function d1CeilingStore(db: D1Like): CeilingStore {

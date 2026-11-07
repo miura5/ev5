@@ -11,7 +11,13 @@ import {
   type JobRecordRow,
 } from "../../domain/index.ts";
 import type { D1Like, D1Statement } from "../d1.ts";
-import { insertConflict, type TablesOptions } from "./core.ts";
+import {
+  insertConflict,
+  readRows,
+  type Listed,
+  type Raw,
+  type TablesOptions,
+} from "./core.ts";
 import { gateRow } from "./gate.ts";
 
 export type CeilingWindow = "hour" | "day" | "month" | "job";
@@ -35,8 +41,8 @@ export type SaveDraft = {
 const STALE = "SELECT CASE WHEN changes() = 0 THEN json('refused') END";
 
 export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
-  const parseRec = (r: { data: string }): JobRecordRow =>
-    parseJobRecord(JSON.parse(r.data));
+  const parseRec = (r: Raw): JobRecordRow =>
+    parseJobRecord(JSON.parse(String(r.data)));
 
   const used = async (w: CeilingWindow, k: string): Promise<number> =>
     (
@@ -96,14 +102,20 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
           .prepare("SELECT data FROM job_records WHERE id = ?")
           .bind(id)
           .first<{ data: string }>();
-        return r ? parseRec(r) : undefined;
+        if (!r) return undefined;
+        return readRows("job_records", [{ id, ...r }], parseRec, opts)[0];
       },
-      list: async (): Promise<JobRecordRow[]> =>
-        (
-          await db
-            .prepare("SELECT data FROM job_records ORDER BY at, id")
-            .all<{ data: string }>()
-        ).results.map(parseRec),
+      list: async (): Promise<Listed<JobRecordRow>> =>
+        readRows(
+          "job_records",
+          (
+            await db
+              .prepare("SELECT id, data FROM job_records ORDER BY at, id")
+              .all<{ id: string; data: string }>()
+          ).results,
+          parseRec,
+          opts,
+        ),
       /** v 1 creates (false if the id exists); a later v updates only if the stored version is v - 1. */
       put: async (rec: JobRecordRow): Promise<boolean> => {
         const row = gateRow("job_records", () => parseJobRecord(rec));
