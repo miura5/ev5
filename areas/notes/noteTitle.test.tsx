@@ -25,9 +25,9 @@ test("the note title takes typing: Enter saves, Esc cancels, empty is ignored", 
   const onRename = vi.fn();
   render(<NotePageView note={page} onRename={onRename} />);
   const t = screen.getByRole<HTMLInputElement>("textbox", { name: "Title" });
-  fireEvent.change(t, { target: { value: "Cardiac cycle" } });
+  fireEvent.change(t, { target: { value: "Water cycle" } });
   fireEvent.keyDown(t, { key: "Enter" });
-  expect(onRename).toHaveBeenCalledWith("Cardiac cycle");
+  expect(onRename).toHaveBeenCalledWith("Water cycle");
   onRename.mockClear();
   fireEvent.change(t, { target: { value: "Nope" } });
   fireEvent.keyDown(t, { key: "Escape" });

@@ -32,7 +32,7 @@ const ev4 = parseSet({
   at: NOW,
   source: 'test',
   kind: 'drill',
-  title: 'Cardiac drill',
+  title: 'Key drill',
   items: [q('d1'), q('d2', [0, 2])],
 });
 const at = (itemId: string, key: string, body: OwnAttempt['body']): OwnAttempt => ({
@@ -78,7 +78,7 @@ test('first edit copies an ev4 set and leaves the original alone', () => {
   const { set, items, hide } = copyOnFirstEdit(ev4, 's-9', 'o1', NOW);
   expect(JSON.stringify(ev4)).toBe(before);
   expect(parseOwnSet(set)).toMatchObject({
-    title: 'Cardiac drill',
+    title: 'Key drill',
     sourceC: 'sets',
     sourceId: 's-9',
   });

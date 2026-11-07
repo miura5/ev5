@@ -20,7 +20,7 @@ beforeAll(() => {
 afterEach(cleanup);
 
 const collections = [
-  { id: "c1", title: "Biology 101", parentId: null },
+  { id: "c1", title: "Course A", parentId: null },
   { id: "c2", title: "Economics 101", parentId: null },
 ];
 const note = (id: string, title: string, c: string | null): NoteSummary => ({
@@ -36,7 +36,7 @@ function setup() {
   const onMove = vi.fn();
   render(
     <NotesView
-      notes={[note("a", "Med math", "c1")]}
+      notes={[note("a", "Unit maths", "c1")]}
       collections={collections}
       initialOpen={["c1"]}
       onRowAction={onRowAction}
@@ -48,7 +48,7 @@ function setup() {
 
 test("right-click on a Recent row opens Open, Pin, Move, Delete", async () => {
   setup();
-  const rows = screen.getAllByText("Med math");
+  const rows = screen.getAllByText("Unit maths");
   fireEvent.contextMenu(rows[0]!);
   const menu = await screen.findByRole("menu");
   for (const l of ["Open", "Pin", "Move…", "Delete"])
@@ -57,14 +57,14 @@ test("right-click on a Recent row opens Open, Pin, Move, Delete", async () => {
 
 test("the . key on a focused row opens its menu", async () => {
   setup();
-  const row = screen.getAllByRole("button", { name: /Med math/ })[0]!;
+  const row = screen.getAllByRole("button", { name: /Unit maths/ })[0]!;
   fireEvent.keyDown(row, { key: "." });
   expect(await screen.findByRole("menu")).toBeTruthy();
 });
 
 test("Move picks a collection and calls onMove with it", async () => {
   const { onMove } = setup();
-  fireEvent.contextMenu(screen.getAllByText("Med math")[0]!);
+  fireEvent.contextMenu(screen.getAllByText("Unit maths")[0]!);
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
   fireEvent.click(await screen.findByRole("option", { name: /Economics 101/ }));
   expect(onMove).toHaveBeenCalledWith("a", "c2");
@@ -72,7 +72,7 @@ test("Move picks a collection and calls onMove with it", async () => {
 
 test("a note in the By-collection tree has the menu too", async () => {
   const { onRowAction } = setup();
-  const dots = screen.getAllByRole("button", { name: "Actions for Med math" });
+  const dots = screen.getAllByRole("button", { name: "Actions for Unit maths" });
   expect(dots.length).toBe(2);
   fireEvent.keyDown(dots[1]!, { key: "Enter" });
   fireEvent.click(await screen.findByRole("menuitem", { name: /Delete/ }));
@@ -84,9 +84,9 @@ test("the Move picker is a list with children under their parent, the current on
     const onMove = vi.fn();
     render(
       <NotesView
-        notes={[note("a", "Med math", "c1")]}
+        notes={[note("a", "Unit maths", "c1")]}
         collections={[
-          { id: "k2", title: "Pharm", parentId: "c1" },
+          { id: "k2", title: "Review", parentId: "c1" },
           ...collections,
         ]}
         initialOpen={["c1"]}
@@ -96,12 +96,12 @@ test("the Move picker is a list with children under their parent, the current on
     );
     return { onMove };
   })();
-  fireEvent.contextMenu(screen.getAllByText("Med math")[0]!);
+  fireEvent.contextMenu(screen.getAllByText("Unit maths")[0]!);
   fireEvent.click(await screen.findByRole("menuitem", { name: /Move/ }));
   const opts = await screen.findAllByRole("option");
   expect(opts.map((o) => o.textContent?.replace("✓", "").trim())).toEqual([
-    "Biology 101",
-    "Pharm",
+    "Course A",
+    "Review",
     "Economics 101",
   ]);
   expect(opts[0]!.textContent).toContain("✓");
@@ -118,8 +118,8 @@ test("the note page menu has Pin, Move and Delete", async () => {
     <NotePageView
       note={{
         id: "a",
-        title: "Med math",
-        collectionName: "Biology 101",
+        title: "Unit maths",
+        collectionName: "Course A",
         edited: "today",
         saveState: "saved",
         body: [],

@@ -25,7 +25,7 @@ const session = {
     at: "2026-11-04T15:00:00.000Z",
     source: "E.V. Home",
     date: "2026-11-04",
-    topic: "Cardiac output",
+    topic: "Energy budget",
     noteId: "n1",
     status: "active",
     startedAt: new Date(Date.now() - 60_000).toISOString(),

@@ -11,7 +11,7 @@ test("an item in Recently deleted is out of the collection and the pins until re
   localStorage.setItem("ev5.token", "t");
   const bodies: Record<string, unknown> = {
     collections: {
-      collections: [{ id: "c1", title: "Biology 101", parentId: null, pos: 0 }],
+      collections: [{ id: "c1", title: "Course A", parentId: null, pos: 0 }],
     },
     memberships: {
       memberships: [
@@ -49,7 +49,7 @@ test("members are named through the row routes, never /docs", async () => {
   localStorage.setItem("ev5.token", "t");
   const bodies: Record<string, unknown> = {
     collections: {
-      collections: [{ id: "c1", title: "Biology 101", parentId: null, pos: 0 }],
+      collections: [{ id: "c1", title: "Course A", parentId: null, pos: 0 }],
     },
     memberships: {
       memberships: [

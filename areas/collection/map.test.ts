@@ -3,7 +3,7 @@ import { mapCollection, mapPins } from "./map.ts";
 
 const cs = [
   { id: "b", title: "Economics 101", parentId: null, pos: 2 },
-  { id: "a", title: "Biology 101", parentId: null, pos: 1 },
+  { id: "a", title: "Course A", parentId: null, pos: 1 },
   { id: "s", title: "Labs", parentId: "a", pos: 1 },
 ];
 const ms = [
@@ -14,7 +14,7 @@ const ms = [
 
 test("picks the first top-level collection with its nested and members, newest first", () => {
   const d = mapCollection(cs, ms)!;
-  expect(d.title).toBe("Biology 101");
+  expect(d.title).toBe("Course A");
   expect(d.nested.map((e) => e.title)).toEqual(["Labs"]);
   expect(d.items.map((e) => [e.id, e.type])).toEqual([
     ["k1", "cards"],
@@ -29,7 +29,7 @@ test("no collections is the empty state", () => {
 
 test("an id opens that collection, with its parent id for Back", () => {
   const cs = [
-    { id: "a", title: "Biology 101", parentId: null, pos: 0 },
+    { id: "a", title: "Course A", parentId: null, pos: 0 },
     { id: "b", title: "Labs", parentId: "a", pos: 1 },
   ];
   const ms = [{ collection: "notes", id: "n1", collectionId: "b", at: 1 }];
@@ -37,7 +37,7 @@ test("an id opens that collection, with its parent id for Back", () => {
   expect(d.title).toBe("Labs");
   expect(d.parentId).toBe("a");
   expect(d.items).toHaveLength(1);
-  expect(mapCollection(cs, ms, "zzz")!.title).toBe("Biology 101");
+  expect(mapCollection(cs, ms, "zzz")!.title).toBe("Course A");
 });
 
 test("members show the item's title and date, falling back to Untitled", () => {

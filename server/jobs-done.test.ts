@@ -116,7 +116,7 @@ test("a finished prep plan's Done today entry carries its exam's title, and none
   await ctx("sp-x", "goal_gone");
   await db
     .prepare(
-      "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_ex1', NULL, 'Biology 101 Exam 2', 'exam', '2026-11-20', 'open', NULL, 'user', 0, 1)",
+      "INSERT INTO goals (id, collection_id, title, kind, date, status, score, created_by, at, v) VALUES ('goal_ex1', NULL, 'Course A Exam 2', 'exam', '2026-11-20', 'open', NULL, 'user', 0, 1)",
     )
     .run();
   const res = await req("GET", "/api/v1/jobs?finished=today", "fake-app");
@@ -125,7 +125,7 @@ test("a finished prep plan's Done today entry carries its exam's title, and none
   };
   assert.equal(
     jobs.find((j) => j.id === "sp-t")?.goalTitle,
-    "Biology 101 Exam 2",
+    "Course A Exam 2",
   );
   assert.equal(jobs.find((j) => j.id === "sp-x")?.goalTitle, undefined);
 });

@@ -30,7 +30,7 @@ const cell = (b: Block, col: 0 | 1): Block => ({ ...b, row: 'r1', col });
 // Cases from the S-08 corpus (docs/spikes/S-08-notes-editor.md): ev4's stored, normal-form blocks.
 const FIXTURES: Record<string, Block[]> = {
   'every block type': [
-    { type: 'h1', runs: [r('Cardiac cycle')] },
+    { type: 'h1', runs: [r('Water cycle')] },
     { type: 'h2', runs: [r('Systole')] },
     { type: 'h3', runs: [] },
     p('Plain words.'),
@@ -152,7 +152,7 @@ test('Backspace at a line start outdents, then makes a paragraph; Tab indents wi
 
 test('mounts a document and shows lists, checks and headings', () => {
   const { container } = render(<NoteEditor blocks={FIXTURES['every block type']!} onChange={() => undefined} />);
-  expect(container.querySelector('[data-block="h1"]')?.textContent).toBe('Cardiac cycle');
+  expect(container.querySelector('[data-block="h1"]')?.textContent).toBe('Water cycle');
   expect(container.querySelectorAll('input[type="checkbox"]')).toHaveLength(2);
   expect((container.querySelectorAll('input[type="checkbox"]')[0] as HTMLInputElement).checked).toBe(true);
 });

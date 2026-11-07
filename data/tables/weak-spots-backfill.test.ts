@@ -18,7 +18,7 @@ test("migration 0014 copies weakspots documents into rows and events into append
       )
       .run(id, JSON.stringify(d));
   db.exec(
-    "INSERT INTO collections (id, title, at, v) VALUES ('col_nur', 'Biology 101', 1, 1)",
+    "INSERT INTO collections (id, title, at, v) VALUES ('col_a', 'Course A', 1, 1)",
   );
   put("w1", {
     schema: 2,
@@ -58,7 +58,7 @@ test("migration 0014 copies weakspots documents into rows and events into append
     ["ws_w1", "ws_w2"],
   );
   const w1 = spots[0]!;
-  assert.equal(w1.collection_id, "col_nur");
+  assert.equal(w1.collection_id, "col_a");
   assert.equal(w1.objective_id, "o-1");
   assert.equal(w1.pre_read, 1);
   assert.equal(w1.created_by, "user");

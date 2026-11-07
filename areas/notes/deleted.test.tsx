@@ -42,7 +42,7 @@ const serve = (bodies: Record<string, unknown>) =>
 test("a deleted note is out of Notes and its collection filing until restored", async () => {
   localStorage.setItem("ev5.token", "t");
   const bodies: Record<string, unknown> = {
-    collections: { collections: [{ id: "c1", title: "Biology 101" }] },
+    collections: { collections: [{ id: "c1", title: "Course A" }] },
     memberships: {
       memberships: [
         { collection: "notes", id: "n1", collectionId: "c1" },

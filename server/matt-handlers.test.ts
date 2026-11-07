@@ -18,7 +18,7 @@ test("a note is made, saved and moved", async () => {
   assert.equal(saved.status, 200);
   const after = await note(id);
   assert.equal(after?.blocks.length, 2);
-  const col2 = await call("collection.create", { title: "NUR" });
+  const col2 = await call("collection.create", { title: "Course" });
   const moved = await call("note.move", {
     id,
     collection: col2.body.result.collection.id,

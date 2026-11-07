@@ -48,7 +48,7 @@ test("a set item on the sets tables reads as a Set question, and a set as a Set"
   const out = mapDeletions(
     [
       { collection: "set_items", id: "item_1", at, title: "Which lab?" },
-      { collection: "sets", id: "set_1", at: at - 1, title: "Cardiac" },
+      { collection: "sets", id: "set_1", at: at - 1, title: "Cycles" },
     ],
     at,
   );

@@ -26,7 +26,7 @@ const item = {
   plan_id: "plan_1",
   day: "2026-11-07",
   pos: 1,
-  title: "Cardiac drills",
+  title: "Key drills",
   minutes: 30,
   time: null,
   origin: "plan",

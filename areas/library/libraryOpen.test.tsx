@@ -99,7 +99,7 @@ test("a date's detail sits beside the library with the date and days left, and n
   expect(screen.queryByText("Course")).toBeNull();
   expect(screen.queryByText("Collection")).toBeNull();
   expect(row("Date")).toMatch(/in [\d]+ days|years|weeks|days/);
-  expect(row("Date")).not.toContain("Biology 101");
+  expect(row("Date")).not.toContain("Course A");
 });
 
 test("the open set follows the address: Back and Forward change it, opening asks the shell to navigate", async () => {

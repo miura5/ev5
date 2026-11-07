@@ -19,13 +19,13 @@ const practice: PracticeSession = {
   options: ["2.75 mL", "5.5 mL"],
   position: 1,
   total: 8,
-  source: "Biology 101 · dosage by weight",
+  source: "Course A · ratio problems",
 };
 const weak: WeakSpot[] = [
   {
     id: "w",
     title: "Oral liquid doses",
-    meta: "Biology 101 · 4 of 9",
+    meta: "Course A · 4 of 9",
     mastery,
     due: "due today",
     goalId: null,
@@ -34,7 +34,7 @@ const weak: WeakSpot[] = [
 const exams: LibraryExam[] = [
   {
     id: "x",
-    title: "Biology 101 · Exam 3",
+    title: "Course A · Exam 3",
     kind: "exam",
     meta: "Thursday",
     when: "Thursday",
@@ -82,7 +82,7 @@ test("tabs show weak spots and exams with counts, rows open", () => {
   expect(onDrill).toHaveBeenCalledWith("w");
   fireEvent.click(screen.getByRole("radio", { name: /Dates/ }));
   expect(screen.getByText("58%")).toBeTruthy();
-  fireEvent.click(screen.getByText("Biology 101 · Exam 3"));
+  fireEvent.click(screen.getByText("Course A · Exam 3"));
   expect(onOpenExam).toHaveBeenCalledWith("x");
 });
 
@@ -108,7 +108,7 @@ test("sets tab filters tiles by type and opens a set; accuracy line shows", () =
       id: "s2",
       title: "Unit conversion",
       kind: "questions",
-      meta: "Biology 101 · 10 questions",
+      meta: "Course A · 10 questions",
     },
   ];
   render(

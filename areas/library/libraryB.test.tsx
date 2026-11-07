@@ -111,7 +111,7 @@ test("study asks for the attempt first, reveals with source, rates, and ends", (
           kicker: "Term",
           front: "Afterload",
           back: "Resistance",
-          from: "Cardiac",
+          from: "Cycles",
         },
       ]}
     />,

@@ -90,7 +90,7 @@ function fakeCopy(kept: Record<string, unknown> = {}) {
 
 const exam = goalRow({
   id: "goal_e1",
-  title: "Biology 101 exam",
+  title: "Course A exam",
   date: "2099-01-01",
 });
 

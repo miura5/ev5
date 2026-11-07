@@ -36,11 +36,11 @@ const props = (over: Partial<TodayProps> = {}): TodayProps => ({
       done: true,
     },
   ],
-  proposal: { text: "5 dosage-by-weight problems tonight · 10m" },
+  proposal: { text: "5 ratio problems tonight · 10m" },
   upcoming: [
     {
       id: "d1",
-      title: "Biology 101 · Exam 3",
+      title: "Course A · Exam 3",
       kind: "exam",
       meta: "58% ready",
       when: "Thu",

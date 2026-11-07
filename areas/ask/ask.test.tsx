@@ -9,7 +9,7 @@ afterEach(cleanup);
 const messages: AskMessage[] = [
   { id: "1", from: "you", at: "9:12 am", text: "preload vs afterload?" },
   { id: "2", from: "ev", text: "Give it a try first.", asksTry: true },
-  { id: "3", from: "ev", text: "Yes, both right.", source: "Cardiac output", breakBefore: true },
+  { id: "3", from: "ev", text: "Yes, both right.", source: "Energy budget", breakBefore: true },
   { id: "4", from: "ev", text: "Still writing.", job: { title: "Full practice run", meta: "9 of 15", running: true } },
 ];
 
@@ -17,7 +17,7 @@ test("the chat shows turns, a source, a job row and the try-first button", () =>
   const onJustTell = vi.fn();
   render(<AskView messages={messages} onSend={() => {}} onJustTell={onJustTell} />);
   expect(screen.getByText("9:12 am")).toBeTruthy();
-  expect(screen.getByText("from Note · Cardiac output")).toBeTruthy();
+  expect(screen.getByText("from Note · Energy budget")).toBeTruthy();
   expect(screen.getByText("Full practice run")).toBeTruthy();
   expect(screen.getAllByRole("separator")).toHaveLength(1);
   fireEvent.click(screen.getByText("Just tell me"));
