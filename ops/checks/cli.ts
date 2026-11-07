@@ -5,8 +5,6 @@ import { spawnSync } from 'node:child_process';
 import { checkAccount } from './account.ts';
 import { checkChartEv4 } from './chartev4.ts';
 import { checkCompatImport } from './compatimport.ts';
-import { checkDocsKinds } from './docskinds.ts';
-import { checkDocsWrites } from './docswrites.ts';
 import { checkEv4Word } from './ev4word.ts';
 import { checkRestoreKind } from './restorekind.ts';
 import { checkSubjectWords } from './subjectwords.ts';
@@ -40,8 +38,6 @@ const findings = [
   ...checkAccount(root, files),
   ...checkChartEv4(root, files),
   ...checkCompatImport(root, files),
-  ...checkDocsKinds(root, files),
-  ...checkDocsWrites(root, files),
   ...checkEv4Word(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),

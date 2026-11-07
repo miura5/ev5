@@ -138,8 +138,7 @@ const fakeBucket = () => {
   };
 };
 const fakeExport = async () => ({
-  collections: {},
-  tables: { docs: { count: 3 }, sets: { count: 2 } },
+  tables: { notes: { count: 3 }, sets: { count: 2 } },
 });
 const T0030 = Date.parse("2026-11-05T06:40:00Z"); // 00:40 Central (CST)
 
@@ -183,7 +182,7 @@ test("with no exporter given, the export runs data's real export and stores a pa
   assert.ok((await runScheduled(env, CRON, T0030)).includes("export"));
   const saved = JSON.parse(IMAGES.objects.get(exportKey("2026-11-05"))!);
   assert.equal(saved.kind, "ev5-export");
-  assert.ok(saved.tables.docs);
+  assert.ok(saved.tables.notes);
 });
 
 test("a put that loses a race (key appears after the head check) is not an overwrite", async () => {

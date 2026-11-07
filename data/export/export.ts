@@ -1,5 +1,5 @@
-// The export of every table (§data.export): `tables` is { count, sha256 } over each table's canonical rows,
-// `collections` the same per kind over `docs`, and `rows` every row as written. The kind names v5's own file, so a
+// The export of every table (§data.export): `tables` is { count, sha256 } over each table's canonical rows
+// and `rows` every row as written. The kind names v5's own file, so a
 // restore refuses any other export (an old-app backup included). Read-only: it only SELECTs.
 import type { D1Like } from "../d1.ts";
 import { ALL_TABLES, type TableSpec } from "./tables.ts";
@@ -16,9 +16,7 @@ export interface Export {
   schema: 1;
   kind: typeof EXPORT_KIND;
   at: string;
-  collections: Manifest;
   tables: Manifest;
-  docs: Row[];
   rows: Record<string, Row[]>;
 }
 
@@ -32,33 +30,18 @@ const entry = async (lines: string[]): Promise<Entry> => ({
   sha256: await sha256(lines.join("\n")),
 });
 
-/** The per-kind manifest over `docs`: documents in id order, each as [id, data]. */
-export async function collectionsOf(docs: Row[]): Promise<Manifest> {
-  const by = new Map<string, Row[]>();
-  for (const r of docs)
-    by.set(r.c as string, [...(by.get(r.c as string) ?? []), r]);
-  const out: Manifest = {};
-  for (const c of [...by.keys()].sort()) {
-    const rows = by
-      .get(c)!
-      .sort((a, b) => (a.id! < b.id! ? -1 : a.id! > b.id! ? 1 : 0));
-    out[c] = await entry(rows.map((r) => JSON.stringify([r.id, r.data])));
-  }
-  return out;
-}
-
 /** A table's count and the SHA-256 over its rows (column values as a JSON array each) in primary-key order. */
 export const tableEntry = (spec: TableSpec, rows: Row[]): Promise<Entry> =>
   entry(rows.map((r) => JSON.stringify(spec.columns.map((c) => r[c] ?? null))));
 
-/** The whole manifest (collections and tables) of rows already read, keyed by table. */
+/** The whole manifest of rows already read, keyed by table. */
 export async function manifestOf(
   rows: Record<string, Row[]>,
-): Promise<{ collections: Manifest; tables: Manifest }> {
+): Promise<{ tables: Manifest }> {
   const tables: Manifest = {};
   for (const spec of ALL_TABLES)
     tables[spec.name] = await tableEntry(spec, rows[spec.name] ?? []);
-  return { collections: await collectionsOf(rows.docs ?? []), tables };
+  return { tables };
 }
 
 /** Reads one table in key order; a table whose migration has not landed reads as empty. */
@@ -79,19 +62,17 @@ export async function exportAll(
 ): Promise<Export> {
   const rows: Record<string, Row[]> = {};
   for (const spec of ALL_TABLES) rows[spec.name] = await readTable(db, spec);
-  const { collections, tables } = await manifestOf(rows);
+  const { tables } = await manifestOf(rows);
   return {
     schema: 1,
     kind: EXPORT_KIND,
     at: new Date(now).toISOString(),
-    collections,
     tables,
-    docs: rows.docs!,
     rows,
   };
 }
 
-/** One line per table or collection whose count or hash differs between two manifests; empty when they match. */
+/** One line per table whose count or hash differs between two manifests; empty when they match. */
 export function manifestDiffs(got: Manifest, want: Manifest): string[] {
   return [...new Set([...Object.keys(want), ...Object.keys(got)])]
     .sort()

@@ -29,10 +29,7 @@ export async function checkExport(x: Export): Promise<string[]> {
   if (x.kind !== EXPORT_KIND || x.schema !== 1)
     return [`not an ${EXPORT_KIND} file: only v5's own export is restored`];
   const own = await manifestOf(x.rows);
-  return [
-    ...manifestDiffs(own.tables, x.tables),
-    ...manifestDiffs(own.collections, x.collections),
-  ];
+  return manifestDiffs(own.tables, x.tables);
 }
 
 /** §5.10's last column, over the rows of a restored (or exported) record. */
@@ -52,7 +49,18 @@ export function checkRows(
     else if (p.parent_id != null)
       problems.push(`collection ${r.id}: has a grandparent`);
   }
-  const items = new Set((rows.docs ?? []).map((r) => `${r.c}\n${r.id}`));
+  // A membership's item_c names the collection an item was filed under; its row lives in that kind's own table.
+  const kindTable: Record<string, string> = {
+    goals: "goals",
+    notes: "notes",
+    sessions: "sessions",
+    sets: "sets",
+  };
+  const items = new Set(
+    Object.entries(kindTable).flatMap(([c, table]) =>
+      (rows[table] ?? []).map((r) => `${c}\n${r.id}`),
+    ),
+  );
   for (const m of rows.memberships ?? []) {
     if (!items.has(`${m.item_c}\n${m.item_id}`))
       orphans.push(`membership ${m.item_c}/${m.item_id}: item missing`);
@@ -91,10 +99,7 @@ export async function restoreInto(
       );
   }
   const back = await exportAll(scratch);
-  const diffs = [
-    ...manifestDiffs(back.tables, x.tables),
-    ...manifestDiffs(back.collections, x.collections),
-  ];
+  const diffs = manifestDiffs(back.tables, x.tables);
   const { orphans, problems } = checkRows(back.rows);
   // With the bucket in hand, the drill reads every picture back against its files row (§data.note-images).
   if (pictures) {
