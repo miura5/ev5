@@ -55,26 +55,26 @@ async function seedPlan(
 test("approving a prep plan puts it in force and putting it away retires it", async () => {
   const { DB, call } = await setup();
   const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
-  const read = async (c: string) =>
+  const read = async (path: string) =>
     (
       (await (
         await app.request(
-          `/api/v1/docs?collection=${c}`,
+          `/api/v1/${path}`,
           { headers: { authorization: "Bearer app-t" } },
           env,
         )
-      ).json()) as { docs: { id: string; data: Record<string, any> }[] }
-    ).docs;
+      ).json()) as { rows: Record<string, any>[] }
+    ).rows;
   // Which plan is in force and which are put away, read from the plans rows.
   const edit = async () => {
     const rows = await read("plans");
     const retired = Object.fromEntries(
       rows
-        .filter((p) => p.data.state === "put_away")
+        .filter((p) => p.state === "put_away")
         .map((p) => [p.id, { at: 1 }]),
     );
     return {
-      plan: rows.find((p) => p.data.state === "in_force")?.id,
+      plan: rows.find((p) => p.state === "in_force")?.id,
       retired,
     } as Record<string, any>;
   };
@@ -100,9 +100,9 @@ test("approving a prep plan puts it in force and putting it away retires it", as
   assert.equal((await call("plan.approve", { id: "nope" })).status, 404);
   assert.equal((await call("plan.put_away", { id: "nope" })).status, 404);
   // The plan's sessions stay listed, put away or not (§delete.soft).
-  const items = await read("plan_items");
+  const items = await read("plan-items");
   const count = (plan: string) =>
-    items.filter((i) => i.data.plan_id === plan).length;
+    items.filter((i) => i.plan_id === plan).length;
   assert.equal(count("plan_p2"), 1);
   assert.equal(count("plan_p1"), 2);
 });

@@ -167,8 +167,7 @@ test("the palette's Places match the sidebar and an empty group shows no header"
 test("the theme button, the \\ key and the palette command flip data-theme and keep the choice", () => {
   localStorage.clear();
   render(<Shell path="/" onNavigate={vi.fn()} areas={areas} />);
-  const root = () =>
-    document.querySelector("[data-ui='shell']")?.getAttribute("data-theme");
+  const root = () => document.documentElement.getAttribute("data-theme");
   expect(root()).toBe("dark");
   fireEvent.click(screen.getByRole("button", { name: /Light theme/ }));
   expect(root()).toBe("light");

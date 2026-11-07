@@ -44,13 +44,13 @@ test("a list read says how many stored rows it left out, and logs each under the
   const warn = console.warn;
   console.warn = (s: string) => lines.push(s);
   try {
-    const r = await get(DB, "/api/v1/docs?collection=exams");
+    const r = await get(DB, "/api/v1/goals");
     const body = (await r.json()) as {
-      docs: { id: string }[];
+      rows: { id: string }[];
       left_out?: number;
     };
     assert.deepEqual(
-      body.docs.map((d) => d.id),
+      body.rows.map((d) => d.id),
       ["goal_ok"],
     );
     assert.equal(body.left_out, 1);
@@ -70,16 +70,7 @@ test("a list with nothing left out has no left_out field", async () => {
   const DB = await migrated();
   await put(DB, "goal_ok", "open");
   const body = (await (
-    await get(DB, "/api/v1/docs?collection=exams")
+    await get(DB, "/api/v1/goals")
   ).json()) as object;
   assert.ok(!("left_out" in body));
-});
-
-test("changes since count a row once, however many reads touched it", async () => {
-  const DB = await migrated();
-  await put(DB, "goal_bad", "no-such-status");
-  const body = (await (await get(DB, "/api/v1/docs?since=0")).json()) as {
-    left_out?: number;
-  };
-  assert.equal(body.left_out, 1);
 });

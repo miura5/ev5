@@ -226,7 +226,7 @@ export function Shell({
       );
   };
   return (
-    <div className="shell" data-ui="shell" data-theme={theme}>
+    <div className="shell" data-ui="shell">
       <nav className="shell-side" aria-label="Primary">
         <WorkspaceLine />
         <SidebarSearch onOpen={() => setPalette(true)} />

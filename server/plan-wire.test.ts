@@ -6,7 +6,7 @@ import type { Env } from "./index.ts";
 import { d1PlanStore } from "../jobs/index.ts";
 import { setup } from "./matt-handlers-setup.test.ts";
 
-type Doc = { id: string; data: Record<string, any> };
+type Row = Record<string, any>;
 
 test("plans and plan_items are read as rows, and a put-away plan reads as put away", async () => {
   const { DB, call } = await setup();
@@ -15,12 +15,12 @@ test("plans and plan_items are read as rows, and a put-away plan reads as put aw
     (
       (await (
         await app.request(
-          `/api/v1/docs?collection=${c}`,
+          `/api/v1/${c}`,
           { headers: { authorization: "Bearer app-t" } },
           env,
         )
-      ).json()) as { docs: Doc[] }
-    ).docs;
+      ).json()) as { rows: Row[] }
+    ).rows;
   const { id: goal } = (
     await call("date.create", { title: "Final", date: "2999-12-01" })
   ).body.result;
@@ -39,21 +39,21 @@ test("plans and plan_items are read as rows, and a put-away plan reads as put aw
   await store.approve("j1", plan);
   const [one] = await read("plans");
   assert.equal(one!.id, "plan_j1");
-  assert.equal(one!.data.goal_id, goal);
-  assert.equal(one!.data.state, "in_force");
+  assert.equal(one!.goal_id, goal);
+  assert.equal(one!.state, "in_force");
   assert.deepEqual(
-    (await read("plan_items")).map((i) => [i.data.day, i.data.title]),
+    (await read("plan-items")).map((i) => [i.day, i.title]),
     [
       ["2999-11-01", "A"],
       ["2999-11-02", "B"],
     ],
   );
-  assert.equal((await read("plan_items"))[0]!.data.weak_spot_id, "ws_1");
+  assert.equal((await read("plan-items"))[0]!.linked_id, "ws_1");
   await store.putContext("j2", ctx);
   await store.putDraft("j2", plan);
   await store.putAway("j2");
   const states = Object.fromEntries(
-    (await read("plans")).map((p) => [p.id, p.data.state]),
+    (await read("plans")).map((p) => [p.id, p.state]),
   );
   assert.equal(states.plan_j1, "in_force"); // a put-away draft leaves the plan in force
   assert.equal(states.plan_j2, "put_away");
