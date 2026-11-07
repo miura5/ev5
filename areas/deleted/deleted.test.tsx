@@ -31,7 +31,7 @@ test("a set item and a note read as title plus kind, with the count on its own l
   render(
     <DeletedView
       items={[
-        { id: "own_set_items/s1/i1", type: "questions", title: "Which lab is highest priority?", kind: "Set question", deletedOn: "Nov 1", daysLeft: 29 },
+        { id: "set_items/item_1", type: "questions", title: "Which lab is highest priority?", kind: "Set question", deletedOn: "Nov 1", daysLeft: 29 },
         { id: "notes/n1", type: "note", title: "Untitled", kind: "Note", deletedOn: "Nov 1", daysLeft: 29 },
       ]}
     />,
@@ -40,5 +40,5 @@ test("a set item and a note read as title plus kind, with the count on its own l
   expect(screen.getByText("Set question · deleted Nov 1")).toBeTruthy();
   expect(screen.getByText("Note · deleted Nov 1")).toBeTruthy();
   expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("2 items");
-  expect(document.body.textContent).not.toMatch(/own_set_items|notes\/n1/);
+  expect(document.body.textContent).not.toMatch(/set_items|notes\/n1/);
 });
