@@ -7,7 +7,7 @@ const SCANNED = /^(?:e2e|data\/staging|ops)\//;
 const SKIPPED = /^ops\/(?:checks|guards)\/|^ops\/record\/fixtures/;
 const PUT = /["'`]PUT["'`]|-X\s*PUT|--request\s+PUT|method:\s*["'`]PUT/;
 
-// No file is allowed: every journey and script writes through a command (B-1059 emptied the list). Never add one.
+// No file is allowed: every journey and script writes through a command. Never add one.
 const ALLOWED = new Set<string>();
 
 export function checkDocsWrites(root: string, files: string[]): Finding[] {
