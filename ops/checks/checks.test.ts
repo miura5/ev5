@@ -167,8 +167,8 @@ test('compat-import: an import of a compat module or a data/compat path is refus
   assert.equal(checkCompatImport(r.root, r.files).length, 2);
 });
 
-test('migration names: only numbered .sql files may sit in data/migrations, bar the named fixture', () => {
-  const ok = ['data/migrations/0001_deletions.sql', 'data/migrations/ev4-schema.fixture.sql', 'data/migrations/x.test.ts', 'other/scratch.sql'];
+test('migration names: only numbered .sql files may sit in data/migrations', () => {
+  const ok = ['data/migrations/0001_deletions.sql', 'data/migrations/x.test.ts', 'other/scratch.sql'];
   assert.deepEqual(checkMigrationNames(ok), []);
   const bad = checkMigrationNames(['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql', 'data/migrations/0020_ok.sql']);
   assert.deepEqual(bad.map(f => f.file), ['data/migrations/scratch.sql', 'data/migrations/12_late.sql', 'data/migrations/0020_Mixed.sql']);

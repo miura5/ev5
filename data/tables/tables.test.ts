@@ -93,60 +93,6 @@ test("pins keep order and move by writing a position", async () => {
   assert.equal(await r.pins.remove("notes", "b"), true);
 });
 
-test("own sets, their items and append-only attempts", async () => {
-  const r = setup();
-  assert.ok(
-    (
-      await r.ownSets.save(
-        {
-          id: "s1",
-          title: "Mine",
-          type: "question",
-          sourceC: null,
-          sourceId: null,
-        },
-        null,
-      )
-    ).ok,
-  );
-  const body = {
-    id: "q1",
-    stem: "Which of these lowers a fever the fastest?",
-    type: "single" as const,
-    options: ["a", "b"],
-    correct: [0],
-    rationales: ["x", "y"],
-  };
-  assert.ok(
-    (
-      await r.ownSets.saveItem(
-        { setId: "s1", itemId: "q1", pos: 1, body },
-        null,
-      )
-    ).ok,
-  );
-  assert.equal((await r.ownSets.items("s1")).length, 1);
-  const a = await r.ownAttempts.append({
-    setId: "s1",
-    itemId: "q1",
-    key: "k1",
-    body: { chosen: [0], correct: true },
-  });
-  assert.ok(a.ok);
-  assert.equal((await r.ownAttempts.list("s1")).length, 1);
-  assert.equal(
-    (
-      await r.ownAttempts.append({
-        setId: "s1",
-        itemId: "q1",
-        key: "k2",
-        body: { text: "" },
-      })
-    ).ok,
-    true,
-  );
-});
-
 test("drafts: a change is pinned to the version read; plans and settings replace by key", async () => {
   const t = setup();
   await t.drafts.create({

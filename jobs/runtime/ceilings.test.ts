@@ -8,7 +8,7 @@ import {
   windowKeys,
   validateConfig,
 } from "./ceilings.ts";
-import { memoryStore } from "./ceilings-memory.ts";
+import { memoryStore } from "./ceilings-memory.testkit.ts";
 
 const cfg = { hourly: 1000, daily: 5000, monthly: 10000, perJob: 600 };
 const now = new Date("2026-11-03T14:30:00Z");

@@ -126,7 +126,7 @@ Today `PUT /docs` and `/docs/batch` accept any kind and check only notes. The en
 1. **Per kind:** when a kind's table, command and reads land, its collection name is refused by `PUT /docs` with "use the command" (the list of kinds still allowed shrinks; the docs-kind check task check 2 fails a PR that writes a kind off that list).
 2. **Outbox:** note saves post to `note.save` (the notes move) and answers to `study.attempt` (the attempts move), which write through the gate. The outbox never calls `/docs`. Its offline queue stays notes and answers only (§data.offline).
 3. **Reads:** the since-sync (`GET /docs?since`) and collection reads are replaced by per-screen paged reads from the generated client, with deleted rows left out.
-4. **Last step:** the routes, `docsRepo`, `data/docs/*`, `domain/doc-row` and `server/doc-routes.ts` are removed in the cleanup task, which also lands the contract migration. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (the docs-kind check task check 8).
+4. **Last step:** the routes and `docsRepo` are removed in the cleanup task, which also lands the contract migration. E2E, seeds and staging scripts that write by `PUT /docs` move to commands first (the docs-kind check task check 8).
 
 ## 6. Order of follow-on work
 
