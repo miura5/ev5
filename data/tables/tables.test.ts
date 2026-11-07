@@ -5,9 +5,12 @@ import { DatabaseSync } from "node:sqlite";
 import type { D1Like, D1Statement } from "../docs/d1.ts";
 import { tablesRepo } from "./tables.ts";
 import { WriteRefused } from "./gate.ts";
+import { insertConflict } from "./core.ts";
 
 const dir = new URL("../migrations/", import.meta.url);
-function make(onBad?: (b: { table: string; reason: string }) => void) {
+function make(
+  onBad?: (b: { table: string; id: string; reason: string }) => void,
+) {
   const db = new DatabaseSync(":memory:");
   for (const f of readdirSync(dir)
     .filter((f) => /^\d{4}_.*\.sql$/.test(f))
@@ -185,7 +188,7 @@ test("drafts: a change is pinned to the version read; plans and settings replace
 });
 
 test("a row the domain refuses is not written, and a bad stored row is skipped and reported", async () => {
-  const bad: { table: string; reason: string }[] = [];
+  const bad: { table: string; id: string; reason: string }[] = [];
   const { db, repo } = make((b) => bad.push(b));
   // refused before the write: nothing reaches the table
   await assert.rejects(
@@ -219,6 +222,43 @@ test("a row the domain refuses is not written, and a bad stored row is skipped a
   );
   assert.equal(bad.length, 1);
   assert.equal(bad[0]?.table, "collections");
+  assert.equal(bad[0]?.id, "c2");
+  assert.equal(list.left_out, 1, "the list says it left a row out");
+  assert.ok(!bad[0]?.reason.includes("{"), "the reason carries no row text");
+});
+
+test("an insert that fails for another reason is not reported as a conflict", async () => {
+  const { db, repo } = make();
+  db.exec(
+    "CREATE TRIGGER no_insert BEFORE INSERT ON collections BEGIN SELECT RAISE(ABORT, 'disk I/O error'); END",
+  );
+  const err = console.error;
+  const logged: string[] = [];
+  console.error = (m: string) => void logged.push(m);
+  try {
+    await assert.rejects(
+      repo.collections.save(good("c1"), null),
+      (e: Error) =>
+        /insert into collections failed/.test(e.message) &&
+        e.cause instanceof Error,
+    );
+  } finally {
+    console.error = err;
+  }
+  assert.equal(logged.length, 1);
+  assert.ok(!logged[0]?.includes("Unit 1"), "the log has no row text");
+  // a unique or primary-key violation is still a conflict
+  assert.equal(
+    insertConflict("t", new Error("UNIQUE constraint failed: t.id")),
+    true,
+  );
+  assert.equal(
+    insertConflict("t", new Error("PRIMARY KEY must be unique")),
+    true,
+  );
+  assert.throws(() =>
+    insertConflict("t", new Error("NOT NULL constraint failed: t.id")),
+  );
 });
 
 test("restore clears only the named collection's row", async () => {

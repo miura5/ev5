@@ -27,7 +27,11 @@ import type { D1Like } from "../docs/d1.ts";
 import { ALL_TABLES } from "../export/tables.ts";
 import {
   core,
+  insertConflict,
+  listed,
+  reportBad,
   text,
+  type Listed,
   type Raw,
   type Saved,
   type TablesOptions,
@@ -108,10 +112,7 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
     try {
       return toRow(r);
     } catch (e) {
-      opts.onBad?.({
-        table: k.table,
-        reason: e instanceof Error ? e.message : String(e),
-      });
+      reportBad(opts, k.table, String(r.id ?? "?"), e);
       return null;
     }
   };
@@ -133,7 +134,7 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
         deleted?: boolean;
         where?: Partial<Record<string, string | number>>;
       } = {},
-    ): Promise<R[]> => {
+    ): Promise<Listed<R>> => {
       const w = Object.entries(o.where ?? {});
       for (const [c] of w)
         if (!cols.includes(c)) throw new Error(`${k.table} has no column ${c}`);
@@ -141,7 +142,8 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
         `SELECT * FROM ${k.table} WHERE 1 = 1${live(o.deleted)}${w.map(([c]) => ` AND ${q(c)} = ?`).join("")} ORDER BY ${k.order}`,
         ...w.map(([, x]) => x as string | number),
       );
-      return rows.flatMap((r) => parseOne(r) ?? []);
+      const out = rows.flatMap((r) => parseOne(r) ?? []);
+      return listed(out, rows.length - out.length);
     },
   };
   if (k.appendOnly)
@@ -166,7 +168,8 @@ function table<R extends Stamped>(db: D1Like, opts: TablesOptions, k: Kind<R>) {
               1,
             )
             .run();
-        } catch {
+        } catch (e) {
+          insertConflict(k.table, e);
           return { ok: false, conflict: true, current: 1 };
         }
         return { ok: true, row };
