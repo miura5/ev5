@@ -12,12 +12,11 @@ import { mapToday, spendAlertLine, prepPlanWaiting } from "./map.ts";
 import type { TodayData, WireJobLine } from "./map.ts";
 import type { PlanItemRow, PlanRow } from "./plans.ts";
 import {
-  ApiError,
-  api,
   call,
   failureKind,
   failureSentence,
   jobApi,
+  readJson,
   readToken,
   savedFirst,
 } from "../../commands/client.ts";
@@ -49,13 +48,6 @@ export interface TodayState {
   setKind: (id: string, kind: string) => Promise<boolean>;
 }
 
-/** The rows of one kind from GET /<path> (the domain row shape, §data.gate). */
-async function rowsOf<T>(path: string, token: string): Promise<T[]> {
-  const r = await api(path, token);
-  if (!r.ok) throw new ApiError(r.status);
-  return ((await r.json()) as { rows: T[] }).rows;
-}
-
 /** Reads exams, weak spots and today's plan items with the app token Matt keeps in this browser (the shell holds none). */
 export function useToday(copy?: ReadCopyLike): TodayState {
   const [token] = useState(readToken);
@@ -72,13 +64,16 @@ export function useToday(copy?: ReadCopyLike): TodayState {
     const now = Date.now();
     // Every read goes out at once; offline, each gives back its saved copy (§data.offline) and the shell says so.
     const load = async (c: ReadCopyLike | undefined) => {
-      function saved<T>(key: string, get: () => Promise<T>): Promise<T> {
-        return c ? c.read(key, get) : get();
-      }
       const today = centralDate(now);
       // Each kind is its own row read; offline it gives back its saved copy (§data.offline).
       function rows<T>(path: string): Promise<T[]> {
-        return saved(`today:${path}`, () => rowsOf<T>(path, token));
+        return readJson(
+          path,
+          token,
+          `rows:${path}`,
+          c,
+          (b) => (b as { rows: T[] }).rows,
+        );
       }
       // Which plan is in force is a nicety: when it cannot be read, none is approved.
       const plans = rows<PlanRow>("plans").catch((): PlanRow[] => []);

@@ -1,4 +1,5 @@
 import { expect, test, vi } from "vitest";
+import { UNAUTHORIZED_EVENT } from "../../commands/client.ts";
 import { docsHttp } from "./http.ts";
 
 const reply = (status: number, body: unknown) =>
@@ -41,6 +42,9 @@ test("get reads the note row by its row id and returns the version and the note,
   await expect(off.transport.get("n")).rejects.toThrow();
 });
 
+const stubFetch = (f: (url: string) => Response) =>
+  vi.stubGlobal("fetch", async (url: string) => f(url));
+
 test("list(notes) reads the note rows as documents, leaves out a bad row; 401 and 503 are refusals", async () => {
   const row = {
     id: "note_n",
@@ -53,49 +57,39 @@ test("list(notes) reads the note rows as documents, leaves out a bad row; 401 an
     v: 7,
     deleted_at: null,
   };
-  const ok = docsHttp(
-    () => "t",
-    async (url) => (
-      expect(url).toBe("/api/v1/notes"),
-      reply(200, { rows: [row, { id: "bad" }] })
-    ),
-  );
-  const got = await ok.list("notes");
+  const { list } = docsHttp(() => "t");
+  stubFetch((url) => (expect(url).toBe("/api/v1/notes"), reply(200, { rows: [row, { id: "bad" }] })));
+  const got = await list("notes");
   expect(got).toHaveLength(1);
   expect(got[0]).toMatchObject({ id: "n", v: 7, at: 1762182000000 });
   expect(got[0]?.data).toMatchObject({ title: "Fluids" });
-  const no = docsHttp(
-    () => "",
-    async () => reply(401, {}),
-  );
-  await expect(no.list("notes")).rejects.toMatchObject({ status: 401 });
-  const bad = docsHttp(
-    () => "t",
-    async () => reply(503, {}),
-  );
-  await expect(bad.list("notes")).rejects.toMatchObject({ status: 503 });
+  stubFetch(() => reply(401, {}));
+  await expect(list("notes")).rejects.toMatchObject({ status: 401 });
+  stubFetch(() => reply(503, {}));
+  await expect(list("notes")).rejects.toMatchObject({ status: 503 });
+  vi.unstubAllGlobals();
 });
 
-test("list reads dates, sets and weak spots from their row routes", async () => {
+test("list reads dates, sets and weak spots from their row routes; a 401 signs out", async () => {
   const urls: string[] = [];
-  const ok = docsHttp(
-    () => "t",
-    async (url) => (
-      urls.push(url),
-      reply(200, { rows: [{ id: "set_a", v: 2, at: 5, title: "Fluids" }, { v: 1 }] })
-    ),
-  );
-  expect(await ok.list("sets")).toEqual([
+  const { list } = docsHttp(() => "t");
+  stubFetch((url) => (
+    urls.push(url),
+    reply(200, { rows: [{ id: "set_a", v: 2, at: 5, title: "Fluids" }, { v: 1 }] })
+  ));
+  expect(await list("sets")).toEqual([
     { id: "set_a", v: 2, at: 5, data: { id: "set_a", v: 2, at: 5, title: "Fluids" } },
   ]);
-  await ok.list("exams");
-  await ok.list("weakspots");
+  await list("goals");
+  await list("weakspots");
   expect(urls).toEqual(["/api/v1/sets", "/api/v1/goals", "/api/v1/weak-spots"]);
-  const no = docsHttp(
-    () => "",
-    async () => reply(401, {}),
-  );
-  await expect(no.list("exams")).rejects.toMatchObject({ status: 401 });
+  const signedOut = vi.fn();
+  window.addEventListener(UNAUTHORIZED_EVENT, signedOut);
+  stubFetch(() => reply(401, {}));
+  await expect(list("goals")).rejects.toMatchObject({ status: 401 });
+  expect(signedOut).toHaveBeenCalled();
+  window.removeEventListener(UNAUTHORIZED_EVENT, signedOut);
+  vi.unstubAllGlobals();
 });
 
 test("a note command answers with the version it wrote", async () => {

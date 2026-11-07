@@ -141,10 +141,8 @@ test("offline, the edit shows not saved and waits in the outbox; it sends when t
 });
 
 test("a refused token shows a plain sentence and no notes", async () => {
-  const http = docsHttp(
-    () => "",
-    async () => new Response("{}", { status: 401 }),
-  );
+  vi.stubGlobal("fetch", async () => new Response("{}", { status: 401 }));
+  const http = docsHttp(() => "");
   const outbox = createOutbox({
     store: memoryStore(),
     transport: http.transport,
