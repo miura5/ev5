@@ -37,6 +37,9 @@ const exam = (extra: Record<string, unknown>) => ({
   },
 });
 
+/** A draft plan row for the exam. */
+const draft = { id: "plan-j1", data: { goal_id: "x1", state: "draft" } };
+
 /** Boots the screen on the exam; commands answer with `status`; returns the command calls made. */
 function boot(examDoc: unknown, plans: unknown[] = [], status = 200) {
   localStorage.setItem("ev5.token", "t");
@@ -80,7 +83,7 @@ test("Plan with E.V. runs date.plan_with_ev for the exam", async () => {
 });
 
 test("a draft plan can be approved", async () => {
-  const sent = boot(exam({ planId: "plan-j1" }));
+  const sent = boot(exam({}), [draft]);
   fireEvent.click(await screen.findByText("Approve"));
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
@@ -90,7 +93,7 @@ test("a draft plan can be approved", async () => {
 });
 
 test("a draft plan can be put away", async () => {
-  const sent = boot(exam({ planId: "plan-j1" }));
+  const sent = boot(exam({}), [draft]);
   fireEvent.click(await screen.findByText("Put away"));
   await waitFor(() => expect(sent).toHaveLength(1));
   expect(sent[0]).toEqual({
@@ -100,7 +103,7 @@ test("a draft plan can be put away", async () => {
 });
 
 test("changes go with his note, and need one", async () => {
-  const sent = boot(exam({ planId: "plan-j1" }));
+  const sent = boot(exam({}), [draft]);
   fireEvent.click(
     await screen.findByRole("button", { name: "Ask for changes" }),
   );
@@ -118,7 +121,7 @@ test("changes go with his note, and need one", async () => {
 });
 
 test("a plan already in force shows no approve controls", async () => {
-  boot(exam({ planId: "plan-j1" }), [
+  boot(exam({}), [
     { id: "plan-j1", data: { goal_id: "x1", state: "in_force" } },
   ]);
   await screen.findByText("Review the prep plan");
@@ -135,7 +138,7 @@ test("a command the server cannot do yet says so in plain words", async () => {
 });
 
 test("any other failure shows the plain failure sentence", async () => {
-  boot(exam({ planId: "plan-j1" }), [], 500);
+  boot(exam({}), [draft], 500);
   fireEvent.click(await screen.findByText("Approve"));
   expect(
     await screen.findByText(
@@ -176,11 +179,13 @@ test("plan state maps: none, draft, approved, away", () => {
       Date.parse("2026-11-04T12:00:00Z"),
     ).exams[0]?.planState;
   expect(state([], {})).toBe("none");
-  expect(state([], { planId: "p" })).toBe("draft");
   expect(
-    state([{ id: "p", data: { state: "in_force" } }], { planId: "p" }),
+    state([{ id: "p", data: { goal_id: "x1", state: "draft" } }], {}),
+  ).toBe("draft");
+  expect(
+    state([{ id: "p", data: { goal_id: "x1", state: "in_force" } }], {}),
   ).toBe("approved");
   expect(
-    state([{ id: "p", data: { state: "put_away" } }], { planId: "p" }),
+    state([{ id: "p", data: { goal_id: "x1", state: "put_away" } }], {}),
   ).toBe("away");
 });

@@ -1,5 +1,5 @@
 name: gate5-e2e
-# Gate 5's journeys on v5 staging (never live): reads and writes /api/v1 with the app token; each journey is a @playwright/test file in the Playwright Docker image; an unbuilt journey fails. Staging-dependent, so dispatch-only (CONTRACT §drift.checks: every batch runs the e2e journeys, i.e. dispatch per batch). The study-plan journey waits for two real model rounds (a plan and one change), so the job gets 25 minutes, not 10.
+# Gate 5's journeys on v5 staging (never live): reads and writes /api/v1 with the app token; each journey is a @playwright/test file in the Playwright Docker image; an unbuilt journey fails. Staging-dependent, so dispatch-only (CONTRACT §drift.checks: every batch runs the e2e journeys, i.e. dispatch per batch). The prep-plan journey waits for two real model rounds (a plan and one change), so the job gets 25 minutes, not 10.
 on:
   workflow_dispatch:
 
