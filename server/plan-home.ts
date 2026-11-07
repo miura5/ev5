@@ -5,6 +5,7 @@
 import {
   centralDate,
   deriveWeakSpot,
+  gradedBySpot,
   lastDay,
   isActive,
   parseGoal,
@@ -13,31 +14,25 @@ import {
 import { readJobPlan } from "./job-plans.ts";
 import { goalDoc } from "./goal-wire.ts";
 import { weakSpotDocs } from "./weak-wire.ts";
-import type { DocsD1 } from "../data/index.ts";
+import { tablesRepo, type DocsD1 } from "../data/index.ts";
 import type { Attempt } from "../domain/index.ts";
 import type { D1Like } from "../jobs/index.ts";
 import type { JobRunEnv } from "./job-run.ts";
 
 /**
- * Every graded answer aimed at a weak spot, from `attempts` rows (§data.append-only): the attempt's item names the spot.
- * The Library's rule: correct at score >= 0.5; told, skipped and self-rated rows (null score) are left out.
+ * Every graded answer aimed at a weak spot, read through the gate's `attempts` and `set_items` readers (§data.gate): the
+ * attempt's item names the spot. The one rule (correct at score >= 0.5; ungraded rows left out) is domain/answers' gradedBySpot.
+ * Oldest answer first, as the scheduler reads them.
  */
-async function attemptsBySpot(db: D1Like): Promise<Map<string, Attempt[]>> {
-  const { results } = await db
-    .prepare(
-      `SELECT i.weak_spot_id AS spot, a.score AS score, a.answered_at AS at
-       FROM attempts a JOIN set_items i ON i.id = a.item_id
-       WHERE i.weak_spot_id IS NOT NULL AND i.deleted_at IS NULL AND a.score IS NOT NULL
-       ORDER BY a.answered_at, a.id`,
-    )
-    .all<{ spot: string; score: number; at: number }>();
-  const out = new Map<string, Attempt[]>();
-  for (const r of results)
-    out.set(r.spot, [
-      ...(out.get(r.spot) ?? []),
-      { at: new Date(r.at).toISOString(), correct: r.score >= 0.5 },
-    ]);
-  return out;
+async function attemptsBySpot(
+  db: D1Like,
+  clock: () => number,
+): Promise<Map<string, Attempt[]>> {
+  const t = tablesRepo(db as DocsD1, { clock });
+  const attempts = [...(await t.attempts.list())].sort(
+    (x, y) => x.answered_at - y.answered_at || x.id.localeCompare(y.id),
+  );
+  return gradedBySpot(attempts, await t.setItems.list());
 }
 
 /** The last day of a job's saved draft plan (Central date), or undefined when it has no draft or no tasks. */
@@ -64,7 +59,7 @@ export function planHome(
       const exam = parseGoal(row.data);
       const today = centralDate(clock());
       // The weak spots are rows (§data.tables); the ones whose objective is linked to this goal are aimed at it.
-      const attempts = await attemptsBySpot(db);
+      const attempts = await attemptsBySpot(db, clock);
       const spots = (await weakSpotDocs(db as DocsD1, clock)).flatMap((r) => {
         const spot = r.data;
         if (spot.exam !== goalId) return [];

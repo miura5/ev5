@@ -106,9 +106,9 @@ test("graded attempts on a weak spot's items count toward its need; null scores 
     "INSERT INTO sets (id, collection_id, kind, title, created_by, at) VALUES ('set_1', 'col_c1', 'practice', 's', 'user', 0)",
   );
   const item = (id: string, spot: string) =>
-    `INSERT INTO set_items (id, set_id, pos, type, body, weak_spot_id, at, v) VALUES ('${id}', 'set_1', 1, 'q', '{}', '${spot}', 0, 1)`;
+    `INSERT INTO set_items (id, set_id, pos, type, body, weak_spot_id, at, v) VALUES ('${id}', 'set_1', 1, 'open', '{}', '${spot}', 0, 1)`;
   const att = (id: string, itemId: string, score: string, ms: number) =>
-    `INSERT INTO attempts (id, item_id, item_v, set_id, source, how, answer, score, answered_at, at, v) VALUES ('${id}', '${itemId}', 1, 'set_1', 'practice', 'chose', NULL, ${score}, ${ms}, ${ms}, 1)`;
+    `INSERT INTO attempts (id, item_id, item_v, set_id, source, how, answer, score, answered_at, at, v) VALUES ('${id}', '${itemId}', 1, 'set_1', 'run', 'chose', NULL, ${score}, ${ms}, ${ms}, 1)`;
   const t = (d: string) => Date.parse(d);
   db.sql.exec(item("item_1", "ws_w1"));
   db.sql.exec(item("item_2", "ws_w2"));
