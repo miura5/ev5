@@ -12,7 +12,7 @@ export function Story() {
     >
       <Tile
         title="Photosynthesis and respiration"
-        meta="12 cards · Biology 101"
+        meta="12 cards · Course 101"
         value="3 due"
         onOpen={() => undefined}
       />
