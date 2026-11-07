@@ -8,7 +8,7 @@ import { read } from './lib.ts';
 // Tables made before the kind-table design, with ids that carry no kind prefix (or no row shape of their own).
 // Dated 2026-11-06; remove a name when its table moves or goes, never add one.
 const LEGACY = new Set(['docs', 'claude_usage', 'claude_reads', 'claude_settings', 'claude_plan_asks', 'system_docs', 'deletions', 'job_records', 'ceiling_use', 'ceiling_holds', 'job_plans', 'drafts', 'own_set_items', 'collections', 'memberships', 'pins', 'item_props', 'own_sets', 'own_attempts', 'ceiling_usage']);
-// Tables with no row-shape entry: the ev4 baseline's own tables.
+// Tables with no row-shape entry: the old baseline's own tables.
 const NO_SHAPE = new Set(['docs', 'claude_usage', 'claude_reads', 'claude_settings', 'claude_plan_asks', 'system_docs']);
 // Keyed by name, not by a kind-prefixed id (table design 2.14): the id rule does not apply, `at` and `v` still do.
 const KEYED = new Set(['settings']);
