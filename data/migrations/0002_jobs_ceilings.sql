@@ -1,4 +1,4 @@
--- Job records, cost ceilings, job plan content, drafts and set items for v5 jobs. Additive and idempotent; ev4 ignores them.
+-- Job records, cost ceilings, job plan content, drafts and set items for v5 jobs. Additive and idempotent.
 CREATE TABLE IF NOT EXISTS job_records (
   id TEXT PRIMARY KEY,
   data TEXT NOT NULL,
