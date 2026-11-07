@@ -27,7 +27,7 @@ const PLAN_TEXT = {
   working: "E.V. is saving the plan",
 } as const;
 
-/** The mounted view: exams, weak spots and sets from /api/v1/docs; opening a set shows its page. */
+/** The mounted view: goals, weak spots and sets from their row routes; opening a set shows its page. */
 export function LibraryScreen({
   services,
   search,
