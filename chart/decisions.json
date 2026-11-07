@@ -1,5 +1,15 @@
 [
  {
+  "id": "D-524",
+  "date": "Nov 7",
+  "title": "Open question: migration 0019 adds the settings table and a backfill outside the squash, against D-515 and D-506; the chain range differs between D-514, the handover and main",
+  "why": "Audit 2026-11-07 1250Z finding 4 (audits/ev5-audit-2026-11-07-1250.md in the ev-build project folder), checked on main 73eaff2. PR #735 (no task named) added data/migrations/0019_settings.sql: a new settings table and INSERT ... SELECT FROM claude_settings. D-515 put the settings table in the squash and rejected separate table-rebuild migrations now; D-506 ended backfills. D-514 names the chain 0000 to 0016, the handover 0000 to 0018, and main has 0019. For the build manager to decide: (1) amend D-515 so 0019 stands until the squash, which then builds settings in final shape with no backfill, or (2) fold 0019 into the squash now. Either way, restate D-514's range as the whole chain at squash time and fix the handover wording. Filing view, not a decision: option 1, because 0019 is new (not an edit), its columns match the code, and live starts empty, so the backfill copies nothing that matters. No code change in this filing.",
+  "status": "proposed",
+  "supersedes": [],
+  "amends": [],
+  "source": "ev5 audit 2026-11-07 1250Z"
+ },
+ {
   "id": "D-523",
   "date": "Nov 6",
   "title": "Handover size headroom: AGENTS.md §7 says to keep docs/handover.md under about 3,500 bytes and run npm run checks before opening the handover PR",
