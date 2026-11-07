@@ -1,6 +1,5 @@
 // What a Workflow instance does (CONTRACT §job.steps): pick the job kind's definition and handlers, then runJob.
 // Kept apart from the WorkflowEntrypoint class so tests run it in Node with the fake Workflows and no Cloudflare runtime.
-import { parseSettingRow } from "../domain/index.ts";
 import { readJobPlan } from "./job-plans.ts";
 import { tablesRepo } from "../data/index.ts";
 import type { DocsD1 } from "../data/index.ts";
@@ -68,15 +67,9 @@ const CEILING_KEYS = {
   perJob: "ceiling_per_job",
 };
 export async function loadCeilingConfig(db: D1Like): Promise<CeilingConfig> {
-  const { results } = await db
-    .prepare("SELECT key, value, at, v FROM settings")
-    .all<unknown>();
-  const by = new Map(
-    results.map((r) => {
-      const s = parseSettingRow(r);
-      return [s.key, s.value] as const;
-    }),
-  );
+  const by = await tablesRepo(db as DocsD1, {
+    clock: () => Date.now(),
+  }).settings.readNumbers();
   const n = (k: keyof CeilingConfig) =>
     by.get(CEILING_KEYS[k]) ?? DEFAULT_CEILINGS[k];
   return {
