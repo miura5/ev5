@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# One build run at a time (AGENTS.md §3 step 0). The lock is the branch claude/build-lock on origin.
-# Its newest commit message says "held by <run> <time>" or "released by <run> <time>".
+# One build run at a time per lane (AGENTS.md §3 step 0). Lane a's lock is the branch claude/build-lock on origin,
+# lane b's is claude/build-lock-b. Its newest commit message says "held by <run> <time>" or "released by <run> <time>".
 # Taking or renewing pushes a child commit without force, so two runs that race cannot both win:
 # the second push is not a fast-forward and GitHub rejects it.
+#
+# The first argument may name the lane (a or b); without it the lane is a:  ops/build-lock.sh b take
 #
 #   ops/build-lock.sh take      exit 0: this run holds the lock; while another holds it, retries every 60 s for up to
 #                               LOCK_WAIT seconds (default 450, so one call fits a 10-minute Bash timeout); exit 3: still
@@ -13,8 +15,12 @@
 #
 # A "held" lock older than 75 minutes is stale (its run died) and may be taken.
 set -u
-REF=refs/heads/claude/build-lock
-LOCAL=refs/remotes/origin/build-lock
+LANE=a
+case "${1:-}" in a | b) LANE=$1; shift ;; esac
+CMD="${1:-status}"
+if [ "$LANE" = a ]; then BRANCH=claude/build-lock; else BRANCH=claude/build-lock-b; fi
+REF=refs/heads/$BRANCH
+LOCAL=refs/remotes/origin/${BRANCH#claude/}
 STALE=4500
 WAIT="${LOCK_WAIT:-450}"
 ME="${CLAUDE_CODE_REMOTE_SESSION_ID:-${BUILD_RUN_ID:-}}"
@@ -25,6 +31,15 @@ if [ -z "$ME" ]; then
 fi
 
 read_lock() { # sets TIP, SUBJ, AGE from origin
+  if [ "$CMD" = take ] && ! git ls-remote --exit-code -q origin "$REF" >/dev/null 2>&1; then
+    # A lane's first take makes its lock branch: one root commit, pushed without force, so two first takes cannot both win.
+    local root
+    root=$(git commit-tree "$(git mktree </dev/null)" -m "released by setup $(date -u +%FT%TZ)") || exit 2
+    git push -q origin "$root:$REF" 2>/dev/null || true
+  elif [ "$CMD" = status ] && ! git ls-remote --exit-code -q origin "$REF" >/dev/null 2>&1; then
+    echo "LOCK: free (lane $LANE's lock was never taken)"
+    exit 0
+  fi
   git fetch -q origin "+$REF:$LOCAL" || { echo "LOCK: cannot read $REF" >&2; exit 2; }
   TIP=$(git rev-parse "$LOCAL")
   SUBJ=$(git log -1 --format=%s "$TIP")
@@ -38,7 +53,7 @@ move() { # $1 = new message; pushes a child of TIP
   git push -q origin "$new:$REF" 2>/dev/null
 }
 
-case "${1:-status}" in
+case "$CMD" in
   status)
     echo "LOCK: $SUBJ ($((AGE / 60)) min ago)"
     ;;
@@ -81,7 +96,7 @@ case "${1:-status}" in
     esac
     ;;
   *)
-    echo "usage: ops/build-lock.sh take|renew|release|status" >&2
+    echo "usage: ops/build-lock.sh [a|b] take|renew|release|status" >&2
     exit 2
     ;;
 esac
