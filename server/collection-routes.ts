@@ -165,11 +165,12 @@ collectionRoutes.get("/deletions", async (c) => {
     `SELECT c, id, at FROM deletions${coll === undefined ? "" : legacy ? " WHERE c IN ('set_items', 'own_set_items')" : " WHERE c = ?"} ORDER BY at DESC, c, id LIMIT ${LIMIT}`,
     coll === undefined || legacy ? [] : [coll],
   );
+  const SET_ITEMS = "set_items";
   const seen = new Map<string, DeletionRow>();
   for (const r of raw) {
     const row =
       r.c === "own_set_items"
-        ? { ...r, c: "set_items", id: r.id.slice(r.id.indexOf("/") + 1) }
+        ? { ...r, c: SET_ITEMS, id: r.id.slice(r.id.indexOf("/") + 1) }
         : r;
     const key = `${row.c}/${row.id}`;
     if (!seen.has(key) || (seen.get(key) as DeletionRow).at < row.at)
