@@ -61,7 +61,7 @@ test("an empty record is seeded through commands only, as the app token", async 
     "set.create", "set.item_add", "set.item_add",
   ]);
   for (const c of w.calls) assert.equal(c.auth, `Bearer ${TOKEN}`);
-  // Reads are GETs; every write is a command POST (§data.gate): nothing is PUT to /docs.
+  // Reads are GETs; every write is a command POST (§data.gate).
   assert.ok(w.calls.every((c) => c.method === "POST" ? c.path.startsWith("/api/v1/commands/") : c.method === "GET"));
 });
 
