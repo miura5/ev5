@@ -18,8 +18,58 @@ export const text = (v: unknown): Val =>
 export interface TablesOptions {
   /** The Worker clock, in ms. */
   clock: () => number;
-  /** Told about each stored row a list left out because it did not parse (default: dropped silently). */
-  onBad?: (b: { table: string; reason: string }) => void;
+  /** Told about each stored row a read left out because it did not parse: table, row id and reason, never row text (default: logged). */
+  onBad?: (b: { table: string; id: string; reason: string }) => void;
+}
+
+/** A list that left rows out says so: `left_out` counts the stored rows that did not parse (§data.gate). */
+export type Listed<T> = T[] & { left_out: number };
+export function listed<T>(rows: T[], leftOut: number): Listed<T> {
+  // not enumerable: equality and JSON ignore it
+  return Object.defineProperty(rows, "left_out", {
+    value: leftOut,
+  }) as Listed<T>;
+}
+
+/** Why a row did not parse, without its text: Zod issues as path and code, anything else as the error's name. */
+export function reasonOf(e: unknown): string {
+  const issues = (e as { issues?: unknown } | null)?.issues;
+  if (Array.isArray(issues))
+    return issues
+      .map(
+        (i: { path?: unknown[]; code?: string }) =>
+          `${(i.path ?? []).join(".") || "(row)"}: ${i.code ?? "invalid"}`,
+      )
+      .join("; ");
+  return e instanceof Error ? e.name : "unreadable";
+}
+
+/** Reports one unreadable row through `onBad`, or logs it when none was given. */
+export function reportBad(
+  opts: TablesOptions,
+  table: string,
+  id: string,
+  e: unknown,
+): void {
+  const b = { table, id, reason: reasonOf(e) };
+  if (opts.onBad) opts.onBad(b);
+  else console.warn(`bad row left out: ${b.table}/${b.id}: ${b.reason}`);
+}
+
+const CONFLICT =
+  /UNIQUE constraint failed|PRIMARY ?KEY|SQLITE_CONSTRAINT_(UNIQUE|PRIMARYKEY)/i;
+
+/**
+ * An insert that failed: true when it was a unique or primary-key violation (the row is already there: a conflict).
+ * Any other failure is logged without row values and rethrown with its cause.
+ */
+export function insertConflict(table: string, e: unknown): true {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (CONFLICT.test(msg)) return true;
+  console.error(
+    `insert into ${table} failed: ${e instanceof Error ? e.name : "error"}`,
+  );
+  throw new Error(`insert into ${table} failed`, { cause: e });
 }
 
 export type Input<T> = Omit<T, "at" | "v">;
@@ -30,19 +80,18 @@ export function readRows<T>(
   rows: Raw[],
   parse: (r: Raw) => T,
   opts: TablesOptions,
-): T[] {
+): Listed<T> {
   const out: T[] = [];
+  let left = 0;
   for (const r of rows) {
     try {
       out.push(parse(r));
     } catch (e) {
-      opts.onBad?.({
-        table,
-        reason: e instanceof Error ? e.message : String(e),
-      });
+      left++;
+      reportBad(opts, table, String(r.id ?? r.item_id ?? r.job_id ?? "?"), e);
     }
   }
-  return out;
+  return listed(out, left);
 }
 
 export function core(db: D1Like, opts: TablesOptions) {
@@ -88,7 +137,8 @@ export function core(db: D1Like, opts: TablesOptions) {
           )
           .bind(...keyVals, ...vals, at, 1)
           .run();
-      } catch {
+      } catch (e) {
+        insertConflict(table, e);
         return { ok: false, conflict: true, current: null }; // lost a race to another insert
       }
       return { ok: true, row };

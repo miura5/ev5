@@ -9,6 +9,7 @@ import { gateRow } from "./gate.ts";
 import {
   core,
   iso,
+  insertConflict,
   json,
   readRows,
   type Input,
@@ -118,7 +119,8 @@ export function ownRepo(db: D1Like, opts: TablesOptions) {
             )
             .bind(a.setId, a.itemId, a.key, at, JSON.stringify(a.body))
             .run();
-        } catch {
+        } catch (e) {
+          insertConflict("own_attempts", e);
           return { ok: false, conflict: true, current: null };
         }
         return { ok: true, row };

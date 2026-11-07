@@ -11,7 +11,7 @@ import {
   type JobRecordRow,
 } from "../../domain/index.ts";
 import type { D1Like, D1Statement } from "../docs/d1.ts";
-import type { TablesOptions } from "./core.ts";
+import { insertConflict, type TablesOptions } from "./core.ts";
 import { gateRow } from "./gate.ts";
 
 export type CeilingWindow = "hour" | "day" | "month" | "job";
@@ -117,7 +117,8 @@ export function jobStoresRepo(db: D1Like, opts: TablesOptions) {
               .bind(row.id, data, opts.clock())
               .run();
             return true;
-          } catch {
+          } catch (e) {
+            insertConflict("job_records", e);
             return false; // the id exists: a stale create
           }
         }
