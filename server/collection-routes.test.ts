@@ -184,3 +184,33 @@ test("a set item filter reads the older own_set_items row as set_items", async (
     [["set_items", "item_1", "Which lab is highest priority?"]],
   );
 });
+
+test("an old own_set_items key reads as the item's id; one with no item behind it is hidden", async () => {
+  const DB = sqliteD1();
+  await DB.prepare(
+    "CREATE TABLE deletions (c TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (c, id))",
+  ).run();
+  await DB.prepare(
+    `INSERT INTO set_items (id, set_id, pos, type, body, at) VALUES ('item_q1','set_1',1,'single','{"stem":"Old stem"}',1)`,
+  ).run();
+  for (const [c, id, at] of [
+    ["own_set_items", "set_1/q1", 5],
+    ["own_set_items", "set_1/item_q1", 6],
+    ["own_set_items", "set_1/gone", 7],
+  ])
+    await DB.prepare("INSERT INTO deletions VALUES (?, ?, ?)")
+      .bind(c, id, at)
+      .run();
+  const env = { DB, TOKEN_APP: "app-t" } as unknown as Env;
+  const res = await app.request(
+    "/api/v1/deletions",
+    { headers: { authorization: "Bearer app-t" } },
+    env,
+  );
+  const body = (await res.json()) as {
+    deletions: { id: string; title: string | null }[];
+  };
+  assert.deepEqual(body.deletions, [
+    { collection: "set_items", id: "item_q1", at: 6, title: "Old stem" },
+  ]);
+});

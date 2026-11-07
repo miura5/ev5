@@ -47,6 +47,9 @@ export function setsRepo(db: D1Like, opts: TablesOptions) {
       /** Removes an item from its set (soft); its versions and its attempts stay. */
       removeItem: (id: string, ifVersion: number) =>
         k.setItems.remove(id, ifVersion),
+      /** One item by its id; `deleted: true` also reads a removed one. */
+      getItem: (id: string, o: { deleted?: boolean } = {}) =>
+        k.setItems.get(id, o),
       /** Brings a removed item back. */
       restoreItem: (id: string, ifVersion: number) =>
         k.setItems.restore(id, ifVersion),
