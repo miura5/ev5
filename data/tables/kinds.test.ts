@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { migratedDb, sqliteD1 } from "../export/sqlite-d1.testkit.ts";
 import { tablesRepo } from "./tables.ts";
 import { WriteRefused } from "./gate.ts";
+import type { Fields } from "./kinds.ts";
+import type { AttemptRow } from "../../domain/index.ts";
 
 function make() {
   const db = migratedDb();
@@ -138,7 +140,7 @@ test("append-only tables add rows and refuse a repeated id", async () => {
   const { repo } = make();
   assert.equal("save" in repo.attempts, false);
   assert.equal("remove" in repo.attempts, false);
-  const att = {
+  const att: Fields<AttemptRow> = {
     id: "att_1",
     item_id: "item_1",
     item_v: 1,
@@ -150,7 +152,7 @@ test("append-only tables add rows and refuse a repeated id", async () => {
     score: 1,
     answered_at: 5,
     was_due: null,
-  } as const;
+  };
   const a = await repo.attempts.add(att);
   assert.ok(a.ok && a.row.v === 1);
   assert.deepEqual((await repo.attempts.get("att_1"))?.answer, { chosen: [0] });

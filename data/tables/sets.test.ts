@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { migratedDb, sqliteD1 } from "../export/sqlite-d1.testkit.ts";
 import { tablesRepo } from "./tables.ts";
 import { WriteRefused } from "./gate.ts";
+import type { Fields } from "./kinds.ts";
+import type { SetItemRow } from "../../domain/index.ts";
 
 const set = {
   id: "set_1",
@@ -16,7 +18,7 @@ const set = {
   focus: null,
   asked: null,
 } as const;
-const item = {
+const item: Fields<SetItemRow> = {
   id: "item_1",
   set_id: "set_1",
   pos: 1,
@@ -25,7 +27,7 @@ const item = {
   objective_id: null,
   weak_spot_id: null,
   source_ref: null,
-} as const;
+};
 
 async function make() {
   let now = 1_000;

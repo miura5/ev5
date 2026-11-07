@@ -151,7 +151,11 @@ test("a row the domain refuses is not written, and a bad stored row is skipped a
   assert.equal(bad.length, 1);
   assert.equal(bad[0]?.table, "collections");
   assert.equal(bad[0]?.id, "c2");
-  assert.equal(list.left_out, 1, "the list says it left a row out");
+  assert.equal(
+    Object.getOwnPropertyDescriptor(list, "left_out")?.value,
+    1,
+    "the list says it left a row out",
+  );
   assert.ok(!bad[0]?.reason.includes("{"), "the reason carries no row text");
 });
 
