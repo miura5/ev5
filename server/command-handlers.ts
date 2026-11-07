@@ -168,8 +168,12 @@ export const commandHandlers: Record<string, CommandHandler> = {
     const c = coll
       ? "collections"
       : await collectionOf(t, i.id, { deleted: true });
-    const restored = await t.deletions.restore(c, i.id);
-    if (coll?.deleted_at != null) await t.collectionRows.restore(i.id, coll.v);
+    let restored = await t.deletions.restore(c, i.id);
+    if (coll?.deleted_at != null) {
+      await t.collectionRows.restore(i.id, coll.v);
+      restored ||= 1;
+    }
+    // A row that came back counts even when its Recently deleted entry was already gone (a retry after a partial restore).
     if (!restored)
       throw new CommandError(404, `${i.id} is not in Recently deleted`);
     return { restored };

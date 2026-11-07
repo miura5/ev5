@@ -9,6 +9,7 @@ const dir = new URL("../migrations/", import.meta.url);
 function make(
   onBad?: (b: { table: string; id: string; reason: string }) => void,
 ) {
+  const failing: { sql: string | null } = { sql: null };
   const db = new DatabaseSync(":memory:");
   for (const f of readdirSync(dir)
     .filter((f) => /^\d{4}_.*\.sql$/.test(f))
@@ -22,19 +23,34 @@ function make(
         first: async <T>() =>
           (db.prepare(sql).get(...args) ?? null) as T | null,
         all: async <T>() => ({ results: db.prepare(sql).all(...args) as T[] }),
-        run: async () => ({
-          meta: { changes: Number(db.prepare(sql).run(...args).changes) },
-        }),
+        run: async () => {
+          if (failing.sql && sql.startsWith(failing.sql))
+            throw new Error("boom");
+          return {
+            meta: { changes: Number(db.prepare(sql).run(...args).changes) },
+          };
+        },
       };
       return st;
     },
+    // One transaction, like D1: if a statement throws, none applies.
     async batch(s) {
-      return Promise.all(s.map((x) => x.run()));
+      db.exec("BEGIN");
+      try {
+        const out = [];
+        for (const x of s) out.push(await x.run());
+        db.exec("COMMIT");
+        return out;
+      } catch (e) {
+        db.exec("ROLLBACK");
+        throw e;
+      }
     },
   };
   let now = 1_000;
   return {
     db,
+    failing,
     repo: tablesRepo(d1, { clock: () => (now += 1000), onBad }),
   };
 }
@@ -91,4 +107,34 @@ test("a session is soft-deleted by a row mark, hidden from reads and found again
   );
   assert.equal(await repo.deletions.restore("sessions", "ses_a"), 1);
   assert.equal((await repo.sessionBook.get("ses_a"))?.row.v, 3);
+});
+
+test("a delete and a restore are each one batch: a failing second statement leaves nothing half applied", async () => {
+  const { db, repo, failing } = make();
+  db.exec(
+    "INSERT INTO sets (id, kind, created_by, at) VALUES ('set_f', 'practice', 'matt', 1)",
+  );
+  const deleted = () =>
+    (
+      db.prepare("SELECT deleted_at FROM sets WHERE id = 'set_f'").get() as {
+        deleted_at: number | null;
+      }
+    ).deleted_at;
+  const listed = () => db.prepare("SELECT * FROM deletions").all().length;
+
+  failing.sql = "INSERT INTO deletions";
+  await assert.rejects(repo.deletions.markSet("set_f"));
+  assert.equal(deleted(), null);
+  failing.sql = null;
+  assert.equal(await repo.deletions.markSet("set_f"), true);
+  assert.equal(listed(), 1);
+
+  failing.sql = "UPDATE sets";
+  await assert.rejects(repo.deletions.restore("sets", "set_f"));
+  assert.equal(listed(), 1);
+  assert.notEqual(deleted(), null);
+  failing.sql = null;
+  assert.equal(await repo.deletions.restore("sets", "set_f"), 1);
+  assert.equal(listed(), 0);
+  assert.equal(deleted(), null);
 });
