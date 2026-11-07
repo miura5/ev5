@@ -79,3 +79,20 @@ test('deletions soft-deletes: a row is added, no document is removed', () => {
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM docs').get()?.n, 1);
   assert.throws(() => db.exec("INSERT INTO deletions (c, id, at) VALUES ('notes', 'n1', 3)"));
 });
+
+test('every backfill migration is applied by a test of its own', () => {
+  // The loops above apply each file to an empty database, which proves nothing for a backfill (no rows to move).
+  // A backfill needs a test, beside its folder or in data/tables, that names the file (or its name without the number) and runs it on rows.
+  const tests: string[] = [];
+  const walk = (dir: URL): void => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) walk(new URL(`${e.name}/`, dir));
+      else if (/\.test\.ts$/.test(e.name) && e.name !== 'migrations.test.ts') tests.push(readFileSync(new URL(e.name, dir), 'utf8'));
+    }
+  };
+  for (const d of ['../tables/', '../../server/', './']) walk(new URL(d, import.meta.url));
+  for (const m of migrations.filter((f) => /_backfill\.sql$/.test(f))) {
+    const bare = m.replace(/^\d{4}_/, '').replace(/\.sql$/, '');
+    assert.ok(tests.some((t) => t.includes(m.replace(/\.sql$/, '')) || t.includes(`_${bare}.sql`)), `${m} is not applied by any test`);
+  }
+});
