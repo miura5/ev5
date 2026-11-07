@@ -109,21 +109,31 @@ export function CollectionScreen({
         }
         onOpen={open}
         targets={data?.all ?? []}
-        onMove={(eid, collection) =>
-          void call("item.move", { id: eid, collection }, token).then((r) => {
+        onMove={(eid, collection) => {
+          const v = [...(data?.items ?? []), ...(data?.nested ?? [])].find(
+            (x) => x.id === eid,
+          )?.v;
+          if (!v) return setFailed("that item changed; try again");
+          void call(
+            "item.move",
+            { id: eid, collection, if_version: v },
+            token,
+          ).then((r) => {
             setFailed(r.ok ? undefined : r.reason);
             if (r.ok) reload();
-          })
-        }
+          });
+        }}
         onRename={(title) => {
           const t = title.replace(/\s+/g, " ").trim();
           if (!data || !t || t === data.title) return reload();
-          void call("item.rename", { id: data.id, title: t }, token).then(
-            (r) => {
-              setFailed(r.ok ? undefined : r.reason);
-              reload();
-            },
-          );
+          void call(
+            "item.rename",
+            { id: data.id, title: t, if_version: data.v },
+            token,
+          ).then((r) => {
+            setFailed(r.ok ? undefined : r.reason);
+            reload();
+          });
         }}
         onNewHere={newHere}
         focusTitle={fresh}

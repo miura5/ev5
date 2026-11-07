@@ -9,14 +9,15 @@ async function aSet() {
   const s = await setup();
   const set = (await s.call("set.create", { title: "Fluids" })).body.result.set
     .id as string;
-  await s.call("set.update", { id: set, title: "Fluids 2" }); // v2
+  await s.call("set.update", { id: set, title: "Fluids 2", if_version: 1 }); // v2
   return { ...s, set };
 }
 
 test("set.update: a stale if_version is 409 and writes nothing", async () => {
   const { call, set } = await aSet();
   assert.equal(
-    (await call("set.update", { id: set, title: "Late", if_version: 1 })).status,
+    (await call("set.update", { id: set, title: "Late", if_version: 1 }))
+      .status,
     409,
   );
   const ok = await call("set.update", { id: set, title: "Now", if_version: 2 });
@@ -27,11 +28,13 @@ test("set.update: a stale if_version is 409 and writes nothing", async () => {
 test("item.rename: stale 409 on a set, current runs", async () => {
   const { call, set } = await aSet();
   assert.equal(
-    (await call("item.rename", { id: set, title: "Late", if_version: 1 })).status,
+    (await call("item.rename", { id: set, title: "Late", if_version: 1 }))
+      .status,
     409,
   );
   assert.equal(
-    (await call("item.rename", { id: set, title: "Now", if_version: 2 })).status,
+    (await call("item.rename", { id: set, title: "Now", if_version: 2 }))
+      .status,
     200,
   );
 });
@@ -40,7 +43,7 @@ test("item.rename: stale 409 on a collection", async () => {
   const { call } = await setup();
   const id = (await call("collection.create", { title: "A" })).body.result
     .collection.id as string;
-  await call("item.rename", { id, title: "B" }); // v2
+  await call("item.rename", { id, title: "B", if_version: 1 }); // v2
   assert.equal(
     (await call("item.rename", { id, title: "C", if_version: 1 })).status,
     409,
@@ -56,11 +59,13 @@ test("item.move: stale 409 on a set, current runs", async () => {
   const col = (await call("collection.create", { title: "BIO" })).body.result
     .collection.id as string;
   assert.equal(
-    (await call("item.move", { id: set, collection: col, if_version: 1 })).status,
+    (await call("item.move", { id: set, collection: col, if_version: 1 }))
+      .status,
     409,
   );
   assert.equal(
-    (await call("item.move", { id: set, collection: col, if_version: 2 })).status,
+    (await call("item.move", { id: set, collection: col, if_version: 2 }))
+      .status,
     200,
   );
 });
@@ -70,7 +75,12 @@ test("set.item_update: a stale if_version is 409", async () => {
   const q = "Which is normal sodium?\n- 100\n* 140\n- 180";
   const item = (await call("set.item_add", { set, text: q })).body.result.item
     .itemId as string;
-  await call("set.item_update", { set, item, text: q.replace("140", "138") }); // v2
+  await call("set.item_update", {
+    set,
+    item,
+    text: q.replace("140", "138"),
+    if_version: 1,
+  }); // v2
   const text = q.replace("140", "139");
   assert.equal(
     (await call("set.item_update", { set, item, text, if_version: 1 })).status,
@@ -102,7 +112,7 @@ test("date.update: a stale if_version is 409", async () => {
   const { call } = await setup();
   const id = (await call("date.create", { title: "Quiz", date: "2026-11-20" }))
     .body.result.id as string;
-  await call("date.update", { id, title: "Quiz 2" }); // v2
+  await call("date.update", { id, title: "Quiz 2", if_version: 1 }); // v2
   assert.equal(
     (await call("date.update", { id, title: "Late", if_version: 1 })).status,
     409,
@@ -110,5 +120,14 @@ test("date.update: a stale if_version is 409", async () => {
   assert.equal(
     (await call("date.update", { id, title: "Now", if_version: 2 })).status,
     200,
+  );
+});
+
+test("a command that changes a row by version refuses a call that names none", async () => {
+  const { call, set } = await aSet();
+  assert.equal((await call("set.update", { id: set, title: "x" })).status, 400);
+  assert.equal(
+    (await call("item.rename", { id: set, title: "x" })).status,
+    400,
   );
 });

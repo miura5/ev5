@@ -82,6 +82,7 @@ test("a date is a goals row, linked to objectives, changed in place and read fro
         id,
         title: "Skills validation",
         date: "2026-11-21",
+        if_version: 1,
       })
     ).status,
     200,
@@ -92,15 +93,18 @@ test("a date is a goals row, linked to objectives, changed in place and read fro
   assert.equal(shown.date, "2026-11-21");
   assert.equal((await get(`/api/v1/goals/${id}`)).title, "Skills validation");
   assert.equal(
-    (await call("date.update", { id: "none", title: "x" })).status,
+    (await call("date.update", { id: "none", title: "x", if_version: 1 }))
+      .status,
     404,
   );
   assert.equal(
-    (await call("date.update", { id: "goal_none", title: "x" })).status,
+    (await call("date.update", { id: "goal_none", title: "x", if_version: 1 }))
+      .status,
     404,
   );
   assert.equal(
-    (await call("date.update", { id, date: "2026-02-30" })).status,
+    (await call("date.update", { id, date: "2026-02-30", if_version: 2 }))
+      .status,
     400,
   );
   assert.equal(
@@ -126,7 +130,8 @@ test("a date is a goals row, linked to objectives, changed in place and read fro
 test("date.update changes a goal only; an id that is not a goal is a 404", async () => {
   const { call } = await setup();
   assert.equal(
-    (await call("date.update", { id: "d1", date: "2026-11-21" })).status,
+    (await call("date.update", { id: "d1", date: "2026-11-21", if_version: 1 }))
+      .status,
     404,
   );
 });
@@ -152,12 +157,14 @@ test("a date's kind comes from the registry: other by default, set on create or 
   ).body.result.id;
   assert.equal(await kindOf(exam), "exam");
   assert.equal(
-    (await call("date.update", { id: plain, kind: "exam" })).status,
+    (await call("date.update", { id: plain, kind: "exam", if_version: 1 }))
+      .status,
     200,
   );
   assert.equal(await kindOf(plain), "exam");
   assert.equal(
-    (await call("date.update", { id: plain, kind: "quiz" })).status,
+    (await call("date.update", { id: plain, kind: "quiz", if_version: 2 }))
+      .status,
     400,
   );
   assert.equal(

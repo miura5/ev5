@@ -72,8 +72,9 @@ async function note(s: Seeder, title: string, body: string, collection?: string)
     "note.create",
     collection ? { collection } : {},
   )) as { id: string };
-  await cmd(s, "note.save", { id, body });
-  await cmd(s, "item.rename", { id, title });
+  const saved = await cmd(s, "note.save", { id, body });
+  // Pinned to the version the save made (§data.protocol).
+  await cmd(s, "item.rename", { id, title, if_version: saved["version"] });
 }
 
 /** Seeds the record when it is empty; returns whether it wrote anything. Any refusal throws. */

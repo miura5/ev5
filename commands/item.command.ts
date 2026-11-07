@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { defineCommand, ref } from './define.ts';
 
 const M = { matt: 'direct' } as const;
-const ifV = z.number().int().min(1).optional();
-const to = z.object({ id: z.string().min(1), collection: z.string().min(1), if_version: ifV });
+const ifV = z.number().int().min(1);
+// 0 is an item with no membership row yet (§data.protocol); a set or a note is read at 1 or more.
+const to = z.object({ id: z.string().min(1), collection: z.string().min(1), if_version: z.number().int().min(0) });
 
 // Any item (PLAN §6.1). Delete goes to Recently deleted; nothing here purges (§hard.data-never-lost).
 export const itemCommands = [

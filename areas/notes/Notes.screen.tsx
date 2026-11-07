@@ -101,11 +101,16 @@ export function NotesScreen({
       undoToast({ id, message: what });
       reload();
     });
-  const move = (id: string, collection: string) =>
-    void call("item.move", { id, collection }, readToken()).then((r) => {
-      if (!r.ok) return setStartError(r.reason);
-      reload();
-    });
+  const move = (id: string, collection: string) => {
+    const v = notes.find((n) => n.id === id)?.v;
+    if (!v) return setStartError("that note changed; try again");
+    void call("item.move", { id, collection, if_version: v }, readToken()).then(
+      (r) => {
+        if (!r.ok) return setStartError(r.reason);
+        reload();
+      },
+    );
+  };
   const today = centralDate(Date.now());
   // A note opens for editing only from the server's answer, never from the saved copy the list opens on.
   const cur = ready ? notes.find((n) => n.id === open) : undefined;

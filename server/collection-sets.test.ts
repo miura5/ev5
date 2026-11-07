@@ -98,12 +98,19 @@ test("a set and a date can be pinned, moved, renamed and unpinned", async () => 
   for (const id of [set, goal]) {
     assert.equal((await call("item.pin", { id })).status, 200, id);
     assert.equal(
-      (await call("item.rename", { id, title: "Renamed" })).status,
+      (await call("item.rename", { id, title: "Renamed", if_version: 1 }))
+        .status,
       200,
       id,
     );
     assert.equal(
-      (await call("item.move", { id, collection: col })).status,
+      (
+        await call("item.move", {
+          id,
+          collection: col,
+          if_version: id === set ? 2 : 0,
+        })
+      ).status,
       200,
       id,
     );
