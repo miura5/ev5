@@ -67,7 +67,7 @@ test('every LIKE or GLOB pattern fits D1 (50 bytes at most)', () => {
   // D1 refuses a longer pattern ("LIKE or GLOB pattern too complex"); local SQLite allows it, so the apply test above cannot catch it.
   for (const f of migrations) {
     const sql = read(f).replace(/--.*$/gm, '');
-    for (const [, p] of sql.matchAll(/\b(?:LIKE|GLOB)\s+'((?:[^']|'')*)'/gi)) {
+    for (const [, p = ""] of sql.matchAll(/\b(?:LIKE|GLOB)\s+'((?:[^']|'')*)'/gi)) {
       assert.ok(Buffer.byteLength(p.replace(/''/g, "'")) <= 50, `${f}: pattern of ${Buffer.byteLength(p)} bytes: ${p}`);
     }
   }
