@@ -18,7 +18,7 @@ import { failureSentence } from "../../commands/client.ts";
 /** What the shell hands the screen (shell/services.ts), restated: areas never import the shell. */
 export interface NotesServices {
   readCopy?: ReadCopyLike;
-  docs: {
+  rows: {
     list(
       collection: string,
       copy?: ReadCopyLike,
@@ -90,7 +90,7 @@ export function useNotes(services?: NotesServices): NotesState {
       // All four reads go out at once; the tolerant two never fail the list.
       const read = async (c: ReadCopyLike | undefined) => {
         const [rows, gone, cs] = await Promise.all([
-          services.docs.list("notes", c),
+          services.rows.list("notes", c),
           readDeletedNoteIds(c),
           readCollections(c),
         ]);

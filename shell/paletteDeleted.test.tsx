@@ -21,7 +21,7 @@ test("a note in Recently deleted is not offered by ⌘K, and is again once resto
     notes: [{ id: "n-1", v: 1, at: 1, data: { title: "Heart failure" } }],
   } as Record<string, { id: string; v: number; at: number; data: unknown }[]>;
   const services = {
-    docs: { list: async (c: string) => rows[c] ?? [] },
+    rows: { list: async (c: string) => rows[c] ?? [] },
     outbox: {},
   } as unknown as NonNullable<Parameters<typeof Shell>[0]["services"]>;
   const open = async () => {

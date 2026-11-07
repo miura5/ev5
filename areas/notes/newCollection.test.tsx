@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 const services: NotesServices = {
-  docs: { list: async () => [] },
+  rows: { list: async () => [] },
   outbox: { queueNote: vi.fn(), replay: vi.fn(async () => ({ refused: [] })) },
 };
 
