@@ -28,7 +28,40 @@ export default defineConfig({
     }),
   ],
   test: {
-    environment: "jsdom",
-    include: ["areas/**/*.test.{ts,tsx}", "shell/**/*.test.{ts,tsx}", "kit/**/*.test.{ts,tsx}", "domain/**/*.test.ts", "commands/**/*.test.ts"],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "dom",
+          environment: "jsdom",
+          include: [
+            "areas/**/*.test.{ts,tsx}",
+            "shell/**/*.test.{ts,tsx}",
+            "kit/**/*.test.{ts,tsx}",
+            // the browser-side command client needs window
+            "commands/client.*.test.ts",
+          ],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "node",
+          environment: "node",
+          // data, jobs and server join when lane A converts their node:test files.
+          include: ["domain/**/*.test.ts", "commands/**/*.test.ts", "ops/**/*.test.{ts,mjs}"],
+          exclude: ["ops/guards/**", "commands/client.*.test.ts", "**/node_modules/**"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "ops-guards",
+          environment: "node",
+          include: ["ops/guards/**/*.test.ts"],
+          testTimeout: 120_000,
+        },
+      },
+    ],
   },
 });

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { checkOldShapes } from './oldshapes.ts';
 
 test('old-shapes: SQL on docs, an old collection name or the old envelope fails in non-test source only', () => {

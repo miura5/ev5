@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import { checkChartEv4 } from './chartev4.ts';
 
 test('chart-paths: an open task whose done bar names an old-app path fails; done tasks and v5 paths pass', () => {
