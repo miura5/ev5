@@ -14,7 +14,7 @@ interface Call {
 }
 
 /** A fake Worker: answers the two reads with `record`, each command with a plausible result, or `fail` with a 400. */
-function fakeWorker(record: { notes?: unknown[]; exams?: unknown[] }, fail?: string) {
+function fakeWorker(record: { notes?: unknown[]; goals?: unknown[] }, fail?: string) {
   const calls: Call[] = [];
   let n = 0;
   const fetch = async (
@@ -34,10 +34,10 @@ function fakeWorker(record: { notes?: unknown[]; exams?: unknown[] }, fail?: str
             ? { set: { id: "set_1" } }
             : {};
     const answer =
-      path === "/api/v1/docs?collection=notes"
-        ? { docs: record.notes ?? [] }
-        : path === "/api/v1/docs?collection=exams"
-          ? { docs: record.exams ?? [] }
+      path === "/api/v1/notes"
+        ? { rows: record.notes ?? [] }
+        : path === "/api/v1/goals"
+          ? { rows: record.goals ?? [] }
           : { mode: "direct", result };
     const status = name === fail ? 400 : 200;
     return { status, text: async () => JSON.stringify(status === 200 ? answer : { error: "no" }) };
@@ -81,7 +81,7 @@ test("the seed's inputs: one date of each kind ahead of today, the set and a not
 test("a record with notes, or with the seeded exam, is left alone", async () => {
   for (const record of [
     { notes: [{ id: "n-1" }] },
-    { exams: [{ id: "goal_1", data: { title: SEED.exam } }] },
+    { goals: [{ id: "goal_1", title: SEED.exam }] },
   ]) {
     const w = fakeWorker(record);
     assert.equal(await seed(w.s), false);
@@ -90,7 +90,7 @@ test("a record with notes, or with the seeded exam, is left alone", async () => 
 });
 
 test("another date does not stop the seed; a refused command stops it loudly", async () => {
-  const w = fakeWorker({ exams: [{ id: "goal_9", data: { title: "Some other date" } }] });
+  const w = fakeWorker({ goals: [{ id: "goal_9", title: "Some other date" }] });
   assert.equal(await seed(w.s), true);
   await assert.rejects(seed(fakeWorker({}, "date.create").s), /date\.create: 400/);
 });

@@ -45,9 +45,13 @@ async function call(s: Seeder, method: string, path: string, body?: unknown) {
   return JSON.parse(text) as Record<string, unknown>;
 }
 
-const docs = async (s: Seeder, collection: string) =>
-  ((await call(s, "GET", `/api/v1/docs?collection=${collection}`))["docs"] ??
-    []) as { id: string; data?: { title?: unknown } }[];
+/** Rows of one kind over its row route (GET /api/v1/notes, /goals), not the old /docs read. */
+const rows = async (s: Seeder, path: "notes" | "goals") =>
+  ((await call(s, "GET", `/api/v1/${path}`))["rows"] ?? []) as {
+    id: string;
+    title?: unknown;
+    kind?: unknown;
+  }[];
 
 /** Runs one command and returns its result. */
 async function cmd(s: Seeder, name: string, input: unknown) {
@@ -58,8 +62,8 @@ async function cmd(s: Seeder, name: string, input: unknown) {
 
 /** Empty means no notes and no seeded exam: anything else is a record someone (or an earlier seed) wrote. */
 export async function isEmpty(s: Seeder): Promise<boolean> {
-  if ((await docs(s, "notes")).length) return false;
-  return !(await docs(s, "exams")).some((d) => d.data?.title === SEED.exam);
+  if ((await rows(s, "notes")).length) return false;
+  return !(await rows(s, "goals")).some((g) => g.title === SEED.exam);
 }
 
 async function note(s: Seeder, title: string, body: string, collection?: string) {
