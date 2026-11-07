@@ -4,7 +4,6 @@
 import { spawnSync } from 'node:child_process';
 import { checkAccount } from './account.ts';
 import { checkChartEv4 } from './chartev4.ts';
-import { checkControls } from './controls.ts';
 import { checkCompatImport } from './compatimport.ts';
 import { checkEv4Word } from './ev4word.ts';
 import { checkRestoreKind } from './restorekind.ts';
@@ -17,11 +16,8 @@ import { checkMigrationShape } from './migrationshape.ts';
 import { checkModelsAge } from './models.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
-import { checkRadix } from './radix.ts';
-import { checkRegistry } from './registry.ts';
 import { checkRules } from './rules.ts';
 import { checkSecrets } from './secrets.ts';
-import { checkServerWrites } from './serverwrites.ts';
 import { checkSourceIds } from './sourceids.ts';
 import { checkStack } from './stack.ts';
 import { checkUnusedExports } from './unusedexports.ts';
@@ -42,7 +38,6 @@ const findings = [
   ...checkAccount(root, files),
   ...checkChartEv4(root, files),
   ...checkCompatImport(root, files),
-  ...checkControls(root, files),
   ...checkEv4Word(root, files),
   ...checkHandover(root, files),
   ...checkIds(root, files),
@@ -50,12 +45,9 @@ const findings = [
   ...checkMigrationShape(root, files),
   ...checkPlanJob(root, files),
   ...checkPresence(root, files),
-  ...checkRadix(root, files),
-  ...checkRegistry(root, files),
   ...checkRestoreKind(root, files),
   ...checkRules(root, files),
   ...checkSecrets(root, files),
-  ...checkServerWrites(root, files),
   ...checkSourceIds(root, files),
   ...checkStack(root, files),
   ...checkSubjectWords(root, files),

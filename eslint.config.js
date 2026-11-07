@@ -19,10 +19,6 @@ const areaWriteSyntax = [
 
 const areaSyntax = [
   {
-    selector: "ExportAllDeclaration",
-    message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
-  },
-  {
     selector: "MemberExpression[property.name=/^toLocale(Date|Time)String$/]",
     message: "Format dates and times through domain/time, not toLocaleDateString or toLocaleTimeString (§job.schedule).",
   },
@@ -39,6 +35,58 @@ const areaSyntax = [
     message: "A screen reads its address from the shell's search and path props and moves with onNavigate, never location or history (wouter-only-in-shell).",
   },
 ];
+
+const exportAll = {
+  selector: "ExportAllDeclaration",
+  message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
+};
+
+// SQL lives in data/ only (§data.gate, §data.protocol): no other folder (tests and ops aside) holds a prepare() with an
+// INSERT, UPDATE, DELETE or REPLACE. A write belongs in a data/ repository, where the version pin and the Worker clock apply.
+const sqlWrite = "/^\\s*(INSERT|UPDATE|DELETE|REPLACE)\\b/i";
+const sqlAny = "/^\\s*(SELECT|WITH|INSERT|UPDATE|DELETE|REPLACE)\\b/i";
+const sqlSyntax = (re, message) => [
+  { selector: `CallExpression[callee.property.name='prepare'] > Literal:first-child[value=${re}]`, message },
+  { selector: `CallExpression[callee.property.name='prepare'] > TemplateLiteral:first-child > TemplateElement:first-child[value.raw=${re}]`, message },
+];
+const sqlWriteSyntax = sqlSyntax(sqlWrite, "SQL writes live in data/; move this to a data/ repository (§data.gate).");
+// In jobs/ no SQL at all: the job runtime reads and writes through data/ repositories.
+const sqlAnySyntax = sqlSyntax(sqlAny, "jobs/ holds no SQL; read and write through a data/ repository (§data.gate).");
+
+// Registry: no tool or command is defined outside commands/; the registry generates the rest.
+const registryMessage = "A tool or command is defined in commands/ only; the registry generates the rest.";
+const registrySyntax = [
+  { selector: "Property[key.name='input_schema'], Property[key.value='input_schema']", message: registryMessage },
+  { selector: "CallExpression[callee.name=/^(registerTool|defineTool|registerCommand|defineCommand)$/]", message: registryMessage },
+];
+
+// Kit-only controls (§ui.kit-leads): a view under areas/ or shell/ draws no raw input, button, select or textarea.
+const controlsSyntax = [
+  {
+    selector: "JSXOpeningElement[name.name=/^(input|button|select|textarea)$/]",
+    message: "Use the kit component (Button, Field, TextArea, Choice, TextOptions...), adding it to kit/ first if missing (§ui.kit-leads).",
+  },
+];
+// In kit/ a checkbox input is the hidden twin of a drawn box: one without a className is the browser's own.
+const kitCheckboxSyntax = [
+  {
+    selector: "JSXOpeningElement[name.name='input']:has(JSXAttribute[name.name='type'][value.value='checkbox']):not(:has(JSXAttribute[name.name='className']))",
+    message: 'A raw <input type="checkbox">: draw the kit box beside it (className) as design/mockup.html .check .box (§ui.kit-leads).',
+  },
+];
+
+// Radix (§ui.mockup): a kit component that draws a menu, listbox, combobox or dialog, or handles ArrowDown/Escape itself,
+// must get that behaviour from @radix-ui/* or cmdk; the kit owns the pixels only.
+const noLib = "Program:not(:has(ImportDeclaration[source.value=/^@radix-ui./], ImportDeclaration[source.value='cmdk']))";
+const radixMessage = "Menu, listbox, combobox, dialog and ArrowDown/Escape behaviour comes from @radix-ui/* or cmdk (§ui.mockup).";
+const radixSyntax = [
+  { selector: `${noLib} JSXAttribute[name.name='role'][value.value=/^(menu|listbox|combobox|dialog)$/]`, message: radixMessage },
+  { selector: `${noLib} JSXAttribute[name.name='aria-modal']`, message: radixMessage },
+  { selector: `${noLib} Literal[value=/^(ArrowDown|Escape)$/]`, message: radixMessage },
+];
+
+const everywhere = [exportAll, ...sqlWriteSyntax, ...registrySyntax];
+const rs = (...lists) => ["error", ...lists.flat()];
 
 export default [
   { ignores: ["dist/", "node_modules/", "fixtures/", "docs/", ".claude/"] },
@@ -58,13 +106,7 @@ export default [
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ExportAllDeclaration",
-          message: "No `export *`: re-export by name (CONTRACT §drift.imports).",
-        },
-      ],
+      "no-restricted-syntax": rs(everywhere),
       "max-lines": ["error", { max: 300 }],
       "no-warning-comments": [
         "error",
@@ -91,17 +133,48 @@ export default [
     ],
     rules: { "react-hooks/exhaustive-deps": "off" },
   },
+  // A later block replaces the whole no-restricted-syntax list, so each folder's block repeats what it keeps.
+  {
+    files: ["jobs/**/*.ts"],
+    rules: { "no-restricted-syntax": rs(exportAll, sqlAnySyntax, registrySyntax) },
+  },
+  {
+    files: ["commands/**/*.{ts,tsx}"],
+    rules: { "no-restricted-syntax": rs(exportAll, sqlWriteSyntax) },
+  },
+  {
+    files: ["data/**/*.{ts,tsx}", "ops/**/*.{ts,tsx}"],
+    rules: { "no-restricted-syntax": rs(exportAll, registrySyntax) },
+  },
+  {
+    files: ["shell/**/*.tsx"],
+    rules: { "no-restricted-syntax": rs(everywhere, controlsSyntax) },
+  },
+  {
+    files: ["kit/**/*.tsx"],
+    rules: { "no-restricted-syntax": rs(everywhere, kitCheckboxSyntax) },
+  },
+  {
+    files: ["kit/components/**/*.tsx"],
+    rules: { "no-restricted-syntax": rs(everywhere, kitCheckboxSyntax, radixSyntax) },
+  },
   {
     // Dates and times on screen come from domain/time, in the user's time zone (ZONE in domain/time) (§job.schedule).
     files: ["areas/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-syntax": ["error", ...areaSyntax, ...areaWriteSyntax],
-    },
+    rules: { "no-restricted-syntax": rs(everywhere, areaSyntax, areaWriteSyntax, controlsSyntax) },
+  },
+  {
+    // Tests and stories set up what they test: no SQL, registry, controls or radix rules.
+    files: ["**/*.test.{ts,tsx}", "**/*.story.tsx", "**/*.generated.*"],
+    rules: { "no-restricted-syntax": rs(exportAll) },
   },
   {
     // Tests may call api() directly. Screens write through call() or a door in commands/client.ts (pictureApi).
     files: ["areas/**/*.test.{ts,tsx}"],
-    rules: { "no-restricted-syntax": ["error", ...areaSyntax] },
+    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax) },
+  },
+  {
+    files: ["areas/**/*.story.tsx"],
+    rules: { "no-restricted-syntax": rs(exportAll, areaSyntax, areaWriteSyntax) },
   },
 ];
-

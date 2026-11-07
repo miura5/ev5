@@ -10,14 +10,10 @@ import { listFiles } from './lib.ts';
 import { checkMigrationNames } from './migrationnames.ts';
 import { checkPlanJob } from './planjob.ts';
 import { checkPresence } from './presence.ts';
-import { checkControls } from './controls.ts';
-import { checkRadix } from './radix.ts';
-import { checkRegistry } from './registry.ts';
 import { checkRestoreKind } from './restorekind.ts';
 import { checkRules } from './rules.ts';
 import { checkIds } from './ids.ts';
 import { checkSecrets } from './secrets.ts';
-import { checkServerWrites } from './serverwrites.ts';
 import { checkStack } from './stack.ts';
 import { execFileSync } from 'node:child_process';
 import { branchCommits, checkTrailers } from './trailer.ts';
@@ -38,30 +34,6 @@ test('presence: a component needs a story and a test, a command a test', () => {
     'kit/components/Ok/Ok.test.ts': '', 'commands/a.command.ts': '', 'commands/b.command.ts': '', 'commands/b.command.test.ts': '' });
   const found = checkPresence(r.root, r.files).map(f => f.detail);
   assert.deepEqual(found.sort(), ['missing commands/a.command.test.ts', 'missing kit/components/Btn/Btn.story.tsx', 'missing kit/components/Btn/Btn.test.ts']);
-});
-
-test('radix: a kit component with its own menu or key handling must import Radix or cmdk', () => {
-  const r = repo({ 'kit/components/A/A.tsx': '<ul role="menu" />', 'kit/components/B/B.tsx': "import * as M from '@radix-ui/react-menu';\n<ul role=\"menu\" />",
-    'kit/components/C/C.tsx': "if (e.key === 'Escape') close();", 'kit/components/D/D.tsx': "import { Command } from 'cmdk';\nrole=\"listbox\"",
-    'kit/components/E/E.tsx': '<div role="button" />', 'kit/components/A/A.story.tsx': '<ul role="menu" />', 'kit/components/A/A.test.tsx': 'role="dialog"' });
-  assert.deepEqual(checkRadix(r.root, r.files).map(f => f.file).sort(), ['kit/components/A/A.tsx', 'kit/components/C/C.tsx']);
-});
-
-test('controls: a view under areas/ or shell/ draws no raw input, button, select or textarea', () => {
-  const r = repo({ 'areas/a/A.view.tsx': '<button type="button">x</button>', 'shell/S.tsx': '<textarea\n rows={1} />', 'areas/b/B.view.tsx': '<Button>x</Button><Field label="a" />',
-    'kit/components/K/K.tsx': '<button />', 'areas/a/A.story.tsx': '<input />', 'areas/a/a.test.tsx': '<input />' });
-  assert.deepEqual(checkControls(r.root, r.files).map(f => f.file).sort(), ['areas/a/A.view.tsx', 'shell/S.tsx']);
-});
-
-test('controls: a kit checkbox input without a className is the browser\'s own box', () => {
-  const r = repo({ 'kit/components/A/A.tsx': '<input type="checkbox" checked />', 'kit/components/B/B.tsx': '<input className="x" type="checkbox" />' });
-  assert.deepEqual(checkControls(r.root, r.files).map(f => f.file), ['kit/components/A/A.tsx']);
-});
-
-test('registry: tool, command and schedule definitions outside commands/ fail', () => {
-  const r = repo({ 'jobs/x.ts': 'const t = { name: "a", input_schema: {} };', 'server/s.ts': 'defineCommand(x)', 'wrangler.toml': 'crons = ["0 * * * *"]',
-    'commands/ok.command.ts': 'defineCommand(x); const t = { input_schema: {} };', 'jobs/clean.ts': 'export const a = 1;' });
-  assert.deepEqual(checkRegistry(r.root, r.files).map(f => f.file).sort(), ['jobs/x.ts', 'server/s.ts', 'wrangler.toml']);
 });
 
 const CONTRACT = '- §a.one · Never do the first thing without asking Matt first, ever. <!-- x -->\n- §a.two · Short. <!-- y -->\n';
@@ -156,19 +128,6 @@ test('planjob: the class, the ev4 binding and migration must be present, and no 
   assert.equal(checkPlanJob(noCfg.root, noCfg.files).length, 2);
   const del = repo({ 'server/worker.ts': 'export class PlanJob {}', 'wrangler.jsonc': cfg.replace('"tag"', '"deleted_classes": ["PlanJob"], "tag"') });
   assert.equal(checkPlanJob(del.root, del.files).length, 1);
-});
-
-test('server-writes: a raw INSERT, UPDATE or DELETE outside data/ fails; reads outside jobs/, tests and data/ pass; any SQL in jobs/ fails', () => {
-  const r = repo({
-    'server/a.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
-    'server/b.ts': 'db.prepare(\n  `update drafts SET v = 1`)',
-    'server/c.ts': "db.prepare('DELETE FROM deletions')",
-    'server/ok.ts': 'db.prepare("SELECT 1 FROM drafts")',
-    'jobs/d.ts': 'db.prepare("UPDATE drafts SET v = 1")',
-    'jobs/e.ts': 'db.prepare("SELECT 1 FROM job_records")',
-    'server/a.test.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")',
-    'data/tables/x.ts': 'db.prepare("INSERT INTO drafts (id) VALUES (?)")' });
-  assert.deepEqual(checkServerWrites(r.root, r.files).map(f => f.file).sort(), ['jobs/d.ts', 'jobs/e.ts', 'server/a.ts', 'server/b.ts', 'server/c.ts']);
 });
 
 test('rules: the repo README.md has its own longer cap and the same rule words', () => {
