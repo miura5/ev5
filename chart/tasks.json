@@ -4833,13 +4833,13 @@
   "title": "Row shapes for the remaining kinds and callers import them; WireDoc removed",
   "dod": "domain/ has row shapes for every table in docs/proposals/table-design.md as changed by D-498 (goal, objective, link, weak spot, set, item, session, note, collection, settings and the rest); no exam, course, claude_* or system_docs row shapes; data/tables, jobs/runtime and ceilings import the domain shapes; commands/ and jobs/ drop their own plan Zod shapes; WireDoc is gone from areas/library/types.ts and the areas (§data.gate)",
   "milestone": "Phase 6",
-  "status": "in progress",
+  "status": "done",
   "depends": [
    "B-997",
    "B-1035"
   ],
-  "notes": "Run 1753Z: row routes for item versions and session events already on main (server/row-routes.ts); plan-home reads only via tablesRepo. Left: WireDoc in areas/library/types.ts and the areas; commands/ and jobs/ own plan Zod shapes (use domain shapes).",
-  "commit": null,
+  "notes": "Run 1753Z: all parts already on main; row routes (server/row-routes.ts), plan-home via tablesRepo, commands/jobs use domain plan shapes. LLM-output shapes in jobs/prep-plan/changes.ts stay local on purpose.",
+  "commit": "e42f5aa",
   "source": "run 82 B-997 report",
   "claimedBy": "run-20261107T1753Z",
   "claimedAt": "2026-11-07T17:53:50.736Z"
