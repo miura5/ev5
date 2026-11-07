@@ -88,7 +88,11 @@ export const commandHandlers: Record<string, CommandHandler> = {
       i.id,
     ),
   }),
-  "item.move": async (i: Ref & { collection: string }, _c, x) => {
+  "item.move": async (
+    i: Ref & { collection: string; if_version?: number },
+    _c,
+    x,
+  ) => {
     const t = tablesRepo(x.db, { clock: x.clock });
     const c = await placeOf(x, i.id);
     if (!(await t.collectionRows.get(i.collection)))
@@ -99,7 +103,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
       const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
       const m = await t.sets.save(
         { ...f, collection_id: i.collection },
-        setRow.v,
+        i.if_version ?? setRow.v,
       );
       if (!m.ok) throw new CommandError(409, "that item changed; try again");
       return { set: { id: i.id, collectionId: i.collection } };
@@ -111,15 +115,17 @@ export const commandHandlers: Record<string, CommandHandler> = {
       const { at: _a, v: _v, deleted_at: _d, ...f } = note;
       const m = await t.noteBook.change(
         { ...f, collection_id: i.collection },
-        note.v,
+        i.if_version ?? note.v,
       );
       if (!m.ok) throw new CommandError(409, "that item changed; try again");
       return { note: { id: i.id, collectionId: i.collection } };
     }
     const cur = await t.memberships.get(c, i.id);
+    if (!cur && i.if_version !== undefined)
+      throw new CommandError(409, "that item changed; try again");
     const r = await t.memberships.save(
       { itemC: c, itemId: i.id, collectionId: i.collection },
-      cur ? cur.v : null,
+      cur ? (i.if_version ?? cur.v) : null,
     );
     if (!r.ok) throw new CommandError(409, "that item changed; try again");
     return { membership: r.row };
@@ -178,7 +184,11 @@ export const commandHandlers: Record<string, CommandHandler> = {
       throw new CommandError(404, `${i.id} is not in Recently deleted`);
     return { restored };
   },
-  "item.rename": async (i: Ref & { title: string }, _c, x) => {
+  "item.rename": async (
+    i: Ref & { title: string; if_version?: number },
+    _c,
+    x,
+  ) => {
     // A collection lives in its own table: rename it there (nothing else changes).
     const t = tablesRepo(x.db, { clock: x.clock });
     const coll = await t.collectionRows.get(i.id);
@@ -190,7 +200,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
           parent_id: coll.parent_id,
           pos: coll.pos,
         },
-        coll.v,
+        i.if_version ?? coll.v,
       );
       if (!r.ok)
         throw new CommandError(409, "that collection changed; try again");
@@ -201,14 +211,14 @@ export const commandHandlers: Record<string, CommandHandler> = {
     const setRow = c === "sets" ? await t.sets.get(i.id) : null;
     if (setRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = setRow;
-      const r = await t.sets.save({ ...f, title: i.title }, setRow.v);
+      const r = await t.sets.save({ ...f, title: i.title }, i.if_version ?? setRow.v);
       if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { version: r.row.v };
     }
     const goalRow = c === "goals" ? await t.goals.get(i.id) : null;
     if (goalRow) {
       const { at: _a, v: _v, deleted_at: _d, ...f } = goalRow;
-      const r = await t.goals.save({ ...f, title: i.title }, goalRow.v);
+      const r = await t.goals.save({ ...f, title: i.title }, i.if_version ?? goalRow.v);
       if (!r.ok) throw new CommandError(409, "that item changed; try again");
       return { version: r.row.v };
     }
@@ -218,7 +228,7 @@ export const commandHandlers: Record<string, CommandHandler> = {
         if (!i.title.trim() || i.title.length > NOTE_MAX.title)
           throw new CommandError(400, "a note title is 1 to 300 characters");
         const { at: _a, v: _v, deleted_at: _d, ...f } = note;
-        const r = await t.noteBook.change({ ...f, title: i.title }, note.v);
+        const r = await t.noteBook.change({ ...f, title: i.title }, i.if_version ?? note.v);
         if (!r.ok) throw new CommandError(409, "that item changed; try again");
         return { version: r.row.v };
       }

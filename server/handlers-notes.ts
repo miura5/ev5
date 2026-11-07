@@ -19,7 +19,7 @@ import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { colKey } from "./ids.ts";
 import { iso } from "./handlers-edit.ts";
 
-/** A note document id, as server/note-wire.ts accepts it. */
+/** A note document id, as the note commands accept it. */
 const NOTE_ID = /^n-[A-Za-z0-9-]{1,120}$/;
 
 interface NoteSaveInput {
@@ -120,8 +120,14 @@ export const noteHandlers: Record<string, CommandHandler> = {
     return { id: i.id, version: saved.row.v };
   },
 
-  "note.move": async (i: { id: string; collection: string }, _c, x) => {
+  "note.move": async (
+    i: { id: string; collection: string; if_version?: number },
+    _c,
+    x,
+  ) => {
     const cur = await needNote(x, i.id);
+    if (i.if_version !== undefined && i.if_version !== cur.v)
+      throw new CommandError(409, "that changed; try again");
     await needCollection(x, i.collection);
     const moved = await tablesRepo(x.db, { clock: x.clock }).noteBook.change(
       { ...fieldsOf(cur), collection_id: i.collection },
