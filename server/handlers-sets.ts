@@ -6,6 +6,7 @@ import { tablesRepo } from "../data/index.ts";
 import { CommandError } from "./handlers-core.ts";
 import type { CommandHandler, HandlerCtx } from "./handlers-core.ts";
 import { draftHandlers } from "./handlers-drafts.ts";
+import { deferWrites } from "./defer-writes.ts";
 
 const repo = (x: HandlerCtx) => tablesRepo(x.db, { clock: x.clock });
 
@@ -224,10 +225,14 @@ export const setHandlers: Record<string, CommandHandler> = {
 
   "set.item_delete": async (i: { set: string; item: string }, _c, x) => {
     const cur = await ownItem(x, i.set, i.item);
-    const r = await repo(x).setBook.removeItem(cur.id, cur.v);
+    // The soft delete and its Recently-deleted mark are ONE batch: both land or neither does (§data.gate).
+    const w = deferWrites(x.db);
+    const k = tablesRepo(w.db, { clock: x.clock });
+    const r = await k.setBook.removeItem(cur.id, cur.v);
     if (!r.ok) throw refuse();
     // Recently deleted lists the deletion by its `<set>/<item>` key and clears it on a restore.
-    await repo(x).deletions.markOwnSetItem(cur.set_id, cur.id);
+    await k.deletions.markOwnSetItem(cur.set_id, cur.id);
+    await w.flush();
     return { set: i.set, item: i.item, deleted: true };
   },
 

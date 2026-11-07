@@ -106,7 +106,6 @@ export {
 /** @public */
 export { parseDraftTableRow, draftKey } from "./draft/index.ts";
 /** @public */
-export { parseWeakSpotRow, type WeakSpotRow } from "./weak-spot/row.ts";
 /** @public Weak spot rows as the scheduler's model; the weak spot reads (plan home, Today, Library) import it when they move to the tables. */
 export {
   eventFromRow,
