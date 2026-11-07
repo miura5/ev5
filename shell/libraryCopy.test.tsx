@@ -7,7 +7,8 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { libraryArea } from "../areas/library/area.ts";
-import { createReadCopy, memoryCopyStore } from "./readCopy.ts";
+import { createReadCopy } from "./readCopy.ts";
+import { memoryCopyStore } from "./readCopy.testkit.ts";
 
 const Library = libraryArea.view;
 const services = (readCopy: ReturnType<typeof createReadCopy>) =>

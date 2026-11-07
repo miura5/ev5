@@ -8,7 +8,6 @@ import {
   parseSettingRow,
   planBodySchema,
 } from "./index.ts";
-import { checkOneInForce, checkRepeatDays } from "./plan/table.ts";
 
 const D = { at: 1_762_300_800_000, v: 1, deleted_at: null };
 const plan = {
@@ -38,22 +37,15 @@ const item = {
   ...D,
 };
 
-test("plans: state, ordered days, prefixed id, at most one in force per goal", () => {
+test("plans: state, ordered days, prefixed id", () => {
   expect(parsePlanTableRow(plan).state).toBe("in_force");
   expect(() => parsePlanTableRow({ ...plan, state: "approved" })).toThrow();
   expect(() => parsePlanTableRow({ ...plan, to_day: "2026-11-01" })).toThrow();
   expect(() => parsePlanTableRow({ ...plan, id: "pli_1" })).toThrow();
   expect(() => parsePlanTableRow({ ...plan, exam_id: "x" })).toThrow();
-  const other = { ...plan, id: "plan_2" };
-  expect(() => checkOneInForce([plan, other].map(parsePlanTableRow))).toThrow();
-  expect(() =>
-    checkOneInForce(
-      [plan, { ...other, state: "put_away" }].map(parsePlanTableRow),
-    ),
-  ).not.toThrow();
 });
 
-test("plan_items: origin, linked pair, one place per repeat and day", () => {
+test("plan_items: origin, linked pair", () => {
   expect(parsePlanItemTableRow(item).minutes).toBe(30);
   expect(
     parsePlanItemTableRow({ ...item, origin: "user", plan_id: null }).plan_id,
@@ -69,15 +61,6 @@ test("plan_items: origin, linked pair, one place per repeat and day", () => {
     parsePlanItemTableRow({ ...item, linked_kind: "pin", linked_id: "x" }),
   ).toThrow();
   expect(() => parsePlanItemTableRow({ ...item, time: "9am" })).toThrow();
-  const r = { ...item, repeat_id: "rep_1" };
-  const twice = [r, { ...r, id: "pli_2" }].map(parsePlanItemTableRow);
-  expect(() => checkRepeatDays(twice)).toThrow();
-  expect(() =>
-    checkRepeatDays([twice[0]!, { ...twice[1]!, deleted_at: 5 }]),
-  ).not.toThrow();
-  expect(() =>
-    checkRepeatDays([twice[0]!, { ...twice[1]!, day: "2026-11-08" }]),
-  ).not.toThrow();
 });
 
 test("repeats: rule is JSON, ends after it starts", () => {

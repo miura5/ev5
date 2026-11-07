@@ -8,14 +8,6 @@ export interface CopyStore {
   set(key: string, value: unknown): Promise<void>;
 }
 
-export function memoryCopyStore(): CopyStore {
-  const m = new Map<string, unknown>();
-  return {
-    get: async (k) => (m.has(k) ? structuredClone(m.get(k)) : undefined),
-    set: async (k, v) => void m.set(k, structuredClone(v)),
-  };
-}
-
 export function indexedDbCopyStore(factory?: IDBFactory): CopyStore {
   let opened: Promise<IDBDatabase> | null = null;
   const open = () => (opened ??= openAppDb(factory));

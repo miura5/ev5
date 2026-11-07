@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { buildIndex, chunkMaterials, cite, likeMatch, likePatterns, search, type Material } from './index.ts';
+import { buildIndex, chunkMaterials, likePatterns, search, type Material } from './index.ts';
 
 // The retrieval test set: a small synthetic corpus (made up) from mixed learners, with the passage each query must put first.
 const corpus: Material[] = [
@@ -47,11 +47,8 @@ test.each(EXPECTED)('retrieval: "%s" ranks %s page %i first', (q, id, page) => {
   expect(top(q)).toMatchObject({ id, page });
 });
 
-test('chunks keep their page, unit and collection; citations read like E.V. writes them', () => {
+test('chunks keep their page, unit and collection; ', () => {
   expect(chunks.find((c) => /Krebs/.test(c.text))?.page).toBe(3);
-  expect(cite(top('STAR method for behavioral answers')!)).toBe('Interview prep guide, p. 2');
-  expect(cite(top('irregular verbs ser ir')!)).toBe('Unit 3 slides, slide 2');
-  expect(cite(top('long run pace')!)).toBe('Half marathon plan, p. 2');
   expect(top('STAR method for behavioral answers')?.kind).toBe('guide');
   expect(top('krebs cycle matrix')?.collection_id).toBe('col_biology');
   expect(top('long run pace')).toMatchObject({ kind: 'note', collection_id: null });
@@ -92,6 +89,4 @@ test('similar words do not collide (conjunction vs conjugation)', () => {
 test('LIKE patterns are safe, deduplicated and match like the SQL does', () => {
   expect(likePatterns('the 50% Glucose glucose')).toEqual(['%50%', '%glucose%']);
   expect(likePatterns("x'; DROP_%")).toEqual(['%drop%']);
-  expect(likeMatch('Low GLUCOSE level', 'glucose?')).toBe(true);
-  expect(likeMatch('fructose', 'the glucose')).toBe(false);
 });

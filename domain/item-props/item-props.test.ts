@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { parseItemProps, materialize, missingOccurrences, linkedProblems } from './index.ts';
+import { parseItemProps, materialize, missingOccurrences } from './index.ts';
 
 const at = '2026-11-03T10:00:00Z';
 const base = {
@@ -76,13 +76,4 @@ test('re-running adds no duplicates and keeps skips', () => {
   expect(missingOccurrences({ added: {} }, found)).toEqual(found);
   expect(missingOccurrences({ added: { 'rep-x1-2026-11-03': {} } }, found)).toEqual([]);
   expect(missingOccurrences({ skipped: { 'rep-x1-2026-11-03': {} } }, found)).toEqual([]);
-});
-
-test('reports linked targets that do not resolve', () => {
-  const rows = [
-    row({ linked: { c: 'notes', id: 'n1' } }),
-    row({ id: 'x2', linked: { c: 'notes', id: 'gone' } }),
-    row({ id: 'x3' }),
-  ];
-  expect(linkedProblems(rows, (_c, id) => id === 'n1')).toEqual(['plan/x2: linked notes/gone not found']);
 });

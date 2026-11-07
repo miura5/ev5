@@ -1,7 +1,7 @@
 import type { Passage } from './chunk.ts';
 import { tokenize } from './tokens.ts';
-export { chunkMaterials, cite, type Material, type Passage } from './chunk.ts';
-export { likeMatch, likePatterns } from './tokens.ts';
+export { chunkMaterials, type Material, type Passage } from './chunk.ts';
+export { likePatterns } from './tokens.ts';
 
 // Passage scoring, ported from ev4 core/library.mjs (libraryIndex, searchLibrary): BM25, a small title bonus, a
 // bonus for adjacent query words, a reward for covering more of the query, at most two passages per file.

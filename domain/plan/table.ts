@@ -98,29 +98,6 @@ export const parsePlanItemTableRow = (raw: unknown): PlanItemTableRow =>
 export const parseRepeatRow = (raw: unknown): RepeatRow =>
   repeatSchema.parse(raw);
 
-/** Throws when two plan_items share a repeat and a day (§data.repeat). */
-export function checkRepeatDays(items: readonly PlanItemTableRow[]): void {
-  const seen = new Set<string>();
-  for (const i of items) {
-    if (i.repeat_id === null || i.deleted_at !== null) continue;
-    const k = `${i.repeat_id}\u0000${i.day}`;
-    if (seen.has(k))
-      throw new Error(`repeat placed twice: ${i.repeat_id} on ${i.day}`);
-    seen.add(k);
-  }
-}
-
-/** Throws when more than one plan is in force for a goal. */
-export function checkOneInForce(plans: readonly PlanTableRow[]): void {
-  const seen = new Set<string>();
-  for (const p of plans) {
-    if (p.state !== "in_force" || p.deleted_at !== null) continue;
-    if (seen.has(p.goal_id))
-      throw new Error(`two plans in force for ${p.goal_id}`);
-    seen.add(p.goal_id);
-  }
-}
-
 /** The id of the plans row for a job: one plan per job, so a retried step writes the same row. */
 export const planTableId = (jobId: string): string => `plan_${jobId}`;
 
