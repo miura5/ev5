@@ -55,6 +55,8 @@ export interface PlanStore {
   getContext(jobId: string): Promise<PlanContext>;
   putDraft(jobId: string, plan: Plan): Promise<string>;
   getDraft(jobId: string): Promise<Plan>;
+  /** The draft if the draft step already stored it (its step result was lost), else undefined. */
+  findDraft?(jobId: string): Promise<Plan | undefined>;
   /** A model failure noted once, so a step retry does not pay for the same failing call again. */
   putFailure(jobId: string, reason: string): Promise<void>;
   getFailure(jobId: string): Promise<string | undefined>;
@@ -205,6 +207,8 @@ export function prepPlanHandlers({ store, call, system, changesSystem, askChange
     draft: async (c) => {
       const earlier = await store.getFailure(c.jobId);
       if (earlier) throw new Error(earlier);
+      // The draft is already kept (a retry after the write landed): the model is not paid for again.
+      if (await store.findDraft?.(c.jobId)) return { ids: [`${c.jobId}:draft`] };
       const ctx = await store.getContext(c.jobId);
       await c.reserve(COST_CAP_CENTS);
       const r = await billedOnThrow(c.spend, async () =>
