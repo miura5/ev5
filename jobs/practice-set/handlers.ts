@@ -1,6 +1,6 @@
 // The practice set job's step handlers (plan, call, save). Steps return ids, never content: the written items wait in a
 // result store (keyed by job id, so a retried step writes the same row) until the save step puts them in D1.
-import { billedOnThrow, type ModelCall } from "../runtime/output.ts";
+import { billedOnThrow, putKept, type ModelCall } from "../runtime/output.ts";
 import { NonRetryableError } from "../runtime/non-retryable.ts";
 import type { StepHandlers } from "../runtime/workflow.ts";
 import { parseInput, practiceSet, writePracticeSet } from "./job.ts";
@@ -39,7 +39,7 @@ export function practiceSetHandlers({
       );
       await c.spend(r.costCents);
       if (!r.ok) throw new NonRetryableError(r.reason);
-      return { ids: [await store.put(c.jobId, r)] };
+      return { ids: [await putKept(() => store.put(c.jobId, r))] };
     },
     save: async (c) => {
       const { targetId } = parseInput(c.input);

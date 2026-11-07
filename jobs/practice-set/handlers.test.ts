@@ -138,7 +138,7 @@ test("a result write that fails after it landed is retried and the model is call
     "matt",
   );
   await wf.idle();
-  assert.equal(putTries, 1);
+  assert.equal(putTries, 2);
   assert.equal(modelCalls, 1);
   assert.equal((await jobs.get(job.id))!.state, "done");
 });
@@ -196,3 +196,43 @@ for (const [kind, stopReason, text] of [
     assert.equal((await jobs.get(job.id))!.state, "failed");
     assert.equal(reserves, 1);
   });
+
+test("a result write that never landed is retried in the step and the model is called once", async () => {
+  let modelCalls = 0;
+  const call: ModelCall = async () => {
+    modelCalls++;
+    return {
+      stopReason: "end_turn",
+      text: JSON.stringify({ items: [item, item] }),
+      usage: { inputTokens: 1000, outputTokens: 500 },
+    };
+  };
+  const kept = new Map<string, Parameters<PracticeStore["put"]>[1]>();
+  let putTries = 0;
+  const store: PracticeStore = {
+    put: async (j, r) => {
+      if (putTries++ === 0) throw new Error("D1 unavailable");
+      kept.set(j, r);
+      return `r-${j}`;
+    },
+    get: async (j) => kept.get(j)!,
+    find: async (j) => kept.get(j),
+    save: async () => {},
+  };
+  const handlers = practiceSetHandlers({ store, call, system: "sys" });
+  const out = await handlers.call!({
+    jobId: "j1",
+    input: {
+      variant: "practice",
+      targetId: "set-1",
+      count: 2,
+      objectives: [],
+      excerpts: [{ id: "e1", text: "Mitochondria make ATP." }],
+    },
+    reserve: async () => {},
+    spend: async () => {},
+  } as never);
+  assert.equal(modelCalls, 1);
+  assert.equal(putTries, 2);
+  assert.deepEqual(out, { ids: ["r-j1"] });
+});
